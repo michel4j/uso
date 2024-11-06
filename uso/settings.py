@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'uso.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / "local" / 'db.sqlite3',
     }
 }
 
@@ -122,3 +122,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Local settings
+try:
+    from uso.local.settings import *
+except ImportError:
+    import logging
+    logging.warning("No local settings found")
