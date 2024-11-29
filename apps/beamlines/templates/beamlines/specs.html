@@ -1,0 +1,50 @@
+{% extends "proposals/track_box.html" %}
+{% load beamline_tags %}
+{% block box_class %}{% if facility != object %}bg-darken{% else %} bg-transparent {% endif %}{% endblock %}
+{% block box_header %}
+    {% if facility != object %}
+        <h3 class="no-vmargin"><a href="{% url 'facility-detail' pk=facility.pk %}">{{ facility.acronym }}</a> Spec<span
+                class="hidden-xs">ification</span>s &amp; Techniques</h3>
+    {% else %}
+        <h3 class="no-vmargin">Spec<span class="hidden-xs">ification</span>s &amp; Techniques</h3>
+    {% endif %}
+{% endblock %}
+
+{% block box_tools_style %}{% endblock %}
+{% block box_subheader %}{% endblock %}
+{% block box_tools_class %}hidden{% endblock %}
+{% block box_content %}
+    <div class="row narrow-gutter">
+        <div class="col-sm-6">
+            {% include "beamlines/fields/beamline_info.html" with object=facility hide_description=True %}
+            <hr class="visible-xs hr-xs"/>
+        </div>
+        <div class="col-sm-6">
+            {% for item in facility.active_techniques %}
+                <div class="overflow ellipsis" style="font-size: 90%;"
+                     title="{{ item.technique.get_category_display }} ({{ item.track.acronym }} Track)">
+                    {% if item.config.facility != facility %}
+                        <i class="bi-circle-fill" style="color: #ddd;"></i>
+                    {% elif item.track.special %}
+                        <i class="bi-circle-fill text-warning-light"></i>
+                    {% else %}
+                        <i class="bi-circle-fill text-success-light"></i>
+                    {% endif %}
+                    &ensp;
+                    {{ item.technique }} {% if item.config.facility != facility %} &mdash;
+                    {{ item.config.facility.acronym }}{% endif %}
+                </div>
+                {% if forloop.last %}
+                    <hr class="hr-xs"/>
+                    <small>
+                        <i class="bi-circle-fill text-success-light"></i>&nbsp;Available &emsp;
+                        <i class="bi-circle-fill text-warning-light"></i>&nbsp;Special Request &emsp;
+                        <i class="bi-circle-fill" style="color: #ddd;"></i>&nbsp;Not Accepting
+                    </small>
+                {% endif %}
+            {% empty %}
+                <div class="empty" style="padding: 3em 0;">No Techniques Configured</div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}}

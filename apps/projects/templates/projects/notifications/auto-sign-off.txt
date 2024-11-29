@@ -1,0 +1,23 @@
+Dear {{user}},
+
+You have been automatically signed-off from your session on {{session.beamline}} which started on {{session.start}}
+and should have ended at {{session.end}}.
+
+Reason:  {{reason}}
+
+The details of the session are listed below:
+
+Start Time: {{session.start}}  
+End Time: {{session.end}}  
+Staff Responsible: {{session.staff}}  
+User Responsible: {{session.spokesperson}}  
+Project:  [{{session.project.code}}]({{site}}{% url 'project-detail' pk=session.project.pk %})  
+Beamline: {{session.beamline}}  
+
+History:
+{% for log in session.details.history %}
+- {{log|safe}}
+{% endfor %}
+
+Sincerely,
+The CLS Users Office Team

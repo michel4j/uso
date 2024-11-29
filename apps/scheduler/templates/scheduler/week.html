@@ -1,0 +1,40 @@
+{% load schedule_tags %}
+
+<table class="cal-month-view">
+    <tr class="cal-header-row">
+        <th class="cal-header" style="width: 15%;"></th>
+        {% for section in sections  %}
+            <th class="cal-header text-condensed">{{ section }}&nbsp;</th>
+        {% endfor %}
+    </tr>
+    {% for dayrow in week %}
+        <tr class="cal-row cal-{{ dayrow.name|lower }}-row">
+            <td class="cal-day-header">
+                <div class="cal-day-content">
+                    <div class="cal-header text-condensed"><text>{{ dayrow.name }}<br/><strong>{{ dayrow.date|date:"M j" }}</strong></text></div>
+                    {% for shift in shifts %}
+                        <div class="cal-shift cal-shift-T{{shift.time}}"
+                             data-shift-time="T{{shift.time}}"
+                             title="{{shift.description}}">
+                            <span class="visible-xs">{{shift.label}}</span>
+                            <span class="hidden-xs">{{shift.description}}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </td>
+            {% for section in sections %}
+                <td class="cal-day {% if dayrow.date == today %}cal-today{% endif %}" id="{{ header }}-{{dayrow.date.isoformat}}">
+                    <div class="cal-day-content cal-section-{{ section|slugify }}" >
+                        {% for shift in shifts %}
+                            <div data-shift-id="{{dayrow.date.isoformat}}T{{shift.time}}"
+                                 data-default-class="cal-shift shift-{{dayrow.date.isoformat}}T{{shift.time}} shift-T{{shift.time}}"
+                                              class="cal-shift shift-{{dayrow.date.isoformat}}T{{shift.time}} shift-T{{shift.time}}"></div>
+                        {% endfor %}
+                    </div>
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+
+

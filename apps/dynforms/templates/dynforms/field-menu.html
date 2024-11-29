@@ -1,0 +1,14 @@
+{% for section_name, fieldlist in fieldtypes.items %}
+<div class="df-menu-section row">
+	<h5 style="margin-bottom: 0;">{{section_name}}</h5>
+	<hr class="hr-xs"/>
+	{% for field in fieldlist %}
+	<div class="field-btn-holder pull-left">
+		<div class="field-btn btn btn-white btn-xs"
+		     data-fieldtype="{{field.key}}">
+		     <i class="{{field.icon}}"></i> {{field.name}}
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endfor %}

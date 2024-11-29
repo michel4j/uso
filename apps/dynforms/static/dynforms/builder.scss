@@ -1,0 +1,208 @@
+$color_1: #a8acb1;
+$color_2: #000;
+$color_3: #aaa;
+$background-color_1: #fff;
+
+body {
+	min-width: 962px;
+}
+#df-sidebar {
+	font-size: 95%;
+	height: 100%;
+	position: fixed;
+	bottom: 0;
+	z-index: 1030;
+	display: block;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-right: 1px solid #ddd;
+	width: 350px;
+	padding-top: 5px;
+	background: #fff;
+	.nav-tabs {
+		>li.active {
+			>a {
+				background-color: $background-color_1;
+				&:hover {
+					background-color: $background-color_1;
+				}
+				&:focus {
+					background-color: $background-color_1;
+				}
+			}
+		}
+	}
+	ul.nav-tabs {
+		padding: 0 0 0 1em;
+		margin: 17px 0 0.5em 0;
+	}
+	.tab-content {
+		.tab-pane {
+			padding: 0 0 1em 0;
+		}
+	}
+}
+#df-main {
+	font-size: 95%;
+	position: relative;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-bottom: 100px;
+	min-height: 100%;
+	padding-left: 350px;
+	width: 100%;
+}
+#df-footer {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	height: 75px;
+	width: 100%;
+	overflow: hidden;
+	z-index: 1000;
+	padding-left: 391px;
+}
+#df-footer-content {
+	border-top: 1px solid #e2f0d6;
+	overflow: hidden;
+	padding: 2em;
+	width: 100%;
+	z-index: 1000;
+	background: #4b4b4b;
+	color: $color_1;
+}
+#df-form-preview {
+	margin: 0 1em;
+	.tab-content {
+		padding-top: 1em;
+	}
+	ul.nav-tabs {
+		padding-top: 1em;
+	}
+	.df-hide {
+		color: $color_3;
+	}
+}
+.sortable {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.field-btn {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	font-size: 90%;
+	color: $color_2;
+	text-overflow: ellipsis;
+}
+.sortable.grid {
+	overflow: hidden;
+}
+.df-field {
+	padding: 5px;
+	border-radius: 3px;
+	width: 100%;
+	margin-bottom: 0.5em;
+	border: 1px solid transparent;
+	&:hover {
+		border: 1px dashed #ccc;
+		cursor: pointer;
+	}
+	.ui-draggable-dragging {
+		min-width: 400px;
+		min-height: 50px;
+	}
+}
+.sortable-placeholder {
+	padding: 5px;
+	border-radius: 3px;
+	width: 100%;
+	margin-bottom: 0.5em;
+	border: 1px dashed #CCC;
+	background: none;
+}
+.df-field.selected {
+	background: #efefef;
+	border: 1px solid #ddd;
+}
+.df-menu-section {
+	width: 100%;
+	margin: 0;
+	padding: 0 0.5em;
+	.btn {
+		width: 100%;
+		text-align: left;
+	}
+	.btn-xs {
+		padding: 2px 5px;
+	}
+}
+.field-btn-holder {
+	width: 48%;
+	min-width: 80px;
+	margin: 1%;
+}
+.df-menu-form {
+	padding: 0;
+	width: 100%;
+	label {
+		margin-bottom: 0;
+	}
+	div[class*='col-'] {
+		+ {
+			div[class*='col-'] {
+				padding-left: 0;
+			}
+		}
+	}
+	.form-actions {
+		border-top: 1px #eee solid;
+		margin: 1em 0;
+		padding: 1em 0;
+	}
+	.checkbox-inline {
+		min-width: 40%;
+	}
+	.radio-inline {
+		min-width: 40%;
+	}
+	div.controls {
+		margin-bottom: 3px;
+	}
+}
+[draggable] {
+	user-select: none;
+}
+#field-settings {
+	div.no-field {
+		margin: 2em 0;
+	}
+}
+#df-placeholder {
+	display: none;
+}
+.df-container {
+	overflow: auto;
+	min-height: 150px;
+	padding-bottom: 100px;
+}
+.ui-draggable-helper {
+	opacity: 0.5 !important;
+	padding: 1em;
+	overflow: auto !important;
+}
+.ui-sortable-helper {
+	opacity: 0.5 !important;
+	background: #fef;
+	overflow: auto !important;
+}
+header {
+	.page-head {
+		width: calc(100% - 65px);
+		padding-left: 350px !important;
+		height: 50px;
+	}
+}

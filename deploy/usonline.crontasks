@@ -1,0 +1,4 @@
+# Check isocron cron jobs every 10 minutes
+*/10 * * * * root docker exec usonline_uso_1 /usonline/manage.py runcrons
+
+

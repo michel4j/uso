@@ -1,0 +1,4 @@
+<option value=""></option>
+{% for opt_id, opt_val, opt_sel in options %}
+   <option value="{{opt_id}}" {% if opt_sel %}selected="selected"{% endif %}>{{opt_val}}</option>
+{% endfor %}

@@ -1,0 +1,37 @@
+{% extends "folio.html" %}
+{% load static %}
+{% load proposal_stats %}
+{% load plots %}
+
+{% block page_heading %}Peer Review Statistics{% endblock %}
+
+{% block folio-title %}
+Proposal Statistics
+{% endblock %}
+
+{% block folio-subtitle %}
+Broken down by Year and Cycle
+{% endblock %}
+
+
+{% block folio-tools-class %}hidden{% endblock %}
+
+{% block folio-content %}
+{% get_stats_tables as tables%}
+<div class="pagelet-body">
+	{% for tbl in tables %}
+		<div class="row data-reports">
+			<div class="col-xs-12">
+				{% render_plot tbl %}
+			</div>
+		</div>
+	{% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{block.super}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.css" integrity="sha512-5HktH3p+qBNLzxpOLnpICH2uwArYE/Fi7fdKCQee15piDqN3X3Q1iqo8D43oc8DJgYP4xxA7sdEjNCfmeLLYeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" integrity="sha512-oJp0DdQuQQrRsKVly+Ww6fAN1GwJN7d1bi8UubpEbzDUh84WrJ2CFPBnT4LqBCcfqTcHR5OGXFFhaPe3g1/bzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.js" integrity="sha512-ldXL88WIgBA+vAsJu2PepKp3VUvwuyqmXKEbcf8rKeAI56K8GZMb2jfKSm1a36m5AfUzyDp3TIY0iVKY8ciqSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock %}

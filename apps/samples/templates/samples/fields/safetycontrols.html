@@ -1,0 +1,26 @@
+{% load dynforms_tags %}
+{% load samples_tags %}
+<div class="controls" id="{{field.name}}-controls" data-field-name="{{field.name}}">
+	<div class="row no-space" id="safetycontrols-controls">
+		{% get_safety_controls data=data as control_types %}
+        {% for kind, control_groups in control_types.items  %}
+            <div class="sample-type-group col-xs-12">
+            <h5>{{kind}}</h5>
+            {% for group, choices in control_groups.items %}
+            <strong><em>{{group}}:</em></strong>
+                {% for control in choices %}
+                <div class="checkbox" >
+                    <!--label for="{{field.name}}_{{control.pk}}" data-toggle="popover" data-content="{{control.description}}" data-trigger="hover" data-placement="left">{{control.description}}</label-->
+                    <label class="text-condensed" for="{{field.name}}_{{control.pk}}"><input name="{{field.name}}"
+                    id="{{field.name}}_{{control.pk}}"
+                    value="{{control.pk}}"
+                    {% if control.selected %}checked="checked"{% endif %}
+                    type="checkbox">{{control.description}}</label>
+                </div>
+                    <div class="clearer"></div>
+                {% endfor %}
+            {% endfor %}
+            </div>
+        {% endfor %}
+	</div>
+</div>

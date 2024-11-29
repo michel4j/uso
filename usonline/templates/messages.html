@@ -1,0 +1,31 @@
+{% load static %}
+{% load msgs %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript">
+toastr.options = {
+	"closeButton": true,
+	"debug": true,
+	"progressBar": true,
+	"preventDuplicates": false,
+	"positionClass": "toast-top-right",
+	"onclick": null,
+	"showDuration": "1200",
+	"hideDuration": "800",
+	"timeOut": "3000",
+	"extendedTimeOut": "3000",
+	"showEasing": "swing",
+	"hideEasing": "linear",
+	"showMethod": "fadeIn",
+	"hideMethod": "fadeOut"
+}
+function generate(type, message) {
+    toastr[type](message);
+}
+{% if messages %}
+$(function() {
+	{% for message in messages %}
+		generate("{{message.level|msg_type}}", "{{message}}");
+	{% endfor %}
+});
+{% endif %}
+</script>

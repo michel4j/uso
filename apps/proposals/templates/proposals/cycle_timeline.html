@@ -1,0 +1,72 @@
+{% load static %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" integrity="sha512-oJp0DdQuQQrRsKVly+Ww6fAN1GwJN7d1bi8UubpEbzDUh84WrJ2CFPBnT4LqBCcfqTcHR5OGXFFhaPe3g1/bzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{% static 'js/d3-timeline.min.js' %}"></script>
+<script>
+    var endDate = {{ object.end_date|date:'U' }}000;
+    var cycleData = [
+        {
+            times: [{
+                "starting_time": {{ object.alloc_date|date:'U' }}000,
+                "ending_time": {{ object.alloc_date|date:'U' }}000,
+                "display": "circle"
+            }],
+            hover: "Allocation after {{ object.alloc_date|date:'D, M j' }}"
+        },
+        {
+            times: [{
+                "label": "Call Open",
+                "starting_time": {{ object.open_date|date:'U' }}000,
+                "ending_time": {{ object.close_date|date:'U' }}000
+            }],
+            hover: "Call Open {{ object.open_date|date:'D, M j' }} - {{ object.close_date|date:'D, M j' }}"
+        },
+        {
+            times: [{
+                "label": "Schedule Period",
+                "starting_time": {{ object.start_date|date:'U' }}000,
+                "ending_time": endDate,
+                "color": "#98df8a"
+            }],
+            hover: "Cycle starts {{ object.start_date|date:'D, M j' }} ends {{ object.end_date|date:'D, M j' }}"
+        },
+        {% if object.due_date %}
+            {
+                times: [{
+                    "starting_time": {{ object.due_date|date:'U' }}000,
+                    "display": "circle",
+                    "color": "rgb(31,119,180)"
+                }],
+                hover: "Reviews Due {{ object.due_date|date:'D, M j' }}"
+            },
+        {% endif %}
+    ]
+
+
+    function cycleTimeline() {
+        var chart = d3.timeline()
+                .margin({left: 15, right: 15, top: 15, bottom: 15})
+            .itemHeight(30)
+                .tickFormat({
+                    format: d3.time.format("%d %b %Y"),
+                    tickTime: d3.time.days,
+                    tickInterval: {{ timeline_width|default:90 }},
+                    tickSize: 5
+                })
+                .showToday()
+                .showTodayFormat({width: 2, marginTop: 2, marginBottom: 0, color: "rgba(254,128,40,0.5)"})
+                .hover(function (d, i, datum){
+                    $('#timeline').attr("title", datum.hover);
+                });
+        var width = $("#timeline").width();
+        var svg = d3.select("#timeline")
+                .append("svg")
+                .attr("width", width)
+                .datum(cycleData).call(chart);
+
+        function resize(e){
+            var width = $('#timeline').width();
+        }
+        $(window).on('resize', resize);
+    }
+    cycleTimeline();
+</script>

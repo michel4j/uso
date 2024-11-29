@@ -1,0 +1,65 @@
+{% load static %}
+{% load crispy_forms_filters %}
+{% load form_tags %}
+{% load l10n %}
+{% load samples_tags %}
+
+<div class="controls row {{ field_class }} {% if form_show_errors%}{% if field.errors %} has-error{% endif %}{% endif %}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
+	<div class="col-xs-12">
+		<label class="control-label col-xs-12" style="margin-bottom: 0; padding-left: 0;">{{ field.field.label }}</label>
+		{% include 'bootstrap3/layout/help_text.html' %}
+	</div>
+	<div class="col-xs-12">
+		<table class="table table-condensed">
+				<thead>
+				<tr>
+					<th>Name </th>
+					<th>Quantity</th>
+					<th class="text-right">Hazards</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for sample in field.field.queryset.all %}
+				<tr>
+					<td>
+						<div class="checkbox {% if sample.pk in field.value %}disabled{% endif %}" style="margin-top: 2px;">
+							<input type="checkbox"
+								   {% if sample.pk in field.value %}checked="checked" onclick="return false;"{% endif %}
+								   name="{{ field.html_name }}"
+								   id="id_{{ field.html_name }}_{{ forloop.counter }}"
+								   value="{{ sample.pk }}"
+								   {{ field.field.widget.attrs|flatatt }}>
+							<label for="id_{{ field.html_name }}_{{ forloop.counter }}">
+								{{ sample.sample.name }}
+								{% if sample.sample.description %} &mdash; {{sample.sample.description}}{% endif %}
+							</label>
+						</div>
+
+					</td>
+					<td>{{sample.quantity}}</td>
+					<td>
+						{% for pic in sample.sample.pictograms %}
+						<img class="media-object pull-right" width="22" height="22" src="{% static 'samples/pictograms/{{pic.code}}.svg' %}" title="{{pic.name}}">
+						{% endfor %}
+					</td>
+				</tr>
+				{% empty %}
+				<tr><td colspan="3">
+					<div class="text-warning text-wide" style="padding: 1em; margin: 0 auto; font-size: 90%;">
+						<div class="pull-left" style="margin-right: 0.5em;"><i class="bi-exclamation-triangle text-warning-light icon-2x"></i></div>
+						<span class="text-left">
+						No approved materials could be found. If you intend to use samples, please cancel this Sign-On
+						and try again after the materials have been approved.
+						</span>
+					</div>
+				</td></tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		<hr class="hr-xs"/>
+        {% include 'bootstrap3/layout/field_errors_block.html' %}
+	</div>
+
+</div>
+
+

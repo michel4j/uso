@@ -1,0 +1,33 @@
+{% extends "forms/modal.html" %}
+{% block form_title %}{{ action|title }} Schedule?{% endblock %}
+{% block form_body %}
+<h5>Switch Schedule State {{ action }} the following schedule from
+    <span class="label {% if object.state == 'draft' %}label-warning{% elif object.state == 'tentative' %}label-info{% else %}label-success{% endif %}">{{object.state|title}}</span>
+    <i class="bi-arrow-right icon-fw"></i>
+    <span class="label {% if state == 'draft' %}label-warning{% elif state == 'tentative' %}label-info{% else %}label-success{% endif %}">{{state|title}}</span>
+</h5>
+</h5>
+<div class="minitron">		
+	<h4><strong>{{object}}</strong></h4>
+	<hr class="hr-xs"/>
+	Created, {{object.created|timesince}}<br/>
+	Last Modified, {{object.modified|timesince}}<br/>
+	<hr class="hr-xs"/>
+    <p>
+        Only Draft and Tentative Schedules can be edited. Only Live and Tentative Schedules will determine usable shifts for beamlines.
+    </p>
+</div>
+<div class="row">
+	<div class="modal-footer">
+  			<form action="{{request.get_full_path}}" method="post">{% csrf_token %}
+   			<input type="hidden" name="post" value="yes" />
+			<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+			<button type="submit" value="Submit" class="btn btn-info">Yes, I'm sure</button>
+		</form>
+	</div>
+
+</div>
+{% endblock %}
+
+
+

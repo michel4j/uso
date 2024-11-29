@@ -1,0 +1,25 @@
+{% extends "proposals/track_box.html" %}
+{% load jsonify %}
+{% block box_class %}bg-transparent{% endblock %}
+{% block box_header %}
+<h4 class="no-vmargin"><strong>{{total_reviewers}}</strong> Reviewer{{total_reviewers|pluralize:",s"}}</h4>
+{% endblock %}
+{% block box_subheader %}
+<i class="bi-circle-fill text-info-light"></i>&nbsp;Proposals &emsp;
+<i class="bi-circle-fill text-danger-light"></i>&nbsp;Science Reviewers
+{% endblock %}
+{% block box_tools_class %}hidden{% endblock %}
+{% block box_content %}
+<div id="plot-parent-{{track.acronym}}" class="col-xs-12">
+    <div id="assignment-plot-{{track.acronym}}" class="text-center"></div>
+</div>
+<script>
+    $(document).ready(function(){
+        var {{track.acronym}}_data = {{stats|jsonify}};
+        var {{track.acronym}}_domain = {{stats_domain|jsonify}};
+        plot_reviewer_bars("#assignment-plot-{{track.acronym}}", {{track.acronym}}_data, {{track.acronym}}_domain);
+    });
+
+</script>
+{% endblock %}}
+

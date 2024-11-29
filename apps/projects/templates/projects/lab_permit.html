@@ -1,0 +1,100 @@
+{% extends "folio.html" %}
+
+{% load humanize %}
+{% load static %}
+{% load proposal_tags %}
+{% load project_tags %}
+
+{% block page_heading %}
+<span class="hidden-xs">Session Permit &mdash; </span><span class="text-muted text-narrow">{{object}}</span>
+{% endblock %}
+
+{% block folio-title %}
+{{object.project.code}} &mdash; {{object.project.title}}
+{% endblock %}
+
+{% block folio-subtitle %}
+ {{object.lab.acronym}} {{ session.get_kind_display }} Lab Permit
+{% endblock %}
+
+{% block folio-statusbar-style %}
+{% if object.state == 'active' %}bg-success{% else %}bg-darken{% endif %}
+{% endblock %}
+
+{% block folio-tools %}
+    {% if owner or admin %}
+        {% if object.state == 'pending' %}
+             {% if admin %}
+                <a href="#0" data-url="{% url 'cancel-lab-session' pk=object.pk %}" class="text-danger pull-right">
+                    <i class="ti icon-2 bi-x-lg icon-fw"></i><br/>
+                    <span class="tool-label">Cancel</span>
+                </a>
+            {% endif %}
+        {% elif object.state == 'active' %}
+            <a href="#0" data-url="{% url 'lab-signoff' pk=object.pk %}" class="pull-left">
+                <i class="ti icon-2 bi-power icon-fw"></i><br/>
+                <span class="tool-label">Sign-Off</span>
+            </a>
+        {% endif %}
+        <a href='{% url 'project-detail' object.project.pk %}' class="pull-right">
+            <i class="bi-briefcase icon-2 icon-fw"></i><br/>
+            <span class="tool-label">Project</span>
+        </a>
+    {% endif %}
+{% endblock %}
+
+
+{% block folio-statusbar %}
+    <div class="row">
+         <div class="col-xs-2">
+             <h3 class="no-vmargin"><span class="label label-info text-condensed">{{object.get_state_display}}</span></h3>
+         </div>
+         <div class="col-xs-2">
+             <small class="text-wide text-muted">Lab:</small><br/>{{object.lab.name}}
+         </div>
+        <div class="col-xs-3">
+             <small class="text-wide text-muted">Equipment:</small><br/>
+             {% for eqmt in object.equipment.all %}{{ eqmt }}{% if not forloop.last %}, {% endif %}{% empty %}&hellip;{% endfor %}
+         </div>
+         <div class="col-xs-2">
+             <small class="text-wide text-muted">Representative:</small><br/>{{object.spokesperson|default:"&hellip;"}}
+         </div>
+         <div class="col-xs-3 text-right">
+             {{object.start|date:"F jS/Y H:i"}} to <br/>
+             {{object.end|date:"F jS/Y H:i"}}
+         </div>
+    </div>
+    <div class="row narrow-gutter">
+        <hr class="hr-xs"/>
+        <div class="col-xs-12">
+            <small class="text-wide text-muted">Required Permissions:</small><br/>
+            {% for perm_code in object.permissions.all %}
+                <small class="text-condensed label label-info">{{perm_code}} (all)</small>&ensp;
+            {% endfor  %}
+            {% for perm_code in  object.permissions.any %}
+                <small class="text-condensed label label-primary">{{perm_code}} (one)</small>
+            {% endfor  %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block folio-content %}
+    <div class="pagelet-body">
+        <div class="row narrow-gutter">
+        {% include "projects/session-team.html" with project=object.project permissions=object.permissions %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function initScrollers(sel) {
+        $(sel).niceScroll({
+            cursoropacitymax: 0
+        });
+    }
+    $(document).ready(function(){
+        initScrollers(".scroll-child");
+    });
+</script>
+{% endblock %}

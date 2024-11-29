@@ -1,0 +1,93 @@
+{% load dynforms_tags %}
+{% load samples_tags %}
+{% load project_tags %}
+
+{% get_ethics_samples data=data as samples %}
+<div class="controls " id="{{field.name}}-controls" data-field-name="{{field.name}}">
+	<div class="sample-list">
+		<div id="{{field.name}}-list">
+			{% for sample, decision, expiry in samples %}
+			<div id="{{field.name}}-{{sample.pk}}-ethics-container" class="tinytron bg-white {% if decision == 'rejected' %}bg-danger{% endif %}">
+				<div class="row">
+					<div class="col-xs-12">
+						<i class="ti-{% if sample.is_editable %}unlock{% else %}lock{% endif %} pull-left icon-2" style="padding: 0.75em 0.35em; color: rgba(0,0,0,0.35)"></i>
+
+						<h5 class="no-vmargin text-condensed"><strong>{{ sample.name }}</strong></h5>
+						Quantity: <em class="text-muted">{{ quantity }}</em>&emsp;
+                        Type: <em class="text-muted">{{ sample.get_kind_display }}</em>&emsp;
+                        State: <em class="text-muted">{{ sample.get_state_display }}</em>&emsp;
+                        Source: <em class="text-muted">{{ sample.source|default:"N/C" }}</em>&emsp;
+                        {% if sample.description or sample.source or sample.extra %}
+                            <hr class="hr-xs"/>
+                            <em>{% if sample.description %}{{ sample.description|default:"" }}</em>{% endif %}
+                        {% endif %}
+                        <hr class="hr-xs"/>
+					</div>
+				</div>
+
+				<div class="row sample-group no-space" id="{{field.name}}-{{sample.pk}}-review">
+                    <div class="field-group-item col-xs-8">
+                    <div class="radio radio-inline pull-left">
+                       <label for="{{field.name}}-ethics-{{sample.pk}}"><input name="{{field.name}}.decision.{{sample.pk}}" id="{{field.name}}-ethics-{{sample.pk}}"
+                        value="ethics"	{% if decision == "ethics" %}checked="checked"{% endif %}
+                        type="radio">Valid Ethics Certificate</label>
+                    </div>
+                    <div class="radio radio-inline pull-left">
+                       <label for="{{field.name}}-protocol-{{sample.pk}}"><input name="{{field.name}}.decision.{{sample.pk}}" id="{{field.name}}-protocol-{{sample.pk}}"
+                        value="protocol"	{% if decision == "protocol" %}checked="checked"{% endif %}
+                        type="radio">Valid AUP Certificate</label>
+                    </div>
+                    <div class="radio radio-inline pull-left">
+                       <label for="{{field.name}}-exempt-{{sample.pk}}"><input name="{{field.name}}.decision.{{sample.pk}}" id="{{field.name}}-exempt-{{sample.pk}}"
+                        value="exempt"	{% if decision == "exempt" %}checked="checked"{% endif %}
+                        type="radio">Exempt</label>
+                    </div>
+                    <div class="radio radio-inline pull-left">
+                       <label for="{{field.name}}-rejected-{{sample.pk}}"><input name="{{field.name}}.decision.{{sample.pk}}" id="{{field.name}}-rejected-{{sample.pk}}"
+                        value="rejected"	{% if decision == "rejected" %}checked="checked"{% endif %}
+                        type="radio">Reject</label>
+                    </div>
+                    </div>
+                    <input class="hidden " name="{{field.name}}.sample.{{sample.pk}}" value="{{sample.pk}}">
+                    <span class="expiry-field field-group-item col-xs-4" id="{{field.name}}-expiry-{{sample.pk}}-input">
+                        <label for="{{field.name}}-expiry-{{sample.pk}}"><input id="{{field.name}}-expiry-{{sample.pk}}" aria-label="Expiry Date"
+                               placeholder="Expiry date"  name="{{field.name}}.expiry.{{sample.pk}}"
+                               class="form-control dateinput" data-date-container="#{{field.name}}-expiry-{{sample.pk}}-input"
+                               type="text" value="{{expiry|default:''}}"
+                               {% if decision == "exempt" or decision == "rejected" %}disabled{% endif %}
+                        >Expiry Date</label>
+                    </span>
+				</div>
+			</div>
+			{% empty %}
+			<div class="empty">
+				<i class="bi-exclamation-triangle text-warning icon-2x"></i><br/>
+				No samples requiring Ethics Review.
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(document).on('change', 'input[name^="{{field.name}}.decision"]', function(){
+        var expiry_types = ["ethics", "protocol"];
+        var value = $(this).closest('input:checked').val();
+        var expiry_field = $(this).closest('.sample-group').find('.expiry-field input');
+		if ($.inArray(value, expiry_types) >= 0) {
+            expiry_field.prop('disabled', false);
+        } else {
+            expiry_field.prop('disabled', true);
+        };
+	});
+    $('.expiry-field .dateinput').datetimepicker({
+		format: "yyyy-mm-dd",
+		autoclose: true,
+		todayHighlight: true,
+        clearBtn: true
+	});
+
+    $('.expiry-field .dateinput').on('keypress', function(e) {
+        e.preventDefault(); // Don't allow direct editing
+    });
+</script>

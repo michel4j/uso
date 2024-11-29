@@ -1,0 +1,40 @@
+{% load samples_tags %}
+<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th>Name </th>
+			<th>Type</th>
+			<th>State</th>
+			<th>Quantity</th>
+			<th class="text-right">Hazards</th>
+		</tr>
+	</thead>
+	<tbody>
+    {% for sample, quantity in samples|dictsort:"0.kind" %}
+		<tr><td>{{sample.name}}</td>
+			<td>{{sample.get_kind_display}}</td>
+			<td>{{sample.get_state_display}}</td>
+			<td>{{quantity}}</td>
+			<td>
+				{% for pic in sample.pictograms %}
+				<img class="media-object pull-right" width="24" height="24" src="{% pictogram_url pic %}" title="{{pic.name}}">
+				{% endfor %}
+			</td>
+		</tr>
+		{% if show_details %}{% for haz in sample.hazards.all %}
+		<tr><td style="border-top: none;" colspan="5">
+			<h4>{{haz.hazard}}</h4>
+			<ul>{% for prec in haz.precautions.all %}
+				<li><span class="text-muted">{{ prec.code }}: </span>{{prec.text}}</li>
+				{% endfor %}
+			</ul>
+			</h4>
+		</td>
+		</tr>
+		{% endfor %}{% endif %}
+	{% empty %}
+		<tr><td colspan="5" class="empty-row">No Samples</td></tr>
+    {% endfor %}
+	</tbody>
+</table>
+<hr class="hr-xs"/>

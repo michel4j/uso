@@ -1,0 +1,27 @@
+{% load static %}
+{% load menu %}
+{% show_menu %}
+<script src="https://cdn.jsdelivr.net/npm/jquery-menu-aim@1.1.0/jquery.menu-aim.min.js"></script>
+<script>
+
+// Nav sidebar menu aim
+$("nav.sidebar .menu > li").click(function(){
+	$(this).find('.sub-menu').toggleClass('visible');
+});
+
+$("body:not(.narrow-sidebar) nav.sidebar .menu").menuAim({
+    deactivate: function(row){
+        $(row).find('.sub-menu').removeClass('visible');
+    },
+    exitMenu: function() {return true}
+});
+
+$("body.narrow-sidebar nav.sidebar .menu").menuAim({
+    deactivate: function(row){
+        $(row).find('.sub-menu').removeClass('visible');
+    },
+    exitMenu: function() {return true}
+
+});
+</script>
+ 

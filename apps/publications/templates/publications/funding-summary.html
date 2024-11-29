@@ -1,0 +1,20 @@
+{% extends "publications/base.html" %}
+{% load pubstats %}
+
+{% block page_heading %}Funding Sources{% endblock %}
+
+
+{% block full %}
+<div class="row-fluid">
+	<div class="pagelet col-xs-12">
+		<div class="pagelet-body">
+			<h4>Publications by Funding Source</h4>
+			<p>Only the top 20 funding agencies are listed, having provided funding to the largest number of publications.</p>
+			{% show_funding %}
+			{% if funding_tbl %}
+				{% show_table funding_tbl %}
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %}

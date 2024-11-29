@@ -1,0 +1,70 @@
+{% load jsonify %}
+<div class="row data-reports">
+    <div id="table-{{name}}" class="col-xs-12">
+    {{ table|safe  }}
+    </div>
+    <div class="col-xs-12">
+        <div id="chart-{{name}}" class="plot-chart"><svg style='height:300px' /></svg></div>
+    </div>
+</div>
+<script>
+    function create_plot_{{name}}(){
+        var dat_{{name}} = {{data|jsonify}};
+        var types = {{types|jsonify}};
+        var colors = {{colors|jsonify}};
+
+        nv.addGraph(function() {
+            {% if plot_type == 'stackedAreaChart' %}
+            var chart = nv.models.stackedAreaChart()
+                            .showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+                            .showLegend(true)
+                            .rightAlignYAxis(true)
+                            .useInteractiveGuideline(true)
+                            .clipEdge(true)
+                            .margin({right: 35, left: 35})
+                    ;
+            {% else %}
+            var chart = nv.models.multiBarChart()
+                            .reduceXTicks(false)   //If 'false', every single x-axis tick label will be rendered.
+                            .rotateLabels(-45)      //Angle to rotate x-axis labels.
+                            .showControls(true)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+                            .groupSpacing(0.05)    //Distance between each group of bars.
+                            .showLegend(true)
+                            .stacked(false)
+                            .rightAlignYAxis(true)
+                            .margin({right: 35, left: 35})
+                    ;
+            {% endif %}
+            chart.legend.radioButtonMode(true);
+            chart.xAxis.tickFormat(d3.format('f'));
+            chart.yAxis.tickFormat(d3.format('f'));
+
+            d3.select('#chart-{{name}} svg')
+                .datum(dat_{{name}})
+                .call(chart);
+
+            nv.utils.windowResize(chart.update);
+            return chart;
+        });
+
+        //Adjust size
+/*
+        var chel = $('#chart-{{name}}').find('svg');
+        var table_pos = $('#table-{{name}} table:nth-of-type(1)').position();
+        chel.width(chel.parent().width());
+        chel.height(chel.parent().width()*10/16);
+*/
+
+        // Fix table colors
+        var tbl = $('#table-{{name}} table');
+        for (i = 0; i < types.length; i++) {
+            var td = tbl.find("td:contains('"+types[i]+"')");
+            td.css({"color": colors[i]});
+        }
+
+    }
+    $(document).ready(function(){
+        create_plot_{{name}}();
+    });
+</script>
+

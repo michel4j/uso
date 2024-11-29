@@ -1,0 +1,33 @@
+{% load samples_tags %}
+
+<div class="row">
+    <div class="col-xs-12">
+        <h2 class="text-condensed" style="background-color: #333; color: #fff; padding: 0.25em; font-weight: 900 !important;">
+            {{ sample.name }}
+        </h2>
+        <div class="row">
+            <div class="col-xs-8 text-condensed">
+                <p>{{ sample.description }}</p>
+                <div class="text-condensed">
+                    <p style="font-weight: 900; font-size: 200%; margin-bottom: 0;">{{ sample.signal|upper }}</p>
+                    <p style="font-size:110%;"><strong>{{sample.hazards_text}}</strong></p>
+
+                    <p style="font-size:110%; margin-top: 1.5em;">{{sample.precautions_text}}</p>
+                    <p></p>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="row">
+                    <div class="col-xs-12 text-center">
+                        {% for hz in sample.pictograms %}
+                            <img width="85" src="{% pictogram_url hz %}" title="{{hz.name}}" style="{{forloop.counter|hz_transforms}}">
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 text-condensed" style="margin-top: 2em;">
+        See Safety Data Sheet for further information. Contact Health and Safety Department with questions
+    </div>
+</div>

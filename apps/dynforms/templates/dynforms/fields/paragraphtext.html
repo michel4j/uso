@@ -1,0 +1,20 @@
+<div class="controls {{repeatable}}" id="{{field.name}}-controls">
+       <textarea cols="40" name="{{field.name}}" id="{{field.name}}" 
+       		rows="{% if field.size == 'large' %}20{% elif field.size == 'medium' %}8{% else %}3{% endif %}"
+       		class="textarea form-control">{{data}}</textarea>
+    {% if "counter" in field.options %}
+    	<div class="word-counter text-wide"></div>
+    {% endif %}
+</div>
+{% if "counter" in field.options %}
+<script src="https://cdn.jsdelivr.net/npm/jquery-word-and-character-counter-plugin@2.5.1/jquery.word-and-character-counter.min.js" integrity="sha256-R3xsjghNyf1dhYHTuhD00fb0tJ5fD9x5T8RODwID5X8=" crossorigin="anonymous"></script>
+<script>
+$('#{{field.name}}').counter({
+    append: false,
+	type: 'word',
+    count: 'up',
+	goal: {{field.maximum|default:10000}},
+    target: '#{{field.name}}-controls > .word-counter'
+});
+</script>
+{% endif %}

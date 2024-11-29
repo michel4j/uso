@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block full %}
+<div class="pagelet">
+    {% block folio-no-header %}
+    <div class="pagelet-header">
+        <span class="box-tools pull-right {% block folio-tools-class %}{% endblock %}">
+        {% block folio-tools %}
+        {% endblock %}
+        </span>
+        {% block folio-header %}
+        <h3 class="text-condensed overflow ellipsis narrow-heading">{% block folio-title %}{% endblock %}&nbsp;</h3>
+        <span class="text-muted hidden-xs">{% block folio-subtitle %}{% endblock %}&nbsp;</span>
+        {% endblock %}
+    </div>
+
+    <div class="{% block folio-statusbar-style %}hidden{% endblock %}" style="padding: 0.5em 1em;">
+        {% block folio-statusbar %}
+        {% endblock %}
+    </div>
+    {% endblock %}
+    {% block folio-content %}
+    {% endblock %}
+</div>
+{% endblock %}

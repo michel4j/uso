@@ -1,0 +1,1191 @@
+- model: weather.weather
+  pk: 1
+  fields:
+    created: 2014-10-27 17:45:03.307000+00:00
+    modified: 2024-11-21 04:15:48.594600+00:00
+    city_code: '6141256'
+    city_name: Saskatoon, SK
+    conditions:
+      current:
+        dt: 1732162396
+        id: 6141256
+        cod: 200
+        sys:
+          sunset: 1732144100
+          country: CA
+          sunrise: 1732113398
+        base: stations
+        main:
+          temp: -14.64
+          humidity: 96
+          pressure: 1030
+          temp_max: -14.64
+          temp_min: -14.64
+          sea_level: 1030
+          windchill: -20
+          feels_like: -20.16
+          grnd_level: 965
+        name: Saskatoon
+        wind:
+          deg: 310
+          gust: 2.15
+          speed: 2.37
+        coord:
+          lat: 52.1168
+          lon: -106.6345
+        clouds:
+          all: 50
+        weather:
+        - id: 802
+          icon: 03n
+          main: Clouds
+          description: scattered clouds
+        timezone: -21600
+        visibility: 10000
+      forecast:
+      - dt: 1732168800
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -15.04
+          temp_kf: 0.45
+          humidity: 97
+          pressure: 1030
+          temp_max: -15.04
+          temp_min: -15.49
+          sea_level: 1030
+          windchill: -22
+          feels_like: -21.62
+          grnd_level: 965
+        wind:
+          deg: 300
+          gust: 4.76
+          speed: 3.04
+        clouds:
+          all: 56
+        dt_txt: '2024-11-21 06:00:00'
+        weather:
+        - id: 803
+          icon: 04n
+          main: Clouds
+          description: broken clouds
+        visibility: 10000
+      - dt: 1732179600
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -14.16
+          temp_kf: -0.33
+          humidity: 95
+          pressure: 1031
+          temp_max: -13.83
+          temp_min: -14.16
+          sea_level: 1031
+          windchill: -17
+          feels_like: -14.16
+          grnd_level: 965
+        wind:
+          deg: 278
+          gust: 1.29
+          speed: 1.23
+        clouds:
+          all: 83
+        dt_txt: '2024-11-21 09:00:00'
+        weather:
+        - id: 803
+          icon: 04n
+          main: Clouds
+          description: broken clouds
+        visibility: 10000
+      - dt: 1732190400
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -17.03
+          temp_kf: 0
+          humidity: 99
+          pressure: 1032
+          temp_max: -17.03
+          temp_min: -17.03
+          sea_level: 1032
+          windchill: -20
+          feels_like: -17.03
+          grnd_level: 965
+        wind:
+          deg: 301
+          gust: 0.98
+          speed: 0.95
+        clouds:
+          all: 86
+        dt_txt: '2024-11-21 12:00:00'
+        weather:
+        - id: 804
+          icon: 04n
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732201200
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -14.14
+          temp_kf: 0
+          humidity: 97
+          pressure: 1031
+          temp_max: -14.14
+          temp_min: -14.14
+          sea_level: 1031
+          windchill: -18
+          feels_like: -17.69
+          grnd_level: 965
+        wind:
+          deg: 274
+          gust: 1.49
+          speed: 1.42
+        clouds:
+          all: 100
+        dt_txt: '2024-11-21 15:00:00'
+        weather:
+        - id: 804
+          icon: 04d
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732212000
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -9.21
+          temp_kf: 0
+          humidity: 88
+          pressure: 1030
+          temp_max: -9.21
+          temp_min: -9.21
+          sea_level: 1030
+          windchill: -13
+          feels_like: -13.27
+          grnd_level: 965
+        wind:
+          deg: 301
+          gust: 3.03
+          speed: 2.05
+        clouds:
+          all: 100
+        dt_txt: '2024-11-21 18:00:00'
+        weather:
+        - id: 804
+          icon: 04d
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732222800
+        pop: 0.2
+        sys:
+          pod: d
+        main:
+          temp: -7.73
+          temp_kf: 0
+          humidity: 92
+          pressure: 1028
+          temp_max: -7.73
+          temp_min: -7.73
+          sea_level: 1028
+          windchill: -11
+          feels_like: -11.28
+          grnd_level: 964
+        snow:
+          3h: 0.12
+        wind:
+          deg: 311
+          gust: 2.93
+          speed: 1.89
+        clouds:
+          all: 100
+        dt_txt: '2024-11-21 21:00:00'
+        weather:
+        - id: 600
+          icon: 13d
+          main: Snow
+          description: light snow
+        visibility: 450
+      - dt: 1732233600
+        pop: 0.2
+        sys:
+          pod: n
+        main:
+          temp: -8.67
+          temp_kf: 0
+          humidity: 96
+          pressure: 1028
+          temp_max: -8.67
+          temp_min: -8.67
+          sea_level: 1028
+          windchill: -12
+          feels_like: -12.18
+          grnd_level: 964
+        snow:
+          3h: 0.22
+        wind:
+          deg: 281
+          gust: 2.67
+          speed: 1.78
+        clouds:
+          all: 100
+        dt_txt: '2024-11-22 00:00:00'
+        weather:
+        - id: 600
+          icon: 13n
+          main: Snow
+          description: light snow
+        visibility: 223
+      - dt: 1732244400
+        pop: 1
+        sys:
+          pod: n
+        main:
+          temp: -8.62
+          temp_kf: 0
+          humidity: 96
+          pressure: 1028
+          temp_max: -8.62
+          temp_min: -8.62
+          sea_level: 1028
+          windchill: -13
+          feels_like: -13.21
+          grnd_level: 964
+        snow:
+          3h: 0.4
+        wind:
+          deg: 284
+          gust: 4.58
+          speed: 2.48
+        clouds:
+          all: 100
+        dt_txt: '2024-11-22 03:00:00'
+        weather:
+        - id: 600
+          icon: 13n
+          main: Snow
+          description: light snow
+        visibility: 592
+      - dt: 1732255200
+        pop: 0.2
+        sys:
+          pod: n
+        main:
+          temp: -9.5
+          temp_kf: 0
+          humidity: 96
+          pressure: 1029
+          temp_max: -9.5
+          temp_min: -9.5
+          sea_level: 1029
+          windchill: -15
+          feels_like: -14.62
+          grnd_level: 964
+        snow:
+          3h: 0.11
+        wind:
+          deg: 297
+          gust: 6.6
+          speed: 2.76
+        clouds:
+          all: 100
+        dt_txt: '2024-11-22 06:00:00'
+        weather:
+        - id: 600
+          icon: 13n
+          main: Snow
+          description: light snow
+        visibility: 7811
+      - dt: 1732266000
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -12.67
+          temp_kf: 0
+          humidity: 97
+          pressure: 1030
+          temp_max: -12.67
+          temp_min: -12.67
+          sea_level: 1030
+          windchill: -19
+          feels_like: -18.92
+          grnd_level: 965
+        wind:
+          deg: 287
+          gust: 6.05
+          speed: 3.16
+        clouds:
+          all: 78
+        dt_txt: '2024-11-22 09:00:00'
+        weather:
+        - id: 803
+          icon: 04n
+          main: Clouds
+          description: broken clouds
+        visibility: 5363
+      - dt: 1732276800
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -14.05
+          temp_kf: 0
+          humidity: 96
+          pressure: 1030
+          temp_max: -14.05
+          temp_min: -14.05
+          sea_level: 1030
+          windchill: -21
+          feels_like: -20.79
+          grnd_level: 965
+        wind:
+          deg: 293
+          gust: 8.13
+          speed: 3.33
+        clouds:
+          all: 86
+        dt_txt: '2024-11-22 12:00:00'
+        weather:
+        - id: 804
+          icon: 04n
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732287600
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -15.52
+          temp_kf: 0
+          humidity: 93
+          pressure: 1031
+          temp_max: -15.52
+          temp_min: -15.52
+          sea_level: 1031
+          windchill: -23
+          feels_like: -22.52
+          grnd_level: 965
+        wind:
+          deg: 289
+          gust: 9.06
+          speed: 3.46
+        clouds:
+          all: 3
+        dt_txt: '2024-11-22 15:00:00'
+        weather:
+        - id: 800
+          icon: 01d
+          main: Clear
+          description: clear sky
+        visibility: 10000
+      - dt: 1732298400
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -11.81
+          temp_kf: 0
+          humidity: 90
+          pressure: 1031
+          temp_max: -11.81
+          temp_min: -11.81
+          sea_level: 1031
+          windchill: -19
+          feels_like: -18.81
+          grnd_level: 966
+        wind:
+          deg: 279
+          gust: 9.39
+          speed: 4.06
+        clouds:
+          all: 18
+        dt_txt: '2024-11-22 18:00:00'
+        weather:
+        - id: 801
+          icon: 02d
+          main: Clouds
+          description: few clouds
+        visibility: 10000
+      - dt: 1732309200
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -9.93
+          temp_kf: 0
+          humidity: 91
+          pressure: 1029
+          temp_max: -9.93
+          temp_min: -9.93
+          sea_level: 1029
+          windchill: -16
+          feels_like: -16.1
+          grnd_level: 964
+        wind:
+          deg: 286
+          gust: 8.04
+          speed: 3.61
+        clouds:
+          all: 59
+        dt_txt: '2024-11-22 21:00:00'
+        weather:
+        - id: 803
+          icon: 04d
+          main: Clouds
+          description: broken clouds
+        visibility: 10000
+      - dt: 1732320000
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -16.19
+          temp_kf: 0
+          humidity: 97
+          pressure: 1030
+          temp_max: -16.19
+          temp_min: -16.19
+          sea_level: 1030
+          windchill: -22
+          feels_like: -21.83
+          grnd_level: 964
+        wind:
+          deg: 273
+          gust: 2.22
+          speed: 2.28
+        clouds:
+          all: 58
+        dt_txt: '2024-11-23 00:00:00'
+        weather:
+        - id: 803
+          icon: 04n
+          main: Clouds
+          description: broken clouds
+        visibility: 10000
+      - dt: 1732330800
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -17.76
+          temp_kf: 0
+          humidity: 97
+          pressure: 1030
+          temp_max: -17.76
+          temp_min: -17.76
+          sea_level: 1030
+          windchill: -23
+          feels_like: -23.04
+          grnd_level: 964
+        wind:
+          deg: 294
+          gust: 1.85
+          speed: 1.95
+        clouds:
+          all: 71
+        dt_txt: '2024-11-23 03:00:00'
+        weather:
+        - id: 803
+          icon: 04n
+          main: Clouds
+          description: broken clouds
+        visibility: 10000
+      - dt: 1732341600
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -16.29
+          temp_kf: 0
+          humidity: 97
+          pressure: 1030
+          temp_max: -16.29
+          temp_min: -16.29
+          sea_level: 1030
+          windchill: -20
+          feels_like: -20.38
+          grnd_level: 964
+        wind:
+          deg: 324
+          gust: 1.55
+          speed: 1.52
+        clouds:
+          all: 85
+        dt_txt: '2024-11-23 06:00:00'
+        weather:
+        - id: 804
+          icon: 04n
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732352400
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -17.97
+          temp_kf: 0
+          humidity: 99
+          pressure: 1029
+          temp_max: -17.97
+          temp_min: -17.97
+          sea_level: 1029
+          windchill: -21
+          feels_like: -17.97
+          grnd_level: 963
+        wind:
+          deg: 1
+          gust: 0.93
+          speed: 0.99
+        clouds:
+          all: 96
+        dt_txt: '2024-11-23 09:00:00'
+        weather:
+        - id: 804
+          icon: 04n
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732363200
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -17.68
+          temp_kf: 0
+          humidity: 98
+          pressure: 1028
+          temp_max: -17.68
+          temp_min: -17.68
+          sea_level: 1028
+          windchill: -23
+          feels_like: -22.91
+          grnd_level: 961
+        wind:
+          deg: 39
+          gust: 2.29
+          speed: 1.93
+        clouds:
+          all: 98
+        dt_txt: '2024-11-23 12:00:00'
+        weather:
+        - id: 804
+          icon: 04n
+          main: Clouds
+          description: overcast clouds
+        visibility: 6715
+      - dt: 1732374000
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -19.39
+          temp_kf: 0
+          humidity: 100
+          pressure: 1028
+          temp_max: -19.39
+          temp_min: -19.39
+          sea_level: 1028
+          windchill: -23
+          feels_like: -19.39
+          grnd_level: 961
+        wind:
+          deg: 58
+          gust: 0.88
+          speed: 1.11
+        clouds:
+          all: 100
+        dt_txt: '2024-11-23 15:00:00'
+        weather:
+        - id: 804
+          icon: 04d
+          main: Clouds
+          description: overcast clouds
+        visibility: 2962
+      - dt: 1732384800
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -12.14
+          temp_kf: 0
+          humidity: 94
+          pressure: 1025
+          temp_max: -12.14
+          temp_min: -12.14
+          sea_level: 1025
+          windchill: -17
+          feels_like: -17.42
+          grnd_level: 960
+        wind:
+          deg: 60
+          gust: 4.66
+          speed: 2.51
+        clouds:
+          all: 100
+        dt_txt: '2024-11-23 18:00:00'
+        weather:
+        - id: 804
+          icon: 04d
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732395600
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -10.29
+          temp_kf: 0
+          humidity: 91
+          pressure: 1022
+          temp_max: -10.29
+          temp_min: -10.29
+          sea_level: 1022
+          windchill: -18
+          feels_like: -17.29
+          grnd_level: 958
+        wind:
+          deg: 45
+          gust: 8.27
+          speed: 4.79
+        clouds:
+          all: 100
+        dt_txt: '2024-11-23 21:00:00'
+        weather:
+        - id: 804
+          icon: 04d
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732406400
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -10.94
+          temp_kf: 0
+          humidity: 92
+          pressure: 1022
+          temp_max: -10.94
+          temp_min: -10.94
+          sea_level: 1022
+          windchill: -19
+          feels_like: -17.94
+          grnd_level: 957
+        wind:
+          deg: 47
+          gust: 10.69
+          speed: 5.26
+        clouds:
+          all: 100
+        dt_txt: '2024-11-24 00:00:00'
+        weather:
+        - id: 804
+          icon: 04n
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732417200
+        pop: 1
+        sys:
+          pod: n
+        main:
+          temp: -11.01
+          temp_kf: 0
+          humidity: 95
+          pressure: 1022
+          temp_max: -11.01
+          temp_min: -11.01
+          sea_level: 1022
+          windchill: -19
+          feels_like: -18.01
+          grnd_level: 958
+        snow:
+          3h: 1.34
+        wind:
+          deg: 49
+          gust: 10.54
+          speed: 5.37
+        clouds:
+          all: 100
+        dt_txt: '2024-11-24 03:00:00'
+        weather:
+        - id: 600
+          icon: 13n
+          main: Snow
+          description: light snow
+        visibility: 172
+      - dt: 1732428000
+        pop: 1
+        sys:
+          pod: n
+        main:
+          temp: -10.8
+          temp_kf: 0
+          humidity: 95
+          pressure: 1023
+          temp_max: -10.8
+          temp_min: -10.8
+          sea_level: 1023
+          windchill: -18
+          feels_like: -17.8
+          grnd_level: 958
+        snow:
+          3h: 2.21
+        wind:
+          deg: 46
+          gust: 9.26
+          speed: 4.75
+        clouds:
+          all: 100
+        dt_txt: '2024-11-24 06:00:00'
+        weather:
+        - id: 601
+          icon: 13n
+          main: Snow
+          description: snow
+        visibility: 129
+      - dt: 1732438800
+        pop: 1
+        sys:
+          pod: n
+        main:
+          temp: -10.99
+          temp_kf: 0
+          humidity: 95
+          pressure: 1024
+          temp_max: -10.99
+          temp_min: -10.99
+          sea_level: 1024
+          windchill: -19
+          feels_like: -17.99
+          grnd_level: 959
+        snow:
+          3h: 1.95
+        wind:
+          deg: 35
+          gust: 8.15
+          speed: 4.8
+        clouds:
+          all: 100
+        dt_txt: '2024-11-24 09:00:00'
+        weather:
+        - id: 601
+          icon: 13n
+          main: Snow
+          description: snow
+        visibility: 126
+      - dt: 1732449600
+        pop: 1
+        sys:
+          pod: n
+        main:
+          temp: -11.5
+          temp_kf: 0
+          humidity: 95
+          pressure: 1025
+          temp_max: -11.5
+          temp_min: -11.5
+          sea_level: 1025
+          windchill: -19
+          feels_like: -18.5
+          grnd_level: 960
+        snow:
+          3h: 1.49
+        wind:
+          deg: 36
+          gust: 8.4
+          speed: 4.88
+        clouds:
+          all: 100
+        dt_txt: '2024-11-24 12:00:00'
+        weather:
+        - id: 600
+          icon: 13n
+          main: Snow
+          description: light snow
+        visibility: 155
+      - dt: 1732460400
+        pop: 1
+        sys:
+          pod: d
+        main:
+          temp: -11.88
+          temp_kf: 0
+          humidity: 95
+          pressure: 1026
+          temp_max: -11.88
+          temp_min: -11.88
+          sea_level: 1026
+          windchill: -19
+          feels_like: -18.88
+          grnd_level: 961
+        snow:
+          3h: 0.88
+        wind:
+          deg: 33
+          gust: 7.6
+          speed: 4.25
+        clouds:
+          all: 100
+        dt_txt: '2024-11-24 15:00:00'
+        weather:
+        - id: 600
+          icon: 13d
+          main: Snow
+          description: light snow
+        visibility: 146
+      - dt: 1732471200
+        pop: 1
+        sys:
+          pod: d
+        main:
+          temp: -11.24
+          temp_kf: 0
+          humidity: 94
+          pressure: 1028
+          temp_max: -11.24
+          temp_min: -11.24
+          sea_level: 1028
+          windchill: -18
+          feels_like: -17.76
+          grnd_level: 963
+        snow:
+          3h: 0.77
+        wind:
+          deg: 30
+          gust: 5.49
+          speed: 3.67
+        clouds:
+          all: 100
+        dt_txt: '2024-11-24 18:00:00'
+        weather:
+        - id: 600
+          icon: 13d
+          main: Snow
+          description: light snow
+        visibility: 158
+      - dt: 1732482000
+        pop: 1
+        sys:
+          pod: d
+        main:
+          temp: -11.04
+          temp_kf: 0
+          humidity: 92
+          pressure: 1028
+          temp_max: -11.04
+          temp_min: -11.04
+          sea_level: 1028
+          windchill: -18
+          feels_like: -17.75
+          grnd_level: 963
+        snow:
+          3h: 0.55
+        wind:
+          deg: 23
+          gust: 5.18
+          speed: 3.9
+        clouds:
+          all: 100
+        dt_txt: '2024-11-24 21:00:00'
+        weather:
+        - id: 600
+          icon: 13d
+          main: Snow
+          description: light snow
+        visibility: 387
+      - dt: 1732492800
+        pop: 1
+        sys:
+          pod: n
+        main:
+          temp: -12.75
+          temp_kf: 0
+          humidity: 96
+          pressure: 1030
+          temp_max: -12.75
+          temp_min: -12.75
+          sea_level: 1030
+          windchill: -18
+          feels_like: -18.41
+          grnd_level: 964
+        snow:
+          3h: 0.27
+        wind:
+          deg: 22
+          gust: 5.71
+          speed: 2.7
+        clouds:
+          all: 100
+        dt_txt: '2024-11-25 00:00:00'
+        weather:
+        - id: 600
+          icon: 13n
+          main: Snow
+          description: light snow
+        visibility: 687
+      - dt: 1732503600
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -13.63
+          temp_kf: 0
+          humidity: 97
+          pressure: 1031
+          temp_max: -13.63
+          temp_min: -13.63
+          sea_level: 1031
+          windchill: -18
+          feels_like: -18.33
+          grnd_level: 965
+        wind:
+          deg: 6
+          gust: 3.18
+          speed: 2
+        clouds:
+          all: 100
+        dt_txt: '2024-11-25 03:00:00'
+        weather:
+        - id: 804
+          icon: 04n
+          main: Clouds
+          description: overcast clouds
+        visibility: 677
+      - dt: 1732514400
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -14.77
+          temp_kf: 0
+          humidity: 98
+          pressure: 1032
+          temp_max: -14.77
+          temp_min: -14.77
+          sea_level: 1032
+          windchill: -19
+          feels_like: -18.6
+          grnd_level: 966
+        wind:
+          deg: 23
+          gust: 1.67
+          speed: 1.5
+        clouds:
+          all: 100
+        dt_txt: '2024-11-25 06:00:00'
+        weather:
+        - id: 804
+          icon: 04n
+          main: Clouds
+          description: overcast clouds
+        visibility: 1369
+      - dt: 1732525200
+        pop: 0.2
+        sys:
+          pod: n
+        main:
+          temp: -16.68
+          temp_kf: 0
+          humidity: 99
+          pressure: 1032
+          temp_max: -16.68
+          temp_min: -16.68
+          sea_level: 1032
+          windchill: -21
+          feels_like: -20.52
+          grnd_level: 966
+        snow:
+          3h: 0.1
+        wind:
+          deg: 28
+          gust: 1.39
+          speed: 1.4
+        clouds:
+          all: 100
+        dt_txt: '2024-11-25 09:00:00'
+        weather:
+        - id: 600
+          icon: 13n
+          main: Snow
+          description: light snow
+        visibility: 4468
+      - dt: 1732536000
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -21.38
+          temp_kf: 0
+          humidity: 100
+          pressure: 1033
+          temp_max: -21.38
+          temp_min: -21.38
+          sea_level: 1033
+          windchill: -24
+          feels_like: -21.38
+          grnd_level: 966
+        wind:
+          deg: 66
+          gust: 0.93
+          speed: 0.92
+        clouds:
+          all: 98
+        dt_txt: '2024-11-25 12:00:00'
+        weather:
+        - id: 804
+          icon: 04n
+          main: Clouds
+          description: overcast clouds
+        visibility: 5298
+      - dt: 1732546800
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -23.79
+          temp_kf: 0
+          humidity: 100
+          pressure: 1034
+          temp_max: -23.79
+          temp_min: -23.79
+          sea_level: 1034
+          windchill: -27
+          feels_like: -23.79
+          grnd_level: 966
+        wind:
+          deg: 109
+          gust: 0.95
+          speed: 0.98
+        clouds:
+          all: 100
+        dt_txt: '2024-11-25 15:00:00'
+        weather:
+        - id: 804
+          icon: 04d
+          main: Clouds
+          description: overcast clouds
+        visibility: 2405
+      - dt: 1732557600
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -16.78
+          temp_kf: 0
+          humidity: 96
+          pressure: 1032
+          temp_max: -16.78
+          temp_min: -16.78
+          sea_level: 1032
+          windchill: -21
+          feels_like: -21.06
+          grnd_level: 966
+        wind:
+          deg: 133
+          gust: 2.22
+          speed: 1.57
+        clouds:
+          all: 98
+        dt_txt: '2024-11-25 18:00:00'
+        weather:
+        - id: 804
+          icon: 04d
+          main: Clouds
+          description: overcast clouds
+        visibility: 10000
+      - dt: 1732568400
+        pop: 0
+        sys:
+          pod: d
+        main:
+          temp: -15.16
+          temp_kf: 0
+          humidity: 95
+          pressure: 1030
+          temp_max: -15.16
+          temp_min: -15.16
+          sea_level: 1030
+          windchill: -19
+          feels_like: -19.46
+          grnd_level: 964
+        wind:
+          deg: 124
+          gust: 2.54
+          speed: 1.68
+        clouds:
+          all: 83
+        dt_txt: '2024-11-25 21:00:00'
+        weather:
+        - id: 803
+          icon: 04d
+          main: Clouds
+          description: broken clouds
+        visibility: 10000
+      - dt: 1732579200
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -22.3
+          temp_kf: 0
+          humidity: 100
+          pressure: 1031
+          temp_max: -22.3
+          temp_min: -22.3
+          sea_level: 1031
+          windchill: -29
+          feels_like: -29.3
+          grnd_level: 964
+        wind:
+          deg: 106
+          gust: 2.47
+          speed: 2.5
+        clouds:
+          all: 60
+        dt_txt: '2024-11-26 00:00:00'
+        weather:
+        - id: 803
+          icon: 04n
+          main: Clouds
+          description: broken clouds
+        visibility: 10000
+      - dt: 1732590000
+        pop: 0
+        sys:
+          pod: n
+        main:
+          temp: -23.02
+          temp_kf: 0
+          humidity: 100
+          pressure: 1031
+          temp_max: -23.02
+          temp_min: -23.02
+          sea_level: 1031
+          windchill: -31
+          feels_like: -30.02
+          grnd_level: 963
+        wind:
+          deg: 121
+          gust: 4.56
+          speed: 2.7
+        clouds:
+          all: 49
+        dt_txt: '2024-11-26 03:00:00'
+        weather:
+        - id: 802
+          icon: 03n
+          main: Clouds
+          description: scattered clouds
+        visibility: 10000

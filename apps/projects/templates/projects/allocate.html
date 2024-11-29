@@ -1,0 +1,207 @@
+{% extends "proposals/base.html" %}
+{% load static %}
+{% load beamline_tags %}
+
+{% block page_heading %}<span class="hidden-xs">Allocation {{ cycle }} &mdash; </span>
+    <span class="text-muted">{{ facility.acronym }}</span>{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .hover-edit i {
+            display: none;
+        }
+
+        .hover-edit:hover i {
+            display: inline;
+        }
+    </style>
+{% endblock %}
+
+{% block full %}
+    <div class="pagelet">
+        <div class="pagelet-body">
+            <div class="tinytron bg-white">
+                <h4 style="margin: 0.25em 0;"><strong>Available shifts</strong>
+                    <div class="pull-right" style="margin-top: -0.25em;">
+                        <span class="label label-success calc"
+                              title="Total from Facility Schedule">{{ total_shifts|floatformat }}</span>
+                        -
+                        <a href="#0" class="label label-danger calc" title="Unavailable for {{ facility.acronym }}"
+                           data-url="{% url 'edit-reservation' cycle=cycle.pk  fac=facility.acronym %}">
+                            {{ unavailable_shifts|default:0|floatformat }}
+                            <i class="icon-fw bi-pencil"></i>
+                        </a>
+                        =
+                        <span class="label label-success calc"
+                              title="Available for {{ facility.acronym }}">{{ available_shifts|default:0|floatformat }}</span>
+                    </div>
+                </h4>
+                <small>Distribution of available shifts is based on the set percentages allotted to each pool for
+                    <strong>{{ facility.acronym }}</strong>. For each pool, the number of available shifts is rounded
+                    down. Any shifts unaccounted for after the rounding are left as discretionary shifts.
+                </small>
+            </div>
+
+            {% for kind, pool in pools.items %}{% if kind != 'user' %}
+                <div class="tinytron">
+                    <div class="row narrow-gutter">
+                        <div class="col-xs-12">
+                            <div class="pull-left">
+                                <h4 class="text-condensed" style="margin: 0.25em 0;">
+                                    {{ pool.name }} Pool
+                                </h4>
+                                <small><strong>{{ pool.percent }}%</strong> of <strong
+                                        class="text-success">{{ available_shifts|floatformat }}</strong> Available
+                                    Shifts</small>
+                            </div>
+
+                            <div class="narrow-gutter text-condensed">
+                        <span class="box-tools pull-right" style="padding: 0.2em 0.5em;">
+                            <h4 style="margin-top: -0.4em;">
+                                <div class="pull-left">
+                                    <span class="stats-title"><small>Available</small></span><br/>
+                                    <span class="label label-success calc"
+                                          title="Available for Pool: {{ pool.percent }}% of {{ available_shifts|floatformat }}">
+                                        {{ pool.shifts }}</span>
+                                </div>
+                                <div class="pull-left"><br/>&nbsp;-&nbsp;</div>
+                                <div class="pull-left">
+                                    <span class="stats-title"><small>Allocated</small></span><br/>
+                                    <span class="label label-info calc"
+                                          title="Allocated">{{ pool.used.total|default:0|floatformat }}</span>
+                                </div>
+                                <div class="pull-left"><br/>&nbsp;-&nbsp;</div>
+                                <div class="pull-left">
+                                    <span class="stats-title"><small>Reserved</small></span><br/>
+                                    <span class="label label-default calc" title="Edit Reserved"
+                                          style="padding-left: 0px; padding-right: 0px;">
+                                        <a href="#0" style="color: #fff;"
+                                           data-url="{% url 'edit-reservation' cycle=cycle.pk  fac=facility.acronym pool=pool.key %}">
+                                            {{ pool.reserved.total|default:0 }}
+                                            <i class="icon-fw bi-pencil"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="pull-left"><br/>&nbsp;=&nbsp;</div>
+                                <div class="pull-left">
+                                    <span class="stats-title"><small>Left Over</small></span><br/>
+                                    <span class="label label-warning calc" title="Left Over Shifts">
+                                        {{ pool.unused|default:0|floatformat }}</span>
+                                </div>
+                            </h4>
+                        </span>
+                            </div>
+                            <div class="narrow-gutter text-condensed">
+                    <span class="box-tools pull-right" style="margin-right: 1em; text-align: left; border: none;">
+                        <span class="stats-number pull-left">
+                            {{ pool.projects.count }}
+                        </span>
+                        <span class="stats-title pull-left">
+                            Allocation<br/>Request{{ pool.projects.count|pluralize }}
+                        </span>
+                    </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="article">
+                        {% if pool.projects %}
+                            <hr class="hr-xs"/>
+                            {% include 'projects/allocation-projects.html' with objects=pool.projects %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}{% endfor %}
+            <div class="tinytron bg-info">
+                <div class="row narrow-gutter">
+                    <div class="col-xs-12">
+                    <span class="pull-left">
+                        <h4 style="margin: 0.25em 0;"><strong>Discretionary Shifts</strong></h4>
+                        <small>
+                            Total shifts after subtracting user shifts and shifts allocated or reserved for each above pool, and adding any shifts left over.
+                        </small>
+                    </span>
+
+                        <span class="pull-right box-tools" style="margin-top: -0.25em; margin-right: 10px;">
+                        <h4 style="margin-top: -0.4em;">
+                        <div class="pull-left text-condensed">
+                            <span class="stats-title"><small>Total</small></span><br/>
+                            <span class="label label-warning calc" title="Total Discretionary">
+                                {{ discretionary|default:0|floatformat }}</span>
+                        </div>
+                        <div class="pull-left"><br/>&nbsp;+&nbsp;</div>
+                        <div class="pull-left text-condensed">
+                            <span class="stats-title"><small>User Disc</small></span><br/>
+                            <span class="label label-primary calc" title="Left Over Shifts from User Pool">
+                                {{ pools.user.unused|default:0|floatformat }}</span>
+                        </div>
+                        <div class="pull-left"><br/>&nbsp;=&nbsp;</div>
+                        <div class="pull-left text-condensed">
+                            <span class="stats-title"><small>Disc Left</small></span><br/>
+                            <span class="label label-warning calc" title="Remaining Discretionary Shifts">
+                                {{ pools.user.unused|default:0|floatformat|add:discretionary|default:0 }}</span>
+                        </div>
+                    </h4>
+                    </span>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="tinytron bg-white">
+                {% with pool=pools.user %}
+
+                    <div class="row narrow-gutter">
+                        <div class="col-xs-12">
+                    <span class="pull-left">
+                    <h4 class="text-condensed" style="margin: 0.25em 0;">
+                        {{ pool.name }} Pool
+                    </h4>
+                    <small><strong>{{ pool.percent }}%</strong> of <strong
+                            class="text-success">{{ available_shifts|floatformat }}</strong> Available Shifts</small>
+                    </span>
+
+                            <div class="narrow-gutter text-condensed">
+                    <span class="box-tools pull-right" style="padding: 0.2em 0.5em;">
+                            <h4 style="margin-top: -0.4em;">
+                                <div class="pull-left">
+                                    <span class="stats-title"><small>Total</small></span><br/>
+                                    <span class="label label-success calc"
+                                          title="Available for Pool: {{ pool.percent }}% of {{ available_shifts|floatformat }}">
+                                        {{ pool.shifts }}</span>
+                                </div>
+                                <div class="pull-left"><br/>&nbsp;-&nbsp;</div>
+                                <div class="pull-left">
+                                    <span class="stats-title"><small>Allocated</small></span><br/>
+                                    <span class="label label-info calc"
+                                          title="Allocated">{{ pool.used.total|default:0|floatformat }}</span>
+                                </div>
+                                <div class="pull-left"><br/>&nbsp;=&nbsp;</div>
+                                <div class="pull-left">
+                                    <span class="stats-title"><small>Available</small></span><br/>
+                                    <span class="label label-primary calc" title="Left Over Shifts">
+                                        {{ pool.unused|default:0|floatformat }}</span>
+                                </div>
+                            </h4>
+                            </div>
+                            <div class="narrow-gutter text-condensed">
+                    <span class="box-tools pull-right" style="margin-right: 1em; text-align: left; border: none;">
+                        <span class="stats-number pull-left">
+                            {{ pool.projects.count }}
+                        </span>
+                        <span class="stats-title pull-left">
+                            Allocation<br/>Request{{ pool.projects.count|pluralize }}
+                        </span>
+                    </span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="hr-xs"/>
+                    {% include 'projects/allocation-submissions.html' %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+

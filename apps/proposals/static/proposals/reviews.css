@@ -1,0 +1,204 @@
+
+.comments {
+	padding: 0 45px 0 0;
+}
+
+ul.review-comments {
+	margin-bottom: 0;
+	padding-bottom: 15px;
+	font-size: 90%;
+}
+ul.review-comments div.comment-header {
+    padding: 1em 1em;
+    min-height: 3em;
+    line-height: 1.2;
+	background-color: rgba(0,0,0,0.1);
+	border-bottom: 1px dotted rgba(0,0,0,0.2);
+}
+
+div.comment-body {
+    line-height: 1.2;
+    min-height: 3em;
+    padding: 1em 1em;
+	font-style: italic;
+}
+
+.df-form {
+	display: flex;
+	flex-flow: column;
+	align-items: stretch;
+    padding-top: 1em;
+}
+
+.review-col {
+  max-height: calc(100vh - 95px);
+  height: calc(100vh - 95px);
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -ms-flex: 2;
+  flex: 2;
+}
+#review-form {
+    margin-bottom: -15px;
+}
+#proposal-area,
+#form-area,
+#form-area > div,
+#form-area > div > form,
+#form-area > div > form > .df-form,
+#form-area > div > form > .df-form
+{
+  -ms-flex: 1;
+  flex: 1;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.df-form > .df-form-footer {
+  max-height: 75px;
+  transition: min-height 500ms ease 0s;
+}
+
+#extras-area {
+  -ms-flex: 2;
+  flex: 2;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  max-height: 65px;
+  min-height: 65px;
+  transition: min-height 500ms, max-height 500ms ease 0s;
+  padding: 0!important;
+}
+
+.df-form-tabs {
+}
+.df-form .df-form-body {
+	flex: 1;
+	overflow: hidden;
+}
+
+.df-form-footer {
+    bottom: 0;
+    width: 100%;
+	border-top: 1px solid #ddd;
+}
+.scroll-parent {
+    padding-bottom: 0.5em;
+}
+
+.tab-content {
+	padding-bottom: 0;
+}
+.review-toolbar {
+    padding: 7.5px;
+    height: 65px;
+	width: 100%;
+	margin: 0 0 5px 0!important;
+	border-top: 1px solid transparent;
+}
+
+#extras-area .pagelet-content {
+     display: none;
+}
+.show-comments #extras-area .pagelet-content {
+    display: block;
+    overflow: hidden;
+    flex-grow: 50;
+
+}
+.show-comments #extras-area {
+   min-height: calc(30vh + 85px);
+   max-height: calc(30vh + 85px);
+}
+.show-comments .review-toolbar {
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+#extra-review-content {
+    height: 30vh;
+}
+.review-toolbar a {
+    text-decoration: inherit;
+    color: inherit;
+    vertical-align: middle;
+}
+.review-toolbar li {
+    height: 55px;
+    min-width: 65px;
+    padding: 0.25em;
+    display: inline-block;
+    text-align: center;
+}
+.review-toolbar li a {
+    opacity: 0.75;
+    transition: opacity 500ms ease 0s;
+}
+.review-toolbar li a:hover {
+    opacity: 1.0;
+}
+i.close-command {
+    color: rgba(0,0,0, 0.25);
+    cursor: pointer;
+}
+i.close-command:hover {
+    color: rgba(0,0,0, 0.5);
+}
+
+.review-attachments {
+    padding: 0 1em;
+}
+.review-attachments li {
+    position: relative;
+    display: inline-block;
+    margin: 0.5em;
+}
+.review-attachments li a {
+    text-decoration: inherit;
+    color: inherit;
+}
+.review-attachments .attachment-header {
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    font-weight: 600;
+    color: #777;
+}
+.review-attachments .attachment-body {
+    flex: 1;
+    line-height: 1;
+    padding: 1em 0;
+    font-size: 90%;
+}
+.review-attachments .attachment-footer {
+    opacity: 0.5;
+    line-height: 24px;
+}
+.review-attachments .attachment-footer i {
+    font-size: 24px;
+}
+.paper {
+    display: flex;
+    flex-direction: column;
+	width:9em;
+	height:10em;
+	max-height: 10em;
+	overflow: hidden;
+	background:#FFF;
+	padding: 1em;
+    box-shadow:0 1px 2px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 0, 0, 0.1) inset;
+    transition: box-shadow 300ms ease 0s;
+}
+.paper:hover {
+    box-shadow:0 1px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.05) inset;
+}
+.larger-text {
+    font-size: 120%;
+}
+.beamline-info {
+    margin-bottom: 0.25em;
+    margin-left: 0.25em;
+}

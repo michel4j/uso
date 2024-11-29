@@ -1,0 +1,102 @@
+{% load static %}
+{% load samples_tags %}
+{% load project_tags %}
+{% load proposal_tags %}
+{% load markup %}
+
+{% if material %}
+    <div class="cycle-box tinytron bg-white">
+        <div class="row">
+            <div class="col-xs-12">
+                {% if owner or admin %}
+                    <span class="box-tools pull-right text-center">
+					<a href="{% url 'material-detail' pk=material.pk %}" title="View Details" class="pull-right">
+						<i class="bi-card-text icon-2 icon-fw"></i><br/>
+                        <span class="tool-label">Details</span>
+					</a>
+                        {% if project.state != 'inactive' %}
+                            <a href='{% url "edit-materials" pk=project.pk %}' title="Amend Materials"
+                               class="pull-right">
+						<i class="bi-pencil icon-2 icon-fw"></i><br/>
+                        <span class="tool-label">Amend</span>
+					</a>
+                        {% endif %}
+                </span>
+                {% endif %}
+                <i class="{{ material|material_state_icon }} pull-left icon-2x" style="padding: 0.25em;"></i>
+                <h3 class="no-vmargin">
+                    <span class="hidden-xs">Samples &amp; Materials &mdash; </span>{{ material }}
+                </h3>
+                {% if material.siblings.pending.count %}
+                    <small class="text-warning"><strong>Amended materials have not been approved!</strong></small>
+                {% elif material.state == 'pending' %}
+                    <small class="text-warning"><strong>These materials have not been approved!</strong></small>
+                {% elif material.state == 'denied' %}
+                    <small class="text-danger"><strong>These materials have been rejected!</strong></small>
+                {% elif material.state == 'approved' %}
+                    <small class="text-success"><strong>Materials and procedures approved!</strong></small>
+                {% endif %}
+            </div>
+        </div>
+        <hr class="hr-xs"/>
+
+        <div class="row narrow-gutter">
+            <div class="col-xs-2">
+                <h3 class="no-vmargin"><span
+                        class="label label-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
+                </h3>
+            </div>
+            <div class="col-xs-6">
+                <div class="row narrow-gutter">
+                    <div class="col-xs-6">
+                        <span class="stats-number pull-left">{{ material.project_samples.approved.count }}/{{ material.project_samples.count }}</span>
+                        <span class="stats-title pull-left">Samples<br/>Approved</span>
+                    </div>
+                    {% if material.siblings.pending.exists %}
+                    <div class="col-xs-6">
+                        Pending Amendment {% for mat in material.siblings.pending %}
+			<a href="{% url "material-detail" pk=mat.pk %}">{{mat}} [{{ mat.get_state_display }}]</a>&nbsp;
+        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-xs-4 text-right">
+                {% for hz in material.pictograms %}
+                    {% with 'samples/pictograms/'|add:hz.code|add:'.svg' as pictogram_svg %}
+                    <img width="32" src="{%  static pictogram_svg %}" title="{{ hz.name }}">
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <hr class="hr-xs"/>
+
+        {% with material.warnings as warnings %}
+            {% if warnings %}
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="tinytron bg-white bg-danger text-danger" style="font-size: 105%;">
+                            {% for warning in warnings %}
+                                {{ warning|markdown }}</li>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% if material.controls.count %}
+            <div class="row text-wide">
+                <div class="col-xs-12">
+                    <ul class="tinytron bg-warning">
+                        {% for control in material.controls.all %}
+                            <li>{{ control.description }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+
+        {% include "projects/material-snippet.html" %}
+    </div>
+{% endif %}

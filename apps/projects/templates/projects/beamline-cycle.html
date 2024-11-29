@@ -1,0 +1,90 @@
+{% extends "proposals/track_box.html" %}
+{% load project_tags %}
+{% get_cycle_requests facility=facility cycle=cycle as requests %}
+{% block box_class %}bg-darken{% endblock %}
+{% block box_header %}
+    <h4 class="text-condensed" style="margin-top: 0.25em;">{{cycle}}<span class="hidden-xs"> Cycle</span></h4>
+    <small class="hidden-xs text-muted">{{ cycle.start_date|date }}&ndash;{{ cycle.end_date|date }}</small>
+{% endblock %}
+{% block box_tools_style %}{% endblock %}
+{% block box_subheader %}{% endblock %}
+{% block box_tools_class %}{% if owner or admin  %}{% else %}hidden{% endif %}{% endblock %}
+{% block box_tools %}
+{% if owner or admin  %}
+    {% if facility.kind == 'beamline' or facility.kind == 'equipment' %}
+    {% if cycle.state <= cycle.STATES.archive %}
+     <a href='{% url "allocate-review-cycle" pk=cycle.pk fac=facility.acronym %}' class="pull-right">
+        <i class="bi-diagram-3 icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Allocate</span>
+     </a>
+     {% if requests.count %}
+     <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}' class="pull-right" style="position: relative;">
+         <i class="bi-inbox icon-2 icon-fw"></i><br/>
+         <span class="tool-label">Requests</span>
+         <div class="bubble progress-bar-warning"><div>{{ request.count }}</div></div>
+     </a>
+     {% endif %}
+    {% with schedule=cycle.schedule %}
+    {% if schedule %}
+     <a href='{% url "schedule-beamtime" pk=schedule.pk fac=facility.acronym %}' class="pull-right">
+        <i class="bi-calendar-plus icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Schedule</span>
+     </a>
+     <a href='{% url "schedule-support" pk=schedule.pk fac=facility.pk %}' class="pull-right">
+        <i class="bi-person-plus icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Support</span>
+     </a>
+    {% endif %}
+    {% endwith %}
+    {% endif %}
+    {% endif %}
+     <a href='{% url "beamline-projects" fac=facility.pk cycle=cycle.pk %}' class="pull-right">
+        <i class="bi-list-ol icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Projects</span>
+     </a>
+{% endif %}
+{% endblock %}
+{% block box_content %}
+    {% get_facility_cycle_stats facility cycle as stats %}
+    <div class="col-sm-12">
+        <div class="row narrow-gutter">
+            <div class="col-xs-12">
+                <h4><strong>{{stats.new.total}}</strong> New Projects <span class="pull-right"><strong>{{stats.available_shifts|floatformat}}</strong> Total Shifts Available</span></h4>
+                <hr class="hr-xs"/>
+            </div>
+            <div class="col-xs-4">
+                <span class="stats-title pull-left">Allocated<br/>Shifts</span>
+                <span class="stats-number pull-left">{{stats.new.total_shifts|default:"0"}}</span>
+            </div>
+            <div class="col-xs-4">
+                <span class="stats-title pull-left">Average #<br/>Shifts</span>
+                <span class="stats-number pull-left">{{stats.new.avg_shifts|floatformat}}</span>
+
+            </div>
+            <div class="col-xs-4">
+                <span class="stats-title pull-left">Average<br/>Score</span>
+                <span class="stats-number pull-left">{{stats.new.avg_score|floatformat:1}}</span>
+            </div>
+        </div>
+        <div class="row narrow-gutter">
+            <div class="col-xs-12">
+                <h4><strong>{{stats.active.total}}</strong> Active Projects</h4>
+                <hr class="hr-xs"/>
+            </div>
+            <div class="col-xs-4">
+                <span class="stats-title pull-left">Allocated<br/>Shifts</span>
+                <span class="stats-number pull-left">{{stats.active.total_shifts|default:"0"}}</span>
+
+            </div>
+            <div class="col-xs-4">
+                <span class="stats-title pull-left">Average #<br/>Shifts</span>
+                <span class="stats-number pull-left">{{stats.active.avg_shifts|floatformat}}</span>
+
+            </div>
+            <div class="col-xs-4">
+                <span class="stats-title pull-left">Average<br/>Score</span>
+                <span class="stats-number pull-left">{{stats.active.avg_score|floatformat:1}}</span>
+            </div>
+        </div>
+    </div>
+{% endblock %}}

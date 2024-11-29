@@ -1,0 +1,43 @@
+.draft-proposal{
+    color: #999;
+}
+.submitted-proposal{
+    color: #000;	
+}
+.inreview-proposal{
+    color: #000;
+}
+.pending-proposal{
+    color: #666;
+}
+.reviewed-proposal{
+    color: #5BC0DE;
+}
+.inactive-proposal{
+    color: #ccc;
+}
+.rejected-proposal{
+    color: #D9534F;
+}
+.section-title {
+	font-family: "Raleway", sans-serif;
+	font-size: 1.3em;
+	text-align: right;
+}
+.section-content {
+}
+
+.section-content h1, 
+.section-content h2, 
+.section-content h3, 
+.section-content h4, 
+.section-content h5 {
+	margin-top: 0.5em;
+} 
+
+.section + .section {
+	margin-bottom: 1em;
+}
+.pagelet-body + .pagelet-body {
+	margin-top: 0 !important;
+}

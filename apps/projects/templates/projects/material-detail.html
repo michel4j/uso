@@ -1,0 +1,149 @@
+{% extends "folio.html" %}
+
+{% load beamline_tags %}
+{% load proposal_tags %}
+{% load project_tags %}
+{% load samples_tags %}
+{% load l10n %}
+{% load markup %}
+{% load static %}
+
+
+
+{% block page_heading %}
+<span class="hidden-xs">Material &mdash; </span>
+<span class="text-muted text-narrow">{{object}}</span>
+{% endblock %}
+
+{% block folio-title %}{{ material.project }} &mdash; {{material.created|date:"Y/m/d"}}{% endblock %}
+{% block folio-subtitle %}
+    {{material.project.title}}
+{% endblock %}
+
+{% block folio-tools %}
+    {% if owner or admin %}
+        {% if project.state != 'inactive' %}
+            <a href='{% url "edit-materials" pk=material.project.pk %}' title="Amend Materials" class="pull-right">
+                <i class="bi-pencil icon-2 icon-fw"></i><br/>
+                <span class="tool-label">Amend</span>
+            </a>
+        {% endif %}
+    {% endif %}
+        <a href='{% url 'project-detail' material.project.pk %}' class="pull-right">
+            <i class="bi-briefcase icon-2 icon-fw"></i><br/>
+            <span class="tool-label">Project</span>
+        </a>
+{% endblock %}
+
+{% block folio-statusbar-style %}
+{% if object.state == 'approved' %}bg-success{% elif object.state == 'pending' %}bg-darken{% else %}bg-danger{% endif %}
+{% endblock %}
+{% block folio-statusbar %}
+<div class="row narrow-gutter">
+    <div class="hidden-xs col-sm-2">
+        <h3 class="no-vmargin"><span class="label label-risk{{material.risk_level}} text-condensed">{{material.get_risk_level_display}}</span></h3>
+    </div>
+    <div class="col-sm-2 col-xs-3">
+        <span class="stats-number pull-left">{{material.project_samples.approved.count}}/{{material.project_samples.count}}</span>
+        <span class="stats-title pull-left">Samples<br/>Approved</span>
+    </div>
+    <div class="col-sm-2 col-xs-3">
+        <small class="text-muted">Beamlines:</small><br/>
+		{% for fac in object.project.beamlines.all.distinct %}
+			<span class="label label-info">{{fac.acronym}}</span>&nbsp;
+        {% endfor %}
+    </div>
+    <div class="col-sm-3 col-xs-3">
+        <small class="text-muted">Related Materials</small><br/>
+		{% for mat in object.siblings.all %}
+			<a href="{% url "material-detail" pk=mat.pk %}">{{mat}} [{{ mat.get_state_display }}]</a>&nbsp;
+        {% endfor %}
+    </div>
+    <div class="col-sm-3 col-xs-3 text-right">
+        {% for hz in material.pictograms %}
+        <img width="28" src="{% pictogram_url hz %}" title="{{hz.name}}">
+        {% endfor %}
+    </div>
+    <div class="row">
+    {% for sample in samples %}
+        {% if sample.0.hazards.count %}
+            <div class="col-sm-6 no-break">
+                {% include "samples/label.html" with sample=sample.0 %}
+            </div>
+        {% endif %}
+    {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block folio-content %}
+<div class="pagelet-body">
+
+    {% with material.warnings as warnings %}
+    {% if warnings %}
+	<div class="row">
+        <div class="col-xs-12">
+             <div class="tinytron bg-white bg-danger text-danger" style="font-size: 105%;">
+                {% for warning in warnings %}
+                {{warning|markdown}}
+                {% endfor %}
+             </div>
+        </div>
+	</div>
+    {% endif %}
+    {% endwith %}
+    {% if material.controls.count %}
+    <div class="row text-wide">
+        <div class="col-xs-12">
+            <ul class="tinytron bg-warning">
+            {% for control in material.controls.all %}
+                <li>{{control.description}}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if object.project.proposal %}
+        {% with object.project.proposal as proposal %}
+        <div class="row section">
+            <div class="col-sm-12 section-content">
+                <h3>Summary</h3>
+                {{proposal.details.abstract|markdown}}
+            </div>
+        </div>
+        <div class="row section">
+            <div class="col-sm-12 section-content">
+                <h3>Materials</h3>
+                <hr class="hr-xs">
+                {% include "projects/material-content.html" with material=object %}
+            </div>
+        </div>
+        <div class="row section">
+            <div class="col-sm-12 section-content">
+                {% show_facility_procedures proposal.details.beamline_reqs %}
+                {% if proposal.details.ancillaries %}
+                {% get_ancillaries data=proposal.details.ancillaries as ancillaries %}
+                <h3>Ancillary Requirements:</h3>
+                    <hr class="hr-xs">
+                <h4>{% for anc in  ancillaries.selected %} <span class="label label-default">{{anc}}</span>{% endfor %}</h4>
+                {% endif %}
+            </div>
+        </div>
+        {% endwith %}
+    {% else %}
+        <div class="row section">
+            <div class="col-sm-12 section-content">
+                <h3>Materials</h3>
+                <hr class="hr-xs">
+                {% include "projects/material-content.html" with material=object %}
+            </div>
+        </div>
+    {% endif %}
+
+    <h3>Reviews</h3>
+    <hr class="hr-xs">
+    {% include "proposals/reviews_table.html" with reviews=material.reviews %}
+</div>
+{% endblock %}

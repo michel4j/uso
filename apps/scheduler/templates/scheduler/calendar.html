@@ -1,0 +1,78 @@
+{% extends "scheduler/base.html" %}
+{% load static %}
+{% load jsonify %}
+{% load humanize %}
+{% load breadcrumbs %}
+{% load markup %}
+
+
+{% block page_heading %}Schedule<span class="hidden-xs text-muted"> &mdash; {{subtitle}}</span>{% endblock %}
+
+{% block full %}
+<div id="calendar-container" class="pagelet">
+
+	<div class="pad-wrapper">
+        <div class="row">
+		<div id="calendar" class="col-sm-12 slot-{{ shift_duration }}-hrs">
+            <div id="spinner"></div>
+        </div>
+		<div id="src-panel" class="col-sm-12">
+			<div class="row">
+				<div class="col-xs-11">
+					<ul class="row narrow-gutter list-unstyled">
+						{% for m in mode_types %}
+						<li class="col-xs-3">
+							<span class="label {{m.code}}">{{m.code}}</span>
+							<span class="text-condensed">{{m.name}}</span>
+						</li>
+						{% endfor %}
+						<li class="col-xs-3">
+							<span class="label tentative">&emsp;</span>
+							<span class="text-condensed">Tentative</span>
+						</li>
+						<li class="col-xs-3">
+							<span class="label Can">&emsp;</span>
+							<span class="text-condensed">Cancelled</span>
+						</li>
+						{% if tag_types %}
+						<li class="col-xs-12"><hr class="hr-xs"></li>
+							{% for tag in tag_types %}
+							<li id="tag-{{tag.pk}}" class="col-xs-3 tag cat-fg-{{forloop.counter0}}" data-tag="{{tag}}" data-cat="{{forloop.counter0}}">
+								<i class="bi-tag icon-fw"></i>&nbsp;{{tag}}
+							</li>
+							{% endfor %}
+						{% endif %}
+					</ul>
+				</div>
+				<div class="col-xs-1 spinner-container text-center">
+					<i id="spinner" class="icon-2x icon-fw pull-right"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+$(document).ready(function() {
+	setupAjax('#spinner', '{{ csrf_token }}');
+    setupCalendar('#calendar', {
+        multiView: {{ show_year | jsonify }},
+		defaultDate: '{{default_date}}',
+		timezone: "{{timezone}}",
+        shiftDuration: "{{ shift_duration }}",
+		defaultView: "{{default_view|default:'monthshift'}}",
+        viewChoices: "{{ view_choices|default:'' }}",
+		eventSources: {{ event_sources | jsonify}},
+        monthTemplateUrl: '{% url "month-template-api" slot=shift_duration %}',
+        cycleTemplateUrl: '{% url "cycle-template-api" slot=shift_duration %}',
+        yearTemplateUrl: '{% url "year-template-api" slot=shift_duration %}',
+        weekTemplateUrl: '{% url "week-template-api" slot=shift_duration %}',
+        weekSectionHeaders: '{{ sections }}'
+    });
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,173 @@
+{% load dynforms_tags %}
+{% load samples_tags %}
+
+<div class="controls" id="{{field.name}}-controls" data-field-name="{{field.name}}">
+	{% get_user_samples data=data as samples %}
+	<div class="sample-list">
+		<div class="row no-space header">
+			<span class="col-xs-3">Name</span>
+			<span class="col-xs-2">Type</span>
+			<span class="col-xs-1">State</span>
+			<span class="col-xs-3">Hazards</span>
+			<span class="col-xs-2">Quantity</span>
+			<span class="col-xs-1"></span>
+		</div>
+		<div id="{{field.name}}-list">
+			{% for sample, quantity in samples.selected %}
+			{% include "samples/fields/one_sample.html" with field_name=field.name %}
+			{% endfor %}
+		</div>
+	</div>
+	<div class="row no-space">
+	    <span class="field-group-item col-xs-11">
+		   {% if samples.all %}
+		   <select id="{{field.name}}-search" class="chosen select form-control"
+				   data-placeholder="Select a pre-defined sample to add">
+			   <option value=""></option>
+			   {% for sample, disabled in samples.all %}
+			   <option value="{{sample.pk}}" {% if disabled %}disabled{% endif %}>{{sample}}</option>
+			   {% endfor %}
+		   </select>
+		   {% endif %}
+	    </span>
+	    <span class="field-group-item col-xs-1">
+		 	<div class="btn-group pull-right">
+				<button title="Define New Sample to Add" class="btn btn-success" type="button"
+						id="{{field.name}}-new"><i class="bi-plus-lg icon-1x icon-fw"></i></button>
+			</div>
+	    </span>
+	</div>
+</div>
+<script type="text/javascript">	
+function update_{{field.name}}() {
+    // Trigger rule change events
+    $("#{{field.name}}-group").triggerHandler('dynrules:update');
+
+	// find all Hazards classes and sample types
+	var non_haz_pk = "15";
+	var all_hazards =  {};
+	var all_types = {};
+	$("#{{field.name}}-controls img[data-sample-hazard]").each(function(){
+		if ($(this).attr("data-sample-hazard") != non_haz_pk) {
+			all_hazards[$(this).attr("data-sample-hazard")] = 1;
+		}
+	});
+	$("#{{field.name}}-controls [data-sample-type]").each(function(){
+		all_types[$(this).attr("data-sample-type")] = 1;
+	});
+	// This element must be present in the form via a sample hazard field
+	$('#sample-hazard-controls  input[type="checkbox"]').each(function(){
+		if ($(this).val() in all_hazards) {
+			$(this).prop("checked", true);
+			$(this).attr('checked', 'checked');
+			$(this).trigger('change');
+			$(this).attr("disabled", "disabled");
+		} else if ($(this).is('[disabled]')) {
+            $(this).removeAttr("checked");
+            $(this).removeAttr("disabled");
+		}
+	});
+
+	// manage non-hazard checkbox
+	var non_hz = $('#sample-hazard-controls  input[type="checkbox"][value="15"]');
+	if (jQuery.isEmptyObject(all_hazards)) {
+		non_hz.removeAttr("disabled");
+	} else {
+		non_hz.attr("disabled", "disabled");
+	}	
+
+	// This element must be present in the form via a sample types field
+	$('#sample-type-controls  input[type="checkbox"]').each(function(){
+		if ($(this).val() in all_types) {
+			$(this).prop("checked", true);
+			$(this).attr('checked', 'checked');
+			$(this).attr("disabled", "disabled");
+		} else if ($(this).is('[disabled]')) {
+            $(this).removeAttr("checked");
+            $(this).removeAttr("disabled");
+		}
+		
+	});
+}
+$('#{{field.name}}-search').chosen({search_contains: true});
+$('#{{field.name}}-search').change(function(){
+	/* Add sample when select changes, then immediately reset select to "" */
+	var tgt_el = $(this);
+	if (tgt_el.val() != "") {
+		var url = "{% url 'sample-field' %}" + tgt_el.val() + "/{{field.name}}/";
+        console.log(url);
+		$.ajax(url).done(function(html){
+			$('#{{field.name}}-list').append(html).slideDown(600);
+			tgt_el.find("option:selected").attr('disabled', 'disabled');
+			tgt_el.val("");
+			tgt_el.trigger('chosen:updated');
+			update_{{field.name}}();
+		});
+	}
+});
+$("#{{field.name}}-controls").on('click', '.hidden-remove:not(.active)', function(){
+	var el = $(this);
+	el.addClass('active');
+	el.popover({
+		title: 'Are you sure?',
+		placement: 'bottom',
+		content: "Click again while icon is active to remove."
+	});
+	el.popover('show');
+    setTimeout(function(){el.removeClass('active'); el.popover('hide');}, 3000);	
+});
+$("#{{field.name}}-controls").on('click', '.hidden-remove.active', function(){
+	var tgt_el = $("#{{field.name}}-search");
+	var el = $(this).parent();
+	var opt_el = tgt_el.find('option[value="' + $(this).attr('data-sample-pk') + '"]');
+	opt_el.removeAttr('disabled');
+	tgt_el.trigger('chosen:updated');
+	el.slideUp(300, function(){
+		el.remove();
+		update_{{field.name}}();
+	});
+});
+$('#{{field.name}}-new').click(function(){
+	$('#modal-form').load("{% url 'add-sample-modal' %}", function(){
+		$("#modalForm").on('hidden.bs.modal', function(){
+			var tgt_el = $("#{{field.name}}-search");
+			
+			if ($(this).attr('data-new-object-pk') != null) {
+				var new_opt = $("<option disabled></option");
+				new_opt.attr('value', $(this).attr('data-new-object-pk'));
+				new_opt.text($(this).attr('data-new-object-name'));
+				tgt_el.append(new_opt);
+				
+				var url = "{% url 'sample-field' %}" + $(this).attr('data-new-object-pk') + "/{{field.name}}/";
+				$.ajax(url).done(function(html){
+					$('#{{field.name}}-list').append(html).slideDown(600);
+					tgt_el.trigger('chosen:updated');
+					update_{{field.name}}();
+				});
+			}
+		});
+	});
+});
+$('#{{field.name}}-controls').on('click', 'a.sample-edit-command', function(){
+	var el = $(this).closest(".sample-list-row");
+	var existing_quantity = el.find('input[name="{{field.name}}.quantity"]').val();
+	$('#modal-form').load($(this).attr('data-edit-url'), function(){
+		$("#modalForm").on('hidden.bs.modal', function(){
+			var tgt_el = $("#{{field.name}}-search");
+			var sample_pk = $(this).attr('data-new-object-pk');
+			if (sample_pk != null) {				
+				var url = "{% url 'sample-field' %}" + sample_pk + "/{{field.name}}/";
+				var qel = el.find('input[name="{{field.name}}.quantity"]');
+				var equant = qel.val();
+				$.ajax(url).done(function(html){					
+					$("#sample-"+ sample_pk+"-row").replaceWith(html);
+					$("#sample-"+ sample_pk+"-row").find('input[name="{{field.name}}.quantity"]').val(equant);
+				});
+			}
+		});
+	});
+});
+$(document).ready(function(){
+	update_{{field.name}}();
+});
+</script>

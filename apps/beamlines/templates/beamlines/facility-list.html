@@ -1,0 +1,14 @@
+{% extends "tooled-item-list.html" %}
+
+{% block list-tools %}
+    <a href="{% url 'create-beamline' %}" class="pull-right">
+        <i class="bi-plus-lg icon-2 icon-fw"></i><br>
+        <span class="tool-label">Add Facility</span>
+    </a>
+    <a href="{% url 'beamline-map' %}" class="pull-right">
+        <i class="bi-map icon-2 icon-fw"></i><br>
+        <span class="tool-label">Facility Map</span>
+    </a>
+{% endblock %}
+
+

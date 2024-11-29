@@ -1,0 +1,1327 @@
+$color_1: #e1e1e1;
+$color_2: #fff;
+$color_3: inherit;
+$color_4: rgba(0, 0, 0, 0.2);
+$color_5: #333;
+$color_6: rgba(0, 0, 0, 0.27);
+$color_7: rgba(0, 0, 0, 0.3);
+$color_8: #000;
+$color_9: #ff6089;
+$color_10: #286090;
+$color_11: #8dcadf;
+$color_12: #8a6d3b;
+$color_13: #777;
+$color_14: rgba(0, 0, 0, 0.5);
+$color_15: #1f77b4;
+$color_16: #ff7f0e;
+$color_17: #2ca02c;
+$color_18: #d62728;
+$color_19: #9467bd;
+$color_20: #8c564b;
+$color_21: #e377c2;
+$color_22: #7f7f7f;
+$color_23: #bcbd22;
+$color_24: #17becf;
+$font-family_1: bootstrap-icons;
+$font-family_2: FontAwesome;
+$font-family_3: Themify;
+$font-family_4: 'Decima Mono Pro';
+$font-family_5: 'Encode Sans Compressed';
+$background-color_1: #3d3c3c;
+$background-color_2: rgba(0, 192, 0, 0.75);
+$background-color_3: rgba(192, 0, 0, 0.75);
+$background-color_4: #fff;
+$background-color_5: #f6f6f6;
+$background-color_6: rgba(252, 255, 7, 0.35);
+$background-color_7: #e1f0b3;
+$background-color_8: #ffe1b3;
+$background-color_9: #fefeAD;
+$background-color_10: #CCF5FF;
+$background-color_11: #d5e1b3;
+$background-color_12: #f0d7b3;
+$background-color_13: #F1F8DD;
+$background-color_14: #FFF5E5;
+$background-color_15: #fefee1;
+$background-color_16: #E5FAFF;
+$background-color_17: #E8EFD7;
+$background-color_18: #F8EDDD;
+$background-color_19: #C7E472;
+$background-color_20: #FFCC80;
+$background-color_21: #fefe61;
+$background-color_22: #80E6FF;
+$background-color_23: #C0D28E;
+$background-color_24: #E8C087;
+$background-color_25: #ccc;
+$background-color_26: #75507b;
+$background-color_27: #ebebeb;
+$background-color_28: rgba(0, 0, 0, 0.05);
+$background-color_29: inherit;
+$background-color_30: #7accbe;
+$background-color_31: #8dcadf;
+$background-color_32: #dcac43;
+$background-color_33: #b3b3b3;
+$background-color_34: #708eb5;
+$background-color_35: #1f77b4;
+$background-color_36: #ff7f0e;
+$background-color_37: #2ca02c;
+$background-color_38: #d62728;
+$background-color_39: #9467bd;
+$background-color_40: #8c564b;
+$background-color_41: #e377c2;
+$background-color_42: #7f7f7f;
+$background-color_43: #bcbd22;
+$background-color_44: #17becf;
+$border-color_1: #3d3c3c;
+$border-color_2: #ccc;
+
+/* SRC Panel */
+/* starting and ending selections */
+/*Month View*/
+/* Cycle View */
+.fc-unthemed {
+  .fc-divider {
+    border: none;
+  }
+
+  .fc-popover {
+    border: none;
+  }
+
+  .fc-row {
+    border: none;
+  }
+
+  tbody {
+    border: none;
+  }
+
+  td {
+    border: none;
+  }
+
+  th {
+    border: none;
+  }
+
+  thead {
+    border: none;
+  }
+}
+
+.fc-view {
+  margin-bottom: 0.5em;
+
+  > table {
+    border: 1px solid #3d3c3c;
+  }
+
+  .table {
+    > tbody {
+      > tr {
+        > td {
+          padding: 0 !important;
+        }
+
+        > th {
+          padding: 0 !important;
+        }
+      }
+    }
+
+    > tfoot {
+      > tr {
+        > td {
+          padding: 0 !important;
+        }
+
+        > th {
+          padding: 0 !important;
+        }
+      }
+    }
+
+    > thead {
+      > tr {
+        > td {
+          padding: 0 !important;
+        }
+
+        > th {
+          padding: 0 !important;
+        }
+      }
+    }
+  }
+}
+
+#calendar {
+  min-height: 520px;
+
+  h2 {
+    line-height: 27px;
+    font-size: 27px;
+  }
+
+  &:not(.starting) {
+    .fc-view {
+      .cal-day {
+        .cal-shift {
+          cursor: auto;
+        }
+      }
+    }
+
+    .cal-day {
+      .cal-shift {
+        cursor: auto;
+      }
+    }
+  }
+
+  &:not(.ending) {
+    .fc-view {
+      .cal-day {
+        .cal-shift {
+          cursor: auto;
+        }
+      }
+    }
+  }
+}
+
+.fc-year-view {
+  border: none;
+
+  .fc-head {
+    display: none;
+  }
+
+  .fc-sun {
+    background-color: $background-color_28;
+  }
+
+  .fc-sat {
+    background-color: $background-color_28;
+  }
+
+  th.fc-sun {
+    border-top-right-radius: 33%;
+    border-top-left-radius: 33%;
+  }
+
+  th.fc-sat {
+    border-top-right-radius: 33%;
+    border-top-left-radius: 33%;
+  }
+
+  .graph-weekday {
+    font-family: $font-family_5;
+  }
+}
+
+.fc-day-header {
+  border-color: $border-color_1;
+  background-color: $background-color_1;
+  color: $color_1;
+}
+
+.fc-day-number {
+  text-align: center !important;
+  vertical-align: middle;
+  font-size: 90%;
+  font-weight: 400;
+}
+
+.fc-toolbar {
+  height: 30px;
+  margin-bottom: 13px;
+
+  .fc-right {
+    .fc-button-group {
+      float: right;
+    }
+  }
+
+  .fc-center {
+    .fc-button-group {
+      margin: 0 auto;
+      text-align: center;
+      float: none !important;
+    }
+  }
+}
+
+.prefs-available {
+  .cal-day-number {
+    background-color: $background-color_2 !important;
+    color: $color_2;
+    border-radius: 50%;
+  }
+}
+
+.prefs-unavailable {
+  .cal-day-number {
+    background-color: $background-color_3 !important;
+    color: $color_2;
+    border-radius: 50%;
+  }
+}
+
+.fc-row.fc-week {
+  + {
+    .fc-row.fc-week {
+      border-top: 1px solid #aaa;
+    }
+  }
+}
+
+.fc-state-default.fc-corner-left {
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.fc-state-default.fc-corner-right {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.fc-icon-right-single-arrow {
+  &::after {
+    font-family: $font-family_1 !important;
+    content: "\f138";
+    font-size: 11px;
+  }
+}
+
+.fc-icon-left-single-arrow {
+  &::after {
+    font-family: $font-family_1 !important;
+    content: "\f12F";
+    font-size: 11px;
+  }
+}
+
+.fc-icon-left-double-arrow {
+  &:after {
+    font-family: $font-family_1 !important;
+    content: "\e662";
+    font-size: 11px;
+  }
+}
+
+.fc-icon-right-double-arrow {
+  &:after {
+    font-family: $font-family_1 !important;
+    content: "\e661";
+    font-size: 11px;
+  }
+}
+
+.fc-state-default {
+  background-image: none;
+  box-shadow: 0 -1px 1px rgba(0, 0, 0, 0.08) inset;
+  background-color: $background-color_4;
+  border-color: $border-color_2;
+
+  &:hover {
+    &:not([disabled]) {
+      border: 1px solid #d2d2d2 !important;
+      background-color: $background-color_5;
+      color: $color_3;
+    }
+  }
+
+  &:active {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) inset;
+  }
+}
+
+.fc-state-default[disabled] {
+  opacity: 0.35;
+}
+
+.fc-state-down {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) inset;
+}
+
+.fc-state-active {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) inset;
+}
+
+.calendar-tools {
+  height: 30px;
+  margin-bottom: 13px;
+}
+
+.shift-header {
+  font-size: 80%;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.slot-16-hrs {
+  .cal-shift {
+    min-height: 3em;
+    line-height: 3em;
+    font-size: 100%;
+  }
+}
+
+.slot-8-hrs {
+  .cal-shift {
+    min-height: 2.5em;
+    line-height: 2.5em;
+    font-size: 95%;
+  }
+}
+
+.slot-4-hrs {
+  .cal-shift {
+    min-height: 1.5em;
+    line-height: 1.5em;
+    font-size: 85%;
+  }
+}
+
+.cal-shift.selected {
+  background-color: $background-color_6 !important;
+}
+
+.cal-day.disabled {
+  background-image: repeating-linear-gradient(60deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25) 0.25px, rgba(0, 0, 0, 0.0) 1px, rgba(0, 0, 0, 0.0) 4px);
+
+  .shift-label {
+    display: none;
+  }
+
+  .cal-day-number {
+    color: $color_4;
+    font-weight: 400 !important;
+  }
+}
+
+.N {
+  background-color: $background-color_7;
+  color: $color_5;
+
+  .hrow {
+    background-color: $background-color_13;
+  }
+
+  &:hover {
+    background-color: $background-color_13;
+  }
+}
+
+.D {
+  background-color: $background-color_8;
+  color: $color_5;
+
+  .hrow {
+    background-color: $background-color_14;
+  }
+
+  &:hover {
+    background-color: $background-color_14;
+  }
+}
+
+.X {
+  background-color: $background-color_9;
+  color: $color_5;
+
+  .hrow {
+    background-color: $background-color_15;
+  }
+
+  &:hover {
+    background-color: $background-color_15;
+  }
+}
+
+.M {
+  background-color: $background-color_10;
+  color: $color_5;
+
+  .hrow {
+    background-color: $background-color_16;
+  }
+
+  &:hover {
+    background-color: $background-color_16;
+  }
+}
+
+.NS {
+  background-color: $background-color_11;
+  color: $color_5;
+
+  .hrow {
+    background-color: $background-color_17;
+  }
+
+  &:hover {
+    background-color: $background-color_17;
+  }
+}
+
+.DS {
+  background-color: $background-color_12;
+  color: $color_5;
+
+  .hrow {
+    background-color: $background-color_18;
+  }
+
+  &:hover {
+    background-color: $background-color_18;
+  }
+}
+
+.tentative {
+  background-image: repeating-linear-gradient(60deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25) 0.5px, rgba(0, 0, 0, 0.0) 2px, rgba(0, 0, 0, 0.0) 4px);
+}
+
+.Can {
+  background-image: repeating-linear-gradient(60deg, rgba(255, 0, 0, 0.25), rgba(255, 0, 0, 0.25) 0.5px, rgba(0, 0, 0, 0.0) 2px, rgba(0, 0, 0, 0.0) 4px);
+  color: $color_5;
+}
+
+.selected-default {
+  background-image: repeating-linear-gradient(60deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25) 0.25px, rgba(0, 0, 0, 0.0) 1px, rgba(0, 0, 0, 0.0) 4px);
+}
+
+.N.dim {
+  background-color: $background-color_13;
+}
+
+.selected-N {
+  background-color: $background-color_13;
+}
+
+.D.dim {
+  background-color: $background-color_14;
+}
+
+.selected-D {
+  background-color: $background-color_14;
+}
+
+.X.dim {
+  background-color: $background-color_15;
+}
+
+.selected-X {
+  background-color: $background-color_15;
+}
+
+.M.dim {
+  background-color: $background-color_16;
+}
+
+.selected-M {
+  background-color: $background-color_16;
+}
+
+.NS.dim {
+  background-color: $background-color_17;
+}
+
+.selected-NS {
+  background-color: $background-color_17;
+}
+
+.DS.dim {
+  background-color: $background-color_18;
+}
+
+.selected-DS {
+  background-color: $background-color_18;
+}
+
+.N.ui-state-highlight {
+  background-color: $background-color_19;
+}
+
+.D.ui-state-highlight {
+  background-color: $background-color_20;
+}
+
+.X.ui-state-highlight {
+  background-color: $background-color_21;
+}
+
+.M.ui-state-highlight {
+  background-color: $background-color_22;
+}
+
+.NS.ui-state-highlight {
+  background-color: $background-color_23;
+}
+
+.DS.ui-state-highlight {
+  background-color: $background-color_24;
+}
+
+.Can.ui-state-highlight {
+  background-color: $background-color_25;
+}
+
+#src-panel {
+  .event-src {
+    td {
+      vertical-align: middle;
+      line-height: 1.5;
+    }
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 0 !important;
+    height: 559px;
+  }
+
+  .src-tools {
+    margin-bottom: 0 !important;
+    margin-top: 0.5em;
+    height: 8em;
+  }
+}
+
+.event-src {
+  cursor: pointer;
+}
+
+.event-src.active-src {
+  background-color: $background-color_26;
+  color: $color_2;
+}
+
+.cal-day {
+  .cal-shift {
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+.today {
+  background-color: $background-color_27;
+  box-shadow: inset 0 0 8px #d4d4d4;
+}
+
+.cal-shift {
+  > .event-tools.active {
+    &::before {
+      font-family: $font-family_1;
+      content: "\F5D3";
+      color: $color_6;
+    }
+
+    background: rgba(0, 0, 0, 0.075);
+    cursor: pointer;
+  }
+
+  > .event-tools {
+    width: 1.25rem;
+    text-align: center;
+  }
+
+  .mode-label {
+    display: inline-block;
+    text-align: center;
+    margin-right: 1.25rem;
+    flex: 1;
+    font-weight: 500;
+    color: $color_7;
+  }
+
+  .event-label {
+    display: inline-block;
+    text-align: left;
+    margin-right: 0;
+    flex: 1;
+    font-weight: 600;
+    padding-left: 0.5em;
+  }
+}
+
+.event-label {
+  .bi-tag {
+    + {
+      .bi-tag {
+        margin-left: -0.75rem;
+      }
+    }
+
+    font-size: 110%;
+  }
+}
+
+.event-label.cancelled {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.event-tools {
+  .popover.bottom {
+    margin-top: 0 !important;
+    width: 210px;
+    padding: 0;
+  }
+
+  .popover {
+    .popover-content {
+      padding: 5px;
+
+      textarea {
+        width: 200px;
+        padding: 0;
+      }
+
+      .tools {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0.5em 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.15);
+
+        a {
+          display: inline-block;
+          text-align: center;
+          flex: 1;
+        }
+      }
+    }
+  }
+}
+
+.idle {
+  + {
+    #src-panel {
+      #src-instruction {
+        &:before {
+          font-family: $font-family_1;
+          content: "\F402";
+          margin-right: 1rem;
+        }
+
+        &:after {
+          content: "Select an item from the list";
+        }
+      }
+    }
+  }
+}
+
+.starting {
+  + {
+    #src-panel {
+      #src-instruction {
+        &:before {
+          font-family: $font-family_3;
+          content: "\e6d9";
+          margin-right: 1rem;
+        }
+
+        &:after {
+          content: "Select first shift";
+        }
+      }
+    }
+  }
+
+  [data-href] {
+    pointer-events: none !important;
+  }
+
+  .fc-day-grid-event {
+    .fc-title {
+      pointer-events: none;
+    }
+  }
+}
+
+.ending {
+  + {
+    #src-panel {
+      #src-instruction {
+        &:before {
+          font-family: $font-family_3;
+          content: "\e6da";
+          margin-right: 1rem;
+        }
+
+        &:after {
+          content: "Select last shift";
+        }
+      }
+    }
+  }
+
+  [data-href] {
+    pointer-events: none !important;
+  }
+
+  .fc-day-grid-event {
+    .fc-title {
+      pointer-events: none;
+    }
+  }
+}
+
+#calendar.starting {
+  .fc-view {
+    .cal-day {
+      .cal-shift {
+        cursor: nw-resize !important;
+      }
+    }
+  }
+
+  .cal-day.disabled {
+    .cal-shift {
+      cursor: not-allowed !important;
+    }
+  }
+
+  .cal-day-header {
+    .cal-shift {
+      cursor: e-resize !important;
+    }
+  }
+}
+
+#calendar.ending {
+  .fc-view {
+    .cal-day {
+      .cal-shift {
+        cursor: se-resize !important;
+      }
+    }
+  }
+
+  .cal-day.disabled {
+    .cal-shift {
+      cursor: not-allowed !important;
+    }
+  }
+}
+
+.month-name {
+  text-align: center;
+  vertical-align: middle !important;
+  padding: 0;
+  margin: 0;
+  font-size: 120%;
+  cursor: pointer;
+}
+
+th.graph-weekday {
+  border: none !important;
+  text-align: center;
+  vertical-align: middle !important;
+}
+
+.month-row {
+  &:hover {
+    > td {
+      opacity: 0.7;
+    }
+  }
+
+  + {
+    .month-row {
+      > td {
+        border-top: 1px solid #ddd;
+      }
+
+      > th {
+        border-top: 1px solid #ddd;
+      }
+    }
+  }
+}
+
+.legend {
+  td {
+    vertical-align: middle;
+    text-align: center;
+  }
+
+  th {
+    vertical-align: middle;
+    text-align: center;
+  }
+}
+
+.fc-row-jan {
+  > td {
+    border-top: 2px solid #aaa !important;
+  }
+
+  > th {
+    border-top: 2px solid #aaa !important;
+  }
+}
+
+.fc-row-jul {
+  > td {
+    border-top: 2px solid #aaa !important;
+  }
+
+  > th {
+    border-top: 2px solid #aaa !important;
+  }
+}
+
+.fc-year-day {
+  font-family: $font-family_4;
+  font-size: 10px;
+  border: 1px solid #999 !important;
+  height: 100%;
+  color: $color_8;
+}
+
+.fc-basic-view {
+  td.fc-day-number {
+    padding-top: 0;
+  }
+
+  td.fc-week-number {
+    span {
+      padding-top: 0;
+    }
+  }
+}
+
+.fc-event {
+  border-radius: 0;
+  border-top: none;
+  border-bottom: none;
+  border-right: none;
+}
+
+.fc-day-grid {
+  margin: 0;
+  padding: 0;
+}
+
+.fc-content-skeleton {
+  pointer-events: none !important;
+}
+
+.year-day-number {
+  pointer-events: none !important;
+}
+
+.month-day-number {
+  pointer-events: none !important;
+  text-align: center;
+}
+
+.fc-day-grid-event {
+  border-left: 5px solid #bfbfbf;
+  margin: 0;
+  padding: 0;
+
+  .fc-title {
+    pointer-events: all;
+    cursor: pointer;
+  }
+
+  .fc-content {
+    overflow: inherit;
+    white-space: nowrap;
+    line-height: 22px;
+    text-shadow: 0 0 3px #000, 0 0 2px #000, 0 0 1px #000;
+  }
+}
+
+.fc-title {
+  font-weight: 600;
+  line-height: 22px;
+}
+
+#src-content {
+  flex: 1;
+}
+
+.src-tools {
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-shadow: 0 0 1px #000;
+    }
+  }
+
+  .event-src.active-src {
+    background-color: $background-color_29;
+    color: $color_9 !important;
+  }
+
+  .event-src {
+    width: 4em;
+    margin: 0 auto;
+    text-align: center;
+  }
+}
+
+#src-tags {
+  .label {
+    font-size: 100%;
+    min-width: 100px;
+    font-weight: 500;
+    line-height: 1.5;
+    cursor: pointer;
+    margin-right: 0.5em;
+    opacity: 0.65;
+
+    &:before {
+      font-family: $font-family_1;
+      content: "\F584";
+      vertical-align: middle;
+      float: left;
+      margin-right: 0.5em;
+    }
+  }
+
+  .label.active {
+    opacity: 1;
+
+    &:before {
+      content: "\F271";
+      opacity: 1.0;
+    }
+  }
+}
+
+.beamtime-user {
+  background-color: $background-color_30;
+}
+
+.beamtime-beamteam {
+  background-color: $background-color_31;
+}
+
+.beamtime-purchased {
+  background-color: $background-color_32;
+}
+
+.beamtime-maintenance {
+  background-color: $background-color_33;
+}
+
+.beamtime-staff {
+  background-color: $background-color_34;
+}
+
+.fg-user {
+  color: $color_8;
+}
+
+.fg-education {
+  color: $color_10;
+}
+
+.fg-beamteam {
+  color: $color_11;
+}
+
+.fg-purchased {
+  color: $color_12;
+}
+
+.fg-maintenance {
+  color: $color_13;
+}
+
+.fg-staff {
+  color: $color_10;
+}
+
+.fg-reservation {
+  color: $color_14;
+}
+
+.cat-0 {
+  background-color: $background-color_35;
+}
+
+.cat-1 {
+  background-color: $background-color_36;
+}
+
+.cat-2 {
+  background-color: $background-color_37;
+}
+
+.cat-3 {
+  background-color: $background-color_38;
+}
+
+.cat-4 {
+  background-color: $background-color_39;
+}
+
+.cat-5 {
+  background-color: $background-color_40;
+}
+
+.cat-6 {
+  background-color: $background-color_41;
+}
+
+.cat-7 {
+  background-color: $background-color_42;
+}
+
+.cat-8 {
+  background-color: $background-color_43;
+}
+
+.cat-9 {
+  background-color: $background-color_44;
+}
+
+.cat-fg-0 {
+  color: $color_15;
+}
+
+.cat-fg-1 {
+  color: $color_16;
+}
+
+.cat-fg-2 {
+  color: $color_17;
+}
+
+.cat-fg-3 {
+  color: $color_18;
+}
+
+.cat-fg-4 {
+  color: $color_19;
+}
+
+.cat-fg-5 {
+  color: $color_20;
+}
+
+.cat-fg-6 {
+  color: $color_21;
+}
+
+.cat-fg-7 {
+  color: $color_22;
+}
+
+.cat-fg-8 {
+  color: $color_23;
+}
+
+.cat-fg-9 {
+  color: $color_24;
+}
+
+.tag-content {
+  display: inline;
+  min-width: 8px;
+  height: 5px;
+  float: left;
+}
+
+.fc-time {
+  width: 16px;
+}
+
+.cal-month-view {
+  .cal-header-row {
+    background: #3d3c3c;
+    color: $color_2;
+    line-height: 1.8;
+
+    .cal-header {
+      + {
+        .cal-header {
+          border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+  }
+
+  .cal-day {
+    position: relative;
+    border-left: 1px solid #bfbfbf;
+
+    .cal-day-number {
+      position: absolute;
+      right: 0.25em;
+      top: 0.25em;
+      width: 1.5em;
+      height: 1.5em;
+      pointer-events: none !important;
+      text-align: center;
+      font-weight: bold;
+      font-size: 110%;
+    }
+
+    .cal-shift {
+      flex: 1;
+      text-align: left;
+    }
+  }
+
+  .cal-row {
+    + {
+      .cal-row {
+        > td {
+          border-top: 1px solid #bfbfbf;
+        }
+      }
+    }
+  }
+
+  .cal-day-content {
+    position: relative;
+    display: flex;
+    flex-flow: column;
+    align-items: stretch;
+    justify-content: space-between;
+
+    .cal-header {
+      position: absolute;
+      width: 30%;
+    }
+  }
+
+  .cal-day-header {
+    .cal-header {
+      > text {
+        letter-spacing: 1px;
+        line-height: 1;
+        text-transform: uppercase;
+        -webkit-writing-mode: vertical-lr;
+        -ms-writing-mode: lr-tb;
+        writing-mode: vertical-lr;
+        padding: 0.2em;
+      }
+    }
+
+    .cal-shift {
+      flex: 1 auto;
+      text-align: center;
+      align-self: flex-end;
+      width: 70%;
+    }
+  }
+
+  .cal-shift {
+    + {
+      .cal-shift {
+        border-top: 1px dotted #bfbfbf;
+      }
+    }
+  }
+}
+
+.cal-cycle-view {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  .cal-cycle-month {
+    flex: 1;
+    text-align: center;
+    min-height: 20em;
+
+    table {;
+    }
+  }
+
+  .cal-header-row {
+    background: #3d3c3c;
+    color: $color_2;
+    line-height: 1.8;
+
+    .cal-header {
+      + {
+        .cal-header {
+          border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+  }
+
+  .cal-day {
+    position: relative;
+
+    .cal-day-number {
+      position: absolute;
+      margin: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.75;
+      width: 100%;
+      line-height: 2.4em;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .cal-shift {
+      flex: 1;
+      text-align: left;
+    }
+
+    + {
+      .cal-day {
+        border-left: 1px solid #bfbfbf;
+      }
+    }
+  }
+
+  .cal-row {
+    > td {
+      border-bottom: 1px solid #bfbfbf;
+      border-top: 1px solid #bfbfbf;
+    }
+  }
+
+  .cal-day-content {
+    position: relative;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: stretch;
+    justify-content: center;
+    align-content: center;
+  }
+
+  .cal-shift {
+    + {
+      .cal-shift {
+        border-left: 1px dashed #bfbfbf;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .cal-cycle-month {
+    min-width: calc(100% / 2 - 1em);
+  }
+}
+@media (max-width: 768px) {
+  .cal-cycle-month {
+    min-width: calc(100% / 3 - 1em);
+  }
+}
+@media (max-width: 1170px) {
+  .cal-cycle-month {
+    min-width: 100%;
+  }
+}

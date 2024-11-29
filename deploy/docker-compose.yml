@@ -1,0 +1,25 @@
+services:
+  database:
+    image: postgres:17-alpine
+    volumes:
+      - ./database:/var/lib/postgresql/data:Z
+    environment:
+      POSTGRES_PASSWORD: Baev6Aegha&p2iedie#Qu6Jooz5eNg7Z
+      POSTGRES_USER: usonline
+    restart: always
+
+  cache:
+    image: memcached:latest
+    restart: always
+
+  uso:
+    image: usonline:latest
+    environment:
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_PASSWORD: <set-secret-password>
+      DJANGO_SUPERUSER_EMAIL: <set-admin-email>
+    ports:
+      - 80:80
+    volumes:
+      - ./local:/usonline/local:Z
+    restart: always

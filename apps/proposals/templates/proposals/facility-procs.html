@@ -1,0 +1,13 @@
+{% load markup %}
+{% for ctx in facilities %}
+<div class="row">
+ 	<div class="col-xs-12">
+ 	<h3>Experimental Procedures &mdash; <strong>{{ctx.facility}}</strong></h3>
+ 	<hr class="hr-xs"/>
+ 	</div>
+    <div class="col-xs-12">
+       <p>{{ctx.procedure}}</p>
+    </div>
+
+</div>
+{% endfor %}

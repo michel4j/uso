@@ -1,0 +1,15 @@
+Dear {{user}},
+
+A user on your beamline {{allocation.beamline}} has declined their allocation.
+---
+User: {{request.user}}
+Project:  {{allocation.project.code}} ({{site}}{% url 'project-detail' pk=allocation.project.pk %})
+Beamline: {{allocation.beamline}}
+Allocated Shifts:  {{shifts}}
+
+Reason given:
+{{comments}}
+---
+
+Sincerely,
+The CLS Users Office Team

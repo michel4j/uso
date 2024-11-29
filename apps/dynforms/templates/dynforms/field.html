@@ -1,0 +1,39 @@
+{% load dynforms_tags %}
+{% load markup %}
+<div id="{{field.name}}-group" class="form-group {% if 'hide' in field.options %}df-hide {% endif %}{% if field.width == 'third'%}col-xs-4{% elif field.width == 'half' %}col-xs-6{% else %}col-xs-12{% endif %}  {{field.tags}}">
+    {% if field.field_type != 'newsection' %}
+    {% if 'nolabel' not in field.options %}
+    <label class="control-label" {% if field.choices or field.field_type == 'address' %}{% else %}for="{{field.name}}"{% endif %}>
+        {{field.label}}{% if "required" in field.options %}&nbsp;<span class="text-danger">&#x2217;</span>&nbsp;{% endif %}
+    </label>
+    {% if field.instructions and field.field_type != 'newsection' %}
+    <i class="df-info bi-info-circle-fill text-primary" data-toggle="popover" data-placement="bottom"	data-trigger="hover"
+       title="{{field.label}}"	data-content="{{field.instructions}}"></i>
+    {% endif %}
+    <span class="control-instructions hidden-xs text-narrow">
+        <div style="display: flex; flex-direction: row; font-size: 105%; line-height: 1; align-items: center;">
+            <i class="bi-info-circle-fill icon-2x text-primary"></i>
+            <div style="flex: 1; padding-left: 0.5em;">{{field.label}}</div>
+        </div>
+        <hr class="hr-xs"/>
+        <span class="fg-help">
+            {{field.instructions|markdown}}
+        </span>
+    </span>
+    {% endif %}
+    {% endif %}
+    {% if "repeat" in field.options %}
+    {% show_field field repeatable=True %}
+    <button data-repeat-add=".{{field.name}}-repeatable"
+            class="btn btn-success btn-sm pull-right" title="Add {{field.label}}"
+            name="add" type="button"><i class="bi-plus-lg icon-1x"></i>
+    </button>
+    {% else %}
+    {% show_field field %}
+    {% endif %}
+</div>
+{% if "repeat" in field.options %}
+<script>
+    $('#{{field.name}}-group button[data-repeat-add]').repeatable();
+</script>
+{% endif %}

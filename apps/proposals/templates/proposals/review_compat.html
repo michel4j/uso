@@ -1,0 +1,40 @@
+{% extends "forms/modal.html" %}
+{% load crispy_forms_tags %}
+{% load markup %}
+{% block form_title %}Reviewer Compatibility{% endblock %}
+{% block form_body %}
+<div class="tinytron {% if conflict %} bg-danger {% else %} bg-success {% endif %}">
+    <h4 style="margin:0;">
+        {%  if admin %}
+            <strong><a class="next-url" href="{% url 'edit-reviewer-profile' pk=reviewer.reviewer.pk %}">{{reviewer}}</a></strong>
+            {% else %}
+            <strong>{{reviewer}}</strong>
+        {%  endif %}
+        <span class="pull-right badge" title="Cycle Workload" style="margin-left: 0.25em;">
+            {{workload.count}}
+        </span>
+        {% if conflict %}<span class="pull-right label label-danger">Conflict</span>{% endif %}
+    </h4>
+    <small class="text-muted">{{reviewer.institution}}</small>
+    {% for tech in reviewer.reviewer.techniques.all %}
+    {% if forloop.first %}
+    <hr class="hr-xs"/>
+    {% endif %}
+    <span class="label {% if tech in compat_techniques %}label-primary{% else %}label-default{% endif %}">{{tech}}</span>
+    {% endfor %}
+    {% for area in reviewer.reviewer.areas.all %}
+    {% if forloop.first %}
+    <hr class="hr-xs"/>
+    {% endif %}
+    <span class="label {% if area in compat_areas %}label-success{% else %}label-default{% endif %}">{{area}}</span>
+    {% endfor %}
+</div>
+<div class="tinytron bg-white">
+    {% include "proposals/submission-snippet.html" %}
+</div>
+<div class="row">
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	</div>
+</div>
+{% endblock %}

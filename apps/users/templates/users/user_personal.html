@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load roleperms %}
+{% load map_coords %}
+
+{% load agreement_tags %}
+
+
+{% block page_heading %}
+    <span class="hidden-xs">My Profile</span>
+{% endblock %}
+
+{% block full %}
+    <div class="pagelet">
+
+    <div class="pagelet-header">
+        <span class="pagelet-title">{{ user.title|default_if_none:"" }} {{user}}</span>
+        <a href="{% url 'edit-my-profile' %}" class="btn btn-xs btn-white pull-right"><span class="sr-only">Edit Profile</span>
+            <i class="bi-pencil icon-1x icon-fw"></i>
+        </a>
+    </div>
+
+    <div class="pagelet-body">
+        <div class="col-sm-6 col-lg-9">
+
+            <table class="profile table table-condensed" style="font-size: 95%;">
+                <tbody>
+                <tr>
+                    <td class="item"><i class="bi-briefcase icon-fw"></i></td>
+                    <td>{{user.get_classification_display|default:""}}</td>
+                </tr>
+                <tr>
+                    <td class="item"><i class="bi-telephone icon-fw"></i></td>
+                    <td>{{user.address.phone|default:"<span class='text-muted'>(999)-999-9999</span>"}}</td>
+                </tr>
+                <tr>
+                    <td class="item"><i class="bi-envelope-at icon-fw"></i></td>
+                    <td>{{user.email.lower}}</td>
+                </tr>
+                <tr>
+                    <td class="item"><i class="bi-house icon-fw"></i></td>
+                    <td>{{user.institution}}</td>
+                </tr>
+                <tr>
+                    <td class="item"><i class="bi-geo-alt icon-fw"></i></td>
+                    <td>{{user.address|default:""}}</td>
+                </tr>
+                <tr>
+                    <td class="item"><i class="bi-paint-bucket icon-fw"></i></td>
+                    <td>{{object.research_field.all|join:", "}}</td>
+                </tr>
+                <tr>
+                    <td class="item" colspan="2">{% for r in object.roles %}<span class="label label-info">{{r|role_label}}</span> {% endfor %}</td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-sm-6 col-lg-3">
+        {% if object.address %}
+            {% if object.address.api_format|api_coords %}
+                <div class="pagelet-content col-xs-12" style="padding-left: 0; padding-right: 0;">
+                {% with object.address.api_format|api_coords as latlng %}
+                    <div id="map_canvas" class="col-sm-5 col-md-7" style="height:241px; width: 100%; border:1px #ddd solid;"></div>
+
+                    <script type="text/javascript">
+                        function initialize() {
+                            var latlng = new google.maps.LatLng({{latlng.lat}},{{latlng.lng}});
+                            var settings = {
+                                zoom: 15,
+                                center: latlng,
+                                mapTypeControl: true,
+                                mapTypeControlOptions: {style: google.maps.MapTypeControlStyle.DROPDOWN_MENU},
+                                navigationControl: true,
+                                navigationControlOptions: {style: google.maps.NavigationControlStyle.SMALL},
+                                mapTypeId: google.maps.MapTypeId.ROADMAP
+                            };
+                            var map = new google.maps.Map(document.getElementById("map_canvas"), settings);
+                            var clsPos = new google.maps.LatLng(52.136883, -106.631367);
+                            var clsMarker = new google.maps.Marker({
+                                position: clsPos,
+                                map: map,
+                                icon: "/static/img/logo-sm.png",
+                                title:"Canadian Light Source, Inc."
+                            });
+                            var companyPos = new google.maps.LatLng({{latlng.lat}},{{latlng.lng}});
+                            var companyMarker = new google.maps.Marker({
+                                position: companyPos,
+                                map: map,
+                                icon: "//maps.google.com/mapfiles/ms/icons/orange-dot.png",
+                                title:"{{ object.first_name }}'s Address"
+                            });
+                        }
+                    </script>
+                    <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?key=AIzaSyA6WWAqjZTnYN3cQT67tPwwzoww_Ola8e8&callback=initialize"></script>
+                {% endwith %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="pagelet-content">
+                <div class="empty">Update your profile</div>
+            </div>
+        {% endif %}
+        </div>
+
+
+    </div>
+</div>
+
+{% if object|active_agreements %}
+<div class="pagelet">
+    <div class="pagelet-header">
+        <span class="pagelet-title">My Active Agreements</span>
+    </div>
+    <div class="pagelet-body">
+        <div class="col-sm-12">
+        {%  for acceptance in object|active_agreements %}
+            <ul class="list-unstyled">
+            <li class="tinytron bg-darken">
+            <h4 class="text-condensed">
+                <strong>{{ acceptance.agreement.name }}</strong>
+                <span class="text-right pull-right">
+                    <a href='#full-agreement' data-toggle="collapse" title="Full Agreement"
+                       aria-expanded="false" aria-controls="full-agreement"><i class="bi-three-dots icon-fw"></i></a>
+                </span>
+            </h4>
+                <small><span class="text-muted">Accepted {{ acceptance.modified|date }}
+                    <i class="bi-check2 icon-fw"></i></span></small>
+            <p>{{ acceptance.agreement.description }}</p>
+            <div class="row">
+                <div class="col-xs-12">
+
+                </div>
+            </div>
+            <div class="row collapse" id="full-agreement">
+                <div class="col-xs-12">
+                    <hr />
+                    {{ acceptance.agreement.content|safe }}
+                </div>
+            </div>
+        {%  endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+{% endblock %}
+

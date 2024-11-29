@@ -1,0 +1,23 @@
+{% load dynforms_tags %}
+<div class="controls row no-space{{repeatable}}"
+	id="{{field.name}}-controls">
+	<span class="field-group-item col-xs-6">
+		<div class="field-group-item input-group"
+			id="{{field.name}}-primary-controls">
+			<span class="input-group-addon"><i class="bi-telephone"></i></span> <input
+				type="text" name="{{field.name}}.primary"
+				id="{{field.name}}-primary" class="form-control"
+				value="{{data.primary}}">
+		</div> <label for="{{field.name}}-primary">Primary</label>
+	</span> <span class="field-group-item col-xs-6">
+		<div class="field-group-item input-group"
+			id="{{field.name}}-alternate-controls">
+			<span class="input-group-addon"><i class="bi-telephone"></i></span> <input
+				type="text" name="{{field.name}}.alternate"
+				id="{{field.name}}-alternate" class="form-control"
+				value="{{data.alternate}}">
+		</div> <label for="{{field.name}}-alternate">Alternate</label>
+	</span>
+</div>
+
+

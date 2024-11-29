@@ -1,0 +1,68 @@
+{% load allocation_tags %}
+{% load misc %}
+<div class="auto-large">
+    <table class="table-hover table-condensed table">
+        <tr>
+            <th>Project</th>
+            <th>Scientific
+                <text class="hidden-xs">Scores</text>
+            </th>
+            <th>
+                <text title="Technical Score">Tech</text>
+            </th>
+            <th>Past
+                <text class="hidden-xs">Beamtime</text>
+            </th>
+            <th class="text-right" title="Requested Shifts">Req</th>
+            <th class="text-right" title="Allocated Shifts">Award</th>
+            <th>
+                <text title="Total Awarded Shifts" class="pull-right">Total</text>
+            </th>
+        </tr>
+        {% for p in pool.projects %}
+        <tr class="pool-row {% allocation_style p pool.cutoff pool.decision %}">
+            <td>
+                {%  if p.project.submissions.first.pk  %}
+                <a href="{% url 'submission-detail' p.project.submissions.first.pk %}"
+                data-toggle="popover" title="{{p.project}}" data-content="{{p.project.title}}" data-trigger="hover"
+                >
+                {{p.project}}
+                </a>
+                {% else %}
+                    {{p.project}}
+                {%  endif %}
+                {% if p.is_new %}&nbsp;<i class="bi-star text-warning icon-fw"></i>{% endif %}
+            </td>
+            <td><strong>
+                <text title="Merit" style="padding: 5px;">{{p.score_merit|floatformat:2}}</text>
+            </strong>
+                <text class="text-muted" title="Suitability" style="padding: 5px;">
+                    {{p.score_suitability|floatformat:2}}
+                </text>
+                <text class="text-muted" title="Capability" style="padding: 5px;">{{p.score_capability|floatformat:2}}
+                </text>
+            </td>
+            <td>
+                <text class="text-muted" title="Technical">{{p.score_technical|floatformat:2}}</text>
+            </td>
+            <td>
+                <div class="col-xs-12">{% for a in p.previous %}
+                    <div class="col-xs-2" title="{{a.cycle}}">{% if a %}{{a.shifts|default:0}}{% else %}{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- Previous Allocations-->
+            </td>
+            <td class="text-right">{{p.shift_request}}</td>
+            <td class="hover-edit text-right">
+                <a title="Edit Allocation" style="cursor: pointer;" data-url="{% url 'edit-allocation' p.pk %}">
+                    <text class="text-info pool-{{p.key}}-item" style="font-weight: 700;">{{p.shifts}}</text>
+                </a>
+            </td>
+            <td>
+                <text class="pull-right">{% store p.name p.shifts %}</text>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>

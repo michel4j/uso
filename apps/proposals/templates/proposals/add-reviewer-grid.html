@@ -1,0 +1,74 @@
+{% load proposal_tags %}
+<div class="grid-cell col-sm-6 col-md-4 col-lg-3" >
+    <div class="{% block grid-cell-class %}tinytron bg-warning text-muted{% endblock %}" style="margin-bottom: 0;">
+        <div class="row-fluid">
+            {% with object as reviewer %}
+            {% reviewer_workload as workload %}
+            <span class="pull-right badge" title="Cycle Workload" style="margin-left: 0.25em;">
+            {{ workload }} Review{{ workload|pluralize }}
+            </span>
+            {% if reviewer.committee %}
+            <span class="pull-left " title="PRC Member({{reviewer.committee}})" style="margin-right: 0.25em;">
+                <i class="bi-award icon-2x text-warning" style="line-height: 1;"></i>
+            </span>
+            {% endif %}
+            <span class=""
+              {% if reviewer.comments.strip %}data-toggle="popover"
+              data-trigger="hover" data-content="{{ reviewer.comments }}" data-placement="bottom"
+              {% endif %}
+            >
+                <h5 class="text-condensed" style="margin: 0;"><strong><a href="{% url 'edit-reviewer-profile' pk=reviewer.pk %}">{{reviewer.user}}</a></strong></h5>
+                <small class="text-muted overflow ellipsis">{{reviewer.user.institution}}</small>
+            </span>
+            <hr class="hr-xs"/>
+            <span class="badge {% if reviewer.techniques.count %}progress-bar-info{% else %}progress-bar-warning{% endif %}"
+                  data-toggle="popover"
+                  data-trigger="hover"
+                  data-placement="bottom"
+                  data-content="{{reviewer.techniques.all|join:', '}}"
+            >{{reviewer.techniques.count}}</span>
+            Techniques &emsp;
+            <span class="badge {% if reviewer.techniques.count %}progress-bar-info{% else %}progress-bar-warning{% endif %}"
+                  data-toggle="popover"
+                  data-trigger="hover"
+                  data-placement="bottom"
+                  data-content="{{reviewer.areas.all|join:', '}}"
+            >{{reviewer.areas.count}}</span>
+            Subject Areas
+            {% if workload %}
+             <a href='#reviewer-workload-{{ reviewer.pk }}' class="pull-right"
+                data-toggle="collapse" title="Reviewer Workload"
+                aria-expanded="false" aria-controls="reviewer-workload">
+                <i class="bi-list-ol icon-fw"></i><br/>
+             </a>
+             <div class="row collapse" id="reviewer-workload-{{ reviewer.pk }}">
+                 <div class="col-xs-12">
+                     <hr class="hr-xs">
+                     <h4><strong>{{ workload }}</strong> Review{{ workload|pluralize }}</h4>
+                     {% reviewer_reviews as reviews %}
+                     {% for review in reviews %}
+                            <span class="col-xs-2" style="padding-left:0em; padding-right:0em;">{{ review|display_state }}</span>
+                            <span class="col-xs-10">{{ review.reference }}</span>
+                            {% if rev.reviewer.reviewer.committee %}
+                                {{rev.reviewer}} <i class="bi-award text-warning"></i>
+                            {% else %}
+                                {{rev.reviewer}}
+                            {% endif %}
+                     {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% block grid-cell-command %}
+            <div style="position: absolute; right: 1em; top: 1em;">
+                <a data-toggle="tooltip" title="Add Reviewer"
+                   href="{% url 'add-cycle-reviewer' cycle=cycle.pk pk=reviewer.pk %}"
+                   class="btn btn-xs btn-success">
+                    <i class="bi-plus-lg icon-1x icon-fw"></i>
+                </a>
+            </div>
+            {% endblock %}
+            {% endwith %}
+        </div>
+    </div>
+</div>

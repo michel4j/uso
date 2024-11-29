@@ -1,0 +1,103 @@
+{% extends "scheduler/base.html" %}
+{% load static %}
+{% load jsonify %}
+{% load humanize %}
+
+{% load markup %}
+
+
+{% block page_heading %}Scheduling <span class="text-muted">&mdash; {{ subtitle }}</span>{% endblock %}
+
+{% block full %}
+    <div id="calendar-container" class="pagelet">
+        <div class="pad-wrapper">
+        <div class="row narrow-gutter">
+            <div id="calendar" class="col-sm-9 slot-{{ shift_duration }}-hrs">
+                <div id="spinner"></div>
+            </div>
+            <div id="src-panel" class="col-sm-3">
+                <div class="row narrow-gutter">
+                    <div class="col-xs-12 calendar-tools">
+                        {% if admin and editor_type == 'mode' %}
+                            <div class="btn-group pull-right" data-toggle="buttons">
+                                <label {% if schedule.state != 'draft' %}data-url='{% url "switch-schedule" pk=schedule.pk state='draft' %}'{% endif %}
+                                        class="btn btn-sm {% if schedule.state == "draft" %}btn-warning active{% else %}btn-white{% endif %}">
+                                    <input type="radio" name="options" id="opt-draft" autocomplete="off" checked>
+                                    {{ schedule.STATES.draft }}
+                                </label>
+                                <label {% if schedule.state != 'tentative' %}data-url='{% url "switch-schedule" pk=schedule.pk state='tentative'  %}'{% endif %}
+                                        class="btn btn-sm {% if schedule.state == "tentative" %}btn-info active{% else %}btn-white{% endif %}">
+                                    <input type="radio" name="options" id="opt-tentative" autocomplete="off">
+                                    {{ schedule.STATES.tentative }}
+                                </label>
+                                <label {% if schedule.state != 'live' %}data-url='{% url "switch-schedule" pk=schedule.pk state='live'  %}'{% endif %}
+                                        class="btn btn-sm {% if schedule.state == "live" %}btn-success active{% else %}btn-white{% endif %}">
+                                    <input type="radio" name="options" id="opt-live" autocomplete="off">
+                                    {{ schedule.STATES.live }}
+                                </label>
+
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="panel">
+                {% include view.selector_template %}
+                </div>
+
+            </div>
+        </div>
+        <div class="row narrow-gutter">
+            <div class="col-xs-12">
+                {% if tag_types %}
+                    <h4 style="margin-top: 0.25em;"><i class="bi-tags icon-fw"></i> Select all tags that apply</h4>
+                    <hr class="hr-xs"/>
+                    <div id="src-tags">
+                        {% for tag in tag_types %}
+                            <span id="tag-{{ tag.pk }}"
+                                  class="label label-primary pull-left tag cat-{{ forloop.counter0 }}"
+                                  data-tag="{{ tag.pk }}" data-cat="{{ forloop.counter0 }}">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        setupAjax('#spinner', '{{ csrf_token }}');
+        setupCalendar('#calendar', {
+            multiView: {{ show_year | jsonify }},
+            editor: true,
+            editorType: "{{ editor_type }}",
+            defaultDate: '{{default_date}}',
+            timezone: "{{timezone}}",
+            shiftDuration: "{{ shift_duration }}",
+            defaultView: "{{default_view|default:'monthshift'}}",
+            viewChoices: "",
+            eventSources: {{ api_urls.events | jsonify}},
+            monthTemplateUrl: '{% url "month-template-api" slot=shift_duration %}',
+            cycleTemplateUrl: '{% url "cycle-template-api" slot=shift_duration %}',
+            yearTemplateUrl: '{% url "year-template-api" slot=shift_duration %}',
+            weekTemplateUrl: '{% url "week-template-api" slot=shift_duration %}',
+            weekSectionHeaders: '{{ sections }}',
+            rangeStart: '{{schedule.start_date.isoformat}}',
+            rangeEnd: '{{schedule.end_date.isoformat}}'
+        });
+        setupEditor('#calendar', {
+            instructions: '#src-instruction',
+            editorType: "{{ editor_type }}",
+            rangeStart: '{{schedule.start_date.isoformat}}',
+            rangeEnd: '{{schedule.end_date.isoformat}}',
+            shiftDuration: "{{ shift_duration }}",
+            timezone: "{{timezone}}",
+            eventsAPI: {{api_urls.api | jsonify}},
+            statsAPI: {{api_urls.stats | jsonify}}
+        });
+    });
+</script>
+{% endblock %}
+

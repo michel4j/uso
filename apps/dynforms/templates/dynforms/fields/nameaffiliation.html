@@ -1,0 +1,22 @@
+<div class="controls row no-space {{repeatable}}" id="{{field.name}}-controls">
+    <span class="field-group-item col-xs-3">
+	    <input id="{{field.name}}.first_name" name="{{field.name}}.first_name" class="form-control" type="text" value="{{data.first_name}}">
+	    <label for="{{field.name}}.first_name">First</label>
+    </span>	
+    <span class="field-group-item col-xs-4">
+	    <input id="{{field.name}}.last_name" name="{{field.name}}.last_name" class="form-control" type="text" value="{{data.last_name}}">
+	    <label for="{{field.name}}.last_name">Last</label>
+    </span>
+    <span class="field-group-item col-xs-5">
+    	{% if "repeat" in field.options %}
+    	<div class="input-group">
+	    <input id="{{field.name}}.affiliation" name="{{field.name}}.affiliation" class="form-control" type="text" value="{{data.affiliation}}">
+		<span class="input-group-btn"><button type="button" 
+		class="btn btn-danger remove-repeat"><i class="bi-dash-lg"></i></button></span>
+	    </div>
+		{% else %}
+	    <input id="{{field.name}}.affiliation" name="{{field.name}}.affiliation" class="form-control" type="text" value="{{data.affiliation}}">
+	    {% endif %}
+	    <label for="{{field.name}}.affiliation">Affiliation/Institution</label>
+    </span>
+</div>

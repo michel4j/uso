@@ -1,0 +1,19 @@
+{% extends "users/registration.html" %}
+
+{% block page_title %}CLS User Office Online{% endblock %}
+{% block login-title %}Registration{% endblock %}
+{% block body_class %}registration password{% endblock %}
+
+{% block article-and-footer %}
+	<article class="main">
+    	<div class="tinytron bg-info" style="margin-top: 15px;">
+		    <h3 class="text-condensed text-center">{{ title }}</h3>
+            <hr class="hr-xs"/>
+            <h5>{% autoescape off %}{{ msg }}{% endautoescape %}</h5>
+	    </div>
+    </article>
+	<footer class="register-actions">
+		Already have an account? <a href="{% url 'user-dashboard' %}"> Login.</a><br/>
+		Didn't validate your account in time? <a href="{% url 'portal-register' %}"> Register again.</a>
+	</footer>
+{% endblock %}

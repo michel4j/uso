@@ -1,0 +1,54 @@
+{% load static %}
+<div class="controls {{repeatable}}" id="{{field.name}}-controls">
+       <textarea cols="40" name="{{field.name}}" id="{{field.name}}" 
+       		rows="{% if field.size == 'large' %}20{% elif field.size == 'medium' %}10{% else %}5{% endif %}"
+       		class="textarea form-control rich-text-input">{{data}}</textarea>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/ui/trumbowyg.min.css" integrity="sha512-Fm8kRNVGCBZn0sPmwJbVXlqfJmPC13zRsMElZenX6v721g/H7OukJd8XzDEBRQ2FSATK8xNF9UYvzsCtUpfeJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/trumbowyg.min.js" integrity="sha512-YJgZG+6o3xSc0k5wv774GS+W1gx0vuSI/kr0E0UylL/Qg/noNspPtYwHPN9q6n59CTR/uhgXfjDXLTRI+uIryg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-word-and-character-counter-plugin@2.5.1/jquery.word-and-character-counter.min.js" integrity="sha256-R3xsjghNyf1dhYHTuhD00fb0tJ5fD9x5T8RODwID5X8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/mathml/trumbowyg.mathml.min.js" integrity="sha512-7rcet/E130H48MXwETMC+N8H/gOTF16eqqUQS9+nTE4vR4myIZgf4gLGr39nRa1xr5yzSY9mZBe1BzytXJLzPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+$('#{{field.name}}-controls .rich-text-input').trumbowyg({
+    resetCss: true,
+    removeformatPasted: true,
+    fullscreenable: false,
+    semantic: true,
+    btnsDef: {
+        h3: {
+            fn: 'formatBlock',
+            title: 'Heading'
+        },
+        h4: {
+            fn: 'formatBlock',
+            title: 'Sub-heading'
+        },
+        styles: {
+            dropdown: ['p', 'blockquote', 'h3', 'h4'],
+            ico: 'p'
+        }
+    },
+    btns: [
+        ['styles'],
+        ['strong', 'em'],
+        ['superscript', 'subscript'],
+        ['mathjax'],
+
+        'btnGrp-lists',
+        ['undo', 'redo'],
+        ['removeformat'],
+        ['viewHTML']
+    ]
+
+});
+{% if "counter" in field.options %}
+$('#{{field.name}}-controls .trumbowyg-editor').counter({ // this is a class from the div with contenteditable="true"
+	type: 'word',
+	goal: {{field.maximum|default:10000}},
+    count: 'up',
+    containerClass: 'word-counter text-wide'
+});
+{% endif %}
+</script>
+

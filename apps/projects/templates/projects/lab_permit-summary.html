@@ -1,0 +1,38 @@
+{% load humanize %}
+{% load proposal_tags %}
+{% load project_tags %}
+
+<div class="row">
+    <div class="col-xs-12">
+        <small class="text-wide text-muted">Project:</small>
+        <h3 class="no-vmargin"><strong class="text-condensed"><a href="{% url 'lab-permit' session.pk %}">{{ session.project.code }}</a></strong></h3no-vmargin>
+    </div>
+
+    <div class="col-xs-12">
+        <small class="text-wide text-muted">Team:</small>
+        <br/>
+        {% for member in session.team.all %}
+            <img class="permit-img-sm pull-left" src="{{ member.get_photo }}"
+                 onerror="this.src='/static/img/blank-profile.png';"
+                data-toggle='popover'
+                data-placement="bottom"
+                 data-trigger="hover"
+                data-content="{{ member }}, {{ member.email }}, {{member.institution|default:'No Institution'}}"
+            >
+        {% endfor %}
+    </div>
+    <div class="col-xs-12">
+        <small class="text-wide text-muted">Period:</small>
+        <br/>
+        {{ session.start|date:"Y-m-d H:i" }} &ndash;
+        {{ session.end|date:"Y-m-d H:i" }}
+    </div>
+    {% if session.equipment.count %}
+    <div class="col-xs-12">
+        <small class="text-wide text-muted">Equipment:</small>
+        <br/>
+        {% for eqmt in session.equipment.all %}{{ eqmt }}{% if not forloop.last %}
+            , {% endif %}{% empty %}&hellip;{% endfor %}
+    </div>
+    {% endif %}
+</div>

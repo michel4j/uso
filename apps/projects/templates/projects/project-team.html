@@ -1,0 +1,131 @@
+{% load static %}
+{% load proposal_tags %}
+{% load project_tags %}
+{% load beamline_tags %}
+{% load roleperms %}
+
+<div class="cycle-box tinytron bg-darken">
+    <div class="row">
+        <div class="col-xs-12">
+            {% if owner or admin and object.state != 'inactive' %}
+                <span class="box-tools pull-right text-center">
+                    <a href='{% url "edit-team" pk=project.pk %}' class="pull-right">
+                        <i class="bi-pencil icon-2 icon-fw"></i><br/>
+                        <span class="tool-label">Edit Team</span>
+                    </a>
+                    <a href='{% url "refresh-team" pk=project.pk %}' class="pull-right">
+                       <i class="bi-arrow-clockwise icon-2 icon-fw"></i><br/>
+                       <span class="tool-label">Refresh Team</span>
+                    </a>
+                </span>
+            {% endif %}
+            <h3 style="margin-top:0.25em;">
+                <strong>{{ object.team.count }}</strong> Team Member{{object.team.count|pluralize:",s"}}</h3>
+                {% if object.details.invoice_address %}
+                    {% with object.details.invoice_address as address %}
+                        <small class="text-muted">
+                            {{address.place}}{% if address.place %} &middot;{% endif %}
+                            {{address.street}}{% if address.street %} &middot;{% endif %}
+                            {{address.city}}, {{address.region}} &middot;
+                            {{address.country}}{% if address.code %}, {{address.code}}{% endif %}
+                        </small>
+                    {% endwith %}
+                {% else %}
+                    {% with object.get_leader.address as address %}
+                        <small class="text-muted">
+                            {{address.address_1}}{% if address.address_1 %} &middot;{% endif %}
+                            {{address.address_2}}{% if address.address_2 %} &middot;{% endif %}
+                            {{address.city}}, {{address.region}} &middot;
+                            {{address.country}}{% if address.code %}, {{address.code}}{% endif %}
+                        </small>
+                    {%  endwith %}
+                {% endif %}
+        </div>
+    </div>
+    <hr class="hr-xs">
+    <div class="row narrow-gutter">
+        {% for member in object.team.all|dictsort:"first_name" %}
+        <div class="col-xs-6 col-sm-4 col-md-3">
+            <div class="tinytron {% if user.email.lower == member.email.lower %}bg-warning{% else %}border-3d{% endif %}">
+                {% if user.email.lower == member.email.lower and member != object.spokesperson %}
+                <a data-url="{% url 'remove-team' pk=project.pk user_pk=member.pk %}" class="pull-right"
+                       title="Remove yourself from the team">
+                        <i class="bi-trash text-danger icon-1x"></i>
+                </a>
+                {% endif %}
+                <img class="pull-left team-img" src="{{member.get_photo}}"
+                     onerror="this.src='/static/img/blank-profile.png';"
+                     title="{{ member.get_classification_display | default:"" }} {{member.institution|default:'No Institution'}}">
+                <div class="overflow ellipsis" style="line-height: 1;">
+                    {{ member }} {% show_project_roles project member %}<br/>
+                    <small class="text-condensed">{{ member.email.lower }}</small><br/>
+                </div>
+                <hr class="hr-xs"/>
+                <div>
+                    <span style="font-size: 90%;">
+                        {% for perm_code in permissions.all %}
+                            {% if member|has_perm:perm_code %}
+                                <i class="bi-check-circle-fill text-success-light icon-1x" title="{{ perm_code }}"></i>
+                            {% else %}
+                                <i class="bi-x-circle-fill text-danger-light icon-1x" title="{{ perm_code }}"></i>
+                            {% endif %}
+                        {% endfor %}
+                        {% for perm_code in permissions.any %}
+                            {% if member|has_perm:perm_code %}
+                                <i class="bi-check-circle-fill text-success-light icon-1x" title="{{ perm_code }}"></i>
+                            {% else %}
+                                <i class="bi-x-circle-fill text-warning-light icon-1x" title="{{ perm_code }}"></i>
+                            {% endif %}
+                        {% endfor %}
+                        {% for beamline in object.beamlines.distinct|no_equipment %}
+                            {% if member|is_user:beamline %}
+                                <i class="bi-check-circle-fill text-success-light icon-1x" title="{{beamline.acronym}}-USER"></i>
+                            {% elif member|is_remote_user:beamline %}
+                                <i class="bi-check-circle-fill text-success-light icon-1x" title="{{beamline.acronym}}-REMOTE-USER"></i>
+                            {% else %}
+                                <i class="bi-x-circle-fill text-danger-light icon-1x" title="{{beamline.acronym}}-USER"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+        {% for email, member in object.extra_team.items %}
+        <div class="col-xs-6 col-sm-4 col-md-3">
+            <div class="tinytron bg-danger text-muted">
+                <img class="pull-left team-img" src="{% static 'img/blank-profile.png' %}" title="Not a Registered User">
+                <div class="overflow ellipsis" style="line-height: 1;">
+                    {{ member.first_name }} {{ member.last_name }}<br/>
+                    <small class="text-condensed">{{ member.email.lower }}</small><br/>
+                </div>
+                <hr class="hr-xs"/>
+                <div>
+                    <span style="font-size: 90%;">
+                        <i class="bi-x-circle-fill text-danger-light icon-1x" title="Registered"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="tinytron bg-darken" style="font-size: 95%;">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6">
+                <p><i class="bi-info-circle text-primary icon-3x icon-fw pull-left"></i>To avoid delays, please ensure all participating team members have the appropriate permissions before your
+                    scheduled beam time. Required permissions are indicated for each team member above:
+                    <hr class="hr-xxs"/>
+                    <i class="bi-check-circle-fill text-success-light icon-fw"></i>Qualified&emsp;
+                    <i class="bi-x-circle-fill text-danger-light icon-fw"></i>Required&emsp;
+                    <i class="bi-x-circle-fill text-warning-light icon-fw"></i>Recommended&emsp;
+                </p>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <p><i class="bi-book icon-3x text-primary icon-fw pull-left"></i> Team members may acquire or renew missing/expired qualifications online through the <a href="{{ training_url }}" target="_blank">Training System</a>. Note
+                    that some qualifications may require supervised training on site, or remotely. Those will be arranged by beamline staff once your project has been scheduled.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

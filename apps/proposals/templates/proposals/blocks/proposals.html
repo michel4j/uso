@@ -1,0 +1,80 @@
+{% extends "misc/blocks/panel.html" %}
+{% block panel_title %}Proposals{% endblock %}
+{% block panel_tools %}
+    <a href="{% url 'user-proposals' %}" class="btn btn-xs btn-white pull-right" title="View all my proposals">
+        <i class="bi-list-ol icon-2 icon-fw"></i>
+    </a>
+    <a href="{% url 'create-proposal' %}" class="btn btn-xs btn-white pull-right" title="Create New Proposal">
+        <i class="bi-plus-lg icon-2 icon-fw"></i>
+    </a>
+{% endblock %}
+{% block panel_content %}
+    {% if open_cycles.exists %}
+        <div class="tinytron bg-warning text-warning">
+            {% for open_cycle in open_cycles.all %}
+                <p>
+                    The call for proposals be scheduled during the period {{ open_cycle.start_date|date }}
+                    &ndash; {{ open_cycle.end_date|date }} is currently
+                    open with a submission deadline of {{ open_cycle.close_date|date }}.
+                </p>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <a href="{% url 'create-proposal' %}" class="btn btn-default btn-sm pull-right">
+                            <i class="bi-plus-lg icon-fw"></i>&nbsp;Create a Proposal
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if drafts.count %}
+        <div class="tinytron bg-transparent">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4 class="no-vmargin">
+                        Draft Proposal{{ drafts.count|pluralize:",s" }}
+                        <span class="badge progress-bar-info pull-right">{{ drafts.count }}</span>
+                    </h4>
+                </div>
+            </div>
+            <hr class="hr-xs"/>
+            <ul class="scrollbox list-unstyled list-ruled" style="max-height: 200px;">
+                {% for proposal in drafts %}
+                    <li class="text-condensed" style="line-height: 1.7;">
+                        <a class="pull-right" href='{% url "edit-proposal" pk=proposal.pk %}'
+                           data-toggle="tooltip" title="Edit proposal"><i class="bi-pencil-square"></i>
+                        </a>
+                        <span class="overflow ellipsis"
+                              title="Modified {{ proposal.modified|timesince }} ago">{{ proposal.title }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    {% if submitted.count %}
+        <div class="tinytron bg-info">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4 class="no-vmargin">Proposal{{ submitted.count|pluralize:",s" }} Being Reviewed
+                        <span class="badge progress-bar-info pull-right">{{ submitted.count }}</span>
+                    </h4>
+                </div>
+            </div>
+            <hr class="hr-xs"/>
+            <ul class="scrollbox list-unstyled list-ruled" style="max-height: 200px;">
+                {% for proposal in submitted %}
+                    <li class="text-condensed" style="line-height: 1.7;">
+                        <a class="pull-right" href='{% url "proposal-detail" pk=proposal.pk %}'
+                           data-toggle="tooltip" title="View proposal">{% if proposal.clarifications.pending.count %}
+                            <i class="bi-chat-right-text text-danger"></i>{% else %}<i class="bi-eye"></i>{% endif %}
+                        </a>
+                        <span class="overflow ellipsis"
+                              title="Modified {{ proposal.modified|timesince }} ago">{{ proposal.title }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+

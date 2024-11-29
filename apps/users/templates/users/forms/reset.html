@@ -1,0 +1,35 @@
+{% extends "users/registration.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block page_title %}Reset Password{% endblock %}
+{% block login-title %}Password Reset{% endblock %}
+{% block body_class %}login-page registration{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{% block login-form %}
+<div id="login-form">
+	<div class="login-text">
+		<span>Reset Password</span>
+	</div>
+	<div style="min-height: 220px;">
+		{% crispy form form.helper %}
+		<p>&nbsp;</p>
+	</div>
+	<div class="register-actions row">
+		<h4>Please check your email after submitting this form!</h4>
+		<hr class="hr-xs"/>
+		<p>You should receive an email within the next hour with further instructions. Note that anyone with access to
+			your e-mail will be able to reset your password, therefore it is highly	recommended to complete	the
+			instructions immediately. Your reset request will be valid for 24 Hrs.
+		</p>
+		<p>If you do not receive any email, check that you have submitted accurate information above, and then contact
+			our User Services Office at clsuo@lightsource.ca or 306-657-3700 for assistance.
+		</p>
+	</div>
+</div>
+{% endblock %}

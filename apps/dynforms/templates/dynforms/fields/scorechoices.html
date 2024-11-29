@@ -1,0 +1,20 @@
+{% load markup %}
+{% load dynforms_tags %}
+<div class="controls scorechoices" id="{{ field.name }}-controls">
+    {% for score, choice, checked in field|group_scores:data %}
+        <div class=" media {% if 'inline' in field.options %}radio-inline {% else %}radio{% endif %}">
+            <label for="{{ field.name }}_{{ forloop.counter }}">
+                <input name="{{ field.name }}" id="{{ field.name }}_{{ forloop.counter }}"
+                   value="{{ score }}"  {% if checked %}checked="checked"{% endif %}
+                   type="radio"
+                >
+                <span class="media-object">
+                    <span class="label label-default pull-left" style="margin-right: 0.5em;"><strong>{{ score }}</strong></span>
+                </span>
+                <span class="media-content">
+                    {{ choice|markdown }}
+                </span>
+            </label>
+        </div>
+    {% endfor %}
+</div>

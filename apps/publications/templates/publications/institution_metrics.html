@@ -1,0 +1,39 @@
+{% extends "publications/base.html" %}
+{% load pubstats %}
+
+{% block page_heading %}Publication Quality Metrics{% endblock %}
+{% block full %}
+<div class="row-fluid">
+	<div class="pagelet col-xs-12">
+		<div class="pagelet-heading">
+		<h3>{{ institution }}<br/>
+		<strong>Publication Quality Metrics</strong></h3>
+		</div>
+		<div class="pagelet-body">
+			{% for tbl in metrics %}
+			{% if forloop.first %}
+				<div class="row data-reports">
+				    <div class="col-md-7">
+					    {% show_table tbl %}
+				    </div>
+				    <div class="col-md-5">
+				    <h4></h4>
+						{% include "publications/quality-histogram.html" with tbl=tbl %}
+				    </div>
+			    </div>
+			    	<h4>Activity Summary by Publication Type</h4>
+			   		{% show_beamline_activity queryset beamline.name|clean_name %}
+
+			{% else %}
+				<hr/>
+				{% show_table tbl %}
+			{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+
+

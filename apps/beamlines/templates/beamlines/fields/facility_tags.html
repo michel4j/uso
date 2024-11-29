@@ -1,0 +1,20 @@
+{% if choices %}
+    <span class="field-group-item col-xs-12">
+    <label>Tags / Priority Areas</label>
+    <select name="{{ field_name }}" multiple="multiple"
+            class="chosen select form-control" data-placeholder="Select all that apply">
+        {% for tag, selected in choices %}
+            <option value="{{ tag.pk }}"
+                    {% if selected %}selected="selected" {% endif %}>{{ tag }}
+        </option>
+        {% endfor %}
+    </select>
+
+</span>
+    <script>
+        $('[name="{{field_name}}"].chosen').chosen({
+            placeholder_text_single: "Select all that apply",
+            search_contains: true
+        })
+    </script>
+{% endif %}

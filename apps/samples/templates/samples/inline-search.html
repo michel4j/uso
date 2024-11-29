@@ -1,0 +1,82 @@
+{% load samples_tags %}
+
+{% with results as substances %}
+<h4>Search results, “{{search_string}}” ... </h4>
+<div class="tinytron bg-info" style="display: flex; flex-direction: row; align-items: center;">
+    <div class="bi-info-circle icon-2x icon-fw pull-left" style="margin: 0.5em; margin-left: 0;"></div>
+    <div style="flex: 2;">
+        Select a substance to import the information and then edit/amend as appropriate.
+        NOTE! Hazard information will be overwritten with database values.
+        Refer to the Safety Data Sheet for assistance.
+    </div>
+</div>
+<div class="scroll-parent" style="max-height: 300px; overflow-y: auto;">
+    <table class="table table-hover table-condensed">
+        <thead>
+        <tr class="first">
+            <th class="col-xs-7">Name</th>
+            <th class="col-xs 4">Hazards</th>
+            <th class="col-xs-1">Import</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for substance in substances %}
+        <tr class="result-row">
+            <td>{{substance.name}}</td>
+            <td>{% show_pictograms substance.hazards %}</td>
+            <td class="select-result"
+                title="Import Hazards"
+                data-result-url="{% url 'compound-record' pk=substance.pk %}">
+                <i class="bi-box-arrow-down icon-fw text-info"></i>
+            </td>
+        </tr>
+        {% empty %}
+        <tr class="empty">
+            <td colspan="3" class="empty col-xs-12">No items found</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endwith %}
+<div class="row">
+    <hr/>
+    <div class="col-xs-12 text-right">
+        <button id="cancel-search" type="button" class="btn btn-default"><i class="bi-arrow-left-circle icon-1x icon-fw"></i>&ensp;
+            Back
+        </button>
+    </div>
+</div>
+<script type="text/javascript">
+$('#search-results .select-result').click(function(){
+	jQuery.getJSON($(this).attr('data-result-url'), function(data){
+		$("#sample-form form input[name='hazards']").each(function(){
+			$(this).attr('checked', false); //reset hazards before loading
+		});
+		$("#sample-form form").deserialize(data);
+		$("#flip-toggle > div").toggleClass("hidden");
+	});
+});
+$('#cancel-search').click(function(){
+	$("#flip-toggle > div").toggleClass("hidden");
+});
+
+// Enable popovers
+$("#search-results [data-toggle='popover']").popover({
+    container: 'body'
+    //placement: 'bottom'
+});
+
+// enable tooltips
+$("#search-results [title]").not("[data-toggle='popover']").tooltip({
+        container: 'body',
+        viewport: {selector: 'body', padding: 5},
+        placement: 'auto'
+});
+
+</script>
+
+
+
+

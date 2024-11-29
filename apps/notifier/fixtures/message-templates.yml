@@ -1,0 +1,392 @@
+- model: notifier.messagetemplate
+  pk: 1
+  fields:
+    created: 2024-11-20 23:04:57.394044+00:00
+    modified: 2024-11-22 02:46:58.500038+00:00
+    name: allocation-declined
+    description: Allocation Declined
+    kind: full
+    content: "Dear {{user}},\r\n\r\nA user on your beamline {{allocation.beamline}}
+      has declined their allocation.\r\n---\r\nUser: {{request.user}}\r\nProject:
+      \ {{allocation.project.code}} ({{site}}{% url 'project-detail' pk=allocation.project.pk
+      %})\r\nBeamline: {{allocation.beamline}}\r\nAllocated Shifts:  {{shifts}}\r\n\r\nReason
+      given:\r\n{{comments}}\r\n---\r\n\r\nSincerely,\r\nThe CLS Users Office Team"
+    active: true
+- model: notifier.messagetemplate
+  pk: 2
+  fields:
+    created: 2024-11-20 23:05:29.215438+00:00
+    modified: 2024-11-22 02:46:58.517715+00:00
+    name: auto-sign-off
+    description: Auto Sign Off
+    kind: full
+    content: "Dear {{user}},\r\n\r\nYou have been automatically signed-off from your
+      session on {{session.beamline}} which started on {{session.start}}\r\nand should
+      have ended at {{session.end}}.\r\n\r\nReason:  {{reason}}\r\n\r\nThe details
+      of the session are listed below:\r\n\r\nStart Time: {{session.start}}  \r\nEnd
+      Time: {{session.end}}  \r\nStaff Responsible: {{session.staff}}  \r\nUser Responsible:
+      {{session.spokesperson}}  \r\nProject:  [{{session.project.code}}]({{site}}{%
+      url 'project-detail' pk=session.project.pk %})  \r\nBeamline: {{session.beamline}}
+      \ \r\n\r\nHistory:\r\n{% for log in session.details.history %}\r\n- {{log|safe}}\r\n{%
+      endfor %}\r\n\r\nSincerely,\r\nThe CLS Users Office Team"
+    active: true
+- model: notifier.messagetemplate
+  pk: 3
+  fields:
+    created: 2024-11-20 23:05:55.218247+00:00
+    modified: 2024-11-22 02:46:58.524015+00:00
+    name: session-terminated
+    description: Session Terminated
+    kind: full
+    content: "Dear {{user}},\r\n\r\nThe session {{session}} on {{session.beamline}}
+      which started on {{session.start}}\r\nand should have ended at {{session.end}}
+      has been terminated by {{terminator}}.\r\n\r\nReason:  {{reason}}\r\n\r\nThe
+      details of the session are listed below:\r\n\r\nStart Time: {{session.start}}
+      \ \r\nEnd Time: {{session.end}}  \r\nStaff Responsible: {{session.staff}}  \r\nUser
+      Responsible: {{session.spokesperson}}  \r\nProject:  [{{session.project.code}}]({{site}}{%
+      url 'project-detail' pk=session.project.pk %})  \r\nBeamline: {{session.beamline}}
+      \ \r\n\r\nHistory:\r\n{% for log in session.details.history %}\r\n- {{log|safe}}\r\n{%
+      endfor %}\r\n\r\nSincerely,\r\nThe CLS Users Office Team"
+    active: true
+- model: notifier.messagetemplate
+  pk: 4
+  fields:
+    created: 2024-11-20 23:06:25.692822+00:00
+    modified: 2024-11-22 02:46:58.530257+00:00
+    name: submission-fail
+    description: Submission Fail
+    kind: full
+    content: "Dear {{submission.proposal.spokesperson}},\r\n\r\n\r\nYour submission
+      titled \"{{submission.proposal.title}}\" has now been reviewed. Unfortunately
+      it did not meet the\r\nthreshold to be awarded beam time. The final results
+      of the review process including comments\r\nfrom reviewers are available at
+      {{submission_urls}}.\r\n\r\nYou are invited to re-apply during the next Call
+      For Proposals after improving your proposal. Please consult the\r\nreviewer
+      comments for hints on how to improve your proposal. You can also contact the
+      relevant beamline staff if you have\r\nany questions about preparing your proposal
+      for submission.\r\n\r\nWe look forward to having you as a user in the future.\r\n\r\nSincerely,\r\nThe
+      CLS Users Office Team"
+    active: true
+- model: notifier.messagetemplate
+  pk: 5
+  fields:
+    created: 2024-11-20 23:06:56.515932+00:00
+    modified: 2024-11-22 02:46:58.536336+00:00
+    name: submission-success
+    description: Submission Success
+    kind: full
+    content: "Dear {{project.spokesperson}},\r\n\r\n{%if project.new %}Your project
+      titled \"{{project.title}}\" has now been reviewed{% if project.approved %}
+      and approved for beam time during the\r\ncycle \"{{cycle}}\"{% endif %}. The
+      final results of the review process including comments from reviewers\r\nare
+      available at {{submission_urls}}.{% else %}The renewal request submitted for
+      the project \"{{project.title}}\" has now been\r\nprocessed.{% endif %}\r\n\r\nYour
+      project is valid between {{project.start_date}} and {{project.end_date}}.\r\n\r\nAdditional
+      safety reviews may be required prior to the start of your experiments. Some
+      of these\r\nreviews may need additional information which you will be required
+      to provide. Please consult your project page at\r\n{{project_url}} to monitor
+      the progress and access all information related to your project. The results
+      of the allocation,\r\nare detailed below:\r\n\r\n{% for alloc in allocations
+      %}\r\n{{alloc.beamline}} ({{alloc.beamline.name}}):\r\n--------------------------------------------------------------------\r\n{%if
+      alloc.beamline.flex_schedule or project.special %}{%if project.special %}Shifts
+      have not been allocated to your project.{% else %}\r\nThis beamline does not
+      allocate shifts.{% endif %} Scheduling is done on request based on\r\navailability
+      and prioritized by the peer-review score. Beam time requests can be made directly
+      from your project page\r\nat anytime during the valid period of the project.\r\n{%
+      else %}{% if alloc.shifts %}The project was allocated \"{{alloc.shifts|floatformat}}\"
+      shifts during the \"{{cycle}}\" cycle.\r\nScheduling of specific shifts is now
+      in progress.{% else %} Unfortunately, due to the large number of high-quality\r\nsubmissions
+      on this beamline, your project has not been allocated any beam time for the
+      \"{{cycle}}\" cycle. {% endif %}\r\n{% if not special %}\r\nTo request beam
+      time after the \"{{cycle}}\" cycle, you will have to renew your project on this
+      beamline. Renewals can\r\nbe submitted directly from your project page when
+      the next Call For Proposals is open. Renewals can only be submitted for\r\ncycles
+      which occur during the valid period of your project. Renewal request will be
+      evaluated relative to other projects\r\nrequesting beam time for the same cycle.
+      You may choose to improve your score by submitting an improved proposal instead\r\nof
+      a renewal.\r\n{% endif %}{% endif %}{% endfor %}\r\n\r\n{% if project.approved
+      %}We look forward to having you as a user during the \"{{cycle}}\" cycle.{%
+      endif %}\r\n\r\nSincerely,\r\nThe CLS Users Office Team"
+    active: true
+- model: notifier.messagetemplate
+  pk: 6
+  fields:
+    created: 2024-11-20 23:07:31.079554+00:00
+    modified: 2024-11-22 02:46:58.548739+00:00
+    name: clarification-received
+    description: Clarification Received
+    kind: full
+    content: "{% load proposal_tags %}\r\n{% load timeish %}\r\nDear {{user}},\r\n\r\nA
+      response has been received for the clarification you requested as part of your
+      review of  \"{{title|safe}}\".\r\n\r\n{% for review in reviews %}\r\n{{site}}{%url
+      'edit-review' pk=review.pk %} {%if review.due_date %}, due in {{review.due_date|fromnow
+      }}{% endif %}\r\n{% endfor %}\r\nRequest to applicant:\r\n\"{{clarification|safe}}\"\r\n\r\nResponse
+      from applicant:\r\n\"{{response|safe}}\"\r\n\r\n\r\n** To avoid delays please
+      complete and submit your review before the due date.**\r\n\r\nIf you have any
+      questions or concerns, please contact contact our office at\r\nclsuo@lightsource.ca
+      or 306-657-3700.\r\n\r\nSincerely,\r\nCLSI User Services Office"
+    active: true
+- model: notifier.messagetemplate
+  pk: 7
+  fields:
+    created: 2024-11-20 23:08:26.770240+00:00
+    modified: 2024-11-22 02:46:58.555044+00:00
+    name: clarification-requested
+    description: Clarification Requested
+    kind: full
+    content: "{% load proposal_tags %}\r\nDear {{name}},\r\n\r\nDuring the review
+      of your submission, \"{{title|safe}}\", one of the reviewers has requested the
+      following clarification:\r\n\r\n\"{{clarification|safe}}\"\r\n\r\nA response
+      can be submitted by either the original submitter (the spokesperson), the team
+      leader or the\r\ndesignated delegate through the URL {{respond_url}}. Only one
+      response will be accepted.\r\n\r\n** To avoid delays in the review, please respond
+      before {{due_date}}.**\r\n\r\nNote that you must be registered at the CLS to
+      view the or respond to clarifications requests.\r\nIf you have any questions
+      or concerns, please contact contact our office at\r\nclsuo@lightsource.ca or
+      306-657-3700.\r\n\r\nSincerely,\r\nCLSI User Services Office"
+    active: true
+- model: notifier.messagetemplate
+  pk: 8
+  fields:
+    created: 2024-11-20 23:08:53.285034+00:00
+    modified: 2024-11-22 02:49:00.819768+00:00
+    name: prc-assignment
+    description: PRC Assignment
+    kind: full
+    content: 'Dear Reviewer,
+
+
+      The following proposal{{reviews|length|pluralize:",s"}} submitted to the CLS
+      {{reviews|length|pluralize:"has,have"}} been
+
+      assigned to you for review.
+
+
+      {% for rev in reviews %}
+
+      {{rev.get_kind_display}}
+
+      {{rev.proposal}}
+
+      {{site}}{% url "edit-review" pk=rev.pk %}
+
+      Due date: {{rev.due_date}}
+
+      {% if not forloop.last %}---{% endif %}{% endfor %}
+
+
+      You can complete the review{{reviews|length|pluralize:",s"}} by following the
+      corresponding
+
+      link{{reviews|length|pluralize:",s"}} above.
+
+
+      We appreciate your effort in completing the reviews in a timely manner.
+
+
+      If you have any questions or concerns, please contact our office at
+
+      clsuo@lightsource.ca or 306-657-3700.
+
+
+      Sincerely,
+
+      CLSI User Services Office'
+    active: true
+- model: notifier.messagetemplate
+  pk: 9
+  fields:
+    created: 2024-11-20 23:09:18.882594+00:00
+    modified: 2024-11-22 02:46:58.567460+00:00
+    name: proposal-submitted
+    description: Proposal Submitted
+    kind: full
+    content: "{% load proposal_tags %}\r\nDear {{name}},\r\n\r\n{% if is_leader or
+      is_spokesperson %}This is to confirm that your proposal titled\r\n\r\n\"{{proposal_title|safe}}\"\r\n\r\nfor
+      research to be conducted during the scheduling period of {{cycle}}, has been
+      received.  The other members of your team have also\r\nbeen notified by email.{%
+      else %}You are receiving this message because you are a team member on a research
+      proposal titled\r\n\r\n\"{{proposal_title|safe}}\"\r\n\r\nwhich has been submitted
+      to the CLS by {{spokesperson}}. The proposal is for research to be conducted
+      during the scheduling\r\nperiod of \"{{cycle}}\". As a member of the team, you
+      can view the proposal at {{proposal_url}}.{% endif %}\r\n{% if is_delegate %}Additionally,
+      {{spokesperson}} has designated you to act as a delegate in matters\r\nrelated
+      to the proposal. This may include, responding to requests for clarification.{%
+      endif %}\r\n{% if is_leader or is_delegate or is_spokesperson %}\r\nYour proposal
+      will go through the normal review process and and you will be notified of the
+      results of the review. Please note\r\nthat further clarification maybe required
+      during the review process, at which time you will be contacted. To avoid delays\r\nin
+      the review, please respond to any such clarifications in a timely manner.{%
+      endif %}\r\n{% if not is_spokesperson %}Note that you must be registered at
+      the CLS to view the proposal or respond to clarifications.{% endif %}\r\nIf
+      you have any questions or concerns, please contact the spokesperson, {{spokesperson}}.
+      You can also contact our office at\r\nclsuo@lightsource.ca or 306-657-3700.\r\n\r\nSincerely,\r\nCLSI
+      User Services Office"
+    active: true
+- model: notifier.messagetemplate
+  pk: 10
+  fields:
+    created: 2024-11-20 23:09:39.869305+00:00
+    modified: 2024-11-22 02:46:58.573757+00:00
+    name: review-reminder
+    description: Review Reminder
+    kind: full
+    content: "Dear Reviewer,\r\n\r\nThis is reminder that the following review{{reviews|length|pluralize:\",s\"}}
+      assigned to you,\r\nor associated with your roles at the CLS {{reviews|length|pluralize:\"is,are\"}}
+      due on {{due_date|date}}.\r\n\r\n{% for rev in reviews %}\r\n{{rev.get_kind_display}}\r\n{{rev.proposal}}\r\n{{site}}{%
+      url \"edit-review\" pk=rev.pk %}\r\nDue date: {{rev.due_date}}\r\n{% if not
+      forloop.last %}---{% endif %}{% endfor %}\r\n\r\nPlease complete the review{{reviews|length|pluralize:\",s\"}}
+      by following the corresponding link{{reviews|length|pluralize:\",s\"}} above.\r\nIf
+      you have already completed the review, but did not submit it yet, please do
+      so to ensure your opinion will be considered.\r\n\r\nWe appreciate your effort
+      in completing and submitting the reviews before midnight on {{due_date|date}}.\r\n\r\nIf
+      you have any questions or concerns, please contact our office at\r\nclsuo@lightsource.ca
+      or 306-657-3700.\r\n\r\nSincerely,\r\nCLSI User Services Office"
+    active: true
+- model: notifier.messagetemplate
+  pk: 11
+  fields:
+    created: 2024-11-20 23:10:02.750148+00:00
+    modified: 2024-11-22 02:46:58.579943+00:00
+    name: review-request
+    description: Review Request
+    kind: full
+    content: "Dear Reviewer,\r\n\r\nThe following proposal{{reviews|length|pluralize:\",s\"}}
+      submitted to the CLS {{reviews|length|pluralize:\"has,have\"}} been\r\nassigned
+      to you for review.\r\n\r\n{% for rev in reviews %}\r\n{{rev.get_kind_display}}\r\n{{rev.proposal}}\r\n{{site}}{%
+      url \"edit-review\" pk=rev.pk %}\r\nDue date: {{rev.due_date}}\r\n{% if not
+      forloop.last %}---{% endif %}{% endfor %}\r\n\r\nYou can complete the review{{reviews|length|pluralize:\",s\"}}
+      by following the corresponding\r\nlink{{reviews|length|pluralize:\",s\"}} above.\r\n\r\nWe
+      appreciate your effort in completing the reviews in a timely manner.\r\n\r\nIf
+      you have any questions or concerns, please contact our office at\r\nclsuo@lightsource.ca
+      or 306-657-3700.\r\n\r\nSincerely,\r\nCLSI User Services Office"
+    active: true
+- model: notifier.messagetemplate
+  pk: 12
+  fields:
+    created: 2024-11-20 23:10:49.114282+00:00
+    modified: 2024-11-22 02:46:58.585208+00:00
+    name: auto-password-reset
+    description: Auto Password Reset
+    kind: full
+    content: "Dear {{name}},\r\n\r\nYour password to your CLSI user portal account
+      is being reset.  Please follow the link to choose a new password:\r\n\r\n{{reset_url}}\r\n\r\nThis
+      link will be valid for the next 24 hours. \r\n\r\nIf you have any concerns about
+      this please contact the User Services Online Support at uso-support@lightsource.ca.\r\n\r\nAll
+      the best!\r\nThe CLS Users Office Team"
+    active: true
+- model: notifier.messagetemplate
+  pk: 13
+  fields:
+    created: 2024-11-20 23:11:10.896925+00:00
+    modified: 2024-11-22 02:46:58.608450+00:00
+    name: new-account
+    description: New Account
+    kind: full
+    content: 'Dear {{name}},
+
+
+      You now have a Canadian Light Source, Inc. user portal account!  Your new username
+      is:
+
+
+      {{ username }}
+
+
+      Go to {{login_url}} and enter your credentials to log in.  With your new CLSI
+
+      user portal account, you can update your contact information, submit proposals
+      for accessing the CLS,
+
+      request beamtime against your active proposals, and let us know about your most
+      recent publication involving
+
+      CLS work, and much more!
+
+
+      All the best!
+
+      The CLS Users Office Team
+
+
+      Note: If you did not register at the CLSI user portal, please get in touch with
+      the CLS Users Office at
+
+      clsuo@lightsource.ca.'
+    active: true
+- model: notifier.messagetemplate
+  pk: 14
+  fields:
+    created: 2024-11-20 23:11:40.230422+00:00
+    modified: 2024-11-22 02:46:58.590920+00:00
+    name: new-institutions
+    description: New Institutions
+    kind: full
+    content: "Dear {{user}},\r\n\r\nThe following new institution(s) have been added
+      to the User Services Online System that may need institution agreements\r\nin
+      place before the users can participate in experiments.\r\n\r\n{% for institution
+      in new %}\r\n- {{institution.name}}, {{institution.location}}{%  endfor %}\r\n\r\nIn
+      addition there are {{ pending.count }} institutions which do not have an institutional
+      agreement in place.\r\nYou can manage the details and update the institutional
+      agreements at\r\n\r\n{{url}}\r\n\r\nPlease contact the CLS Users Office at clsuo@lightsource.ca
+      if you have any questions or concerns about this message."
+    active: true
+- model: notifier.messagetemplate
+  pk: 15
+  fields:
+    created: 2024-11-20 23:12:01.381062+00:00
+    modified: 2024-11-22 02:46:58.596121+00:00
+    name: new-password
+    description: New Password
+    kind: full
+    content: "Dear {{name}},\r\n\r\nYou have successfully changed the password for
+      your account with the Canadian Light Source, Inc. user portal!\r\nTo login,
+      go to {{login_url}} and enter your username ({{username}}) and new password.\r\n\r\nAll
+      the best!\r\nThe CLS Users Office Team\r\n\r\nNote: If you did not change your
+      password at the CLSI user portal, please contact the CLS Users Office at\r\nclsuo@lightsource.ca."
+    active: true
+- model: notifier.messagetemplate
+  pk: 16
+  fields:
+    created: 2024-11-20 23:12:16.326293+00:00
+    modified: 2024-11-22 02:46:58.614522+00:00
+    name: password-reset
+    description: Password Reset
+    kind: full
+    content: "Dear {{name}},\n\nYou have requested a change to your CLSI user portal
+      account.  Please follow the link to choose a new password:\n\n{{reset_url}}\n\nThis
+      link will be valid for the next 24 hours. \n\nYou may disregard this email if
+      you did not request a change at the CLSI user portal.\n\nAll the best!\nThe
+      CLS Users Office Team"
+    active: true
+- model: notifier.messagetemplate
+  pk: 17
+  fields:
+    created: 2024-11-20 23:12:52.449527+00:00
+    modified: 2024-11-22 02:46:58.602197+00:00
+    name: registration
+    description: Registration
+    kind: full
+    content: 'Dear {{name}},
+
+
+      Thank you for registering at the Canadian Light Source, Inc. user portal!  Before
+      we can activate your account,
+
+      you must verify your email address by following the link and completing your
+      registration.
+
+
+      The link will be valid for 3 days.
+
+
+      {{verification_url}}
+
+
+      You may disregard this email if you did not register at the CLSI user portal.
+
+
+      All the best!
+
+      The CLS Users Office Team'
+    active: true

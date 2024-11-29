@@ -1,0 +1,29 @@
+{% extends "forms/modal.html" %}
+{% load proposal_tags %}
+{% block form_title %}Clone Proposal?{% endblock %}
+{% block form_body %}
+<h5>Are you sure you want to clone the following {{object|verbose_name}}?</h5>
+<div class="minitron">		
+    <h4><strong>{{object.title}}</strong></h4>
+	{% for member in object.details.team_members %}{{member.last_name}}, {{member.first_name}} &middot; {% endfor %}
+	{{object.details.leader.last_name}}, {{object.details.leader.first_name}} [PI]
+	<hr/>
+	Created, {{object.created}}<br/>
+	Last Modified, {{object.modified}}<br/>	
+	<hr/>
+	A new draft proposal with "(copy)" prepended to the title will be created and saved for further editing.	
+</div> 
+<div class="row">
+	<div class="modal-footer">
+  			<form action="{% url 'clone-proposal' pk=object.pk %}" method="post">{% csrf_token %}
+   			<input type="hidden" name="post" value="yes" />
+			<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+			<button type="submit" value="Submit" class="btn btn-info">Yes, I'm sure</button>
+		</form>
+	</div>
+
+</div>
+{% endblock %}
+
+
+

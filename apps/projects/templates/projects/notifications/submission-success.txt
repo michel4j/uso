@@ -1,0 +1,36 @@
+Dear {{project.spokesperson}},
+
+{%if project.new %}Your project titled "{{project.title}}" has now been reviewed{% if project.approved %} and approved for beam time during the
+cycle "{{cycle}}"{% endif %}. The final results of the review process including comments from reviewers
+are available at {{submission_urls}}.{% else %}The renewal request submitted for the project "{{project.title}}" has now been
+processed.{% endif %}
+
+Your project is valid between {{project.start_date}} and {{project.end_date}}.
+
+Additional safety reviews may be required prior to the start of your experiments. Some of these
+reviews may need additional information which you will be required to provide. Please consult your project page at
+{{project_url}} to monitor the progress and access all information related to your project. The results of the allocation,
+are detailed below:
+
+{% for alloc in allocations %}
+{{alloc.beamline}} ({{alloc.beamline.name}}):
+--------------------------------------------------------------------
+{%if alloc.beamline.flex_schedule or project.special %}{%if project.special %}Shifts have not been allocated to your project.{% else %}
+This beamline does not allocate shifts.{% endif %} Scheduling is done on request based on
+availability and prioritized by the peer-review score. Beam time requests can be made directly from your project page
+at anytime during the valid period of the project.
+{% else %}{% if alloc.shifts %}The project was allocated "{{alloc.shifts|floatformat}}" shifts during the "{{cycle}}" cycle.
+Scheduling of specific shifts is now in progress.{% else %} Unfortunately, due to the large number of high-quality
+submissions on this beamline, your project has not been allocated any beam time for the "{{cycle}}" cycle. {% endif %}
+{% if not special %}
+To request beam time after the "{{cycle}}" cycle, you will have to renew your project on this beamline. Renewals can
+be submitted directly from your project page when the next Call For Proposals is open. Renewals can only be submitted for
+cycles which occur during the valid period of your project. Renewal request will be evaluated relative to other projects
+requesting beam time for the same cycle. You may chose to improve your score by submitting an improved proposal instead
+of a renewal.
+{% endif %}{% endif %}{% endfor %}
+
+{% if project.approved %}We look forward to having you as a user during the "{{cycle}}" cycle.{% endif %}
+
+Sincerely,
+The CLS Users Office Team

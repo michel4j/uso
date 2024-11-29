@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<ul class="breadcrumb">
+{% for crumb in breadcrumbs %}
+    {% if crumb.resolved and not forloop.last %}
+        <li><a href="{{crumb.url}}">{{ crumb.name | capfirst }}</a></li>
+    {% else %}
+        <li {% if forloop.last %}class="active"{% endif %}>{{ crumb.name | capfirst }}</li>
+    {% endif %}
+{% endfor %}
+</ul>
