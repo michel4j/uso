@@ -1,0 +1,37 @@
+{% load crispy_forms_filters %}
+{% load form_tags %}
+{% load l10n %}
+
+<div class="controls row narrow-gutter {{ field_class }}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
+	{% include 'bootstrap3/layout/field_errors_block.html' %}
+	{% for cat in form.fields.areas.choices %}
+	{% with field.field.choices|get_category:cat as choices %}{% if choices|length %}
+	<div class="col-xs-12 subarea {% if cat.0 not in form.initial.areas|get_pks %}hidden{% endif %}" id="area_{{cat.0}}">
+		<div class="row narrow-gutter">
+			<div class="col-xs-12">
+				<label class="control-label col-xs-12">{{ cat.1 }}</label>
+			</div>
+			{% for choice in choices %}
+			<div class="col-lg-3 col-sm-4 col-xs-6">
+				<div class="checkbox" style="margin-top: 2px;">
+					<input type="checkbox"
+						   {% if choice.0 in field.value or choice.0|stringformat:"s" in field.value or choice.0|stringformat:"s" == field.value|stringformat:"s" %}
+					       checked="checked"
+					       {% endif %}
+					       name="{{ field.html_name }}"
+					       id="id_{{ field.html_name }}_{{cat.0}}_{{ forloop.counter }}"
+					       value="{{ choice.0|unlocalize }}"
+					       {{ field.field.widget.attrs|flatatt }}
+					>
+					<label for="id_{{ field.html_name }}_{{cat.0}}_{{ forloop.counter }}">{{ choice.1|unlocalize }}</label>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	{% endif %}{% endwith %}
+	{% endfor %}
+	{% include 'bootstrap3/layout/help_text.html' %}
+</div>
+
+

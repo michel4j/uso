@@ -1,0 +1,70 @@
+{% load project_tags %}
+{% load beamline_tags %}
+<div class="cycle-box tinytron bg-darken">
+    <div class="row">
+        <div class="col-xs-12">
+        {% if owner or admin %}
+            <span class="box-tools pull-right" style="">
+                {% if falloc.can_renew  %}
+                <a href='{% url "create-alloc-request" pk=project.pk fac=falloc.facility.acronym cycle=falloc.next_cycle.pk %}' class="pull-right">
+                    <i class="bi-arrow-clockwise icon-2 icon-fw"></i><br/>
+                    <span class="tool-label">Renew</span>
+                </a>
+                {% endif %}
+                {% if falloc.can_decline  %}
+                <a href="#0" data-url='{% url "decline-alloc" pk=falloc.allocation.pk %}' class="pull-right">
+                    <i class="bi-x-lg icon-2 icon-fw"></i><br/>
+                    <span class="tool-label">Decline</span>
+                </a>
+                {% endif %}
+                {%  if owner and falloc.can_request %}
+                <a href='{% url "create-shift-request" pk=falloc.allocation.pk %}' class="pull-right">
+                    <i class="bi-calendar2-week icon-2 icon-fw"></i><br/>
+                    <span class="tool-label">Request Shifts</span>
+                </a>
+                {% endif %}
+                {% if user|is_staff:falloc.facility and project.is_active %}
+                <a href="#0" data-url='{% url 'session-handover' pk=project.pk fac=falloc.facility.acronym %}' class="pull-right text-danger">
+                    <i class="bi-play-circle icon-2 icon-fw"></i><br/>
+                    <span class="tool-label">Hand-Over</span>
+                </a>
+                {% endif %}
+            </span>
+        {% endif %}
+        <h3 class="text-condensed" style="margin-top:0.25em;">
+            <a href="{% url 'facility-detail' pk=falloc.facility.pk %}">{{ falloc.facility.acronym }}</a>
+            <span class="pull-right {% if falloc.allocation.cycle == cycle %}text-success{% else %}text-muted{% endif %}">{{falloc.allocation.cycle}}&emsp;</span>
+        </h3>
+        <small>{{ falloc.techniques }}</small>
+        </div>
+    </div>
+    <hr class="hr-xs">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row narrow-gutter text-condensed">
+                {%  if falloc.allocation.declined %}
+                    <div class="col-xs-4 text-center">
+                        <span class="stats-danger">Allocation<br/> Declined by User!</span>
+                    </div>
+                {% elif not falloc.facility.flex_schedule %}
+                    <div class="col-xs-4">
+                        <span class="stats-number pull-left">{{falloc.allocation.shifts|floatformat}}</span>
+                        <span class="stats-title pull-left">Allocated<br/>Shifts</span>
+                    </div>
+                {%  endif %}
+
+                <div class="col-xs-4">
+                    <span class="stats-number pull-left">{{falloc.totals.scheduled|floatformat}}</span>
+                    <span class="stats-title pull-left">Scheduled<br/>Shifts</span>
+
+                </div>
+                <div class="col-xs-4">
+                    <span class="stats-number pull-left">{{falloc.totals.used|floatformat}}</span>
+                    <span class="stats-title pull-left">Used<br/>Shifts</span>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="spacer"></div>
+</div>

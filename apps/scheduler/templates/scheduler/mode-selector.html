@@ -1,0 +1,15 @@
+{%  extends "scheduler/selector.html" %}
+
+{%  block selector_content %}
+	<table class="table table-condensed">
+		{% for m in mode_types %}
+		<tr id="{{m.code}}" {% if schedule.state != 'live' %}class="event-src"{% endif %}
+			data-kind='{{m.code}}' data-key='{{m.code}}' data-event='{"kind":"{{m.code}}", "tags": []}'>
+			<td style="vertical-align: middle;"><div class="label {{m.code}}">{{m.code}}</div></td>
+			<td style="vertical-align: middle;">{{m.name}}</td>
+					<td><span  id="stats-{{m.code}}" class="badge progress-bar-success pull-right stats"></span></td>
+		</tr>
+		{% endfor %}
+	</table>
+{% endblock %}
+

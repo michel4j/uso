@@ -1,0 +1,37 @@
+{% extends "projects/base.html" %}
+
+{% block page_heading %}{{ beamline.acronym }} Usage &mdash; <span class="text-muted">{{object}}</span>{% endblock %}
+
+{% block full %}
+<div class="pagelet col-xs-12">
+
+    <table class="table table-condensed">
+      {% for cycle, allocation in info %}{% if allocation %}
+        <tr>
+            <th colspan="5">
+                {{ cycle }}
+                &nbsp;<span class="badge progress-bar-default" title="Shifts Allocated">{{ allocation.shifts }}</span>
+            </th>
+        </tr>
+        {% for session in allocation.sessions %}
+            <tr>
+                <td></td>
+                <td>{{ session.start }}</td>
+                <td>{{ session.end}}</td>
+                <td class="text-right">
+                    <a href='{% url "session-detail" pk=session.pk %}' data-toggle="tooltip"
+                       title="View session details">
+                    <i class="bi-clipboard icon-1x icon-fw"></i></a>
+                </td>
+                <td class="text-right">
+                    <span class="badge progress-bar-success" title="Shifts Used">{{ session.shifts }}</span>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5"><div class="empty">No beamtime</div></td></tr>
+        {% endfor %}
+      {% endif %}{% endfor %}
+    </table>
+
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% load dynforms_tags %}
+{% load proposal_tags %}
+{% get_cycle_options as cycles %}
+
+<div class="controls {{repeatable}} row narrow-gutter" id="{{field.name}}-controls">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="col-sm-3">
+                <select name="{{field.name}}" id="{{field.name}}" class="chosen select form-control">
+                    {% for value, cycle, selected in cycles %}
+                    <option value="{{value}}" {% if selected %}selected="selected" {% endif %}>{{cycle}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+           <span id="{{field.name}}-extras">
+                 {% with selected_cycle as object %}
+                    {% include "proposals/fields/cycleinfo.html" %}
+                 {% endwith %}
+           </span>
+        </div>
+    </div>
+</div>
+<script>
+	$("#{{field.name}}-controls .chosen").chosen({
+		placeholder_text_single: "{{field.label}}",
+		disable_search_threshold: 5,
+		search_contains: true,
+	});
+    $(document).on('change', '#{{field.name}}', function(){
+		var cycle_id = $(this).val();
+    	var info_url = "{% url 'cycle-info' %}" + cycle_id + "/";
+    	$("#{{field.name}}-extras").load(info_url, function(){
+    		$("[data-cycle-update]").each(function(){
+    			$(this).val(cycle_id);
+    			$(this).trigger('change');
+    		});
+    	});
+    });
+
+    $("#{{field.name}}").trigger('change');
+
+</script>

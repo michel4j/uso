@@ -1,0 +1,27 @@
+{% load cycle_tags %}
+{% load proposal_tags %}
+
+{% if object.reviewer %}
+	<div class="pagelet-header">
+		<span class="pagelet-title">My Active Reviews</span>
+		<!-- a href="{% url 'edit-reviewer-profile' %}" class="btn btn-xs btn-white pull-right"><span class="sr-only">Edit Reviewer Profile</span><i class="bi-pencil"></i></a-->
+	</div> 
+	<div class="pagelet-content row" style="height: 245px;">
+	  <div class="slim-scroll-div" style="overflow: hidden; height: 100%;">
+		<div class="slim-scroll" style="overflow: hidden; width: auto; padding-right: 15px; margin-right: -15px; ">
+          <table class="table table-hover table-condensed">
+            {% for rev in reviews %}
+              <tr>
+                <td>
+                  <div class="col-xs-3"><i class="bi-circle-fill {{ rev.state|state_color }}" title="{{ rev.get_state_display }}"></i>&nbsp;{{ rev.proposal.proposal.spokesperson.last_name }}</div>
+                  <div class="col-xs-7">{{ rev.proposal.proposal|truncatechars:50 }}</div>
+                  <div class="col-xs-2" style="text-align: right;"><a href='{% url "edit-review" pk=rev.pk %}'><span class="btn btn-primary" title="Start Review"><i class="bi-arrow-right"></i></span></a></div>
+                </td>
+              </tr>
+            {% endfor %}
+          </table>            
+		</div>
+      </div>
+    </div>
+
+{% endif %}

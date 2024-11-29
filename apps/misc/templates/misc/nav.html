@@ -1,0 +1,18 @@
+<li class="{{active}} {{ nav.styles }}">
+    {% if nav.children %}
+    <a href="#0"><i class="{{nav.icon}} icon-fw"></i>
+    <span>{{nav.label}}</span></a>
+    <ul class="list-unstyled sub-menu" style="overflow-y: auto;">
+        <li class="title">{{nav.label}}</li>
+        {% for sub_nav in submenu %}
+        {% if sub_nav.separator %}
+        <li role="separator" class="divider {{sub_nav.styles}}"></li>
+        {% endif %}
+        <li class="{{sub_nav.styles}}"><a href="{{sub_nav.get_url}}">{{sub_nav.label}}</a></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <a href="{{nav.get_url}}"><i class="{{nav.icon}} icon-fw"></i>
+    <span>{{nav.label}}</span></a>
+   {% endif %}
+</li>

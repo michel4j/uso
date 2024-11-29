@@ -1,0 +1,26 @@
+{% extends "folio.html" %}
+{% load static %}
+{% load itemlist %}
+
+
+
+{% block page_heading %}{% itemlist_heading %}{% endblock %}
+{% block folio-no-header %}{% endblock %}
+{% block folio-content %}
+    <div class="pad-wrapper">
+        <div class="row">
+            <div class="list-tools">
+                <span>
+                {% include "itemlist/filters.html" %}
+                </span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+        {% include "itemlist/list.html" %}
+        {% include "itemlist/pagination.html" %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

@@ -1,0 +1,22 @@
+Dear Reviewer,
+
+The following proposal{{reviews|length|pluralize:",s"}} submitted to the CLS {{reviews|length|pluralize:"has,have"}} been
+assigned to you for review.
+
+{% for rev in reviews %}
+{{rev.get_kind_display}}
+{{rev.proposal}}
+{{site}}{% url "edit-review" pk=rev.pk %}
+Due date: {{rev.due_date}}
+{% if not forloop.last %}---{% endif %}{% endfor %}
+
+You can complete the review{{reviews|length|pluralize:",s"}} by following the corresponding
+link{{reviews|length|pluralize:",s"}} above.
+
+We appreciate your effort in completing the reviews in a timely manner.
+
+If you have any questions or concerns, please contact our office at
+clsuo@lightsource.ca or 306-657-3700.
+
+Sincerely,
+CLSI User Services Office

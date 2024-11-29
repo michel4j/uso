@@ -1,0 +1,63 @@
+{% extends 'projects/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+
+{% block extra_css %}
+    <link href="{% static 'css/datetimepicker.css' %}" rel="stylesheet"/>
+    <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
+    {% endblock %}
+{% block pre_js %}
+        <script type="text/javascript">
+        $(document).ready(function () {
+            $(".chosen").chosen({
+                placeholder_text_single: "Select an option",
+                search_contains: true,
+                allow_single_deselect: true,
+            });
+
+            $('.chosen-container-multi').change(function () {
+                var tech_field = $(this);
+                var fac_field = tech_field.closest('.controls').find('[name^="{{field.name}}.facility"]');
+                var opt_url = "{% url 'techniques-beamlines' %}?";
+                var topt_url = "{% url 'beamline-techniques' %}?";
+
+                if (fac_field.val()) {
+                    opt_url += "&fac=" + fac_field.val();
+                }
+                if (tech_field.val()) {
+                    opt_url += "&techs=" + tech_field.val().join(",");
+                    topt_url += "&techs=" + tech_field.val().join(",");
+                }
+
+                fac_field.load(opt_url, function () {
+                    fac_field.trigger("chosen:updated");
+                    var facs = [];
+                    fac_field.find('option').filter(function () {
+                        return this.value ? true : false;
+                    }).each(function () {
+                        facs.push($(this).attr('value'));
+                    });
+                    if (facs) {
+                        topt_url += "&facs=" + facs.join(",");
+                    }
+                    // Update list of techniques to compatible ones on same beamlines
+                    tech_field.load(topt_url, function () {
+                        tech_field.trigger("chosen:updated");
+                    });
+                });
+            });
+
+        });
+    </script>
+{% endblock %}
+{% block page_heading %}{{ form.helper.title }}{% endblock %}
+{% block full %}
+    <div class="pagelet">
+        <div class="pagelet-body">
+            {% crispy form form.helper %}
+        </div>
+    </div>
+{% endblock %}
+

@@ -1,0 +1,39 @@
+{% load dynforms_tags %}
+<div id="df-form-preview" class="pagelet">
+
+	<!-- Nav tabs -->
+	<ul class="nav nav-tabs">
+	{% for page in form_spec.pages %}
+	  <li class="{% if forloop.counter == active_page %}active{% endif %}"><a href="#page{{forloop.counter}}" data-toggle="tab">{{page.name}}</a></li>
+	{% endfor %}
+	</ul>
+	
+	<!-- Tab panes -->
+	<div class="tab-content pagelet-body">
+	{% for page in form_spec.pages %}				
+	  <div class="tab-pane {% if forloop.counter == active_page %}active{% endif %} df-container sortable grid" id="page{{forloop.counter}}" data-page-number="{forloop.counter0}}">
+	  	{% for field in page.fields %}
+		  <div class="df-field container no-space" data-fieldtype="{{field.field_type}}" data-fieldpos="{{forloop.counter0}}">
+			{% include "dynforms/field.html" %}
+		  </div>
+		{% endfor %}
+	  </div>
+	{% endfor %}				
+	</div>
+</div>
+<!-- Footer -->
+<div id="df-footer">
+	<div id="df-footer-content">
+	<div class="form-actions">
+		{% for name, label in form_type.actions %}
+		<input type="submit" id="{{name}}-action" class="btn btn-default disabled" value="{{label}}" name="{{name}}">
+		{% endfor %}
+		<button type="button" id="test-form" 
+			onclick="window.location.href='{% url 'dynforms-run' pk=form_spec.pk %}'"
+			class="btn btn-success pull-right">Test Form</button>
+	</div>
+	</div>
+</div>
+<script>
+	doBuilderLoad();
+</script>

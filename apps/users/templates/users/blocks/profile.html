@@ -1,0 +1,42 @@
+{% extends "misc/blocks/panel.html" %}
+{% block panel_title %}My Profile{% endblock %}
+{% block panel_tools %}
+<a href="{% url 'view-my-profile' %}" class="btn btn-xs btn-white pull-right" title="View My Profile">
+    <i class="bi-eye icon-1x icon-fw"></i>
+</a>
+    <a href="{% url 'edit-my-profile' %}" class="btn btn-xs btn-white pull-right" title="Edit Profile">
+    <i class="bi-pencil icon-1x icon-fw"></i>
+</a>
+{% endblock %}
+{% block panel_content %}
+<h3 style="margin: 0.15em 0;">{{user}}</h3>
+<table class="profile table table-condensed" style="font-size: 95%;">
+    <tbody>
+    <tr>
+        <td class="item"><i class="bi-briefcase icon-fw"></i></td>
+        <td>{{user.get_classification_display|default:""}}</td>
+    </tr>
+    <tr>
+        <td class="item"><i class="bi-telephone icon-fw"></i></td>
+        <td>{{user.address.phone|default:"<span class='text-muted'>(999)-999-9999</span>"}}</td>
+    </tr>
+    <tr>
+        <td class="item"><i class="bi-envelope-at icon-fw"></i></td>
+        <td>{{user.email.lower}}</td>
+    </tr>
+    <tr>
+        <td class="item"><i class="bi-house icon-fw"></i></td>
+        <td>{{user.institution}}</td>
+    </tr>
+    <tr>
+        <td class="item"><i class="bi-geo-alt icon-fw"></i></td>
+        <td>{{user.address|default:""}}</td>
+    </tr>
+    <tr>
+        <td class="item"><i class="bi-paint-bucket icon-fw"></i></td>
+        <td>{{object.research_field.all|join:", "}}</td>
+    </tr>
+    </tbody>
+</table>
+{% endblock %}
+

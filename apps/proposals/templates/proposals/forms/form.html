@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra_css %}
+		<link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block extra_js %}
+		<script type="text/javascript">
+		$(".chosen").chosen({
+			placeholder_text_single: "Type or select an option",
+			search_contains: true,
+			allow_single_deselect: true,
+		});
+	</script>
+{% endblock %}
+
+{% block page_heading %}{{ form.helper.title }}{% endblock %}
+
+
+{% block full %}
+<div class="pagelet">
+	<div class="pagelet-body">
+		{% crispy form form.helper %}
+	</div>
+</div>
+
+<script>
+	$('#id_areas').change(function(){
+	  var area_field = $('select[name^="areas"]');
+	  $.each($('.subarea'), function(i, val) {
+	    $('#'+val.id).addClass('hidden');
+	  });
+	  if (area_field.val() ) {
+		  $.each(area_field.val(), function(i, val) {
+			$('#area_'+val).removeClass('hidden');
+		  });
+	  }
+	});
+</script>
+{% endblock %}
+

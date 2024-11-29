@@ -1,0 +1,39 @@
+{% extends "projects/base.html" %}
+
+
+{% load static %}
+{% load dynforms_tags %}
+{% block extra_css %}
+    <link href="{% static 'css/datetimepicker.css' %}" rel="stylesheet"/>
+    <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
+    {% endblock %}
+
+{% block pre_js %}
+        <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
+{% endblock %}
+
+{% block page_heading %}{{ form_title }}{% endblock %}
+{% block body_class %}extended-help{% endblock %}
+{% block full %}
+    <div id="proposal-form" class="pagelet col-xs-12 col-sm-9">
+        <div class="row">
+            {% include "dynforms/form.html" %}
+        </div>
+    </div>
+    <div class="col-sm-3 hidden-xs">
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
+    <script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
+    <script>
+        $(window).bind('beforeunload', function () {
+            if ($("[data-dynform-dirty]").length) {
+                return 'Form contains unsaved changes.';
+            }
+        });
+    </script>
+{% endblock %}

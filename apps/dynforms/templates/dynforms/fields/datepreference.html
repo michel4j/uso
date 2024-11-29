@@ -1,0 +1,45 @@
+{% load static %}
+
+<div class="controls {{ repeatable }}" id="{{ field.name }}-controls">
+    <div class="row no-space">
+	    <span class="field-group-item col-xs-6">
+		    <label for="{{ field.name }}-good">Preferred</label>
+			<div class="input-group">
+				<span class="input-group-addon"><i class="bi-calendar-check-fill text-success"></i></span>
+		    	<input id="{{ field.name }}-good" aria-label="Preferred dates" name="{{ field.name }}.good_dates"
+                       class="form-control" type="text" value="{{ data.good_dates }}">
+			</div>
+	    </span>
+        <span class="field-group-item col-xs-6">
+		    <label for="{{ field.name }}-poor">Undesirable</label>
+			<div class="input-group">
+				<span class="input-group-addon"><i class="bi-calendar-x-fill text-danger"></i></span>
+		    	<input id="{{ field.name }}-poor" aria-label="Undesirable dates" name="{{ field.name }}.poor_dates"
+                       class="form-control" type="text" value="{{ data.poor_dates }}">
+			</div>
+	    </span>
+    </div>
+</div>
+<link href="{% static 'css/datetimepicker.css' %}" rel="stylesheet"/>
+<link href="{% static 'css/datepicker.css' %}" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
+<script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript">
+    $('#{{field.name}}-good, #{{field.name}}-poor').datetimepicker({
+        {% if 'multiple' in field.options %}
+            multidate: true,
+            autoclose: false,
+        {% else %}
+            autoclose: true,
+        {% endif %}
+        format: "yyyy-mm-dd",
+        orientation: "top",
+        clearBtn: true,
+        todayHighlight: true
+    });
+
+    $('#{{field.name}}-good, #{{field.name}}-poor').on('keypress', function (e) {
+        e.preventDefault(); // Don't allow direct editing
+    });
+</script>
+	

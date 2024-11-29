@@ -1,0 +1,7 @@
+{% if precautions %}
+    <hr class="hr-xs"/>
+    {% for p in precautions %}
+        <text title="{{p.code}}">{{ p.text }}</text>{% if not forloop.last %}<br/>{% endif %}
+    {% endfor %}
+{% endif %}
+

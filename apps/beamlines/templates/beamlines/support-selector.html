@@ -1,0 +1,18 @@
+{% extends "scheduler/selector.html" %}
+
+{% block selector_content %}
+    <table class="table table-condensed">
+        {% for member in staff %}
+            <tr id="{{ member.username }}" {% if schedule.state != 'draft' %}class="event-src"{% endif %}
+                data-event='{"staff":"{{ member.username }}", "tags": [] }'>
+                <td style="vertical-align: middle;">
+                    <img class="profile-img" src="{{ member.get_photo }}" style="margin: 0 !important;"
+                         onerror="this.src='/static/img/blank-profile.png';">
+                </td>
+                <td style="vertical-align: middle;" class="">{{ member }}</td>
+                <td><span id="stats-{{ member.pk }}" title="Scheduled Shifts"
+                          class="stats badge progress-bar-success"></span></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

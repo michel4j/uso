@@ -1,0 +1,41 @@
+{% with vals.results as data %}{% with vals.name as field %}
+<div id="{{field}}{{spec}}-chart"><svg></svg></div>
+
+<script>
+var dat_{{spec}}_{{field}} = {% autoescape off %}[{{ data.0 }}].map(function(data, i) {
+	return {
+        key: Object.keys(data)[0],
+        values: data[Object.keys(data)[0]]
+      };
+    });{% endautoescape %}
+
+var el = $('#{{field}}{{spec}}-chart');
+
+var height = el.closest(".data-reports").find('table').height();
+el.find('svg').height(Math.max(height,200));
+
+nv.addGraph(function() {
+    var chart = nv.models.multiBarChart()
+      .reduceXTicks(false)   //If 'false', every single x-axis tick label will be rendered.
+      .rotateLabels(65)      //Angle to rotate x-axis labels.
+      .showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+      .groupSpacing(0.0)    //Distance between each group of bars.
+      .showLegend(false)
+      .rightAlignYAxis(true)
+      .margin({right: 45})
+      .stacked(true)
+    ;
+
+    chart.yAxis.tickFormat(d3.format('.1%'));
+	chart.legend.radioButtonMode(true);
+
+    d3.select('#{{ field }}{{spec}}-chart svg')
+        .datum(dat_{{spec}}_{{field}})
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+</script>
+{% endwith %}{% endwith %}

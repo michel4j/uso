@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% load jsonify %}
+{% load dashboard %}
+{% load cycle_tags %}
+{% load static %}
+{% block page_heading %}User Services Online{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'weather/weather-icons/css/weather-icons.min.css' %}" type="text/css" media="screen" />
+<link rel="stylesheet" href="{% static 'weather/weather-icons/css/weather-icons-wind.min.css' %}" type="text/css" media="screen" />
+{% endblock %}
+
+{% block full %}
+{% show_dashboard %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/3.3.2/masonry.pkgd.min.js" integrity="sha512-3PoK3vu4v0ucsggtmLRS2u+uURNzFQA6q9AhgF+FdfzOjM8Nt4p6oKNcbEhdUpw3ud6AO7xaFRpneg5+QBLFXQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" integrity="sha512-oJp0DdQuQQrRsKVly+Ww6fAN1GwJN7d1bi8UubpEbzDUh84WrJ2CFPBnT4LqBCcfqTcHR5OGXFFhaPe3g1/bzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.7/d3.layout.cloud.min.js" integrity="sha512-hStpcyoo0rWEs2cG9t9yrzAXWstzZOjOvufYbBCIMvX4YG8kw7pU6/yUIrLup1COQQalrxels1cbJ/+X7GdYEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+$(document).ready(function(){
+	$(".dashboard").masonry({
+		itemSelector: '.dashboard > div',
+		columnWidth: '.dashboard > div',
+		transitionDuration  : 0,
+		percentPosition: true
+	});
+});
+</script>
+{% endblock %}

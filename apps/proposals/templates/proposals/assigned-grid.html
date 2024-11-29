@@ -1,0 +1,44 @@
+{% load cycle_tags %}
+{% with object as submission %}
+<div class="tinytron bg-white">
+    <div  class="row narrow-gutter">
+        <div class="col-xs-12 col-sm-8">
+            {% include "proposals/submission-snippet.html" %}
+        </div>
+        <div class="col-xs-12 col-sm-4">
+            <div class="row no-space tinytron bg-info">
+                <span class="col-xs-12 grid-reviewer title">
+                    <strong class="h5">Reviewers</strong>
+                </span>
+                {% for rev in submission.reviews.scientific %}
+                <span class="col-xs-12 grid-reviewer">
+                    <a href="#0" data-url="{% url  'show-compatibility' pk=rev.pk %}">
+                        {% if rev.reviewer.reviewer.committee %}
+                            {{rev.reviewer}} <i class="bi-award text-warning"></i>
+                        {% else %}
+                            {{rev.reviewer}}
+                        {% endif %}
+                        <span class="badge pull-right">
+                            {{rev.reviewer|review_compat:submission}}
+                        </span>
+                    </a>
+                    {% if rev.state == rev.STATES.pending and not rev.reviewer.reviewer.committee %}
+                    <a href="#0" title="Remove Reviewer" data-url="{% url 'delete-review' pk=rev.pk %}"
+                       class="hover-command pull-right text-danger"><i class="bi-person-dash-times icon-fw"></i>&nbsp;</a>
+                    {% else %}
+                        <a href="#0"><i class="bi-lock text-muted icon-fw pull-right"></i></a>
+                    {% endif %}
+                </span>
+                {% endfor %}
+                {%  if submission.cycle.state == submission.cycle.STATES.assign %}
+                <span class="col-xs-12 grid-reviewer">
+                    <a href="#0" title="Add Reviewer" data-url="{% url 'add-reviewer-assignment' pk=submission.pk %}"
+                       class="text-success"><i class="bi-person-add-plus"></i></a>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endwith %}

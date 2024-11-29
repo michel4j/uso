@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load markup %}
+
+{% block extra_css %}
+    <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block page_heading %}{{ agreement.name }}{% endblock %}
+{% block full %}
+    <div class="pagelet">
+        <div class="pagelet-body">
+            <div class="minitron">
+                {{ agreement.content | markdown }}
+            </div>
+            {% crispy form form.helper %}
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,9 @@
+
+
+{% for crumb in crumbs %}
+    {% if crumb.active %}
+    <li class="active">{{crumb.name}}</li>
+    {% else %}
+    <li><a href="{{crumb.url}}">{{crumb.name}}</a></li>
+    {% endif %}
+{% endfor %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}registration{% endblock %}
+{% block body %}
+    <div class="aligner">
+        <div class="page">
+            <header>
+                <a href="/" class="pull-left"><img alt="Logo" src="/media/logos/logo-horiz-white.png"
+                 onerror="this.onerror=null;this.src='{% static 'img/logo-horiz-white.svg' %}';"></a>
+                <h3 class="pull-right text-condensed">
+                    {% block main-title %}Registration{% endblock %}
+                </h3>
+            </header>
+            {%  block article-and-footer %}
+            <article class="main">
+                <div class="form-page tab-content">
+                    {% block main-form %}{% endblock %}
+                </div>
+            </article>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

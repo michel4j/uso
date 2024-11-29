@@ -1,0 +1,39 @@
+{% load schedule_tags %}
+<div class="cal-cycle-view">
+    {% for month in months %}
+        <div class="cal-cycle-month">
+            <table>
+                <tr>
+                    <th class="cal-month-name" colspan="7"><h4>{{ month.name }}</h4></th>
+                </tr>
+                <tr class="cal-header-row">
+                    {% for header in headers  %}
+                        <th class="cal-header text-condensed">{{ header }}</th>
+                    {% endfor %}
+                </tr>
+                {% for week in month.weeks %}
+                <tr class="cal-row">
+                    {% for day in week %}
+                            <td class="cal-day {% if day == today %}cal-today{% endif %}" id="{{day.isoformat}}">
+                                <div class="cal-day-content">
+                                    {%  if day.month == month.index %}
+                                        <div class="cal-day-number text-condensed">{{day.day}}</div>
+                                        {% for shift in shifts %}
+                                        <div data-shift-id="{{day.isoformat}}T{{shift.time}}"
+                                             data-default-class="cal-shift shift-{{day.isoformat}}T{{shift.time}} shift-T{{shift.time}}"
+                                                          class="cal-shift shift-{{day.isoformat}}T{{shift.time}} shift-T{{shift.time}}"></div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+</div>
+
+
+

@@ -1,0 +1,18 @@
+{% load proposal_tags %}
+Dear {{name}},
+
+During the review of your submission, "{{title|safe}}", one of the reviewers has requested the following clarification:
+
+"{{clarification|safe}}"
+
+A response can be submitted by either the original submitter (the spokesperson), the team leader or the
+designated delegate through the URL {{respond_url}}. Only one response will be accepted.
+
+** To avoid delays in the review, please respond before {{due_date}}.**
+
+Note that you must be registered at the CLS to view the or respond to clarifications requests.
+If you have any questions or concerns, please contact contact our office at
+clsuo@lightsource.ca or 306-657-3700.
+
+Sincerely,
+CLSI User Services Office

@@ -1,0 +1,55 @@
+{% extends "proposals/track_box.html" %}
+{% block box_class %}bg-transparent{% endblock %}
+{% block box_header %}
+    <h4 class="no-vmargin">
+        <strong>{{total_facilities}}</strong> Facilit{{total_facilities|pluralize:"y,ies"}} Participating&emsp;
+        <strong>{{total_submissions}}</strong> Submission{{total_submissions|pluralize:",s"}}&emsp;
+    </h4>
+{% endblock %}
+{% block box_subheader %}Summary of submissions by facility{% endblock %}
+{% block box_tools_class %}hidden{% endblock %}
+{% block box_content %}
+    <div class="col-xs-12">
+        <div class="row-narrow-gutter">
+            {% for fac, count in facilities.items %}
+                <div class="col-xs-6 col-sm-4 col-lg-3">
+                    <a href="{% url "facility-detail" pk=fac.pk %}">{{ fac }}</a>&ensp;<strong class="pull-right">{{ count }}</strong>
+                    <div style="border-bottom: 1px dotted rgba(0,0,0,0.15);"></div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if cycle.state == cycle.STATES.assign %}
+    <div class="col-xs-12">
+        <h4 style="margin-bottom: 0; margin-top: 1em;">
+            <strong>{{total_techniques}}</strong> Technique{{total_techniques|pluralize:",s"}}&emsp;
+            <strong>{{total_reviewers}}</strong> Reviewer{{total_reviewers|pluralize:",s"}} Eligible&emsp;
+        </h4>
+        <small>
+            Submissions and eligible reviewers by Technique &emsp;
+            <i class="bi-circle-fill text-info-light"></i>&nbsp;Submissions &emsp;
+            <i class="bi-circle-fill text-danger-light"></i>&nbsp;Reviewers
+        </small>
+        <hr class="hr-xs"/>
+        <div class="row-narrow-gutter">
+            {% for tech, counts, pct in techniques.items %}
+                <div class="col-xs-12 col-sm-6 col-md-4 text-condensed">
+                    <div class="row narrow-gutter">
+                        <div class="col-xs-10">
+                            <span class="overflow ellipsis">{{ tech }}</span>
+                        </div>
+                        <div class="col-xs-1 text-center text-info-light" style="border-right: 1px solid rgba(0,0,0,0.25);">
+                            {{ counts.submissions }}
+                        </div>
+                        <div class="col-xs-1 text-center text-danger-light">
+                            {{ counts.reviewers }}
+                        </div>
+                    </div>
+                    <div style="border-bottom: 1px dotted rgba(0,0,0,0.15);"></div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}}

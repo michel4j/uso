@@ -1,0 +1,40 @@
+{% load dynforms_tags %}
+{% load beamline_tags %}
+
+{% get_ancillaries data=data as ancillaries %}
+
+<div class="controls row no-space{{ repeatable }}" id="{{ field.name }}-controls">
+    <div class="row no-space">
+        <div class="field-group-item col-xs-6">
+            <label for="{{ field.name }}-labs">Labs</label>
+            <select name="{{ field.name }}.labs" id="{{ field.name }}-labs" class="chosen select form-control shorten"
+                    {% if 'multiple' in field.options %}multiple="multiple"{% endif %}
+                    data-placeholder="Select labs ...">
+                {% for item in ancillaries.labs %}
+                    <option value="{{ item.pk }}"
+                            {% if item.selected %}selected="selected"{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field-group-item col-xs-6">
+            <label for="{{ field.name }}-equipment">Equipment</label>
+            <select name="{{ field.name }}.equipment" id="{{ field.name }}-equipment"
+                    class="chosen select form-control shorten"
+                    {% if 'multiple' in field.options %}multiple="multiple"{% endif %}
+                    data-placeholder="Select equipment ...">
+                {% for item in ancillaries.equipment %}
+                    <option value="{{ item.pk }}"
+                            {% if item.selected %}selected="selected"{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#{{field.name}}-controls .chosen").chosen({
+        disable_search_threshold: 10,
+        search_contains: true,
+        allow_single_deselect: true
+    });
+</script>

@@ -1,0 +1,22 @@
+Dear Reviewer,
+
+This is reminder that the following review{{reviews|length|pluralize:",s"}} assigned to you,
+or associated with your roles at the CLS {{reviews|length|pluralize:"is,are"}} due on {{due_date|date}}.
+
+{% for rev in reviews %}
+{{rev.get_kind_display}}
+{{rev.proposal}}
+{{site}}{% url "edit-review" pk=rev.pk %}
+Due date: {{rev.due_date}}
+{% if not forloop.last %}---{% endif %}{% endfor %}
+
+Please complete the review{{reviews|length|pluralize:",s"}} by following the corresponding link{{reviews|length|pluralize:",s"}} above.
+If you have already completed the review, but did not submit it yet, please do so to ensure your opinion will be considered.
+
+We appreciate your effort in completing and submitting the reviews before midnight on {{due_date|date}}.
+
+If you have any questions or concerns, please contact our office at
+clsuo@lightsource.ca or 306-657-3700.
+
+Sincerely,
+CLSI User Services Office

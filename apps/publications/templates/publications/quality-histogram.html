@@ -1,0 +1,65 @@
+{% load static %}
+{% load pubstats %}
+
+<div id="tooltip" class="hidden">
+    <p><span id="value">100</span>
+    </p>
+</div>
+
+<div id="quality-chart"><svg></svg></div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.css" integrity="sha512-5HktH3p+qBNLzxpOLnpICH2uwArYE/Fi7fdKCQee15piDqN3X3Q1iqo8D43oc8DJgYP4xxA7sdEjNCfmeLLYeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" integrity="sha512-oJp0DdQuQQrRsKVly+Ww6fAN1GwJN7d1bi8UubpEbzDUh84WrJ2CFPBnT4LqBCcfqTcHR5OGXFFhaPe3g1/bzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.js" integrity="sha512-ldXL88WIgBA+vAsJu2PepKp3VUvwuyqmXKEbcf8rKeAI56K8GZMb2jfKSm1a36m5AfUzyDp3TIY0iVKY8ciqSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+var dat_quality = {% autoescape off %}{{ tbl.table|get_table_quality }}.map(function(data, i) {
+    var display = (Object.keys(data)[0] != 'Articles');
+	return {
+        key: Object.keys(data)[0],
+        disabled: display,
+        values: data[Object.keys(data)[0]]
+      };
+    });{% endautoescape %}
+
+var types = {% autoescape off %}{% get_measures tbl.table %}{% endautoescape %};
+var colors = {% get_colors %};
+var el = $('#quality-chart');
+
+var height = el.closest(".data-reports").find('table').height();
+el.find('svg').height(Math.max(height,200));
+
+nv.addGraph(function() {
+    var chart = nv.models.multiBarChart()
+      .reduceXTicks(false)   //If 'false', every single x-axis tick label will be rendered.
+      .rotateLabels(45)      //Angle to rotate x-axis labels.
+      .showControls(false)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+      .groupSpacing(0.0)    //Distance between each group of bars.
+      .showLegend(true)
+      .rightAlignYAxis(true)
+      .margin({right: 45})							      
+    ;
+
+    chart.xAxis.tickFormat(d3.format('f'));
+    chart.yAxis.tickFormat(d3.format('.1f'));
+	chart.color(colors);
+	chart.legend.radioButtonMode(true);
+	
+    d3.select('#quality-chart svg')
+        .datum(dat_quality)
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+    
+    return chart;
+});
+function color_code(el) {
+	var tbl = el.parent().parent().find("table");
+	for (i = 0; i < types.length; i++) {
+		var td = tbl.find("td:contains('"+types[i]+"')");
+		td.css({"color": colors[i], "font-weight": "bold", "line-height": 1});
+	}
+}
+
+color_code($('#quality-chart'));
+
+</script>

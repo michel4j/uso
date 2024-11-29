@@ -1,0 +1,71 @@
+{% extends "forms/modal.html" %}
+{% load proposal_tags %}
+{% load markup %}
+
+{% block form_title %}<i class="bi-lock"></i> {{ object.get_kind_display }}{% endblock %}
+{% block form_body %}
+<div class="row narrow-gutter">
+	<div class="col-xs-12">
+        <h4>Score Summary</h4>
+        <hr class="hr-xs"/>
+
+        <div class="row">
+            {% if object.kind == 'scientific' %}
+            <div class="col-xs-4">
+                <small class="text-wide text-muted">Merit</small><br/>
+                <h2 class="no-vmargin text-center" style="color: {{ object.score|color_scale }}"><strong>{{ object.score | floatformat:-1 }}</strong></h2>
+            </div>
+            <div class="col-xs-4">
+                <small class="text-wide text-muted">Suitability</small><br/>
+                <h2 class="no-vmargin text-center" style="color: {{ object.score_1|floatformat|color_scale }}">{{ object.score_1 | floatformat }}</h2>
+            </div>
+            <div class="col-xs-4">
+                <small class="text-wide text-muted">Capability</small><br/>
+                <h2 class="no-vmargin text-center" style="color: {{ object.score_2|color_scale }}">{{ object.score_2 | floatformat }}</h2>
+            </div>
+            {% elif object.kind == 'technical' %}
+            <div class="col-xs-4">
+                <small class="text-wide text-muted">Suitability</small><br/>
+                <h2 class="no-vmargin text-center" style="color: {{ object.score|color_scale }}">{{ object.score | floatformat }}</h2>
+            </div>
+            {% elif object.kind == 'safety' %}
+            <div class="col-xs-4">
+                <small class="text-wide text-muted">Risk Level</small><br/>
+                <h2 class="no-vmargin text-center" style="color: {{ object.score|color_scale }}">{{ object.score | floatformat }}</h2>
+            </div>
+            {% endif %}
+        </div>
+        <hr class="hr-xs"/>
+        <table class="table table-condensed">
+            <tbody>
+                <tr>
+                    <td class="item">Cycle</td>
+                    <td>{{ object.cycle }}</td>
+                </tr>
+                <tr>
+                    <td class="item">
+                        {% if object.kind == 'technical' or object.kind == 'scientific' %}Submission
+                        {% else %}Project{% endif %}
+                    </td>
+                    <td>{{ object.reference }}</td>
+                </tr>
+                <tr>
+                    <td class="item">Reviewer</td>
+                    <td>{{ object.reviewer }}</td>
+                </tr>
+                {% if object.role %}<tr>
+                    <td class="item">Role</td>
+                    <td>{{ object.role }}</td>
+                </tr>{% endif %}
+                <tr>
+                    <td colspan=2>
+                        <div class="tinytron bg-warning" style="padding: 0.5em;">
+                            <strong>Comments:</strong>{{ object.comments|default:"&hellip;"|markdown }}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+	</div>
+</div>
+{% endblock %}

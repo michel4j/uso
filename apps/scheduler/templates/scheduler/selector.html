@@ -1,0 +1,55 @@
+<div class="src-header right-inner-addon">
+    <i class="bi-search"></i>
+    <input id="src-search" type="search"  class="form-control" placeholder="Search" style="border-radius: 0 !important; height: 30px;"/>
+</div>
+
+
+<div id="src-content" class="scrollbox ">
+{%  block selector_content %}
+{% endblock %}
+</div>
+
+{% if schedule.is_editable or not mode_editor %}
+<div class="src-tools tinytron bg-notes-warning">
+    <div class="row">
+        <div class="col-xs-12">
+            <span id="src-instruction"></span>
+        </div>
+    </div>
+    <hr class="hr-xs"/>
+    <div class="row">
+        <div class="col-xs-12">
+            {% if view.allow_reservations %}
+            <a href="#0" class="event-src pull-left "
+               data-key='default'  data-event='{"kind": "", "tags": [], "placeholder": true}'>
+                <i class="bi-geo-alt icon-fw icon-1x"></i><br/>
+                <span class="tool-label">Reserve</span>
+            </a>
+            {%  endif %}
+            <a href="#0" class="event-src pull-right "
+               data-key='default'  data-event='{"kind": "", "tags": [], "delete": true}'>
+                <i class="bi-trash icon-fw icon-1x"></i><br/>
+                <span class="tool-label">Erase</span>
+            </a>
+            <a href="#0" class="event-src pull-right "
+                data-key='default'  data-event='{"kind": "", "tags": [], "cancel": true}'>
+                <i class="bi-ban icon-fw icon-1x"></i><br/>
+                <span class="tool-label">Cancel</span>
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endif %}
+<script>
+    // Create icontains pseudo selector
+    $.expr[":"].icontains = $.expr.createPseudo(function(arg) {
+        return function( elem ) {
+            return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+        };
+    });
+    $('#src-search').keyup(function(){
+        $("#src-content .event-src").removeClass('hidden');
+        $("#src-content .event-src:not(:icontains("+ $(this).val() +"))").addClass('hidden');
+    });
+</script>

@@ -1,0 +1,32 @@
+<table class="table table-condensed">
+    {% for com in object.clarifications.all %}
+    <tr>
+        <td>
+            {{ com.question|safe }}<br/>
+            <small class="text-muted">asked by Reviewer &ndash; {{com.created|date}} {{com.created|time}}</small>
+        </td>
+    </tr>
+    <tr class="merge-up">
+        <td>
+            <div class="tinytron bg-darken">
+                {% if com.response %}
+                {{ com.response|safe }}<br/>
+                <small class="text-muted">answered by {{com.responder}} &ndash; {{com.modified|date}} {{com.modified|time}}</small>
+                {% else %}
+                    {% if owner or admin %}
+                    <a href="#0" data-url="{% url response_url_name ref=object.pk pk=com.pk %}"
+                       class="pull-right">
+                        <i class="bi-reply icon-fw"></i> <span class="tool-label">Reply</span>
+                    </a>
+                    {% endif %}
+                    &hellip;
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td class="empty">No clarifications requested</td>
+    </tr>
+    {% endfor %}
+</table>

@@ -1,0 +1,42 @@
+{% load markup %}
+{% for ctx in facilities %}
+<div class="row">
+ 	<div class="col-xs-12">
+ 	<h3 class="no-vmargin text-condensed">
+        <strong>{{ctx.facility.acronym}}</strong> &mdash; {{ ctx.facility.name }}
+        {% if ctx.facility.flex_schedule %}
+            <span class="label label-info pull-right">
+                <strong data-toggle="popover"
+                        data-trigger="hover"
+                        data-content="Number of Shifts will be assigned as required based on availability"
+                        data-placement="bottom"
+                >Flexible
+                </strong>
+            </span>
+        {% else %}
+            <span class="label label-info pull-right">
+                <strong>{{ctx.shifts|default:"0"}} Shift{{ctx.shifts|pluralize:",s"}}</strong>
+            </span>
+        {% endif %}
+    </h3>
+ 	<hr class="hr-xs"/>
+ 	</div>
+    <div class="col-xs-12">
+	    <div class="pull-right" style="width: 60%;">
+	       <div class="beamline-info tinytron bg-darken">
+               {% include "beamlines/fields/beamline_info.html" with object=ctx.facility config=ctx.config %}
+           </div>
+	    </div>
+       <h4>Suitability and Justification:</h4>
+       <p>{{ctx.justification}}</p>
+    </div>
+
+</div>
+<div class="row">
+	<div class="col-xs-12">
+       <h4>Experimental Procedure:</h4>
+       {% for tech in ctx.techniques %}<span style="line-height: 2; !important" class="label label-default">{{tech}}</span> {% endfor %}
+       <p>{{ctx.procedure}}</p>
+    </div>
+</div>
+{% endfor %}

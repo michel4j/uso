@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@3.1.0/dist/fullcalendar.min.css" integrity="sha256-cPqnGfw7Kn/K/TUQkWu5CN3sFeSv4iY7fFdp94V4Oos=" crossorigin="anonymous">
+    <link href="{% static 'css/datetimepicker.css' %}" rel="stylesheet">
+    <link href="{% static 'css/datepicker.css' %}" rel="stylesheet">
+    <link href="{% static 'scheduler/scheduler.min.css' %}" rel="stylesheet">
+{% endblock %}
+{% block post_js %}
+    <script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.46/moment-timezone-with-data.min.js" integrity="sha512-4MAP/CJtK3ASCmbYjYxWAbHWASAx1UYMc1i83cBdQZXegqFfqSZ9WqpmkRGfvzeAI18yvKiDTlgX/TLNMpxkSQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.1.0/dist/fullcalendar.min.js" integrity="sha256-s7EuQ9u9p/TaiB9vGa4+qH3NQ5qjBxbsoyBrCAGtOIE=" crossorigin="anonymous"></script>
+    <script src="{% static 'scheduler/scheduler.min.js' %}"></script>
+{% endblock %}

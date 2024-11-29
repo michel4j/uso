@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block full %}
+<div style="margin: 5em;">
+<div class="container">
+	<div class="row">
+	    <div class="row toolbar">	        
+			<form method="get" action="." role="search" class="col-xs-6 col-sm-4 pull-left">
+			<div class="input-group input-group-sm">
+			      <input type="text" placeholder="Search " class="form-control" name="q">
+			      <span class="input-group-btn input-group-sm">
+			        <button type="submit" class="btn btn-default"><span class="bi-search"></span></button>
+			      </span>
+			</div>
+			</form>
+		{% with results.details as substances %}
+		{% if substances %}
+	    <table class="table table-hover">
+	        <thead><tr class="first">
+	            <th class="col-xs-3">CAS Numbers</th>
+	            <th class="col-xs-9">Name</th>
+	        </tr></thead>
+	        <tbody>
+			{% for substance in substances %}
+	            <tr>
+	                <td>{{substance.cas}}</td>
+	                <td><a href="{% url 'sample-record' hsdb_id=substance.index %}">{{substance.name}}</a></td>
+	            </tr>
+			{% endfor %}
+	        
+	        </tbody>
+	    </table>
+	    {% endif %}
+	    {% endwith %}
+	</div>
+	</div>
+</div>
+</div>
+{% endblock %}

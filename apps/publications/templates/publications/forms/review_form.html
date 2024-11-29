@@ -1,0 +1,60 @@
+{% extends 'publications/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load pubstats %}
+
+{% block page_heading %}Review Publication{% endblock %}
+
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js" integrity="sha512-BI1itUvyiWbbZ446/8IOccwMPB/xobCTyQTS0r1+k8Pq1VPT3uIJKNCoMH12rKk18J9sH33xQNve7srB0IGYlg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script type="text/javascript">
+	$(document).ready(function(){
+		$(".chosen").chosen({
+			placeholder: "Type or select an option",
+			search_contains: true,
+			allow_single_deselect: true,
+		});
+	});
+	</script>
+{% endblock %}
+
+{% block full %}
+<div class="pagelet">
+	<div class="pagelet-body">
+		<div class="row narrow-gutter">
+		{% with object|get_matches as matches %}
+			<div class="col-sm-{% if matches or object.history %}9{% else %}12{% endif %}">
+				{% if owner and form.owner_helper %}
+					{% crispy form form.owner_helper %}
+				{% else %}
+					{% crispy form form.helper %}
+				{% endif %}
+			</div>
+			{% if matches or object.history %}
+			<div class="col-sm-3">
+				{% if object.history %}
+				<legend>History</legend>
+					<ul class="history">
+						{% for item in object.history %}
+							<li>{{item}}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+				{% if matches %}
+				<legend>Duplicate Titles</legend>
+				  <ul class="history">
+					{% for m in matches %}
+					  <li class="highlight">
+						<strong>{{m.get_kind_display}}:</strong> {{m.cite|safe}}
+					  </li>
+					{% endfor %}
+				  </ul>
+				{% endif %}
+			</div>
+		{% endif %}
+		{% endwith %}
+	</div>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block body_class %}error-body{% endblock %}
+{% block body %}
+<div id="error-page" class="tile jumbotron">
+    <h1 style="text-align: center;">{% block error-title %}{% endblock %}</h1>
+    {% block error-content %}
+    {% endblock %}
+</div>
+{% endblock %}
+

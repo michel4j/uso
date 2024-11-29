@@ -1,0 +1,185 @@
+{% extends "folio.html" %}
+{% load beamline_tags %}
+{% load cycle_tags %}
+
+{% block page_heading %}Cycle{% endblock %}
+
+{% block folio-title %}
+<strong>{{object}}</strong>
+{% endblock %}
+
+{% block folio-subtitle %}Cycle &mdash; {{object.pk}}{% endblock %}
+
+{% block folio-tools %}
+    <a class="pull-right"
+       {% if next_cycle %}href='{% url "review-cycle-detail" pk=next_cycle.pk %}'
+       {% else %}href='#0' disabled{% endif %}
+    >
+        <i class="bi-chevron-right icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Next</span>
+    </a>
+    <a class="pull-right"
+       {% if prev_cycle %}href='{% url "review-cycle-detail" pk=prev_cycle.pk %}'
+       {% else %}href='#0' disabled{% endif %}
+    >
+        <i class="bi-chevron-left icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Previous</span>
+    </a>
+    {% if admin or owner %}
+    {% if object.state < object.STATES.active %}
+    <a href='#0' data-url='{% url "edit-review-cycle" pk=object.pk %}' class="pull-right">
+        <i class="bi-pencil icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Edit</span>
+    </a>
+    {% endif %}
+    <a href='{% url "add-cycle-reviewers" pk=object.pk %}' class="pull-right">
+        <i class="bi-people icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Reviewers</span>
+    </a>
+    <a href="{% url "schedule-modes-edit" pk=object.schedule.pk %}" class="pull-right">
+        <i class="bi-calendar-plus icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Schedule</span>
+    </a>
+    {% if object.state == object.STATES.assign %}
+    <a href="#0" data-url="{% url "start-reviews" pk=object.pk %}" class="pull-right">
+        <i class="bi-skip-forward icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Start&nbsp;Reviews</span>
+    </a>
+    {% elif object.state >= object.STATES.schedule %}
+    <a href='{% url "cycle-invoicing" pk=object.pk %}' class="pull-right">
+        <i class="bi-credit-card icon-2 icon-fw"></i><br/>
+        <span class="tool-label">Invoicing</span>
+    </a>
+    {% endif %}
+    {% if object.feedback.exists %}
+    <a href='{% url "review-cycle-feedback" pk=object.pk %}' class="pull-right">
+        <i class="bi-chat-right-text icon-fw icon-2"></i><br/>
+        <span class="tool-label">Feedback</span>
+    </a>
+    {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block folio-statusbar-style %}bg-darken{% endblock %}
+{% block folio-statusbar %}
+   <div class="row">
+         <div class="col-sm-2 col-xs-4">
+             <h3 class="no-vmargin"><span class="label label-info text-condensed">{{object.get_state_display}}</span></h3>
+         </div>
+         <div class="col-sm-2 col-xs-4">
+             <small class="text-wide text-muted">Call Open:</small><br/>{{object.open_date}}
+         </div>
+         <div class="col-sm-2 col-xs-4">
+             <small class="text-wide text-muted">Call Close:</small><br/>{{object.close_date}}
+         </div>
+         <div class="col-sm-2 col-xs-4">
+             <small class="text-wide text-muted">Start Date:</small><br/>{{object.start_date}}
+         </div>
+         <div class="col-sm-2 col-xs-4">
+             <small class="text-wide text-muted">End Date:</small><br/>{{object.end_date}}
+         </div>
+         <div class="col-xs-12">
+             <div width="100%" id="timeline" data-toggle="tooltip" title="Cycle Timeline"></div>
+         </div>
+    </div>
+{% endblock %}
+
+{% block folio-content %}
+<div class="row narrow-gutter">
+    {% for track in tracks %}
+    <div class="col-xs-12">
+        {% show_track track info %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% include "proposals/cycle_timeline.html" %}
+<script>
+    function plot_reviewer_bars(plot_element, data, domain){
+        var margin = {
+                    top: 0,
+                    right: 5,
+                    bottom: 0,
+                    left: 5
+                },
+                barHeight = 16,
+                width = $(plot_element).width() - margin.left - margin.right,
+                height = data.length*barHeight;
+
+        var x = d3.scale.linear()
+                .domain(domain)
+                .range([0, width])
+
+        var y = d3.scale.ordinal()
+                .domain(data.map(function (d) { return d.name;}))
+                .rangeRoundBands([0, height], .1);
+
+        var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("top");
+
+        var svg = d3.select(plot_element).append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        svg.selectAll(".reviewer-bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "reviewer-bar")
+                .attr("x", function (d) {
+                    return x(Math.min(0, d.reviewers));
+                })
+                .attr("y", function (d) {
+                    return y(d.name);
+                })
+                .attr("width", function (d) {
+                    return Math.abs(x(d.reviewers) - x(0));
+                })
+                .attr("height", y.rangeBand());
+
+        svg.selectAll(".proposal-bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "proposal-bar")
+                .attr("x", function (d) {
+                    return x(Math.min(0, -d.proposals));
+                })
+                .attr("y", function (d) {
+                    return y(d.name);
+                })
+                .attr("width", function (d) {
+                    return Math.abs(x(-d.proposals) - x(0));
+                })
+                .attr("height", y.rangeBand());
+
+
+        svg.append("g")
+                .attr("class", "x axis")
+        //.call(xAxis)
+        ;
+
+        svg.append("g")
+                .attr("class", "y axis")
+                //.append("line")
+                .attr("x1", x(0))
+                .attr("x2", x(0))
+                .attr("y2", height);
+
+        var text = svg.selectAll("text")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "subject-label")
+                .attr("x", 0)
+                .attr("y", function(d){ return 3 + y(d.name) + y.rangeBand()/2;})
+                .text( function(d) {return d.name;})
+                .attr("font-size", (barHeight - 4) + "px")
+                .style("opacity", 0.8);
+        //.style("font-weight", "600");
+    }
+</script>
+{% endblock %}

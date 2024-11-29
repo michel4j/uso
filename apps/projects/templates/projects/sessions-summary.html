@@ -1,0 +1,63 @@
+{% load beamline_tags %}
+{% if beamtimes.exists or sessions.exists or lab_sessions.exists  %}
+    <div class="tinytron bg-warning">
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th colspan="5">Recent/Upcoming Sessions</th>
+            </tr>
+            <tr class="text-wide">
+                <th>Facility</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Duration</th>
+                <th class="text-center">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for event in beamtimes %}
+             <tr class="text-condensed">
+                <td>{{ event.beamline }} {{ event.beamline.get_kind_display }}</td>
+                <td>{{ event.start | date:"D d M Y, H:i" }}</td>
+                <td>{{ event.end | date:"D d M Y, H:i" }}</td>
+                <td>{{ event.shifts|floatformat }} shift{{ event.shifts|pluralize:",s" }}</td>
+                <td class="text-center">
+                    {% if user|is_staff:event.beamline %}
+                    <a href="#0" title="Hand Over Session"  class="text-danger"
+                        data-url="{% url 'session-handover' pk=event.project.pk fac=event.beamline.acronym %}">
+                        <i class="bi-play-circle icon-2 icon-fw"></i>
+                    </a>
+                    {% else %}
+                        Hand-over Pending
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+
+        {% for event in sessions %}
+            <tr data-href="{% url 'session-detail' pk=event.pk %}">
+                <td>{{ event.beamline }} {{ event.beamline.get_kind_display }}</td>
+                <td>{{ event.start | date:"D d M Y, H:i" }}</td>
+                <td>{{ event.end | date:"D d M Y, H:i" }}</td>
+                <td>{{ event.shifts|floatformat }} shift{{ event.shifts|pluralize:",s" }} </td>
+                <td class="text-center text-condensed">
+                    {{ event.get_state_display }}
+                </td>
+            </tr>
+        {% endfor %}
+
+        {% for event in lab_sessions %}
+            <tr data-href="{{ event.get_absolute_url }}">
+                <td>{{ event.lab }}</td>
+                <td>{{ event.start | date:"D d M Y, H:i" }}</td>
+                <td>{{ event.end | date:"D d M Y, H:i" }}</td>
+                <td>{{ event.hours|floatformat }} Hr{{ event.hours|pluralize:",s" }}</td>
+                <td class="text-center text-condensed">
+                    {{ event.get_state_display }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}

@@ -1,0 +1,44 @@
+{% load schedule_tags %}
+
+<table class="cal-month-view table">
+    <tr class="cal-header-row">
+        <th class="cal-header" style="width: 15%;"></th>
+        {% for header in headers  %}
+            <th class="cal-header text-condensed">{{ header }}</th>
+        {% endfor %}
+    </tr>
+    {% for dayrow in month.dates %}
+    <tr class="cal-row cal-{{ dayrow.0|lower }}-row">
+        {% for day in dayrow %}
+            {% if forloop.first %}
+                <td class="cal-day-header">
+                    <div class="cal-day-content">
+                        <div class="cal-header text-condensed"><text>{{ day }}</text></div>
+                        {% for shift in shifts %}
+                        <div class="cal-shift" title="{{shift.description}}"
+                             data-shift-time="T{{shift.time}}">
+                            <span class="visible-xs">{{shift.label}}</span>
+                            <span class="hidden-xs">{{shift.description}}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </td>
+            {% else %}
+                <td class="cal-day {% if day == today %}cal-today{% endif %} {% if day < range_start or day >= range_end %}disabled{% endif %}"
+                    id="{{day.isoformat}}">
+                    <div class="cal-day-content">
+                        <div class="cal-day-number text-condensed">{{day.day}}</div>
+                        {% for shift in shifts %}
+                        <div data-shift-id="{{day.isoformat}}T{{shift.time}}"
+                             data-default-class="cal-shift shift-{{day.isoformat}}T{{shift.time}} shift-T{{shift.time}}"
+                                          class="cal-shift shift-{{day.isoformat}}T{{shift.time}} shift-T{{shift.time}}"></div>
+                        {% endfor %}
+                    </div>
+                </td>
+            {% endif %}
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+
+

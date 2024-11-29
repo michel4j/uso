@@ -1,0 +1,29 @@
+{% extends "forms/modal.html" %}
+{% block form_title %}Assign Reviewers?{% endblock %}
+{% block form_body %}
+<div class="tinytron bg-white">
+	<h4>Automatic Reviewer Assignment for the <em>{{track}}</em> track of cycle <em>{{cycle}}</em></h4>
+</div>
+<p>This procedure will automatically assign scientific reviewers subject to the following conditions:
+	<ul class="bullet-list">
+		<li>At least one subject area and one technique in common between proposal and reviewer</li>
+		<li>At least <strong>{{track.min_reviewers}}</strong> reviewers per proposal</li>
+		<li>At most <strong>{{track.max_proposals}}</strong> proposals per reviewer</li>
+		<li>No conflicting reviewers (authors or declared inappropriate reviewers)</li>
+	</ul>
+</p>
+<div class="tinytron bg-danger text-danger">
+    <p>All previously assigned reviews which have not been completed will be deleted.</p>
+	<strong>NOTE:</strong> Automatic assignment will fail if the above conditions cannot be met. Automatic assigments
+	can be edited to add or remove assignment.
+</div>
+<div class="row">
+	<div class="modal-footer">
+  			<form action="{% url 'assign-reviewers' pk=cycle.pk track=track.pk %}" method="post">{% csrf_token %}
+   			<input type="hidden" name="post" value="yes" />
+			<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+			<button type="submit" value="Submit" class="btn btn-info">Yes, I'm sure</button>
+		</form>
+	</div>
+</div>
+{% endblock %}

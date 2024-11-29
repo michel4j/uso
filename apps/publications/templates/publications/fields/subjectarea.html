@@ -1,0 +1,29 @@
+{% load dynforms_tags %}
+{% load pub_dynfields %}
+{% get_subject_areas as subj_areas %}
+<div class="controls {{repeatable}}" id="{{field.name}}-controls">
+   <div class="row">
+		<div class="field-group-item col-sm-12">
+			<label for="{{field.name}}.areas">Subject Areas:<span class="text-danger">∗</span></label></label>
+			<select name="{{field.name}}.areas" id="{{field.name}}-areas" class="chosen select form-control" {% if 'multiple' in field.options %}multiple="multiple"{% endif %}>
+			{% for choice in subj_areas %}			
+				<option value="{{choice.pk}}" {% if choice.pk in data.areas %}selected="selected"{% endif %} >{{choice}}</option>
+			{% endfor %}
+			</select>
+		</div>
+	</div>
+	<div class="row">
+	    <div class="field-group-item col-sm-12">
+			<label for="{{field.name}}.keywords">Keywords:</label>
+		    <input id="{{field.name}}.keywords" name="{{field.name}}.keywords" class="form-control" type="text" value="{{data.keywords}}">
+	    </div>			
+   </div>
+</div>
+<script>
+	$("#{{field.name}}-controls .chosen").chosen({
+		placeholder_text_single: "select subject areas",
+		disable_search_threshold: 5,
+		search_contains: true,
+		allow_single_deselect: true,
+	});
+</script>

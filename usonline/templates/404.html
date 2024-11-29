@@ -1,0 +1,9 @@
+{% extends "error_base.html" %}
+
+{% block error-title %}<i class="bi-emoji-frown text-danger icon-fw"></i> Oops<em>!</em>{% endblock %}
+{% block error-content %}
+<hr/>
+<div class="pagelet-body">
+	The page you requested <strong><em>“{{request.path}}”</em></strong>, is currently not available or does not exist. Please check your spelling, or go <a href="{% url 'user-dashboard' %}">home</a>.
+</div>
+{% endblock %}

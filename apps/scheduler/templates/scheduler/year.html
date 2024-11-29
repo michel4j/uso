@@ -1,0 +1,42 @@
+{% load schedule_tags %}
+<div class="fc-day-grid-container"></div>
+<div class="row">
+       <table>
+            <thead>
+            <tr>
+                <th colspan="3" class="graph-label"></th>
+                {% for i in columns %}
+                <th class="graph-weekday fc-{% cycle 'sun' 'mon' 'tue' 'wed' 'thu' 'fri' 'sat' %}">
+                    {% cycle 'S' 'M' 'T' 'W' 'T' 'F' 'S' %}
+                </th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for month in months %}
+            <tr class="month-row fc-row-{{month.name|lower}}">
+            {% for day in month.dates %}
+                {% if forloop.first %}
+                <td colspan="3" class="month-name text-condensed" id="{{month.first.isoformat}}">{{ month.name }}</td>
+                {% endif %}
+                <td class="cal-day {% if day == today %}cal-today{% endif %}"
+                    id="{{day.isoformat}}">
+                    <div class="cal-day-content">
+                        {%  if day.month == month.index %}
+                            <div class="cal-day-number text-condensed">{{day.day}}</div>
+                            {% for shift in shifts %}
+                            <div data-shift-id="{{day.isoformat}}T{{shift.time}}"
+                                 data-default-class="cal-shift shift-{{day.isoformat}}T{{shift.time}} shift-T{{shift.time}}"
+                                              class="cal-shift shift-{{day.isoformat}}T{{shift.time}} shift-T{{shift.time}}"></div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </td>
+            {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+ </div>
+
+

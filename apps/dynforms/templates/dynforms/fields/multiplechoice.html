@@ -1,0 +1,36 @@
+{% load markup %}
+{% load dynforms_tags %}
+
+<div class="controls controls-inline {{repeatable}} id="{{field.name}}-controls">
+	{% for choice in field|group_choices:data|randomize_choices:field %}
+	<div class="{% if 'inline' in field.options %}radio radio-inline pull-left{% endif %}">
+
+       <label for="{{field.name}}_{{forloop.counter}}"><input name="{{field.name}}"
+       	id="{{field.name}}_{{forloop.counter}}"
+       	value="{{choice.value}}"
+       	{% if choice.selected %}checked="checked"{% endif %}
+       	type="radio">{{choice.label}}</label>
+    </div>
+	{% endfor %}
+	{% if "other" in field.options %}
+	<div class="radio {% if 'inline' in field.options %}radio-inline pull-left{% endif %}">
+        <label class="other-input-label" for="{{field.name}}_other" ><input id="{{field.name}}_othersrc"  type="text" placeholder="Other" value="{{field.other_choice}}"><input id="{{field.name}}_other"
+          name="{{field.name}}"
+          value="{{field.other_choice}}"
+          aria-label="Other"
+          type="radio" {% if field.other_choice in data %}checked="checked"{% endif %}>
+        </label>
+    </div>
+	{% endif %}
+</div>
+<script>
+$("#{{field.name}}_othersrc").change(function(){
+	$("#{{field.name}}_other").val($(this).val());
+	if ($(this).val()) {
+		$("#{{field.name}}_other").attr("checked", "checked");
+	} else {
+		$("#{{field.name}}_other").removeAttr("checked");
+	}
+	$("#{{field.name}}_other").change();
+});
+</script>

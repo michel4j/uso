@@ -1,0 +1,8 @@
+<div class="pull-left" style="padding: 0.5em;">
+    <span class="icon-stack {{size}}" {% if description %}title="{{description}}"{% endif %}>
+        <i class="{{icon}} icon-stack-2x"></i>
+        <span class="icon-stack-1x text-condensed" style="font-size: 0.45em; line-height: 1.1; margin-top: 35%;">
+          <strong>{{event_time|date:"b d"|upper}}</strong><br/>{{event_time|time:"H:i"}}
+        </span>
+    </span>
+</div>

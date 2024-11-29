@@ -1,0 +1,24 @@
+{% extends "forms/modal.html" %}
+{% load markup %}
+{% block form_title %}{{object.note_type.description}}{% endblock %}
+{% block form_body %}
+<div class="miditron bg-transparent" style="max-height: 400px; overflow-y: scroll;">
+	{{object.data|urlize|markdown}}
+</div>
+<div class="row">
+	<div class="modal-footer">
+  		<form action="{% url 'notification-detail' pk=object.pk %}" method="post">
+            {% csrf_token %}
+   			<input type="hidden" name="post" value="yes" />
+            {% if object.level > 0 and object.state != 3 %}
+			<button type="submit" value="Submit" class="btn btn-info pull-right">Got it!</button>
+            {% elif object.level == 0 and object.state != 2 %}
+			<button type="button" class="btn btn-info pull-right" data-dismiss="modal">Got it!</button>
+			{% else %}
+			<button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+			{% endif %}
+
+		</form>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% load static %}
+{% load jsonify %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" integrity="sha512-oJp0DdQuQQrRsKVly+Ww6fAN1GwJN7d1bi8UubpEbzDUh84WrJ2CFPBnT4LqBCcfqTcHR5OGXFFhaPe3g1/bzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+
+    var ScoreHistogram = function (element, bins, domain) {
+        var svg, data, x, y, xAxis, yAxis, chartWrapper, xRaw, bars, barWidth,
+                line, path, margin = {}, width, height, locator, line_data;
+        var values = $(element).data("histogram").values;
+
+
+        function init() {
+            //initialize scales
+            xRaw = d3.scale.linear().domain(domain).range([0, width]);
+            data = d3.layout.histogram().bins(xRaw.ticks(bins))(values);
+            x = d3.scale.linear().domain(domain);
+            yExtent = d3.extent(data, function (d, i) { return d.y });
+            y = d3.scale.linear().domain(yExtent);
+            line_data = [{x: $(element).data("histogram").score, y: 0}, {x: $(element).data("histogram").score, y: yExtent[1]}];
+
+            //initialize axis
+            xAxis = d3.svg.axis().orient('bottom');
+
+            //initialize svg
+            svg = d3.select($(element).get(0)).append('svg');
+
+
+            chartWrapper = svg
+                    .append('g');
+
+            chartWrapper.append('g').classed('x axis', true);
+            chartWrapper.append('g').classed('y axis', true);
+
+
+            // Barchart
+            bars = chartWrapper.selectAll(".bar")
+                .data(data)
+                .enter().append("g")
+                .attr("class", "bar");
+            bars.append("rect");
+
+            // Line
+            line = d3.svg.line()
+                .x(function(d) { return x(d.x); })
+                .y(function(d) { return y(d.y); });
+            path = chartWrapper.append('path').datum(line_data).classed('score-line', true);
+            render();
+        }
+        init();
+
+        function render() {
+            //get dimensions based on element size
+            winWidth = Math.ceil($(element).width()/(data.length + 1)) * (data.length + 1);
+            margin.right = margin.left = 0.5*winWidth/(data.length + 1);
+            margin.top = margin.bottom = Math.max(0.7*margin.right, 25);
+            width = winWidth - margin.left - margin.right;
+            height = .6 * width;
+
+            //update x and y scales to new dimensions
+            x.range([0, width]);
+            y.range([height, 0]);
+            barWidth = x(data[1].x) - x(data[0].x);
+
+            //update svg elements to new dimensions
+            svg.attr('width', width + margin.right + margin.left)
+                    .attr('height', height + margin.top + margin.bottom);
+
+            chartWrapper.attr('width', width)
+                    .attr('height', height)
+                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+            //update the axis and line
+            xAxis.scale(x);
+            xAxis.ticks(Math.max(width / 50, 4));
+            chartWrapper.select('.x.axis')
+                    .attr('transform', 'translate(0,' + height + ')')
+                    .call(xAxis);
+            var u = bars.selectAll('rect').data(data);
+            u.enter().append('rect');
+            u.exit().remove();
+            u.transition()
+                    .attr("x", 0)
+                    .attr("width", barWidth - 2)
+                    .attr("height", function (d) {
+                        return height - y(d.y);
+                    })
+                    .attr("transform", function (d) {
+                        return "translate(" + x(d.x) + "," + y(d.y) + ")";
+                    });
+
+            path.attr('d', line);
+        }
+
+        return {
+            render: render
+        }
+
+    };
+
+    $(".histogram").each(function(){
+        var chart = new ScoreHistogram($(this), 10, [1, 5]);
+        window.addEventListener('resize', chart.render);
+    });
+</script>

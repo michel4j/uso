@@ -1,0 +1,112 @@
+{% extends "folio.html" %}
+{% load static %}
+{% load itemlist %}
+{% load beamline_tags %}
+
+{% block extra_css %}
+    <style media="screen">
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 950px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+    </style>
+{% endblock %}
+
+{% block page_heading %}{% itemlist_heading %}{% endblock %}
+{% block folio-tools %}
+    <a href="{% url 'beamline-list' %}" class="pull-right">
+        <i class="bi-list-ol icon-2 icon-fw"></i><br>
+        <span class="tool-label">Facility List</span>
+    </a>
+{% endblock %}
+{% block folio-content %}
+    <div class="pad-wrapper">
+        <div class="row">
+            <div class="col-xs-12">
+                {% include "itemlist/filters.html" %}
+            </div>
+            <div class="col-xs-7">
+                {% include "beamlines/beamlines-drawing.svg" %}
+            </div>
+            <div class="col-xs-5">
+                <div class="beamline-info">
+                    {% include "beamlines/basic_list.html" %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="application/javascript">
+        {{ block.super }}
+
+        function activate(selector) {
+            $(selector).attr('opacity', '1')
+                .attr('stroke-width', '18')
+                .attr('stroke', '#428bca')
+                .attr('highlight', 'true');
+        }
+
+        function deactivate(selector) {
+            $(selector).each(function (i, el) {
+                $(el).attr('stroke-width', '15')
+                    .attr('stroke', $(el).attr('stroke-state'))
+                    .removeAttr('highlight');
+            });
+            $("[search-result='true']").attr('opacity', '1');
+        }
+
+        function info(el) {
+            deactivate('.beamline');
+            activate('.beamline[port=' + $(el).attr("port") + ']');
+            $.ajax({
+                url: '/facilities/port/' + $(el).attr('port'),
+                success: function (data) {
+                    $('.beamline-info').html(data);
+                }
+            });
+        }
+
+        function list() {
+            deactivate($('.beamline'));
+            $('.beamline-info').html("{% filter escapejs %}{% include 'beamlines/basic_list.html' with object_list=object_list %}{% endfilter %}");
+        }
+
+        {% for obj in object_list %}{% if obj.port %}
+        $("[port='{{obj.port}}']").attr('title', 'Go to {{obj.acronym}}');
+        $("[port='{{obj.port}}']").attr('pk', '{{obj.pk}}');
+        $("[port='{{obj.port}}']").attr('stroke', '{{obj.state|get_color}}');
+
+        {% endif %}{% endfor %}
+        $('.beamline').each(function (i, el) {
+            $(el).attr('stroke-state', $(el).attr('stroke'));
+        });
+
+        {% for obj in object_list %}{% if obj.port %}
+        $("[port='{{obj.port}}']").attr('search-result', 'true');
+        {% endif %}{% endfor %}
+        $("[search-result='true']").attr('opacity', '1');
+
+        $(".beamline[search-result='true']").click(
+            function () {
+                window.location.href = "/facilities/" + $(this).attr('pk');
+            }
+        );
+        $(".beamline[search-result='true']").hover(
+            function () {
+                $(this).attr('stroke-width', '18');
+                info(this);
+            },
+            function () {
+                if (!$(this).attr('highlight')) {
+                    deactivate(this);
+                }
+            }
+        );
+    </script>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% load cycle_tags %}
+<p class="no-margin text-condensed"><a href="{{ submission.get_absolute_url }}">{{submission}}:</a>
+{{submission.proposal.title}}.</p>
+{{submission.proposal.authors}} &mdash;
+<em>{{submission.proposal.spokesperson.institution|default:"No Institution"}}</em>
+<div class="tinytron bg-darken">
+    {% if submission.techniques.exists %}
+    {% for item in submission.techniques.all %}
+        {{item.technique }} [<em>{{item.config.facility.acronym}}</em>] {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+    <hr class="hr-xxs"/>
+    {% endif %}
+    <em>{{submission.proposal.areas.all|join:",&ensp; "}}</em>
+</div>

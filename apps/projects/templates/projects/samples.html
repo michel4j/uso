@@ -1,0 +1,36 @@
+{% load samples_tags %}
+{% load static %}
+{% load project_tags %}
+<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th>Name </th>
+			<th>Type/State</th>
+			<th>Quantity</th>
+			<th>Hazards</th>
+			<th>Review Status</th>
+		</tr>
+	</thead>
+	<tbody>
+    {% for sample in samples %}
+		<tr>
+			<td>
+				{{sample.sample.name}}
+			</td>
+			<td><small>{{sample.sample.get_kind_display}}, {{sample.sample.get_state_display}}</small></td>
+			<td>{{sample.quantity}}</td>
+			<td>
+				{% for pic in sample.sample.pictograms %}
+				<img width="24" height="24" src="{% pictogram_url pic %}" title="{{pic.name}}">
+				{% endfor %}
+			</td>
+			<td>
+				{{sample|sample_state_display|safe}}
+			</td>
+
+		</tr>
+	{% empty %}
+		<tr><td colspan="4" class="empty-row">No Samples</td></tr>
+    {% endfor %}
+	</tbody>
+</table>

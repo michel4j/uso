@@ -1,0 +1,3 @@
+{{ pub.authors }} ({{pub.date.year}}). <em>{{pub.title|safe}}</em>. <strong>{{pub.journal.title}}</strong>
+{% if pub.volume %}{{pub.volume}}{%  endif %}{% if pub.number %}({{pub.number}}){%  endif %}, {{pub.pages}}. <span class="text-muted">{% if pub.code %}DOI:<a target="_blank" href="https://dx.doi.org/{{pub.code}}">{{pub.code}}</a>.{%  endif %}</span>
+<span class="text-info">{% if pub.beamlines.count %}Beamlines:{% for bl in pub.beamlines.all %} {{bl.acronym}}{% if not forloop.last %},{%endif %}{% endfor %}{%  else %}{{pub.get_category_display}}{% endif %}</span>

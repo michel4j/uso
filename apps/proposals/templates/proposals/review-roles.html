@@ -1,0 +1,85 @@
+{% load timeish %}
+{% load markup %}
+{% load proposal_tags %}
+<div class="col-xs-12">
+    <div class="miditron bg-transparent">
+        {% if object.reviewer %}
+            <h3>Review has already been claimed by {{ object.reviewer }}!</h3>
+            <hr/>
+            <p>
+                This review was originally assigned to the role
+                <span class="label label-info">{{ object.role|human_role }}</span>
+                which is currently held by the following individuals:
+            </p>
+            <ul style="padding-left: 2em;">
+                {% for person in candidates %}
+                    <li><strong>{{ person.first_name }} {{ person.last_name }}</strong></li>
+                    {% empty %}
+                    <li><em>Nobody</em></li>
+                {% endfor %}
+            </ul>
+
+            {% with object.validate as validation %}
+            <div class="tinytron bg-white">
+			<h4 style="margin-top: 0.25em; margin-bottom: 0;">{{object.reviewer}}</h4>
+			<em class="text-muted">{{object.get_kind_display}}</em>
+			<div class="progress-striped progress-xs progress
+                {% if object.reviewer and object.state != rev.STATES.submitted %}active{% endif %}"
+				value="{{validation.progress}}">
+				<div aria-valuetext="{{validation.progress}}%" aria-valuemax="100"
+					aria-valuemin="0" aria-valuenow="{{validation.progress}}" role="progressbar"
+					class="progress-bar progress-bar-info" style="width: {{validation.progress}}%;">
+					<span class="sr-only">{{validation.progress}}% Complete</span>
+				</div>
+			</div>
+			{% if object.details.comments or object.details.comments_committee %}
+			<hr class="hr-xs"/>
+			    {{object.details.comments|markdown}}
+                {%  if object.details.comments_committee %}
+                <span class="text-danger">{{object.details.comments_committee|markdown}}</span>
+                {%  endif %}
+			{% endif %}
+		    </div>
+            {% endwith %}
+
+            The review is incomplete but you can complete it after claiming it.
+            Once claimed, the responsibility to complete the review will be yours alone.
+            <hr/>
+            {% if review.due_date %}
+                The deadline for completing this review is <strong>{{ review.due_date }}</strong>, which is in
+                <strong>{{ review.due_date|timeuntil }}</strong>.
+                <hr/>
+            {% endif %}
+        {% else %}
+            <h3>Review has not been claimed!</h3>
+            <hr/>
+            <p>
+                This review has been assigned to the role &ensp;<span
+                    class="label label-info">{{ object.role|human_role }}</span>&ensp;
+
+                which is currently held by the following individuals:
+            </p>
+            <ul style="padding-left: 2em;">
+                {% for person in candidates %}
+                    <li><strong>{{ person.first_name }} {{ person.last_name }}</strong></li>
+                {% endfor %}
+            </ul>
+            You must claim it in order to complete the review.
+            Once claimed, the responsibility to complete the review
+            will be yours alone.
+            <hr/>
+            {% if review.due_date %}
+                The deadline for completing this review is <strong>{{ review.due_date }}</strong>, which is in
+                <strong>{{ review.due_date|timeuntil }}</strong>.
+                <hr/>
+            {% endif %}
+        {% endif %}
+        <div class="row">
+            <div class="col-xs-12">
+                <a href="#0" data-url="{% url 'claim-review' pk=object.pk %}" class="btn btn-primary pull-right">Claim
+                    it!</a>
+            </div>
+        </div>
+    </div>
+</div>
+

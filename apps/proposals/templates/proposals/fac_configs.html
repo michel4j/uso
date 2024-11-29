@@ -1,0 +1,46 @@
+{% extends 'folio.html' %}
+{% load crispy_forms_tags %}
+{% load beamline_tags %}
+
+{% block page_heading %}<span class="hidden-xs">Facility &mdash; </span>
+    <span class="text-muted">Configurations</span>{% endblock %}
+
+{% block folio-title %}
+    <strong>{{ object.acronym }}</strong> &mdash; Available Techniques
+{% endblock %}
+
+{% block folio-subtitle %}
+    <small>
+        <i class="bi-circle-fill text-success-light"></i>&nbsp;Available &emsp;
+        <i class="bi-circle-fill text-warning-light"></i>&nbsp;Special Request &emsp;
+        <i class="bi-circle-fill" style="color: #ddd;"></i>&nbsp;Not Accepting
+    </small>
+{% endblock %}
+
+{% block folio-tools %}
+    {% if object.kind != 'village' %}
+        {% if owner or admin %}
+            <a href='#0' data-url='{% url "add-facility-config" pk=object.pk %}' class="pull-right">
+                <i class="bi-plus-lg icon-2 icon-fw"></i><br/>
+                <span class="tool-label">Add Config</span>
+            </a>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block folio-content %}
+    <div class="pagelet-body">
+        {% for config in object.configs.pending %}
+            {% if forloop.first %}<h3>Pending Configurations</h3>{% endif %}
+            {% include "proposals/config_box.html" with pending=True %}
+        {% endfor %}
+
+        {% include "proposals/config_box.html" with config=object.active_config active=True %}
+
+
+        {% for config in object.configs.expired %}
+            {% if forloop.first %}<h3>Previous Configurations</h3>{% endif %}
+             {% include "proposals/config_box.html" %}
+        {% endfor %}
+    </div>
+{% endblock %}

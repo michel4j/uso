@@ -1,0 +1,23 @@
+{% load dynforms_tags %}
+<div class="controls row no-space{{repeatable}}"
+	id="{{field.name}}-controls">
+	<span class="field-group-item col-xs-6">
+		<div class="field-group-item input-group"
+			id="{{field.name}}-primary-controls">
+			<span class="input-group-addon"><i class="bi-envelope-at"></i></span> <input
+				type="text" name="{{field.name}}.email"
+				id="{{field.name}}-email" class="form-control"
+				value="{{data.email}}">
+		</div> <label for="{{field.name}}-email">Email</label>
+	</span> <span class="field-group-item col-xs-6">
+		<div class="field-group-item input-group"
+			id="{{field.name}}-alternate-controls">
+			<span class="input-group-addon"><i class="bi-telephone"></i></span> <input
+				type="text" name="{{field.name}}.phone"
+				id="{{field.name}}-alternate" class="form-control"
+				value="{{data.phone}}">
+		</div> <label for="{{field.name}}-phone">Phone Number</label>
+	</span>
+</div>
+
+

@@ -1,0 +1,13 @@
+{%  extends "scheduler/selector.html" %}
+
+{%  block selector_content %}
+    <table class="table table-condensed">
+        {% for k in shift_types %}
+        <tr id="{{k.0}}" {% if schedule.state != 'draft' %}class="event-src"{% endif %}
+            data-key="project" data-event='{"project":"{{project.pk}}", "kind":"{{k.0}}", "tags": [] }'>
+            <td style="line-height: 1; vertical-align: middle;">{{k.1}}</td>
+            <td><span class="badge beamtime-{{k.0}}" style="background-color: #ffffff;">&nbsp;&nbsp;</span></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

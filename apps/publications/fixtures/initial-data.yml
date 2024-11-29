@@ -1,0 +1,451 @@
+- model: publications.publicationtag
+  pk: 1
+  fields:
+    created: 2016-08-03 18:03:59+00:00
+    modified: 2016-08-03 18:03:59+00:00
+    name: Staff
+    description: One or more staff members are authors on the publication.
+- model: publications.publicationtag
+  pk: 2
+  fields:
+    created: 2016-08-03 18:04:39+00:00
+    modified: 2016-08-03 18:15:42+00:00
+    name: Design
+    description: The publication describes a hardware design
+- model: publications.publicationtag
+  pk: 3
+  fields:
+    created: 2016-08-03 18:14:53+00:00
+    modified: 2016-08-03 18:14:53+00:00
+    name: Industrial
+    description: Publications from industrial clients or directly dealing with industrial
+      applications
+- model: publications.publicationtag
+  pk: 4
+  fields:
+    created: 2016-08-03 18:15:29+00:00
+    modified: 2016-08-03 18:15:29+00:00
+    name: Software
+    description: Publications describing software
+- model: publications.publicationtag
+  pk: 5
+  fields:
+    created: 2016-08-03 18:16:25+00:00
+    modified: 2016-08-03 18:16:25+00:00
+    name: No Data
+    description: Publication does not include any synchrotron data
+- model: publications.publicationtag
+  pk: 6
+  fields:
+    created: 2016-08-04 21:44:36+00:00
+    modified: 2016-08-04 21:44:36+00:00
+    name: Mail-In
+    description: For publications resulting from work done by staff on behalf of users
+- model: publications.subjectarea
+  pk: 1
+  fields:
+    created: 2015-02-05 21:53:26+00:00
+    modified: 2017-01-16 18:25:43.727166+00:00
+    name: Physical & Chemical Sciences
+    code: 100
+    category: null
+- model: publications.subjectarea
+  pk: 2
+  fields:
+    created: 2015-02-05 21:53:46+00:00
+    modified: 2017-01-16 03:19:10.262812+00:00
+    name: Engineering & Technology
+    code: 200
+    category: null
+- model: publications.subjectarea
+  pk: 3
+  fields:
+    created: 2015-02-05 21:53:59+00:00
+    modified: 2017-01-16 03:19:22.740878+00:00
+    name: Medical & Health Sciences
+    code: 300
+    category: null
+- model: publications.subjectarea
+  pk: 4
+  fields:
+    created: 2015-02-05 21:54:42+00:00
+    modified: 2017-01-16 03:19:44.032211+00:00
+    name: Agricultural, Veterinary & Food Sciences
+    code: 400
+    category: null
+- model: publications.subjectarea
+  pk: 5
+  fields:
+    created: 2015-10-01 13:52:40+00:00
+    modified: 2017-01-16 03:21:03.327505+00:00
+    name: Earth & Environmental Sciences
+    code: 500
+    category: null
+- model: publications.subjectarea
+  pk: 6
+  fields:
+    created: 2015-10-01 13:52:38+00:00
+    modified: 2017-01-16 18:15:08.351734+00:00
+    name: Biological Sciences
+    code: 600
+    category: null
+- model: publications.subjectarea
+  pk: 7
+  fields:
+    created: 2017-01-16 17:53:07.448054+00:00
+    modified: 2017-01-16 17:53:53.960881+00:00
+    name: Social Sciences & Humanities
+    code: 700
+    category: null
+- model: publications.subjectarea
+  pk: 11
+  fields:
+    created: 2015-10-01 13:52:37+00:00
+    modified: 2017-01-16 03:37:24.784184+00:00
+    name: Physical Sciences
+    code: 130
+    category: 1
+- model: publications.subjectarea
+  pk: 15
+  fields:
+    created: 2015-10-01 13:52:37+00:00
+    modified: 2017-01-16 03:39:02.802286+00:00
+    name: Other Natural Sciences
+    code: 170
+    category: 1
+- model: publications.subjectarea
+  pk: 20
+  fields:
+    created: 2015-10-01 13:52:38+00:00
+    modified: 2017-01-16 03:38:03.118383+00:00
+    name: Chemical Sciences
+    code: 140
+    category: 1
+- model: publications.subjectarea
+  pk: 22
+  fields:
+    created: 2015-10-01 13:52:38+00:00
+    modified: 2017-01-16 05:09:44.524413+00:00
+    name: Atmospheric Sciences
+    code: 510
+    category: 5
+- model: publications.subjectarea
+  pk: 24
+  fields:
+    created: 2015-10-01 13:52:38+00:00
+    modified: 2017-01-16 05:10:53.219978+00:00
+    name: Geological Sciences
+    code: 540
+    category: 5
+- model: publications.subjectarea
+  pk: 26
+  fields:
+    created: 2015-10-01 13:52:38+00:00
+    modified: 2017-01-16 05:10:32.299924+00:00
+    name: Hydrology & Oceanography
+    code: 530
+    category: 5
+- model: publications.subjectarea
+  pk: 27
+  fields:
+    created: 2015-10-01 13:52:38+00:00
+    modified: 2017-01-16 05:11:13.609578+00:00
+    name: Geography
+    code: 550
+    category: 5
+- model: publications.subjectarea
+  pk: 28
+  fields:
+    created: 2015-10-01 13:52:38+00:00
+    modified: 2017-01-16 05:11:28.255929+00:00
+    name: Soil Sciences
+    code: 560
+    category: 5
+- model: publications.subjectarea
+  pk: 30
+  fields:
+    created: 2015-10-01 13:52:38+00:00
+    modified: 2017-01-16 05:10:16.949218+00:00
+    name: Environmental Sciences
+    code: 520
+    category: 5
+- model: publications.subjectarea
+  pk: 32
+  fields:
+    created: 2015-10-01 13:52:39+00:00
+    modified: 2017-01-16 18:23:34.167156+00:00
+    name: Zoology
+    code: 660
+    category: 6
+- model: publications.subjectarea
+  pk: 33
+  fields:
+    created: 2015-10-01 13:52:39+00:00
+    modified: 2017-01-16 05:12:28.822514+00:00
+    name: Other Agricultural Sciences
+    code: 460
+    category: 4
+- model: publications.subjectarea
+  pk: 35
+  fields:
+    created: 2015-10-01 13:52:39+00:00
+    modified: 2017-01-16 04:35:44.281457+00:00
+    name: Veterinary Sciences
+    code: 430
+    category: 4
+- model: publications.subjectarea
+  pk: 38
+  fields:
+    created: 2015-10-01 13:52:39+00:00
+    modified: 2017-01-16 04:35:16.146538+00:00
+    name: Agriculture, Forestry & Fisheries
+    code: 410
+    category: 4
+- model: publications.subjectarea
+  pk: 40
+  fields:
+    created: 2015-10-01 13:52:39+00:00
+    modified: 2017-01-16 04:38:36.306241+00:00
+    name: Animal & Dairy Science
+    code: 420
+    category: 4
+- model: publications.subjectarea
+  pk: 41
+  fields:
+    created: 2015-10-01 13:52:40+00:00
+    modified: 2017-01-16 18:20:01.658488+00:00
+    name: Cell & Molecular Biology
+    code: 610
+    category: 6
+- model: publications.subjectarea
+  pk: 42
+  fields:
+    created: 2015-10-01 13:52:40+00:00
+    modified: 2017-01-16 18:17:01.790796+00:00
+    name: Ecological Sciences
+    code: 570
+    category: 5
+- model: publications.subjectarea
+  pk: 43
+  fields:
+    created: 2015-10-01 13:52:40+00:00
+    modified: 2017-01-16 18:21:40.867003+00:00
+    name: Biochemistry & Biophysics
+    code: 630
+    category: 6
+- model: publications.subjectarea
+  pk: 44
+  fields:
+    created: 2015-10-01 13:52:40+00:00
+    modified: 2017-01-16 18:14:59.064331+00:00
+    name: Genetics & Evolutionary Biology
+    code: 640
+    category: 6
+- model: publications.subjectarea
+  pk: 45
+  fields:
+    created: 2015-10-01 13:52:40+00:00
+    modified: 2017-01-16 18:24:37.790924+00:00
+    name: Microbiology
+    code: 620
+    category: 6
+- model: publications.subjectarea
+  pk: 46
+  fields:
+    created: 2015-10-01 13:52:40+00:00
+    modified: 2017-01-16 18:27:23.653159+00:00
+    name: Plant Biology
+    code: 650
+    category: 6
+- model: publications.subjectarea
+  pk: 47
+  fields:
+    created: 2015-10-01 13:52:40+00:00
+    modified: 2017-01-16 18:17:12.391189+00:00
+    name: Other Earth Sciences
+    code: 580
+    category: 5
+- model: publications.subjectarea
+  pk: 53
+  fields:
+    created: 2015-10-01 13:52:41+00:00
+    modified: 2017-01-16 03:36:28.755265+00:00
+    name: Computer & Information Sciences
+    code: 120
+    category: 1
+- model: publications.subjectarea
+  pk: 56
+  fields:
+    created: 2015-10-01 13:52:41+00:00
+    modified: 2017-01-16 03:35:02.437149+00:00
+    name: Mathematical Sciences
+    code: 110
+    category: 1
+- model: publications.subjectarea
+  pk: 60
+  fields:
+    created: 2015-10-01 13:52:41+00:00
+    modified: 2017-01-16 05:01:14.358744+00:00
+    name: Biomedical Engineering
+    code: 260
+    category: 2
+- model: publications.subjectarea
+  pk: 61
+  fields:
+    created: 2015-10-01 13:52:41+00:00
+    modified: 2017-01-16 05:00:40.552527+00:00
+    name: Chemical Engineering
+    code: 240
+    category: 2
+- model: publications.subjectarea
+  pk: 62
+  fields:
+    created: 2015-10-01 13:52:42+00:00
+    modified: 2017-01-16 05:00:09.177649+00:00
+    name: Civil Engineering
+    code: 210
+    category: 2
+- model: publications.subjectarea
+  pk: 63
+  fields:
+    created: 2015-10-01 13:52:42+00:00
+    modified: 2017-01-16 05:00:00.493485+00:00
+    name: Electrical and Electronic Engineering
+    code: 220
+    category: 2
+- model: publications.subjectarea
+  pk: 64
+  fields:
+    created: 2015-10-01 13:52:42+00:00
+    modified: 2017-01-16 05:08:15.337101+00:00
+    name: Environmental Engineering & Biotechnology
+    code: 270
+    category: 2
+- model: publications.subjectarea
+  pk: 65
+  fields:
+    created: 2015-10-01 13:52:42+00:00
+    modified: 2017-01-16 04:36:25.117250+00:00
+    name: Food Science and Technology
+    code: 450
+    category: 4
+- model: publications.subjectarea
+  pk: 69
+  fields:
+    created: 2015-10-01 13:52:42+00:00
+    modified: 2017-01-16 05:01:00.110993+00:00
+    name: Materials Engineering
+    code: 250
+    category: 2
+- model: publications.subjectarea
+  pk: 70
+  fields:
+    created: 2015-10-01 13:52:42+00:00
+    modified: 2017-01-16 05:00:22.032943+00:00
+    name: Mechanical Engineering
+    code: 230
+    category: 2
+- model: publications.subjectarea
+  pk: 74
+  fields:
+    created: 2015-10-01 13:52:43+00:00
+    modified: 2017-01-16 04:36:11.324126+00:00
+    name: Agricultural Biotechnology
+    code: 440
+    category: 4
+- model: publications.subjectarea
+  pk: 76
+  fields:
+    created: 2015-10-01 13:52:43+00:00
+    modified: 2017-01-16 05:02:37.771565+00:00
+    name: Industrial Biotechnology
+    code: 280
+    category: 2
+- model: publications.subjectarea
+  pk: 80
+  fields:
+    created: 2015-10-01 13:52:43+00:00
+    modified: 2017-01-16 05:03:06.253163+00:00
+    name: Nanotechnology
+    code: 290
+    category: 2
+- model: publications.subjectarea
+  pk: 81
+  fields:
+    created: 2015-10-01 13:52:43+00:00
+    modified: 2017-01-16 18:07:44.695684+00:00
+    name: Embryology
+    code: 350
+    category: 3
+- model: publications.subjectarea
+  pk: 83
+  fields:
+    created: 2015-10-01 13:52:43+00:00
+    modified: 2017-01-16 05:16:57.093121+00:00
+    name: Clinical Sciences
+    code: 320
+    category: 3
+- model: publications.subjectarea
+  pk: 87
+  fields:
+    created: 2015-10-01 13:52:44+00:00
+    modified: 2017-01-16 17:59:01.662269+00:00
+    name: Immunology
+    code: 370
+    category: 3
+- model: publications.subjectarea
+  pk: 91
+  fields:
+    created: 2015-10-01 13:52:44+00:00
+    modified: 2017-01-16 05:20:11.396012+00:00
+    name: Nutrition and Dietetics
+    code: 330
+    category: 3
+- model: publications.subjectarea
+  pk: 92
+  fields:
+    created: 2015-10-01 13:52:44+00:00
+    modified: 2017-01-16 05:25:22.424065+00:00
+    name: Epidemeology & Public Health
+    code: 380
+    category: 3
+- model: publications.subjectarea
+  pk: 95
+  fields:
+    created: 2015-10-01 13:52:45+00:00
+    modified: 2017-01-16 05:19:06.317034+00:00
+    name: Pharmaceutical Sciences
+    code: 340
+    category: 3
+- model: publications.subjectarea
+  pk: 96
+  fields:
+    created: 2015-10-01 13:52:45+00:00
+    modified: 2017-01-16 05:18:00.963176+00:00
+    name: Anatomy, Physiology and Pathology
+    code: 310
+    category: 3
+- model: publications.subjectarea
+  pk: 99
+  fields:
+    created: 2017-01-16 18:09:30.665398+00:00
+    modified: 2017-01-16 18:10:00.125418+00:00
+    name: Neuroscience
+    code: 390
+    category: 3
+- model: publications.subjectarea
+  pk: 100
+  fields:
+    created: 2017-01-16 18:18:55.641012+00:00
+    modified: 2017-01-16 18:18:55.641260+00:00
+    name: Other Biological Sciences
+    code: 680
+    category: 6
+- model: publications.subjectarea
+  pk: 101
+  fields:
+    created: 2017-01-17 21:10:45.069156+00:00
+    modified: 2017-01-17 21:11:57.954260+00:00
+    name: Materials Sciences
+    code: 150
+    category: 1

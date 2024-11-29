@@ -1,0 +1,41 @@
+{% load beamline_tags %}
+{% if object.kind != 'sector' %}
+    <h2 style="margin-top: 15px;"><a title="Go to {{ object.acronym }}"
+                                     href="{% url 'facility-detail' object.pk %}">{{ object.acronym }}</a></h2>
+    <p>{{ object.name }}</p>
+    <p style="color: {{ object.state|get_color }};">{{ object.get_state_display }}</p>
+    {% if object.url or object.groups.all %}
+        <hr class="hr-xs"/>
+        {% if object.groups.all %}<strong>Groups:</strong>
+            {% for group in object.groups.all %}<a title="Highlight {{ group.acronym }}" onclick="info(this);"
+                                                   port="{{ group.acronym }}">{{ group.name }}</a>
+                {% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}
+    {% endif %}
+    <hr class="hr-xs"/>
+    <h3>Techniques</h3>
+    <ul>
+        {% for tech in object.techniques.all %}
+            <li>{{ tech }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <h2 style="margin-top: 15px;"><a title="Go to {{ object.acronym }}"
+                                     href="{% url 'facility-detail' object.pk %}">{{ object.acronym }}</a></h2>
+    <p>{{ object.description }}</p>
+    <hr class="hr-xs"/>
+    Group of Beamlines
+    <hr class="hr-xs"/>
+    {% for bl in object.units.all %}
+        <i class="bi-circle-fill" style="color: {{ bl.state|get_color }};" title="{{ bl.get_state_display }}"></i>
+        <strong><a title="Highlight {{ bl.acronym }}" onclick="info(this);"
+                   port="{{ bl.port }}">{{ bl.acronym }}</a></strong>: {{ bl.description }}
+        <hr class="hr-xs"/>
+    {% endfor %}
+
+    <script>
+        {% for bl in object.units.all %}
+            activate('.beamline[port={{bl.port}}]');
+        {% endfor %}
+    </script>
+
+{% endif %}

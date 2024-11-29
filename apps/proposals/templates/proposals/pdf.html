@@ -1,0 +1,25 @@
+{% extends "print.html" %}
+
+{% block body_class %}print-base{% endblock %}
+{% block header-tools %}
+    <h1 class="text-narrow pull-right text-danger">
+        <span>Confidential</span><br/>
+        <small style="font-size: 30%;" class="pull-right text-condensed">Printed by {{ user }} on {{ now|date }}</small>
+    </h1>
+
+{% endblock %}
+{% block full %}
+<div class="minitron bg-transparent">
+    <div class="row">
+        <div class="col-xs-12">
+            {% if object.kind == 'scientific' %}
+                {% include "proposals/proposal_content.html" with proposal=object.reference.proposal hide_safety=True %}
+            {% elif object.kind == 'technical' %}
+                {% include "proposals/proposal_content.html" with proposal=object.reference.proposal show_hazards=True %}
+            {% else %}
+                {% include "projects/safety-detail.html" with material=object.reference %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

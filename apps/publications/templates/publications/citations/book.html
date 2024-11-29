@@ -1,0 +1,4 @@
+{{ pub.authors }} ({{pub.date.year}}). <em>{{pub.title|safe}}</em>.
+{% if pub.main_title %}In {% if pub.editor %}{{pub.editor}}(Ed.), {% endif %}<em>{{pub.main_title|safe}}.</em>{% endif %}
+{% if pub.address %}{{pub.address}}:{% endif %} {{pub.publisher}}{% if pub.pages %},{{pub.pages}}{% endif %}. <span class="text-muted">{% if pub.code %}{{pub.code}}.{%  endif %}</span>
+<span class="text-info">{% if pub.beamlines.count %}Beamlines:{% for bl in pub.beamlines.all %} {{bl.acronym}}{% if not forloop.last %},{%endif %}{% endfor %}{%  else %}{{pub.get_category_display}}{% endif %}</span>

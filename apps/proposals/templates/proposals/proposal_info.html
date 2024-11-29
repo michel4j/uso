@@ -1,0 +1,32 @@
+{% load samples_tags %}
+{% load proposal_tags %}
+{% load beamline_tags %}
+<div class="row">
+<div class="col-xs-12">
+	<a href="{% url 'proposal-detail' proposal.pk %}" class="pull-right"><i class="bi-bookmark icon-2x"></i></a>
+
+	<h4><strong>{{proposal.title}}</strong></h4>
+	{% for member in proposal.get_full_team %}
+		{{member.last_name}}, {{member.first_name}} <strong class="text-info">{{member.roles|team_roles}}</strong>
+		{% if not forloop.last %}&middot;{% endif %}
+	{% endfor %}
+	<hr class="hr-xs"/>
+	
+	{% if proposal.details.subject.keywords %} Keywords: <em>{{proposal.details.subject.keywords}}</em> {% endif %}
+	<h3>Abstract</h3>
+	{{proposal.details.abstract|safe}}
+
+	<hr class="hr-xs"/>
+	
+	{% for bl in proposal.details.beamline_reqs %}
+ 		<p>Requesting <span class="label label-info"><strong>{{bl.shifts|default:"unspecified"}}</strong></span> shifts on {{bl.facility|get_facility}}</p>
+	    <ul>
+	       {% for tech in bl.techniques %}
+	     		<li>{{tech|get_technique}}</li>
+	       {% endfor %} 
+	    </ul>
+    {% endfor %}
+</div>
+</div>
+
+&nbsp;
