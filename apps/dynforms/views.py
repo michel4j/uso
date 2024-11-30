@@ -211,6 +211,7 @@ class EditFieldView(RolePermsViewMixin, FormView):
         return self.request.get_full_path()
 
 
+
 class EditFormView(RolePermsViewMixin, UpdateView):
     allowed_roles = ADMIN_ROLES
     template_name = 'dynforms/builder.html'

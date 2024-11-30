@@ -325,7 +325,9 @@ class FormSettingsForm(forms.ModelForm):
                 ),
                 HTML(PAGES_TEMPLATE),
                 HTML(ACTIONS_TEMPLATE),
-                FormActions(Submit('apply-form', 'Apply', css_class="btn-primary")),
+                FormActions(
+                    Submit('apply-form', 'Apply', css_class="btn-primary")
+                ),
             )
         )
 
