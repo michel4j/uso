@@ -68,9 +68,9 @@ class CustomUserManager(BaseUserManager):
 
         other_fields['username'] = username
         user = self.model(**other_fields)
-        # user.is_admin = True
+        user.set_password(password)
         user.save(using=self._db)
-
+        PROFILE_MANAGER.create_profile(other_fields)
         return user
 
     def create_local_user(self, username):
@@ -86,10 +86,9 @@ class CustomUserManager(BaseUserManager):
         """
         Creates and saves a superuser with the given username and password.
         """
+        other_fields['roles'] = USO_AMIN_ROLES
+        other_fields['permissions'] = USO_AMIN_PERMS
         user = self.create_user(username, password=password, **other_fields)
-        user.roles = USO_AMIN_ROLES
-        user.permissions = USO_AMIN_PERMS
-        user.save(using=self._db)
         return user
 
     def all_with_roles(self, *roles: str):

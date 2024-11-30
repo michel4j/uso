@@ -46,7 +46,7 @@ if [ ! -f /usonline/local/.dbinit ]; then
     fi
 
     # Create superuser if not already created
-    if [ -z "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -z "${DJANGO_SUPERUSER_USERNAME}" ] && [ -z "${DJANGO_SUPERUSER_EMAIL}" ]; then
+    if [ -n "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -n "${DJANGO_SUPERUSER_USERNAME}" ] && [ -n "${DJANGO_SUPERUSER_EMAIL}" ]; then
         echo "Creating Superuser ..."
         /usonline/manage.py createsuperuser --noinput
     fi
