@@ -98,6 +98,16 @@ class CustomUserManager(BaseUserManager):
         return self.filter(functools.reduce(operator.or_, [Q(permissions__icontains=f'<{perm}>') for perm in perms]))
 
 
+def name_initials(name: str) -> str:
+    """
+    :type name: str
+    :param name: string
+    :return:
+    """
+    name = '' if not name else name.strip()
+    return '' if not name else name[0].upper() + '. '
+
+
 class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     STUDENTS = Choices(
         ('student', _('K-12 Student')),
@@ -161,7 +171,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         return self.classification in [self.CLASSIFICATIONS.faculty, self.CLASSIFICATIONS.postdoc, 'staff']
 
     def fetch_profile(self, data=None, force=False, delay=15):
-        # update profile only once per `delay` minutes minutes
+        # update profile only once per `delay` minutes
         if not self.last_updated:
             force = True
         now = timezone.localtime(timezone.now())
@@ -202,13 +212,27 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         ).upper()
 
     def get_full_name(self):
-        if self.preferred_name:
-            fn = f'{self.preferred_name} {self.last_name}'
-        else:
-            fn = f'{self.first_name} {self.last_name}'
-        return fn
-
+        first_name = (self.first_name or self.preferred_name)
+        last = '' if not self.last_name else f'{self.last_name}'
+        first = '' if not first_name else f'{first_name} '
+        return f'{first} {last}'
     get_full_name.short_description = "Full Name"
+
+    def get_name_variants(self):
+        first_initials = name_initials(self.first_name)
+        other_initials = name_initials(self.other_names)
+        last_first = '' if not self.last_name else f'{self.last_name},'
+        first_first = '' if not self.first_name else f'{self.first_name} '
+        last_last = '' if not self.last_name else f'{self.last_name}'
+
+        return [
+            f'{last_first}{first_initials}{other_initials}'.strip(),
+            f'{last_first}{first_initials}'.strip(),
+            f'{last_first}{other_initials}'.strip(),
+            f'{first_first}{other_initials}{last_last}'.strip(),
+            f'{first_first}{last_last}'.strip(),
+            self.get_full_name(),
+        ]
 
     def get_short_name(self):
         return self.preferred_name if self.preferred_name else self.first_name

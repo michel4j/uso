@@ -122,22 +122,10 @@ class UserPublicationList(RolePermsViewMixin, ItemListView):
 
 
 def get_author_names(user):
-    names = {"{}, {}.".format(user.last_name, user.first_name[0]), "{}, {}".format(user.last_name, user.first_name), }
-    if user.preferred_name:
-        names |= {"{}, {}.".format(user.last_name, user.preferred_name[0]), "{}, {}".format(user.last_name, user.preferred_name), }
-    if user.other_names:
-        names |= {"{}, {}.".format(user.last_name, user.other_names[0]), "{}, {}".format(user.last_name, user.other_names),
-            "{}, {}. {}.".format(user.last_name, user.other_names[0], user.first_name[0]),
-            "{}, {}. {}.".format(user.last_name, user.first_name[0], user.other_names[0]), "{}, {}.".format(user.other_names, user.first_name[0]),
-            "{}, {}".format(user.other_names, user.first_name), "{}, {} {}".format(user.last_name, user.first_name, user.other_names),
-            "{}, {} {}".format(user.last_name, user.other_names, user.first_name), }
-        if user.preferred_name:
-            names |= {"{}, {}. {}.".format(user.last_name, user.other_names[0], user.preferred_name[0]),
-                "{}, {}. {}.".format(user.last_name, user.preferred_name[0], user.other_names[0]),
-                "{}, {}.".format(user.other_names, user.preferred_name[0]), "{}, {}".format(user.other_names, user.preferred_name),
-
-            }
-    return names
+    if hasattr(user, 'get_name_variants'):
+        return user.get_name_variants()
+    else:
+        return [user.get_full_name()]
 
 
 def get_author_matches(user):
@@ -317,7 +305,8 @@ class PublicationDelete(RolePermsViewMixin, DeleteView):
 
 
 MODELS = {
-    'article': models.Article, 'msc_thesis': models.Book, 'phd_thesis': models.Book, 'pdb': models.PDBDeposition, "patent": models.Patent,
+    'article': models.Article, 'msc_thesis': models.Book, 'phd_thesis': models.Book, 'pdb': models.PDBDeposition,
+    "patent": models.Patent,
     'book': models.Book
 }
 
@@ -340,10 +329,11 @@ class PublicationWizard(SessionWizardView):
 
         info = {}
         info.update(
-            {f: details.get(f) for f in ['authors', 'title', 'date', 'keywords', 'kind', 'reviewed', 'code'] if details.get(f)}
+            {f: details.get(f) for f in ['authors', 'title', 'date', 'keywords', 'kind', 'reviewed', 'code'] if
+             details.get(f)}
         )
         info.update(notes=data.get('notes'))
-        info.update(history=['Added by {0}'.format(self.request.user)])
+        info.update(history=[f'Added by {self.request.user}'])
 
         if details.get('journal'):
             model = models.Article
@@ -357,7 +347,8 @@ class PublicationWizard(SessionWizardView):
         elif details['kind'] in models.Book.TYPES:
             model = models.Book
             info.update(
-                {f: details.get(f) for f in ['main_title', 'editor', 'publisher', 'edition', 'address', 'volume', 'pages'] if details.get(f)}
+                {f: details.get(f) for f in
+                 ['main_title', 'editor', 'publisher', 'edition', 'address', 'volume', 'pages'] if details.get(f)}
             )
         elif details['kind'] in models.Patent.TYPES:
             model = models.Patent
@@ -369,7 +360,8 @@ class PublicationWizard(SessionWizardView):
         if not obj:
             obj = model.objects.create(**info)
         else:
-            info['history'] = obj.history + ['Re-entered by {0} on {1}'.format(self.request.user, timezone.now().isoformat(' '))]
+            info['history'] = obj.history + [
+                'Re-entered by {0} on {1}'.format(self.request.user, timezone.now().isoformat(' '))]
             model.objects.filter(pk=obj.pk).update(**info)
 
         if data.get('beamlines'):
@@ -379,7 +371,8 @@ class PublicationWizard(SessionWizardView):
             data['beamlines'] = bls
             obj.beamlines.add(*data['beamlines'])
         if data.get('funders'):
-            funders = [f if isinstance(f, models.FundingSource) else models.FundingSource.objects.create(**f) for f in data['funders']]
+            funders = [f if isinstance(f, models.FundingSource) else models.FundingSource.objects.create(**f) for f in
+                       data['funders']]
             obj.funders.add(*funders)
         if data.get('author'):
             if self.request.user.is_authenticated:
@@ -405,7 +398,8 @@ class PublicationWizard(SessionWizardView):
 
                     if info:
                         details = {
-                            'kind': kind, 'funders': info.get('funders', {}), 'unknown_funders': info.get('unknown_funders', {})
+                            'kind': kind, 'funders': info.get('funders', {}),
+                            'unknown_funders': info.get('unknown_funders', {})
                         }
                         if kind in models.Article.TYPES:
                             journal = None
@@ -417,7 +411,8 @@ class PublicationWizard(SessionWizardView):
                                     break
                             details['journal'] = info.get('journal', None)
 
-                            fields = ['title', 'authors', 'date', 'volume', 'number', 'pages', 'reviewed', 'keywords', 'journal']
+                            fields = ['title', 'authors', 'date', 'volume', 'number', 'pages', 'reviewed', 'keywords',
+                                      'journal']
                             details.update({f: info.get(f, None) for f in fields})
                             details.update(
                                 {
@@ -433,7 +428,8 @@ class PublicationWizard(SessionWizardView):
                             if 'isbn' in info:
                                 details['code'] = info.get('isbn', None)
                                 fields = [
-                                    'main_title', 'editor', 'publisher', 'title', 'authors', 'edition', 'address', 'volume', 'pages',
+                                    'main_title', 'editor', 'publisher', 'title', 'authors', 'edition', 'address',
+                                    'volume', 'pages',
                                     'keywords', 'date'
                                 ]
                             elif 'book' in info:
@@ -460,7 +456,8 @@ class PublicationWizard(SessionWizardView):
                 kind = details.get('kind', cleaned_data.get('kind', None))
 
                 details.update(
-                    {f: cleaned_data[f] for f in list(cleaned_data.keys()) if f != 'details' and not details.get(f, None)}
+                    {f: cleaned_data[f] for f in list(cleaned_data.keys()) if
+                     f != 'details' and not details.get(f, None)}
                 )
 
                 matches = models.check_unique(
