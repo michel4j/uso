@@ -87,7 +87,6 @@ class CustomUserManager(BaseUserManager):
         Creates and saves a superuser with the given username and password.
         """
         user = self.create_user(username, password=password, **other_fields)
-        user.is_admin = True
         user.roles = USO_AMIN_ROLES
         user.permissions = USO_AMIN_PERMS
         user.save(using=self._db)

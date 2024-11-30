@@ -46,12 +46,13 @@ if [ ! -f /usonline/local/.dbinit ]; then
     fi
 
     # Create superuser if not already created
-    echo "Creating Superuser '${DJANGO_SUPERUSER_USERNAME}' ..."
-    if [ -z "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -z "${DJANGO_SUPERUSER_USERNAME}" ] && [ -z "${DJANGO_SUPERUSER_EMAIL}"]; then
+    if [ -z "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -z "${DJANGO_SUPERUSER_USERNAME}" ] && [ -z "${DJANGO_SUPERUSER_EMAIL}" ]; then
+        echo "Creating Superuser ..."
         /usonline/manage.py createsuperuser --noinput
     fi
 else
-    for try in {1..5}; do
+    for trial in {1..5}; do
+        echo "Migrating database tables ... (attempt $trial)"
         /usonline/manage.py migrate --noinput && break
         sleep 5
     done

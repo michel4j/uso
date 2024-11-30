@@ -51,10 +51,10 @@ from users.profiles import RemoteProfileManager
 
 class PeopleDBProfileManager(RemoteProfileManager):
     PROFILE_FIELDS = ['title', 'first_name', 'last_name', 'preferred_name', 'email', 'username', 'roles', 'permissions']
-    USER_PHOTO_URL = "http://opi2051-002.clsi.ca:9000/media/idphoto/{username}.jpg"
-    USER_PROFILE_URL = 'http://opi2051-002.clsi.ca:9000/api/v1/people/{username}/'
-    USER_CREATE_URL = 'http://opi2051-002.clsi.ca:9000/api/v1/people/'
-    USER_LIST_URL = 'http://opi2051-002.clsi.ca:9000/api/v1/new-staff/'
+    USER_PHOTO_URL = "http://people-db-host/media/idphoto/{username}.jpg"
+    USER_PROFILE_URL = 'http://people-db-host/api/v1/people/{username}/'
+    USER_CREATE_URL = 'http://people-db-host/api/v1/people/'
+    USER_LIST_URL = 'http://people-db-host/api/v1/new-staff/'
     API_HEADERS = {}
 
 
