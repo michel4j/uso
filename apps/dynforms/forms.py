@@ -1,5 +1,5 @@
+from base64 import b64encode
 from datetime import datetime
-from base64 import b64encode, b64decode
 
 from Crypto.Cipher import AES
 from crispy_forms.bootstrap import PrependedText, InlineCheckboxes
@@ -10,6 +10,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
+from django.urls import reverse_lazy
 from django.utils.datastructures import MultiValueDict
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -287,26 +288,65 @@ ACTIONS_TEMPLATE = """
 """
 
 
-class FormSettingsForm(forms.Form):
+class FormSettingsForm(forms.ModelForm):
     page_names = RepeatableCharField(label=_("Pages"), required=True)
     action_names = RepeatableCharField(label=_("Action Buttons"), required=False)
     action_labels = RepeatableCharField(label=_("Action Buttons"), required=False)
+
+    class Meta:
+        model = models.FormType
+        fields = ('code', 'name', 'description', 'page_names', 'actions', 'pages',  'action_names', 'action_labels')
+        widgets = {
+            'code': forms.TextInput(attrs={'placeholder': 'Unique slug, e.g. "feedback-form"'}),
+            'name': forms.TextInput(attrs={'placeholder': 'Human friendly name'}),
+            'description': forms.Textarea(
+                attrs={'rows': 4, 'placeholder': 'Please provide a description content.'}
+            ),
+            'pages': forms.HiddenInput(),
+            'actions': forms.HiddenInput(),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'df-menu-form'
         self.helper.layout = Layout(
-            Fieldset(_("Form Settings"),
-                     HTML(PAGES_TEMPLATE),
-                     HTML(ACTIONS_TEMPLATE),
-                     FormActions(Submit('apply-form', 'Apply', css_class="btn-primary")),
-                     )
+
+            Fieldset(
+                _("Form Settings"),
+                Div(
+                    Div('code', css_class='col-xs-12'),
+                    css_class="row narrow-gutter"
+                ),
+                Div(
+                    Div("name", css_class='col-xs-12'),
+                    Div("description", css_class='col-xs-12'),
+                    css_class="row narrow-gutter"
+                ),
+                HTML(PAGES_TEMPLATE),
+                HTML(ACTIONS_TEMPLATE),
+                FormActions(Submit('apply-form', 'Apply', css_class="btn-primary")),
+            )
         )
 
     def clean(self):
         cleaned_data = super().clean()
         cleaned_data['actions'] = list(zip(cleaned_data['action_names'], cleaned_data['action_labels']))
+
+        if self.instance:
+            pages = self.instance.pages
+        else:
+            pages = []
+
+        titles = cleaned_data['page_names']
+        for page, title in enumerate(titles):
+            if page < len(pages):
+                pages[page]['name'] = title
+            else:
+                pages.append({'name': title, 'fields': []})
+        if len(pages) > len(titles) and len(pages[-1]['fields']) == 0:
+            pages.pop()
+        cleaned_data['pages'] = pages
         return cleaned_data
 
 
@@ -316,13 +356,19 @@ class RulesForm(forms.Form):
         cleaned_data['rules'] = []
         data = DotExpandedDict(dict(self.data.lists()))
         if 'rule' in data:
-            raw_rules = list(map(dict, list(zip(*[[(k, v) for v in value] for k, value in list(data['rule'].items())]))))
+            raw_rules = list(
+                map(dict, list(zip(*[[(k, v) for v in value] for k, value in list(data['rule'].items())]))))
             cleaned_data['rules'] = [r for r in raw_rules if any(r.values())]
         return cleaned_data
 
 
 class DynFormMixin(object):
-    form_spec = None
+    type_code = None
+    field_specs: dict
+    instance: models.DynEntry
+    form_type: models.FormType
+    initial: dict
+    cleaned_data: dict
 
     def init_fields(self):
         key = getattr(settings, "THROTTLE_KEY", b"")
@@ -332,14 +378,13 @@ class DynFormMixin(object):
         cipher_iv = b64encode(cipher.iv).decode("utf-8")
 
         self.initial['throttle'] = f"{cipher_iv}|{cipher_text}"
-
-        if self.instance and hasattr(self.instance, 'spec'):
-            self.form_spec = self.instance.spec
-            self.form_type = self.form_spec.form_type
+        if self.instance and hasattr(self.instance, 'form_type') and self.instance.form_type:
+            self.form_type = self.instance.form_type
         else:
-            self.form_type = models.FormType.objects.get(code=self.form_type)
-            self.form_spec = self.form_type.spec
-        self.field_specs = self.form_spec.field_specs()
+            self.form_type = models.FormType.objects.get(code=self.type_code)
+            self.type_code = self.form_type.code
+
+        self.field_specs = self.form_type.field_specs()
 
     def clean(self):
         super().clean()
@@ -351,7 +396,7 @@ class DynFormMixin(object):
             data = DotExpandedDict(self.data)
         # convert lists (same as dotted notation but with an integer key)
         data = data.with_lists()
-        self.cleaned_data['spec'] = self.form_spec
+        self.cleaned_data['spec'] = self.form_type
         cleaned_data, errors = self.custom_clean(data)
         self.cleaned_data['details'] = cleaned_data
 
@@ -363,14 +408,14 @@ class DynFormMixin(object):
                 ] +
                 ['</ul>']
             )
-            raise forms.ValidationError(msg)
+            raise forms.ValidationError(mark_safe(msg))
         return self.cleaned_data
 
     def custom_clean(self, data):
         cleaned_data = {}
         failures = {}
         submitting = False
-        for name, label in self.form_spec.actions:
+        for name, label in self.form_type.actions:
             if label in data.get(name, []):
                 cleaned_data["form_action"] = name
                 submitting = (name == "submit")
@@ -380,7 +425,7 @@ class DynFormMixin(object):
         field_type = FieldType.get_type('number')
         active_page = field_type.clean(data.get('active_page', 1), multi=False, validate=True)
         if cleaned_data['form_action'] == 'save_continue':
-            cleaned_data['active_page'] = min(active_page + 1, len(self.form_spec.pages) - 1)
+            cleaned_data['active_page'] = min(active_page + 1, len(self.form_type.pages) - 1)
         else:
             cleaned_data['active_page'] = active_page
 
@@ -418,7 +463,67 @@ class DynForm(DynFormMixin, forms.ModelForm):
         fields = []
 
     def __init__(self, *args, **kwargs):
-        self.form_spec = kwargs.pop('form_spec')
+        self.form_type = kwargs.pop('form_type')
         super().__init__(*args, **kwargs)
-        self.form_type = self.form_spec.form_type
-        self.field_specs = self.form_spec.field_specs()
+        self.field_specs = self.form_type.field_specs()
+
+
+class FormTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.FormType
+        fields = ('code', 'name', 'description')
+        widgets = {
+            'code': forms.TextInput(attrs={'placeholder': 'Unique slug, e.g. "feedback-form"'}),
+            'name': forms.TextInput(attrs={'placeholder': 'Human friendly name'}),
+            'description': forms.Textarea(
+                attrs={'rows': 4, 'placeholder': 'Please provide a description content.'}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        if kwargs.get('instance'):
+            self.helper.title = 'Edit Form Type'
+            self.helper.form_action = self.request.get_full_path()
+            delete_url = f"{reverse_lazy('dynforms-del-form', kwargs={'pk': self.instance.pk})}"
+
+            buttons = FormActions(
+                HTML("<hr/>"), StrictButton(
+                    'Delete', id="delete-object", css_class="btn btn-danger", data_url=delete_url
+                ), Div(
+                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default"),
+                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
+                    css_class='pull-right'
+                ),
+            )
+
+        else:
+            self.helper.title = 'Create Form Type'
+            self.helper.form_action = self.request.get_full_path()
+            buttons = FormActions(
+                HTML("<hr/>"), Div(
+                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
+                    css_class='pull-right'
+                ), )
+
+        self.helper.layout = Layout(
+            Div(
+                Div('code', css_class='col-xs-12'),
+                css_class="row narrow-gutter"
+            ),
+            Div(
+                Div("name", css_class='col-xs-12'),
+                Div("description", css_class='col-xs-12'),
+                css_class="row narrow-gutter"
+            ),
+            Div(
+                Div(
+                    buttons, css_class="col-xs-12"
+                ),
+                css_class="row"
+            )
+        )

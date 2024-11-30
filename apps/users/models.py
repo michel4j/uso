@@ -291,7 +291,7 @@ class Institution(DateSpanMixin, TimeStampedModel):
         return self.name
 
 
-class Registration(DynEntryMixin, TimeStampedModel):
+class Registration(DynEntryMixin):
     hash = models.CharField(max_length=50, unique=True)
     email = models.CharField(max_length=250)
 

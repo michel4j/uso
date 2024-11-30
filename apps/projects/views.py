@@ -387,7 +387,7 @@ class CreateProject(RolePermsViewMixin, edit.CreateView):
         if material.needs_ethics():
             ethics = models.Review.objects.create(
                 reference=material, kind="ethics", role="ethics-reviewer",
-                spec_id=FormType.objects.get(code="ethics_review").spec.pk
+                form_type=FormType.objects.get(code="ethics_review")
             )
 
         return HttpResponseRedirect(self.get_success_url())
@@ -933,13 +933,13 @@ class UpdateMaterial(RolePermsViewMixin, edit.FormView):
             # Create Material Reviews
             cycle = self.project.allocations.last().cycle
             approval, created = obj.reviews.get_or_create(
-                kind='approval', spec=FormType.objects.get(code="safety_approval").spec, defaults={
+                kind='approval', form_type=FormType.objects.get(code="safety-approval"), defaults={
                     'cycle': cycle, 'state': models.Review.STATES.open, 'role': "safety-approver"
                 }
             )
             if obj.needs_ethics():
                 ethics, created = obj.reviews.get_or_create(
-                    kind="ethics", spec=FormType.objects.get(code="ethics_review").spec, defaults={
+                    kind="ethics", form_type=FormType.objects.get(code="ethics-review"), defaults={
                         'cycle': cycle, 'state': models.Review.STATES.open, 'role': "ethics-approver"
                     }
                 )

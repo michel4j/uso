@@ -30,7 +30,7 @@ def _proposal_filename(instance, filename):
     return os.path.join('proposals', str(instance.proposal.pk), instance.slug + ext)
 
 
-class Proposal(DynEntryMixin, TimeStampedModel):
+class Proposal(DynEntryMixin):
     STATES = Choices(
         (0, 'draft', 'Not Submitted'),
         (1, 'submitted', 'Submitted')
@@ -607,7 +607,7 @@ class ReviewManager(models.Manager.from_queryset(ReviewQueryset)):
     use_for_related_fields = True
 
 
-class Review(DynEntryMixin, GenericContentMixin, TimeStampedModel):
+class Review(DynEntryMixin, GenericContentMixin):
     STATES = Choices(
         (0, 'pending', 'Pending'), (1, 'open', 'Open'), (2, 'submitted', 'Submitted'), (3, 'closed', 'Closed'), )
     TYPES = Choices(

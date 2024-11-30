@@ -8,7 +8,7 @@
 			<div class="tab-content">
 				{% csrf_token %}
 				<input type='hidden' name='active_page' value='{{active_page}}' />
-				{% for page in form.form_spec.pages %}
+				{% for page in form.form_type.pages %}
 				<div class="tab-pane {% if not active_page and forloop.counter == 1%}active{% else %}{% if forloop.counter0 == active_page %}active{% endif %}{% endif %}" id="page{{forloop.counter}}">
 					{% with validation|page_errors:forloop.counter0 as errors %}{% if errors %}
 					<div class="alert {% if form.errors %} alert-danger{% else %}alert-warning{% endif %} alert-dismissible">
@@ -50,7 +50,7 @@
 					</div>
                 </span>
                 <span class="footer-buttons">
-					{% for name, label in form.form_spec.actions reversed %}
+					{% for name, label in form.form_type.actions reversed %}
 					<input type="submit" id="{{name}}-action" class="btn {% if forloop.last %}btn-primary{% else %}btn-white{% endif%}" value="{{label}}" name="{{name}}">
 					{% endfor %}
                 </span>
@@ -63,7 +63,7 @@
 <script>
 $(document).ready(function(){
 // Register events for monitoring rule change triggers
-{% for fn, ft in form.form_spec.field_specs.items %}
+{% for fn, ft in form.form_type.field_specs.items %}
  	{% for rl in ft.rules %}
     $("#{{rl.field}}-group").on('dynrules:update', function(event) {
         //FIXME detect subfields

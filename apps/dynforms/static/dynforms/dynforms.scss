@@ -546,6 +546,12 @@ div {
 	padding: 0 0.5em;
 }
 .df-form {
+
+	display: flex;
+	flex-flow: column;
+	align-items: stretch;
+    padding-top: 1em;
+
 	.nav-tabs {
 		>li {
 			>a {

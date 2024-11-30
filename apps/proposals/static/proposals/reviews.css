@@ -23,12 +23,6 @@ div.comment-body {
 	font-style: italic;
 }
 
-.df-form {
-	display: flex;
-	flex-flow: column;
-	align-items: stretch;
-    padding-top: 1em;
-}
 
 .review-col {
   max-height: calc(100vh - 95px);
@@ -52,9 +46,7 @@ div.comment-body {
 {
   -ms-flex: 1;
   flex: 1;
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-direction: column;
   flex-direction: column;
   overflow: hidden;
 }

@@ -1,8 +1,8 @@
 {% load dynforms_tags %}
 <!-- Nav tabs -->
-{% if form.form_spec.pages|length > 1 %}
+{% if form.form_type.pages|length > 1 %}
 <ul class="df-form-tabs nav nav-tabs">
-    {% for page in form.form_spec.pages %}
+    {% for page in form.form_type.pages %}
     <li  class="{% if not active_page and forloop.counter == 1%}active{% else %}{% if forloop.counter0 == active_page %}active{% endif %}{% endif %}">
         <a id="tab{{forloop.counter}}" href="#page{{forloop.counter}}" data-toggle="tab">{{page.name}}
             {% with validation|page_errors:forloop.counter0|length as count %}{% if count %}

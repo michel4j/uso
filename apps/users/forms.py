@@ -179,7 +179,7 @@ class PasswordResetForm(forms.Form):
 
 
 class RegistrationForm(DynFormMixin, forms.ModelForm):
-    form_type = 'registration'
+    type_code = 'registration'
 
     class Meta:
         model = Registration
@@ -189,8 +189,8 @@ class RegistrationForm(DynFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.init_fields()
 
-    def clean(self, *args, **kwargs):
-        cleaned_data = super().clean(*args, **kwargs)
+    def clean(self):
+        cleaned_data = super().clean()
         email = cleaned_data['details'].get('contact', {}).get('email', '')
         country = cleaned_data['details'].get('address', {}).get('country', '')
         phone = cleaned_data['details'].get('contact', {}).get('phone', '')

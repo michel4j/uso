@@ -188,7 +188,19 @@ register_serializer('yml', 'django.core.serializers.pyyaml')
 from users.profiles import ExternalProfileManager
 
 PROFILE_MANAGER = ExternalProfileManager
+FORM_TYPES = {
+    'registration': 'registration',
+    'proposal': 'proposal',
+    'technical-review': 'technical-review',
+    'scientific-review': 'scientific-review',
+    'ethics-review': 'ethics-review',
+    'safety-review': 'safety-review',
+    'safety-approval': 'safety-approval',
+    'equipment-review': 'equipment-review',
+    'materials-amendment': 'materials-amendment',
+    'feedback': 'feedback',
 
+}
 
 try:
     from local.settings import *

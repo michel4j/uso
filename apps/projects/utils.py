@@ -96,18 +96,18 @@ def create_project(submission):
             )
 
         # Create MaterialReviews
-        from dynforms.models import FormSpec
-        approval_spec = FormSpec.objects.all().filter(form_type__code='safety_approval').last()
+        from dynforms.models import FormType
+        approval_form = FormType.objects.all().filter(code='safety-approval')
         approval, created = material.reviews.get_or_create(
-            kind='approval', spec=approval_spec, defaults={
+            kind='approval', form_type=approval_form, defaults={
                 'cycle': cycle, 'state': models.Review.STATES.open, 'role': "safety-approver"
             }
         )
 
         if material.needs_ethics():
-            ethics_spec = FormSpec.objects.all().filter(form_type__code='ethics_review').last()
+            ethics_form = FormType.objects.all().filter(code='ethics_review')
             ethics, created = material.reviews.get_or_create(
-                kind="ethics", spec=ethics_spec, defaults={
+                kind="ethics", form_type=ethics_form, defaults={
                     'cycle': cycle, 'state': models.Review.STATES.open, 'role': "ethics-approver"
                 }
             )

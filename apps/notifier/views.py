@@ -168,7 +168,7 @@ class DeleteTemplate(RolePermsViewMixin, ConfirmDetailView):
 
     def confirmed(self, *args, **kwargs):
         obj = self.get_object()
-        msg = 'Sample "{}" deleted'.format(obj)
+        msg = f'Message Template "{obj}" deleted'
         obj.delete()
         messages.success(self.request, msg)
         return JsonResponse({"url": self.get_success_url()})

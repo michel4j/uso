@@ -491,8 +491,8 @@ def _create_submissions(proposal):
         if fc[1].commissioning().count():
             tracks[special_track].append(fc[1].commissioning())
 
-    from dynforms.models import FormSpec
-    tech_spec = FormSpec.objects.all().filter(form_type__code='technical_review').last()
+    from dynforms.models import FormType
+    tech_form = FormType.objects.all().filter(code='technical-review')
     to_create = []
     for track, fcs in list(tracks.items()):
         obj, created = models.Submission.objects.get_or_create(
@@ -505,7 +505,7 @@ def _create_submissions(proposal):
         obj.save()
 
         to_create.extend([
-            models.Review(role=r, proposal=obj, kind=models.Review.TYPES.technical, spec=tech_spec)
+            models.Review(role=r, proposal=obj, kind=models.Review.TYPES.technical, spec=tech_form)
             for r in technical_roles
         ])
 

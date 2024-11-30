@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block form_assets %}
-        <link rel="stylesheet" href="{% static 'samples/sample.min.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static 'samples/sample.min.css' %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block form_body %}
@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block form_init %}
-        <script type="text/javascript" defer>
+    <script type="text/javascript" defer>
         function initForm() {
             $('#search-compound').click(function (e) {
                 var loadUrl = "{% url 'compound-search' %}" + "?q=" + encodeURIComponent($('#modalForm input[name="name"]').val());
@@ -78,20 +78,6 @@
                     $('#sample-form input[name="hazards"]').val('[]')
                 }
             });
-            /*
-             $(fld_sel).filter(extra_hz_ctrls).change(function(){
-             var show = false;
-             var help = [];
-             $(fld_sel).filter(extra_hz_ctrls).each(function(){
-             show = (show | this.checked);
-             if (this.checked) {
-             help = $.merge(help, extra_help[$(this).attr('value')])
-             }
-             });
-             $('#div_id_extra').find('.help-block').html("Please provide: " + help.join(", "));
-             $('#div_id_extra').parent().toggleClass('hidden', !show);
-             });
-             */
 
             $('#sample-form form input[name="hazard_types"], :input[name="kind"], :input[name="state"]').change(function (event) {
                 event.preventDefault();

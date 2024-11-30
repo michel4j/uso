@@ -1,8 +1,8 @@
-import json
 from collections import defaultdict
 from datetime import timedelta
 
 from django.db import models
+from django.utils.safestring import mark_safe
 from model_utils.models import TimeStampedModel
 
 from .fields import FieldType, ValidationError
@@ -18,6 +18,21 @@ class FormSpec(TimeStampedModel):
     form_type = models.ForeignKey('FormType', related_name='specs', on_delete=models.CASCADE)
     pages = models.JSONField(default=dict, null=True, blank=True)
     actions = models.JSONField(default=dict, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-modified']
+
+    def __str__(self):
+        return "{0}: {1} Specs".format(self.form_type.name, self.modified.strftime("%c"))
+
+
+class FormType(TimeStampedModel):
+    name = models.CharField(max_length=100)
+    code = models.SlugField(max_length=100, unique=True)
+    description = models.TextField(null=True, blank=True)
+
+    pages = models.JSONField(default=list, null=True, blank=True)
+    actions = models.JSONField(default=list, null=True, blank=True)
 
     class Meta:
         ordering = ['-modified']
@@ -88,22 +103,12 @@ class FormSpec(TimeStampedModel):
         return {f['name']: f for p in self.pages for f in p['fields']}
 
     def __str__(self):
-        return "{0}: {1} Specs".format(self.form_type.name, self.modified.strftime("%c"))
-
-
-class FormType(TimeStampedModel):
-    name = models.CharField(max_length=100)
-    code = models.SlugField(max_length=100, unique=True)
-    description = models.TextField(null=True, blank=True)
-    spec = models.ForeignKey(FormSpec, related_name='+', null=True, verbose_name="Active Layout", on_delete=models.SET_NULL)
-
-    def __str__(self):
         return self.name
 
 
-class DynEntryMixin(models.Model):
+class DynEntryMixin(TimeStampedModel):
     details = models.JSONField(default=dict, null=True, blank=True, editable=False)
-    spec = models.ForeignKey(FormSpec, on_delete=models.CASCADE)
+    form_type = models.ForeignKey(FormType, on_delete=models.CASCADE, null=True)
     is_complete = models.BooleanField(default=False)
 
     class Meta:
@@ -114,11 +119,12 @@ class DynEntryMixin(models.Model):
         if hasattr(self, key) and not callable(getattr(self, key)):
             return getattr(self, key)
         else:
-            _val = self.details
+            value = self.details
             for k in keys:
-                _val = _val.get(k, None)
-                if not _val: return default
-            return _val
+                value = value.get(k, None)
+                if not value:
+                    return default
+            return value
 
     def validate(self, data=None):
 
@@ -129,7 +135,10 @@ class DynEntryMixin(models.Model):
         if (self.modified - self.created) < timedelta(seconds=1):
             return {'progress': 0.0}
 
-        field_specs = {f['name']: (page_no, f) for page_no, p in enumerate(self.spec.pages) for f in p['fields']}
+        field_specs = {
+            field['name']: (page_no, field)
+            for page_no, page in enumerate(self.form_type.pages) for field in page['fields']
+        }
         report = {'pages': defaultdict(dict), 'progress': 0}
 
         num_req = 0.0
@@ -137,7 +146,8 @@ class DynEntryMixin(models.Model):
         # extract field data
         for field_name, (page_no, field_spec) in list(field_specs.items()):
             field_type = FieldType.get_type(field_spec['field_type'])
-            if not field_type: continue
+            if not field_type:
+                continue
             try:
                 if "required" in field_spec.get('options', []):
                     num_req += 1.0
@@ -154,8 +164,9 @@ class DynEntryMixin(models.Model):
                         field_type.clean(data[field_name], validate=True)
 
             except ValidationError as e:
-                report['pages'][page_no][field_name] = '{}:&nbsp;<strong>{}</strong>'.format(field_spec.get('label'),
-                                                                                              '; '.join(e.messages))
+                report['pages'][page_no][field_name] = mark_safe(
+                    f'{field_spec.get("label")}:&nbsp;<strong>{"; ".join(e.messages)}</strong>'
+                )
 
         # second loop to check other validation
         q_data = Queryable(data)
@@ -166,14 +177,15 @@ class DynEntryMixin(models.Model):
                 if q_data.matches(req_Q):
                     num_req += 1.0
                     if not (data.get(field_name, None)):
-                        report['pages'][page_no][
-                            field_name] = "{}:&nbsp;<strong>required together with another field you have filled.</strong>".format(
-                            field_spec.get('label'))
+                        report['pages'][page_no][field_name] = mark_safe(
+                            f"{field_spec.get('label')}:&nbsp;<strong>required "
+                            f"together with another field you have filled.</strong>"
+                        )
                     else:
                         valid_req += 1.0
         report['progress'] = 100.0 if num_req == 0.0 else round(100.0 * valid_req / num_req, 0);
         return {'pages': dict(report['pages']), 'progress': report['progress']}
 
 
-class DynEntry(DynEntryMixin, TimeStampedModel):
+class DynEntry(DynEntryMixin):
     pass

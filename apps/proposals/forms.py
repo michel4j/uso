@@ -19,7 +19,7 @@ from .models import get_user_model
 
 
 class ProposalForm(DynFormMixin, forms.ModelForm):
-    form_type = 'proposal'
+    type_name = 'proposal'
 
     class Meta:
         model = models.Proposal
@@ -65,7 +65,7 @@ class ReviewForm(DynFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance:
-            self.form_type = self.instance.spec.form_type.code
+            self.form_type = self.instance.form_type
         self.init_fields()
 
     def clean(self):

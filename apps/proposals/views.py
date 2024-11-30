@@ -273,8 +273,8 @@ class SubmitProposal(RolePermsViewMixin, ConfirmDetailView):
         info = self._prep_submission(access_mode=access_mode)
         cycle = info["cycle"]
 
-        from dynforms.models import FormSpec
-        tech_spec = FormSpec.objects.all().filter(form_type__code='technical_review').last()
+        from dynforms.models import FormType
+        tech_spec = FormType.objects.all().filter(code='technical-review').last()
 
         to_create = []
 
@@ -625,7 +625,7 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             self.success_url = reverse("edit-review", kwargs={'pk': self.object.pk})
 
     def _valid_approval(self, data, form_type, form_action):
-        from dynforms.models import FormSpec
+        from dynforms.models import FormType
         User = get_user_model()
 
         # change review configuration in case anything changed
@@ -641,31 +641,31 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
 
             for rev_info in data['details'].pop('additional_reviews', []):
                 if not rev_info.get('spec'): continue
-                rev_spec = FormSpec.objects.all().filter(form_type__code=rev_info.get('spec')).last()
+                rev_form = FormType.objects.all().filter(code=rev_info.get('form_type'))
                 reviewer = User.objects.filter(username=rev_info.get('reviewer')).first()
                 kind = {
                     'safety_review': 'safety',
                     'ethics_review': 'ethics',
                     'equipment_review': 'equipment',
-                }.get(rev_spec.form_type.code)
+                }.get(rev_form.code)
                 role = {
                     'safety_review': 'safety-reviewer',
                     'ethics_review': 'ethics-reviewer',
                     'equipment_review': 'equipment-reviewer',
-                }.get(rev_spec.form_type.code)
-                if rev_spec and reviewer:
+                }.get(rev_form.code)
+                if rev_form and reviewer:
                     models.Review.objects.create(
                         reference=self.object.reference,
                         cycle=self.object.cycle,
-                        kind=kind, state=models.Review.STATES.open, spec=rev_spec,
+                        kind=kind, state=models.Review.STATES.open, form_type=rev_form,
                         role=role, reviewer=reviewer,
                         due_date=self.object.due_date
                     )
-                elif rev_spec:
+                elif rev_form:
                     models.Review.objects.create(
                         reference=self.object.reference,
                         cycle=self.object.cycle,
-                        kind=kind, state=models.Review.STATES.open, spec=rev_spec, role=role,
+                        kind=kind, state=models.Review.STATES.open, form_type=rev_form, role=role,
                         due_date=self.object.due_date
                     )
             self.object.reference.update_due_dates()
@@ -1344,7 +1344,7 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
         return context
 
     def confirmed(self, *args, **kwargs):
-        from dynforms.models import FormSpec
+        from dynforms.models import FormType
         cycle = models.ReviewCycle.objects.filter(state=models.ReviewCycle.STATES.assign).get(pk=self.kwargs.get('pk'))
         track = models.ReviewTrack.objects.get(pk=self.kwargs.get('track'))
 
@@ -1369,7 +1369,7 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
         #     messages.warning(self.request, 'Committee assignment sub-optimal!')
         # else:
         #     messages.error(self.request, 'No feasible Committee assignment was possible.')
-        rev_spec = FormSpec.objects.all().filter(form_type__code='scientific_review').last()
+        rev_spec = FormType.objects.all().filter(code='scientific_review').last()
         to_create = []
         for assignment in [passign]:
             for proposal, reviewers in list(assignment.items()):
@@ -1557,8 +1557,8 @@ class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
         return kwargs
 
     def form_valid(self, form):
-        from dynforms.models import FormSpec
-        rev_spec = FormSpec.objects.all().filter(form_type__code='scientific_review').last()
+        from dynforms.models import FormType
+        rev_spec = FormType.objects.all().filter(code='scientific_review').last()
         data = form.cleaned_data
 
         if data['reviewers'].filter(committee__isnull=False).exists():

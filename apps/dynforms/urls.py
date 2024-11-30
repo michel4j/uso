@@ -22,4 +22,6 @@ urlpatterns = [
 
     # form urls
     path('forms/<int:pk>/put/', views.EditFormView.as_view(), name='dynforms-edit-form'),
+    path('forms/<int:pk>/put/', views.EditFormView.as_view(), name='dynforms-edit-type'),
+    path('forms/<int:pk>/put/', views.EditFormView.as_view(), name='dynforms-delete-type'),
 ]

@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import detail
 
 from . import forms
-from dynforms.models import FormSpec
+from dynforms.models import FormType
 from dynforms.views import DynCreateView
 from projects.models import Project
 from proposals.models import ReviewCycle
@@ -49,8 +49,8 @@ class ReviewCycleFeedback(RolePermsViewMixin, detail.DetailView):
         for spk in specs:
             feedback = surveys.filter(spec_id=spk)
             data = {}
-            spec = FormSpec.objects.get(pk=spk)
-            for p in spec.pages:
+            form_type = FormType.objects.get(pk=spk)
+            for p in form_type.pages:
                 data[p['name']] = collections.OrderedDict({})
                 fields = {f['name']: f for f in p['fields']}
                 for f, d in list(fields.items()):

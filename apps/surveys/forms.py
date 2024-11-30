@@ -5,7 +5,7 @@ from projects.models import Project
 
 
 class FeedbackForm(DynFormMixin, forms.ModelForm):
-    form_type = 'feedback'
+    type_code = 'feedback'
 
     class Meta:
         model = Project

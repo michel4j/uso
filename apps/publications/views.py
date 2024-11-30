@@ -47,7 +47,7 @@ def _fmt_citations(citation, obj=None):
 
 
 class PublicationList(RolePermsViewMixin, ItemListView):
-    model = models.Publication
+    queryset = models.Publication.objects.filter(reviewed=True).select_subclasses()
     template_name = "publications/publication-list.html"
     paginate_by = 15
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
@@ -59,11 +59,11 @@ class PublicationList(RolePermsViewMixin, ItemListView):
     admin_roles = ['publications-admin']
 
     def get_queryset(self, *args, **kwargs):
-        qset = self.model.objects.all().select_subclasses()
+        qset = self.queryset
         acronym = self.kwargs.get('beamline')
         year = self.kwargs.get('year')
         end_year = self.kwargs.get('end_year')
-        filters = Q(reviewed=True)
+        filters = Q()
         if acronym:
             filters &= Q(beamlines__parent__acronym__iexact=acronym) | Q(beamlines__acronym__iexact=acronym)
             self.list_title = f"{acronym} Publications"
@@ -84,6 +84,7 @@ class PublicationList(RolePermsViewMixin, ItemListView):
 
 
 class PublicationAdminList(SuccessMessageMixin, PublicationList):
+    queryset = models.Publication.objects.all().select_subclasses()
     template_name = "publications/publication-list.html"
     allowed_roles = ['publications-admin', 'administrator:uso']
     admin_roles = ['publications-admin']
@@ -96,19 +97,14 @@ class PublicationAdminList(SuccessMessageMixin, PublicationList):
 
 class PublicationReviewList(PublicationAdminList):
     list_title = 'Pending Publications'
-    model = models.Publication
+    queryset = models.Publication.objects.filter(reviewed=False).select_subclasses()
     template_name = "publications/publication-list.html"
     paginate_by = 50
-    list_filters = ['title', 'kind', 'code', 'facility_codes', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
-    list_columns = ['cite', 'facility_codes', 'kind']
+    list_columns = ['title', 'kind', 'code', 'facility_codes', 'date']
     list_transforms = {'cite': _fmt_citations, 'areas': _format_areas}
     list_search = ['authors', 'title', 'keywords']
     ordering = ['-year', 'kind', 'authors']
     admin_roles = ['publications-admin']
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        return queryset.filter(reviewed=False)
 
 
 class UserPublicationList(RolePermsViewMixin, ItemListView):
