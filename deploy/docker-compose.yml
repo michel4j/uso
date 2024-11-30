@@ -16,10 +16,10 @@ services:
     image: usonline:latest
     environment:
       DJANGO_SUPERUSER_USERNAME: admin
-      DJANGO_SUPERUSER_PASSWORD: <set-secret-password>
-      DJANGO_SUPERUSER_EMAIL: <set-admin-email>
+      DJANGO_SUPERUSER_PASSWORD: usoadmin
+      DJANGO_SUPERUSER_EMAIL: admin@example.com
     ports:
-      - 80:80
+      - 8080:80
     volumes:
       - ./local:/usonline/local:Z
     restart: always

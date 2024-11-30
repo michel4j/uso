@@ -5,8 +5,8 @@
 ####################################################################################################
 
 DEBUG = True                        # Set to False in production
-SITE_URL = "http://localhost"       # The URL of the site
-ALLOWED_HOSTS = ['*']               # The list of allowed hosts
+SITE_URL = "http://localhost:8080"  # The URL of the site
+ALLOWED_HOSTS = ["localhost", '*']  # The list of allowed hosts
 
 USO_ADMIN_ROLES = ["administrator:uso", "developer-admin"]
 USO_ADMIN_PERMS = []
@@ -46,17 +46,20 @@ EMAIL_HOST = "email-server.com"
 # To synchronize roles, permissions and other user attributes from a remote source like a People Database,
 # you can subclass RemoteProfileManager and set the appropriate URLs and fields, or you can override the
 # methods to customize the behaviour.
-from users.profiles import RemoteProfileManager
 
-
-class PeopleDBProfileManager(RemoteProfileManager):
-    PROFILE_FIELDS = ['title', 'first_name', 'last_name', 'preferred_name', 'email', 'username', 'roles', 'permissions']
-    USER_PHOTO_URL = "http://people-db-host/media/idphoto/{username}.jpg"
-    USER_PROFILE_URL = 'http://people-db-host/api/v1/people/{username}/'
-    USER_CREATE_URL = 'http://people-db-host/api/v1/people/'
-    USER_LIST_URL = 'http://people-db-host/api/v1/new-staff/'
-    API_HEADERS = {}
-
+# from users.profiles import RemoteProfileManager
+#
+#
+# class PeopleDBProfileManager(RemoteProfileManager):
+#     PROFILE_FIELDS = [
+#       'title', 'first_name', 'last_name', 'preferred_name', 'email', 'username', 'roles', 'permissions'
+#     ]
+#     USER_PHOTO_URL = "http://people-db-host/media/idphoto/{username}.jpg"
+#     USER_PROFILE_URL = 'http://people-db-host/api/v1/people/{username}/'
+#     USER_CREATE_URL = 'http://people-db-host/api/v1/people/'
+#     USER_LIST_URL = 'http://people-db-host/api/v1/new-staff/'
+#     API_HEADERS = {}
+#
 
 # Set the PROFILE_MANAGER to the custom profile manager you would like to use. By default
 # a dummy profile manager is used that does not synchronize any user attributes.
