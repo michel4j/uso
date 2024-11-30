@@ -21,17 +21,6 @@ def default_actions():
     ]
 
 
-class FormSpec(TimeStampedModel):
-    pages = models.JSONField(default=dict, null=True, blank=True)
-    actions = models.JSONField(default=dict, null=True, blank=True)
-
-    class Meta:
-        ordering = ['-modified']
-
-    def __str__(self):
-        return self.modified.strftime("%c")
-
-
 class FormType(TimeStampedModel):
     name = models.CharField(max_length=100)
     code = models.SlugField(max_length=100, unique=True)
