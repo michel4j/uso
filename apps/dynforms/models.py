@@ -8,14 +8,20 @@ from model_utils.models import TimeStampedModel
 from .fields import FieldType, ValidationError
 from .utils import Queryable, build_Q
 
-DEFAULT_FORM_SPECS = [
-    {"name": "Page 1", "fields": []}
-]
-DEFAULT_ACTIONS = [('submit', 'Submit'), ]
+
+def default_pages():
+    return [
+        {"name": "Page 1", "fields": []}
+    ]
+
+
+def default_actions():
+    return [
+        ('submit', 'Submit'),
+    ]
 
 
 class FormSpec(TimeStampedModel):
-    form_type = models.ForeignKey('FormType', related_name='specs', on_delete=models.CASCADE)
     pages = models.JSONField(default=dict, null=True, blank=True)
     actions = models.JSONField(default=dict, null=True, blank=True)
 
@@ -23,7 +29,7 @@ class FormSpec(TimeStampedModel):
         ordering = ['-modified']
 
     def __str__(self):
-        return "{0}: {1} Specs".format(self.form_type.name, self.modified.strftime("%c"))
+        return self.modified.strftime("%c")
 
 
 class FormType(TimeStampedModel):
@@ -31,8 +37,8 @@ class FormType(TimeStampedModel):
     code = models.SlugField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
 
-    pages = models.JSONField(default=list, null=True, blank=True)
-    actions = models.JSONField(default=list, null=True, blank=True)
+    pages = models.JSONField(default=default_pages, null=True, blank=True)
+    actions = models.JSONField(default=default_actions, null=True, blank=True)
 
     class Meta:
         ordering = ['-modified']
