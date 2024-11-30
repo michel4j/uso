@@ -1,11 +1,10 @@
-
-
-from django.core.exceptions import PermissionDenied
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.conf import settings
-
 import itertools
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.utils.decorators import method_decorator
+
 
 ROLEPERMS_DEBUG = getattr(settings, "ROLEPERMS_DEBUG", False)
 
@@ -98,18 +97,18 @@ class RolePermsViewMixin(object):
         PermissionDenied exception.
         """
         if settings.DEBUG:
-            print(('VIEW CLASS: \t{0}'.format(self.__class__)))
+            print(f'VIEW CLASS: {self.__class__.__name__}')
 
         if ROLEPERMS_DEBUG:
-            print(('AUTH USER: \t{0}'.format(request.user)))
-            print(('REQ.PERMS: \t{0}'.format(self.get_allowed_permissions())))
-            print(('REQ.ROLES: \t{0}'.format(self.get_allowed_roles())))
-            print(('ADM.PERMS: \t{0}'.format(set(itertools.chain(self.get_admin_permissions(), USO_ADMIN_PERMS)))))
-            print(('ADM.ROLES: \t{0}'.format(set(itertools.chain(self.get_admin_roles(), USO_ADMIN_ROLES)))))
-            print(('USER PERMS: \t{0}'.format(request.user.get_all_permissions())))
-            print(('USER ROLES: \t{0}'.format(request.user.get_all_roles())))
-            print(('ALLOWED: \t{0}'.format(self.check_allowed())))
-            print(('ADMIN: \t{0}'.format(self.check_admin())))
+            print('AUTH USER:  {0}'.format(request.user))
+            print('REQ.PERMS:  {0}'.format(self.get_allowed_permissions()))
+            print('REQ.ROLES:  {0}'.format(self.get_allowed_roles()))
+            print('ADM.PERMS:  {0}'.format(set(itertools.chain(self.get_admin_permissions(), settings.USO_ADMIN_PERMS))))
+            print('ADM.ROLES:  {0}'.format(set(itertools.chain(self.get_admin_roles(), settings.USO_ADMIN_ROLES))))
+            print('USER PERMS: {0}'.format(request.user.get_all_permissions()))
+            print('USER ROLES: {0}'.format(request.user.get_all_roles()))
+            print('ALLOWED:    {0}'.format(self.check_allowed()))
+            print('ADMIN:      {0}'.format(self.check_admin()))
 
         if self.check_allowed():
             return super().dispatch(request, *args, **kwargs)
