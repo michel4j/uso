@@ -1,12 +1,15 @@
-{% extends "base.html" %}
+{% extends "publications/base.html" %}
 {% load static %}
 {% load itemlist %}
 
 
 {% block page_heading %}{% itemlist_heading %}{% endblock %}
-{% block full %}
-<div class="row-fluid">
-    <div class="pagelet col-xs-12">
+{% block folio-header %}{% endblock %}
+{% block folio-no-header %}{% endblock %}
+{% block folio-content %}
+
+
+    <div class="pagelet-body">
 {% include "itemlist/filters.html" %}
 {% for object in object_list %}
 <div class="grid-cell col-xs-12">
@@ -29,6 +32,6 @@
 {% endfor %}
 {% include "itemlist/pagination.html" %}
     </div>
-</div>
+
 {% endblock %}
 

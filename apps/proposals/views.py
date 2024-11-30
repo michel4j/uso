@@ -70,9 +70,12 @@ class UserProposalList(RolePermsViewMixin, ItemListView):
     paginate_by = 25
 
     def get_queryset(self, *args, **kwargs):
-        qchain = Q(spokesperson=self.request.user) | Q(team__icontains=self.request.user.email)
+        qchain = Q(spokesperson=self.request.user)
+        if self.request.user.email:
+            qchain |= Q(team__icontains=self.request.user.email)
         if self.request.user.alt_email:
             qchain |= Q(team__icontains=self.request.user.alt_email)
+
         self.queryset = models.Proposal.objects.filter(qchain)
         return super().get_queryset(*args, **kwargs)
 
