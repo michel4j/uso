@@ -19,7 +19,7 @@ from .models import get_user_model
 
 
 class ProposalForm(DynFormMixin, forms.ModelForm):
-    type_name = 'proposal'
+    type_code = 'proposal'
 
     class Meta:
         model = models.Proposal
