@@ -31,6 +31,7 @@ from roleperms.views import RolePermsViewMixin
 
 
 PROFILE_MANAGER = getattr(settings, 'PROFILE_MANAGER')
+SITE_URL = getattr(settings, 'SITE_URL', '')
 
 
 class UserDetailView(RolePermsViewMixin, DetailView):
@@ -282,24 +283,20 @@ class RegistrationView(DynCreateView):
         recipients = [reg.details['contact']['email']]
         notify.send(recipients, "registration", context={
             'name': reg.details['names']['first_name'],
-            'verification_url': "{}{}".format(getattr(settings, 'SITE_URL', ""),
-                                               reverse_lazy('portal-verify', kwargs={'hash': reg.hash})),
+            'verification_url': f"{SITE_URL}{reverse_lazy('portal-verify', kwargs={'hash': reg.hash})}",
         })
         title = "Thank you!"
         msg = "You should receive an email shortly with instructions to complete the creation of your account."
         return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title})
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     bg = random.choice(os.listdir(f"{settings.PROJECT_DIR}/static/img/photos"))
-    #     context['background'] = bg
-    #     return context
-
 
 API_ERRORS = {
-    404: "We can't find the right place to do what you want! Start over, or contact the USO for assistance at clsuo@lightsource.ca or 306-657-3700.",
-    403: "It looks like you're not allowed to do that. If the error persists, contact the USO for assistance at clsuo@lightsource.ca or 306-657-3700.",
-    500: "There was an error completing your request. If the error persists, contact the USO for assistance at clsuo@lightsource.ca or 306-657-3700.",
+    404: "We can't find the right place to do what you want! Start over, or contact the USO for assistance at "
+         "clsuo@lightsource.ca or 306-657-3700.",
+    403: "It looks like you're not allowed to do that. If the error persists, contact the USO for assistance at "
+         "clsuo@lightsource.ca or 306-657-3700.",
+    500: "There was an error completing your request. If the error persists, contact the USO for assistance at "
+         "clsuo@lightsource.ca or 306-657-3700.",
 }
 
 
@@ -317,9 +314,7 @@ class ResetPassword(FormView):
             link.save()
             data = {
                 'name': user.first_name,
-                'reset_url': "{}{}".format(
-                    getattr(settings, 'SITE_URL', ""), reverse_lazy('password-reset', kwargs={'hash': link.hash})
-                ),
+                'reset_url': f"{SITE_URL}{reverse_lazy('password-reset', kwargs={'hash': link.hash})}",
             }
             recipients = [user.email]
             if user.alt_email:
@@ -387,15 +382,15 @@ class PasswordView(UpdateView):
         else:
             title = "Success!"
             msg = (
-                "Your password has been changed.  A confirmation email containing your username "
-                "will be sent to you .Once you receive it, you can proceed "
-                "to <a href='{}{}'>login</a>.".format(getattr(settings, 'SITE_URL', ""), reverse_lazy('user-dashboard'))
+                f"Your password has been changed.  A confirmation email containing your username "
+                f"will be sent to you .Once you receive it, you can proceed "
+                f"to <a href='{SITE_URL}{reverse_lazy('user-dashboard')}'>login</a>."
             )
 
             data = {
                 'name': self.object.user.first_name,
                 'username': self.object.user.username,
-                'login_url': "{}{}".format(getattr(settings, 'SITE_URL', ""), reverse_lazy('user-dashboard')),
+                'login_url': f"{SITE_URL}{reverse_lazy('user-dashboard')}",
             }
             recipients = [self.object.user.email]
             if self.object.user.alt_email:
@@ -453,29 +448,17 @@ class VerifyView(PasswordView):
             if add_user_role:
                 info['extra_roles'] = ['user']
 
-        # Call Profile Manager to add profile
-        response = PROFILE_MANAGER.create_profile(info)
-
         # Add a message on the success page displaying the username?
-        if response.status_code != requests.codes.created:
-            title = "Sorry!  It looks like there's a problem."
-            if response.status_code in list(API_ERRORS.keys()):
-                msg = API_ERRORS[response.status_code]
-            else:
-                msg = "There's something wrong with your request."
-            if response.status_code == 400:
-                msg = msg + '<br><ul><li>' + '</li><li>'.join(
-                    [f'{k}: {v[0]}' for k, v in response.json().items()]) + '</li></ul>'
-        else:
-            # Send an email to the user with their new username
+        msg = title = ''
+        if info:
+            # Email the user with their new username
             title = "Congratulations!"
-            msg = ("You should receive an email containing your new CLS username. Once you've got it, go ahead "
-                   "and <a href='{}'>login</a>!".format(reverse('user-dashboard')))
+            msg = (f"You should receive an email containing your new CLS username. Once you've got it, go ahead "
+                   f"and <a href='{reverse('user-dashboard')}'>login</a>!")
 
             research_field = SubjectArea.objects.filter(pk__in=details.get('research-field', []))
-            initial = response.json()
+            initial = info
             initial.update({
-                'username': response.json()['username'],
                 'classification': classification
             })
 
@@ -495,16 +478,20 @@ class VerifyView(PasswordView):
                 i = models.Institution.objects.create(name=details['institution'], sector=details['sector'],
                                                       location=location)
             initial['institution'] = i
-
             initial['address'] = models.Address.objects.create(**address_info)
-            user = models.User.objects.create(**initial)
+
+            # Call Profile Manager to add profile
+            username = initial.pop('username')
+            password = initial.pop('password')
+
+            user = models.User.objects.create_user(username, password, **initial)
             user.research_field.add(*research_field)
             data = {
                 'name': details['names']['first_name'],
                 'username': user.username,
-                'login_url': "{}{}".format(getattr(settings, 'SITE_URL', ""), reverse_lazy('portal-login')),
+                'login_url': f"{SITE_URL}{reverse_lazy('portal-login')}",
             }
-            recipients = [info['email']]
+            recipients = [user.email]
             notify.send(recipients, "new-account", context=data)
             self.object.delete()
 
@@ -592,9 +579,7 @@ class ChangePassword(RolePermsViewMixin, View):
         link = models.SecureLink.objects.create(user=user)
         data = {
             'name': user.first_name,
-            'reset_url': "{}{}".format(
-                getattr(settings, 'SITE_URL', ""), reverse_lazy('password-reset', kwargs={'hash': link.hash})
-            ),
+            'reset_url': f"{SITE_URL}{reverse_lazy('password-reset', kwargs={'hash': link.hash})}",
         }
         recipients = [user]
         if user.alt_email:

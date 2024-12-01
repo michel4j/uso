@@ -1,10 +1,16 @@
-
 import itertools
 import operator
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
+from base64 import b64decode, b64encode
 from collections.abc import MutableMapping
-from django.urls import reverse
+
+from Crypto.Cipher import AES
+from django.conf import settings
 from django.db.models import Q
+from django.urls import reverse
+
 
 FIELD_SEPARATOR = '__'
 
@@ -227,3 +233,42 @@ def build_url(*args, **kwargs):
     if get:
         url += '?' + urllib.parse.urlencode(get)
     return url
+
+
+class Crypt:
+    enc_dec_method = 'utf-8'
+    key = getattr(settings, "THROTTLE_KEY", b"")
+
+    @classmethod
+    def encrypt(cls, str_to_enc):
+        try:
+            aes_obj = AES.new(cls.key, AES.MODE_CFB)
+            hx_enc = aes_obj.encrypt(str_to_enc.encode('utf8'))
+            msg = b64encode(hx_enc).decode(cls.enc_dec_method)
+            salt = b64encode(aes_obj.iv).decode(cls.enc_dec_method)
+            return f"{salt}|{msg}"
+        except ValueError as value_error:
+            if value_error.args[0] == 'IV must be 16 bytes long':
+                raise ValueError('Encryption Error: SALT must be 16 characters long')
+            elif value_error.args[0] == 'AES key must be either 16, 24, or 32 bytes long':
+                raise ValueError('Encryption Error: Encryption key must be either 16, 24, or 32 characters long')
+            else:
+                raise ValueError(value_error)
+
+    @classmethod
+    def decrypt(cls, enc_msg):
+        try:
+            salt_enc, enc_str = enc_msg.split('|')
+            salt = b64decode(salt_enc.encode(cls.enc_dec_method))
+            aes_obj = AES.new(cls.key, AES.MODE_CFB, salt)
+            str_tmp = b64decode(enc_str.encode(cls.enc_dec_method))
+            str_dec = aes_obj.decrypt(str_tmp)
+            msg = str_dec.decode(cls.enc_dec_method)
+            return msg
+        except ValueError as value_error:
+            if value_error.args[0] == 'IV must be 16 bytes long':
+                raise ValueError('Decryption Error: SALT must be 16 characters long')
+            elif value_error.args[0] == 'AES key must be either 16, 24, or 32 bytes long':
+                raise ValueError('Decryption Error: Encryption key must be either 16, 24, or 32 characters long')
+            else:
+                raise ValueError(value_error)

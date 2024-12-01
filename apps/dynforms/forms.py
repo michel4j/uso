@@ -1,3 +1,4 @@
+import pprint
 from base64 import b64encode
 from datetime import datetime
 
@@ -18,7 +19,7 @@ from model_utils import Choices
 
 from . import models
 from .fields import FieldType
-from .utils import Queryable, DotExpandedDict, build_Q
+from .utils import Queryable, DotExpandedDict, build_Q, Crypt
 
 SIZES = Choices(
     ('medium', _('Medium')),
@@ -373,13 +374,8 @@ class DynFormMixin(object):
     cleaned_data: dict
 
     def init_fields(self):
-        key = getattr(settings, "THROTTLE_KEY", b"")
-        cipher = AES.new(key, AES.MODE_CFB)
-        ct_bytes = cipher.encrypt(datetime.now().isoformat().encode("utf-8"))
-        cipher_text = b64encode(ct_bytes).decode("utf-8")
-        cipher_iv = b64encode(cipher.iv).decode("utf-8")
 
-        self.initial['throttle'] = f"{cipher_iv}|{cipher_text}"
+        self.initial['throttle'] = Crypt.encrypt(datetime.now().isoformat())
         if self.instance and hasattr(self.instance, 'form_type') and self.instance.form_type:
             self.form_type = self.instance.form_type
         else:
@@ -396,12 +392,12 @@ class DynFormMixin(object):
             data = DotExpandedDict(dict(self.data.lists()))
         else:
             data = DotExpandedDict(self.data)
+
         # convert lists (same as dotted notation but with an integer key)
         data = data.with_lists()
-        self.cleaned_data['spec'] = self.form_type
+        self.cleaned_data['form_type'] = self.form_type
         cleaned_data, errors = self.custom_clean(data)
         self.cleaned_data['details'] = cleaned_data
-
         if errors:
             msg = ''.join(
                 ['<ul>'] +
@@ -410,6 +406,7 @@ class DynFormMixin(object):
                 ] +
                 ['</ul>']
             )
+
             raise forms.ValidationError(mark_safe(msg))
         return self.cleaned_data
 
@@ -432,7 +429,7 @@ class DynFormMixin(object):
             cleaned_data['active_page'] = active_page
 
         # extract field data
-        for field_name, field_spec in list(self.field_specs.items()):
+        for field_name, field_spec in self.field_specs.items():
             field_type = FieldType.get_type(field_spec['field_type'])
             multiple = "repeat" in field_spec.get('options', []) or field_type.multi_valued
             required = "required" in field_spec.get('options', [])
@@ -456,6 +453,7 @@ class DynFormMixin(object):
                 req_Q = build_Q(req_rules)
                 if submitting and q_data.matches(req_Q) and not cleaned_data.get(field_name):
                     failures[field_name] = "required together with another field you have filled."
+
         return cleaned_data, failures
 
 

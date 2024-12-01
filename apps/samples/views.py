@@ -70,7 +70,7 @@ class HSDBRecord(JSONResponseMixin, View):
             'name': substance.name,
             'description': substance.description,
             'kind': 'chemical',
-            'hazard_types': list(pictograms.values_list('pk', flat=True)),
+            'hazard_types': [str(val) for val in pictograms.values_list('pk', flat=True)],
             'hazards': json.dumps(list(substance.hazards.values_list('pk', flat=True))),
             'signal': signal,
         }

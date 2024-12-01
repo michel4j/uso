@@ -262,10 +262,17 @@ def get_options(context, data={}):
 @register.simple_tag(takes_context=True)
 def get_cycle_options(context):
     data = context.get("data")
+    selected_cycle = None
+    options = []
     if data:
-        context['selected_cycle'] = models.ReviewCycle.objects.filter(pk=data).first()
-    options = [(c.pk, c, c == context.get('selected_cycle')) for c in
-               [models.ReviewCycle.objects.next(), models.ReviewCycle.objects.current().first()]]
+        selected_cycle = models.ReviewCycle.objects.filter(pk=data).first()
+
+    if selected_cycle:
+        context['selected_cycle'] = selected_cycle
+        options = [
+            (c.pk, c, c == context.get('selected_cycle'))
+            for c in [models.ReviewCycle.objects.next(), models.ReviewCycle.objects.current().first()]
+        ]
     return options
 
 

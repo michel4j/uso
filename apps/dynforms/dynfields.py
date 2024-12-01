@@ -1,15 +1,16 @@
-import datetime
-from base64 import b64decode
+import uuid
+from datetime import datetime, timedelta
 from collections import OrderedDict
 
-from Crypto.Cipher import AES
+
+
 from dateutil import parser
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
-from django.utils import timezone
 
 from dynforms.fields import FieldType
+from dynforms.utils import Crypt
 
 
 # Standard Fields
@@ -129,6 +130,7 @@ class Address(FullName):
 
     def clean(self, val, multi=False, validate=True):
         val = super().clean(val, multi=multi, validate=validate)
+
         if validate:
             invalid_fields = set()
             if isinstance(val, list):
@@ -269,21 +271,20 @@ class Throttle(FieldType, FancyMixin):
     settings = ['label', 'options']
 
     def clean(self, value, validate=True, multi=False):
-        key = getattr(settings, "THROTTLE_KEY", b"")
+        if isinstance(value, list):
+            value = value[0]
 
+        start = datetime.now() - timedelta(seconds=20)
         try:
-            cipher_iv_b64, cipher_text_b64 = value[0].split('|')
-            vector = b64decode(cipher_iv_b64)
-            cipher_text = b64decode(cipher_text_b64)
-            cipher = AES.new(key, AES.MODE_CFB, vector)
-            start = parser.parse(cipher.decrypt(cipher_text))
-        except:
-            start = None
-
-        if validate:
-            if not value[0] or not start:
+            message = Crypt.decrypt(value)
+            print("MESSAGE", message)
+        except ValueError:
+            if validate:
                 raise ValidationError('Something funny happened with the form. Reload the page and start again.')
-            now = timezone.now()
-            if (now - start).total_seconds() < 10:
-                raise ValidationError('Did you take the time to read the questions?')
-        return ""
+        else:
+            start = parser.parse(message)
+        now = datetime.now()
+        if (now - start).total_seconds() < 10:
+            raise ValidationError('Did you take the time to read the questions?')
+
+        return value

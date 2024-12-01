@@ -191,10 +191,10 @@ class RegistrationForm(DynFormMixin, forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+
         email = cleaned_data['details'].get('contact', {}).get('email', '')
         country = cleaned_data['details'].get('address', {}).get('country', '')
         phone = cleaned_data['details'].get('contact', {}).get('phone', '')
-
         if not email:
             self._errors['contact'] = " Please enter a valid email address"
 
@@ -203,9 +203,9 @@ class RegistrationForm(DynFormMixin, forms.ModelForm):
 
         code = COUNTRY_CODES.get(country.upper(), None)
         if phone and code:
-            cleaned_phone = re.sub(r'[^\d]', '', phone)
+            cleaned_phone = re.sub(r'\D', '', phone)
             try:
-                phone_number = phonenumbers.parse(re.sub(r'[^\d]', '', cleaned_phone), code)
+                phone_number = phonenumbers.parse(re.sub(r'\D', '', cleaned_phone), code)
                 if code == 'CA':
                     phone = phonenumbers.format_number(phone_number, phonenumbers.PhoneNumberFormat.NATIONAL)
                 else:
@@ -228,9 +228,9 @@ class RegistrationForm(DynFormMixin, forms.ModelForm):
 
         # create hash
         h = hashlib.new('ripemd160')
-        h.update(email)
-        h.update(json.dumps(cleaned_data['details']))
-        h.update(timezone.now().isoformat())
+        h.update(email.encode('utf-8'))
+        h.update(json.dumps(cleaned_data['details']).encode('utf-8'))
+        h.update(timezone.now().isoformat().encode('utf-8'))
         cleaned_data['hash'] = h.hexdigest()
         return cleaned_data
 

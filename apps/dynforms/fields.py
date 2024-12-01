@@ -144,7 +144,7 @@ class FieldType(object, metaclass=FieldTypeMeta):
         """Parse and Validate field and return clean value"""
         try:
             if isinstance(val, dict) and (multi or self.multi_valued):
-                val = list(map(dict, list(zip(*[[(k, v) for v in value] for k, value in list(val.items())]))))
+                val = list(map(dict, zip(*[[(k, v) for v in value] for k, value in val.items()])))
             elif not isinstance(val, list):
                 val = [val]
             val = list(map(self.coerce, val))

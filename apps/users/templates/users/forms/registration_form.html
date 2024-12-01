@@ -27,7 +27,9 @@
                 {% if form.errors %}
                 <div class="alert {% if form.errors %} alert-danger{% else %}alert-warning{% endif %} alert-dismissible" style="line-height: 1;">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><i class="bi-x-lg icon-1x icon-fw"></i></button>
-                    <h5>The form could not be submitted. Please provide all required information.</h5>
+                    <strong>Errors:
+                    {{ form.errors }}
+                    </strong>
                 </div>
                 {% endif %}
                 {% for field in page.fields %}

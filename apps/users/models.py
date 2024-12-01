@@ -296,7 +296,7 @@ class Registration(DynEntryMixin):
     email = models.CharField(max_length=250)
 
     def __str__(self):
-        return "{} - {}".format(self.email, self.hash)
+        return f"{self.email} - {self.hash}"
 
     def text(self):
         info = {
