@@ -26,10 +26,8 @@ Deploying a USO instance
 
 5. Access the USO site at http://localhost. The default admin account is `admin` with password `usoadmin` unless you
    changed the value in `docker-compose.yml`.
-6. Copy the cronjob file `usonline.crotasks` to the appropriate location on the host system to run the cron job every 10
-   minutes.
-7. Logos are needed in a few places. To customize the logo, place two PNG files in the `local/media/logos` directory
+6. Logos are needed in a few places. To customize the logo, place two PNG files in the `local/media/logos` directory
    named `logo-horiz.png` (300 x 90, logo) and `logo-oriz-white.png` (White version for dark backgrounds).
-8. By default, Profile photos for users should be placed in the `local/media/idphoto/<username>.jpg` for each user.
+7. By default, Profile photos for users should be placed in the `local/media/idphoto/<username>.jpg` for each user.
    Alternatively, they can be fetched from a remote server through the Profile manager. See RemoteProfileManager for an
    example. The photo should be minimum 200 x 200 pixels.

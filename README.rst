@@ -28,6 +28,45 @@ The system provides the following feature sets:
     * User/Institutional agreements
     * Generation of Statistics, Metrics and Reporting
 
+
+Deploying an instance
+=====================
+
+1. From the top-level directory, run the command `prepare-instance.sh` as follows:
+
+   .. code-block:: bash
+
+      ./deploy/prepare-instance.sh <deploy top-level directory>
+
+2. This command will build a docker/podman image "usonline:latest" and create a barebones directory structure. Add any
+   data you want to load into the `local/kickstart/` in either YAML or JSON format. The data should be in the format
+   similar to that produced by the Django `dumpdata` command.
+3. Edit the docker-compose.yml file to reflect your deployment environment. Change the environment settings to create
+   the appropriate database and uso admin accounts.
+4. Run the docker-compose up command to start the database and USO. The database will be initialized with the data in
+   the kickstart directory if provided.
+
+   .. code-block:: bash
+
+       docker-compose up -d
+
+   OR
+
+   .. code-block:: bash
+
+       podman-compose up -d
+
+5. Access the USO site at http://localhost. The default admin account is `admin` with password `usoadmin` unless you
+   changed the value in `docker-compose.yml`.
+6. Logos are needed in a few places. To customize the logo, place two PNG files in the `local/media/logos` directory
+   named `logo-horiz.png` (300 x 90, logo) and `logo-oriz-white.png` (White version for dark backgrounds).
+7. By default, Profile photos for users should be placed in the `local/media/idphoto/<username>.jpg` for each user.
+   Alternatively, they can be fetched from a remote server through the Profile manager. See RemoteProfileManager for an
+   example. The photo should be minimum 200 x 200 pixels.
+
+The system is now ready for use.
+
+
 Main Concepts
 =============
 Users
@@ -39,26 +78,30 @@ Users
 
 Role
     A prescribed function or status conferred on a person. An individual's roles will
-    determine which USO pages they can view, which tasks they may be expected to complete.
+    determine which USO pages they can view, which tasks they may be expected to complete. Roles
+    can be managed externally to the USO software and provided through an API. Roles in the USO system are often
+    labelled using hyphenated lowercased words joined by colons. The words after the colon identify the realms.
 
     For example:
 
-    - *User*: Any person who performs experiments in the facility
-    - *Reviewer*: A person who reviews proposals
-    - *Beamline Staff*, *Beamline Admin*, *Contractor*, etc
+    - *user*: Any person who performs experiments in the facility
+    - *reviewer*: A person who reviews proposals
+    - *staff:cmcf-id*, *admin:cmcf-id*, *contractor*, etc.
 
 Permission
     A qualification that permits a person to carry out a task. Usually acquired after appropriate
-    training has been completed. Permissions are stored and managed externally to the USO software.
+    training has been completed. Permissions can be stored and managed externally to the USO software.
     Permissions are often labelled using hyphenated uppercased words in the USO system.
 
     Some Examples of permissions:
 
-    - *Facility Access*: Equivalent to a valid access badge to enter the facility.
-    - *Cryo Worker*:  Qualified to work with cryogenics
-    - *CMCF-ID User*: Qualified to perform experiments on the CMCF-ID beamline
-    - *Lab Access*: Qualified to work in a laboratory
-    - *Animal Worker*: Qualified to work with animals.
+    - *FACILITY-ACCESS*: Equivalent to a valid access badge to enter the facility.
+    - *CRYO-WORKER*:  Qualified to work with cryogenics
+    - *CMCF-ID-USER*: Qualified to perform experiments on the CMCF-ID beamline. Every beamline
+      has a unique permissions for access which is of the form `<beamline.acronym>-USER`,
+      `<beamline.acronym>-REMOTE-USER`.
+    - *LAB-ACCESS*: Qualified to work in a laboratory
+    - *ANIMAL-WORKER*: Qualified to work with animals.
 
 Proposal
     A document submitted by prospective users which describes the planned research
