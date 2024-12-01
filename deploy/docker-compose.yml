@@ -39,5 +39,5 @@ services:
     volumes:
       - ./local:/usonline/local:Z
     labels:
-      deck-chores.isocron.command: /usonline/manage.py runcrons
+      deck-chores.isocron.command: /usonline/manage.py runcrons --verbose
       deck-chores.isocron.interval: 00:10:00

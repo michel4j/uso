@@ -106,6 +106,9 @@ class BaseCronJob(object, metaclass=CronJobMeta):
         now = timezone.localtime(timezone.now())
         ran_ago = (now - self.job_log.ran_at)
 
+        if self.job_log.state == self.job_log.STATES.never:
+            return True
+
         # if both run_every and run_at, require both conditions to be met.
         should_run = True
         if self.run_every:

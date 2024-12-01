@@ -27,17 +27,18 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         skipped = []
         job_threads = {}
-        jobs = list(BaseCronJob.get_all().items())
+        jobs = BaseCronJob.get_all().items()
         out = ""
         for name, cron_job in jobs:
-            if args and not name in args: continue
+            if args and name not in args:
+                continue
             thread = cron_job.run_thread(force=options.get('force'))
             if thread:
                 job_threads[cron_job] = thread
             else:
                 skipped.append(cron_job)
 
-        for job, thread in list(job_threads.items()):
+        for job, thread in job_threads.items():
             thread.join()
             out += '{} ({})\n'.format(job.job_log.code, job.job_log.get_state_display())
 
