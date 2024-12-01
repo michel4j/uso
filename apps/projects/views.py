@@ -236,11 +236,6 @@ class ProjectDetail(RolePermsViewMixin, detail.DetailView):
     def check_owner(self, obj):
         return self.request.user in [obj.spokesperson, obj.leader, obj.delegate]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['training_url'] = settings.TRAINING_SERVER
-        return context
-
 
 class ProjectHistory(RolePermsViewMixin, ItemListView):
     model = models.Session

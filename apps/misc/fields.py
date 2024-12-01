@@ -106,7 +106,8 @@ class StringListField(models.TextField):
             return ""
 
     def value_to_string(self, obj):
-        return self.get_prep_value(obj)
+        value = self.value_from_object(obj)
+        return self.get_prep_value(value)
 
     def get_prep_lookup(self, lookup_type, value):
         if isinstance(value, list):

@@ -25,8 +25,9 @@ from . import forms
 from . import models
 from . import utils
 
-PROFILE_MANAGER = getattr(settings, 'PROFILE_MANAGER')
+USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER')
 SITE_URL = getattr(settings, 'SITE_URL', '')
+USO_USER_AGREEMENT = getattr(settings, 'USO_USER_AGREEMENT', '')
 
 
 class UserDetailView(RolePermsViewMixin, DetailView):
@@ -367,7 +368,7 @@ class PasswordView(PasswordChangeMixin, UpdateView):
         self.object.user.set_password(info['password'])
         self.object.user.save()
         try:
-            success = PROFILE_MANAGER.update_profile(info['username'], info)
+            success = USO_PROFILE_MANAGER.update_profile(info['username'], info)
         except requests.RequestException as e:
             title = "Sorry! Something went wrong with your request."
             msg = 'Please contact the User Office for assistance.'
@@ -483,7 +484,7 @@ class VerifyView(PasswordChangeMixin, UpdateView):
             initial['address'] = models.Address.objects.create(**address_info)
 
             # Call Profile Manager to add profile
-            username = PROFILE_MANAGER.create_username(initial)
+            username = USO_PROFILE_MANAGER.create_username(initial)
             password = initial.pop('password')
 
             user = models.User.objects.create_user(username, password, **initial)
@@ -553,8 +554,7 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
         else:
             institution = None
         if old_institution != institution:
-            # FIXME: hard-coded name, perhaps the whole agreement thing needs to be re-thought
-            obj.acceptances.filter(user=obj, agreement__name="CLSI User Agreement").update(active=False)
+            obj.acceptances.filter(user=obj, agreement__code=USO_USER_AGREEMENT).update(active=False)
         models.User.objects.filter(username=obj.username).update(**data)
 
         info = {
@@ -569,7 +569,7 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
             info['roles'] = set(obj.roles) | {'high-school-student'}
 
         # Call PeopleDirectory API "update_profile"
-        PROFILE_MANAGER.update_profile(obj.username, info)
+        USO_PROFILE_MANAGER.update_profile(obj.username, info)
 
         obj.research_field.set(research_areas)
         messages.success(self.request, "{}'s profile updated.".format(obj))
@@ -598,7 +598,7 @@ class ChangePassword(RolePermsViewMixin, View):
 
 class PhotoView(View):
     def get(self, request, path=''):
-        photo_url = PROFILE_MANAGER.get_user_photo_url(path)
+        photo_url = USO_PROFILE_MANAGER.get_user_photo_url(path)
         return proxy_view(request, photo_url)
 
 

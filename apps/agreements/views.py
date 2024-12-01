@@ -20,7 +20,7 @@ class AgreementList(RolePermsViewMixin, ItemListView):
     template_name = "agreements/agreement-list.html"
     list_title = "Agreements"
     allowed_roles = ["administrator:uso", "contracts-administrator"]
-    list_columns = ["name", "state", "created", "modified", "num_users"]
+    list_columns = ["name", "code", "state", "num_users"]
     list_filters = ["state", "modified", "created"]
     list_transforms = {'created': dt_display, 'modified': dt_display}
     link_url = "edit-agreement"
@@ -28,7 +28,7 @@ class AgreementList(RolePermsViewMixin, ItemListView):
     ordering = ["-state", "created", "modified"]
 
 
-class AgreementFormMixin(object):
+class AgreementFormMixin:
     template_name = "agreements/form.html"
     form_class = forms.AgreementForm
     success_url = reverse_lazy("agreement-list")

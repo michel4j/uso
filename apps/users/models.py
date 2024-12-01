@@ -21,7 +21,7 @@ from roleperms.models import RolePermsUserMixin
 
 USO_AMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', [''])
 USO_AMIN_PERMS = getattr(settings, 'USO_ADMIN_PERMS', [''])
-PROFILE_MANAGER = getattr(settings, 'PROFILE_MANAGER')
+USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER')
 
 
 class Address(TimeStampedModel):
@@ -70,11 +70,11 @@ class CustomUserManager(BaseUserManager):
         user = self.model(**other_fields)
         user.set_password(password)
         user.save(using=self._db)
-        PROFILE_MANAGER.create_profile(other_fields)
+        USO_PROFILE_MANAGER.create_profile(other_fields)
         return user
 
     def create_local_user(self, username):
-        profile = PROFILE_MANAGER.fetch_profile(username)
+        profile = USO_PROFILE_MANAGER.fetch_profile(username)
         if profile:
             user = self.create_user(username)
             user.fetch_profile(force=True)
@@ -177,14 +177,14 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         now = timezone.localtime(timezone.now())
         profile = data
         if (force or self.last_updated <= now - timedelta(minutes=delay)) and not data:
-            profile = data or PROFILE_MANAGER.fetch_profile(self.username)
+            profile = data or USO_PROFILE_MANAGER.fetch_profile(self.username)
 
         if not profile:
             return self
 
         # update the data
         for key, val in profile.items():
-            if key in PROFILE_MANAGER.PROFILE_FIELDS:
+            if key in USO_PROFILE_MANAGER.PROFILE_FIELDS:
                 setattr(self, key, val)
 
         self.last_updated = now
@@ -195,7 +195,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         # update remote profile in PeopleDB
         data = {} if not data else data
         if data or photo:
-            profile = PROFILE_MANAGER.update_profile(self.username, data, photo=photo)
+            profile = USO_PROFILE_MANAGER.update_profile(self.username, data, photo=photo)
             if profile:
                 self.fetch_profile(data=profile)
                 return profile
@@ -204,7 +204,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         return self.get_full_name()
 
     def get_photo(self):
-        return PROFILE_MANAGER.get_user_photo_url(self.username)
+        return USO_PROFILE_MANAGER.get_user_photo_url(self.username)
 
     def initials(self):
         return ''.join(

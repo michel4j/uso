@@ -9,7 +9,6 @@ from django.utils.translation import gettext as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
-
 NOTIFIER_DEBUG = getattr(settings, 'NOTIFIER_DEBUG', True)
 NOTIFIER_FILTER = getattr(settings, 'NOTIFIER_FILTER', None)
 
@@ -59,8 +58,10 @@ class Notification(TimeStampedModel):
         (1, 'important', _('Important')),  # important, acknowledgement required
         (2, 'urgent', _('Urgent')),  # very important, acknowledgement required
     )
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name='notifications',
-                             on_delete=models.SET_NULL)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, blank=True, null=True, related_name='notifications',
+        on_delete=models.SET_NULL
+    )
     emails = models.JSONField(blank=True, default=list)
     kind = models.CharField("Type", max_length=100)
     level = models.PositiveSmallIntegerField(choices=LEVELS, default=LEVELS.info)
@@ -83,7 +84,8 @@ class Notification(TimeStampedModel):
 
     def deliver(self):
         note_type = self.note_type()
-        if self.state == self.STATES.queued and note_type.kind in [MessageTemplate.TYPES.email, MessageTemplate.TYPES.full]:
+        if self.state == self.STATES.queued and note_type.kind in [MessageTemplate.TYPES.email,
+                                                                   MessageTemplate.TYPES.full]:
             if self.user:
                 recipients = [self.user.email]
             elif self.emails:

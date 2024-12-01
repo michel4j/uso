@@ -4,10 +4,12 @@ from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils import timezone
 
-from settings import PROFILE_MANAGER
 from . import utils
 from isocron import BaseCronJob
 from notifier import notify
+
+
+USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER', None)
 
 
 class CleanRegistrations(BaseCronJob):
@@ -23,7 +25,7 @@ class SyncStaff(BaseCronJob):
     run_every = "P1D"
 
     def do(self):
-        staff_list = PROFILE_MANAGER.fetch_new_users()
+        staff_list = USO_PROFILE_MANAGER.fetch_new_users()
         updated = utils.create_users(staff_list)
         return "{} new staff members saved".format(updated)
 

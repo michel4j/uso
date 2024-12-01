@@ -10,11 +10,14 @@
 {% block page_heading %}{{ agreement.name }}{% endblock %}
 {% block full %}
     <div class="pagelet">
-        <div class="pagelet-body">
-            <div class="minitron">
+        <div class="pagelet-body" style="padding: 5em;">
+            <div class="minitron bg-transparent">
                 {{ agreement.content | markdown }}
             </div>
+            <hr class="hr-xs"/>
+            <div class="minitron bg-transparent">
             {% crispy form form.helper %}
+            </div>
 
         </div>
     </div>

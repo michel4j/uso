@@ -163,37 +163,35 @@ SERVER_EMAIL = "noreply@usonline.clsi"
 ADMINS = (
     ('Michel', 'michel.fodje@lightsource.ca'),
 )
-EMAIL_SUBJECT_PREFIX = '[CLS USO] '
+EMAIL_SUBJECT_PREFIX = '[USO] '
 
-SITE_URL = "http://localhost:9000"
+
+SITE_URL = "http://localhost:8080"
 CAS_SERVER_URL = "https://cas.lightsource.ca/cas/"
 CAS_SERVICE_DESCRIPTION = "User Services Online"
 CAS_LOGOUT_COMPLETELY = True
 CAS_SINGLE_SIGN_OUT = True
 CAS_VERSION = 3
 CAS_CREATE_USER = False
-
-OPEN_WEATHER_API_KEY = "fc083799c6457d859764913163f6b584"
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-TRAINING_SERVER = "https://localhost:9000"
-THROTTLE_KEY = get_random_bytes(16)
-
-USO_ADMIN_ROLES = ["administrator:uso", "developer-admin", "employee"]
-USO_ADMIN_PERMS = []
 
 from django.core.serializers import register_serializer
 register_serializer('yml', 'django.core.serializers.pyyaml')
 
 from users.profiles import ExternalProfileManager
 
-PROFILE_MANAGER = ExternalProfileManager
-
-PDB_FACILITIES = {
+USO_THROTTLE_KEY = get_random_bytes(16)
+USO_ADMIN_ROLES = ["administrator:uso", "developer-admin", "employee"]
+USO_USER_AGREEMENT = "80ae507a-d622-4792-b376-f9f5b4b02ae0"
+USO_ADMIN_PERMS = []
+USO_OPEN_WEATHER_KEY = "fc083799c6457d859764913163f6b584"
+USO_PROFILE_MANAGER = ExternalProfileManager
+USO_PDB_FACILITIES = {
     "CLSI08B1-1": ["CMCF-ID"],
     "CLSI08ID-1": ["CMCF-BM"],
 }
-
+ROLEPERMS_DEBUG = False
 try:
     from local.settings import *
 except ImportError:

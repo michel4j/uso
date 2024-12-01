@@ -56,7 +56,10 @@ class AgreementForm(forms.ModelForm):
             Div(
                 Div("name", css_class="col-sm-12"),
                 Div(Field("state", css_class="chosen"), css_class="col-sm-3"),
-                Div(Field("roles", css_class="chosen"), css_class="col-sm-9"),
+                Div(
+                    Field("roles", css_class="chosen", title="Users with these roles must accept the agreement."),
+                    css_class="col-sm-9"
+                ),
                 Div("description", css_class="col-sm-12"),
                 Div(Field("content", css_class="rich-text-input"), css_class="col-sm-12"),
                 css_class="row"

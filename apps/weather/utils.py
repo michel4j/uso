@@ -38,7 +38,7 @@ def get_conditions(city="6141256"):
     url = "https://api.openweathermap.org/data/2.5/weather"
     url_forecast = "https://api.openweathermap.org/data/2.5/forecast"
     params = {
-        "APPID": settings.OPEN_WEATHER_API_KEY, "id": city, "units": "metric"
+        "APPID": settings.USO_OPEN_WEATHER_KEY, "id": city, "units": "metric"
     }
     rc = requests.get(url, params=params)
     rf = requests.get(url_forecast, params=params)

@@ -22,7 +22,7 @@ KEYWORD_XPATH = {
     '10.1016': '//*[@class="svKeywords"]',
 }
 
-PDB_FACILITIES = getattr(settings, 'PDB_FACILITIES', {})
+USO_PDB_FACILITIES = getattr(settings, 'USO_PDB_FACILITIES', {})
 
 
 def join_names(authors):
@@ -84,7 +84,7 @@ THESIS_META_MAP = {
 def fetch_pdbs():
     biosync_urls = {
         f'https://biosync.sbkb.org/biosync_pdbtext/pdbtext{pdb_name}.txt': facilities
-        for pdb_name, facilities in PDB_FACILITIES.items()
+        for pdb_name, facilities in USO_PDB_FACILITIES.items()
     }
     pdb_data = {}
     for url, facilities in biosync_urls.items():
