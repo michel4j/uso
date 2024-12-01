@@ -326,7 +326,7 @@ class ResetPassword(FormView):
         return HttpResponseRedirect(reverse('user-dashboard'))
 
 
-class PasswordView(UpdateView):
+class PasswordChangeMixin:
     valid_days = 1
     model = models.SecureLink
     form_class = forms.PasswordForm
@@ -339,9 +339,16 @@ class PasswordView(UpdateView):
             return ['users/forms/form_message.html']
 
     def get_object(self, *args, **kwargs):
-        valid_date = timezone.now() - datetime.timedelta(days=self.valid_days)
+        valid_date = datetime.datetime.now() - datetime.timedelta(days=self.valid_days)
         self.object = self.model.objects.filter(created__gte=valid_date).filter(hash__exact=self.kwargs['hash']).first()
         return self.object
+
+
+class PasswordView(PasswordChangeMixin, UpdateView):
+    valid_days = 1
+    model = models.SecureLink
+    form_class = forms.PasswordForm
+    slug_url_kwarg = 'hash'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -400,7 +407,7 @@ class PasswordView(UpdateView):
         return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title})
 
 
-class VerifyView(PasswordView):
+class VerifyView(PasswordChangeMixin, UpdateView):
     model = models.Registration
     valid_days = 3
 
@@ -481,7 +488,7 @@ class VerifyView(PasswordView):
             initial['address'] = models.Address.objects.create(**address_info)
 
             # Call Profile Manager to add profile
-            username = initial.pop('username')
+            username = PROFILE_MANAGER.create_username(initial)
             password = initial.pop('password')
 
             user = models.User.objects.create_user(username, password, **initial)
