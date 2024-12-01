@@ -51,14 +51,16 @@ class ExternalProfileManager:
         pass
 
     @classmethod
-    def update_profile(cls, username, profile: dict, photo=None):
+    def update_profile(cls, username, profile: dict, photo=None) -> bool:
         """
         Called to update the profile in the remote source. User is expected to exist in the remote source.
 
         :param profile: Dictionary of profile parameters.
         :param photo: File-like object of the user's photo
+        :param username: username of the user to update
+        :return: True if successful, False otherwise.
         """
-        pass
+        return True
 
     @classmethod
     def fetch_new_users(cls) -> list[dict]:
@@ -116,9 +118,9 @@ class RemoteProfileManager(ExternalProfileManager):
         else:
             r = requests.patch(url, json=data, headers=cls.API_HEADERS, verify=cls.SSL_VERIFY_CERTS)
         if r.status_code == requests.codes.ok:
-            return r.json()
+            return True
         else:
-            return {}
+            return False
 
     @classmethod
     def fetch_new_users(cls) -> list[dict]:

@@ -1,15 +1,20 @@
 {% extends "users/registration.html" %}
 
-{% block page_title %}CLS User Office Online{% endblock %}
-{% block login-title %}Registration{% endblock %}
+{% block page_title %}User Services Online{% endblock %}
+{% block login-title %}{{ login_title|default:"" }}{% endblock %}
 {% block body_class %}registration password{% endblock %}
 
 {% block article-and-footer %}
 	<article class="main">
-    	<div class="tinytron bg-info" style="margin-top: 15px;">
+    	<div class="tinytron bg-transparent" style="margin-top: 15px;">
+        {% if mode == "error" %}
+            <div class="text-center text-danger-light"><i class="bi-exclamation-diamond icon-6"></i></div>
+        {% elif mode == "success" %}
+            <div class="text-center text-success-light"><i class="bi-check2-circle icon-6"></i></div>
+        {% endif %}
 		    <h3 class="text-condensed text-center">{{ title }}</h3>
             <hr class="hr-xs"/>
-            <h5>{% autoescape off %}{{ msg }}{% endautoescape %}</h5>
+            <h5 style="min-height: 150px;">{% autoescape off %}{{ msg }}{% endautoescape %}</h5>
 	    </div>
     </article>
 	<footer class="register-actions">

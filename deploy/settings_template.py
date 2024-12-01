@@ -42,6 +42,14 @@ EMAIL_HOST_PASSWORD = "<email-password>"
 EMAIL_PORT = 587
 EMAIL_HOST = "email-server.com"
 
+# Configure Facilities for fetching PDB entries
+# The key is the PDB ID in the format {SITE}{BEAMLINE}.  The value is a list of local facility acronyms to credit for
+# each PDB entry in that category. For example:
+PDB_FACILITIES = {
+    "CLSI08B1-1": ["CMCF-ID"],
+    "CLSI08ID-1": ["CMCF-BM"],
+    "CLSIUNKNOWN": ["CMCF-ID", "CMCF-BM"],
+}
 
 # To synchronize roles, permissions and other user attributes from a remote source like a People Database,
 # you can subclass RemoteProfileManager and set the appropriate URLs and fields, or you can override the

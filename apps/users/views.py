@@ -1,34 +1,29 @@
-
-
 import datetime
-import os
-import random
-
 import math
+
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.urls import reverse_lazy, reverse
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import DetailView, TemplateView, View
 from django.views.generic.edit import FormView, UpdateView, CreateView
+from itemlist.views import ItemListView
+from proxy.views import proxy_view
 
-from . import forms
-from . import models
-from . import utils
 from dynforms.views import DynCreateView
 from misc.models import ActivityLog
 from misc.views import JSONResponseMixin, ConfirmDetailView
 from notifier import notify
-from itemlist.views import ItemListView
-from proxy.views import proxy_view
 from publications import stats
 from roleperms.views import RolePermsViewMixin
-
+from . import forms
+from . import models
+from . import utils
 
 PROFILE_MANAGER = getattr(settings, 'PROFILE_MANAGER')
 SITE_URL = getattr(settings, 'SITE_URL', '')
@@ -287,16 +282,13 @@ class RegistrationView(DynCreateView):
         })
         title = "Thank you!"
         msg = "You should receive an email shortly with instructions to complete the creation of your account."
-        return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title})
+        return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title, 'mode': 'success'})
 
 
 API_ERRORS = {
-    404: "We can't find the right place to do what you want! Start over, or contact the USO for assistance at "
-         "clsuo@lightsource.ca or 306-657-3700.",
-    403: "It looks like you're not allowed to do that. If the error persists, contact the USO for assistance at "
-         "clsuo@lightsource.ca or 306-657-3700.",
-    500: "There was an error completing your request. If the error persists, contact the USO for assistance at "
-         "clsuo@lightsource.ca or 306-657-3700.",
+    404: "We can't find the right place to do what you want! Start over, or contact the User Office for assistance",
+    403: "It looks like you're not allowed to do that. If the error persists, contact the User Office for assistance",
+    500: "There was an error completing your request. If the error persists, contact the User Office for assistance",
 }
 
 
@@ -345,8 +337,6 @@ class PasswordChangeMixin:
 
 
 class PasswordView(PasswordChangeMixin, UpdateView):
-    valid_days = 1
-    model = models.SecureLink
     form_class = forms.PasswordForm
     slug_url_kwarg = 'hash'
 
@@ -356,12 +346,15 @@ class PasswordView(PasswordChangeMixin, UpdateView):
             context.update({
                 'title': "Sorry!  It looks like there's a problem.",
                 'msg': "Either the page you are looking for no longer exists or "
-                       "you are attempting to re-use a single-use url."
+                       "you are attempting to re-use a single-use url.",
+                'mode': "error",
+                "login_title": "Error!"
             })
         else:
             context.update({
                 'name': self.object.user.first_name,
                 'title': 'Choose a new password',
+                'login_title': 'Set Password'
             })
         return context
 
@@ -370,41 +363,40 @@ class PasswordView(PasswordChangeMixin, UpdateView):
             'username': self.object.user.username,
             'password': form.cleaned_data['password']
         }
-        response = PROFILE_MANAGER.update_profile(info['username'], info)
-        if response.status_code == 304:
-            title = "Sorry!  Your password could not be changed."
-            msg = 'Please try again with a different password or contact uso-support@lightsource.ca for assistance.'
-        elif not response.ok:
-            title = "Sorry!  It looks like there's a problem."
-            if response.status_code in list(API_ERRORS.keys()):
-                msg = API_ERRORS[response.status_code]
-            else:
-                msg = "There's something wrong with your request."
-            if response.status_code == 400:
-                try:
-                    msg = msg + '<br><ul><li>' + '</li><li>'.join(
-                        [f'{k}: {v[0]}' for k, v in response.json().items()]) + '</li></ul>'
-                except:
-                    pass
-        else:
-            title = "Success!"
-            msg = (
-                f"Your password has been changed.  A confirmation email containing your username "
-                f"will be sent to you .Once you receive it, you can proceed "
-                f"to <a href='{SITE_URL}{reverse_lazy('user-dashboard')}'>login</a>."
-            )
 
-            data = {
-                'name': self.object.user.first_name,
-                'username': self.object.user.username,
-                'login_url': f"{SITE_URL}{reverse_lazy('user-dashboard')}",
-            }
-            recipients = [self.object.user.email]
-            if self.object.user.alt_email:
-                recipients.append(self.object.user.alt_email)
-            notify.send(recipients, 'new-password', context=data)
-            self.object.delete()
-        return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title})
+        self.object.user.set_password(info['password'])
+        self.object.user.save()
+        try:
+            success = PROFILE_MANAGER.update_profile(info['username'], info)
+        except requests.RequestException as e:
+            title = "Sorry! Something went wrong with your request."
+            msg = 'Please contact the User Office for assistance.'
+            msg_mode = 'error'
+        else:
+            if not success:
+                title = "Sorry! SSomething went wrong with your request."
+                msg = 'Please contact the User Office for assistance.'
+                msg_mode = 'error'
+            else:
+                title = "Success!"
+                msg = (
+                    f"Your password has been changed.  A confirmation email containing your username "
+                    f"will be sent to you .Once you receive it, you can proceed "
+                    f"to <a href='{SITE_URL}{reverse_lazy('user-dashboard')}'>login</a>."
+                )
+                msg_mode = 'success'
+
+                data = {
+                    'name': self.object.user.first_name,
+                    'username': self.object.user.username,
+                    'login_url': f"{SITE_URL}{reverse_lazy('user-dashboard')}",
+                }
+                recipients = [self.object.user.email]
+                if self.object.user.alt_email:
+                    recipients.append(self.object.user.alt_email)
+                notify.send(recipients, 'new-password', context=data)
+        self.object.delete()
+        return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title, 'mode': msg_mode})
 
 
 class VerifyView(PasswordChangeMixin, UpdateView):
@@ -417,7 +409,9 @@ class VerifyView(PasswordChangeMixin, UpdateView):
             context.update({
                 'title': "Sorry!  It looks like there's a problem.",
                 'msg': "Either the page you are looking for no longer exists or "
-                       "you are attempting to re-use a single-use url."
+                       "you are attempting to re-use a single-use url.",
+                'mode': "error",
+                'login_title': "Error!"
             })
         else:
             context['name'] = self.object.details['names']['first_name']
@@ -457,10 +451,11 @@ class VerifyView(PasswordChangeMixin, UpdateView):
 
         # Add a message on the success page displaying the username?
         msg = title = ''
+        msg_mode = ''
         if info:
             # Email the user with their new username
             title = "Congratulations!"
-            msg = (f"You should receive an email containing your new CLS username. Once you've got it, go ahead "
+            msg = (f"You should receive an email containing your new username. Once you've got it, go ahead "
                    f"and <a href='{reverse('user-dashboard')}'>login</a>!")
 
             research_field = SubjectArea.objects.filter(pk__in=details.get('research-field', []))
@@ -500,9 +495,10 @@ class VerifyView(PasswordChangeMixin, UpdateView):
             }
             recipients = [user.email]
             notify.send(recipients, "new-account", context=data)
-            self.object.delete()
+            msg_mode = 'success'
 
-        return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title})
+        self.object.delete()
+        return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title, "mode": msg_mode})
 
 
 class UpdateUserProfile(RolePermsViewMixin, UpdateView):
@@ -529,7 +525,7 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial()
         user = self.get_object()
-        #user.fetch_profile(force=True)
+
         if user.address:
             address_info = {
                 k: getattr(user.address, k, '')
@@ -570,10 +566,10 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
         }
         # add student role if
         if obj.classification == 'student':
-            info['extra_roles'] = set(obj.roles) | {'high-school-student'}
+            info['roles'] = set(obj.roles) | {'high-school-student'}
 
-        # Call PeopleDirectory API "update_user"
-        response = PROFILE_MANAGER.update_profile(obj.username, info)
+        # Call PeopleDirectory API "update_profile"
+        PROFILE_MANAGER.update_profile(obj.username, info)
 
         obj.research_field.set(research_areas)
         messages.success(self.request, "{}'s profile updated.".format(obj))
@@ -602,7 +598,7 @@ class ChangePassword(RolePermsViewMixin, View):
 
 class PhotoView(View):
     def get(self, request, path=''):
-        photo_url = settings.PROFILE_MANAGER.get_user_photo_url(path)
+        photo_url = PROFILE_MANAGER.get_user_photo_url(path)
         return proxy_view(request, photo_url)
 
 

@@ -82,47 +82,6 @@ def json_default(obj):
     raise TypeError("Type not serializable")
 
 
-class JSONField(models.TextField):
-    description = "A field to store arbitrary python objects in JSON format"
-
-    def from_db_value(self, value, expression, connection):
-        if value is None or value == "":
-            return None
-        return json.loads(value)
-
-    def to_python(self, value):
-        if value is None:
-            return value
-        if not isinstance(value, str):
-            return value
-        return json.loads(value)
-
-    def get_prep_value(self, value):
-        return json.dumps(value, default=json_default)
-
-    def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
-        return self.get_prep_value(value)
-
-    def formfield(self, **kwargs):
-        defaults = {'form_class': JSONFormField}
-        defaults.update(kwargs)
-        return super().formfield(**defaults)
-
-
-class JSONFormField(forms.CharField):
-    widget = forms.Textarea
-
-    def to_python(self, value):
-        return json.loads(value)
-
-    def prepare_value(self, value):
-        return json.dumps(value, default=json_default)
-
-    def clean(self, value):
-        return self.to_python(value)
-
-
 STRING_LIST_PATTERN = re.compile(r"<([^><]+)>")
 FORM_FIELD_SPLITTER = re.compile(r"[,;<>]+")
 
@@ -147,8 +106,7 @@ class StringListField(models.TextField):
             return ""
 
     def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
-        return self.get_prep_value(value)
+        return self.get_prep_value(obj)
 
     def get_prep_lookup(self, lookup_type, value):
         if isinstance(value, list):

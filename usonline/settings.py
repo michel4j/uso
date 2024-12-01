@@ -189,19 +189,10 @@ from users.profiles import ExternalProfileManager
 
 PROFILE_MANAGER = ExternalProfileManager
 
-
-# FORM_TYPES = {
-#     'registration': 'registration',
-#     'proposal': 'proposal',
-#     'technical-review': 'technical-review',
-#     'scientific-review': 'scientific-review',
-#     'ethics-review': 'ethics-review',
-#     'safety-review': 'safety-review',
-#     'safety-approval': 'safety-approval',
-#     'equipment-review': 'equipment-review',
-#     'materials-amendment': 'materials-amendment',
-#     'feedback': 'feedback',
-# }
+PDB_FACILITIES = {
+    "CLSI08B1-1": ["CMCF-ID"],
+    "CLSI08ID-1": ["CMCF-BM"],
+}
 
 try:
     from local.settings import *

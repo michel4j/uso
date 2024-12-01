@@ -22,9 +22,10 @@ KEYWORD_XPATH = {
     '10.1016': '//*[@class="svKeywords"]',
 }
 
+PDB_FACILITIES = getattr(settings, 'PDB_FACILITIES', {})
+
 
 def join_names(authors):
-
     return '; '.join(a['name'] for a in authors)
 
 
@@ -81,14 +82,12 @@ THESIS_META_MAP = {
 
 
 def fetch_pdbs():
-    URLS = {
-        'UNK': 'https://biosync.sbkb.org/biosync_pdbtext/pdbtextCLSIUNKNOWN.txt',
-        'CMCF-BM': 'https://biosync.sbkb.org/biosync_pdbtext/pdbtextCLSI08B1-1.txt',
-        'CMCF-ID': 'https://biosync.sbkb.org/biosync_pdbtext/pdbtextCLSI08ID-1.txt'
+    biosync_urls = {
+        f'https://biosync.sbkb.org/biosync_pdbtext/pdbtext{pdb_name}.txt': facilities
+        for pdb_name, facilities in PDB_FACILITIES.items()
     }
-    BL_TRANS = {'UNK': ['CMCF-BM', 'CMCF-ID']}
-    PDB_DATA = {}
-    for bl, url in list(URLS.items()):
+    pdb_data = {}
+    for url, facilities in biosync_urls.items():
         r = requests.get(url)
         if r.status_code == requests.codes.ok:
             csvfile = StringIO(r.text)
@@ -98,11 +97,11 @@ def fetch_pdbs():
             for row in reader:
                 code = row['PDB_ID'].lower().strip()
                 row['PDB_ID'] = code
-                if code in PDB_DATA:
-                    PDB_DATA[code]['BEAMLINES'].append(bl)
+                if code in pdb_data:
+                    pdb_data[code]['BEAMLINES'].extend(facilities)
                 else:
-                    row['BEAMLINES'] = BL_TRANS.get(bl, [bl])
-                    PDB_DATA[code] = row
+                    row['BEAMLINES'] = facilities
+                    pdb_data[code] = row
                 add_pdb_entry(row)
 
 
@@ -328,19 +327,6 @@ def get_patent(number):
         'number': number,
     }
     return pp
-
-
-def make_journal_db():
-    journals = {}
-    with open(os.path.join(os.path.dirname(__file__), 'testing', 'cls-pubs.json'), 'r') as fobj:
-        pubs = json.load(fobj)
-
-    issns = list({p.get('issn') for p in list(pubs.values()) if p.get('issn')})
-    for issn in issns:
-        jinfo = get_journal(issn)
-        if jinfo:
-            journals[issn] = jinfo
-    return journals
 
 
 def get_resource_meta(doi, resource="works", debug=False):
