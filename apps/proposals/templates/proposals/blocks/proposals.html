@@ -26,6 +26,10 @@
                 </div>
             {% endfor %}
         </div>
+    {% else %}
+        <div class="tinytron bg-darken text-muted text-center">
+            There are currently no open calls for proposals.
+        </div>
     {% endif %}
 
     {% if drafts.count %}
