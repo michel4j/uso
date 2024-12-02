@@ -156,7 +156,9 @@ REST_FRAMEWORK = {
 }
 
 LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/logout/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 DEFAULT_FROM_EMAIL = "noreply@usonline.clsi"
 SERVER_EMAIL = "noreply@usonline.clsi"

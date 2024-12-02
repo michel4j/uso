@@ -1,12 +1,11 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-from django.views import generic
 from django.views.decorators.cache import cache_page
-
+from users.forms import LoginForm
 from . import views
 
 urlpatterns = [
-    path('login/', LoginView.as_view(template_name='admin/login.html'), name='portal-login'),
+    path('login/', LoginView.as_view(template_name='users/forms/login-form.html', form_class=LoginForm), name='portal-login'),
     path('logout/', LogoutView.as_view(), name='portal-logout'),
     path('registration/', views.RegistrationView.as_view(), name='portal-register'),
     path('registration/<str:hash>/', views.VerifyView.as_view(), name='portal-verify'),

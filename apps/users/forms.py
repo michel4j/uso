@@ -13,6 +13,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django.contrib.auth.forms import AuthenticationForm, UsernameField
 
 from dynforms.forms import DynFormMixin
 from misc.countries import COUNTRY_CODES
@@ -489,3 +490,36 @@ class ProfileForm(forms.Form):
                     ), active=True
                 ), ), 'person_id'
         )
+
+
+class LoginForm(AuthenticationForm):
+    username = UsernameField(
+        label=_("Username"),     widget=forms.TextInput(attrs={'autofocus': True}),
+    )
+    password = forms.CharField(
+        label=_("Password"), strip=False, widget=forms.PasswordInput,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = "login-form"
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('username', placeholder="Username", css_class="form-control input-md"),
+                    css_class="form-group left-inner-addon col-xs-12"
+                ), Div(
+                    Field('password', placeholder="Password", css_class="form-control input-md"),
+                    css_class="form-group left-inner-addon col-xs-12"
+                ),
+                css_class="row"
+            ), FormActions(
+                Div(
+                    Submit('submit', 'Login', css_class='bg-primary'),
+                    css_class="col-xs-12"
+                ),
+                css_class="row"
+            )
+        )
+

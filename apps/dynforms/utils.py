@@ -7,6 +7,7 @@ from base64 import b64decode, b64encode
 from collections.abc import MutableMapping
 
 from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
 from django.conf import settings
 from django.db.models import Q
 from django.urls import reverse
@@ -237,7 +238,7 @@ def build_url(*args, **kwargs):
 
 class Crypt:
     enc_dec_method = 'utf-8'
-    key = getattr(settings, "THROTTLE_KEY", b"")
+    key = getattr(settings, "USO_THROTTLE_KEY", get_random_bytes(16))
 
     @classmethod
     def encrypt(cls, str_to_enc):

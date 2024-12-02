@@ -3277,6 +3277,7 @@ label.pictogram {
 	cursor: default;
 }
 body.registration {
+	background: $background-color_50;
 	.aligner {
 		width: 100vw;
 		height: 100vh;
@@ -3395,6 +3396,12 @@ body.registration {
 .registration.password {
 	.page {
 		max-width: 550px;
+	}
+}
+.registration.login {
+	.page {
+		max-width: 400px;
+		min-height: 400px;
 	}
 }
 @media only screen and (max-width: 768px) {

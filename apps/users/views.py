@@ -36,7 +36,7 @@ class UserDetailView(RolePermsViewMixin, DetailView):
     slug_url_kwarg = 'username'
     owner_fields = ['*', ]
     admin_roles = ['administrator:uso']
-    template_name = "users/user_dashboard.html"
+    template_name = "users/user-dashboard.html"
 
     def get_object(self, *args, **kwargs):
         # inject username in to kwargs if not already present
@@ -56,7 +56,7 @@ class UserDetailView(RolePermsViewMixin, DetailView):
 
 
 class TemplateDetailView(RolePermsViewMixin, TemplateView):
-    template_name = "users/user_dashboard.html"
+    template_name = "users/user-dashboard.html"
 
 
 class SyncProfile(SuccessMessageMixin, RolePermsViewMixin, View):
@@ -269,7 +269,7 @@ class UserList(RolePermsViewMixin, ItemListView):
 
 
 class RegistrationView(DynCreateView):
-    template_name = "users/forms/registration_form.html"
+    template_name = "users/forms/registration-form.html"
     success_url = reverse_lazy("user-profile")
     form_class = forms.RegistrationForm
     model = models.Registration()
@@ -283,7 +283,7 @@ class RegistrationView(DynCreateView):
         })
         title = "Thank you!"
         msg = "You should receive an email shortly with instructions to complete the creation of your account."
-        return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title, 'mode': 'success'})
+        return render(self.request, 'users/forms/form-message.html', {'msg': msg, 'title': title, 'mode': 'success'})
 
 
 API_ERRORS = {
@@ -327,9 +327,9 @@ class PasswordChangeMixin:
 
     def get_template_names(self):
         if self.object:
-            return ["users/forms/password_form.html"]
+            return ["users/forms/password-form.html"]
         else:
-            return ['users/forms/form_message.html']
+            return ['users/forms/form-message.html']
 
     def get_object(self, *args, **kwargs):
         valid_date = datetime.datetime.now() - datetime.timedelta(days=self.valid_days)
@@ -397,7 +397,7 @@ class PasswordView(PasswordChangeMixin, UpdateView):
                     recipients.append(self.object.user.alt_email)
                 notify.send(recipients, 'new-password', context=data)
         self.object.delete()
-        return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title, 'mode': msg_mode})
+        return render(self.request, 'users/forms/form-message.html', {'msg': msg, 'title': title, 'mode': msg_mode})
 
 
 class VerifyView(PasswordChangeMixin, UpdateView):
@@ -499,7 +499,7 @@ class VerifyView(PasswordChangeMixin, UpdateView):
             msg_mode = 'success'
 
         self.object.delete()
-        return render(self.request, 'users/forms/form_message.html', {'msg': msg, 'title': title, "mode": msg_mode})
+        return render(self.request, 'users/forms/form-message.html', {'msg': msg, 'title': title, "mode": msg_mode})
 
 
 class UpdateUserProfile(RolePermsViewMixin, UpdateView):
@@ -626,3 +626,5 @@ class AdminResetPassword(RolePermsViewMixin, ConfirmDetailView):
         )
         utils.send_reset(self.object)
         return JsonResponse({"url": ""})
+
+
