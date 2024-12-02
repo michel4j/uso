@@ -9,6 +9,7 @@ from django import forms
 from django.urls import reverse
 from django.db.models import Case, When, Q, IntegerField, Sum, Value
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from . import models
@@ -318,12 +319,12 @@ class ReviewCycleForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Div(
-                Div(AppendedText("start_date", '<i class="bi-calendar"></i>'), css_class="col-sm-6"),
-                Div(AppendedText("end_date", '<i class="bi-calendar"></i>'), css_class="col-sm-6"),
-                Div(AppendedText("open_date", '<i class="bi-calendar"></i>'), css_class="col-sm-6"),
-                Div(AppendedText("close_date", '<i class="bi-calendar"></i>'), css_class="col-sm-6"),
-                Div(AppendedText("due_date", '<i class="bi-calendar"></i>'), css_class="col-sm-6"),
-                Div(AppendedText("alloc_date", '<i class="bi-calendar"></i>'), css_class="col-sm-6"),
+                Div(AppendedText("start_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
+                Div(AppendedText("end_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
+                Div(AppendedText("open_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
+                Div(AppendedText("close_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
+                Div(AppendedText("due_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
+                Div(AppendedText("alloc_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
                 css_class="row narrow-gutter"
             ),
             Div(

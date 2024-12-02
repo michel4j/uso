@@ -142,7 +142,7 @@ def get_author_matches(user):
 class ClaimPublicationList(RolePermsViewMixin, ItemListView):
     model = models.Publication
     admin_roles = ['publications-admin']
-    template_name = "publications/claim_publications.html"
+    template_name = "publications/claim-publications.html"
     paginate_by = 15
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
     list_columns = ['cite', 'kind']
@@ -508,7 +508,7 @@ def abbrev_author(name):
 class InstitutionMetrics(RolePermsViewMixin, TemplateView):
     admin_roles = ['publications-admin']
     allowed_roles = ['employee']
-    template_name = "publications/institution_metrics.html"
+    template_name = "publications/institution-metrics.html"
 
     def get_context_data(self, **kwargs):
         from users.models import Institution

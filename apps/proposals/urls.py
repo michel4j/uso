@@ -40,7 +40,7 @@ urlpatterns = [
     path('cycles/<int:cycle>/<str:track>/evaluation/', views.ReviewEvaluationList.as_view(), name='review-evaluation'),
     path('cycles/<int:cycle>/add-reviewer/<int:pk>/', views.AddReviewerAPI.as_view(), name="add-cycle-reviewer"),
     path('cycles/<int:cycle>/remove-reviewer/<int:pk>/', views.RemoveReviewerAPI.as_view(), name="del-cycle-reviewer"),
-    path('cycles/<int:pk>/reviewers/', views.AddReviewerList.as_view(), name="add-cycle-reviewers"),
+    path('cycles/<int:pk>/reviewers/', views.AddReviewerList.as_view(), name="change-cycle-reviewers"),
 
     path('reviewers/', views.ReviewerList.as_view(), name="reviewer-list"),
     path('reviewers/<int:pk>/edit/', views.EditReviewerProfile.as_view(), name="edit-reviewer-profile"),

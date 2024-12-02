@@ -841,6 +841,10 @@ legend {
 	min-height: 37px;
 	position: relative;
 	border-bottom: 1px solid rgba(0,0,0,0.15);
+
+	.row.my-2 {
+		padding: 15px 0;
+	}
 	.btn {
 		border: 1px solid transparent;
 		box-shadow: none;
@@ -1713,10 +1717,16 @@ div.narrow-gutter {
 }
 .claim-grid {
 	border-bottom: 1px solid #eee;
-	padding: 0.25em;
+	padding: 1em ;
 	line-height: 1.2;
 	&:hover {
 		background-color: $background-color_29;
+	}
+	.badge {
+		margin: 0.25em;
+		border-radius: 3px !important;
+		font-weight: normal !important;
+		margin-left: 0px;
 	}
 }
 .grid-cell {

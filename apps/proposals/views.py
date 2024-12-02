@@ -1717,8 +1717,7 @@ class ReviewerOptions(RolePermsViewMixin, TemplateView):
 class AddReviewerList(RolePermsViewMixin, ItemListView):
     model = models.Reviewer
     allowed_roles = ['administrator:uso']
-    template_name = "item-list.html"
-    grid_template = "proposals/add-reviewer-grid.html"
+    template_name = "proposals/add-cycle-reviewers.html"
     paginate_by = 60
     list_filters = ['modified', 'user__classification', 'cycles']
     list_columns = ['user', 'user__institution__name', 'technique_names', 'committee']
@@ -1729,16 +1728,17 @@ class AddReviewerList(RolePermsViewMixin, ItemListView):
 
     list_title = 'Add/Remove Reviewers'
 
-    def get_detail_url(self, obj):
+    def get_link_url(self, obj):
+        cycle = self.kwargs.get('cycle')
         if obj.pk in self.selected:
             return reverse_lazy(
                 'del-cycle-reviewer',
-                kwargs={self.detail_url_kwarg: getattr(obj, self.detail_url_kwarg)}
+                kwargs={self.link_kwarg: getattr(obj, self.link_kwarg), 'cycle': cycle}
             )
         else:
             return reverse_lazy(
-                'add-cycle-reviewer',
-                kwargs={self.detail_url_kwarg: getattr(obj, self.detail_url_kwarg)}
+                'change-cycle-reviewers',
+                kwargs={self.link_kwarg: getattr(obj, self.link_kwarg)}
             )
 
     def get_grid_template(self, obj):
@@ -1750,6 +1750,7 @@ class AddReviewerList(RolePermsViewMixin, ItemListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cycle'] = self.cycle
+        context['cycle_reviewers'] = self.selected
         return context
 
     def get_queryset(self, *args, **kwargs):
@@ -1771,7 +1772,7 @@ class AddReviewerAPI(RolePermsViewMixin, View):
                 self.request, messages.SUCCESS,
                 "Reviewer {} added to cycle {}.".format(reviewer, cycle)
             )
-        self.success_url = reverse_lazy('add-cycle-reviewers', kwargs={'pk': cycle.pk})
+        self.success_url = reverse_lazy('change-cycle-reviewers', kwargs={'pk': cycle.pk})
         return HttpResponseRedirect(self.success_url)
 
 
@@ -1786,7 +1787,7 @@ class RemoveReviewerAPI(RolePermsViewMixin, View):
                 self.request, messages.SUCCESS,
                 "Reviewer removed from cycle {}.".format(cycle)
             )
-        self.success_url = reverse_lazy('add-cycle-reviewers', kwargs={'pk': cycle.pk})
+        self.success_url = reverse_lazy('change-cycle-reviewers', kwargs={'pk': cycle.pk})
         return HttpResponseRedirect(self.success_url)
 
 
