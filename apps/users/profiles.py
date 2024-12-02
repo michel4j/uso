@@ -32,23 +32,23 @@ class ExternalProfileManager:
             raise ValueError('First name and last name are required to create a username.')
 
     @classmethod
-    def fetch_profile(cls, username: str):
+    def fetch_profile(cls, username: str) -> dict:
         """
         Called to fetch a user profile from the remote source. This is used to sync the specified user's
         profile from the remote source to the local database. Only fields specified in PROFILE_FIELDS will be changed in
         the User model.
         :param username: username of the user to fetch
-        :return:
+        :return: dictionary of profile parameters
         """
-        pass
+        return {}
 
     @classmethod
-    def create_profile(cls, profile: dict):
+    def create_profile(cls, profile: dict) -> dict:
         """
         Called to create a new profile in the remote source. User is expected to not exist in the remote source.
         :param profile: Dictionary of profile parameters.
         """
-        pass
+        return {}
 
     @classmethod
     def update_profile(cls, username, profile: dict, photo=None) -> bool:
@@ -68,7 +68,7 @@ class ExternalProfileManager:
         Fetch new users from the remote source. This is used to sync new users from the remote source to the local database.
         :return: list of dicts, one per user.
         """
-        pass
+        return []
 
     @classmethod
     def get_user_photo_url(cls, username: str):

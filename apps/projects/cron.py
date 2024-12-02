@@ -147,6 +147,10 @@ class CreateProjects(BaseCronJob):
 
         # convert rapid access proposals to projects
         cycle = ReviewCycle.objects.current().first()
+        if cycle is None:
+            log.append("No current cycle found")
+            return "\n".join(log)
+
         submissions = Submission.objects.filter(
             cycle__pk__gte=cycle.pk, track__special=True, state=Submission.STATES.reviewed, project__isnull=True
         ).distinct()

@@ -95,14 +95,15 @@ def fetch_pdbs():
             csvfile.seek(0)
             reader = csv.DictReader(csvfile, dialect=dialect)
             for row in reader:
-                code = row['PDB_ID'].lower().strip()
-                row['PDB_ID'] = code
-                if code in pdb_data:
-                    pdb_data[code]['BEAMLINES'].extend(facilities)
-                else:
-                    row['BEAMLINES'] = facilities
-                    pdb_data[code] = row
-                add_pdb_entry(row)
+                if 'PDB_ID' in row:
+                    code = row['PDB_ID'].lower().strip()
+                    row['PDB_ID'] = code
+                    if code in pdb_data:
+                        pdb_data[code]['BEAMLINES'].extend(facilities)
+                    else:
+                        row['BEAMLINES'] = facilities
+                        pdb_data[code] = row
+                    add_pdb_entry(row)
 
 
 def add_pdb_entry(p):
@@ -478,6 +479,9 @@ def _load_if():
 
 
 def _fetch_sjr(year):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+    }
     url = f'https://www.scimagojr.com/journalrank.php?category=0&area=0&year={year}&country=&order=sjr&page=0&min=0&min_type=cd&out=xls'
     return requests.get(url)
 
@@ -767,11 +771,11 @@ IFDB = {}
 def load_metrics():
     global SJRDB, IFDB
     for db in ['sjr', 'impact-factors']:
-        for path in [os.path.join(settings.LOCAL_DIR, 'metrics'), os.path.join(os.path.dirname(__file__), 'data')]:
-            db_file = os.path.join(path, '{0}.json'.format(db))
-            if os.path.exists(db_file):
-                DB_FILES[db] = db_file
-                break
+        path = os.path.join(settings.LOCAL_DIR, 'metrics')
+        db_file = os.path.join(path, f'{db}.json')
+        if os.path.exists(db_file):
+            DB_FILES[db] = db_file
+            break
     if 'sjr' in DB_FILES:
         with open(DB_FILES['sjr'], 'r') as f:
             SJRDB = json.load(f)

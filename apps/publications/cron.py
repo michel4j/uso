@@ -58,12 +58,15 @@ class UpdateMetrics(BaseCronJob):
         from publications import models
         out = ""
         last_year = date.today().year - 1
+        sjrdb_list = list(utils.SJRDB.values())
 
-        if 'Total Docs. ({0})'.format(last_year) in list(utils.SJRDB.values())[0]:
+        if not sjrdb_list and f'Total Docs. ({last_year})' in sjrdb_list[0]:
             return "SJR database is up-to-date on {0}".format(date.today())
 
         sjrdb = utils.get_sjr(last_year)
         if sjrdb:
+            metrics_dir = os.path.join(settings.LOCAL_DIR, 'metrics')
+            os.makedirs(metrics_dir, exist_ok=True)
             with open(os.path.join(settings.LOCAL_DIR, 'metrics', 'sjr.json'), 'w') as fobj:
                 json.dump(sjrdb, fobj)
 
