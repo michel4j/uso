@@ -1,42 +1,39 @@
-
-
 from collections import defaultdict
 from datetime import timedelta
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.utils import NestedObjects
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.urls import reverse_lazy, reverse
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.text import capfirst
 from django.views.generic import detail, edit, TemplateView, View
-from django.contrib.admin.utils import NestedObjects
+from itemlist.views import ItemListView
 from scipy import stats as scipy_stats
 
+from dynforms.views import DynUpdateView, DynCreateView
+from misc import filters
+from misc.models import ActivityLog
+from misc.views import ConfirmDetailView, ClarificationResponse, RequestClarification
+from notifier import notify
+from roleperms.views import RolePermsViewMixin
+from users.models import User
 from . import forms
 from . import models
 from . import utils
-from dynforms.views import DynUpdateView, DynCreateView
 from .filters import CycleFilterFactory
-from misc import filters
-from misc.models import ActivityLog
-
-from misc.views import ConfirmDetailView, ClarificationResponse, RequestClarification
-from notifier import notify
-from itemlist.views import ItemListView
-from roleperms.views import RolePermsViewMixin
 from .templatetags import proposal_tags
-from users.models import User
 
 
 def _state_lbl(st, obj=None):
     return '<i class="icon-1x {0} {1} text-center" title="{2}"></>'.format(proposal_tags.state_icon(st), st,
-                                                                         models.Proposal.STATES[st])
+                                                                           models.Proposal.STATES[st])
 
 
 def _fmt_beamlines(bls, obj=None):
@@ -1323,8 +1320,7 @@ class ReviewerList(RolePermsViewMixin, ItemListView):
     list_columns = ['user', 'institution', 'technique_names', 'area_names']
     list_search = ['user__first_name', 'user__last_name', 'user__email']
     link_url = 'edit-reviewer-profile'
-    order_by = ['-created']
-    ordering_proxies = {'user': 'user__last_name'}
+    ordering = ['-created']
     allowed_roles = ['administrator:uso']
 
 
@@ -1418,12 +1414,12 @@ class ReviewCompatibility(RolePermsViewMixin, detail.DetailView):
 class AssignedSubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    #grid_template = "proposals/assigned-grid.html"
+    # grid_template = "proposals/assigned-grid.html"
     paginate_by = 25
     list_columns = ['proposal', 'cycle', 'track', 'state']
     list_filters = ['created', 'state', 'track', 'cycle']
     list_search = ['proposal__title', 'proposal__id', 'proposal__team', 'proposal__keywords',
-                     'proposal__spokesperson__last_name']
+                   'proposal__spokesperson__last_name']
     link_url = "submission-detail"
     list_styles = {'proposal': 'col-xs-6'}
     order_by = ['-cycle__start_date', '-created']
@@ -1440,12 +1436,14 @@ class AssignedSubmissionList(RolePermsViewMixin, ItemListView):
 class ReviewerAssignments(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    #grid_template = "proposals/assigned-grid.html"
+    # grid_template = "proposals/assigned-grid.html"
     paginate_by = 20
     list_columns = ['proposal', 'cycle', 'track', 'state']
     list_filters = ['created', 'state', 'track', 'cycle']
-    list_search = ['proposal__title', 'proposal__id', 'proposal__team', 'proposal__keywords',
-                     'proposal__spokesperson__last_name']
+    list_search = [
+        'proposal__title', 'proposal__id', 'proposal__team', 'proposal__keywords',
+        'proposal__spokesperson__last_name'
+    ]
     link_url = "submission-detail"
     list_styles = {'proposal': 'col-xs-6'}
     order_by = ['-cycle__start_date', '-created']
@@ -1723,21 +1721,25 @@ class AddReviewerList(RolePermsViewMixin, ItemListView):
     grid_template = "proposals/add-reviewer-grid.html"
     paginate_by = 60
     list_filters = ['modified', 'user__classification', 'cycles']
-    list_columns = ['user', 'user__institution', 'committee', 'cycles__count']
+    list_columns = ['user', 'user__institution__name', 'technique_names', 'committee']
     list_search = ['user__first_name', 'user__last_name', 'user__email']
     order_by = ['user__last_name']
     ordering_proxies = {'user': 'user__last_name'}
     list_transforms = {'techniques': _name_list, 'areas': _name_list}
-    list_styles = {'areas': 'col-xs-4', 'cycles__count': "text-center", }
+
     list_title = 'Add/Remove Reviewers'
 
     def get_detail_url(self, obj):
         if obj.pk in self.selected:
-            return reverse_lazy('del-cycle-reviewer',
-                                kwargs={self.detail_url_kwarg: getattr(obj, self.detail_url_kwarg)})
+            return reverse_lazy(
+                'del-cycle-reviewer',
+                kwargs={self.detail_url_kwarg: getattr(obj, self.detail_url_kwarg)}
+            )
         else:
-            return reverse_lazy('add-cycle-reviewer',
-                                kwargs={self.detail_url_kwarg: getattr(obj, self.detail_url_kwarg)})
+            return reverse_lazy(
+                'add-cycle-reviewer',
+                kwargs={self.detail_url_kwarg: getattr(obj, self.detail_url_kwarg)}
+            )
 
     def get_grid_template(self, obj):
         if obj.pk in self.selected:
