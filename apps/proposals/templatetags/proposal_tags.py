@@ -140,11 +140,17 @@ def display_state(review):
 @register.simple_tag(takes_context=True)
 def get_approval_reviews(context):
     from samples.models import Hazard
+
     if hasattr(context.get('form', None), 'instance'):
         review = context['form'].instance
     else:
         return models.Review.objects.none()
-    reviews = review.reference.reviews.filter(kind__in=["safety", "ethics", "technical", "equipment"])
+
+    if hasattr(review, 'reference'):
+        reviews = review.reference.reviews.filter(kind__in=["safety", "ethics", "technical", "equipment"])
+    else:
+        return models.Review.objects.none()
+
     rev_list = []
     for r in reviews:
         if r.kind == 'ethics':
@@ -193,8 +199,11 @@ def all_reviews_completed(context):
         review = context['form'].instance
     else:
         return False
-    reviews = review.reference.reviews.filter(kind__in=[review.TYPES.safety, review.TYPES.ethics])
-    return 0 < reviews.count() == reviews.complete()
+    if hasattr(review, 'reference'):
+        reviews = review.reference.reviews.filter(kind__in=[review.TYPES.safety, review.TYPES.ethics])
+        return 0 < reviews.count() == reviews.complete()
+    else:
+        return False
 
 
 @register.filter

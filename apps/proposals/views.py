@@ -49,7 +49,7 @@ def _fmt_role(role, obj=None):
         return "&hellip;"
     name, realm = (role, '') if ':' not in role else role.split(':')
     if realm:
-        return "{} ({})".format(name.replace('-', ' ').title(), realm.upper())
+        return f"{name.replace('-', ' ').title()} ({realm.upper()})"
     else:
         return name.replace('-', ' ').title()
 

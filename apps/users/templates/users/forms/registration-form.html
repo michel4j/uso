@@ -43,7 +43,7 @@
                         {% for name, label in form.form_type.actions %}
                         <button type="submit" name="submit" value="Submit"
                                 class="btn bg-primary col-xs-6 col-sm-3 pull-right"><i
-                                class="bi-arrow-right-circle icon-1x"></i>&emsp;Submit
+                                class="bi-arrow-right-circle"></i>&emsp;Submit
                         </button>
                         <br>
                         {% endfor %}
@@ -54,11 +54,11 @@
             <footer class="register-actions" style="margin: 0 -15px;">
                 {% if forloop.counter < form.form_type.pages|length %}
                 <a class="btn btn-white btn-sm next-btn pull-right" href="#{{forloop.counter|add:1}}-form"
-                   data-toggle="tab">Continue&nbsp;<i class="bi-skip-forward icon-1x icon-fw"></i></a>
+                   data-toggle="tab">Continue&nbsp;<i class="bi-skip-forward icon-fw"></i></a>
                 {% endif %}
                 {% if forloop.counter > 1 %}
                 <a class="btn btn-white btn-sm back-btn pull-right" href="#{{forloop.counter|add:-1}}-form"
-                   data-toggle="tab"><i class="bi-skip-backward icon-1x icon-fw"></i>&nbsp;Back</a>
+                   data-toggle="tab"><i class="bi-skip-backward icon-fw"></i>&nbsp;Back</a>
                 {% endif %}
                 <p>
                     Already registered? <a href="{% url 'user-dashboard' %}">Login</a><br/>

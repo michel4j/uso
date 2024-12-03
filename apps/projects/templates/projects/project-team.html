@@ -50,7 +50,7 @@
                 {% if user.email.lower == member.email.lower and member != object.spokesperson %}
                 <a data-url="{% url 'remove-team' pk=project.pk user_pk=member.pk %}" class="pull-right"
                        title="Remove yourself from the team">
-                        <i class="bi-trash text-danger icon-1x"></i>
+                        <i class="bi-trash text-danger"></i>
                 </a>
                 {% endif %}
                 <img class="pull-left team-img" src="{{member.get_photo}}"
@@ -65,25 +65,25 @@
                     <span style="font-size: 90%;">
                         {% for perm_code in permissions.all %}
                             {% if member|has_perm:perm_code %}
-                                <i class="bi-check-circle-fill text-success-light icon-1x" title="{{ perm_code }}"></i>
+                                <i class="bi-check-circle-fill text-success-light" title="{{ perm_code }}"></i>
                             {% else %}
-                                <i class="bi-x-circle-fill text-danger-light icon-1x" title="{{ perm_code }}"></i>
+                                <i class="bi-x-circle-fill text-danger-light" title="{{ perm_code }}"></i>
                             {% endif %}
                         {% endfor %}
                         {% for perm_code in permissions.any %}
                             {% if member|has_perm:perm_code %}
-                                <i class="bi-check-circle-fill text-success-light icon-1x" title="{{ perm_code }}"></i>
+                                <i class="bi-check-circle-fill text-success-light" title="{{ perm_code }}"></i>
                             {% else %}
-                                <i class="bi-x-circle-fill text-warning-light icon-1x" title="{{ perm_code }}"></i>
+                                <i class="bi-x-circle-fill text-warning-light" title="{{ perm_code }}"></i>
                             {% endif %}
                         {% endfor %}
                         {% for beamline in object.beamlines.distinct|no_equipment %}
                             {% if member|is_user:beamline %}
-                                <i class="bi-check-circle-fill text-success-light icon-1x" title="{{beamline.acronym}}-USER"></i>
+                                <i class="bi-check-circle-fill text-success-light" title="{{beamline.acronym}}-USER"></i>
                             {% elif member|is_remote_user:beamline %}
-                                <i class="bi-check-circle-fill text-success-light icon-1x" title="{{beamline.acronym}}-REMOTE-USER"></i>
+                                <i class="bi-check-circle-fill text-success-light" title="{{beamline.acronym}}-REMOTE-USER"></i>
                             {% else %}
-                                <i class="bi-x-circle-fill text-danger-light icon-1x" title="{{beamline.acronym}}-USER"></i>
+                                <i class="bi-x-circle-fill text-danger-light" title="{{beamline.acronym}}-USER"></i>
                             {% endif %}
                         {% endfor %}
                     </span>
@@ -103,7 +103,7 @@
                 <hr class="hr-xs"/>
                 <div>
                     <span style="font-size: 90%;">
-                        <i class="bi-x-circle-fill text-danger-light icon-1x" title="Registered"></i>
+                        <i class="bi-x-circle-fill text-danger-light" title="Registered"></i>
                     </span>
                 </div>
             </div>
