@@ -1142,12 +1142,20 @@ a[disabled] {
 		color: $color_8;
 	}
 }
+.checkbox, .radio {
+	margin-top: 0;
+}
+.radio-inline + .radio-inline,
+.checkbox-inline + .checkbox-inline {
+  margin-top: 0;
+  margin-left: 0;
+}
 .checkbox.disabled {
 	pointer-events: none;
 	color: $color_8;
 }
-label.checkbox-inline {
-	margin-left: 10px;
+.checkbox-inline, .radio-inline {
+	margin-right: 1em;
 }
 .field-w1 {
 	label.checkbox-inline {
@@ -2655,7 +2663,7 @@ input[checked=checked] {
 			}
 		}
 	}
-	.checkbox {
+	.checkbox{
 		input+label {
 			&::before {
 				margin-top: 2px;
@@ -3202,6 +3210,31 @@ ul.filter-list {
 .icon-inverse {
 	color: $color_1;
 }
+
+.checkbox, .radio {
+	input[type=radio], input[type=checkbox] {
+
+	}
+}
+
+//label {
+//	&:has(input[type=radio]) {
+//		position: relative;
+//		padding-left: 1.5em;
+//		line-height: 1.3;
+//		cursor: pointer;
+//		font-weight: normal;
+//	}
+//
+//	&:has(input[type=checkbox]) {
+//		position: relative;
+//		padding-left: 1.5em;
+//		line-height: 1.3;
+//		cursor: pointer;
+//		font-weight: normal;
+//	}
+//}
+
 
 label.pictogram {
 	&::before {

@@ -5,12 +5,14 @@
 
 <div class="controls {% if 'inline' in field.options %}controls-inline{% endif %} {{repeatable}}" id="{{field.name}}-controls">
 	{% for choice in subj_areas %}
-       	<label class="checkbox" for="{{field.name}}_{{forloop.counter}}">
+        <div class="checkbox">
+       	<label for="{{field.name}}_{{forloop.counter}}">
             <input name="{{field.name}}"
                 id="{{field.name}}_{{forloop.counter}}"
                 value="{{choice.pk}}"
                 {% if choice.pk in data %}checked="checked"{% endif %}
        	        type="checkbox">{{choice}}
         </label>
+        </div>
 	{% endfor %}
 </div>

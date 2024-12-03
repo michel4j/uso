@@ -2,15 +2,18 @@
 {% load dynforms_tags %}
 <div class="controls {% if 'inline' in field.options %}controls-inline{% endif %} {{repeatable}}" id="{{field.name}}-controls">
 	{% for choice in field|group_choices:data|randomize_choices:field %}
-       	<label class="checkbox" for="{{field.name}}_{{forloop.counter}}">
+        <div class="checkbox">
+       	<label for="{{field.name}}_{{forloop.counter}}">
             <input name="{{field.name}}"
        	        id="{{field.name}}_{{forloop.counter}}"
        	        value="{{choice.value}}"
        	        {% if choice.selected %}checked="checked"{% endif %}
        	        type="checkbox">{{choice.label}}
         </label>
+        </div>
 	{% endfor %}
 	{% if "other" in field.options %}
+        <div class="checkbox">
         <label class="other-input-label" for="{{field.name}}_other" ><input id="{{field.name}}_othersrc"  type="text" placeholder="Other" value="{{field.other_choice}}">
             <input id="{{field.name}}_other"
               name="{{field.name}}"
@@ -18,6 +21,7 @@
               aria-label="Other"
               type="checkbox" {% if field.other_choice in data %}checked="checked"{% endif %}>
         </label>
+        </div>
 	{% endif %}
 </div>
 <script>
