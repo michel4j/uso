@@ -10,7 +10,7 @@
 			<div id="{{field.name}}-{{sample.pk}}-ethics-container" class="tinytron bg-white {% if decision == 'rejected' %}bg-danger{% endif %}">
 				<div class="row">
 					<div class="col-xs-12">
-						<i class="ti-{% if sample.is_editable %}unlock{% else %}lock{% endif %} pull-left icon-2" style="padding: 0.75em 0.35em; color: rgba(0,0,0,0.35)"></i>
+						<i class="bi-{% if sample.is_editable %}unlock{% else %}lock{% endif %} pull-left icon-2" style="padding: 0.75em 0.35em; color: rgba(0,0,0,0.35)"></i>
 
 						<h5 class="no-vmargin text-condensed"><strong>{{ sample.name }}</strong></h5>
 						Quantity: <em class="text-muted">{{ quantity }}</em>&emsp;
