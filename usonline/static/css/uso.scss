@@ -1535,7 +1535,7 @@ body.error-body {
 	min-height: 80vh;
 }
 .tinytron {
-	padding: 0.75em;
+	padding: 0.75em !important;
 	margin-bottom: 0.75em;
 	border: 1px solid transparent;
 }
@@ -1550,12 +1550,12 @@ body.error-body {
 	border-radius: 0;
 }
 .minitron {
-	padding: 1em;
+	padding: 1em !important;
 	margin-bottom: 1em;
 	border: 1px solid transparent;
 }
 .miditron {
-	padding: 1.5em;
+	padding: 1.5em !important;
 	margin-bottom: 1.5em;
 	border: 1px solid transparent;
 }
