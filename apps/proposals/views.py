@@ -590,7 +590,7 @@ class PrintReviewDoc(RolePermsViewMixin, detail.DetailView):
 
 
 class EditReview(RolePermsViewMixin, DynUpdateView):
-    queryset = models.Review.objects.exclude(state=models.Review.STATES.closed)
+    queryset = models.Review.objects.all()
     form_class = forms.ReviewForm
     template_name = "proposals/review_form.html"
     allowed_roles = ['administrator:uso']
@@ -600,7 +600,11 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         allowed = super().check_allowed()
         if not allowed:
             obj = self.get_object()
-            allowed = (obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
+            allowed = (
+                obj.state != models.Review.STATES.closed
+                and (obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
+            )
+
         return allowed
 
     def get_context_data(self, **kwargs):

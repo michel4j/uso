@@ -3211,11 +3211,12 @@ ul.filter-list {
 	color: $color_1;
 }
 
-.checkbox, .radio {
-	input[type=radio], input[type=checkbox] {
-
+.controls {
+	label {
+		line-height: 1.5;
 	}
 }
+
 
 //label {
 //	&:has(input[type=radio]) {
