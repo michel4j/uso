@@ -21,11 +21,11 @@
             <h3 class="no-vmargin">
                 From {{ config.cycle.start_date|date:"M jS/Y" }}
                 {% if active %}
-                    <em><strong class="text-condensed">&mdash; Current</strong></em>
+                    <strong class="text-condensed">&mdash; Current</strong>
                     {% elif pending %}
-                    <em class="text-condensed text-warning">&mdash; Pending</em>
+                    <strong class="text-condensed text-warning">&mdash; Pending</strong>
                     {% else %}
-                    <em class="text-condensed text-muted">&mdash; expired</em>
+                    <strong class="text-condensed text-muted">&mdash; expired</strong>
                 {% endif %}
             </h3>
             <span class="text-muted">Created on {{ config.created|date }}, last modified {{ config.modified|timesince }} ago</span>

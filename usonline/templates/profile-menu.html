@@ -5,7 +5,6 @@
             <i class="bi-chevron-down"></i>
         </a>
         <ul class="dropdown-menu">
-            <li>{{ user }}</li>
             <li><a href="{% url 'edit-my-profile' %}"><i class="bi-person-gear icon-fw"></i>&nbsp;Edit profile</a></li>
             {% if request.user.can_review %}<li><a href="{% url 'edit-reviewer-profile' %}"><i class="bi-sliders icon-fw"></i>&nbsp;Reviewer Expertise</a></li>{% endif %}
             <!--li><a href="{% url 'sync-profile' %}"><i class="bi-arrow-clockwise icon-fw"></i>&nbsp;Synchronize</a></li-->

@@ -1,37 +1,43 @@
-{% extends "folio.html" %}
+{% extends "item-list.html" %}
 {% load static %}
-{% load itemlist %}
 
 
-{% block page_heading %}{% itemlist_heading %}{% endblock %}
-{% block folio-header %}{% endblock %}
-{% block folio-no-header %}{% endblock %}
 {% block folio-content %}
-
-
-    <div class="pagelet-body">
-{% include "itemlist/filters.html" %}
-{% for object in object_list %}
-<div class="grid-cell col-xs-12">
-{% if request.user not in object.users.all %}
-  <div class="claim-grid">
-  		<div>{{object.cite|safe}}.</div>
-  		<div style="position: absolute; right: 0; top: 25%;">
-  			<a data-toggle="tooltip" title="Add to my list!" href="{% url 'claim-publication' pk=object.pk %}" class="btn btn-xs btn-success"><i class="bi-plus-lg icon-1x icon-fw"></i></a>
-  		</div>
-  </div>
-{% else %}
-      <div class="claim-grid">
-  		<div>{{object.cite|safe}}.</div>
-  		<div style="position: absolute; right: 0; top: 25%;">
-  			<a data-toggle="tooltip" title="Remove from list!" href="{% url 'unclaim-publication' pk=object.pk %}" class="btn btn-xs btn-danger"><i class="bi-dash-lg icon-fw"></i></a>
-  		</div>
-  </div>
-{% endif %}
-</div>
-{% endfor %}
-{% include "itemlist/pagination.html" %}
+    <div class="pad-wrapper">
+        <div class="row">
+            <div class="list-tools">
+                <span>
+                {% include "itemlist/filters.html" %}
+                </span>
+            </div>
+        </div>
+        <div class="row">
+            {% for object in object_list %}
+                <div class="grid-cell col-xs-12">
+                    {% if request.user not in object.users.all %}
+                        <div class="claim-grid">
+                            <div>{{ object.cite|safe }}.</div>
+                            <div style="position: absolute; right: 2em; top: 25%;">
+                                <a data-toggle="tooltip" title="Add to my list!"
+                                   href="{% url 'claim-publication' pk=object.pk %}" class="btn btn-xs btn-success"><i
+                                        class="bi-plus-lg icon-1x icon-fw"></i></a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="claim-grid">
+                            <div>{{ object.cite|safe }}.</div>
+                            <div style="position: absolute; right: 2em; top: 25%;">
+                                <a data-toggle="tooltip" title="Remove from list!"
+                                   href="{% url 'unclaim-publication' pk=object.pk %}"
+                                   class="btn btn-xs btn-danger"><i class="bi-dash-lg icon-fw"></i></a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            {% include "itemlist/pagination.html" %}
+        </div>
     </div>
-
 {% endblock %}
+
 

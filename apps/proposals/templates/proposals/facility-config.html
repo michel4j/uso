@@ -31,13 +31,9 @@
 {% block folio-content %}
     <div class="pagelet-body">
         {% for config in object.configs.pending %}
-            {% if forloop.first %}<h3>Pending Configurations</h3>{% endif %}
             {% include "proposals/config_box.html" with pending=True %}
         {% endfor %}
-
         {% include "proposals/config_box.html" with config=object.active_config active=True %}
-
-
         {% for config in object.configs.expired %}
             {% if forloop.first %}<h3>Previous Configurations</h3>{% endif %}
              {% include "proposals/config_box.html" %}

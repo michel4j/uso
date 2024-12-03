@@ -10,7 +10,8 @@ urlpatterns = [
     path('facilities/<int:pk>/edit/', views.EditFacility.as_view(), name='edit-beamline'),
     path('facilities/<int:fac>/support/<int:pk>/', views.ScheduleSupport.as_view(), name="schedule-support"),
     path(
-        'facilities/config/<int:pk>/', views.BeamlineDetail.as_view(template_name="proposals/fac_configs.html"),
+        'facilities/config/<int:pk>/',
+        views.BeamlineDetail.as_view(template_name="proposals/facility-config.html"),
         name='facility-config-detail'
     ),
     path('facilities/port/<slug:port>/', views.PortDetails.as_view(), name='port-details'),

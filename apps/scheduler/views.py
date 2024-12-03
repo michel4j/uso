@@ -177,7 +177,6 @@ class ModeEditor(EventEditor):
 class FacilityModeListAPI(generics.ListAPIView):
     model = models.Mode
     serializer_class = serializers.ModeSerializer
-    #permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     parser_classes = (JSONParser,)
 
     def get_queryset(self, *args, **kwargs):
@@ -185,8 +184,8 @@ class FacilityModeListAPI(generics.ListAPIView):
             schedule__state__in=[models.Schedule.STATES.live, models.Schedule.STATES.tentative]
         )
         if self.request.GET.get('start') and self.request.GET.get('end'):
-            start = self.request.GET.get('start')
-            end = self.request.GET.get('end')
+            start = timezone.make_aware(parser.parse(self.request.GET.get('start')))
+            end = timezone.make_aware(parser.parse(self.request.GET.get('end')))
         else:
             start = timezone.now().date().replace(day=1)
             end = start + timedelta(days=calendar.monthrange(start.year, start.month)[1])

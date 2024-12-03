@@ -46,7 +46,7 @@ $color_45: rgba(255,255,255,0.25);
 $color_46: #333;
 $font-family_1: "Fira Sans",sans-serif;
 $font-family_2: "Fira Code",monospace;
-$font-family_3: "Fira Sans Condensed",sans-serif;
+$font-family-condensed: "Fira Sans Condensed",sans-serif;
 $font-family_4: bootstrap-icons;
 $font-family_5: inherit;
 $background-color_1: #eee;
@@ -400,7 +400,7 @@ nav.sidebar {
 				text-decoration: none !important;
 				border-left: 3px solid transparent;
 				span {
-					font-family: $font-family_3;
+					font-family: $font-family-condensed;
 					display: block;
 					font-size: 95%;
 					font-weight: 200;
@@ -1552,8 +1552,12 @@ body.error-body {
 	border: 1px solid transparent;
 }
 hr {
-	border-top: 1px solid rgba(0,0,0,0.1);
+	border-top: 1px solid $background-color_45;
+	&.dotted {
+		border-style: dotted;
+	}
 }
+
 .bg-notes-warning {
 	background-color: $background-color_15;
 	background: linear-gradient(#fefcaf, #fffeee);
@@ -1722,15 +1726,17 @@ div.narrow-gutter {
 	&:hover {
 		background-color: $background-color_29;
 	}
-	.badge {
-		margin: 0.25em;
+	.label {
+		font-family: $font-family-condensed;
+		display: inline-block;
+		margin: 0.15em;
+		font-size: 85%;
 		border-radius: 3px !important;
 		font-weight: normal !important;
 		margin-left: 0px;
 	}
 }
 .grid-cell {
-	padding: 0.5em;
 	a.btn {
 		display: none;
 	}
@@ -2267,7 +2273,7 @@ a {
 }
 svg {
 	.subject-label {
-		font-family: $font-family_3;
+		font-family: $font-family-condensed;
 		font-weight: 400;
 	}
 }
@@ -2370,8 +2376,8 @@ div.dashboard {
 }
 .team-img {
 	border-radius: 5%;
-	width: 3em;
-	height: 3em;
+	width: 5em;
+	height: 5em;
 	background-size: contain;
 	margin-right: 10px;
 }
@@ -2396,15 +2402,9 @@ div.dashboard {
 		div.radio {
 			text-align: center;
 			margin: 0 !important;
+			padding-left: 0.5em;
 			label {
 				padding: 0;
-			}
-		}
-		.radio {
-			input+label {
-				&::before {
-					margin: 0 !important;
-				}
 			}
 		}
 	}
@@ -2558,10 +2558,10 @@ input[checked=checked] {
 	line-height: inherit !important;
 }
 .text-condensed {
-	font-family: $font-family_3;
+	font-family: $font-family-condensed;
 }
 .text-narrow {
-	font-family: $font-family_3;
+	font-family: $font-family-condensed;
 }
 .text-wide {
 	font-family: $font-family_1;
@@ -3202,65 +3202,7 @@ ul.filter-list {
 .icon-inverse {
 	color: $color_1;
 }
-input[type=radio] {
-	visibility: hidden;
-	position: fixed;
-}
-input[type=checkbox] {
-	visibility: hidden;
-	position: fixed;
-}
-label {
-	&:has(input[type=radio]) {
-		position: relative;
-		padding-left: 1.5em;
-		line-height: 1.5;
-		cursor: pointer;
-		font-weight: normal;
-		&::before {
-			font-family: $font-family_4;
-			display: inline-block;
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 1.3em;
-			height: 1.3em;
-			color: $color_6;
-			content: "\F28A ";
-		}
-		&:has(input:checked) {
-			&::before {
-				content: "\F26A ";
-				color: $color_2;
-			}
-		}
-	}
 
-	&:has(input[type=checkbox]) {
-		position: relative;
-		padding-left: 1.5em;
-		line-height: 2;
-		cursor: pointer;
-		font-weight: normal;
-		&::before {
-			font-family: $font-family_4;
-			display: inline-block;
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 1.3em;
-			height: 1.3em;
-			color: $color_6;
-			content: "\F584 ";
-		}
-		&:has(input:checked) {
-			&::before {
-				content: "\F26C ";
-				color: $color_2;
-			}
-		}
-	}
-}
 label.pictogram {
 	&::before {
 		visibility: hidden;

@@ -1,51 +1,58 @@
-{% extends "folio.html" %}
+{% extends "item-list.html" %}
 {% load static %}
-{% load itemlist %}
 
-
-{% block page_heading %}{% itemlist_heading %}{% endblock %}
-{% block folio-header %}{% include "itemlist/filters.html" %}{% endblock %}
 
 {% block folio-content %}
-    <div class="pagelet-body">
-        {% for object in object_list %}
-            <div class="grid-cell col-xs-12">
-                <div class="claim-grid {% if object.pk in cycle_reviewers %}bg-success{% else %}bg-darken{% endif %}">
-                    <h5>
-                        <strong>{{ object.user }}</strong><span>&mdash; {{ object.user.institution|default:"Unknown Institution" }}</span>
-                        {% if object.committee %}
-                            <span title="PRC Member({{ object.committee }})"
-                                  style="margin-right: 0.25em;">
+    <div class="pad-wrapper">
+        <div class="row">
+            <div class="list-tools">
+                <span>
+                {% include "itemlist/filters.html" %}
+                </span>
+            </div>
+        </div>
+        <div class="row">
+            {% for object in object_list %}
+                <div class="grid-cell col-xs-12">
+                    <div class="claim-grid {% if object.pk in cycle_reviewers %}bg-success{% else %}{% endif %}">
+                        <h5>
+                            <strong>{{ object.user }}</strong><span>&mdash; {{ object.user.institution|default:"Unknown Institution" }}</span>
+                            {% if object.committee %}
+                                <span title="PRC Member({{ object.committee }})"
+                                      style="margin-right: 0.25em;">
                                 <i class="bi-award icon-1x text-warning" style="line-height: 1;"></i>
                             </span>
-                        {% endif %}
-                    </h5>
-                    <hr class="hr-xs"/>
-                    {% for technique in object.techniques.all %}
-                        <span class="badge progress-bar-info" title="{{ technique.name }}">{{ technique.acronym|default:technique.name }}</span>
-                    {% endfor %}
-                    {% for area in object.areas.all %}
-                        <span class="badge" title="Area">{{ area.name }}</span>
-                    {% endfor %}
+                            {% endif %}
+                        </h5>
+                        <hr class="hr-sm dotted"/>
+                        {% for technique in object.techniques.all %}
+                            <span class="label label-primary"
+                                  title="{{ technique.name }}">{{ technique.acronym|default:technique.name }}</span>
+                        {% endfor %}
+                        {% for area in object.areas.all %}
+                            <span class="label label-success" title="Area">{{ area.name }}</span>
+                        {% endfor %}
 
-                    <div style="position: absolute; right: 1em; top: 1em;">
-                        {% if object.pk not in cycle_reviewers %}
-                            <a data-toggle="tooltip" title="Add to Cycle!"
-                               href="{% url 'add-cycle-reviewer' cycle=cycle.pk pk=object.pk %}"
-                               class="btn btn-xs btn-success"><i class="bi-plus-lg icon-1x icon-fw"></i>
-                            </a>
-                        {% else %}
-                            <a data-toggle="tooltip" title="Remove from Cycle!"
-                               href="{% url 'del-cycle-reviewer' cycle=cycle.pk pk=object.pk %}"
-                               class="btn btn-xs btn-danger"><i class="bi-dash-lg icon-fw"></i>
-                            </a>
-                        {% endif %}
+                        <div style="position: absolute; right: 1em; top: 1em;">
+                            {% if object.pk not in cycle_reviewers %}
+                                <a data-toggle="tooltip" title="Add to Cycle!"
+                                   href="{% url 'add-cycle-reviewer' cycle=cycle.pk pk=object.pk %}"
+                                   class="btn btn-xs btn-success"><i class="bi-plus-lg icon-1x icon-fw"></i>
+                                </a>
+                            {% else %}
+                                <a data-toggle="tooltip" title="Remove from Cycle!"
+                                   href="{% url 'del-cycle-reviewer' cycle=cycle.pk pk=object.pk %}"
+                                   class="btn btn-xs btn-danger"><i class="bi-dash-lg icon-fw"></i>
+                                </a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
-        {% include "itemlist/pagination.html" %}
+            {% endfor %}
+            {% include "itemlist/pagination.html" %}
+        </div>
     </div>
-
 {% endblock %}
+
+
 

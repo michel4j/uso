@@ -121,7 +121,6 @@ class SampleListView(RolePermsViewMixin, ItemListView):
     link_attr = 'data-url'
     list_filters = ['kind', 'state']
     list_columns = ['name', 'description', 'kind', 'state']
-    list_styles = {'name': "col-xs-4", 'description': 'col-xs-4'}
     list_search = ['name', 'description', 'state', 'kind']
     order_by = ['-created', ]
     owner_field = 'owner'

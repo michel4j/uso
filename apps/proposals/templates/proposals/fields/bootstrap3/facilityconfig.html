@@ -4,12 +4,14 @@
 {% get_all_tracks as tracks %}
 {% get_technique_options settings=field.value as groups %}
 
-<div class="controls {{ field_class }}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %} id="{{ field.name }}-controls">
+<div class="controls {{ field_class }}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}
+     id="{{ field.name }}-controls">
     {% include 'bootstrap3/layout/field_errors_block.html' %}
 
     <ul class="nav nav-tabs" role="tablist">
         {% for group, techniques in groups.items %}
-            <li role="presentation" class="text-narrow {% if not forloop.counter0 %}active{% endif %}" style="margin-bottom: -2px;">
+            <li role="presentation" class="text-narrow {% if not forloop.counter0 %}active{% endif %}"
+                style="margin-bottom: -2px;">
                 <a href="#{{ field.name }}group-{{ forloop.counter0 }}"
                    aria-controls="{{ field.name }}group-{{ forloop.counter0 }}" role="tab" data-toggle="tab">
                     <span>{{ group }}</span>
@@ -26,7 +28,7 @@
                 <table class="config-list table table-hover table-condensed">
                     <thead>
                     <tr>
-                        <th class="col-xs-9">Techniques</th>
+                        <th>Techniques</th>
                         {% for track in tracks %}
                             <th class="col-xs-1" title="{{ track }} Review Track">{{ track.acronym }}</th>{% endfor %}
                         <th title="Technique Not Available" class="col-xs-1">N/A</th>
@@ -35,33 +37,34 @@
                     <tbody>
                     {% for technique, value in techniques %}
                         <tr>
-                            <td class="col-xs-9">
+                            <td>
                                 {{ technique }}
                                 <input type="hidden" name="{{ field.name }}.technique.{{ technique.pk }}"
                                        value="{{ technique.pk }}">
                             </td>
-
                             {% for track in tracks %}
-                                <td class="col-xs-1">
+                                <td>
                                     <div class="radio">
-                                        <input name="{{ field.name }}.value.{{ technique.pk }}"
-                                               id="{{ field.name }}_{{ technique.pk }}_{{ track.acronym }}"
-                                               value="{{ track.acronym }}"
-                                               {% if value == track.acronym %}checked="checked"{% endif %}
-                                               type="radio">
-                                        <label for="{{ field.name }}_{{ technique.pk }}_{{ track.acronym }}"></label>
+                                        <label for="{{ field.name }}_{{ technique.pk }}_{{ track.acronym }}"
+                                        ><input name="{{ field.name }}.value.{{ technique.pk }}"
+                                                id="{{ field.name }}_{{ technique.pk }}_{{ track.acronym }}"
+                                                value="{{ track.acronym }}"
+                                                {% if value == track.acronym %}checked="checked"{% endif %}
+                                                type="radio"
+                                        ></label>
                                     </div>
                                 </td>
                             {% endfor %}
                             <td>
                                 <div class="radio">
-                                    <input name="{{ field.name }}.value.{{ technique.pk }}"
-                                           id="{{ field.name }}_{{ technique.pk }}_NA"
-                                           value=""
-                                           class="empty-value"
-                                           {% if not value %}checked="checked"{% endif %}
-                                           type="radio">
-                                    <label for="{{ field.name }}_{{ technique.pk }}_NA"></label>
+                                    <label for="{{ field.name }}_{{ technique.pk }}_NA">
+                                        <input name="{{ field.name }}.value.{{ technique.pk }}"
+                                               id="{{ field.name }}_{{ technique.pk }}_NA"
+                                               value=""
+                                               class="empty-value"
+                                               {% if not value %}checked="checked"{% endif %}
+                                               type="radio">
+                                    </label>
                                 </div>
                             </td>
                         </tr>
@@ -85,8 +88,9 @@
             }
         });
     }
+
     $(document).ready(update_counts);
-    $(document).on("change", "input[name^='{{ field.name }}.value']", function(){
+    $(document).on("change", "input[name^='{{ field.name }}.value']", function () {
         update_counts();
     });
 
