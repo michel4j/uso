@@ -59,16 +59,14 @@ class Calendar(RolePermsViewMixin, TemplateView):
             start_date__lte=cur_date, end_date__gte=cur_date, state__in=['live', 'tentative']
         ).first()
         if not schedule:
-            schedule = models.Schedule.objects.filter(
-                start_date__lte=cur_date, end_date__gte=cur_date, state__in=['draft']
-            ).first()
+            schedule = models.Schedule.objects.filter(start_date__gt=cur_date).first()
 
         config = schedule.config
         shifts = config.shifts()
         context['default_view'] = 'cycleshift'
         context['view_choices'] = 'cycleshift,monthshift,weekshift'
         context['default_date'] = cur_date
-        context['today'] = timezone.now().date()
+        context['today'] = today
         context['timezone'] = settings.TIME_ZONE
         context['shift_duration'] = config.duration
         context['shift_minutes'] = config.duration * 60
