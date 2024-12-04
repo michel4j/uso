@@ -27,7 +27,7 @@ class FieldTypeMeta(type):
             cls.templates = ["dynforms/fields/%s.html" % cls.key, "dynforms/fields/nofield.html"]
 
         if not hasattr(cls, 'plugins'):
-            cls.plugins = OrderedDict()
+            cls.plugins = {}
         else:
             cls.plugins[cls.key] = cls
 

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'formtools',
     "itemlist",
+    'dynforms',
     'users',
     'roleperms',
     'notifier',
@@ -62,7 +63,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'crispy_forms',
     'crispy_bootstrap3',
-    'dynforms',
+
     'beamlines',
     'samples',
     'publications',

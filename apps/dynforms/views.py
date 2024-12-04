@@ -4,7 +4,7 @@ from django.contrib.admin.utils import NestedObjects
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import DEFAULT_DB_ALIAS
 from django.forms.models import model_to_dict
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.utils.text import capfirst
 from django.views.generic import TemplateView
@@ -57,7 +57,7 @@ class DynFormView(RolePermsViewMixin, DynCreateView):
         return kwargs
 
     def form_valid(self, form):
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return self.request.get_full_path()

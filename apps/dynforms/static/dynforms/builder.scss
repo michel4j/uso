@@ -7,7 +7,6 @@ body {
 	min-width: 962px;
 }
 #df-sidebar {
-	font-size: 95%;
 	height: 100%;
 	position: fixed;
 	bottom: 0;
@@ -16,7 +15,7 @@ body {
 	overflow-x: hidden;
 	overflow-y: auto;
 	border-right: 1px solid #ddd;
-	width: 350px;
+	width: 375px;
 	padding-top: 5px;
 	background: #fff;
 	.nav-tabs {
@@ -49,7 +48,7 @@ body {
 	overflow-x: hidden;
 	padding-bottom: 100px;
 	min-height: 100%;
-	padding-left: 350px;
+	padding-left: 375px;
 	width: 100%;
 }
 #df-footer {
@@ -60,7 +59,7 @@ body {
 	width: 100%;
 	overflow: hidden;
 	z-index: 1000;
-	padding-left: 391px;
+	padding-left: 420px;
 }
 #df-footer-content {
 	border-top: 1px solid #e2f0d6;
@@ -90,11 +89,7 @@ body {
 	user-select: none;
 }
 .field-btn {
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
 	user-select: none;
-	font-size: 90%;
 	color: $color_2;
 	text-overflow: ellipsis;
 }
@@ -112,7 +107,7 @@ body {
 		cursor: pointer;
 	}
 	.ui-draggable-dragging {
-		min-width: 400px;
+		min-width: 375px;
 		min-height: 50px;
 	}
 }
@@ -129,21 +124,43 @@ body {
 	border: 1px solid #ddd;
 }
 .df-menu-section {
+	font-family: "Fira Sans Condensed", sans-serif;
 	width: 100%;
 	margin: 0;
 	padding: 0 0.5em;
+
 	.btn {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
 		width: 100%;
-		text-align: left;
+		min-height: 24px;
+		vertical-align: middle;
+		line-height: 1;
+		i::before {
+			font-size: 1.2em;
+			padding: 0 0.25em;
+		}
 	}
+
 	.btn-xs {
-		padding: 2px 5px;
+		padding: 0.5em;
 	}
+
 }
 .field-btn-holder {
-	width: 48%;
-	min-width: 80px;
-	margin: 1%;
+	display: flex;
+	width: calc( 100%/3);
+	padding: 3px;
+	.field-btn {
+		width: 0;
+		flex-grow: 1;
+		div {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
 }
 .df-menu-form {
 	padding: 0;
@@ -202,7 +219,7 @@ body {
 header {
 	.page-head {
 		width: calc(100% - 65px);
-		padding-left: 350px !important;
+		padding-left: 375px !important;
 		height: 50px;
 	}
 }
