@@ -33,13 +33,14 @@
 						{% for hz in group.hazards %}
 						<tr><td>
 							<div class="checkbox" style="margin: 0 !important;">
-								<input name="hazard_list"
+
+								<label for="hazards-{{hz.pk}}" class="col-xs-12">
+                                <input name="hazard_list"
 									   id="hazards-{{hz.pk}}"
 									   value="{{hz.pk}}"
 									   {% if hz.selected %}checked="checked"{% endif %}
 									   data-hazard-code="{{hz.hazard.code}}"
 									   type="checkbox">
-								<label for="hazards-{{hz.pk}}" class="col-xs-12">
 									<span style="line-height: 24px;">{{hz.hazard.code}}&nbsp;{% if hz.signal %}<strong>{{hz.signal.title}}:</strong>&ensp;
 									{% endif %}{{hz.hazard.text}}</span>
 									{% for pic in hz.pictograms.all %}

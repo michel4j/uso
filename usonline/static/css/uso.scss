@@ -1143,7 +1143,17 @@ a[disabled] {
 	}
 }
 .checkbox, .radio {
+	padding-left: 0.5em;
 	margin-top: 0;
+	margin-bottom: 0;
+		label {
+			margin-top: 0;
+			margin-bottom: 0;
+			line-height: 1.5em;
+	}
+}
+.checkbox+.checkbox, .radio+.radio {
+    margin-top: 0;
 }
 .radio-inline + .radio-inline,
 .checkbox-inline + .checkbox-inline {

@@ -127,7 +127,7 @@ class ReviewerForm(forms.Form):
         for tech, count in sorted(list(techs.items()), key=lambda v: v[1], reverse=True):
             tech_fields.append(
                 Div(
-                    InlineCheckboxes(tech),
+                    tech,
                     css_class="col-xs-12 field-w2"
                 )
             )
