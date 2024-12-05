@@ -64,6 +64,7 @@ class ReviewForm(DynFormMixin, forms.ModelForm):
         fields = []
 
     def __init__(self, *args, **kwargs):
+
         super().__init__(*args, **kwargs)
         if self.instance:
             self.form_type = self.instance.form_type

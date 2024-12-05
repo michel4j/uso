@@ -274,7 +274,7 @@ class SubmitProposal(RolePermsViewMixin, ConfirmDetailView):
         cycle = info["cycle"]
 
         from dynforms.models import FormType
-        tech_spec = FormType.objects.all().filter(code='technical-review').last()
+        form_type = FormType.objects.all().filter(code='technical-review').last()
 
         to_create = []
 
@@ -294,7 +294,7 @@ class SubmitProposal(RolePermsViewMixin, ConfirmDetailView):
             due_date = cycle.due_date if not track.special else timezone.now().date() + timedelta(weeks=2)
             to_create.extend([
                 models.Review(
-                    role=r, cycle=cycle, reference=obj, kind=models.Review.TYPES.technical, spec=tech_spec,
+                    role=r, cycle=cycle, reference=obj, kind=models.Review.TYPES.technical, form_type=form_type,
                     due_date=due_date, details={'requirements': {'facility': f.pk, 'tags': []}}
                 )
                 for r, f in technical_info
@@ -644,7 +644,9 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             ).exclude(pk__in=preserved_pks).delete()
 
             for rev_info in data['details'].pop('additional_reviews', []):
-                if not rev_info.get('spec'): continue
+                print(rev_info)
+                if not rev_info.get('form_type'):
+                    continue
                 rev_form = FormType.objects.all().filter(code=rev_info.get('form_type'))
                 reviewer = User.objects.filter(username=rev_info.get('reviewer')).first()
                 kind = {
@@ -1367,12 +1369,12 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
             messages.error(self.request, 'No feasible reviewer assignment was possible.')
         # passign_prc, rassign_prc, conflicts_prc, success = utils.assign_prc(cycle, track)
         # if success == 'optimal':
-        #     messages.success(self.request, 'Committee assignment sSuccessful.')
+        #     messages.success(self.request, 'Committee assignment successful.')
         # elif success == 'feasible':
         #     messages.warning(self.request, 'Committee assignment sub-optimal!')
         # else:
         #     messages.error(self.request, 'No feasible Committee assignment was possible.')
-        rev_spec = FormType.objects.all().filter(code='scientific_review').last()
+        form_type = FormType.objects.all().filter(code='scientific-review').last()
         to_create = []
         for assignment in [passign]:
             for proposal, reviewers in list(assignment.items()):
@@ -1380,7 +1382,7 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
                     models.Review(
                         reviewer=u.user, reference=proposal, kind=models.Review.TYPES.scientific,
                         cycle=proposal.cycle,
-                        spec=rev_spec,
+                        form_type=form_type,
                         due_date=cycle.due_date
                     ) for u in reviewers
                 ])
@@ -1563,7 +1565,7 @@ class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
 
     def form_valid(self, form):
         from dynforms.models import FormType
-        rev_spec = FormType.objects.all().filter(code='scientific_review').last()
+        form_type = FormType.objects.all().filter(code='scientific_review').last()
         data = form.cleaned_data
 
         if data['reviewers'].filter(committee__isnull=False).exists():
@@ -1573,7 +1575,7 @@ class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
         to_add = [
             models.Review(
                 reviewer=rev.user, cycle=self.object.cycle, reference=self.object, due_date=self.object.cycle.due_date,
-                kind=models.Review.TYPES.scientific, state=models.Review.STATES.pending, spec=rev_spec
+                kind=models.Review.TYPES.scientific, state=models.Review.STATES.pending, form_type=form_type
             ) for rev in data['reviewers']
         ]
 

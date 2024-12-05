@@ -5,18 +5,21 @@ from collections import defaultdict
 from datetime import date, timedelta, datetime
 
 from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField
+from django.utils.safestring import mark_safe
 from fuzzywuzzy import fuzz
 from model_utils import Choices
+from django.conf import settings
 
 OPEN_WEEKDAY = 2  # Day of week to open call (2 = Wednesday)
 CLOSE_WEEKDAY = 2  # Day of week to close call (2 = Wednesday)
 ALLOC_OFFSET_WEEKS = 2  # When must all committee evaluations be completed, 2 weeks after due_date
 DUE_WEEKS = 6  # Number of weeks from close of call to reviews due date
+ASSIGNMENT_METHODS = getattr(settings, "USO_REVIEW_ASSIGNMENT", "BRUTE_FORCE")
 
 
 def truncated_title(title, obj=None):
-    return ('<span class="overflow ellipsis" style="max-width: 250px;" '
-            'data-placement="bottom" title="{0}">{0}</span>').format(title)
+    return mark_safe(f'<span class="overflow ellipsis" style="max-width: 250px;"'
+                     f' data-placement="bottom" title="{title}">{title}</span>')
 
 
 def conv_score(num, default=0.0, converter=float):
@@ -134,7 +137,7 @@ def check_conflict(user, proposal):
                          for t in proposal.proposal.get_full_team()
                      } | {
                          " ".join([i.get('first_name', ''), i.get('last_name', ''),
-                                    i.get('other_names', '')]).strip().lower()
+                                   i.get('other_names', '')]).strip().lower()
                          for i in proposal.proposal.details.get('inappropriate_reviewers', [])
                      }
     for name in proposal_names:
@@ -358,7 +361,7 @@ def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=
 
 
 def assign_cmacra(cycle, track):
-    """ Generate input for CMACRA"""
+    """ Assign Reviewers to Proposals using CMACRA"""
     from proposals import models
     reviewers = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).order_by('?').distinct()
     proposals = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
@@ -408,7 +411,8 @@ def assign_prc(cycle, track):
     return prop_results, revs_results, conflicts, success
 
 
-def assign_reviewers(cycle, track):
+def assign_brute_force(cycle, track):
+    """ Assign Reviewers to Proposals using BRUTE_FORCE"""
     assignments = defaultdict(set)
     submissions = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
     for submission in submissions.order_by('?'):
@@ -455,6 +459,13 @@ def assign_reviewers(cycle, track):
                 assignments[submission].add(prc)
 
     return assignments, {}, {}, 'optimal'
+
+
+def assign_reviewers(cycle, track):
+    if ASSIGNMENT_METHODS == "CMACRA":
+        return assign_cmacra(cycle, track)
+    else:
+        return assign_brute_force(cycle, track)
 
 
 def _create_submissions(proposal):
@@ -551,19 +562,19 @@ def _color_scale(val, lo=1, hi=5, max_saturation=180):
 
 def score_format(val, obj=None):
     if val:
-        return "<span style='font-weight: bold; color: {};'>{:.2f}</span>".format(_color_scale(val, 1, 5), val)
+        return mark_safe(f"<span style='font-weight: bold; color: {_color_scale(val, 1, 5)};'>{val:.2f}</span>")
     else:
         return "&hellip;"
 
 
 def stdev_format(val, obj=None):
     if val:
-        return "<span style='font-weight: bold; color: {};'>{:.2f}</span>".format(_color_scale(val, 0.1, 3), val)
+        return mark_safe(f"<span style='font-weight: bold; color: {_color_scale(val, 0.1, 3)};'>{val:.2f}</span>")
     else:
-        return "&hellip;"
+        return mark_safe("&hellip;")
 
 
-def get_techniques_matrix(cycle=None, sel_techs=[], sel_fac=None):
+def get_techniques_matrix(cycle=None, sel_techs=(), sel_fac=None):
     """Generate a dictionary mapping each technique to a list of available facilities and
     each facility to a list available techniques. Entries in the lists are tuples of the form
     (primary_key, unicode label, bool selected). The selected field will be true if the primary key was passed in
@@ -576,7 +587,8 @@ def get_techniques_matrix(cycle=None, sel_techs=[], sel_fac=None):
     if not cycle:
         return {'techniques': [], 'facilities': []}
 
-    if not sel_techs: sel_techs = [0]
+    if not sel_techs:
+        sel_techs = [0]
 
     for conf in models.FacilityConfig.objects.active(cycle=cycle.pk).accepting():
         for t in conf.items.values_list('technique', flat=True):
