@@ -1,7 +1,6 @@
 {% load markup %}
 {% load dynforms_tags %}
 <div class="controls" id="{{ field.name }}-controls">
-    {{ data }}
     {% for choice in field|group_scores:data %}
         <div class="score-choice media {% if 'inline' in field.options %}radio-inline {% else %}radio{% endif %}">
             <label for="{{ field.name }}_{{ forloop.counter }}">

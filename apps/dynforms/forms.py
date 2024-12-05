@@ -433,15 +433,16 @@ class DynFormMixin(object):
             field_type = FieldType.get_type(field_spec['field_type'])
             multiple = "repeat" in field_spec.get('options', []) or field_type.multi_valued
             required = "required" in field_spec.get('options', [])
+
             if field_name in data:
+                field_data = data.get(field_name)
                 try:
-                    cleaned_value = field_type.clean(data[field_name], multi=multiple, validate=submitting)
+                    cleaned_value = field_type.clean(field_data, multi=multiple, validate=submitting)
                 except ValidationError as err:
                     failures[field_name] = err.message
-                    cleaned_value = field_type.clean(data[field_name], multi=multiple, validate=False)
+                    cleaned_value = field_type.clean(field_data, multi=multiple, validate=False)
                 if cleaned_value:
                     cleaned_data[field_name] = cleaned_value
-
             if submitting and required and not cleaned_data.get(field_name):
                 failures[field_name] = "required"
 

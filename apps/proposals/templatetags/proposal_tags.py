@@ -343,7 +343,6 @@ def show_facility_procedures(context, reqs):
 def reviewer_workload(context):
     cycle = context['cycle']
     reviewer = context['reviewer']
-    print(context)
     return reviewer.reviews().filter(cycle=cycle).count()
 
 

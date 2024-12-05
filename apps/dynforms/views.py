@@ -77,7 +77,6 @@ class AddFieldView(RolePermsViewMixin, TemplateView):
         field = field_type.get_default(page, num)
         form.add_field(page, pos, field)
         context['field'] = field
-        print(context)
         return context
 
 
@@ -211,7 +210,6 @@ class EditFieldView(RolePermsViewMixin, FormView):
         return self.request.get_full_path()
 
 
-
 class EditFormView(RolePermsViewMixin, UpdateView):
     allowed_roles = ADMIN_ROLES
     template_name = 'dynforms/builder.html'
@@ -226,8 +224,8 @@ class EditFormView(RolePermsViewMixin, UpdateView):
         form_type = FormType.objects.get(pk=self.kwargs.get('pk'))
         form = form_type
         initial = model_to_dict(form)
-        print(initial.pop('pages'))
-        print(initial.pop('actions'))
+        initial.pop('pages')
+        initial.pop('actions')
         initial['page_names'] = form.page_names()
         context['form_settings_form'] = FormSettingsForm(initial=initial, instance=form)
         context['fieldtypes'] = FieldType.get_all()

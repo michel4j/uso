@@ -277,7 +277,6 @@ class Throttle(FieldType, FancyMixin):
         start = datetime.now() - timedelta(seconds=20)
         try:
             message = Crypt.decrypt(value)
-            print("MESSAGE", message)
         except ValueError:
             if validate:
                 raise ValidationError('Something funny happened with the form. Reload the page and start again.')

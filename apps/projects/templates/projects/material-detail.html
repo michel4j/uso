@@ -59,10 +59,12 @@
 			<a href="{% url "material-detail" pk=mat.pk %}">{{mat}} [{{ mat.get_state_display }}]</a>&nbsp;
         {% endfor %}
     </div>
-    <div class="col-sm-3 col-xs-3 text-right">
+    <div class="col-sm-3 col-xs-3">
+        <div class="pictogram-box">
         {% for hz in material.pictograms %}
-        <img width="28" src="{% pictogram_url hz %}" title="{{hz.name}}">
+        <img src="{% pictogram_url hz %}" title="{{hz.name}}">
         {% endfor %}
+        </div>
     </div>
     <div class="row">
     {% for sample in samples %}
@@ -79,22 +81,11 @@
 
 {% block folio-content %}
 <div class="pagelet-body">
-
-    {% with material.warnings as warnings %}
-    {% if warnings %}
-	<div class="row">
-        <div class="col-xs-12">
-             <div class="tinytron bg-white bg-danger text-danger" style="font-size: 105%;">
-                {% for warning in warnings %}
-                {{warning|markdown}}
-                {% endfor %}
-             </div>
-        </div>
-	</div>
-    {% endif %}
-    {% endwith %}
     {% if material.controls.count %}
     <div class="row text-wide">
+        <div class="col-xs-12">
+                    <h3>Controls</h3>
+        </div>
         <div class="col-xs-12">
             <ul class="tinytron bg-warning">
             {% for control in material.controls.all %}

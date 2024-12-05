@@ -1,3 +1,4 @@
+import pprint
 from collections import defaultdict
 
 from django import template
@@ -118,7 +119,7 @@ def get_user_samples(context, data=None):
 def get_material_samples(context, data=None, material=None):
     if not material:
         return []
-    data = [] if not data else data
+    data = {} if not data else data
     sample_info = {d['sample']: d for d in data}
     samples = material.project_samples.order_by('sample__kind')
     sample_list = [
@@ -163,7 +164,8 @@ def get_samples(context, data=None):
 def get_permissions(context, data=None):
     if not isinstance(data, dict):
         data = {}
-    return [(p, data.get(p.code)) for p in models.SafetyPermission.objects.filter(review=True)]
+    perms = [(p, data.get(p.code)) for p in models.SafetyPermission.objects.filter(review=True)]
+    return perms
 
 
 @register.filter
