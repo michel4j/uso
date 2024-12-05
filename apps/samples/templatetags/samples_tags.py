@@ -138,7 +138,7 @@ def get_material_samples(context, data=None, material=None):
 def get_ethics_samples(context, data=None):
     data = [] if not data else data
     review = context.get('object')
-    if not review:
+    if not review or not hasattr(review, 'reference'):
         return []
     material = review.reference
     data = [] if not data else data

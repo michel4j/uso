@@ -1,3 +1,4 @@
+
 import random
 
 from django import template
@@ -81,8 +82,16 @@ def group_choices(field, defaults):
 
 @register.filter
 def group_scores(field, default):
-    ch = [((i + 1), v, default in [(i + 1), str(i + 1)]) for i, v in enumerate(field['choices'])]
-    return ch
+    choices = [
+        {
+            'score': i + 1,
+            'label': l,
+            'value': '' if 'values' not in field else field['values'][i],
+            'checked': default in [(i + 1), str(i + 1)],
+        } for i, l in enumerate(field['choices'])
+    ]
+
+    return choices
 
 
 @register.filter

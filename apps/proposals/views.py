@@ -644,7 +644,6 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             ).exclude(pk__in=preserved_pks).delete()
 
             for rev_info in data['details'].pop('additional_reviews', []):
-                print(rev_info)
                 if not rev_info.get('form_type'):
                     continue
                 rev_form = FormType.objects.all().filter(code=rev_info.get('form_type'))
