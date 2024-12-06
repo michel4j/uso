@@ -894,7 +894,7 @@
   pk: 6
   fields:
     created: 2015-03-26 19:13:32+00:00
-    modified: 2024-11-30 16:50:46.506270+00:00
+    modified: 2024-12-05 23:21:10.233892+00:00
     name: Ethics Review
     code: ethics-review
     description: Ethics review form
@@ -942,7 +942,7 @@
   pk: 7
   fields:
     created: 2015-10-16 18:40:18+00:00
-    modified: 2024-12-05 05:49:02.059631+00:00
+    modified: 2024-12-05 22:53:01.861498+00:00
     name: Safety Review
     code: safety-review
     description: Safety review form to be completed by safety reviewers
@@ -958,7 +958,7 @@
           will be automatically selected.
     - name: Permissions & Controls
       fields:
-      - name: risk_level
+      - name: requirements
         tags: ''
         label: Risk Level of Experiment
         options:

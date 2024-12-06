@@ -1,0 +1,9 @@
+{% if warnings %}
+    <ul class="form-warnings text-danger-light">
+        {% for warning in warnings %}
+            <li>{{ warning }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <i class="bi bi-check2-circle icon-2 icon-fw text-success"></i>
+{% endif %}

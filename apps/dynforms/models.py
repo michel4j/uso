@@ -97,6 +97,21 @@ class FormType(TimeStampedModel):
     def field_specs(self):
         return {f['name']: f for p in self.pages for f in p['fields']}
 
+    def check_form(self):
+        warnings = []
+        exists = set()
+        missing = set()
+        for i, page in enumerate(self.pages):
+            for field in page['fields']:
+                if field['name'] in exists:
+                    warnings.append(f'Page {i + 1}: Field `{field["name"]}` defined more than once')
+                if field['name'] in missing:
+                    missing.remove(field['name'])
+                exists.add(field['name'])
+        if missing:
+            warnings.extend([f'Missing field `{f}`' for f in missing])
+        return warnings
+
     def __str__(self):
         return self.name
 
