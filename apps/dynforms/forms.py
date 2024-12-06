@@ -225,12 +225,12 @@ class FieldSettingsForm(forms.Form):
             FormActions(
                 Div(
                     HTML('<hr class="hr-xs"/>'),
-                    StrictButton('<i class="bi-chevron-left icon-fw"></i> Move to Prev Page', name='move-prev',
+                    StrictButton('<i class="bi-box-arrow-in-left icon-fw"></i> Move to Prev Page', name='move-prev',
                                  value="move-prev",
-                                 title="Move to Prev Page", css_class="btn btn-xs btn-white pull-left"),
-                    StrictButton('Move to Next Page <i class="bi-chevron-right icon-fw"></i>', name='move-next',
+                                 title="Move to Prev Page", css_class="btn btn-sm btn-white pull-left"),
+                    StrictButton('Move to Next Page <i class="bi-box-arrow-in-right icon-fw"></i>', name='move-next',
                                  value="move-next",
-                                 title="Move to Next Page", css_class="btn btn-xs btn-white pull-right"),
+                                 title="Move to Next Page", css_class="btn btn-sm btn-white pull-right"),
                     css_class="col-xs-12 text-condensed"),
                 css_class="row")
         )
@@ -260,7 +260,7 @@ PAGES_TEMPLATE = """
     </div>
 </div>
 {% endfor %}
-<button data-repeat-add=".pages_repeatable" class="btn btn-success btn-xs" title="Add Page"
+<button data-repeat-add=".pages_repeatable" class="btn btn-success btn-sm" title="Add Page"
      name="add" type="button"><i class="bi-plus-lg"></i></button>
 </div>
 """
@@ -283,7 +283,7 @@ ACTIONS_TEMPLATE = """
     </div>
 </div>
 {% endfor %}
-<button data-repeat-add=".actions_repeatable" class="btn btn-success btn-xs" title="Add Page"
+<button data-repeat-add=".actions_repeatable" class="btn btn-success btn-sm" title="Add Page"
      name="add" type="button"><i class="bi-plus-lg"></i></button>
 </div>
 """
@@ -327,7 +327,8 @@ class FormSettingsForm(forms.ModelForm):
                 HTML(PAGES_TEMPLATE),
                 HTML(ACTIONS_TEMPLATE),
                 FormActions(
-                    Submit('apply-form', 'Apply', css_class="btn-primary")
+                    HTML('<hr class="hr-xs"/>'),
+                    Submit('apply-form', 'Apply', css_class="btn-sm")
                 ),
             )
         )
