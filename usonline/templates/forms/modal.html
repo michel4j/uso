@@ -137,6 +137,11 @@
                 $(this).attr("href", url + '?next=' + window.location.href)
             });
             */
+
+            // Empty modal on close
+            myForm.on('hidden.bs.modal', function() {
+                //myForm.empty();
+            });
             // load custom init
             initForm();
         }
@@ -174,4 +179,5 @@
 
     </script>
 {% endblock %}
-
+{% block extra-form-js %}
+{% endblock %}

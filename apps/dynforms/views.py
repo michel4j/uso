@@ -7,7 +7,7 @@ from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.utils.text import capfirst
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View, detail
 from django.views.generic import edit
 from django.views.generic.edit import FormView, UpdateView
 from itemlist.views import ItemListView
@@ -77,7 +77,6 @@ class AddFieldView(RolePermsViewMixin, TemplateView):
         field = field_type.get_default(page, num)
         form.add_field(page, pos, field)
         context['field'] = field
-        print(context)
         return context
 
 
@@ -211,7 +210,6 @@ class EditFieldView(RolePermsViewMixin, FormView):
         return self.request.get_full_path()
 
 
-
 class EditFormView(RolePermsViewMixin, UpdateView):
     allowed_roles = ADMIN_ROLES
     template_name = 'dynforms/builder.html'
@@ -226,12 +224,13 @@ class EditFormView(RolePermsViewMixin, UpdateView):
         form_type = FormType.objects.get(pk=self.kwargs.get('pk'))
         form = form_type
         initial = model_to_dict(form)
-        print(initial.pop('pages'))
-        print(initial.pop('actions'))
+        initial.pop('pages')
+        initial.pop('actions')
         initial['page_names'] = form.page_names()
         context['form_settings_form'] = FormSettingsForm(initial=initial, instance=form)
         context['fieldtypes'] = FieldType.get_all()
         context['form_spec'] = form
+        context['warnings'] = form.check_form()
         context['active_page'] = self.request.GET.get('page', 1)
         context['active_form'] = self.request.GET.get('form', 1)
         return context
@@ -314,3 +313,15 @@ class DeleteFormType(RolePermsViewMixin, ConfirmDetailView):
         obj.delete()
         messages.success(self.request, msg)
         return JsonResponse({"url": self.get_success_url()})
+
+
+class CheckFormAPI(RolePermsViewMixin, detail.DetailView):
+    allowed_roles = ADMIN_ROLES
+    template_name = "dynforms/warnings.html"
+    model = FormType
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.object:
+            context['warnings'] = self.object.check_form()
+        return context

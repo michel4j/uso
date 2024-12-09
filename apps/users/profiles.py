@@ -113,7 +113,6 @@ class RemoteProfileManager(ExternalProfileManager):
         url = cls.USER_PROFILE_URL.format(username=username)
         if photo:
             files = {'photo': (photo.name, photo, photo.content_type)}
-            print(files)
             r = requests.patch(url, files=files, json=data, headers=cls.API_HEADERS, verify=cls.SSL_VERIFY_CERTS)
         else:
             r = requests.patch(url, json=data, headers=cls.API_HEADERS, verify=cls.SSL_VERIFY_CERTS)
@@ -132,6 +131,7 @@ class RemoteProfileManager(ExternalProfileManager):
 
     @classmethod
     def get_user_photo_url(cls, username: str):
+        print(cls.USER_PHOTO_URL.format(username=username))
         return cls.USER_PHOTO_URL.format(username=username)
 
 

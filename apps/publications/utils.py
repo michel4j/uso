@@ -285,9 +285,6 @@ def get_book(isbn):
         r = requests.get(url)
         if r.status_code == requests.codes.ok:
             record = r.json()
-            if debug:
-                import pprint
-                pprint.pprint(record)
             if record['totalItems'] == 0:
                 continue
             record = record['items'][0]['volumeInfo']
@@ -576,7 +573,6 @@ def get_doi_meta(doi):
         root = html.parse(r.content.decode('utf-8'))
         raw_info = defaultdict(list)
         for e in root.xpath('/html//meta'):
-            print(e.text_content(), [list(e.keys()), list(e.values())])
             raw_info[e['name']].append(e['content'])
         info = {k: (v[0] if len(v) == 1 else v) for k, v in raw_info}
         return info

@@ -9,6 +9,7 @@ urlpatterns = [
     path('forms/', views.FormTypeList.as_view(), name='dynforms-list'),
     path('forms/<int:pk>/', views.EditFormView.as_view(), name='dynforms-builder'),
     path('forms/<int:pk>/run/', views.DynFormView.as_view(), name='dynforms-run'),
+    path('forms/<int:pk>/check/', views.CheckFormAPI.as_view(), name='dynforms-check'),
 
     # field urls
     path('forms/<int:pk>/<int:page>/add/<slug:type>/<int:pos>/', views.AddFieldView.as_view(), name='dynforms-add-field'),

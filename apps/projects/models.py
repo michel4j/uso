@@ -348,65 +348,6 @@ class Material(TimeStampedModel):
     def siblings(self):
         return self.project.materials.exclude(pk=self.pk)
 
-    def warnings(self):
-        warnings = []
-        # human
-        if self.state == 'pending' and self.samples.filter(kind__contains='human').exists():
-            warnings.append(
-                'You have indicated that you will be using human participants or human materials for your experiment. '
-                'A valid Certificate of Research Ethics Approval from the University of Saskatchewan Biomedical '
-                'Research Ethics Board is required. Please arrange to obtain the certificate and attach a copy to this'
-                ' project well in advance of any schedule beam time '
-                '(see <a href="http://www.lightsource.ca/pages/ethics.html" target="_blank">http://www.lightsource.ca/pages/ethics.html</a>).'
-            )
-        # Animal materials
-        if self.state == 'pending' and self.samples.filter(kind__contains='animal').exists():
-            warnings.append(
-                'You have indicated that you will be using animals or animal materials for your experiment. '
-                'A valid Animal Use Protocol Certificate is required when live animals are used, or when materials are '
-                'obtained from animals handled or killed specifically for the purpose of the planned research. '
-                'Please arrange to obtain the certificate and attach a copy to this project well advance of'
-                'any schedule beam time (see <a href="http://www.lightsource.ca/pages/ethics.html" target="_blank">http://www.lightsource.ca/pages/ethics.html</a>).'
-            )
-            if self.samples.filter(kind='live_animal').exists():
-                warnings.append(
-                    'The Animal Research Ethics Board (AREB) requires the presence of a UACC Veterinarian to '
-                    'provide assistance with appropriate anesthetic and monitoring procedures during live animal '
-                    'experiments. Please contact the University of Saskatchewan UACC Veterinarian at 306-966-4125 '
-                    'well in advance of your planned experiment to make arrangements, then add the veterinarian to '
-                    'your team.'
-                )
-
-        # Biologicals
-        needs_import_warning = (
-                self.samples.filter(hazards__hazard__code__in=['RG2', 'RG3']).exists() or
-                self.samples.filter(kind__contains='human').exists() or
-                self.samples.filter(kind__contains='animal').exists()
-
-        )
-        if needs_import_warning:
-            warnings.append(
-                'If you are planning to import pure cultures of terrestrial animal pathogens and toxins, with the '
-                'exception of non-indigenous animal pathogens and pathogens causing emerging animal disease, you '
-                'will need to apply to PHAC for an importation permit under the authority of the Health of Animals '
-                'Regulations (HAR). Please contact the health and safety department if you plan to import such '
-                'materials but do not have a proper permit. '
-                '(see <a href="http://www.phac-aspc.gc.ca/lab-bio/licensing-licences/index-eng.php" target="_blank">'
-                'http://www.phac-aspc.gc.ca/lab-bio/licensing-licences/index-eng.php</a>)'
-            )
-
-        # Radioactive
-        if self.samples.filter(hazards__hazard__code='RAD').exists():
-            warnings.append(
-                '**LICENSE TO POSSESS RADIOACTIVE MATERIALS**: You have indicated that you will be using radioactive materials for your experiment. For quantities '
-                'above the Canadian Nuclear Safety Commission exemption limits, a license is required to possess, '
-                'use, store, or transter radioactive materials. If applicable, please arrange to obtain the licence and attach a copy '
-                'to this project prior to shipping any radioactive materials to the facility. '
-                '(see http://nuclearsafety.gc.ca/eng/nuclear-substances/index.cfm).'
-            )
-
-        return warnings
-
     def sample_list(self):
         return [{'sample': s.sample.pk, 'quantity': s.quantity} for s in self.project_samples.all()]
 

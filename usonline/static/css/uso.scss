@@ -3540,5 +3540,41 @@ body.registration {
 	}
 }
 
+.pictogram-box {
+	display: flex;
+	justify-content: flex-end;
+	flex-direction: row;
+	height: 66px;
+	margin-right: 22px;
+	img {
+		padding: 2px;
+		height: 66%;
+		margin-right: -22px;
+		&:nth-child(even) {
+			align-self: flex-start;
+		}
+		&:nth-child(odd) {
+			align-self: flex-end;
+		}
+		&:only-child {
+			height: 100%;
+			align-self: center;
+		}
+	}
+}
+.pictogram-lg {
+	height: 99px;
+	margin-right: 33px;
+	img {
+		margin-right: -33px;
+	}
+}
+.pictogram-sm {
+	height: 45px;
+	margin-right: 15px;
+	img {
+		margin-right: -15px;
+	}
+}
 
 
