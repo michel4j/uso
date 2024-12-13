@@ -626,10 +626,10 @@ class Review(DynEntryMixin, GenericContentMixin):
     objects = ReviewManager()
 
     def __str__(self):
-        return "{} - {}".format(self.reference, self.review_type())
+        return f"{self.reference} - {self.review_type()}"
 
     def title(self):
-        return '{} of {} {}'.format(self.get_kind_display(), self.content_type.name.title(), self.reference)
+        return f'{self.get_kind_display()} of {self.content_type.name.title()} {self.reference}'
 
     def assigned_to(self):
         if self.reviewer:
