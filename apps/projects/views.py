@@ -26,7 +26,7 @@ from misc.models import ActivityLog
 from misc.views import ConfirmDetailView, ClarificationResponse, RequestClarification
 from notifier import notify
 from proposals.filters import CycleFilterFactory
-from proposals.models import ReviewCycle
+from proposals.models import ReviewCycle, ReviewType
 from proposals.utils import truncated_title
 from roleperms.views import RolePermsViewMixin
 from samples.models import Sample
@@ -926,16 +926,12 @@ class UpdateMaterial(RolePermsViewMixin, edit.FormView):
 
         if safety_required:
             # Create Material Reviews
-            cycle = self.project.allocations.last().cycle
-            approval, created = obj.reviews.get_or_create(
-                kind='approval', form_type=FormType.objects.get(code="safety-approval"), defaults={
-                    'cycle': cycle, 'state': models.Review.STATES.open, 'role': "safety-approver"
-                }
-            )
-            if obj.needs_ethics():
-                ethics, created = obj.reviews.get_or_create(
-                    kind="ethics", form_type=FormType.objects.get(code="ethics-review"), defaults={
-                        'cycle': cycle, 'state': models.Review.STATES.open, 'role': "ethics-approver"
+            review_type = ReviewType.objects.safety_approval().first()
+            if review_type:
+                cycle = self.project.allocations.last().cycle
+                approval, created = obj.reviews.get_or_create(
+                    type=review_type, form_type=review_type.form_type, defaults={
+                        'cycle': cycle, 'state': models.Review.STATES.open, 'role': review_type.role
                     }
                 )
 
@@ -1027,9 +1023,9 @@ class AllocDecider(object):
         else:
             self.used = a1.shift_request + a2.shift_request
         if self.used <= self.total:
-            self.cutoff = max(a2.score_merit, self.cutoff)
+            self.cutoff = max(a2.score, self.cutoff)
         if self.used <= (self.total + self.extra):
-            self.decision = max(a2.score_merit, self.decision)
+            self.decision = max(a2.score, self.decision)
         return self
 
     def __str__(self):
@@ -1071,7 +1067,7 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
             reserved = reservations.filter(kind=pool).aggregate(total=Coalesce(Sum('shifts'), 0))
             pool_allocations = allocations.filter(project__kind=pool).annotate(
                 priority=Case(
-                    When(score_merit=0, then=Value('1')), default=Value('0'), output_field=IntegerField(), )
+                    When(score=0, then=Value('1')), default=Value('0'), output_field=IntegerField(), )
             )
 
             used = pool_allocations.aggregate(total=Coalesce(Sum('shifts'), 0))
@@ -1084,9 +1080,7 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
             info = {
                 'shifts': available, 'name': models.PROJECT_TYPES[pool], 'key': pool, 'decision': 0, 'percent': percent,
                 'reserved': reserved,
-                'used': used, 'unused': unused, 'projects': pool_allocations.order_by(
-                    'priority', 'score_merit', 'score_suitability', 'score_capability', 'score_technical'
-                ).distinct(),
+                'used': used, 'unused': unused, 'projects': pool_allocations.order_by('priority', 'score').distinct(),
             }
             pools[pool] = info
 

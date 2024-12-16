@@ -12,12 +12,10 @@
 <div class="minitron bg-transparent">
     <div class="row">
         <div class="col-xs-12">
-            {% if object.kind == 'scientific' %}
-                {% include "proposals/proposal_content.html" with proposal=object.reference.proposal hide_safety=True %}
-            {% elif object.kind == 'technical' %}
-                {% include "proposals/proposal_content.html" with proposal=object.reference.proposal show_hazards=True %}
-            {% else %}
+            {% if object.is_safety %}
                 {% include "projects/safety-detail.html" with material=object.reference %}
+            {% else %}
+                {% include "proposals/proposal-content.html" with proposal=object.reference.proposal  %}
             {% endif %}
         </div>
     </div>

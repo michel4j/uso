@@ -9,30 +9,30 @@
     <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'proposals/reviews.css' %}" rel="stylesheet"/>
     <link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
-    {% endblock %}
+{% endblock %}
 {% block pre_js %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js" integrity="sha512-BI1itUvyiWbbZ446/8IOccwMPB/xobCTyQTS0r1+k8Pq1VPT3uIJKNCoMH12rKk18J9sH33xQNve7srB0IGYlg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"
+            integrity="sha512-BI1itUvyiWbbZ446/8IOccwMPB/xobCTyQTS0r1+k8Pq1VPT3uIJKNCoMH12rKk18J9sH33xQNve7srB0IGYlg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
     <script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
     <script src="{% static 'dynforms/dynforms.js' %}"></script>
 {% endblock %}
 {% block html_class %}no-scroll{% endblock %}
-{% block page_heading %}{{ object.review_type }}{% endblock %}
+{% block page_heading %}{{ object }}{% endblock %}
 {% block body_class %}{% endblock %}
 
 {% block full %}
     <div id="review-form" class="row narrow-gutter">
-        <div class="col-sm-{% if review.kind == 'safety' or review.kind == 'approval' %}6{% else %}7{% endif %} review-col">
+        <div class="col-sm-6 col-md-7 review-col">
             <div id="proposal-area" class="pagelet scroll-parent">
                 <div class="scrollbox" style="height: 100%; padding: 0.75em;">
                     <div class="pagelet-body">
-                        {% if review.kind == 'scientific' %}
-                            {% include "proposals/proposal_content.html" with proposal=review.reference.proposal hide_safety=True %}
-                        {% elif review.kind == 'technical' %}
-                            {% include "proposals/proposal_content.html" with proposal=review.reference.proposal show_hazards=True %}
+                        {% if review.type.is_safety %}
+                            {% include "projects/safety-detail.html" with material=reference %}
                         {% else %}
-                            {% include "projects/safety-detail.html" with material=review.reference %}
+                            {% include "proposals/proposal-content.html" with proposal=reference.proposal %}
                         {% endif %}
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                 {% include "proposals/review_tools.html" %}
             </div>
         </div>
-        <div class="col-sm-{% if review.kind == 'safety' or review.kind == 'approval' %}6{% else %}5{% endif %} review-col">
+        <div class="col-sm-6 col-md-5 review-col">
             <div id="form-area" class="pagelet col-xs-12">
                 <div class="row">
                     {% if object.is_claimable and object.reviewer != user %}

@@ -70,8 +70,8 @@ class NotifyReviewers(BaseCronJob):
             reviews = models.Review.objects.none()
 
             # Notify technical reviews one day later
-            reviews |= models.Review.objects.filter(
-                state=models.Review.STATES.pending, kind=models.Review.TYPES.technical, created__lte=yesterday
+            reviews |= models.Review.objects.technical().filter(
+                state=models.Review.STATES.pending, created__lte=yesterday
             )
 
             # gather all reviews for each reviewer

@@ -14,12 +14,19 @@ OPEN_WEEKDAY = 2  # Day of week to open call (2 = Wednesday)
 CLOSE_WEEKDAY = 2  # Day of week to close call (2 = Wednesday)
 ALLOC_OFFSET_WEEKS = 2  # When must all committee evaluations be completed, 2 weeks after due_date
 DUE_WEEKS = 6  # Number of weeks from close of call to reviews due date
-ASSIGNMENT_METHODS = getattr(settings, "USO_REVIEW_ASSIGNMENT", "BRUTE_FORCE")
+
+USO_REVIEW_ASSIGNMENT = getattr(settings, "USO_REVIEW_ASSIGNMENT", "BRUTE_FORCE")
+USO_TECHNICAL_REVIEWS = getattr(settings, "USO_TECHNICAL_REVIEWS", [])
+USO_SCIENCE_REVIEWS = getattr(settings, "USO_SCIENCE_REVIEWS", [])
+USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
+USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", "approval")
 
 
 def truncated_title(title, obj=None):
-    return mark_safe(f'<span class="overflow ellipsis" style="max-width: 250px;"'
-                     f' data-placement="bottom" title="{title}">{title}</span>')
+    return mark_safe(
+        f'<span class="overflow ellipsis" style="max-width: 250px;"'
+        f' data-placement="bottom" title="{title}">{title}</span>'
+    )
 
 
 def conv_score(num, default=0.0, converter=float):
@@ -63,18 +70,17 @@ def create_cycle(today=None):
     alloc_date = due_date + timedelta(weeks=ALLOC_OFFSET_WEEKS)
     existing = models.ReviewCycle.objects.filter(start_date=start_date, open_date=open_date)
     if not existing.count():
-        description = "{}-{} {}: Schedule".format(
-            start_date.strftime('%b'),
-            end_date.strftime('%b'),
-            end_date.strftime('%Y'),
-        )
+        description = f"{start_date.strftime('%b')}-{end_date.strftime('%b')} {end_date.strftime('%Y')}: Schedule"
         config = ShiftConfig.objects.first()
         schedule = Schedule.objects.create(
             start_date=start_date, end_date=end_date, description=description, config=config
         )
-        last_cycle = models.ReviewCycle.objects.filter(start_date__lt=start_date,
-                                                       kind=models.ReviewCycle.TYPES.normal).order_by(
-            'start_date').last()
+        last_cycle = models.ReviewCycle.objects.filter(
+            start_date__lt=start_date,
+            kind=models.ReviewCycle.TYPES.normal
+        ).order_by(
+            'start_date'
+        ).last()
         next_pk = 1 if not last_cycle else last_cycle.pk + 1
         cycle = models.ReviewCycle.objects.create(
             pk=next_pk,
@@ -86,9 +92,9 @@ def create_cycle(today=None):
             due_date=due_date,
             alloc_date=alloc_date
         )
-        log.append('Review Cycle {0} missing, created.'.format(cycle))
+        log.append(f'Review Cycle {cycle} missing, created.')
     else:
-        log.append('Review Cycle {0} already exists, skipping.'.format(existing[0]))
+        log.append(f'Review Cycle {existing[0]} already exists, skipping.')
     return '\n'.join(log)
 
 
@@ -98,17 +104,15 @@ def create_mock(start_date, end_date, open_date, close_date, due_date, alloc_dat
 
     existing = models.ReviewCycle.objects.filter(start_date=start_date, open_date=open_date)
     if not existing.count():
-        description = "{}-{} {}: Schedule".format(
-            start_date.strftime('%b'),
-            end_date.strftime('%b'),
-            end_date.strftime('%Y'),
-        )
+        description = f"{start_date.strftime('%b')}-{end_date.strftime('%b')} {end_date.strftime('%Y')}: Schedule"
         config = ShiftConfig.objects.latest('created')
         schedule = Schedule.objects.create(
             start_date=start_date, end_date=end_date, description=description, config=config
         )
-        last_cycle = models.ReviewCycle.objects.filter(start_date__lt=start_date,
-                                                       kind=models.ReviewCycle.TYPES.mock).order_by('start_date').last()
+        last_cycle = models.ReviewCycle.objects.filter(
+            start_date__lt=start_date,
+            kind=models.ReviewCycle.TYPES.mock
+        ).order_by('start_date').last()
         next_pk = 9991 if not last_cycle else last_cycle.pk + 1
         models.ReviewCycle.objects.create(
             pk=next_pk,
@@ -136,8 +140,10 @@ def check_conflict(user, proposal):
                          " ".join([t.get('first_name', ''), t.get('last_name', '')]).strip().lower()
                          for t in proposal.proposal.get_full_team()
                      } | {
-                         " ".join([i.get('first_name', ''), i.get('last_name', ''),
-                                   i.get('other_names', '')]).strip().lower()
+                         " ".join(
+                             [i.get('first_name', ''), i.get('last_name', ''),
+                              i.get('other_names', '')]
+                         ).strip().lower()
                          for i in proposal.proposal.details.get('inappropriate_reviewers', [])
                      }
     for name in proposal_names:
@@ -146,109 +152,13 @@ def check_conflict(user, proposal):
     return 0
 
 
-def assign_cmacra_old(cycle, track):
-    """ Generate input for CMACRA"""
-    from proposals import models
-    revs = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).order_by('?').distinct()
-    props = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
-    techniques = cycle.techniques().filter(items__track=track).distinct()
-    areas = models.SubjectArea.objects.filter(pk__in=props.values_list('proposal__areas', flat=True).distinct())
-
-    num_subjects = techniques.count()
-    num_proposals = props.count()
-    num_reviewers = revs.count()
-    num_areas = areas.count()
-
-    rev_techs = {rev: set(rev.techniques.values_list('pk', flat=True)) for rev in revs}
-    rev_areas = {rev: set(rev.areas.values_list('pk', flat=True)) for rev in revs}
-    prop_techs = {prop: set(prop.techniques.values_list('technique__pk', flat=True)) for prop in props}
-    prop_areas = {prop: set(prop.proposal.areas.values_list('pk', flat=True)) for prop in props}
-
-    REVIEWERS = [[int(k.pk in rev_techs[rev]) for k in techniques] for rev in revs]
-    PROPOSALS = [[int(k.pk in prop_techs[prop]) for k in techniques] for prop in props]
-
-    REVIEWER_AREAS = [[int(a.pk in rev_areas[rev]) for a in areas] for rev in revs]
-    PROPOSAL_AREAS = [[int(a.pk in prop_areas[prop]) for a in areas] for prop in props]
-
-    CONFLICTS = [[check_conflict(rev.user, prop) for rev in revs] for prop in props]
-
-    from ortools.linear_solver import pywraplp
-    num_reviews = track.min_reviewers  # Min proposal coverage (reviews/proposal)
-    max_workload = track.max_proposals  # Max reviewer workload
-
-    # Init Solver
-    solver = pywraplp.Solver("CMACRASolver", pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
-    # solver = pywraplp.Solver("CMACRASolver", pywraplp.Solver.CLP_LINEAR_PROGRAMMING)
-
-    X = [[solver.IntVar(0, 1, "M[{},{}]".format(i, j)) for j in range(num_reviewers)] for i in range(num_proposals)]
-    t = [
-        [solver.IntVar(0, num_reviews, "t[{},{}]".format(i, j))
-         for j in range(num_subjects)] for i in range(num_proposals)
-    ]
-    score = solver.Sum([v for Vs in t for v in Vs])
-
-    # Constraints
-    # Proposal Coverage constraints
-    for i in range(num_proposals):
-        solver.Add(solver.Sum([X[i][j] for j in range(num_reviewers)]) == num_reviews)  # coverage equal to num_reviews
-
-    # Reviewer workload constraints
-    for j in range(num_reviewers):
-        solver.Add(solver.Sum([X[i][j] for i in range(num_proposals)]) <= max_workload)
-
-    # Technique Match constraints
-    for i in range(num_proposals):
-        for j in range(num_subjects):
-            solver.Add(
-                solver.Sum([REVIEWERS[l][j] * X[i][l] for l in range(num_reviewers)]) >= PROPOSALS[i][j] * t[i][j])
-
-    # Conflict of Interests/subject area constraints
-    for i in range(num_proposals):
-        for j in range(num_reviewers):
-            if CONFLICTS[i][j]:
-                solver.Add(X[i][j] == 0)
-            else:
-                # subject areas
-                solver.Add(
-                    solver.Sum([PROPOSAL_AREAS[i][m] * REVIEWER_AREAS[j][m] for m in range(num_areas)]) >= X[i][j]
-                )
-
-    # solution and search
-    solver.Maximize(score)
-    status = solver.Solve()
-
-    conflicts = {props[i]: [revs[j].user for j in range(num_reviewers) if CONFLICTS[i][j]] for i in
-                 range(num_proposals)}
-    prop_results = {props[i]: [revs[j].user for j in range(num_reviewers) if X[i][j].SolutionValue()] for i in
-                    range(num_proposals)}
-    revs_results = {revs[j].user: [props[i] for i in range(num_proposals) if X[i][j].SolutionValue()] for j in
-                    range(num_reviewers)}
-
-    print("Objective : %0.2f" % solver.Objective().Value())
-    print("Duration  :", solver.WallTime(), "ms")
-    if status == solver.OPTIMAL:
-        success = 'optimal'
-    elif status == solver.FEASIBLE:
-        success = 'feasible'
-    else:
-        success = False
-
-    return prop_results, revs_results, conflicts, success
-
-
 def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=4):
     from ortools.linear_solver import pywraplp
 
     # Init Solver
     solver = pywraplp.Solver("CMACRASolver", pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
-    # solver = pywraplp.Solver("CMACRASolver", pywraplp.Solver.CLP_LINEAR_PROGRAMMING)
-    # solver = pywraplp.Solver("CMACRASolver", pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
-    # solver = pywraplp.Solver("CMACRASolver", pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
-
     subjects = [subj for subj in itertools.chain(techniques, areas)]
 
-    num_techniques = techniques.count()
-    num_areas = areas.count()
     num_proposals = proposals.count()
     num_reviewers = reviewers.count()
     num_subjects = len(subjects)
@@ -279,19 +189,18 @@ def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=
         for prop in proposals
     }
 
-    rev_tech_mat = [[int(subj in rev_techniques[rev]) for subj in techniques] for rev in reviewers]
-    pro_tech_mat = [[int(subj in pro_techniques[pro]) for subj in techniques] for pro in proposals]
-    rev_area_mat = [[int(subj in rev_areas[rev]) for subj in areas] for rev in reviewers]
-    pro_area_mat = [[int(subj in pro_areas[pro]) for subj in areas] for pro in proposals]
+    # rev_tech_mat = [[int(subj in rev_techniques[rev]) for subj in techniques] for rev in reviewers]
+    # pro_tech_mat = [[int(subj in pro_techniques[pro]) for subj in techniques] for pro in proposals]
+    # rev_area_mat = [[int(subj in rev_areas[rev]) for subj in areas] for rev in reviewers]
+    # pro_area_mat = [[int(subj in pro_areas[pro]) for subj in areas] for pro in proposals]
 
     conflict_mat = [[check_conflict(rev.user, pro) for rev in reviewers] for pro in proposals]
-
     rev_subj_mat = [[int(subj in rev_subjects[rev]) for subj in subjects] for rev in reviewers]
     pro_subj_mat = [[int(subj in pro_subjects[pro]) for subj in subjects] for pro in proposals]
 
     M = {
-        (i, l): solver.IntVar(0, 1, "M[{},{}]".format(i, l))
-        for l in range(num_reviewers) for i in range(num_proposals)
+        (i, j): solver.IntVar(0, 1, "M[{},{}]".format(i, j))
+        for j in range(num_reviewers) for i in range(num_proposals)
     }
     t = {
         (i, j): solver.IntVar(0, minimum, "t[{},{}]".format(i, j))
@@ -304,12 +213,12 @@ def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=
         for j in range(num_subjects):
             solver.Add(
                 solver.Sum(
-                    [rev_subj_mat[l][j] * M[i, l] for l in range(num_reviewers)]
+                    [rev_subj_mat[k][j] * M[i, k] for k in range(num_reviewers)]
                 ) >= pro_subj_mat[i][j] * t[i, j]
             )
             solver.Add(
                 t[i, j] == solver.Sum(
-                    [M[i, l] * pro_subj_mat[i][j] * rev_subj_mat[l][j] for l in range(num_reviewers)]
+                    [M[i, k] * pro_subj_mat[i][j] * rev_subj_mat[k][j] for k in range(num_reviewers)]
                 )
             )
 
@@ -318,20 +227,20 @@ def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=
     for i in range(num_proposals):
         solver.Add(
             solver.Sum(
-                [M[i, l] for l in range(num_reviewers)]
+                [M[i, k] for k in range(num_reviewers)]
             ) == minimum
         )
 
     # Reviewer workload and conflicts constraints
-    for l in range(num_reviewers):
+    for k in range(num_reviewers):
         solver.Add(
             solver.Sum(
-                [M[i, l] for i in range(num_proposals)]
+                [M[i, k] for i in range(num_proposals)]
             ) <= maximum
         )
         solver.Add(
             solver.Sum(
-                [M[i, l] * conflict_mat[i][l] for i in range(num_proposals)]
+                [M[i, k] * conflict_mat[i][k] for i in range(num_proposals)]
             ) == 0
         )
 
@@ -339,11 +248,6 @@ def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=
     score = solver.Sum(list(t.values()))
     solver.Maximize(score)
     status = solver.Solve()
-
-    for i in range(num_proposals):
-        for j in range(num_subjects):
-            print(int(t[i, j].SolutionValue()), end=' ')
-        print()
 
     conflicts = {
         prop: [rev for j, rev in enumerate(reviewers) if conflict_mat[i][j]]
@@ -361,58 +265,57 @@ def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=
 
 
 def assign_cmacra(cycle, track):
-    """ Assign Reviewers to Proposals using CMACRA"""
+    """
+    Assign reviewers to proposals using CMACRA algorithm
+    :param cycle: Target cycle
+    :param track: Targe review track
+    :return: dictionary mapping submissions to a set of reviewers, dictionary mapping reviewers to a set of submissions,
+    boolean indicating success of the assignment
+    """
     from proposals import models
     reviewers = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).order_by('?').distinct()
-    proposals = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
-    techniques = models.Technique.objects.filter(
-        pk__in=cycle.submissions.filter(track=track).values_list('techniques__technique', flat=True)).distinct()
-    areas = models.SubjectArea.objects.filter(pk__in=proposals.values_list('proposal__areas', flat=True).distinct())
-    prop_results, revs_results, conflicts, solver, status = cmacra_optimize(
-        proposals, reviewers, techniques, areas, track.min_reviewers, track.max_proposals
-    )
-
-    if status == solver.OPTIMAL:
-        success = 'optimal'
-    elif status == solver.FEASIBLE:
-        success = 'feasible'
-    else:
-        success = False
-
-    print("Objective : %0.2f" % solver.Objective().Value())
-    print("Duration  :", solver.WallTime(), "ms", success)
-    return prop_results, revs_results, conflicts, success
-
-
-def assign_prc(cycle, track):
-    """ Generate input for CMACRA"""
-    from proposals import models
-    reviewers = track.committee.all()
     proposals = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
     techniques = cycle.techniques().filter(items__track=track).distinct()
     areas = models.SubjectArea.objects.filter(pk__in=proposals.values_list('proposal__areas', flat=True).distinct())
 
-    minimum = 1  # Min proposal coverage (reviews/proposal)
-    maximum = 2 + proposals.count() // max(1, reviewers.count())  # Max reviewer workload
-
+    # assign external reviewers
     prop_results, revs_results, conflicts, solver, status = cmacra_optimize(
-        proposals, reviewers, techniques, areas, minimum, maximum
+        proposals, reviewers, techniques, areas, track.min_reviewers, track.max_proposals
     )
 
-    if status == solver.OPTIMAL:
-        success = 'optimal'
-    elif status == solver.FEASIBLE:
-        success = 'feasible'
+    # assign committee members
+    committee = track.committee.all()
+    com_min = 1
+    com_max = 2 + proposals.count() // max(1, committee.count())
+    com_results, com_rev_results, com_conflicts, com_solver, com_status = cmacra_optimize(
+        proposals, committee, techniques, areas, com_min, com_max
+    )
+
+    # merge results
+    for prop, revs in com_results.items():
+        prop_results[prop] |= set(revs)
+    for rev, props in com_rev_results.items():
+        revs_results[rev] |= set(props)
+
+    if {solver.OPTIMAL, solver.FEASIBLE} & {com_status, status}:
+        success = True
     else:
         success = False
 
-    print("Objective : %0.2f" % solver.Objective().Value())
-    print("Duration  :", solver.WallTime(), "ms", success)
-    return prop_results, revs_results, conflicts, success
+    print(f"Objective : {solver.Objective().Value() + com_solver.Objective().Value():0.2f}")
+    print(f"Duration  : {solver.WallTime() + com_solver.WallTime():0.2f} ms")
+    print(f"Status    : {status}, {com_status}; Success: {success}")
+    return prop_results, revs_results, success
 
 
-def assign_brute_force(cycle, track):
-    """ Assign Reviewers to Proposals using BRUTE_FORCE"""
+def assign_brute_force(cycle, track) -> tuple:
+    """
+    Assign reviewers to proposals using brute force
+    :param cycle: Target cycle
+    :param track: Targe review track
+    :return: dictionary mapping submissions to a set of reviewers, optional dictionary mapping reviewers to
+    a set of submissions, boolean indicating success of the assignment
+    """
     assignments = defaultdict(set)
     submissions = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
     for submission in submissions.order_by('?'):
@@ -447,7 +350,8 @@ def assign_brute_force(cycle, track):
         else:
             assignments[submission] |= set(queryset.all())
 
-        if not prc_reviewers.count(): continue
+        if not prc_reviewers.count():
+            continue
 
         if track.max_proposals == 0:
             assignments[submission] |= set(cycle.reviewers.filter(committee=track))
@@ -458,11 +362,11 @@ def assign_brute_force(cycle, track):
             if prc:
                 assignments[submission].add(prc)
 
-    return assignments, {}, {}, 'optimal'
+    return assignments, {}, True
 
 
 def assign_reviewers(cycle, track):
-    if ASSIGNMENT_METHODS == "CMACRA":
+    if USO_REVIEW_ASSIGNMENT == "CMACRA":
         return assign_cmacra(cycle, track)
     else:
         return assign_brute_force(cycle, track)
@@ -496,29 +400,36 @@ def _create_submissions(proposal):
             tracks[special_track].append(fc[1].operating())
         else:
             track = models.ReviewTrack.objects.exclude(special=True).filter(
-                pk__in=fc[1].operating().values_list('technique__track', flat=True).distinct()).first()
+                pk__in=fc[1].operating().values_list('technique__track', flat=True).distinct()
+            ).first()
             if track:
                 tracks[track].append(fc[1].operating())
         if fc[1].commissioning().count():
             tracks[special_track].append(fc[1].commissioning())
 
-    from dynforms.models import FormType
-    tech_form = FormType.objects.all().filter(code='technical-review')
+    # create a review for each technical review type for each requested beamline, if more than one
+    # technical review type is specified in USO_TECHNICAL_REVIEWS create them all
+    review_types = models.ReviewType.objects.all().filter(code__in=USO_TECHNICAL_REVIEWS)
     to_create = []
     for track, fcs in list(tracks.items()):
         obj, created = models.Submission.objects.get_or_create(
             proposal=proposal,
             track=track,
-            cycle=cycle)
+            cycle=cycle
+        )
         items = [v for v in itertools.chain(*fcs)]
-        technical_roles = {'beamline-admin:{}'.format(i.config.facility.acronym.lower()) for i in items}
         obj.techniques.add(*items)
         obj.save()
 
-        to_create.extend([
-            models.Review(role=r, proposal=obj, kind=models.Review.TYPES.technical, spec=tech_form)
-            for r in technical_roles
-        ])
+        acronyms = {i.config.facility.acronym for i in items}
+        to_create.extend(
+            [
+                models.Review(
+                    role=rev_type.role.format(acronym), proposal=obj, type=rev_type, form_type=rev_type.form_type
+                )
+                for acronym in acronyms for rev_type in review_types
+            ]
+        )
 
     # create review objects for technical
     models.Review.objects.bulk_create(to_create)
@@ -564,7 +475,7 @@ def score_format(val, obj=None):
     if val:
         return mark_safe(f"<span style='font-weight: bold; color: {_color_scale(val, 1, 5)};'>{val:.2f}</span>")
     else:
-        return "&hellip;"
+        return mark_safe("&hellip;")
 
 
 def stdev_format(val, obj=None):

@@ -90,7 +90,7 @@ class ReviewsBlock(BaseBlock):
                 "upcoming_call": (next_cycle.reviewers.filter(user=user).exists() and
                                   next_cycle.state == cycle.STATES.pending
                                   and next_cycle.open_date <= amonth),
-                "can_review": user.reviews.filter(kind='scientific').exists() and not next_cycle.reviewers.filter(
+                "can_review": user.reviews.scientific().exists() and not next_cycle.reviewers.filter(
                     user=user).exists(),
             })
         return super().render(ctx)

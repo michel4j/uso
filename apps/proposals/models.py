@@ -16,13 +16,18 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from beamlines.models import Facility
-from dynforms.models import DynEntryMixin
+from dynforms.models import DynEntryMixin, FormType
 from misc.fields import StringListField
-from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment, Clarification, GenericContentMixin, GenericContentQueryset
+from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment, Clarification, GenericContentMixin, \
+    GenericContentQueryset
 from publications.models import SubjectArea
-from . import utils
+
 
 User = getattr(settings, "AUTH_USER_MODEL")
+USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
+USO_TECHNICAL_REVIEWS = getattr(settings, "USO_TECHNICAL_REVIEWS", [])
+USO_SCIENCE_REVIEWS = getattr(settings, "USO_SCIENCE_REVIEWS", [])
+USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", 'approval')
 
 
 def _proposal_filename(instance, filename):
@@ -73,7 +78,8 @@ class Proposal(DynEntryMixin):
 
         full_team = OrderedDict()
         full_team[self.spokesperson.email.strip().lower()] = {
-            'first_name': self.spokesperson.first_name, 'last_name': self.spokesperson.last_name, 'email': self.spokesperson.email.strip().lower(),
+            'first_name': self.spokesperson.first_name, 'last_name': self.spokesperson.last_name,
+            'email': self.spokesperson.email.strip().lower(),
             'roles': ['spokesperson']
         }
         leader = self.details.get('leader', {})
@@ -84,7 +90,8 @@ class Proposal(DynEntryMixin):
                     if email in full_team: continue
                     if email == leader.get("email", '').strip().lower(): continue
                     full_team[email] = {
-                        'first_name': member.get('first_name', ''), 'last_name': member.get('last_name', ''), 'email': email, 'roles': []
+                        'first_name': member.get('first_name', ''), 'last_name': member.get('last_name', ''),
+                        'email': email, 'roles': []
                     }
             else:
                 member = self.details.get(k, {})
@@ -94,7 +101,8 @@ class Proposal(DynEntryMixin):
                         full_team[email]['roles'].append(k)
                     else:
                         full_team[email] = {
-                            'first_name': member.get('first_name', ''), 'last_name': member.get('last_name', ''), 'email': email, 'roles': [k]
+                            'first_name': member.get('first_name', ''), 'last_name': member.get('last_name', ''),
+                            'email': email, 'roles': [k]
                         }
 
         return list(full_team.values())
@@ -113,9 +121,9 @@ class Proposal(DynEntryMixin):
             ).first()
 
     def get_techniques(self):
-        techs = list(map(int, self.details['beamline_reqs'][0]['techniques']))
-        if set(techs) & {49, 50, 51}:
-            techs.append(51)
+        techs = [int(v) for v in self.details['beamline_reqs'][0]['techniques']]
+
+        # filter to only techniques available in database
         self.details['beamline_reqs'][0]['techniques'] = list(
             Technique.objects.filter(pk__in=techs).values_list('pk', flat=True)
         )
@@ -125,28 +133,26 @@ class Proposal(DynEntryMixin):
 class SubmissionQuerySet(QuerySet):
 
     def with_scores(self):
-        return self.annotate(
-            merit=Avg(
+        """
+        Calculate average and standard deviations of each review type
+        :return:
+        """
+        annotations = {}
+        for rev_type in ReviewType.objects.scored():
+
+            annotations[f"{rev_type.code}_avg"] = Avg(
                 Case(
-                    When(Q(reviews__is_complete=True) & Q(reviews__kind='scientific'), then=F('reviews__score')), output_field=models.FloatField()
+                    When(Q(reviews__is_complete=True, reviews__type=rev_type), then=F('reviews__score')),
+                    output_field=models.FloatField()
                 )
-            ), suitability=Avg(
+            )
+            annotations[f"{rev_type.code}_std"] = StdDev(
                 Case(
-                    When(Q(reviews__is_complete=True) & Q(reviews__kind='scientific'), then=F('reviews__score_1')), output_field=models.FloatField()
+                    When(Q(reviews__is_complete=True, reviews__type=rev_type), then=F('reviews__score')),
+                    output_field=models.FloatField()
                 )
-            ), capability=Avg(
-                Case(
-                    When(Q(reviews__is_complete=True) & Q(reviews__kind='scientific'), then=F('reviews__score_2')), output_field=models.FloatField()
-                )
-            ), stdev=StdDev(
-                Case(
-                    When(Q(reviews__is_complete=True) & Q(reviews__kind='scientific'), then=F('reviews__score')), output_field=models.FloatField()
-                )
-            ), technical=Avg(
-                Case(
-                    When(Q(reviews__is_complete=True) & Q(reviews__kind='technical'), then=F('reviews__score')), output_field=models.FloatField()
-                )
-            ), ).distinct()
+            )
+        return self.annotate(**annotations).distinct()
 
 
 class SubmissionManager(models.Manager.from_queryset(SubmissionQuerySet)):
@@ -165,9 +171,11 @@ _submission_code_func = Concat(
 
 class Submission(TimeStampedModel):
     STATES = Choices(
-        (0, 'pending', 'Pending'), (1, 'started', 'Started'), (2, 'reviewed', 'Reviewed'), (3, 'complete', 'Complete'), )
+        (0, 'pending', 'Pending'), (1, 'started', 'Started'), (2, 'reviewed', 'Reviewed'),
+        (3, 'complete', 'Complete'), )
     TYPES = Choices(
-        ('user', 'User Access'), ('staff', 'Staff Access'), ('purchased', 'Purchased Access'), ('beamteam', 'Beam Team'),
+        ('user', 'User Access'), ('staff', 'Staff Access'), ('purchased', 'Purchased Access'),
+        ('beamteam', 'Beam Team'),
         ('education', 'Education/Outreach')
     )
     proposal = models.ForeignKey(Proposal, related_name='submissions', on_delete=models.CASCADE)
@@ -182,7 +190,7 @@ class Submission(TimeStampedModel):
 
     @property
     def code(self):
-        return '{0}{1:0>6}'.format(self.track.acronym, self.proposal.pk)
+        return f'{self.track.acronym}{self.proposal.pk:0>6}'
 
     def reviewer(self):
         return get_user_model().objects.filter(
@@ -199,11 +207,6 @@ class Submission(TimeStampedModel):
     def title(self):
         return self.proposal.title
 
-    def reviewers(self):
-        return Reviewer.objects.filter(
-            user__in=self.reviews.filter(kind='scientific').values_list('reviewer', flat=True)
-        )
-
     def siblings(self):
         return self.proposal.submissions.exclude(pk=self.pk)
 
@@ -212,43 +215,24 @@ class Submission(TimeStampedModel):
 
     facilities.sort_field = 'techniques__config__facility__acronym'
 
-    def all_scores(self):
-        if True or self.state == self.STATES.reviewed:
-            return {
-                'merit': [_f for _f in [utils.conv_score(r.details.get('scientific_merit')) for r in self.reviews.scientific().complete()] if _f],
-                'suitability': [_f for _f in [utils.conv_score(r.details.get('suitability')) for r in self.reviews.scientific().complete()] if _f],
-                'capability': [_f for _f in [utils.conv_score(r.details.get('capability')) for r in self.reviews.scientific().complete()] if _f],
-                'technical': [_f for _f in [utils.conv_score(r.details.get('suitability')) for r in self.reviews.technical().complete()] if _f],
-            }
-        else:
-            return {}
-
     def close(self):
         comments = ""
         for n, review in enumerate(self.reviews.complete()):
             text = review.details.get('comments', '').strip()
             if not text: continue
-            comments += "**Reviewer #**{} ({}): {}  \n\n".format(
-                n + 1, review.get_kind_display(), text
-            )
+            comments += f"**Reviewer #**{n + 1} ({review.type}): {text}  \n\n"
         self.comments = comments
         Submission.objects.filter(pk=self.pk).update(
             comments=comments, state=self.STATES.reviewed, modified=timezone.localtime(timezone.now())
         )
 
-    def technical_reviews(self):
-        return self.reviews.technical()
-
-    def scientific_reviews(self):
-        return self.reviews.scientific()
-
-    def merit_scores(self):
-        return numpy.array(
-            [_f for _f in [utils.conv_score(r.details.get('scientific_merit')) for r in self.reviews.scientific().complete()] if _f]
-        )
-
     def scores(self):
-        return {k: numpy.mean(v) if v else 0.0 for k, v in list(self.all_scores().items())}
+        summary = self.reviews.score_summary()
+        summary['facilities'] = {
+            int(r.details.get('requirements', {}).get('facility', 0)): r.score
+            for r in self.reviews.technical().complete()
+        }
+        return summary
 
     def adj(self):
         if hasattr(self, 'adjustment'):
@@ -331,8 +315,10 @@ class ReviewCycleManager(models.Manager.from_queryset(ReviewCycleQuerySet)):
 
 class ReviewCycle(DateSpanMixin, TimeStampedModel):
     STATES = Choices(
-        (0, 'pending', _('Call Pending')), (1, 'open', _('Call Open')), (2, 'assign', _('Assigning')), (3, 'review', _('Review')),
-        (4, 'evaluation', _('Allocation')), (5, 'schedule', _('Scheduling')), (6, 'active', _('Active')), (7, 'archive', _('Archived')), )
+        (0, 'pending', _('Call Pending')), (1, 'open', _('Call Open')), (2, 'assign', _('Assigning')),
+        (3, 'review', _('Review')),
+        (4, 'evaluation', _('Allocation')), (5, 'schedule', _('Scheduling')), (6, 'active', _('Active')),
+        (7, 'archive', _('Archived')), )
     TYPES = Choices(
         ('mock', 'Mock Cycle'), ('normal', 'Normal Cycle'), )
     kind = models.CharField(_('Cycle Type'), max_length=20, choices=TYPES, default=TYPES.normal)
@@ -391,7 +377,8 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
 
 class Technique(TimeStampedModel):
     TYPES = Choices(
-        ('diffraction', _('Diffraction/Scattering')), ('imaging', _('Imaging/Microscopy')), ('spectroscopy', _('Spectroscopy')),
+        ('diffraction', _('Diffraction/Scattering')), ('imaging', _('Imaging/Microscopy')),
+        ('spectroscopy', _('Spectroscopy')),
         ('other', _('Other')), )
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
@@ -513,7 +500,8 @@ class ConfigItemManager(models.Manager.from_queryset(ConfigItemQueryset)):
 
 class ConfigItem(TimeStampedModel):
     STATES = Choices(
-        ('design', 'Design'), ('construction', 'Construction'), ('commissioning', 'Commissioning'), ('operating', 'Active'), )
+        ('design', 'Design'), ('construction', 'Construction'), ('commissioning', 'Commissioning'),
+        ('operating', 'Active'), )
     config = models.ForeignKey(FacilityConfig, related_name="items", on_delete=models.CASCADE)
     technique = models.ForeignKey(Technique, related_name="items", on_delete=models.CASCADE)
     state = models.CharField(choices=STATES, default=STATES.operating, max_length=30)
@@ -572,19 +560,13 @@ class Reviewer(TimeStampedModel):
 
 class ReviewQueryset(GenericContentQueryset):
     def scientific(self):
-        return self.filter(kind=Review.TYPES.scientific).order_by('reviewer__reviewer__committee')
+        return self.filter(type__code__in=USO_SCIENCE_REVIEWS).order_by('reviewer__reviewer__committee')
 
     def technical(self):
-        return self.filter(kind=Review.TYPES.technical)
+        return self.filter(type__code__in=USO_TECHNICAL_REVIEWS)
 
     def safety(self):
-        return self.filter(kind=Review.TYPES.safety)
-
-    def ethics(self):
-        return self.filter(kind=Review.TYPES.ethics)
-
-    def equipment(self):
-        return self.filter(kind=Review.TYPES.ethics)
+        return self.filter(type__code__in=USO_SAFETY_REVIEWS)
 
     def complete(self):
         return self.filter(state__gte=Review.STATES.submitted)
@@ -593,43 +575,97 @@ class ReviewQueryset(GenericContentQueryset):
         return self.filter(state__lt=Review.STATES.submitted)
 
     def by_type(self):
-        return self.order_by('kind')
+        return self.order_by('type')
+
+    def scored(self):
+        return self.exclude(Q(type__score_fields={}) | Q(type__score_fields__isnull=True))
 
     def by_completeness(self):
-        return self.order_by('-is_complete', 'kind')
+        return self.order_by('-is_complete', 'type')
 
     def reviewers(self):
         """NOTE: returns a user queryset not a Review queryset"""
         return get_user_model().objects.filter(pk__in=self.values_list('reviewer__pk', flat=True))
 
+    def score_summary(self):
+        return {
+            score['type__code']: score['score__avg']
+            for score in self.scored().values('type__code').annotate(Avg('score')).order_by('type__code')
+        }
 
-class ReviewManager(models.Manager.from_queryset(ReviewQueryset)):
-    use_for_related_fields = True
+
+class ReviewTypeQueryset(models.QuerySet):
+    def safety(self):
+        return self.filter(code__in=USO_SAFETY_REVIEWS)
+
+    def safety_approval(self):
+        return self.filter(code=USO_SAFETY_APPROVAL)
+
+    def technical(self):
+        return self.filter(code__in=USO_TECHNICAL_REVIEWS)
+
+    def scientific(self):
+        return self.filter(code__in=USO_SCIENCE_REVIEWS)
+
+    def scored(self):
+        return self.exclude(Q(score_fields={}) | Q(score_fields__isnull=True))
+
+    def with_scores(self):
+        """
+        Calculate average and standard deviations of each review type
+        :return:
+        """
+        annotations = {}
+        for rev_type in ReviewType.objects.scored():
+
+            annotations[f"{rev_type.code}_avg"] = Avg(
+                Case(
+                    When(Q(reviews__is_complete=True, reviews__type=rev_type), then=F('reviews__score')),
+                    output_field=models.FloatField()
+                )
+            )
+            annotations[f"{rev_type.code}_std"] = StdDev(
+                Case(
+                    When(Q(reviews__is_complete=True, reviews__type=rev_type), then=F('reviews__score')),
+                    output_field=models.FloatField()
+                )
+            )
+        return self.annotate(**annotations).distinct()
+
+
+class ReviewType(TimeStampedModel):
+    code = models.SlugField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+    form_type = models.ForeignKey(FormType, on_delete=models.CASCADE, null=True)
+    score_fields = models.JSONField(default=dict, blank=True, null=True)
+    role = models.CharField(max_length=100, null=True, blank=True)
+    objects = ReviewTypeQueryset.as_manager()
+
+    def __str__(self):
+        return self.description.strip()
+
+    def is_safety(self):
+        return self.code in USO_SAFETY_REVIEWS + [USO_SAFETY_APPROVAL]
 
 
 class Review(DynEntryMixin, GenericContentMixin):
     STATES = Choices(
         (0, 'pending', 'Pending'), (1, 'open', 'Open'), (2, 'submitted', 'Submitted'), (3, 'closed', 'Closed'), )
-    TYPES = Choices(
-        ('scientific', _('Scientific Review')), ('technical', _('Technical Review')), ('safety', _('Safety Review')), ('ethics', _('Ethics Review')),
-        ('equipment', _('Equipment Review')), ('approval', _('Safety Approval')), )
     reviewer = models.ForeignKey(User, related_name='reviews', null=True, on_delete=models.SET_NULL)
     role = models.CharField(max_length=100, null=True, blank=True)
     state = models.IntegerField(choices=STATES, default=STATES.pending)
     score = models.FloatField(default=0)
-    score_1 = models.FloatField(default=0)
-    score_2 = models.FloatField(default=0)
     due_date = models.DateField(null=True)
     cycle = models.ForeignKey(ReviewCycle, verbose_name=_('Cycle'), related_name='reviews', on_delete=models.CASCADE)
-    kind = models.CharField(_('Type'), choices=TYPES, max_length=30, default=TYPES.scientific)
+    type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name='reviews')
 
-    objects = ReviewManager()
+    objects = ReviewQueryset.as_manager()
 
     def __str__(self):
-        return f"{self.reference} - {self.review_type()}"
+        return f"{self.reference} - {self.type}"
 
     def title(self):
-        return f'{self.get_kind_display()} of {self.content_type.name.title()} {self.reference}'
+        return f'{self.type} of {self.content_type.name.title()} {self.reference}'
 
     def assigned_to(self):
         if self.reviewer:
@@ -637,7 +673,7 @@ class Review(DynEntryMixin, GenericContentMixin):
         else:
             name, realm = (self.role, '') if ':' not in self.role else self.role.split(':')
             if realm:
-                return "{} ({})".format(name.replace('-', ' ').title(), realm.upper())
+                return f"{name.replace('-', ' ').title()} ({realm.upper()})"
             else:
                 return name.replace('-', ' ').title()
 
@@ -656,13 +692,6 @@ class Review(DynEntryMixin, GenericContentMixin):
                 self.details['comments_committee'].strip()
             )
         return comments
-
-    def review_type(self):
-        if self.kind == 'technical':
-            fac = Facility.objects.filter(pk=self.details.get('requirements', {}).get('facility')).first()
-            if fac:
-                return "{} {}".format(fac.acronym, self.TYPES[self.kind])
-        return self.TYPES[self.kind]
 
 
 # Aliases

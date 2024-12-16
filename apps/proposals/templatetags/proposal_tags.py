@@ -1,17 +1,20 @@
-import json
-from collections import defaultdict
+import functools
+import operator
+import pprint
+from mimetypes import MimeTypes
 
+from django import template
+from django.utils.safestring import mark_safe
+
+from proposals import models
+from proposals.utils import _color_scale, get_techniques_matrix
+from django.conf import settings
 from users.models import User
 from ..models import Proposal, Review
-from django import template
-from mimetypes import MimeTypes
-from proposals import models
-from users import utils
-from proposals.utils import _color_scale, get_techniques_matrix
-import itertools
-import functools, operator
-from django.db.models import When, BooleanField, Value, Case
-from django.utils.safestring import mark_safe
+
+
+USO_SAFETY_REVIEWS = getattr(settings, 'USO_SAFETY_REVIEWS', ['safety', 'ethics'])
+USO_TECHNICAL_REVIEWS = getattr(settings, 'USO_TECHNICAL_REVIEWS', ['technical'])
 
 register = template.Library()
 
@@ -56,50 +59,19 @@ def human_role(role):
 
 
 @register.filter
-def display_scores(review):
-    if review.kind == "scientific":
-        scores = (
-            "<div class='text-center'>"
-            "<span title='Merit'>{}</span>&emsp;"
-            "<span title='Suitability'>{}</span>&emsp;"
-            "<span title='Capability'>{}</span>"
-            "</div>"
-        ).format(
-            review.details.get('scientific_merit', 0),
-            review.details.get('suitability', 0),
-            review.details.get('capability', 0),
-        )
-    elif review.kind == "technical":
-        scores = (
-            "<div class='text-center'>"
-            "<span title='Technical Suitability'>{}</span>"
-            "</div>"
-        ).format(
-            review.details.get('suitability', 0),
-        )
-    elif review.kind in ["safety", "approval"]:
-        risk_level = review.details.get('risk_level', 5)
-        scores = (
-            "<div class='text-center'>"
-            "<span title='Risk Level'>{} Risk</span>"
-            "</div>"
-        ).format(
-            RISK_LEVELS.get(risk_level, 'Unknown'),
-        )
-    else:
-        scores = ""
-    return mark_safe(scores)
+def humanize(value):
+    return value.replace('_', ' ').title()
 
 
 @register.filter
-def display_risk_level(review):
-    if review.kind in ["safety", "approval", "technical"]:
-        risk_level = review.details.get('risk_level', 0)
-        risk_text = RISK_LEVELS.get(risk_level)
-        text = "<span class='label label-risk{} style='line-height: 18px;'>{}</span>".format(risk_level, risk_text)
-        return mark_safe(text)
-    else:
-        return ""
+def display_scores(review):
+    scores = "<div>"
+    for field, weight in review.type.score_fields.items():
+        score_name = humanize(field)
+        score_value = review.details.get(field, "")
+        scores += f"<span title='{score_name}'>{score_value}</span>&emsp;"
+    scores += "</div>"
+    return mark_safe(scores)
 
 
 @register.filter
@@ -147,31 +119,25 @@ def get_approval_reviews(context):
         return models.Review.objects.none()
 
     if hasattr(review, 'reference'):
-        reviews = review.reference.reviews.filter(kind__in=["safety", "ethics", "technical", "equipment"])
+        reviews = review.reference.reviews.safety()
     else:
         return models.Review.objects.none()
 
     rev_list = []
     for r in reviews:
-        if r.kind == 'ethics':
-            rev_list.append({
-                "review": r,
-                "rejected": [s['sample'] for s in r.details.get('samples', []) if s['decision'] == 'rejected'],
-                "exempt": [s['sample'] for s in r.details.get('samples', []) if s['decision'] == 'exempt'],
-                "approved": [s['sample'] for s in r.details.get('samples', []) if
-                             s['decision'] in ['protocol', 'ethics']],
-                "comments": r.details.get('comments', ''),
-                "completeness": r.validate().get('progress'),
-            })
-        elif r.kind == 'technical':
-            rev_list.append({
-                "review": r,
-                "comments": r.details.get('comments', ''),
-                "completeness": r.validate().get('progress'),
-            })
+        if r.type.code in USO_TECHNICAL_REVIEWS:
+            rev_list.append(
+                {
+                    "review": r,
+                    "comments": r.details.get('comments', ''),
+                    "completeness": r.validate().get('progress'),
+                }
+            )
         else:
-            hazards = functools.reduce(operator.__add__, [s.get('hazards', []) for s in r.details.get('samples', [])],
-                                       [])
+            hazards = functools.reduce(
+                operator.__add__, [s.get('hazards', []) for s in r.details.get('samples', [])],
+                []
+            )
             rev_list.append(
                 {
                     "review": r,
@@ -183,13 +149,15 @@ def get_approval_reviews(context):
                 }
             )
     for submission in review.reference.project.submissions.all():
-        technical_reviews = submission.reviews.filter(kind="technical")
+        technical_reviews = submission.reviews.technical()
         for r in technical_reviews:
-            rev_list.append({
-                "review": r,
-                "comments": r.details.get('comments', ''),
-                "completeness": r.validate().get('progress'),
-            })
+            rev_list.append(
+                {
+                    "review": r,
+                    "comments": r.details.get('comments', ''),
+                    "completeness": r.validate().get('progress'),
+                }
+            )
     return rev_list
 
 
@@ -200,7 +168,7 @@ def all_reviews_completed(context):
     else:
         return False
     if hasattr(review, 'reference'):
-        reviews = review.reference.reviews.filter(kind__in=[review.TYPES.safety, review.TYPES.ethics])
+        reviews = review.reference.reviews.safety()
         return 0 < reviews.count() == reviews.complete()
     else:
         return False
@@ -356,13 +324,14 @@ def reviewer_reviews(context):
 @register.simple_tag(takes_context=True)
 def update_review_data(context):
     data = context['data']
+    context['review_types'] = models.ReviewType.objects.filter(code__in=USO_SAFETY_REVIEWS)
     if isinstance(data, dict) and data.get('review'):
         review = models.Review.objects.filter(pk=data.get('review')).first()
         if review:
             context['data'] = {
                 'review': review.pk,
-                'spec': review.spec.form_type.code,
-                'reviewer': '' if not review.reviewer else review.reviewer
+                'form_type': review.form_type,
+                'reviewer': '' if not review.reviewer else review.reviewer,
             }
     return ""
 

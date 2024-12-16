@@ -137,7 +137,6 @@ class CreateProjects(BaseCronJob):
                 utils.create_project_allocations(
                     alloc_request.project, spec, alloc_request.cycle,
                     shifts=0, shift_request=alloc_request.shift_request,
-                    scores=alloc_request.project.scores(alloc_request.beamline),
                 )
                 models.AllocationRequest.objects.filter(pk=alloc_request.pk).update(
                     state=models.AllocationRequest.STATES.complete)

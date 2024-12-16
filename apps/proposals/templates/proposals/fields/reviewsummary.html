@@ -5,11 +5,11 @@
 {% get_approval_reviews as approval_reviews %}
 {% all_reviews_completed as all_complete %}
 {% for rev in approval_reviews %}
-<div class="tinytron {%  if rev.review.kind == 'technical' %}bg-darken{% else %}bg-white{% endif %}">
+<div class="tinytron">
 	<div class="row narrow-gutter">
 		<div class="col-xs-8" id="{{field.name}}-{{rev.review.pk}}-description">
 			<h5 class="no-vmargin">
-                {{rev.review.review_type}}
+                {{rev.review.type}}
                 <small class="text-condensed">
                     [
                     {% if rev.review.state > rev.review.STATES.open %}
@@ -24,7 +24,7 @@
 			<em class="text-muted">{% if rev.review.reviewer %}{{rev.review.reviewer}}{% else %}{{rev.review.role|human_role}}{% endif %}</em>
         </div>
         <div class="col-xs-4" id="{{field.name}}-{{rev.review.pk}}-form">
-            {% if rev.review.state < rev.review.STATES.submitted and rev.review.kind != 'technical' %}
+            {% if rev.review.state < rev.review.STATES.submitted and rev.review.type.is_safety %}
 
             <a href="#0" title="Delete Review" data-review-prefix="{{field.name}}-{{rev.review.pk}}"
                class="pull-right delete-review-command">
@@ -33,7 +33,6 @@
 
             {% endif %}
             <span class="pull-right text-right text-condensed" style="line-height: 24px;">
-                {{rev.review|display_risk_level}}
                 {% if rev.rejected %}
 				    <text class="text-danger"><span class="badge progress-bar-danger">{{rev.rejected|length}}</span>&nbsp;REJECTED</text>
 				{% endif %}
@@ -44,7 +43,7 @@
                 {% endif %}
 			</div>
 
-            {% if rev.review.kind != 'technical' %}
+            {% if rev.review.type.is_safety %}
                 <span class="review-inputs">
                     <input name="{{field.name}}.review.{{rev.review.pk}}" type="hidden" value="{{rev.review.pk}}">
                     <input name="{{field.name}}.completed.{{rev.review.pk}}" type="hidden" value="{% if rev.review.is_submitted %}1{% endif %}">
@@ -79,6 +78,5 @@
         var rev_desc = $('#' + el.attr('data-review-prefix') + '-description');
         rev_form.html('<h5 class="text-danger text-condensed pull-right">will be deleted when saved!</h5>');
         rev_desc.css('text-decoration', 'line-through');
-        console.log(el.attr('data-review-prefix'));
     });
 </script>

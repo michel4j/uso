@@ -13,9 +13,9 @@ from django.utils.translation import gettext as _
 from model_utils.choices import Choices
 from model_utils.models import TimeStampedModel
 
+from misc.functions import Age
 from .fields import RestrictedFileField
 from .middleware import get_client_address
-from misc.functions import Age
 
 User = getattr(settings, "AUTH_USER_MODEL")
 
@@ -30,7 +30,8 @@ class DateSpanQuerySet(QuerySet):
         with end_dates after the specified date, or today if no date is specified"""
         dt = timezone.now().date() if not dt else dt
         return self.filter(
-            (Q(start_date__isnull=True) | Q(start_date__lte=dt)) & (Q(end_date__isnull=True) | Q(end_date__gte=dt)))
+            (Q(start_date__isnull=True) | Q(start_date__lte=dt)) & (Q(end_date__isnull=True) | Q(end_date__gte=dt))
+        )
 
     def expired(self, dt=None):
         """Return the queryset representing all objects with an end_date prior
@@ -162,7 +163,7 @@ class Clarification(GenericContentMixin, TimeStampedModel):
         ordering = ['-created']
 
     def __str__(self):
-        return "{0}[{1}]: {2}".format(self.requester.get_full_name(), self.pk, self.reference)
+        return f"{self.requester.get_full_name()}[{self.pk}]: {self.reference}"
 
 
 def attachment_file(instance, filename):
@@ -198,8 +199,10 @@ class Attachment(GenericContentMixin, TimeStampedModel):
     )
     owner = models.ForeignKey(User, related_name='attachments', on_delete=models.CASCADE)
     description = models.CharField(max_length=100, verbose_name="name")
-    file = RestrictedFileField(upload_to=attachment_file, max_size=2097152,
-                               file_types=['application/pdf', 'image/png', 'image/jpeg'], verbose_name="Attachment")
+    file = RestrictedFileField(
+        upload_to=attachment_file, max_size=2097152,
+        file_types=['application/pdf', 'image/png', 'image/jpeg'], verbose_name="Attachment"
+    )
     slug = models.SlugField(max_length=50, blank=True, unique=True)
     kind = models.CharField(choices=TYPES, max_length=20, verbose_name="Type")
     is_editable = models.BooleanField(default=True)
@@ -207,9 +210,12 @@ class Attachment(GenericContentMixin, TimeStampedModel):
     objects = AttachmentManager()
 
     def save(self, *args, **kwargs):
-        hash = hashlib.md5("{0}{1}{2}{3}{4}".format(self.file.name, self.content_type, self.object_id, self.owner.pk,
-                                                     timezone.now().isoformat()))
-        self.slug = hash.hexdigest()
+        h = hashlib.md5(
+            f"{self.file.name}{self.content_type}{self.object_id}{self.owner.pk}{timezone.now().isoformat()}".encode(
+                'utf-8'
+            )
+        )
+        self.slug = h.hexdigest()
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -231,7 +237,7 @@ class Attachment(GenericContentMixin, TimeStampedModel):
 
     def __str__(self):
         filename = os.path.basename(self.file.name)
-        return "{0} [{1}]".format(filename, self.get_kind_display())
+        return f"{filename} [{self.get_kind_display()}]"
 
 
 class ActivityLogQueryset(QuerySet):
@@ -285,5 +291,4 @@ class ActivityLog(GenericContentMixin, TimeStampedModel):
         ordering = ('-created',)
 
     def __str__(self):
-        return '{},{}[{}]/{}'.format(self.get_kind_display(), self.content_type, self.object_id,
-                                     self.created.isoformat())
+        return f'{self.get_kind_display()},{self.content_type}[{self.object_id}]/{self.created.isoformat()}'

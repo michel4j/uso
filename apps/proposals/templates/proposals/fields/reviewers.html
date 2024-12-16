@@ -5,12 +5,12 @@
 <div class="controls {{ repeatable }}" id="{{ field.name }}-controls-{{ repeat_index }}">
     <div class="row no-space">
         <div class="field-group-item col-xs-6">
-            <select name="{{ field.name }}.spec" id="{{ field.name }}-spec{{ repeat_index }}"
+            <select name="{{ field.name }}.type" id="{{ field.name }}-type{{ repeat_index }}"
                     class="chosen select form-control" data-placeholder="Select Review Type">
-                <option value="" selected="selected" data-review-role=""></option>
-                <option value="safety_review" data-review-role="safety-reviewer">Safety Review</option>
-                <option value="ethics_review" data-review-role="ethics-reviewer">Ethics Review</option>
-                <option value="equipment_review" data-review-role="equipment-reviewer">Equipment Review</option>
+                <option value="" data-review-role=""></option>
+                {% for rev_type in review_types %}
+                <option value="{{ rev_type.pk }}" data-review-role="{{  rev_type.role }}">{{ rev_type }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="field-group-item col-xs-6">
@@ -29,22 +29,30 @@
 </div>
 
 <script>
-    $("#{{field.name}}-controls-{{repeat_index}} .chosen").chosen({
-        disable_search_threshold: 5,
-        search_contains: true,
-        allow_single_deselect: true
-    });
-
-    $('#{{field.name}}-controls-{{repeat_index}} select[name^="{{field.name}}.spec"]').change(function () {
-        var reviewer = $(this).closest('.controls').find('select[name^="{{field.name}}.reviewer"]');
-        var role = $(this).find(':selected').attr('data-review-role');
+    function update_reviewers_field(element) {
+        var reviewer = element.closest('.controls').find('select[name^="{{field.name}}.reviewer"]');
+        var role = element.find(':selected').attr('data-review-role');
         var username = reviewer.attr('data-selected-username');
         reviewer.load('{% url "reviewer-options" %}?role=' + role , function () {
             reviewer.trigger("chosen:updated");
         });
+    }
+    $('#{{field.name}}-controls-{{repeat_index}} select[name^="{{field.name}}.type"]').change(function () {
+        update_reviewers_field($(this));
     });
     $(document).on('change', 'select[name^="{{field.name}}.reviewer"]', function () {
         $(this).attr("data-selected-username", $(this).val());
     });
-    $('select[name^="{{field.name}}.spec"]').change();
+    // execute at the end
+    $(function () {
+        window.setTimeout(function () {
+            $("#{{field.name}}-controls-{{repeat_index}} .chosen").chosen({
+                disable_search_threshold: 5,
+                search_contains: true,
+                allow_single_deselect: true
+            });
+            update_reviewers_field($('select[name^="{{field.name}}.type"]'));
+        }, 0);
+    });
+
 </script>

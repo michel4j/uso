@@ -8,7 +8,8 @@
             <th colspan="2">Review</th>
             {%  if admin %}<th>Reviewer</th> {%  endif %}
             <th>Date</th>
-            <th>Scores/Results</th>
+            <th>Score/Overall</th>
+            <th>Scores/Details</th>
             <th></th>
             {% if admin %}
             <th class="text-danger">Edit</th>
@@ -19,11 +20,12 @@
         {% for rev in reviews.by_completeness %}
         <tr>
             <td width="10%">{{ rev | display_state }}</td>
-            <td>{{ rev.review_type }}</td>
+            <td>{{ rev.type }}</td>
             {%  if admin %}<td>{{ rev.assigned_to }}</td> {% endif %}
             <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.modified|date }}{% elif rev.due_date %}Due {{ rev.due_date|date }}{% else %}&hellip;{% endif %}</td>
+            <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.score|floatformat:1 }}{% else %}<em class="text-muted">incomplete</em>{%  endif %}</td>
             <td>{% if rev.state >= rev.STATES.submitted %}{{ rev|display_scores }}{% else %}<em class="text-muted">incomplete</em>{%  endif %}</td>
-            <td class="text-right">
+            <td>
                 {% if rev.state >= rev.STATES.submitted and rev.comments %}
                 <a title="Show/Hide Comments" href='#comments-{{rev.pk}}'
                    role="button"
