@@ -65,18 +65,18 @@
         {% show_facility_requirements proposal.details.beamline_reqs cycle=proposal.details.first_cycle %}
     </div>
 
-    <div class="col-sm-12 section-content">
-        {% get_selected_ancillaries data=proposal.details.ancillaries as ancillary %}
-        {% if ancillary.labs.exists or ancillary.equipment.exists %}
-            <h4>Ancillary Requirements:</h4>
-            {% if ancillary.labs.exists %}
-                <p><strong>Labs:</strong>&nbsp; {{ ancillary.labs|join:", " }}</p>
-            {% endif %}
-            {% if ancillary.equipment.exists %}
-                <p><strong>Equipment:</strong>&nbsp; {{ ancillary.equipment|join:", " }}</p>
-            {% endif %}
+    {% get_selected_ancillaries data=proposal.details.ancillaries as ancillary %}
+    {% if ancillary.labs.exists or ancillary.equipment.exists %}
+        <div class="col-sm-12 section-content">
+        <h4>Ancillary Requirements:</h4>
+        {% if ancillary.labs.exists %}
+            <p><strong>Labs:</strong>&nbsp; {{ ancillary.labs|join:", " }}</p>
         {% endif %}
-    </div>
+        {% if ancillary.equipment.exists %}
+            <p><strong>Equipment:</strong>&nbsp; {{ ancillary.equipment|join:", " }}</p>
+        {% endif %}
+        </div>
+    {% endif %}
 </div>
 
 {% if not hide_safety %}

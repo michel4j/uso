@@ -1844,6 +1844,7 @@ form {
 }
 .beamline-info {
 	.table {
+
 		th {
 			width: 30%;
 		}
@@ -2559,7 +2560,7 @@ input[checked=checked] {
 }
 .no-vmargin {
 	margin-top: 0 !important;
-	margin-bottom: 0 !important;
+	//margin-bottom: 0 !important;
 }
 .no-hmargin {
 	margin-left: 0 !important;
@@ -3548,7 +3549,7 @@ body.registration {
 	margin-right: 22px;
 	img {
 		padding: 2px;
-		height: 66%;
+		height: calc(100% * 2 / 3);
 		margin-right: -22px;
 		&:nth-child(even) {
 			align-self: flex-start;
@@ -3582,3 +3583,20 @@ span.allocation-score {
 	padding-right: 1em;
 }
 
+.folio-status {
+	padding: 0.25em 1em;
+	display: flex;
+	flex-direction: row;
+	gap: 1em;
+	justify-content: space-between;
+	> * {
+		height: 100%;
+	}
+	> h3:first-of-type, div.h3:first-of-type {
+		align-self: center;
+	}
+}
+
+.bottom-border {
+	border-bottom: solid 1px $background-color_31;
+}

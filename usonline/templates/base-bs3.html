@@ -130,13 +130,14 @@ $(document).ready(function(){
  	    $(this).remove();
  	});
 
-    $(".scrollbox").niceScroll({
+    $(".scroll-box").niceScroll({
         cursorborder: "1px solid transparent",
         cursorwidth: "9px",
         autohidemode: "leave",
-        cursoropacitymax: 0.7
+        cursorborderradius: "2px",
+        cursoropacitymax: 0.5
     });
-    $(".scrollbox").scroll(function(){
+    $(".scroll-box").scroll(function(){
         $(this).getNiceScroll().resize();
     });
     {% if request.user.is_authenticated %}

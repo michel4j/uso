@@ -284,7 +284,7 @@ class LaboratoryHistory(RolePermsViewMixin, ItemListView):
     model = LabSession
     template_name = "item-list.html"
     paginate_by = 25
-    list_columns = ['project', 'lab__acronym', 'workspaces', 'spokesperson', 'start', 'end']
+    list_columns = ['project', 'lab__acronym', 'workspaces__name', 'spokesperson', 'start', 'end']
     list_filters = ['created', 'modified', 'start', 'end']
     list_search = [
         'project__title', 'project__spokesperson__username', 'project__id', 'project__spokesperson__last_name',

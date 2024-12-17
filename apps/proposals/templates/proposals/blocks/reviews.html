@@ -3,108 +3,116 @@
 
 {% block panel_title %}Reviews{% endblock %}
 {% block panel_tools %}
-<a href="{% url 'user-reviews' %}" class="btn btn-xs btn-white pull-right" title="View all my reviews">
-    <i class="bi-list-ol icon-2 icon-fw"></i>
-</a>
+    <a href="{% url 'user-reviews' %}" class="btn btn-xs btn-white pull-right" title="View all my reviews">
+        <i class="bi-list-ol icon-2 icon-fw"></i>
+    </a>
 {% endblock %}
 {% block panel_content %}
 
-{% if upcoming_call %}
-<div class="tinytron bg-transparent">
-    <p>
-        Our next round of reviews is starting soon, and we are counting on you!
-        Please update your areas of expertise before <strong>{{ next_cycle.close_date }}</strong> to be sure we match you with
-        the most appropriate proposals.
-    </p>
-    <div class="row">
-        <div class="col-xs-12">
-			<a data-url="{% url 'reviewer-opt-out' next_cycle.pk %}" class="btn btn-sm btn-primary pull-left">
-                <i class="bi-x-lg icon-fw"></i>&nbsp;Opt-Out
-            </a>
-			<a href="{% url 'edit-reviewer-profile' %}" class="btn btn-sm btn-default pull-right">
-                <i class="bi-pencil icon-fw"></i>&nbsp;Update Expertise
-            </a>
-		</div>
+    {% if upcoming_call %}
+        <div class="tinytron bg-transparent">
+            <p>
+                Our next round of reviews is starting soon, and we are counting on you!
+                Please update your areas of expertise before <strong>{{ next_cycle.close_date }}</strong> to be sure we
+                match you with
+                the most appropriate proposals.
+            </p>
+            <div class="row">
+                <div class="col-xs-12">
+                    <a data-url="{% url 'reviewer-opt-out' next_cycle.pk %}" class="btn btn-sm btn-primary pull-left">
+                        <i class="bi-x-lg icon-fw"></i>&nbsp;Opt-Out
+                    </a>
+                    <a href="{% url 'edit-reviewer-profile' %}" class="btn btn-sm btn-default pull-right">
+                        <i class="bi-pencil icon-fw"></i>&nbsp;Update Expertise
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+
+    <div class="tinytron bg-transparent">
+        {% if reviews.pending.count %}
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4 class="no-vmargin">
+                        Review{{ reviews.pending.count|pluralize:",s" }} Needing Attention
+                        <span class="badge progress-bar-info pull-right">{{ reviews.pending.count }} of <span
+                                title="{{ all_reviews.pending.count }} reviews assigned to you, or still unclaimed">{{ all_reviews.pending.count }}</span> </span>
+                    </h4>
+                </div>
+            </div>
+            <hr class="hr-xs bottom-edge"/>
+            <div id="review-list" class="row scroll-box" style="max-height: 300px;">
+            <ul class="list-unstyled list-ruled col-xs-12">
+                {% for review in reviews.pending %}
+                    <li class="text-condensed" style="line-height: 1.7;">
+                        <a class="pull-right" href='{% url "edit-review" pk=review.pk %}'
+                           data-toggle="tooltip" title="Review Proposal"><i class="bi-pencil-square"></i></a>
+                        <span class="overflow ellipsis" title="Due {{ review.due_date|timeuntil }}">{{ review }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            </div>
+
+        {% else %}
+            <p>
+                There are currently no reviews needing your immediate attention.
+                Thanks for being a part of our review team!
+            </p>
+        {% endif %}
+
     </div>
-</div>
-{% endif %}
+    {% if user.reviewer %}
 
+        {% if user.reviewer.committee %}
+            <div class="tinytron bg-info">
+                <p>You are a Committee member in the <strong>{{ user.reviewer.committee.name }}
+                    ({{ user.reviewer.committee.acronym }})</strong> review track.</p>
+                <hr class="hr-xs">
+                {% if committee_proposals %}
+                    <a class="pull-right" href='{% url "personal-prc-reviews" %}'><i
+                            class="bi-pencil-square icon-fw"></i></a>
+                    <span class="overflow ellipsis">Manage Reviews for <span
+                            class="badge progress-bar-info">{{ committee_proposals }}</span> Proposals</span>
+                {% endif %}
 
-<div class="tinytron bg-transparent">
-    {% if reviews.pending.count %}
-    <div class="row">
-        <div class="col-xs-12">
-            <h4 class="no-vmargin">
-                Review{{reviews.pending.count|pluralize:",s"}} Needing Attention
-                <span class="badge progress-bar-info pull-right">{{reviews.pending.count}} of <span title="{{ all_reviews.pending.count }} reviews assigned to you, or still unclaimed">{{all_reviews.pending.count}}</span> </span>
+            </div>
+        {% endif %}
+
+        <div class="tinytron bg-warning">
+            <h4 class="no-vmargin">Expertise
+                <a href="{% url 'edit-reviewer-profile' %}" class="pull-right"><span class="sr-only">Edit my reviewer preferences</span><i
+                        class="bi-pencil icon-1x icon-fw"></i></a>
             </h4>
+            {% for tech in user.reviewer.techniques.all %}
+                {% if forloop.first %}
+                    <hr class="hr-xs"/>
+                {% endif %}
+                <span class="label label-primary">{{ tech }}</span>
+            {% endfor %}
+            {% for area in user.reviewer.areas.all %}
+                {% if forloop.first %}
+                    <hr class="hr-xs"/>
+                {% endif %}
+                <span class="label label-success">{{ area }}</span>
+            {% endfor %}
         </div>
-    </div>
-    <hr class="hr-xs bottom-edge"/>
-    <ul id="review-list " class="list-unstyled list-ruled">
-        {% for review in reviews.pending %}
-        <li class="text-condensed" style="line-height: 1.7;">
-            <a class="pull-right" href='{% url "edit-review" pk=review.pk %}'
-               data-toggle="tooltip" title="Review Proposal"><i class="bi-pencil-square"></i></a>
-            <span class="overflow ellipsis" title="Due {{review.due_date|timeuntil}}">{{review}}</span>
-        </li>
-        {% endfor %}
-    </ul>
-
-
-    {%  else %}
-        <p>
-        There are currently no reviews needing your immediate attention.
-        Thanks for being a part of our review team!
-        </p>
-    {% endif %}
-
-</div>
-{% if user.reviewer %}
-
-    {% if user.reviewer.committee %}
-    <div class="tinytron bg-info">
-        <p>You are a Committee member in the <strong>{{ user.reviewer.committee.name }} ({{ user.reviewer.committee.acronym}})</strong> review track.</p>
-        <hr class="hr-xs">
-        {% if committee_proposals %}
-            <a class="pull-right" href='{% url "personal-prc-reviews" %}'><i class="bi-pencil-square icon-fw"></i></a>
-            <span class="overflow ellipsis">Manage Reviews for <span class="badge progress-bar-info">{{ committee_proposals }}</span> Proposals</span>
-        {%  endif %}
-
-    </div>
-    {%  endif %}
-
-<div class="tinytron bg-warning">
-    <h4 class="no-vmargin">Expertise
-    <a href="{% url 'edit-reviewer-profile' %}" class="pull-right"><span class="sr-only">Edit my reviewer preferences</span><i class="bi-pencil icon-1x icon-fw"></i></a>
-    </h4>
-    {% for tech in user.reviewer.techniques.all %}
-    {% if forloop.first %}
-    <hr class="hr-xs"/>
-    {% endif %}
-    <span class="label label-primary">{{tech}}</span>
-    {% endfor %}
-    {% for area in user.reviewer.areas.all %}
-    {% if forloop.first %}
-    <hr class="hr-xs"/>
-    {% endif %}
-    <span class="label label-success">{{area}}</span>
-    {% endfor %}
-</div>
-{% elif user.can_review %}
-<div class="tinytron bg-primary">
-	<h4 class="no-margin">Help with the Peer Review Process</h4>
-    <hr class="hr-xs"/>
-	As an expert in your field, we would appreciate your help.  Tell us where your expertise lies, and we will match you
-    with appropriate proposals during the next cycle.
-    <div class="row">
-        <div class="col-xs-12">
-            <a href="{% url 'edit-reviewer-profile' %}" class="btn btn-sm btn-success pull-right">
-                <i class="bi-check2"></i>&emsp;I want to help!
-            </a>
+    {% elif user.can_review %}
+        <div class="tinytron bg-primary">
+            <h4 class="no-margin">Help with the Peer Review Process</h4>
+            <hr class="hr-xs"/>
+            As an expert in your field, we would appreciate your help. Tell us where your expertise lies, and we will
+            match you
+            with appropriate proposals during the next cycle.
+            <div class="row">
+                <div class="col-xs-12">
+                    <a href="{% url 'edit-reviewer-profile' %}" class="btn btn-sm btn-success pull-right">
+                        <i class="bi-check2"></i>&emsp;I want to help!
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-{% endif %}
+    {% endif %}
 {% endblock %}
 

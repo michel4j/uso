@@ -1,6 +1,6 @@
 {% extends "folio.html" %}
 {% load static %}
-
+{% load folio %}
 {% load dynforms_tags %}
 {% load beamline_tags %}
 {% load samples_tags %}
@@ -14,26 +14,26 @@
 
 {% block folio-title %}Proposal &mdash; {{ proposal.code }}{% endblock %}
 {% block folio-subtitle %}
-    Created: {{ proposal.created | date}} &ensp; Last Modified: {{ proposal.modified | date }}
+    Created: {{ proposal.created | date }} &ensp; Last Modified: {{ proposal.modified | date }}
 {% endblock %}
 {% block folio-tools-class %}
     {% if not owner and not admin %}hidden{% endif %}
-{%  endblock %}
+{% endblock %}
 
 {% block folio-tools %}
     {% if owner %}
         {% if proposal.state == proposal.STATES.draft %}
-            {%  if validation.pages %}
+            {% if validation.pages %}
                 <a href='#0' title='Incomplete Proposal' disabled class="pull-right">
                     <i class="bi-exclamation-triangle icon-2 icon-fw"></i><br/>
                     <span class="tool-label">Submit</span>
                 </a>
-            {%  else %}
+            {% else %}
                 <a href='#0' data-url='{% url "submit-proposal" pk=object.pk %}' class="pull-right">
                     <i class="bi-arrow-right-circle icon-2 icon-fw text-success"></i><br/>
                     <span class="tool-label">Submit</span>
                 </a>
-            {%  endif %}
+            {% endif %}
             <a href='{% url "edit-proposal" pk=object.pk %}' class="pull-right">
                 <i class="bi-pencil icon-2 icon-fw "></i><br/>
                 <span class="tool-label">Edit</span>
@@ -65,93 +65,88 @@
         {% endif %}
     {% endif %}
     {% for submission in proposal.submissions.all %}
-    <a href='{{ submission.get_absolute_url }}' class="pull-right" title="{{ submission.track.acronym }} Submission">
+        <a href='{{ submission.get_absolute_url }}' class="pull-right"
+           title="{{ submission.track.acronym }} Submission">
         <span class="icon-stack icon-3x" style="font-size: 73%;">
             <i class="bi-journal icon-2x"></i>
-            <strong class="icon-stack-1x icon-stack-text text-condensed" style="top: 0;">{{ submission.track.acronym }}</strong>
+            <strong class="icon-stack-1x icon-stack-text text-condensed"
+                    style="top: 0;">{{ submission.track.acronym }}</strong>
         </span><br/>
-        <span class="tool-label">{{ submission.code }}</span>
-    </a>
+            <span class="tool-label">{{ submission.code }}</span>
+        </a>
     {% endfor %}
 {% endblock %}
 
+
 {% block folio-statusbar-style %}
-    {% if proposal.state == proposal.STATES.draft %}
-        {%  if validation.pages %}
-            bg-warning
-        {%  else %}
-            bg-darken
-        {% endif %}
-    {% elif proposal.state == proposal.STATES.submitted %}
-        bg-success
-    {% endif %}
-{% endblock %}
+    {% folio_status proposal.state draft=proposal.STATES.draft success=proposal.STATES.submitted %}{% endblock %}
 
 {% block folio-statusbar %}
-    <div class="row narrow-gutter">
-         <div class="hidden-xs col-sm-3">
-             <h3 class="no-vmargin"><span class="label label-info text-condensed">{{proposal.get_state_display}}</span></h3>
-         </div>
-         <div class="col-sm-2 col-xs-4">
-             <small class="text-wide text-muted">Spokesperson:</small><br/>{{proposal.spokesperson|default:"&hellip;"}}<br/>
-             <small class="text-wide text-muted">Delegate:</small><br/>{{proposal.get_delegate|default:"&hellip;"}}
-         </div>
-         <div class="col-sm-4 col-xs-4">
-             <small class="text-wide text-muted">Address:</small><br/>
-             {% if proposal.spokesperson.address %}
-                {% with proposal.spokesperson.address as address %}
-                    <p class="text-muted text-condensed">
-                        {{ address.address_1 }},<br/> {{ address.address_2 }}, {{ address.city }},<br/>
-                        {{ address.region }}, {{ address.postal_code }}, {{ address.country }}
-                    </p>
-                {% endwith %}
-             {%  else %}
-                 &hellip;
-             {% endif %}
-         </div>
-         <div class="col-sm-3 col-xs-4">
-            <small class="text-wide text-muted">Hazards:</small><br/>
-            <div class="text-right">
+    <h3 class="no-vmargin"><span class="label label-info text-condensed">{{ proposal.get_state_display }}</span>
+    </h3>
+    <div>
+        <small class="text-wide text-muted">Spokesperson:</small><br/>{{ proposal.spokesperson|default:"&hellip;" }}<br/>
+        <small class="text-wide text-muted">Delegate:</small><br/>{{ proposal.get_delegate|default:"&hellip;" }}
+    </div>
+    <div>
+        <small class="text-wide text-muted">Address:</small><br/>
+        {% if proposal.spokesperson.address %}
+            {% with proposal.spokesperson.address as address %}
+                <p class="text-muted text-condensed">
+                    {{ address.address_1 }},<br/> {{ address.address_2 }}, {{ address.city }},<br/>
+                    {{ address.region }}, {{ address.postal_code }}, {{ address.country }}
+                </p>
+            {% endwith %}
+        {% else %}
+            &hellip;
+        {% endif %}
+    </div>
+    <div>
+        <small class="text-wide text-muted">Hazards:</small><br/>
+        <div class="pictogram-box">
             {% for hz in  proposal.details.sample_hazards|fetch_hazards %}
                 {% with 'samples/pictograms/'|add:hz.code|add:'.svg' as pictogram_svg %}
-                <img width="35" src="{% static pictogram_svg %}" title="{{ hz.name }}" style="{{ forloop.counter|hz_transforms }}">
+                    <img src="{% static pictogram_svg %}" title="{{ hz.name }}">
                 {% endwith %}
             {% empty %}
                 &emsp;&hellip;&emsp;
             {% endfor %}
-            </div>
-         </div>
-    </div>
-    {%  if proposal.state == proposal.STATES.draft and validation.pages %}
-    <div class="row narrow-gutter">
-        <hr class="hr-sm"/>
-        <i class="bi-exclamation-triangle icon-4 col-xs-1 text-warning"></i>
-        <div class="col-xs-11">Please edit and fix the following issues before submitting:<br/>
-            <ul class="list-unstyled">
-                {% for page in object.spec.pages %}
-                    {% with validation|page_errors:forloop.counter0 as errors %}{% if errors %}
-                        <li><strong>{{ page.name }}</strong> <i class="bi-arrow-right"></i> {% for f, e in errors.items %}
-                            {{ e|safe }}{% if not forloop.last %} &middot;
-                            {% endif %}{% endfor %}</li>
-                    {% endif %}{% endwith %}
-                {% endfor %}
-            </ul>
         </div>
     </div>
-    {% endif %}
 {% endblock %}
 
 {% block folio-content %}
-    {% if proposal.clarifications.count %}
-    <div class="row collapse {% if proposal.clarifications.pending.count %}in{% endif %}" id="proposal-clarifications">
-         <div class="col-xs-12">
-             <div class="tinytron bg-notes-warning">
-                 <h4 class="no-vmargin">Clarification Requests</h4>
-                 <hr class="hr-xs"/>
-                 {% include "proposals/clarifications.html" with response_url_name='proposal-clarification-response' %}
+    {% if proposal.state == proposal.STATES.draft and validation.pages %}
+        <div class="minitron bg-warning">
+        <div class="row narrow-gutter">
+            <i class="bi-exclamation-triangle icon-4 col-xs-1 text-warning"></i>
+            <div class="col-xs-11">Please edit and fix the following issues before submitting:<br/>
+                <ul class="list-unstyled">
+                    {% for page in object.spec.pages %}
+                        {% with validation|page_errors:forloop.counter0 as errors %}{% if errors %}
+                            <li><strong>{{ page.name }}</strong> <i class="bi-arrow-right"></i>
+                                {% for f, e in errors.items %}
+                                    {{ e|safe }}{% if not forloop.last %} &middot;
+                                    {% endif %}{% endfor %}</li>
+                        {% endif %}{% endwith %}
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-    </div>
+        </div>
+    {% endif %}
+
+    {% if proposal.clarifications.count %}
+        <div class="row collapse {% if proposal.clarifications.pending.count %}in{% endif %}"
+             id="proposal-clarifications">
+            <div class="col-xs-12">
+                <div class="tinytron bg-notes-warning">
+                    <h4 class="no-vmargin">Clarification Requests</h4>
+                    <hr class="hr-xs"/>
+                    {% include "proposals/clarifications.html" with response_url_name='proposal-clarification-response' %}
+                </div>
+            </div>
+        </div>
     {% endif %}
     <div class="miditron bg-transparent">
         {% include "proposals/proposal-content.html" %}

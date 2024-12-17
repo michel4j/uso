@@ -1,6 +1,7 @@
-<div id="beamline-info-box" class="row narrow-gutter">
+<div class="pad-wrapper bg-darken">
+<div id="beamline-info-box" class="row">
     <div class="{% if hide_description %}col-sm-12{% else %}col-sm-6{% endif %}">
-        <table class="table table-condensed no-vmargin">
+        <table class="table table-condensed">
             <tr>
                 <th>Source</th>
                 <td>{{ object.source }}</td>
@@ -38,19 +39,18 @@
     </div>
     {% if not hide_description %}
         <div class="col-sm-6">
-            <h5 class="no-vmargin text-condensed">{{ object.name }} ({{ object.acronym }})</h5>
+            <h5 class="text-condensed">{{ object.acronym }}</h5>
             <hr class="hr-xs"/>
             <p>{{ object.description }}</p>
             {% if config and config.comments %}
                 <div class="tinytron bg-warning text-warning"><span
                         class="text-muted">NOTE</span>: {{ config.comments }}</div>
             {% endif %}
-
         </div>
     {% endif %}
 
 </div>
-
+</div>
 <script>
     $(document).ready(function () {
         $('#beamline-info-box [data-toggle="popover"]').popover();

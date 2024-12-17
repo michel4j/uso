@@ -608,7 +608,7 @@ class ShiftRequestQueryset(models.QuerySet):
         return self.filter(state='completed')
 
     def pending(self):
-        return self.filter(state='submitted')
+        return self.filter(state__in=['submitted', 'progress'])
 
     def draft(self):
         return self.filter(state='draft')
@@ -621,6 +621,7 @@ class ShiftRequest(TimeStampedModel):
     STATES = Choices(
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
+        ('progress', 'In Progress'),
         ('completed', 'Completed')
     )
     state = models.CharField(max_length=20, choices=STATES, default='draft')

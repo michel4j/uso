@@ -58,26 +58,19 @@
     {% endif %}
 {% endblock %}
 
-{% block folio-statusbar-style %}
-    {% if object.kind != 'village' %}bg-{{ object.state }}{% endif %}
-{% endblock %}
+{% block folio-statusbar-style %}{% if object.kind != 'village' %}bg-{{ object.state }}{% endif %}{% endblock %}
 
 {% block folio-statusbar %}
-    <div class="row">
         {% if object.kind != 'village' %}
-            <div class="hidden-xs col-sm-2">
-                <h3 style="margin: 0; margin-bottom: 0.25em;"><span
-                        class="label label-info text-condensed">{{ object.get_state_display }}</span></h3>
-            </div>
-            <div class="col-xs-12 col-sm-10">
+            <h3 class="hidden-xs no-vmargin">
+                <span class="label label-info text-condensed">{{ object.get_state_display }}</span>
+            </h3>
+            <div>
                 {{ object.description }}
             </div>
-        {% else %}
-            <div class="col-xs-12">
-                {{ object.description }}
-            </div>
+        {% elif object.description.strip %}
+            <div>{{ object.description }}</div>
         {% endif %}
-    </div>
 {% endblock %}
 
 {% block folio-content %}

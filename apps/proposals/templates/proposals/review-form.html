@@ -27,7 +27,7 @@
     <div id="review-form" class="row narrow-gutter">
         <div class="col-sm-6 col-md-7 review-col">
             <div id="proposal-area" class="pagelet scroll-parent">
-                <div class="scrollbox" style="height: 100%; padding: 0.75em;">
+                <div class="scroll-box" style="height: 100%; padding: 0.75em;">
                     <div class="pagelet-body">
                         {% if review.type.is_safety %}
                             {% include "projects/safety-detail.html" with material=reference %}
@@ -44,7 +44,7 @@
                             <i class="close-command bi-x-lg pull-right" style="padding: 0.75em;"></i>
                         </div>
                     </div>
-                    <div id="extra-review-content" class="scrollbox">
+                    <div id="extra-review-content" class="scroll-box">
                         Loading ...
                     </div>
                 </div>

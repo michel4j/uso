@@ -6,25 +6,23 @@
 {% load project_tags %}
 
 {% block page_heading %}
-<span class="hidden-xs">Session Permit &mdash; </span><span class="text-muted text-narrow">{{object}}</span>
+    <span class="hidden-xs">Session Permit &mdash; </span><span class="text-muted text-narrow">{{ object }}</span>
 {% endblock %}
 
 {% block folio-title %}
-{{object.project.code}} &mdash; {{object.project.title}}
+    {{ object.project.code }} &mdash; {{ object.project.title }}
 {% endblock %}
 
 {% block folio-subtitle %}
- {{object.lab.acronym}} {{ session.get_kind_display }} Lab Permit
+    {{ object.lab.acronym }} {{ session.get_kind_display }} Lab Permit
 {% endblock %}
 
-{% block folio-statusbar-style %}
-{% if object.state == 'active' %}bg-success{% else %}bg-darken{% endif %}
-{% endblock %}
+{% block folio-statusbar-style %}{% if object.state == 'active' %}bg-success{% else %}bg-darken{% endif %}{% endblock %}
 
 {% block folio-tools %}
     {% if owner or admin %}
         {% if object.state == 'pending' %}
-             {% if admin %}
+            {% if admin %}
                 <a href="#0" data-url="{% url 'cancel-lab-session' pk=object.pk %}" class="text-danger pull-right">
                     <i class="ti icon-2 bi-x-lg icon-fw"></i><br/>
                     <span class="tool-label">Cancel</span>
@@ -45,56 +43,47 @@
 
 
 {% block folio-statusbar %}
-    <div class="row">
-         <div class="col-xs-2">
-             <h3 class="no-vmargin"><span class="label label-info text-condensed">{{object.get_state_display}}</span></h3>
-         </div>
-         <div class="col-xs-2">
-             <small class="text-wide text-muted">Lab:</small><br/>{{object.lab.name}}
-         </div>
-        <div class="col-xs-3">
-             <small class="text-wide text-muted">Equipment:</small><br/>
-             {% for eqmt in object.equipment.all %}{{ eqmt }}{% if not forloop.last %}, {% endif %}{% empty %}&hellip;{% endfor %}
-         </div>
-         <div class="col-xs-2">
-             <small class="text-wide text-muted">Representative:</small><br/>{{object.spokesperson|default:"&hellip;"}}
-         </div>
-         <div class="col-xs-3 text-right">
-             {{object.start|date:"F jS/Y H:i"}} to <br/>
-             {{object.end|date:"F jS/Y H:i"}}
-         </div>
+    <h3 class="no-vmargin"><span class="label label-info text-condensed">{{ object.get_state_display }}</span></h3>
+    <div class="hidden-xs">
+        <small class="text-wide text-muted">Lab:</small><br/>{{ object.lab.name }}
     </div>
-    <div class="row narrow-gutter">
-        <hr class="hr-xs"/>
-        <div class="col-xs-12">
-            <small class="text-wide text-muted">Required Permissions:</small><br/>
-            {% for perm_code in object.permissions.all %}
-                <small class="text-condensed label label-info">{{perm_code}} (all)</small>&ensp;
-            {% endfor  %}
-            {% for perm_code in  object.permissions.any %}
-                <small class="text-condensed label label-primary">{{perm_code}} (one)</small>
-            {% endfor  %}
-        </div>
+    <div>
+        <small class="text-wide text-muted">Equipment:</small><br/>
+        {% for eqmt in object.equipment.all %}{{ eqmt }}{% if not forloop.last %}
+            , {% endif %}{% empty %}&hellip;{% endfor %}
+    </div>
+    <div class="hidden-xs">
+        <small class="text-wide text-muted">Representative:</small><br/>{{ object.spokesperson|default:"&hellip;" }}
+    </div>
+    <div>
+        <small class="text-wide text-muted">Start:</small><br/>
+        {{ object.start|date:"M jS/Y H:i" }}
+    </div>
+    <div>
+        <small class="text-wide text-muted">End:</small><br/>
+        {{ object.end|date:"M jS/Y H:i" }}
     </div>
 {% endblock %}
 
 {% block folio-content %}
+    {% include "projects/permit-permissions.html" %}
     <div class="pagelet-body">
         <div class="row narrow-gutter">
-        {% include "projects/session-team.html" with project=object.project permissions=object.permissions %}
+            {% include "projects/session-team.html" with project=object.project permissions=object.permissions %}
         </div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    function initScrollers(sel) {
-        $(sel).niceScroll({
-            cursoropacitymax: 0
+    <script>
+        function initScrollers(sel) {
+            $(sel).niceScroll({
+                cursoropacitymax: 0
+            });
+        }
+
+        $(document).ready(function () {
+            initScrollers(".scroll-child");
         });
-    }
-    $(document).ready(function(){
-        initScrollers(".scroll-child");
-    });
-</script>
+    </script>
 {% endblock %}
