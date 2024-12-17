@@ -1,0 +1,25 @@
+{% extends "item-list.html" %}
+{% load static %}
+
+
+{% block folio-content %}
+    <div class="pad-wrapper">
+        <div class="row">
+            <div class="list-tools">
+                <span>
+                {% include "itemlist/filters.html" %}
+                </span>
+            </div>
+        </div>
+        <div class="row">
+            {% for object in object_list %}
+                <div class="grid-cell col-xs-12">
+                   {% include "proposals/assigned-grid.html" %}
+                </div>
+            {% endfor %}
+            {% include "itemlist/pagination.html" %}
+        </div>
+    </div>
+{% endblock %}
+
+
