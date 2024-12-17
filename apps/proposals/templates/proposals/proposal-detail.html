@@ -122,7 +122,7 @@
             <i class="bi-exclamation-triangle icon-4 col-xs-1 text-warning"></i>
             <div class="col-xs-11">Please edit and fix the following issues before submitting:<br/>
                 <ul class="list-unstyled">
-                    {% for page in object.spec.pages %}
+                    {% for page in object.form_type.pages %}
                         {% with validation|page_errors:forloop.counter0 as errors %}{% if errors %}
                             <li><strong>{{ page.name }}</strong> <i class="bi-arrow-right"></i>
                                 {% for f, e in errors.items %}

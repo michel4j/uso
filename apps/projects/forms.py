@@ -21,7 +21,7 @@ from scheduler.utils import round_time
 
 
 class ProjectForm(DynFormMixin, forms.ModelForm):
-    form_type = 'project'
+    type_code = 'project'
 
     class Meta:
         model = models.Project
@@ -42,7 +42,7 @@ class ProjectForm(DynFormMixin, forms.ModelForm):
 
 
 class MaterialForm(DynFormMixin, forms.Form):
-    form_type = 'amendment'
+    type_code = 'amendment'
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance', None)
@@ -590,7 +590,7 @@ class SessionForm(forms.ModelForm):
 
 
 class TeamForm(DynFormMixin, forms.ModelForm):
-    form_type = 'team'
+    type_code = 'team'
     details = forms.Field(required=False)
 
     class Meta:

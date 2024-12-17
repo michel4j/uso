@@ -1,6 +1,11 @@
 {% load dynforms_tags %}
 <h5 class="no-tmargin">Please fix the following issues before submitting:</h5>
 <ul class="list-unstyled">
+{% if form.errors %}
+    {% for error in form.errors.values %}
+    {{ error }}
+    {% endfor %}
+{% endif %}
 {% for name, error in errors.items %}
     <li>
         <a href="#{{ name }}-group" title="Go to field">

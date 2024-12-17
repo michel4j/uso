@@ -170,26 +170,21 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     def can_review(self):
         return self.classification in [self.CLASSIFICATIONS.faculty, self.CLASSIFICATIONS.postdoc, 'staff']
 
-    def fetch_profile(self, data=None, force=False, delay=15):
+    def fetch_profile(self,force=False, delay=15):
         # update profile only once per `delay` minutes
         if not self.last_updated:
             force = True
         now = timezone.localtime(timezone.now())
-        profile = data
-        if (force or self.last_updated <= now - timedelta(minutes=delay)) and not data:
-            profile = data or USO_PROFILE_MANAGER.fetch_profile(self.username)
-
-        if not profile:
-            return self
 
         # update the data
-        for key, val in profile.items():
-            if key in USO_PROFILE_MANAGER.PROFILE_FIELDS:
-                setattr(self, key, val)
+        if force or self.last_updated <= now - timedelta(minutes=delay):
+            profile = USO_PROFILE_MANAGER.fetch_profile(self.username)
+            for key, val in profile.items():
+                if key in USO_PROFILE_MANAGER.PROFILE_FIELDS:
+                    setattr(self, key, val)
 
-        self.last_updated = now
-        self.save()
-        return self
+            self.last_updated = now
+            self.save()
 
     def update_profile(self, data=None, photo=None):
         # update remote profile in PeopleDB
@@ -197,8 +192,9 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         if data or photo:
             profile = USO_PROFILE_MANAGER.update_profile(self.username, data, photo=photo)
             if profile:
-                self.fetch_profile(data=profile)
+                self.fetch_profile()
                 return profile
+        return data
 
     def __str__(self):
         return self.get_full_name()

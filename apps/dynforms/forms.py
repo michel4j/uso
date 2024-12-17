@@ -17,6 +17,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from model_utils import Choices
 
+from proposals.templatetags.proposal_tags import humanize
 from . import models
 from .fields import FieldType
 from .utils import Queryable, DotExpandedDict, build_Q, Crypt
@@ -400,15 +401,8 @@ class DynFormMixin(object):
         cleaned_data, errors = self.custom_clean(data)
         self.cleaned_data['details'] = cleaned_data
         if errors:
-            msg = ''.join(
-                ['<ul>'] +
-                [
-                    '<li>{}: {}</>'.format(k, v) for k, v in list(errors.items())
-                ] +
-                ['</ul>']
-            )
-
-            raise forms.ValidationError(mark_safe(msg))
+            for field, error in errors.items():
+                self.add_error(None, f'{humanize(field)}: {error}')
         return self.cleaned_data
 
     def custom_clean(self, data):
