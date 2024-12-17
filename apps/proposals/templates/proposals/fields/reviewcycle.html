@@ -21,11 +21,16 @@
     </div>
 </div>
 <script>
-	$("#{{field.name}}-controls .chosen").chosen({
-		placeholder_text_single: "{{field.label}}",
-		disable_search_threshold: 5,
-		search_contains: true,
-	});
+    $(function(){
+        window.setTimeout(function(){
+            $("#{{field.name}}-controls .chosen").chosen({
+                placeholder_text_single: "{{field.label}}",
+                disable_search_threshold: 5,
+                search_contains: true,
+            });
+        }, 0);
+    });
+
     $(document).on('change', '#{{field.name}}', function(){
 		var cycle_id = $(this).val();
     	var info_url = "{% url 'cycle-info' %}" + cycle_id + "/";

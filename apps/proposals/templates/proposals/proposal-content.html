@@ -11,20 +11,6 @@
     <div class="col-sm-12 section-content">
         <div class="row">
             <div class="col-sm-12">
-
-                <div class="pull-right">
-                    {% for hz in proposal.details.sample_hazards|fetch_hazards %}
-                        {% if forloop.first %}
-                            <div class="pull-right" style="min-height: 75px; margin-top: 0.75em;">{% endif %}
-                    {% with 'samples/pictograms/'|add:hz.code|add:'.svg' as pictogram_svg %}
-                        <img width="45" src="{% static pictogram_svg %}" title="{{ hz.name }}"
-                             style="{{ forloop.counter|hz_transforms }}">
-                    {% endwith %}
-                    {% if forloop.last %}</div>
-                        <div style="width:{% widthratio 22.5 1 forloop.counter|add:"1" %}px;"></div>{% endif %}
-                    {% endfor %}
-                </div>
-
                 <div class="pull-left">
                     <span class="text-condensed text-muted"><strong>
                         {{ reference }}

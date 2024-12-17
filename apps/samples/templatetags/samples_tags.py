@@ -156,8 +156,11 @@ def get_ethics_samples(context, data=None):
 @register.simple_tag(takes_context=True)
 def get_samples(context, data=None):
     data = [] if not data else data
-    qties = {int(v['sample']): v['quantity'] for v in data if v}
-    return [(s, qties.get(s.pk)) for s in models.Sample.objects.filter(pk__in=list(qties.keys()))]
+    quantities = {int(v['sample']): v['quantity'] for v in data if v}
+    return [
+        (s, quantities.get(s.pk))
+        for s in models.Sample.objects.filter(pk__in=quantities.keys()).order_by('kind')
+    ]
 
 
 @register.simple_tag(takes_context=True)

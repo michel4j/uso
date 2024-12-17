@@ -31,6 +31,6 @@ $("#{{field.name}}_othersrc").change(function(){
 	} else {
 		$("#{{field.name}}_other").removeAttr("checked");
 	}
-	$("#{{field.name}}_other").change();
+	$("#{{field.name}}_other").trigger("change");
 });
 </script>
