@@ -123,6 +123,7 @@ class AttachmentForm(forms.ModelForm):
                     Div(Field('kind', css_class="chosen"), css_class="col-xs-2"),
                     Div('description', css_class="col-xs-3"),
                     Div(Field('file', template="%s/file_input.html"), css_class="col-xs-7"),
+                    Field('owner'), Field('object_id'), Field('content_type'),
                     css_class="row narrow-gutter"
                 ),
             )
