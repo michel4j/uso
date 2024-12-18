@@ -26,7 +26,7 @@
             <i class="icon-2 bi-clock-history icon-fw"></i><br/>
             <span class="tool-label">View Log</span>
         </a>
-        {% if object.state == 'ready' %}
+        {% if object.state == object.STATES.ready %}
              {% if admin %}
                 <a href="#0" data-url="{% url 'delete-session' pk=object.pk %}" class="text-danger pull-right">
                     <i class="ti icon-2 bi-trash icon-fw"></i><br/>
@@ -37,7 +37,7 @@
                 <i class="icon-2 bi-power icon-fw"></i><br/>
                 <span class="tool-label">Sign-On</span>
             </a>
-        {% elif object.state == 'live' %}
+        {% elif object.state == object.STATES.live %}
             {% if object.is_live %}
             <a href="#0" data-url="{% url 'session-signoff' pk=object.pk %}" class="pull-left">
                 <i class="ti icon-2 bi-power icon-fw"></i><br/>
@@ -69,21 +69,20 @@
 {% endblock %}
 
 {% block folio-statusbar %}
-
-             <h3 class="no-vmargin"><span class="label label-info text-condensed">{{object.get_state_display}}</span></h3>
-         <div>
-             <small class="text-wide text-muted">Beamline:</small><br/>{{object.beamline.acronym}}
-         </div>
-         <div>
-             <small class="text-wide text-muted">Staff:</small><br/>{{object.staff}}
-         </div>
-         <div>
-             <small class="text-wide text-muted">Representative:</small><br/>{{object.spokesperson|default:"&hellip;"}}
-         </div>
-         <div>
-             {{object.start|date:"F jS/Y H:i"}} &ndash; <br/>
-             {{object.end|date:"F jS/Y H:i"}} ({{ object.start|get_time:object.end|naturaltime }})
-         </div>
+     <h3 class="no-vmargin"><span class="label label-info text-condensed">{{object.get_state_display}}</span></h3>
+     <div>
+         <small class="text-wide text-muted">Beamline:</small><br/>{{object.beamline.acronym}}
+     </div>
+     <div>
+         <small class="text-wide text-muted">Staff:</small><br/>{{object.staff}}
+     </div>
+     <div>
+         <small class="text-wide text-muted">Representative:</small><br/>{{object.spokesperson|default:"&hellip;"}}
+     </div>
+     <div>
+         {{object.start|date:"F jS/Y H:i"}} &ndash; <br/>
+         {{object.end|date:"F jS/Y H:i"}} ({{ object.start|get_time:object.end|naturaltime }})
+     </div>
 {% endblock %}
 
 {% block folio-content %}
