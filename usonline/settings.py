@@ -184,9 +184,21 @@ register_serializer('yml', 'django.core.serializers.pyyaml')
 
 from users.profiles import ExternalProfileManager
 
+# ROLES
+USO_ADMIN_ROLES = ["admin:uso"]
+USO_CONTRACTS_ROLES = ["staff:contracts"]
+USO_CURATOR_ROLES = ["curator:publications"]
+USO_HSE_ROLES = ["staff:hse"]
+USO_MANAGER_ROLES = ["manager:science"]
+USO_REVIEWER_ROLES = ["reviewer"]
+USO_STAFF_ROLES = ["staff"]
+USO_STUDENT_ROLES = ["student"]
+USO_USER_ROLES = ["user"]
+USO_FACILITY_ADMIN_ROLE = 'admin:-'     # role templates '-' means propagate down subunits, '*' means don't propagate
+USO_FACILITY_STAFF_ROLE = 'staff:-'     # '+' means propagate up subunits
+
+
 USO_THROTTLE_KEY = get_random_bytes(16)
-USO_ADMIN_ROLES = ["administrator:uso", "developer-admin", "employee"]
-USO_USER_AGREEMENT = "80ae507a-d622-4792-b376-f9f5b4b02ae0"
 USO_ADMIN_PERMS = []
 USO_OPEN_WEATHER_KEY = "fc083799c6457d859764913163f6b584"
 USO_PROFILE_MANAGER = ExternalProfileManager

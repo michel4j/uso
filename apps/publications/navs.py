@@ -1,6 +1,11 @@
+from django.conf import settings
 from misc.navigation import BaseNav
 from django.urls import reverse
-from datetime import datetime
+
+
+USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ['staff'])
+USO_CURATOR_ROLES = getattr(settings, 'USO_CURATOR_ROLES', ['curator:publications'])
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ['admin:uso'])
 
 
 class Publications(BaseNav):
@@ -24,35 +29,35 @@ class Keywords(BaseNav):
 class Summary(BaseNav):
     parent = Publications
     label = 'Facility Summary'
-    permissions = ['employee']
+    roles = USO_STAFF_ROLES
     url = reverse('activity-summary')
 
 
 class Metrics(BaseNav):
     parent = Publications
     label = 'Quality Metrics'
-    permissions = ['employee']
+    roles = USO_STAFF_ROLES
     url = reverse('quality-summary')
 
 
 class Funding(BaseNav):
     parent = Publications
     label = 'Funding Summary'
-    permissions = ['employee']
+    roles = USO_STAFF_ROLES
     url = reverse('funding-summary')
 
 
 class Manage(BaseNav):
     parent = Publications
     label = 'Edit Publications'
-    roles = ['publications-admin']
+    roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
     url = reverse('publication-admin-list')
 
 
 class Review(BaseNav):
     parent = Publications
     label = 'Review Submissions'
-    roles = ['publications-admin']
+    roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
     url = reverse('publication-review-list')
 
 

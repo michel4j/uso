@@ -1537,11 +1537,12 @@ ul.icons-list {
 .icon-6 {
 	font-size: 5.5em;
 }
-body.error-body {
+.error-wrapper {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-	min-height: 80vh;
+	min-height: 100vh;
 }
 .tinytron {
 	padding: 0.75em !important;
@@ -1699,11 +1700,11 @@ hr.hr-xxs {
 	margin: .25em 0;
 }
 #error-page {
-	min-height: 50%;
+	min-height: 50vh;
 	font-size: 120%;
 	font-weight: 300;
-	width: 50%;
-	margin: 0 auto;
+	max-width: 50vw;
+	margin: auto;
 	align-self: center;
 	background: #fff;
 	h1 {

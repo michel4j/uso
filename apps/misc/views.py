@@ -2,10 +2,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect, JsonResponse
 from django.utils import timezone
 from django.views.generic import edit, View
-
+from django.conf import settings
 from . import forms
 from . import models
 from roleperms.views import RolePermsViewMixin
+
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 
 
 class JSONResponseMixin(object):
@@ -34,7 +36,7 @@ class ManageAttachments(RolePermsViewMixin, edit.CreateView):
     model = models.Attachment
     reference_model = None
     form_class = forms.AttachmentForm
-    admin_roles = ["administrator:uso"]
+    admin_roles = USO_ADMIN_ROLES
 
     def get_success_url(self):
         return self.request.get_full_path()
@@ -70,7 +72,7 @@ class ManageAttachments(RolePermsViewMixin, edit.CreateView):
 
 class DeleteAttachment(RolePermsViewMixin, edit.DeleteView):
     model = models.Attachment
-    admin_roles = ["administrator:uso"]
+    admin_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         obj = self.get_object()

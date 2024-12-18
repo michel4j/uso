@@ -1,5 +1,9 @@
+from django.conf import settings
+
 from misc.navigation import BaseNav
 from django.urls import reverse
+
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
 
 
 class Scheduling(BaseNav):
@@ -17,6 +21,6 @@ class Current(BaseNav):
 class List(BaseNav):
     parent = Scheduling
     label = 'List of Schedules'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     url = reverse('schedule-list')
     styles = "hidden-xs"

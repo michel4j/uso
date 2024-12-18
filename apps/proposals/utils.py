@@ -409,7 +409,7 @@ def _create_submissions(proposal):
 
     # create a review for each technical review type for each requested beamline, if more than one
     # technical review type is specified in USO_TECHNICAL_REVIEWS create them all
-    review_types = models.ReviewType.objects.all().filter(code__in=USO_TECHNICAL_REVIEWS)
+    review_types = models.ReviewType.objects.technical()
     to_create = []
     for track, fcs in list(tracks.items()):
         obj, created = models.Submission.objects.get_or_create(

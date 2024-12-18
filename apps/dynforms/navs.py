@@ -3,12 +3,14 @@ from django.urls import reverse
 
 from misc.navigation import BaseNav, RawNav
 
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
+
 
 class Forms(BaseNav):
     label = 'Forms'
     icon = 'bi-layout-text-window-reverse'
     weight = 100
-    roles = ['developer-admin']
+    roles = USO_ADMIN_ROLES
     url = reverse('dynforms-list')
     styles = "hidden-xs"
 

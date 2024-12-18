@@ -1,4 +1,6 @@
 import itertools
+import re
+from functools import lru_cache
 
 from django.conf import settings
 from django.db import models
@@ -13,6 +15,8 @@ from misc.utils import flatten
 from scheduler.models import Event
 
 User = getattr(settings, "AUTH_USER_MODEL")
+USO_FACILITY_STAFF_ROLE = getattr(settings, "USO_FACILITY_STAFF_ROLE", "staff:+")
+USO_FACILITY_ADMIN_ROLE = getattr(settings, "USO_FACILITY_ADMIN_ROLE", "admin:-")
 
 
 class FacilityManager(models.Manager):
@@ -92,15 +96,38 @@ class Facility(TimeStampedModel):
             False: ['{}-USER']
         }[remote]
         _perms = [perm.format(bl.acronym) for bl in self.utrace(stop='village') for perm in perms]
-        return user.has_perms(_perms) or self.is_staff(user)
+        return user.has_any_perm(*_perms) or self.is_staff(user)
+
+    @lru_cache(maxsize=128)
+    def expand_role(self, full_role: str) -> list[str]:
+        """
+        Takes a role string of the form <role>(:[+-*])? expands it for this facility and it's parents
+        or children.
+        :param full_role: The role string to expand
+        """
+
+        if m := re.match(r'^(?P<role>[\w_-]+)(?::(?P<wildcard>[+*-]))?$', full_role):
+            role = m.group('role')
+            wildcard = m.group('wildcard')
+            if wildcard == '+':
+                return [f"{role}:{bl.acronym.lower()}" for bl in self.dtrace()]
+            elif wildcard == '-':
+                return [f"{role}:{bl.acronym.lower()}" for bl in self.utrace()]
+            elif wildcard == '*':
+                return [f"{role}:{self.acronym.lower()}"]
+            else:
+                return [full_role.format(self.acronym.lower())]
+
+        return [full_role.format(self.acronym.lower())]
 
     def is_staff(self, user):
-        _roles = ["beamline-staff:{}".format(bl.acronym.lower()) for bl in self.utrace()]
-        return user.has_roles(_roles)
+        _roles = self.expand_role(USO_FACILITY_STAFF_ROLE)
+        return user.has_any_role(*_roles)
 
     def is_admin(self, user):
-        _roles = ["beamline-admin:{}".format(bl.acronym.lower()) for bl in self.utrace()]
-        return user.has_roles(_roles)
+
+        _roles = self.expand_role(USO_FACILITY_ADMIN_ROLE)
+        return user.has_any_role(*_roles)
 
     def natural_key(self):
         return (self.acronym,)

@@ -23,6 +23,7 @@ from . import serializers
 from . import utils
 
 STATES = models.Schedule.STATES
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ["admin:uso"])
 
 
 def _fmt_states(state, obj=None):
@@ -37,7 +38,7 @@ class ScheduleListView(RolePermsViewMixin, ItemListView):
     queryset = models.Schedule.objects.all()
     template_name = "item-list.html"
     paginate_by = 15
-    allowed_roles = ["administrator:uso"]
+    allowed_roles = USO_ADMIN_ROLES
     link_url = 'schedule-modes-edit'
     list_filters = ['start_date', 'end_date', 'state']
     list_columns = ['description', 'state', 'config', 'state', 'start_date', 'end_date']
@@ -84,8 +85,8 @@ class EventEditor(RolePermsViewMixin, detail.DetailView):
     template_name = "scheduler/editor.html"
     selector_template = None
     model = models.Schedule
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
     editor_type = 'event'
     allow_reservations = False
 
@@ -314,7 +315,7 @@ class CreateSchedule(RolePermsViewMixin, edit.CreateView):
 class PromoteSchedule(RolePermsViewMixin, ConfirmDetailView):
     model = models.Schedule
     template_name = "scheduler/forms/switch.html"
-    allowed_roles = ["administrator:uso"]
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_context_data(self, **kwargs):
         STATE_INDEX = {models.Schedule.STATES.draft: 0, models.Schedule.STATES.tentative: 1, self.model.STATES.live: 2}

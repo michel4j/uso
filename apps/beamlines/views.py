@@ -1,5 +1,5 @@
 import calendar
-
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.http import HttpResponseRedirect
@@ -19,11 +19,14 @@ from . import forms
 from . import models
 from . import serializers
 
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
+USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ["staff"])
+
 
 class BeamlineList(RolePermsViewMixin, ItemListView):
     model = models.Facility
     template_name = "beamlines/facility-list.html"
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
     list_title = 'Facilities'
     list_columns = ['name', 'acronym', 'kind', 'state']
     link_url = 'facility-detail'
@@ -40,7 +43,7 @@ def _fmt_codes(bls, obj=None):
 class LaboratoryList(RolePermsViewMixin, ItemListView):
     model = models.Lab
     template_name = "item-list.html"
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
     list_title = 'Laboratories'
     list_columns = ['name', 'acronym', 'permission_names', 'num_workspaces', 'available']
     link_url = 'lab-detail'
@@ -53,7 +56,7 @@ class LaboratoryList(RolePermsViewMixin, ItemListView):
 class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
     template_name = 'beamlines/detail.html'
     model = models.Facility
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
 
     def check_admin(self):
         facility = self.get_object()
@@ -85,8 +88,8 @@ class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
 class LaboratoryDetail(RolePermsViewMixin, detail.DetailView):
     template_name = 'beamlines/lab.html'
     model = models.Lab
-    admin_roles = ['administrator:uso', 'employee:hse']
-    allowed_roles = ['employee']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_STAFF_ROLES
 
 
 class FacilityDetails(RolePermsViewMixin, TemplateView):
@@ -128,7 +131,7 @@ class CreateFacility(RolePermsViewMixin, edit.CreateView):
     template_name = "beamlines/form.html"
     model = models.Facility
     success_url = reverse_lazy('beamline-list')
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_initial(self):
         initial = super().get_initial()
@@ -142,7 +145,7 @@ class EditFacility(RolePermsViewMixin, edit.UpdateView):
     template_name = "beamlines/form.html"
     model = models.Facility
     success_url = reverse_lazy('beamline-list')
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.facility = self.get_object()
@@ -293,8 +296,8 @@ class LaboratoryHistory(RolePermsViewMixin, ItemListView):
     list_transforms = {'start': _fmt_localtime, 'end': _fmt_localtime}
     link_url = "lab-permit"
     order_by = ['-modified']
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['employee:hse', 'administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_STAFF_ROLES
 
     def get_list_title(self):
         return "{} Session History".format(self.lab)

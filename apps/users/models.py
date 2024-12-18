@@ -3,6 +3,7 @@ import hashlib
 import json
 import operator
 from datetime import timedelta
+from functools import lru_cache
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -19,8 +20,8 @@ from misc.fields import StringListField
 from misc.models import DateSpanMixin
 from roleperms.models import RolePermsUserMixin
 
-USO_AMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', [''])
-USO_AMIN_PERMS = getattr(settings, 'USO_ADMIN_PERMS', [''])
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', [''])
+USO_REVIEWER_ROLES = getattr(settings, 'USO_REVIEWER_ROLES', ['reviewer'])
 USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER')
 
 
@@ -86,8 +87,8 @@ class CustomUserManager(BaseUserManager):
         """
         Creates and saves a superuser with the given username and password.
         """
-        other_fields['roles'] = USO_AMIN_ROLES
-        other_fields['permissions'] = USO_AMIN_PERMS
+        other_fields['roles'] = USO_ADMIN_ROLES
+        other_fields['permissions'] = USO_ADMIN_PERMS
         user = self.create_user(username, password=password, **other_fields)
         return user
 
@@ -161,14 +162,14 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
 
     @property
     def is_staff(self):
-        return 'employee' in self.roles
+        return self.has_any_role(*USO_ADMIN_ROLES)
 
     @property
     def is_superuser(self):
-        return 'developer-admin' in self.roles or 'administrator:uso' in self.roles
+        return self.has_any_role(*USO_ADMIN_ROLES)
 
     def can_review(self):
-        return self.classification in [self.CLASSIFICATIONS.faculty, self.CLASSIFICATIONS.postdoc, 'staff']
+        return self.has_any_role(*USO_REVIEWER_ROLES)
 
     def fetch_profile(self,force=False, delay=15):
         # update profile only once per `delay` minutes

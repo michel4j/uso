@@ -1,6 +1,7 @@
 import json
 
 from django import http
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
 from django.contrib.messages.views import SuccessMessageMixin
@@ -20,6 +21,11 @@ from itemlist.views import ItemListView
 from roleperms.views import RolePermsViewMixin
 
 MAX_RESULTS = 30
+
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
+USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff'])
+USO_CURATOR_ROLES = getattr(settings, "USO_CURATOR_ROLES", ['curator:publications'])
+USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse', 'employee:hse'])
 
 
 class HSDBSearch(RolePermsViewMixin, TemplateView):
@@ -124,7 +130,7 @@ class SampleListView(RolePermsViewMixin, ItemListView):
     list_search = ['name', 'description', 'state', 'kind']
     order_by = ['-created', ]
     owner_field = 'owner'
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
 
 class UserSampleListView(SampleListView):
@@ -227,7 +233,7 @@ class SampleDelete(RolePermsViewMixin, ConfirmDetailView):
 
     def confirmed(self, *args, **kwargs):
         obj = self.get_object()
-        msg = 'Sample "{}" deleted'.format(obj)
+        msg = f'Sample "{obj}" deleted'
         obj.delete()
         messages.success(self.request, msg)
         return http.JsonResponse({"url": self.get_success_url()})

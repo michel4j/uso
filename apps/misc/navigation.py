@@ -7,6 +7,7 @@ from django.conf import settings
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', [])
 USO_ADMIN_PERMS = getattr(settings, 'USO_ADMIN_PERMS', [])
 
+
 def autodiscover():
     load('navs')
 
@@ -64,13 +65,13 @@ class BaseNav(object, metaclass=NavMeta):
         if self.roles and self.permissions:
             roles = self.roles + USO_ADMIN_ROLES
             perms = self.permissions + USO_ADMIN_PERMS
-            return request.user.has_roles(roles) or request.user.has_perms(perms)
+            return request.user.has_any_role(*roles) or request.user.has_any_perm(*perms)
         elif self.roles:
             roles = self.roles + USO_ADMIN_ROLES
-            return request.user.has_roles(roles)
+            return request.user.has_any_role(*roles)
         elif self.permissions:
             perms = self.permissions + USO_ADMIN_PERMS
-            return request.user.has_perms(perms)
+            return request.user.has_any_perm(*perms)
         else:
             return True
 
@@ -103,13 +104,13 @@ class RawNav(object):
         if self.roles and self.permissions:
             roles = self.roles + USO_ADMIN_ROLES
             perms = self.permissions + USO_ADMIN_PERMS
-            return request.user.has_roles(roles) or request.user.has_perms(perms)
+            return request.user.has_any_role(*roles) or request.user.has_any_perm(*perms)
         elif self.roles:
             roles = self.roles + USO_ADMIN_ROLES
-            return request.user.has_roles(roles)
+            return request.user.has_any_role(*roles)
         elif self.permissions:
             perms = self.permissions + USO_ADMIN_PERMS
-            return request.user.has_perms(perms)
+            return request.user.has_any_perm(*perms)
         else:
             return True
 

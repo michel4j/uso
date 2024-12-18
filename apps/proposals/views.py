@@ -34,6 +34,10 @@ from .templatetags import proposal_tags
 USO_SAFETY_REVIEWS = getattr(settings, 'USO_SAFETY_REVIEWS', [])
 USO_SCIENCE_REVIEWS = getattr(settings, 'USO_SCIENCE_REVIEWS', [])
 USO_SAFETY_APPROVAL = getattr(settings, 'USO_SAFETY_APPROVAL', "approval")
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
+USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff', 'employee'])
+USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse', 'employee:hse'])
+USO_MANAGER_ROLES = getattr(settings, "USO_MANAGER_ROLES", ['manager:science'])
 
 
 def _state_lbl(st, obj=None):
@@ -86,7 +90,7 @@ class UserProposalList(RolePermsViewMixin, ItemListView):
 class ProposalList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     list_title = 'All Draft Proposals'
-    allowed_roles = ["administrator:uso"]
+    allowed_roles = USO_ADMIN_ROLES
     list_columns = ['title', 'spokesperson', 'id', 'state']
     list_filters = ['state', 'modified', 'created']
     list_transforms = {'state': _state_lbl, }
@@ -102,7 +106,7 @@ class ProposalList(RolePermsViewMixin, ItemListView):
 
 class PRCList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
-    allowed_roles = ["administrator:uso"]
+    allowed_roles = USO_ADMIN_ROLES
     list_columns = ['user', 'committee', 'active']
     list_filters = ['modified', 'created']
     link_url = "prc-reviews"
@@ -151,7 +155,7 @@ class CreateProposal(RolePermsViewMixin, DynCreateView):
 class EditProposal(RolePermsViewMixin, DynUpdateView):
     model = models.Proposal
     form_class = forms.ProposalForm
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
 
     def check_owner(self, obj):
         qchain = Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
@@ -266,9 +270,9 @@ class SubmitProposal(RolePermsViewMixin, ConfirmDetailView):
 
         info = {
             "requests": requests, "cycle": cycle, "beamteam": all(beamteam),
-            "staff": self.request.user.has_role("employee"),
-            "education": self.request.user.has_roles(["education-coordinator", "education-staff"]),
-            "industrial": self.request.user.has_roles(["employee:is", "developer-admin"]),
+            "staff": self.request.user.has_any_role(*USO_STAFF_ROLES),
+            "education": self.request.user.has_any_role(*USO_STAFF_ROLES),
+            "industrial": self.request.user.has_any_role(*USO_STAFF_ROLES),
         }
         return info
 
@@ -381,8 +385,8 @@ class SubmitProposal(RolePermsViewMixin, ConfirmDetailView):
 class ProposalDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "proposals/proposal-detail.html"
     model = models.Proposal
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['administrator:uso', 'employee:sd']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_STAFF_ROLES
 
     def check_owner(self, obj):
         return (self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username])
@@ -402,7 +406,7 @@ class ProposalDetail(RolePermsViewMixin, detail.DetailView):
 class DeleteProposal(RolePermsViewMixin, edit.DeleteView):
     success_url = reverse_lazy('user-proposals')
     template_name = "proposals/forms/delete.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_owner(self, obj):
         return (self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username])
@@ -449,7 +453,7 @@ class EditReviewerProfile(RolePermsViewMixin, edit.FormView):
     template_name = "proposals/forms/form.html"
     model = models.Reviewer
     success_message = "Reviewer profile has been updated."
-    admin_roles = ["administrator:uso"]
+    admin_roles = USO_ADMIN_ROLES
 
     def get_success_url(self):
         return reverse_lazy("user-dashboard")
@@ -513,7 +517,7 @@ class ReviewList(RolePermsViewMixin, ItemListView):
     link_url = "edit-review"
     ordering = ['state', 'due_date', '-created']
     list_transforms = {'state': _fmt_review_state, 'role': _fmt_role}
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
 
 
 class UserReviewList(ReviewList):
@@ -530,8 +534,8 @@ class UserReviewList(ReviewList):
 class ClaimReview(RolePermsViewMixin, ConfirmDetailView):
     model = models.Review
     template_name = "proposals/forms/claim.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
     success_url = "/"
 
     def check_allowed(self):
@@ -573,8 +577,8 @@ class ClaimReview(RolePermsViewMixin, ConfirmDetailView):
 class PrintReviewDoc(RolePermsViewMixin, detail.DetailView):
     queryset = models.Review.objects.exclude(state=models.Review.STATES.closed)
     template_name = "proposals/pdf.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
@@ -594,8 +598,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
     queryset = models.Review.objects.all()
     form_class = forms.ReviewForm
     template_name = "proposals/review-form.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
@@ -816,8 +820,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
 class ReviewDetail(RolePermsViewMixin, detail.DetailView):
     model = models.Review
     template_name = "proposals/review_detail.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
@@ -837,8 +841,8 @@ def accumulate(iterator):
 class ReviewCycleDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "proposals/cycle_detail.html"
     model = models.ReviewCycle
-    admin_roles = ['administrator:uso']
-    allowed_roles = ["administrator:uso", "science-manager"]
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_MANAGER_ROLES
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -854,7 +858,7 @@ class EditConfig(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.FacilityConfigForm
     template_name = "forms/modal.html"
     model = models.FacilityConfig
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         config = self.get_object()
@@ -915,7 +919,7 @@ class AddFacilityConfig(RolePermsViewMixin, edit.CreateView):
     form_class = forms.FacilityConfigForm
     template_name = "forms/modal.html"
     model = models.FacilityConfig
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.facility = models.Facility.objects.get(pk=self.kwargs['pk'])
@@ -968,7 +972,7 @@ class AddFacilityConfig(RolePermsViewMixin, edit.CreateView):
 class DeleteConfig(RolePermsViewMixin, ConfirmDetailView):
     model = models.FacilityConfig
     template_name = "forms/delete.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         config = self.get_object()
@@ -1010,8 +1014,8 @@ class ReviewCycleList(RolePermsViewMixin, ItemListView):
     link_url = "review-cycle-detail"
     list_search = ['start_date', 'open_date', 'close_date', 'alloc_date', 'due_date']
     order_by = ['-start_date']
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
 
 class CreateReviewCycle(SuccessMessageMixin, RolePermsViewMixin, edit.CreateView):
@@ -1019,14 +1023,14 @@ class CreateReviewCycle(SuccessMessageMixin, RolePermsViewMixin, edit.CreateView
     template_name = "beamlines/form.html"
     model = models.ReviewCycle
     success_url = reverse_lazy('review-cycle-list')
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
 
 class EditReviewCycle(SuccessMessageMixin, RolePermsViewMixin, edit.UpdateView):
     form_class = forms.ReviewCycleForm
     template_name = "forms/modal.html"
     model = models.ReviewCycle
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1050,7 +1054,7 @@ class EditReviewTrack(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.ReviewTrackForm
     template_name = "forms/modal.html"
     model = models.ReviewTrack
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1088,7 +1092,7 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
     list_title = 'Submissions'
     list_transforms = {'facilities': _fmt_beamlines, 'title': utils.truncated_title}
     list_styles = {'title': 'col-xs-2'}
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
     paginate_by = 25
 
     def get_queryset(self, *args, **kwargs):
@@ -1109,8 +1113,8 @@ class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
     list_title = 'Proposal Submissions'
     list_transforms = {'facilities': _fmt_beamlines, 'title': utils.truncated_title}
     list_styles = {'title': 'col-xs-2'}
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_list_title(self):
         return '{} Submissions'.format(self.facility.acronym)
@@ -1154,8 +1158,8 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
         'facilities': _acronym_list, 'adj': _adjusted_score,
     }
     paginate_by = 25
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_list_columns(self):
         columns = ['proposal', 'code', 'facilities', 'reviewer']
@@ -1184,8 +1188,8 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
 class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "proposals/submission_detail.html"
     queryset = models.Submission.objects.with_scores()
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
 
     def check_owner(self, obj):
         return (
@@ -1273,13 +1277,13 @@ class ReviewerList(RolePermsViewMixin, ItemListView):
     list_search = ['user__first_name', 'user__last_name', 'user__email']
     link_url = 'edit-reviewer-profile'
     ordering = ['-created']
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
 
 class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
     template_name = "proposals/forms/assign.html"
     model = models.ReviewCycle
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_success_url(self):
         cycle = self.get_object()
@@ -1336,7 +1340,7 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
 class ReviewCompatibility(RolePermsViewMixin, detail.DetailView):
     model = models.Review
     template_name = "proposals/review_compat.html"
-    admin_roles = ["administrator:uso"]
+    admin_roles = USO_ADMIN_ROLES
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1366,7 +1370,7 @@ class AssignedSubmissionList(RolePermsViewMixin, ItemListView):
     list_styles = {'proposal': 'col-xs-6'}
     order_by = ['-cycle__start_date', '-created']
     list_title = 'Reviewer Assignments'
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_queryset(self, *args, **kwargs):
         track = models.ReviewTrack.objects.get(pk=self.kwargs['track'])
@@ -1388,7 +1392,7 @@ class ReviewerAssignments(RolePermsViewMixin, ItemListView):
     list_styles = {'proposal': 'col-xs-6'}
     order_by = ['-cycle__start_date', '-created']
     list_title = 'Reviewer Assignments'
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
@@ -1420,7 +1424,7 @@ class PRCAssignments(RolePermsViewMixin, ItemListView):
     list_styles = {'proposal': 'col-xs-6'}
     order_by = ['-cycle__start_date', '-created']
     list_title = 'Reviewer Assignments'
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
@@ -1473,7 +1477,7 @@ class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.ReviewerAssignmentForm
     model = models.Submission
     template_name = "forms/modal.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
@@ -1520,7 +1524,7 @@ class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
 class DeleteReview(RolePermsViewMixin, ConfirmDetailView):
     model = models.Review
     template_name = "proposals/forms/delete-review.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
@@ -1635,7 +1639,7 @@ class ReviewerOptions(RolePermsViewMixin, TemplateView):
 
 class AddReviewerList(RolePermsViewMixin, ItemListView):
     model = models.Reviewer
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
     template_name = "proposals/add-cycle-reviewers.html"
     paginate_by = 60
     list_filters = ['modified', 'user__classification', 'cycles']
@@ -1678,7 +1682,7 @@ class AddReviewerList(RolePermsViewMixin, ItemListView):
 
 
 class AddReviewerAPI(RolePermsViewMixin, View):
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get(self, *args, **kwargs):
         reviewer = models.Reviewer.objects.filter(pk=self.kwargs['pk']).first()
@@ -1693,7 +1697,7 @@ class AddReviewerAPI(RolePermsViewMixin, View):
 
 
 class RemoveReviewerAPI(RolePermsViewMixin, View):
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get(self, *args, **kwargs):
         cycle = models.ReviewCycle.objects.filter(pk=self.kwargs['cycle']).first()
@@ -1710,7 +1714,7 @@ class StartReviews(RolePermsViewMixin, ConfirmDetailView):
     queryset = models.ReviewCycle.objects.filter(state=models.ReviewCycle.STATES.assign)
     template_name = "proposals/forms/reviews.html"
     model = models.ReviewCycle
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def confirmed(self, *args, **kwargs):
         cycle = self.get_object()
@@ -1745,8 +1749,8 @@ class StartReviews(RolePermsViewMixin, ConfirmDetailView):
 
 
 class StatsDataAPI(RolePermsViewMixin, TemplateView):
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['employee']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_STAFF_ROLES
 
     def get(self, *args, **kwargs):
         from . import stats
@@ -1755,8 +1759,8 @@ class StatsDataAPI(RolePermsViewMixin, TemplateView):
 
 
 class Statistics(RolePermsViewMixin, TemplateView):
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['employee']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_STAFF_ROLES
     template_name = "proposals/statistics.html"
 
 
@@ -1764,7 +1768,7 @@ class AddScoreAdjustment(RolePermsViewMixin, edit.CreateView):
     form_class = forms.AdjustmentForm
     model = models.ScoreAdjustment
     template_name = "forms/modal.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1800,7 +1804,7 @@ class AddScoreAdjustment(RolePermsViewMixin, edit.CreateView):
 class DeleteAdjustment(RolePermsViewMixin, ConfirmDetailView):
     model = models.ScoreAdjustment
     template_name = "forms/delete.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_object(self, queryset=None):
         submission = models.Submission.objects.get(pk=self.kwargs['pk'])
@@ -1819,7 +1823,7 @@ class UpdateReviewComments(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.ReviewCommentsForm
     queryset = models.Submission.objects.filter(state=models.Submission.STATES.reviewed)
     template_name = "forms/modal.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

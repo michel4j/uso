@@ -39,6 +39,10 @@ from . import models
 from . import serializers
 from . import utils
 
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
+USO_HSE_ROLES = getattr(settings, 'USO_HSE_ROLES', ["staff:hse", "employee:hse"])
+USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ["staff", "employee"])
+
 
 def _fmt_beamlines(bls, obj=None):
     return ', '.join([bl.acronym for bl in bls.distinct()])
@@ -74,7 +78,8 @@ class ProjectList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     paginate_by = 50
     list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'facility_codes', 'state']
-    list_filters = ['start_date', 'end_date', FutureDateListFilterFactory.new('end_date'), CycleFilterFactory.new('cycle'),
+    list_filters = ['start_date', 'end_date', FutureDateListFilterFactory.new('end_date'),
+                    CycleFilterFactory.new('cycle'),
                     'kind',
                     BeamlineFilterFactory.new("beamlines")]
     list_search = ['proposal__title', 'proposal__team', 'proposal__keywords', 'id']
@@ -82,8 +87,8 @@ class ProjectList(RolePermsViewMixin, ItemListView):
     list_transforms = {'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
     order_by = ['end_date', 'cycle', '-created']
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['employee:hse', 'administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
 
 class MaterialList(RolePermsViewMixin, ItemListView):
@@ -100,8 +105,8 @@ class MaterialList(RolePermsViewMixin, ItemListView):
     link_url = "material-detail"
     order_by = ['-modified', 'state']
     list_title = 'Materials'
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['employee:hse', 'administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_HSE_ROLES + USO_ADMIN_ROLES
 
 
 class SessionList(RolePermsViewMixin, ItemListView):
@@ -116,8 +121,8 @@ class SessionList(RolePermsViewMixin, ItemListView):
     list_transforms = {'start': _fmt_localtime}
     link_url = "session-detail"
     order_by = ['-modified', 'state']
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['employee:hse', 'administrator:uso']
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_STAFF_ROLES
 
 
 class LabSessionList(RolePermsViewMixin, ItemListView):
@@ -132,8 +137,8 @@ class LabSessionList(RolePermsViewMixin, ItemListView):
     list_transforms = {'start': _fmt_localtime, 'end': _fmt_localtime}
     link_url = "lab-permit"
     order_by = ['-modified']
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['employee:hse', 'administrator:uso']
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_STAFF_ROLES
 
 
 class UserProjectList(RolePermsViewMixin, ItemListView):
@@ -141,14 +146,14 @@ class UserProjectList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     paginate_by = 50
     list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'facility_codes', 'state']
-    list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind', BeamlineFilterFactory.new("beamlines")]
+    list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind',
+                    BeamlineFilterFactory.new("beamlines")]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
     list_styles = {'title': 'col-xs-3', 'state': 'text-center'}
     list_transforms = {'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
     order_by = ['-end_date', '-created']
     list_title = 'My Projects'
-    admin_roles = ['administrator:uso']
 
     def get_queryset(self, *args, **kwargs):
         self.queryset = self.request.user.projects.all()
@@ -166,7 +171,6 @@ class UserBeamTimeList(RolePermsViewMixin, ItemListView):
     order_by = ['-end', '-created']
 
     list_title = 'My Beamtime'
-    admin_roles = ['administrator:uso']
 
     def get_queryset(self, *args, **kwargs):
         self.queryset = self.model.objects.filter(project__team=self.request.user)
@@ -181,15 +185,16 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     paginate_by = 50
     list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'state']
-    list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind', BeamlineFilterFactory.new("beamlines")]
+    list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind',
+                    BeamlineFilterFactory.new("beamlines")]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
     list_styles = {'title': 'col-xs-3'}
     list_transforms = {'beamlines': _fmt_beamlines, 'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
     order_by = ['-cycle__start_date', '-created']
     list_title = 'Projects'
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_list_title(self):
         if self.kwargs.get('cycle'):
@@ -215,8 +220,8 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
 class ProjectDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "projects/project-detail.html"
     model = models.Project
-    allowed_roles = ['administrator:uso', 'employee:hse']
-    admin_roles = ['administrator:uso']
+    allowed_roles = USO_HSE_ROLES + USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         project = self.get_object()
@@ -249,8 +254,8 @@ class ProjectHistory(RolePermsViewMixin, ItemListView):
     list_transforms = {'start': _fmt_localtime}
     link_url = "session-detail"
     order_by = ['-modified', 'state']
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['employee:hse', 'administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
     def get_list_title(self):
         return "{} Session History".format(self.project)
@@ -283,8 +288,8 @@ class AllocRequestList(RolePermsViewMixin, ItemListView):
                    'project__spokesperson__first_name', 'id']
     order_by = ['-modified', 'state']
     list_title = 'Allocation Requests'
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
 
 class ShiftRequestList(RolePermsViewMixin, ItemListView):
@@ -298,8 +303,8 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
                    'project__spokesperson__first_name', 'id']
     order_by = ['-modified', 'state']
     list_title = 'Shift Requests'
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_list_title(self):
         return '{} Shift Requests: {}'.format(self.facility.acronym, self.cycle)
@@ -318,8 +323,8 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
 class MaterialDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "projects/material-detail.html"
     model = models.Material
-    allowed_roles = ['administrator:uso', 'employee:hse']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
     def check_owner(self, obj):
         return obj.is_owned_by(self.request.user)
@@ -336,7 +341,7 @@ class CreateProject(RolePermsViewMixin, edit.CreateView):
     form_class = forms.ProjectForm
     model = models.Project
     template_name = "projects/forms/project_form.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_initial(self):
         initial = super().get_initial()
@@ -391,9 +396,9 @@ class CreateProject(RolePermsViewMixin, edit.CreateView):
 class SessionDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "projects/session-detail.html"
     model = models.Session
-    allowed_roles = ['administrator:uso', 'employee:hse']
-    admin_roles = ['administrator:uso']
-    terminate_roles = ['employee:hse']
+    allowed_roles = USO_STAFF_ROLES
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    terminate_roles = USO_HSE_ROLES + USO_ADMIN_ROLES
 
     def check_owner(self, obj):
         obj.is_owned_by(self.request.user)
@@ -412,14 +417,14 @@ class SessionDetail(RolePermsViewMixin, detail.DetailView):
         context = super().get_context_data(**kwargs)
         context['beamlines'] = [self.object.beamline]
         context['samples'] = [(s.sample, s.quantity) for s in self.object.samples.all()]
-        context['can_terminate'] = self.request.user.has_roles(self.terminate_roles)
+        context['can_terminate'] = self.request.user.has_any_role(*self.terminate_roles)
         return context
 
 
 class LabPermit(RolePermsViewMixin, detail.DetailView):
     template_name = "projects/lab_permit.html"
     model = models.LabSession
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
 
     def check_owner(self, obj):
         return obj.is_owned_by(self.request.user)
@@ -429,7 +434,7 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
     model = models.Session
     form_class = forms.HandOverForm
     template_name = "forms/modal.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -480,18 +485,14 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
         else:
             models.Session.objects.create(**data)
             messages.success(self.request, 'Beamline hand-over successful')
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": ""})
 
 
 class SessionExtend(RolePermsViewMixin, edit.UpdateView):
     model = models.Session
     template_name = "forms/modal.html"
     form_class = forms.ExtensionForm
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.session = self.get_object()
@@ -531,8 +532,8 @@ class SessionSignOn(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.SessionForm
     template_name = "forms/modal.html"
     model = models.Session
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.session = self.get_object()
@@ -645,7 +646,7 @@ class SessionSignOn(RolePermsViewMixin, edit.UpdateView):
 class SessionSignOff(RolePermsViewMixin, ConfirmDetailView):
     model = models.Session
     template_name = "projects/forms/signoff.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.session = self.get_object()
@@ -686,7 +687,7 @@ class TerminateSession(RolePermsViewMixin, edit.CreateView):
     model = models.Session
     form_class = forms.TerminationForm
     template_name = "forms/modal.html"
-    allowed_roles = ["administrator:uso", "employee:hse"]
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -742,7 +743,7 @@ class LabSignOn(RolePermsViewMixin, edit.CreateView):
     model = models.LabSession
     form_class = forms.LabSessionForm
     template_name = "forms/modal.html"
-    allowed_roles = ["administrator:uso"]
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -798,16 +799,16 @@ class LabSignOn(RolePermsViewMixin, edit.CreateView):
 class LabSignOff(RolePermsViewMixin, ConfirmDetailView):
     model = models.LabSession
     template_name = "projects/forms/signoff.html"
-    allowed_roles = ['administrator:uso', 'floor-coordinator']
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
     def check_allowed(self):
         self.session = self.get_object()
         self.project = self.session.project
         self.lab = self.session.lab
         allowed = (
-            super().check_allowed() or self.check_owner(self.session) or self.session.team.filter(
-                username=self.request.user.username
-            ).exists())
+                super().check_allowed() or self.check_owner(self.session) or self.session.team.filter(
+            username=self.request.user.username
+        ).exists())
         return allowed
 
     def get_context_data(self, **kwargs):
@@ -833,8 +834,8 @@ class LabSignOff(RolePermsViewMixin, ConfirmDetailView):
 class CancelLabSession(RolePermsViewMixin, ConfirmDetailView):
     model = models.LabSession
     template_name = "forms/delete.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         session = self.get_object()
@@ -855,8 +856,8 @@ class CancelLabSession(RolePermsViewMixin, ConfirmDetailView):
 
 class UpdateMaterial(RolePermsViewMixin, edit.FormView):
     form_class = forms.MaterialForm
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = "projects/forms/project_form.html"
 
     def get_object(self):
@@ -898,8 +899,6 @@ class UpdateMaterial(RolePermsViewMixin, edit.FormView):
     def form_valid(self, form):
         info = form.cleaned_data['details']
         obj = self.object
-
-        # FIXME: Check if any review has started
 
         if obj.state != obj.STATES.pending:
             obj.pk = None
@@ -946,8 +945,8 @@ class UpdateTeam(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.TeamForm
     model = models.Project
     template_name = "projects/forms/project_form.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.project = self.get_object()
@@ -991,15 +990,15 @@ class UpdateTeam(RolePermsViewMixin, edit.UpdateView):
 
 class RefreshTeam(RolePermsViewMixin, detail.View):
     model = models.Project
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.project = models.Project.objects.get(pk=self.kwargs['pk'])
         return (
-            super().check_allowed() or self.check_owner(self.project) or any(
-                fac.is_staff(self.request.user) for fac in self.project.beamlines.all()
-            ))
+                super().check_allowed() or self.check_owner(self.project) or any(
+            fac.is_staff(self.request.user) for fac in self.project.beamlines.all()
+        ))
 
     def check_owner(self, obj):
         return obj.is_owned_by(self.request.user)
@@ -1034,8 +1033,8 @@ class AllocDecider(object):
 
 class AllocateBeamtime(RolePermsViewMixin, TemplateView):
     template_name = "projects/allocate.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
@@ -1100,8 +1099,8 @@ class EditAllocation(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.AllocationForm
     model = models.Allocation
     template_name = "forms/modal.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         alloc = self.get_object()
@@ -1146,8 +1145,8 @@ class EditReservation(RolePermsViewMixin, edit.CreateView):
     form_class = forms.ReservationForm
     model = models.Reservation
     template_name = "forms/modal.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         fac = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
@@ -1192,7 +1191,7 @@ class EditReservation(RolePermsViewMixin, edit.CreateView):
 class ScheduleBeamTime(EventEditor):
     selector_template = "projects/project-selector.html"
     allow_reservations = True
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
@@ -1264,10 +1263,10 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
         context['show_year'] = False
         context['tag_types'] = facility.tags()
         context['event_sources'] = [
-            reverse('facility-modes-api'),
-            reverse('support-schedule-api', kwargs={'fac': facility.acronym})] + [
-            reverse('beamtime-schedule-api', kwargs={'fac': fac}) for fac in fac_children
-        ]
+                                       reverse('facility-modes-api'),
+                                       reverse('support-schedule-api', kwargs={'fac': facility.acronym})] + [
+                                       reverse('beamtime-schedule-api', kwargs={'fac': fac}) for fac in fac_children
+                                   ]
         return context
 
 
@@ -1364,7 +1363,7 @@ class AnswerClarification(ClarificationResponse):
 
         review_ids = project.materials.filter(
             Q(state=models.Material.STATES.pending) & (
-                Q(reviews__reviewer=self.object.requester) | (
+                    Q(reviews__reviewer=self.object.requester) | (
                     Q(reviews__reviewer__isnull=True) & Q(reviews__role__in=self.object.requester.roles)))
 
         ).values_list('reviews', flat=True)
@@ -1402,8 +1401,8 @@ class ShowAttachments(RolePermsViewMixin, detail.DetailView):
 class DeleteSession(RolePermsViewMixin, ConfirmDetailView):
     model = models.Session
     template_name = "forms/delete.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_queryset(self):
         return super().get_queryset().filter(state=models.Session.STATES.ready)
@@ -1426,12 +1425,11 @@ class DeleteSession(RolePermsViewMixin, ConfirmDetailView):
         )
 
 
-# FIXME Needs review
 class TeamMemberDelete(RolePermsViewMixin, ConfirmDetailView):
     model = models.Project
     template_name = "projects/forms/remove_team.html"
-    allowed_roles = ['administrator:uso']
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         return super().check_allowed() or self.request.user.pk == self.kwargs['user_pk']
@@ -1447,27 +1445,29 @@ class TeamMemberDelete(RolePermsViewMixin, ConfirmDetailView):
     def confirmed(self, *args, **kwargs):
         user = User.objects.get(pk=self.kwargs.get('user_pk'))
         project = self.get_object()
-        user_emails = {e.lower() for e in [_f for _f in [user.email, user.alt_email] if _f]}
-        team_details = [t for t in project.details.get('team_members', []) if
-                        t.get('email', '').lower() not in user_emails]
-        project.details['team_members'] = team_details
-        project.save()
-        project.team.remove(user)
+        if user not in [project.leader, project.spokesperson]:
+            user_emails = {e.lower() for e in [_f for _f in [user.email, user.alt_email] if _f]}
+            team_details = [
+                t for t in project.details.get('team_members', []) if
+                t.get('email', '').lower() not in user_emails
+            ]
+            project.details['team_members'] = team_details
+            project.save()
+            project.team.remove(user)
 
-        msg = '{0} removed from project "{1}"'.format(user.get_full_name(), project)
-        messages.success(self.request, msg)
-        return JsonResponse(
-            {
-                "url": self.get_success_url()
-            }
-        )
+            msg = f'{user.get_full_name()} removed from project "{project}"'
+            messages.success(self.request, msg)
+            return JsonResponse({"url": self.get_success_url()})
+        else:
+            messages.error(self.request, 'You cannot remove yourself from a project you own')
+            return JsonResponse({"url": ""})
 
 
 class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
     model = models.AllocationRequest
     form_class = forms.AllocRequestForm
     template_name = "projects/forms/request_form.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.facility = Facility.objects.get(acronym=self.kwargs.get('fac'))
@@ -1529,7 +1529,7 @@ class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
     model = models.ShiftRequest
     form_class = forms.ShiftRequestForm
     template_name = "projects/forms/request_form.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.allocation = models.Allocation.objects.get(pk=self.kwargs.get('pk'))
@@ -1583,7 +1583,7 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.ShiftRequestForm
     template_name = "projects/forms/request_form.html"
     edit_url = "edit-shift-request"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         object = self.get_object()
@@ -1664,8 +1664,8 @@ class RequestPreferencesAPI(RolePermsViewMixin, View):
 class ProjectSchedule(RolePermsViewMixin, detail.DetailView):
     model = models.Project
     template_name = "scheduler/calendar.html"
-    allowed_roles = ['employee:hse', 'administrator:uso']
-    admin_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    admin_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.project = self.get_object()
@@ -1723,7 +1723,7 @@ class DeclineAllocation(RolePermsViewMixin, edit.UpdateView):
     model = models.Allocation
     template_name = "forms/modal.html"
     form_class = forms.DeclineForm
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.project = self.get_object().project
@@ -1774,8 +1774,8 @@ class DeclineAllocation(RolePermsViewMixin, edit.UpdateView):
 
 
 class Statistics(RolePermsViewMixin, TemplateView):
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['employee']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_STAFF_ROLES
     template_name = "projects/statistics.html"
 
 
@@ -1801,8 +1801,8 @@ class InvoicingList(RolePermsViewMixin, ItemListView):
     link_url = "project-detail"
     order_by = ['-cycle__start_date', '-created']
     list_title = 'Invoicing'
-    admin_roles = ['administrator:uso']
-    allowed_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_list_title(self):
         cycle = ReviewCycle.objects.get(pk=self.kwargs['pk'])

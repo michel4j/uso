@@ -4,6 +4,7 @@ import math
 import operator
 
 from django.contrib import messages
+from django.conf import settings
 from django.contrib.admin.utils import NestedObjects
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import DEFAULT_DB_ALIAS
@@ -24,6 +25,11 @@ from misc.filters import DateLimitFilterFactory, DateLimit
 from misc.models import ActivityLog
 from roleperms.views import RolePermsViewMixin
 from . import models, forms, stats
+
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
+USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff', 'employee'])
+USO_CURATOR_ROLES = getattr(settings, "USO_CURATOR_ROLES", ['curator:publications'])
+
 
 # Create your views here.
 FromYearListFilter = DateLimitFilterFactory.new(
@@ -77,7 +83,7 @@ class PublicationList(RolePermsViewMixin, ItemListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.request.user.is_authenticated:
-            context['admin'] = self.request.user.has_roles(self.admin_roles)
+            context['admin'] = self.request.user.has_any_role(*self.admin_roles)
         else:
             context['admin'] = False
         return context
@@ -86,8 +92,8 @@ class PublicationList(RolePermsViewMixin, ItemListView):
 class PublicationAdminList(SuccessMessageMixin, PublicationList):
     queryset = models.Publication.objects.all().select_subclasses()
     template_name = "publications/publication-list.html"
-    allowed_roles = ['publications-admin', 'administrator:uso']
-    admin_roles = ['publications-admin']
+    allowed_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
+    admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
     list_title = 'Modify Publications'
     list_columns = ['title', 'kind', 'code', 'facility_codes', 'date', 'reviewed']
     list_transforms = {'cite': _fmt_citations}
@@ -200,14 +206,14 @@ class UnclaimPublication(RolePermsViewMixin, View):
 
 
 class ActivitySummary(RolePermsViewMixin, TemplateView):
-    admin_roles = ['publications-admin']
-    allowed_roles = ['employee']
+    admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
+    allowed_roles = USO_STAFF_ROLES
     template_name = "publications/activity-summary.html"
 
 
 class QualitySummary(RolePermsViewMixin, TemplateView):
-    admin_roles = ['publications-admin']
-    allowed_roles = ['employee']
+    admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
+    allowed_roles = USO_STAFF_ROLES
     template_name = "publications/quality-summary.html"
 
     def get_context_data(self, **kwargs):
@@ -230,28 +236,28 @@ class QualitySummary(RolePermsViewMixin, TemplateView):
 
 
 class FundingSummary(RolePermsViewMixin, TemplateView):
-    admin_roles = ['publications-admin']
-    allowed_roles = ['employee']
+    admin_roles = USO_CURATOR_ROLES
+    allowed_roles = USO_STAFF_ROLES
     template_name = "publications/funding-summary.html"
 
 
 class KeywordCloud(RolePermsViewMixin, TemplateView):
-    admin_roles = ['publications-admin']
+    admin_roles = USO_CURATOR_ROLES
     template_name = "publications/keyword-report.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['words'] = stats.get_keywords(models.Article.objects, transform=math.sqrt)
         if self.request.user.is_authenticated:
-            context['admin'] = self.request.user.has_roles(self.admin_roles)
+            context['admin'] = self.request.user.has_any_role(*self.admin_roles)
         else:
             context['admin'] = False
         return context
 
 
 class PublicationReview(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
-    admin_roles = ['publications-admin']
-    allowed_roles = ['publications-admin', 'administrator:uso']
+    admin_roles = USO_CURATOR_ROLES
+    allowed_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
     template_name = "publications/forms/review_form.html"
     model = models.Publication
     success_url = reverse_lazy('publication-review-list')
@@ -279,8 +285,8 @@ class PublicationReview(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
 
 
 class PublicationDelete(RolePermsViewMixin, DeleteView):
-    admin_roles = ['publications-admin']
-    allowed_roles = ['publications-admin']
+    admin_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
     queryset = models.Publication.objects.select_subclasses()
     success_url = reverse_lazy('publication-review-list')
     template_name = "publications/forms/confirm_delete.html"
@@ -506,8 +512,8 @@ def abbrev_author(name):
 
 
 class InstitutionMetrics(RolePermsViewMixin, TemplateView):
-    admin_roles = ['publications-admin']
-    allowed_roles = ['employee']
+    admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
+    allowed_roles = USO_STAFF_ROLES
     template_name = "publications/institution-metrics.html"
 
     def get_context_data(self, **kwargs):
