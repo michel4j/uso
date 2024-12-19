@@ -21,7 +21,7 @@
     form_type: 4
     score_fields:
       suitability: 1
-    role: technical-reviewer:{}
+    role: reviewer:{}
 - model: proposals.reviewtype
   pk: 3
   fields:

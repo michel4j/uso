@@ -143,7 +143,7 @@ class CloseReviews(BaseCronJob):
                 for submission in cycle.submissions.filter(track=track):
                     submission.close()
                 if queryset.count():
-                    logs.append("{} {} Reviews closed".format(queryset.count(), track.acronym))
+                    logs.append(f"{queryset.count()} {track.acronym} Reviews closed")
 
         # for Rapid Access Track change review state to complete if review has been completed more than 1 days ago.
         deadline = timezone.localtime(timezone.now() - timedelta(days=1)).date()

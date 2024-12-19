@@ -389,13 +389,13 @@ class ProposalDetail(RolePermsViewMixin, detail.DetailView):
     allowed_roles = USO_ADMIN_ROLES + USO_STAFF_ROLES
 
     def check_owner(self, obj):
-        return (self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username])
+        return self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username]
 
     def check_allowed(self):
         proposal = self.get_object()
         user = self.request.user
         emails = {e.strip().lower() for e in [user.email, user.alt_email] if e}
-        return (super().check_allowed() or self.check_owner(proposal) or (len(emails & set(proposal.team)) > 0))
+        return super().check_allowed() or self.check_owner(proposal) or (len(emails & set(proposal.team)) > 0)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -409,11 +409,11 @@ class DeleteProposal(RolePermsViewMixin, edit.DeleteView):
     allowed_roles = USO_ADMIN_ROLES
 
     def check_owner(self, obj):
-        return (self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username])
+        return self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username]
 
     def check_allowed(self):
         proposal = self.get_object()
-        return (super().check_allowed() or self.check_owner(proposal))
+        return super().check_allowed() or self.check_owner(proposal)
 
     def get_queryset(self):
         self.queryset = models.Proposal.objects.filter(
