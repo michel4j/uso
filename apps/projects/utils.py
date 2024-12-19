@@ -1,14 +1,19 @@
 import io
 
+from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse
 from django.template import Context
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 
-from . import models
 from beamlines.models import Facility
-from proposals.utils import conv_score
+from . import models
+from proposals.models import ReviewType
+
+USO_SCORE_VETO_FUNCTION = getattr(settings, "USO_SCORE_VETO_FUNCTION", lambda score: score > 4)
+USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
+USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", "approval")
 
 
 def render_to_pdf(template_src, context_dict):
@@ -54,30 +59,33 @@ def create_project(submission):
             'delegate': proposal.details.get('delegate', {}),
             'leader': proposal.details.get('leader', {}),
             'team_members': proposal.details['team_members'],
-            'invoice_address': proposal.details.get('invoice_address', {})}
+            'invoice_address': proposal.details.get('invoice_address', {})
+        }
     }
 
-    scores = {'score_{}'.format(k): float(v) for k, v in list(submission.scores().items()) if v}
-    scores['score_merit'] = submission.score()
-    technical_scores = {
-        toInt(r.details.get('requirements', {}).get('facility', 0)): conv_score(r.details.get('suitability'))
-        for r in submission.reviews.technical().complete()
+    scores = submission.scores()
+    # veto based on any non-facility score
+    vetoed = any(USO_SCORE_VETO_FUNCTION(score) for key, score in scores.items() if key != 'facilities')
+
+    # veto individual facilities
+    bl_scores = {
+        bl: score for bl, score in scores['facilities'].items()
+        if not USO_SCORE_VETO_FUNCTION(score)
     }
+    scores['facilities'] = bl_scores
 
-    # only beamlines where technical review was completed and technical score is better than or equal to 4
-    bl_scores = [x for x in [
-        (technical_scores.get(int(bl['facility']), 0.0), bl)
-        for bl in proposal.details['beamline_reqs']
-    ] if 0 < x[0] <= 4]
-
-    if bl_scores and scores.get('score_merit', 0.0) <= 4:
+    if not vetoed and scores['facilities']:
         project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
         project.techniques.add(*submission.techniques.all())
         project.submissions.add(*submissions)
-        for tech_score, bl in bl_scores:
-            scores.update(score_technical=tech_score)
+        facility_scores = scores.pop('facilities', {})
+        del scores['technical']
+        for bl, score in facility_scores.items():
             shift_request = bl.get('shifts') or 0
-            create_project_allocations(project, bl, cycle, scores=scores, shift_request=shift_request)
+            alloc_scores = {**scores, 'technical': score}
+            create_project_allocations(
+                project, bl, cycle, scores=alloc_scores, shift_request=shift_request
+            )
         project.refresh_team()
 
         # create materials
@@ -96,42 +104,36 @@ def create_project(submission):
             )
 
         # Create MaterialReviews
-        from dynforms.models import FormType
-        approval_form = FormType.objects.all().filter(code='safety-approval')
-        approval, created = material.reviews.get_or_create(
-            kind='approval', form_type=approval_form, defaults={
-                'cycle': cycle, 'state': models.Review.STATES.open, 'role': "safety-approver"
-            }
-        )
-
-        if material.needs_ethics():
-            ethics_form = FormType.objects.all().filter(code='ethics_review')
-            ethics, created = material.reviews.get_or_create(
-                kind="ethics", form_type=ethics_form, defaults={
-                    'cycle': cycle, 'state': models.Review.STATES.open, 'role': "ethics-approver"
+        approval_type = ReviewType.objects.get(code=USO_SAFETY_APPROVAL)
+        if approval_type:
+            approval, created = material.reviews.get_or_create(
+                type=approval_type, form_type=approval_type.form_type, defaults={
+                    'cycle': cycle, 'state': models.Review.STATES.open, 'role': approval_type.role
                 }
             )
 
 
-def create_project_allocations(project, spec, cycle, shifts=0, shift_request=0, scores={}):
+def create_project_allocations(project, spec, cycle, shifts=0, shift_request=0, scores=None):
     facilities = Facility.objects.filter(
         Q(kind=Facility.TYPES.beamline, parent__pk=spec['facility'])
         | Q(kind=Facility.TYPES.beamline, pk=spec['facility'])
         | Q(kind=Facility.TYPES.equipment, parent__pk=spec['facility'])
     )
     for facility in facilities:
-        # print (project, facility, cycle, shift_request, shifts, spec.get('procedure'))
         create_allocation(
             project, facility, cycle, shift_request=shift_request, shifts=shifts, procedure=spec.get('procedure'),
-            justification=spec.get('justification'), scores=scores
+            justification=spec.get('justification'), scores=scores,
         )
 
 
-def create_allocation(project, facility, cycle, procedure='', justification='', shifts=0, shift_request=0, scores={}):
+def create_allocation(project, facility, cycle, procedure='', justification='', shifts=0, shift_request=0, scores=None):
     import numpy
+    scores = scores or {}
     scores = {k: v for k, v in list(scores.items()) if not numpy.isnan(v)}
     alloc, created = models.Allocation.objects.get_or_create(project=project, beamline=facility, cycle=cycle)
-    models.Allocation.objects.filter(pk=alloc.pk).update(shift_request=shift_request, shifts=shifts,
-                                                         procedure=procedure,
-                                                         justification=justification, **scores)
+    models.Allocation.objects.filter(pk=alloc.pk).update(
+        shift_request=shift_request, shifts=shifts,
+        procedure=procedure,
+        justification=justification, scores=scores
+    )
     return alloc

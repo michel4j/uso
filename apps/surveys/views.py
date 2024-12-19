@@ -1,6 +1,7 @@
-from roleperms.views import RolePermsViewMixin
+
 import collections
 
+from django.conf import settings
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import detail
@@ -11,6 +12,8 @@ from dynforms.views import DynCreateView
 from projects.models import Project
 from proposals.models import ReviewCycle
 from roleperms.views import RolePermsViewMixin
+
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ["admin:uso"])
 
 
 class UserFeedback(DynCreateView):
@@ -38,7 +41,7 @@ class UserFeedback(DynCreateView):
 class ReviewCycleFeedback(RolePermsViewMixin, detail.DetailView):
     template_name = "proposals/cycle_feedback.html"
     model = ReviewCycle
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

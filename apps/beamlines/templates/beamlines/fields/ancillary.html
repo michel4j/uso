@@ -32,9 +32,13 @@
 </div>
 
 <script>
-    $("#{{field.name}}-controls .chosen").chosen({
-        disable_search_threshold: 10,
-        search_contains: true,
-        allow_single_deselect: true
+    $(function(){
+        window.setTimeout(function(){
+            $("#{{field.name}}-controls .chosen").chosen({
+                disable_search_threshold: 10,
+                search_contains: true,
+                allow_single_deselect: true
+            });
+        }, 0);
     });
 </script>

@@ -1,11 +1,11 @@
 {% load markup %}
 {% for ctx in facilities %}
-<div class="row">
- 	<div class="col-xs-12">
- 	<h3 class="no-vmargin text-condensed">
-        <strong>{{ctx.facility.acronym}}</strong> &mdash; {{ ctx.facility.name }}
-        {% if ctx.facility.flex_schedule %}
-            <span class="label label-info pull-right">
+    <div class="row">
+        <div class="col-xs-12">
+            <h3 class="no-vmargin text-condensed">
+                <strong>{{ ctx.facility.acronym }}</strong> &mdash; {{ ctx.facility.name }}
+                {% if ctx.facility.flex_schedule %}
+                    <span class="label label-info pull-right">
                 <strong data-toggle="popover"
                         data-trigger="hover"
                         data-content="Number of Shifts will be assigned as required based on availability"
@@ -13,30 +13,29 @@
                 >Flexible
                 </strong>
             </span>
-        {% else %}
-            <span class="label label-info pull-right">
-                <strong>{{ctx.shifts|default:"0"}} Shift{{ctx.shifts|pluralize:",s"}}</strong>
+                {% else %}
+                    <span class="label label-info pull-right">
+                <strong>{{ ctx.shifts|default:"0" }} Shift{{ ctx.shifts|pluralize:",s" }}</strong>
             </span>
-        {% endif %}
-    </h3>
- 	<hr class="hr-xs"/>
- 	</div>
-    <div class="col-xs-12">
-	    <div class="pull-right" style="width: 60%;">
-	       <div class="beamline-info tinytron bg-darken">
-               {% include "beamlines/fields/beamline_info.html" with object=ctx.facility config=ctx.config %}
-           </div>
-	    </div>
-       <h4>Suitability and Justification:</h4>
-       <p>{{ctx.justification}}</p>
+                {% endif %}
+            </h3>
+            <hr class="hr-xs"/>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+            <h4>Suitability and Justification:</h4>
+            <p>{{ ctx.justification }}</p>
+        </div>
+        <div class="beamline-info col-xs-12 col-sm-6">
+            {% include "beamlines/fields/beamline_info.html" with object=ctx.facility config=ctx.config %}
+        </div>
+
     </div>
 
-</div>
-<div class="row">
-	<div class="col-xs-12">
-       <h4>Experimental Procedure:</h4>
-       {% for tech in ctx.techniques %}<span style="line-height: 2; !important" class="label label-default">{{tech}}</span> {% endfor %}
-       <p>{{ctx.procedure}}</p>
+    <div class="row">
+        <div class="col-xs-12">
+            <h4>Experimental Procedure:&nbsp;{% for tech in ctx.techniques %}
+                <span class="label label-default" title="{{ tech }}">{{ tech.acronym }}</span>{% endfor %}</h4>
+            <p>{{ ctx.procedure }}</p>
+        </div>
     </div>
-</div>
 {% endfor %}

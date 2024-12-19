@@ -3,6 +3,7 @@ import hashlib
 import json
 import operator
 from datetime import timedelta
+from functools import lru_cache
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -19,8 +20,8 @@ from misc.fields import StringListField
 from misc.models import DateSpanMixin
 from roleperms.models import RolePermsUserMixin
 
-USO_AMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', [''])
-USO_AMIN_PERMS = getattr(settings, 'USO_ADMIN_PERMS', [''])
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', [''])
+USO_REVIEWER_ROLES = getattr(settings, 'USO_REVIEWER_ROLES', ['reviewer'])
 USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER')
 
 
@@ -86,8 +87,8 @@ class CustomUserManager(BaseUserManager):
         """
         Creates and saves a superuser with the given username and password.
         """
-        other_fields['roles'] = USO_AMIN_ROLES
-        other_fields['permissions'] = USO_AMIN_PERMS
+        other_fields['roles'] = USO_ADMIN_ROLES
+        other_fields['permissions'] = USO_ADMIN_PERMS
         user = self.create_user(username, password=password, **other_fields)
         return user
 
@@ -161,35 +162,30 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
 
     @property
     def is_staff(self):
-        return 'employee' in self.roles
+        return self.has_any_role(*USO_ADMIN_ROLES)
 
     @property
     def is_superuser(self):
-        return 'developer-admin' in self.roles or 'administrator:uso' in self.roles
+        return self.has_any_role(*USO_ADMIN_ROLES)
 
     def can_review(self):
-        return self.classification in [self.CLASSIFICATIONS.faculty, self.CLASSIFICATIONS.postdoc, 'staff']
+        return self.has_any_role(*USO_REVIEWER_ROLES)
 
-    def fetch_profile(self, data=None, force=False, delay=15):
+    def fetch_profile(self,force=False, delay=15):
         # update profile only once per `delay` minutes
         if not self.last_updated:
             force = True
         now = timezone.localtime(timezone.now())
-        profile = data
-        if (force or self.last_updated <= now - timedelta(minutes=delay)) and not data:
-            profile = data or USO_PROFILE_MANAGER.fetch_profile(self.username)
-
-        if not profile:
-            return self
 
         # update the data
-        for key, val in profile.items():
-            if key in USO_PROFILE_MANAGER.PROFILE_FIELDS:
-                setattr(self, key, val)
+        if force or self.last_updated <= now - timedelta(minutes=delay):
+            profile = USO_PROFILE_MANAGER.fetch_profile(self.username)
+            for key, val in profile.items():
+                if key in USO_PROFILE_MANAGER.PROFILE_FIELDS:
+                    setattr(self, key, val)
 
-        self.last_updated = now
-        self.save()
-        return self
+            self.last_updated = now
+            self.save()
 
     def update_profile(self, data=None, photo=None):
         # update remote profile in PeopleDB
@@ -197,8 +193,9 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         if data or photo:
             profile = USO_PROFILE_MANAGER.update_profile(self.username, data, photo=photo)
             if profile:
-                self.fetch_profile(data=profile)
+                self.fetch_profile()
                 return profile
+        return data
 
     def __str__(self):
         return self.get_full_name()

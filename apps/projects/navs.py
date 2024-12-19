@@ -1,13 +1,18 @@
 from django.urls import reverse
+from django.conf import settings
 
 from misc.navigation import BaseNav
+
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ["admin:uso"])
+USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ["staff", "employee"])
+USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ["staff:hse", "employee:hse"])
 
 
 class Projects(BaseNav):
     label = 'Projects'
     icon = 'bi-briefcase'
     weight = 3
-    roles = ['administrator:uso', 'safety-approver']
+    roles = USO_ADMIN_ROLES + USO_HSE_ROLES
     url = reverse('project-list')
 
 
@@ -15,34 +20,34 @@ class Permits(BaseNav):
     label = 'Permits'
     icon = 'bi-key'
     weight = 2.5
-    roles = ['employee']
+    roles = USO_STAFF_ROLES
 
 
 class AllProjects(BaseNav):
     parent = Projects
     label = 'Projects'
-    roles = ['administrator:uso', 'safety-approver']
+    roles = USO_ADMIN_ROLES
     url = reverse('project-list')
 
 
 class AllMaterials(BaseNav):
     parent = Projects
     label = 'Materials'
-    roles = ['administrator:uso', 'safety-approver']
+    roles = USO_ADMIN_ROLES + USO_HSE_ROLES
     url = reverse('material-list')
 
 
 class AllSessions(BaseNav):
     parent = Permits
     label = 'Session Permits'
-    roles = ['employee']
+    roles = USO_STAFF_ROLES
     url = reverse('session-list')
 
 
 class LabPermits(BaseNav):
     label = 'Lab Permits'
     parent = Permits
-    roles = ['employee']
+    roles = USO_STAFF_ROLES
     url = reverse('lab-permit-list')
 
 
@@ -61,6 +66,6 @@ class UserBeamTime(BaseNav):
 class Statistics(BaseNav):
     parent = Projects
     label = 'Statistics'
-    roles = ['administrator:uso']
+    roles = USO_STAFF_ROLES
     separator = True
     url = reverse('project-stats')

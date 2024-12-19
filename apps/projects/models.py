@@ -60,11 +60,7 @@ class Project(DateSpanMixin, TimeStampedModel):
         )
 
     def code(self):
-        return "{:0>2d}{}{:0>5d}".format(
-            self.cycle.pk,
-            self.get_kind_display()[0].upper(),
-            self.pk
-        )
+        return f"{self.cycle.pk:0>2d}{self.get_kind_display()[0].upper()}{self.pk:0>5d}"
     code.sort_field = 'id'
 
     def is_owned_by(self, user):
@@ -249,13 +245,7 @@ class Project(DateSpanMixin, TimeStampedModel):
     def scores(self, bl):
         alloc = self.allocations.filter(beamline__id=bl.pk).first()
         if alloc:
-            scores = {
-                'score_merit': alloc.score_merit,
-                'score_suitability': alloc.score_suitability,
-                'score_capability': alloc.score_capability,
-                'score_technical': alloc.score_technical
-            }
-            return scores
+            return alloc.scores
         else:
             return {}
 
@@ -580,10 +570,8 @@ class Allocation(TimeStampedModel):
     justification = models.TextField(blank=True, null=True)
     shift_request = models.IntegerField(default=0)
     shifts = models.IntegerField(default=0)
-    score_merit = models.FloatField("Merit Score", default=0.0)
-    score_suitability = models.FloatField("Suitability Score", default=0.0)
-    score_capability = models.FloatField("Capability Score", default=0.0)
-    score_technical = models.FloatField("Technical Score", default=0.0)
+    score = models.FloatField("Merit Score", default=0.0)
+    scores = models.JSONField(default=dict, null=True, blank=True)
     declined = models.BooleanField(default=False)
     comments = models.TextField(blank=True, null=True)
     discretionary = models.BooleanField(default=False)
@@ -603,9 +591,6 @@ class Allocation(TimeStampedModel):
             [self.project.allocations.filter(cycle_id=self.cycle.pk - i, beamline=self.beamline).first() for i in
              range(1, num + 1)])
 
-    #    def scores(self):
-    #        return {} if not self.project.review else self.project.review.scores()
-
     def tags(self):
         return self.project.tags.filter(Q(facility=self.beamline) | Q(facility__children=self.beamline) | Q(
             facility__parent=self.beamline)).distinct()
@@ -623,7 +608,7 @@ class ShiftRequestQueryset(models.QuerySet):
         return self.filter(state='completed')
 
     def pending(self):
-        return self.filter(state='submitted')
+        return self.filter(state__in=['submitted', 'progress'])
 
     def draft(self):
         return self.filter(state='draft')
@@ -636,14 +621,14 @@ class ShiftRequest(TimeStampedModel):
     STATES = Choices(
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
+        ('progress', 'In Progress'),
         ('completed', 'Completed')
     )
     state = models.CharField(max_length=20, choices=STATES, default='draft')
     allocation = models.ForeignKey('Allocation', on_delete=models.CASCADE, related_name="shift_requests")
     comments = models.TextField(blank=True, null=True)
     justification = models.TextField(blank=True, null=True)
-    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="shift_requests",
-                                  verbose_name='Scheduling Tags')
+    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="shift_requests", verbose_name='Scheduling Tags')
     shift_request = models.IntegerField(default=0)
     good_dates = models.TextField(blank=True, null=True)
     poor_dates = models.TextField(blank=True, null=True)

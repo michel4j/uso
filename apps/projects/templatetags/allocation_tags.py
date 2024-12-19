@@ -10,11 +10,11 @@ def discretionary_time(data):
 
 @register.simple_tag(name='allocation_style')
 def allocation_style(allocation, cutoff, decision):
-    if allocation.score_merit == 0 or allocation.score_merit > decision:
+    if allocation.score == 0 or allocation.score > decision:
         return ''
-    elif allocation.score_merit <= cutoff:
+    elif allocation.score <= cutoff:
         return 'alert-success'
-    elif allocation.score_merit <= decision:
+    elif allocation.score <= decision:
         return 'alert-warning'
     else:
         return ''

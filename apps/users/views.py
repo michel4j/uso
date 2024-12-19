@@ -20,14 +20,20 @@ from misc.models import ActivityLog
 from misc.views import JSONResponseMixin, ConfirmDetailView
 from notifier import notify
 from publications import stats
+from roleperms.utils import has_any_items
 from roleperms.views import RolePermsViewMixin
 from . import forms
 from . import models
 from . import utils
 
-USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER')
 SITE_URL = getattr(settings, 'SITE_URL', '')
+USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER')
 USO_USER_AGREEMENT = getattr(settings, 'USO_USER_AGREEMENT', '')
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
+USO_CONTRACTS_ROLES = getattr(settings, 'USO_CONTRACTS_ROLES', ['staff:contracts'])
+USO_USER_ROLES = getattr(settings, 'USO_USER_ROLES', ['user'])
+USO_REVIEWER_ROLES = getattr(settings, 'USO_REVIEWER_ROLES', ['reviewer'])
+USO_STUDENT_ROLES = getattr(settings, 'USO_STUDENT_ROLE', ['high-school-student'])
 
 
 class UserDetailView(RolePermsViewMixin, DetailView):
@@ -35,7 +41,7 @@ class UserDetailView(RolePermsViewMixin, DetailView):
     slug_field = 'username'
     slug_url_kwarg = 'username'
     owner_fields = ['*', ]
-    admin_roles = ['administrator:uso']
+    admin_roles = USO_ADMIN_ROLES
     template_name = "users/user-dashboard.html"
 
     def get_object(self, *args, **kwargs):
@@ -49,7 +55,7 @@ class UserDetailView(RolePermsViewMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['words'] = stats.get_keywords(self.request.user.publications.all(), transform=math.sqrt)
         if self.request.user.is_authenticated:
-            context['admin'] = self.request.user.has_roles(self.admin_roles)
+            context['admin'] = self.request.user.has_any_role(*self.admin_roles)
         else:
             context['admin'] = False
         return context
@@ -81,7 +87,7 @@ class InstitutionList(RolePermsViewMixin, ItemListView):
     link_attr = 'data-url'
     link_field = 'name'
     list_styles = {'num_users': 'text-center', 'name': 'col-xs-4'}
-    allowed_roles = ['administrator:uso', 'contracts-administrator']
+    allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
 
 
 class InstitutionDetail(JSONResponseMixin, DetailView):
@@ -139,11 +145,11 @@ class InstitutionEdit(RolePermsViewMixin, UpdateView):
     model = models.Institution
     success_url = reverse_lazy('institution-list')
     success_message = "Institution '%(name)s' has been updated."
-    allowed_roles = ['administrator:uso', 'contracts-administrator']
+    allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
 
     def form_valid(self, form):
         super().form_valid(form)
-        messages.success(self.request, "Institution '{}' has been updated.".format(self.object))
+        messages.success(self.request, f"Institution '{self.object}' has been updated.")
         return JsonResponse({'url': ""})
 
 
@@ -151,7 +157,7 @@ class InstitutionContact(RolePermsViewMixin, UpdateView):
     form_class = forms.InstitutionContactForm
     template_name = "forms/modal.html"
     queryset = models.Institution.objects.filter(state=models.Institution.STATES.new)
-    allowed_roles = ['administrator:uso', 'user']
+    allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES + USO_USER_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
@@ -180,7 +186,7 @@ class UsersAdmin(RolePermsViewMixin, UpdateView):
     form_class = forms.UserAdminForm
     template_name = "users/forms/user-admin.html"
     model = models.User
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_initial(self):
         initial = super().get_initial()
@@ -205,7 +211,7 @@ class UsersAdmin(RolePermsViewMixin, UpdateView):
         if form.has_changed():
             data = form.cleaned_data
 
-            if 'reviewer' in data['extra_roles']:
+            if has_any_items(USO_REVIEWER_ROLES, data['extra_roles']):
                 reviewer, created = Reviewer.objects.get_or_create(user=self.object)
                 if created:
                     messages.info(self.request, "Reviewer Profile created")
@@ -231,7 +237,7 @@ class InstitutionCreate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
     model = models.Institution
     success_url = reverse_lazy('institution-list')
     success_message = "Institution '%(name)s' has been created."
-    allowed_roles = ['administrator:uso', 'contracts-administrator']
+    allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
 
 
 class InstitutionDelete(RolePermsViewMixin, UpdateView):
@@ -240,7 +246,7 @@ class InstitutionDelete(RolePermsViewMixin, UpdateView):
     template_name = "forms/modal.html"
     success_url = reverse_lazy('institution-list')
     success_message = "Institution '%(name)s' has been deleted."
-    allowed_roles = ['administrator:uso', 'contracts-administrator']
+    allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -248,7 +254,7 @@ class InstitutionDelete(RolePermsViewMixin, UpdateView):
             data['transfer'].domains += self.object.domains
             self.object.users.all().update(institution=data['transfer'])
             data['transfer'].save()
-        messages.success(self.request, "Institution '{}' has been deleted.".format(self.object.name))
+        messages.success(self.request, f"Institution '{self.object.name}' has been deleted.")
         self.object.delete()
         return JsonResponse({'url': ""})
 
@@ -265,7 +271,7 @@ class UserList(RolePermsViewMixin, ItemListView):
     link_attr = "data-url"
     detail_target = "#modal-form"
     ordering_proxies = {'get_full_name': 'last_name'}
-    allowed_roles = ['administrator:uso', 'contracts-administrator']
+    allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
 
 
 class RegistrationView(DynCreateView):
@@ -441,14 +447,14 @@ class VerifyView(PasswordChangeMixin, UpdateView):
 
         # Add student role or user role if already part of a project or proposal
         if classification == 'student':
-            info['extra_roles'] = ['high-school-student']
+            info['extra_roles'] = USO_STUDENT_ROLES
         else:
             add_user_role = (
                     Submission.objects.filter(proposal__team__icontains=info['email']).exists() or
                     Project.objects.filter(team__email__iexact=info['email']).exists()
             )
             if add_user_role:
-                info['extra_roles'] = ['user']
+                info['extra_roles'] = USO_USER_ROLES
 
         # Add a message on the success page displaying the username?
         msg = title = ''
@@ -507,7 +513,7 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
     form_class = forms.UserProfileForm
     template_name = "users/forms/profile.html"
     success_url = reverse_lazy("user-dashboard")
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_object(self, queryset=None):
         username = self.kwargs.get('username')
@@ -565,8 +571,8 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
             'email': obj.email.strip(),
         }
         # add student role if
-        if obj.classification == 'student':
-            info['roles'] = set(obj.roles) | {'high-school-student'}
+        if obj.classification == obj.CLASSIFICATIONS.student:
+            info['roles'] = set(obj.roles) | USO_STUDENT_ROLES
 
         # Call PeopleDirectory API "update_profile"
         USO_PROFILE_MANAGER.update_profile(obj.username, info)
@@ -603,7 +609,7 @@ class PhotoView(View):
 
 
 class EmailTestView(RolePermsViewMixin, View):
-    allowed_roles = ["developer-admin"]
+    allowed_roles = USO_ADMIN_ROLES
 
     def get(self, *args, **kwargs):
         from django.core.mail import mail_admins
@@ -616,7 +622,7 @@ class EmailTestView(RolePermsViewMixin, View):
 class AdminResetPassword(RolePermsViewMixin, ConfirmDetailView):
     model = models.User
     template_name = "users/forms/admin-reset.html"
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def confirmed(self, *args, **kwargs):
         self.object = self.get_object()

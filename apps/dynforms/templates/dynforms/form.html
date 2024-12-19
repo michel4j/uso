@@ -8,10 +8,11 @@
 			<div class="tab-content">
 				{% csrf_token %}
 				<input type='hidden' name='active_page' value='{{active_page}}' />
+
 				{% for page in form.form_type.pages %}
 				<div class="tab-pane {% if not active_page and forloop.counter == 1%}active{% else %}{% if forloop.counter0 == active_page %}active{% endif %}{% endif %}" id="page{{forloop.counter}}">
-					{% with validation|page_errors:forloop.counter0 as errors %}{% if errors %}
-					<div class="alert {% if form.errors %} alert-danger{% else %}alert-warning{% endif %} alert-dismissible">
+					{% with validation|page_errors:forloop.counter0 as errors %}
+                        {% if errors or form.errors %}<div class="alert {% if form.errors %} alert-danger{% else %}alert-warning{% endif %} alert-dismissible">
 						<a class="close pull-right" data-dismiss="alert" aria-label="Close"><i class="bi-x-lg icon-1x icon-fw"></i></a>
                         {% include 'dynforms/form-errors.html' %}
 					</div>

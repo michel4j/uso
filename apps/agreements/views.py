@@ -6,9 +6,13 @@ from django.views.generic import edit
 from itemlist.views import ItemListView
 
 from misc.middleware import get_client_address
+from django.conf import settings
 from roleperms.views import RolePermsViewMixin
 from . import forms
 from . import models
+
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
+USO_CONTRACTS_ROLES = getattr(settings, 'USO_CONTRACTS_ROLES', ["contracts-admin"])
 
 
 def dt_display(val, obj=None):
@@ -19,7 +23,7 @@ class AgreementList(RolePermsViewMixin, ItemListView):
     model = models.Agreement
     template_name = "agreements/agreement-list.html"
     list_title = "Agreements"
-    allowed_roles = ["administrator:uso", "contracts-administrator"]
+    allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
     list_columns = ["name", "code", "state", "num_users"]
     list_filters = ["state", "modified", "created"]
     list_transforms = {'created': dt_display, 'modified': dt_display}
@@ -40,12 +44,12 @@ class AgreementFormMixin:
 
 
 class CreateAgreement(RolePermsViewMixin, AgreementFormMixin, edit.CreateView):
-    allowed_roles = ["administrator:uso", "contracts-administrator"]
+    allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
 
 
 class EditAgreement(RolePermsViewMixin, AgreementFormMixin, edit.UpdateView):
     queryset = models.Agreement.objects.all()
-    allowed_roles = ["administrator:uso", "contracts-administrator"]
+    allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
 
     def form_valid(self, form):
         if self.request.POST.get('submit') == "save-new":

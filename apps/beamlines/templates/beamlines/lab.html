@@ -20,26 +20,21 @@
     </a>
 {% endblock %}
 
-{% block folio-statusbar-style %}
-    {% if object.available %}bg-success{% else %}bg-darken{% endif %}
-{% endblock %}
+{% block folio-statusbar-style %}{% if object.available %}bg-success{% else %}bg-darken{% endif %}{% endblock %}
 
 {% block folio-statusbar %}
-    <div class="row narrow-gutter">
-        <div class="col-xs-2">
-            <h3 style="margin: 0; margin-bottom: 0.25em;"><span
-                    class="label label-info text-condensed">{% if object.available %}Available{% else %}Not
-                Available{% endif %}</span></h3>
-        </div>
-        <div class="col-xs-6">
-            <small class="text-wide text-muted">Workspaces:</small>
-            <br/>{% for ws in lab.workspaces.all %}{{ ws.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-        </div>
-        <div class="col-xs-4">
-            <small class="text-wide text-muted">Required Permissions:</small>
-            <br/>{% for perm in lab.permissions.all %}{{ perm.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
-        </div>
+    <h3 class="no-vmargin"><span class="label label-info text-condensed">{% if object.available %}Available{% else %}Not
+        Available{% endif %}</span>
+    </h3>
+    <div>
+        <small class="text-wide text-muted">Workspaces:</small>
+        <br/>{% for ws in lab.workspaces.all %}{{ ws.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
     </div>
+    <div>
+        <small class="text-wide text-muted">Required Permissions:</small>
+        <br/>{% for perm in lab.permissions.all %}{{ perm.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
+    </div>
+
 {% endblock %}
 
 {% block folio-content %}

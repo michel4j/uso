@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
 from django.contrib.messages.views import SuccessMessageMixin
@@ -13,6 +14,9 @@ from . import models, forms
 from misc.views import ConfirmDetailView
 from itemlist.views import ItemListView
 from roleperms.views import RolePermsViewMixin
+
+
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 
 
 class UserNotificationDetail(RolePermsViewMixin, ConfirmDetailView):
@@ -78,7 +82,7 @@ class NotificationList(RolePermsViewMixin, ItemListView):
     link_attr = 'data-url'
     list_search = ['kind', 'data', 'user__first_name', 'user__last_name', 'emails']
     ordering = ['-created']
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
 
 class MessageTemplateList(RolePermsViewMixin, ItemListView):
@@ -91,7 +95,7 @@ class MessageTemplateList(RolePermsViewMixin, ItemListView):
     link_attr = 'data-url'
     list_search = ['name', 'description']
     ordering = ['-modified']
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
 
 class CreateTemplate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
@@ -100,7 +104,7 @@ class CreateTemplate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
     model = models.MessageTemplate
     success_url = reverse_lazy('template-list')
     success_message = "Message Template '%(name)s' has been created."
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -129,7 +133,7 @@ class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
     model = models.MessageTemplate
     success_url = reverse_lazy('template-list')
     success_message = "Message Template '%(name)s' has been updated."
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

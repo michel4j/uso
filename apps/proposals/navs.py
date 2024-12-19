@@ -1,13 +1,17 @@
 from django.urls import reverse
-
+from django.conf import settings
 from misc.navigation import BaseNav
+
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
+USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff', 'employee'])
+USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse', 'employee:hse'])
 
 
 class Proposals(BaseNav):
     label = 'Proposals'
     icon = 'bi-file-earmark-medical'
     weight = 2.5
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     url = reverse('proposal-list')
 
     def allowed(self, request):
@@ -20,7 +24,7 @@ class Proposals(BaseNav):
 class CurrentCycle(BaseNav):
     parent = Proposals
     label = 'Current Cycle'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
 
     def get_url(self):
         from proposals.models import ReviewCycle
@@ -31,7 +35,7 @@ class CurrentCycle(BaseNav):
 class NextCycle(BaseNav):
     parent = Proposals
     label = 'Next Cycle'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
 
     def get_url(self):
         from proposals.models import ReviewCycle
@@ -42,42 +46,42 @@ class NextCycle(BaseNav):
 class Cycle(BaseNav):
     parent = Proposals
     label = 'All Cycles'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     url = reverse('review-cycle-list')
 
 
 class InProgress(BaseNav):
     parent = Proposals
     label = 'Proposals In-Progress'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     url = reverse('proposals-inprogress')
 
 
 class Submissions(BaseNav):
     parent = Proposals
     label = 'Proposal Submissions'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     url = reverse('submission-list')
 
 
 class Reviewers(BaseNav):
     parent = Proposals
     label = 'Reviewer Profiles'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     url = reverse('reviewer-list')
 
 
 class Reviews(BaseNav):
     parent = Proposals
     label = 'Reviews'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     url = reverse('review-list')
 
 
 class Statistics(BaseNav):
     parent = Proposals
     label = 'Statistics'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     separator = True
     url = reverse('proposal-stats')
 

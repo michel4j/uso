@@ -3,6 +3,8 @@ import itertools
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseForbidden
+from django.template import loader
 from django.utils.decorators import method_decorator
 
 
@@ -72,12 +74,12 @@ class RolePermsViewMixin(object):
         allowed_roles = set(self.get_allowed_roles())
         allowed_perms = set(self.get_allowed_permissions())
         if allowed_perms and allowed_roles:
-            return self.request.user.has_perms(allowed_perms) | (
+            return self.request.user.has_any_perm(*allowed_perms) | (
                     len(set(allowed_roles) & set(self.request.user.get_all_roles())) > 0)
         elif allowed_perms:
-            return self.request.user.has_perms(allowed_perms)
+            return self.request.user.has_any_perm(*allowed_perms)
         elif allowed_roles:
-            return (len(set(allowed_roles) & set(self.request.user.get_all_roles())) > 0)
+            return self.request.user.has_any_role(*allowed_roles)
         else:
             return True
 
@@ -113,7 +115,8 @@ class RolePermsViewMixin(object):
         if self.check_allowed():
             return super().dispatch(request, *args, **kwargs)
         else:
-            raise PermissionDenied
+            response = loader.render_to_string('403.html', request=request)
+            return HttpResponseForbidden(response)
 
 
 class OwnerRequiredMixin(RolePermsViewMixin):
@@ -126,4 +129,5 @@ class OwnerRequiredMixin(RolePermsViewMixin):
         if self.check_owner(obj):
             return obj
         else:
-            raise PermissionDenied
+            response = loader.render_to_string('403.html', request=self.request)
+            return HttpResponseForbidden(response)

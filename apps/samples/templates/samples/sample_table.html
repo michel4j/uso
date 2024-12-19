@@ -10,7 +10,7 @@
 		</tr>
 	</thead>
 	<tbody>
-    {% for sample, quantity in samples|dictsort:"0.kind" %}
+    {% for sample, quantity in samples %}
 		<tr><td>{{sample.name}}</td>
 			<td>{{sample.get_kind_display}}</td>
 			<td>{{sample.get_state_display}}</td>

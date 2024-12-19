@@ -10,7 +10,6 @@ urlpatterns = [
 
     path('projects/reports/', views.Statistics.as_view(), name="project-stats"),
 
-
     path('allocations/<int:pk>/request/shift/new/', views.CreateShiftRequest.as_view(), name="create-shift-request"),
     path('allocations/request/shift/<int:pk>/edit/', views.EditShiftRequest.as_view(), name='edit-shift-request'),
     path('allocations/request/', views.AllocRequestList.as_view(), name="alloc-request-list"),

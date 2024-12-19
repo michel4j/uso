@@ -21,7 +21,7 @@ from scheduler.utils import round_time
 
 
 class ProjectForm(DynFormMixin, forms.ModelForm):
-    form_type = 'project'
+    type_code = 'project'
 
     class Meta:
         model = models.Project
@@ -42,7 +42,7 @@ class ProjectForm(DynFormMixin, forms.ModelForm):
 
 
 class MaterialForm(DynFormMixin, forms.Form):
-    form_type = 'amendment'
+    type_code = 'amendment'
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance', None)
@@ -325,7 +325,7 @@ class LabSessionForm(forms.ModelForm):
             unqualified = [
                 member
                 for member in team
-                if not member.has_all_perms(lab_permissions)
+                if not member.has_all_perms(*lab_permissions)
             ]
             if unqualified:
                 msg = (
@@ -358,7 +358,7 @@ class LabSessionForm(forms.ModelForm):
                 unqualified = [
                     member
                     for member in team
-                    if not member.has_all_perms(equipment_perms)
+                    if not member.has_all_perms(*equipment_perms)
                 ]
                 if unqualified:
                     msg = (
@@ -480,8 +480,6 @@ class SessionForm(forms.ModelForm):
         data = super().clean()
         team = data.get('team')
         samples = data.get('samples', [])
-        user_agreement = Agreement.objects.get(
-            code="80ae507a-d622-4792-b376-f9f5b4b02ae0")  # FIXME, hard coded, better design needed
         failures = []
         joiner = Joiner(', ', ' & ')
 
@@ -528,11 +526,15 @@ class SessionForm(forms.ModelForm):
         # Test qualifications of team members
         if team:
             missing_agreements = [
-                member
+                f'{member}'
                 for member in team
-                if not user_agreement.valid_for_user(
-                    member) and member.institution and not member.institution.state == member.institution.STATES.exempt
+                if (
+                    Agreement.objects.pending_for_user(member).exists()
+                    and member.institution
+                    and not member.institution.state == member.institution.STATES.exempt
+                )
             ]
+
             if missing_agreements:
                 msg = (
                     "All participating team members must have valid User Agreements. "
@@ -562,7 +564,7 @@ class SessionForm(forms.ModelForm):
                 member
                 for member in team
                 if not (
-                        member.has_all_perms(req_perms) and
+                        member.has_all_perms(*req_perms) and
                         self.session.beamline.is_user(member, remote=remote)
                 )
             ]
@@ -590,7 +592,7 @@ class SessionForm(forms.ModelForm):
 
 
 class TeamForm(DynFormMixin, forms.ModelForm):
-    form_type = 'team'
+    type_code = 'team'
     details = forms.Field(required=False)
 
     class Meta:
@@ -707,7 +709,7 @@ class ShiftRequestForm(forms.ModelForm):
                   "Use the scheduling tags above for more general requirements",
         widget=forms.Textarea(attrs={'rows': 4, })
     )
-    tags = forms.ModelMultipleChoiceField(label="Scheduling Tags", required=False, queryset=FacilityTag.objects.all())
+    tags = forms.ModelMultipleChoiceField(label="Scheduling Tags", required=False, queryset=FacilityTag.objects)
     good_dates = forms.CharField(required=False, label="Preferred Dates")
     poor_dates = forms.CharField(required=False, label="Undesirable Dates")
 

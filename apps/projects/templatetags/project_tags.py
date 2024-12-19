@@ -164,7 +164,6 @@ def get_facility_cycle_stats(facility, cycle):
 
     aggrs = {
         'total': Count('id', distinct=True),
-        'avg_score': Avg('allocations__score_merit'),
         'total_shifts': Sum('allocations__shifts'),
         'avg_shifts': Avg('allocations__shifts'),
     }

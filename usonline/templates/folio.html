@@ -14,12 +14,10 @@
         {% endblock %}
     </div>
 
-    <div class="{% block folio-statusbar-style %}hidden{% endblock %}" style="padding: 0.5em 1em;">
-        {% block folio-statusbar %}
-        {% endblock %}
+    <div class="folio-status {% block folio-statusbar-style %}hidden{% endblock %}">
+        {% block folio-statusbar %}{% endblock %}
     </div>
     {% endblock %}
-    {% block folio-content %}
-    {% endblock %}
+    {% block folio-content %}{% endblock %}
 </div>
 {% endblock %}

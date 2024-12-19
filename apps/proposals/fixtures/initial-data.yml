@@ -1,0 +1,64 @@
+- model: proposals.reviewtype
+  pk: 1
+  fields:
+    created: 2024-12-13 15:18:31.392480+00:00
+    modified: 2024-12-16 03:11:35.114418+00:00
+    code: scientific
+    description: Scientific Review
+    form_type: 3
+    score_fields:
+      capability: 0.2
+      suitability: 0.2
+      scientific_merit: 0.6
+    role: reviewer
+- model: proposals.reviewtype
+  pk: 2
+  fields:
+    created: 2024-12-13 15:19:10.905250+00:00
+    modified: 2024-12-16 03:13:00.275384+00:00
+    code: technical
+    description: Technical Review
+    form_type: 4
+    score_fields:
+      suitability: 1
+    role: reviewer:{}
+- model: proposals.reviewtype
+  pk: 3
+  fields:
+    created: 2024-12-13 15:26:19.539592+00:00
+    modified: 2024-12-16 03:12:40.433089+00:00
+    code: safety
+    description: Safety Review
+    form_type: 7
+    score_fields: {}
+    role: safety-reviewer
+- model: proposals.reviewtype
+  pk: 4
+  fields:
+    created: 2024-12-13 15:27:41.258391+00:00
+    modified: 2024-12-16 03:12:32.205670+00:00
+    code: ethics
+    description: Ethics Review
+    form_type: 6
+    score_fields: {}
+    role: ethics-reviewer
+- model: proposals.reviewtype
+  pk: 5
+  fields:
+    created: 2024-12-13 15:29:04.722458+00:00
+    modified: 2024-12-16 03:12:23.255237+00:00
+    code: equipment
+    description: Equipment Review
+    form_type: 14
+    score_fields: {}
+    role: equipment-reviewer
+- model: proposals.reviewtype
+  pk: 6
+  fields:
+    created: 2024-12-13 15:30:20.121523+00:00
+    modified: 2024-12-16 03:12:09.659577+00:00
+    code: approval
+    description: Safety Approval
+    form_type: 5
+    score_fields: {}
+    role: safety-approver

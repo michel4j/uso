@@ -1,8 +1,9 @@
 {% extends "folio.html" %}
 {% load proposal_tags %}
 {% load beamline_tags %}
-{%  load humanize %}
-{%  load jsonify %}
+{% load folio %}
+{% load humanize %}
+{% load jsonify %}
 {% load markup %}
 
 {% block page_heading %}
@@ -44,63 +45,57 @@
     {% endif %}
 {% endblock %}
 
-{% block folio-statusbar-style %}
-    {% with object.score as score %}
-        {% if score > 4 %}bg-danger {% elif score == 0 %}bg-darken{% else %}bg-success {% endif %}
-    {% endwith %}
-{% endblock %}
+{% block folio-statusbar-style %}{% folio_status object.state draft=object.STATES.pending info=object.STATES.started warn=object.STATES.reviewed default='bg-success' %}{% endblock %}
 
 {% block folio-statusbar %}
-    <div class="row">
-        <div class="col-xs-2">
-            <h3 class="no-vmargin"><span class="label label-info text-condensed">{{ object.get_state_display }}</span>
-            </h3>
-        </div>
-        <div class="col-xs-2">
-            <small class="text-wide text-muted">First Cycle:</small>
-            <br/>
-            {{ object.cycle }}
-        </div>
-        <div class="{%  if object.siblings.exists %}col-xs-2{% else %}col-xs-3{% endif %}">
-            <small class="text-wide text-muted">Review Track:</small>
-            <br/>
-            {{ object.track }}
-        </div>
-        {%  if object.siblings.exists %}
-        <div class="col-xs-2">
+    <h3 class="no-vmargin"><span class="label label-info text-condensed">{{ object.get_state_display }}</span></h3>
+    <div>
+        <small class="text-wide text-muted">First Cycle:</small>
+        <br/>
+        {{ object.cycle }}
+    </div>
+    <div>
+        <small class="text-wide text-muted">Review Track:</small>
+        <br/>
+        {{ object.track }}
+    </div>
+    {% if object.siblings.exists %}
+        <div>
             <small class="text-wide text-muted">Related:</small><br/>
-            {% for submission in object.siblings.all %}<a href='{% url "submission-detail" pk=submission.pk %}'>{{ submission }}</a> {% if not forloop.last %},  {% endif %}{% endfor %}
+            {% for submission in object.siblings.all %}
+                <a href='{% url "submission-detail" pk=submission.pk %}'>{{ submission }}</a>
+                {% if not forloop.last %},  {% endif %}{% endfor %}
         </div>
-        {% endif %}
-        <div class="{%  if object.siblings.exists %}col-xs-2{% else %}col-xs-3{% endif %}">
-            <small class="text-wide text-muted">Type:</small>
-            <br/>
-            {{ object.get_kind_display }}
-        </div>
+    {% endif %}
+    <div>
+        <small class="text-wide text-muted">Type:</small>
+        <br/>
+        {{ object.get_kind_display }}
+    </div>
 
-        <div class="col-xs-2">
-                {% if object.track.special %}
-                    <small class="text-wide text-muted">Final Decision:</small><br/>
-                    {% if object.state != object.STATES.complete %}
-                        <em>Incomplete</em>
-                    {% else %}
-                        {%  if object.techical_score < 4 %}
-                            <span class="badge progress-bar-success">&nbsp;Approved&nbsp;</span>
-                        {% else %}
-                            <span class="badge progress-bar-danger">&nbsp;Rejected&nbsp;</span>
-                        {% endif  %}
-                    {% endif %}
+    <div>
+        {% if object.track.special %}
+            <small class="text-wide text-muted">Final Decision:</small><br/>
+            {% if object.state != object.STATES.complete %}
+                <em>Incomplete</em>
+            {% else %}
+                {% if object.techical_score < 4 %}
+                    <span class="badge progress-bar-success">&nbsp;Approved&nbsp;</span>
                 {% else %}
-                    <small class="text-wide text-muted">Final Score:</small><br/>
-                    {% if object.state != object.STATES.complete %}
-                        <em>Incomplete</em>
-                    {% else %}
-                        {% with object.score as score %}
-                            <span class="badge" style="background-color: {{ score|color_scale }}">&nbsp;{{ score|floatformat:"-1" }}&nbsp;</span>
-                        {% endwith %}
-                    {% endif %}
+                    <span class="badge progress-bar-danger">&nbsp;Rejected&nbsp;</span>
                 {% endif %}
-        </div>
+            {% endif %}
+        {% else %}
+            <small class="text-wide text-muted">Final Score:</small><br/>
+            {% if object.state != object.STATES.complete %}
+                <em>Incomplete</em>
+            {% else %}
+                {% with object.score as score %}
+                    <span class="badge"
+                          style="background-color: {{ score|color_scale }}">&nbsp;{{ score|floatformat:"-1" }}&nbsp;</span>
+                {% endwith %}
+            {% endif %}
+        {% endif %}
     </div>
 {% endblock %}
 
@@ -127,88 +122,74 @@
             </div>
             <div class="col-xs-12 col-sm-6">
                 <h4>Techniques Requested</h4>
-                <ul><li>Through {{ object.track }} [this submission]
+                <ul>
+                    <li>Through {{ object.track }} [this submission]
                         <ul>
-                        {%  for item in object.techniques.all %}
-                            <li><strong>{{ item.technique }} &mdash; {{ item.config.facility }}</strong></li>
-                        {%  endfor %}
+                            {% for item in object.techniques.all %}
+                                <li><strong>{{ item.technique }} &mdash; {{ item.config.facility }}</strong></li>
+                            {% endfor %}
                         </ul>
                     </li>
-                {%  for submission in object.siblings.all %}
-                    <li>Through {{ submission.track }} [<a href='{% url "submission-detail" pk=submission.pk %}'>{{ submission }}</a>]
-                        <ul>
-                        {%  for item in submission.techniques.all %}
-                            <li class="text-muted">{{ item }} &mdash; {{ item.config.facility }}</li>
-                        {% endfor %}
-                        </ul>
-                    </li>
-                {% endfor %}
+                    {% for submission in object.siblings.all %}
+                        <li>Through {{ submission.track }} [<a
+                                href='{% url "submission-detail" pk=submission.pk %}'>{{ submission }}</a>]
+                            <ul>
+                                {% for item in submission.techniques.all %}
+                                    <li class="text-muted">{{ item }} &mdash; {{ item.config.facility }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
-        {%  if object.state == object.STATES.complete or object.state == object.STATES.reviewed and admin %}
-        <div class="row narrow-gutter">
-            <div class="col-xs-12">
-                <div class="tinytron border-3d">
-                    <div class="row narrow-gutter">
-                    {% if not object.track.special %}{% with object.scores as scores %}
-                        <div class="col-sm-4">
-                            <h4>Score Summary</h4>
-                            <hr class="hr-xs"/>
-                            {% if object.score %}
+        {% if object.state == object.STATES.complete or object.state == object.STATES.reviewed and admin %}
+            <div class="row narrow-gutter">
+                <div class="col-xs-12">
+                    <div class="tinytron border-3d">
+                        <div class="row narrow-gutter">
+
+                            <div class="col-sm-6 col-xs-12">
+                                <h4>Score Summary</h4>
+                                <hr class="hr-xs"/>
                                 <div class="row">
-                                    <div class="col-xs-4">
-                                        <small class="text-wide text-muted">Merit</small><br/>
-                                        <h2 class="no-vmargin text-center" style="color: {{ object.score|color_scale }}"><strong>{{ object.score | floatformat:-1 }}</strong></h2>
-                                    </div>
-                                    <div class="col-xs-4">
-                                        <small class="text-wide text-muted">Suitability</small><br/>
-                                        <h2 class="no-vmargin text-center" style="color: {{ scores.suitability|color_scale }}">{{ scores.suitability | floatformat }}</h2>
-                                    </div>
-                                    <div class="col-xs-4">
-                                        <small class="text-wide text-muted">Capability</small><br/>
-                                        <h2 class="no-vmargin text-center" style="color: {{ scores.capability|color_scale }}">{{ scores.capability | floatformat }}</h2>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div id="histogram" class="histogram col-xs-12"
-                                         data-histogram='{"values": {{ ranks.values|jsonify }}, "rank": {{ ranks.rank }}, "score": {{ object.score }} }'>
-                                        <h4 class="text-center">All: <em>{{ ranks.rank | ordinal }} Percentile</em></h4>
-                                    </div>
-                                    {% for rank in ranks.facilities %}
-                                    <div class="histogram col-sm-6"
-                                         data-histogram='{"values": {{ rank.values|jsonify }}, "rank": {{ rank.rank }}, "score": {{ object.score }} }'>
-                                        <h5 class="text-center">{{ rank.facility }}: <em>{{ rank.rank | ordinal }} Percentile</em></h5>
-                                    </div>
+                                    {% for review_type, info in ranks.items %}
+                                        <div class="col-xs-3">
+                                            <small class="text-wide text-muted">{{ review_type }}</small><br/>
+                                            <h2 class="no-vmargin text-center"
+                                                style="color: {{ info.score |color_scale }}">
+                                                <strong>{{ info.score | floatformat:-1 }}</strong></h2>
+                                        </div>
                                     {% endfor %}
                                 </div>
-                                <hr class="hr-xs"/>
-                            {% endif %}
-                            <div class="row">
-                                <div class="col-xs-4">
-                                    <small class="text-wide text-muted">Technical</small><br/>
-                                    <h2 class="no-vmargin text-center" style="color: {{ object.technical|color_scale }}"><strong>{{ object.technical | floatformat:-1 }}</strong></h2>
+                                <div class="row">
+                                    {% for review_type, info in ranks.items %}
+                                        <div id="histogram" class="histogram col-xs-3"
+                                             data-histogram='{"values": {{ info.values|jsonify }}, "rank": {{ info.rank }}, "score": {{ info.score }} }'>
+                                            <p class="text-center">All: <em>{{ info.rank | ordinal }} Percentile</em>
+                                            </p>
+                                        </div>
+                                    {% endfor %}
                                 </div>
                             </div>
+
+                            <div class="col-sm-6 col-xs-12">
+                                <h4>Reviewer Comments</h4>
+                                <hr class="hr-xs"/>
+                                {{ object.comments | markdown }}
+                            </div>
                         </div>
-                    {% endwith %}{% endif %}
-                    <div class="col-sm-8">
-                        <h4>Reviewer Comments</h4>
-                        <hr class="hr-xs"/>
-                        {{ object.comments | markdown }}
-                    </div>
                     </div>
                 </div>
             </div>
-        </div>
-        {%  endif %}
-        {%  if admin %}
-        <div class="row section">
-            <div class="col-xs-12">
-                <h3>Reviews</h3>
-                {% include "proposals/reviews_table.html" with reviews=object.reviews.all %}
+        {% endif %}
+        {% if admin %}
+            <div class="row section">
+                <div class="col-xs-12">
+                    <h3>Reviews</h3>
+                    {% include "proposals/reviews_table.html" with reviews=object.reviews.all %}
+                </div>
             </div>
-        </div>
         {% endif %}
     </div>
     {% include "proposals/review_results.html" %}

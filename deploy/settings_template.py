@@ -46,8 +46,7 @@ DATABASES = {
 # -----------------------------------------------------------------------------
 # Other config settings
 # -----------------------------------------------------------------------------
-# USO_ADMIN_ROLES = ["administrator:uso", "developer-admin", "employee"]    # The superuser roles
-# USO_USER_AGREEMENT = "80ae507a-d622-4792-b376-f9f5b4b02ae0"               # The UUID of the user agreement
+# USO_ADMIN_ROLES = ["admin:uso", "developer-admin", "employee"]    # The superuser roles
 # USO_ADMIN_PERMS = []                                                      # The superuser permissions
 # USO_OPEN_WEATHER_KEY = "fc083799c6457d859764913163f6b584"                 # OpenWeather API key for weather data
 # ROLEPERMS_DEBUG = False                                                   # Print permissions and roles debug info

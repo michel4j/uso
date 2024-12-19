@@ -3,12 +3,15 @@
 {{submission.proposal.title}}.</p>
 {{submission.proposal.authors}} &mdash;
 <em>{{submission.proposal.spokesperson.institution|default:"No Institution"}}</em>
-<div class="tinytron bg-darken">
+<div class="tinytron bg-darken techniques">
     {% if submission.techniques.exists %}
     {% for item in submission.techniques.all %}
-        {{item.technique }} [<em>{{item.config.facility.acronym}}</em>] {% if not forloop.last %}, {% endif %}
+        <span class="label label-primary" title="{{ item.technique }}">{{item.technique }} | {{item.config.facility.acronym}}
+        </span>
     {% endfor %}
     <hr class="hr-xxs"/>
     {% endif %}
-    <em>{{submission.proposal.areas.all|join:",&ensp; "}}</em>
+    {% for area in submission.proposal.areas.all %}
+        <span class="label label-success" title="Area">{{ area.name }}</span>
+    {% endfor %}
 </div>

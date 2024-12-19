@@ -1,6 +1,10 @@
+from django.conf import settings
 from django.urls import reverse
 
 from misc.navigation import BaseNav
+
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
+USO_CONTRACTS_ROLES = getattr(settings, "USO_CONTRACTS_ROLES", ['staff:contracts'])
 
 
 class Home(BaseNav):
@@ -14,28 +18,28 @@ class People(BaseNav):
     label = 'People'
     icon = 'bi-people'
     weight = 3
-    roles = ['administrator:uso', 'contracts-administrator']
+    roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
     url = reverse('users-list')
 
 
 class Users(BaseNav):
     parent = People
     label = 'User Profiles'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     url = reverse('users-list')
 
 
 class Reviewers(BaseNav):
     parent = People
     label = 'Reviewer Profiles'
-    roles = ['administrator:uso']
+    roles = USO_ADMIN_ROLES
     url = reverse('reviewer-list')
 
 
 class Institutions(BaseNav):
     parent = People
     label = 'Institutions'
-    roles = ['administrator:uso', 'contracts-administrator']
+    roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
     url = reverse('institution-list')
 
 
@@ -73,5 +77,5 @@ class Logout(BaseNav):
 class Agreements(BaseNav):
     parent = People
     label = 'Agreements'
-    roles = ['administrator:uso', 'contracts-administrator']
+    roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
     url = reverse('agreement-list')

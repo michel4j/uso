@@ -3,11 +3,11 @@
 {% load markup %}
 {% block form_title %}Reviewer Compatibility{% endblock %}
 {% block form_body %}
-<div class="tinytron {% if conflict %} bg-danger {% else %} bg-success {% endif %}">
+<div class="tinytron techniques {% if conflict %} bg-danger {% else %} bg-success {% endif %}">
     <h4 style="margin:0;">
-        {%  if admin %}
+        {%  if admin and reviewer.reviewer %}
             <strong><a class="next-url" href="{% url 'edit-reviewer-profile' pk=reviewer.reviewer.pk %}">{{reviewer}}</a></strong>
-            {% else %}
+        {% else %}
             <strong>{{reviewer}}</strong>
         {%  endif %}
         <span class="pull-right badge" title="Cycle Workload" style="margin-left: 0.25em;">

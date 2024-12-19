@@ -1,5 +1,9 @@
 from django.contrib.auth.models import PermissionsMixin
 from django.conf import settings
+from . import utils
+
+
+USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
 
 
 class RolePermsUserMixin(PermissionsMixin):
@@ -15,7 +19,7 @@ class RolePermsUserMixin(PermissionsMixin):
     def is_superuser(self):
         """Override is_superuser with developer admin"""
         if self.pk:
-            return self.has_roles(getattr(settings, "USO_ADMIN_ROLES", ['XXX_XXX_XXX']))
+            return self.has_any_role(*USO_ADMIN_ROLES)
         else:
             return False
 
@@ -41,14 +45,6 @@ class RolePermsUserMixin(PermissionsMixin):
         """
         return (perm in self.get_all_permissions()) or self.is_superuser
 
-    def has_role(self, role, obj=None):
-        """
-        Returns True if the user has the specified role. For consistency,
-        the obj argument is provided to mirror the has_perms of auth.PermissionsMixin
-        it is not used at the moment.
-        """
-        return role in self.get_all_roles()
-
     def has_perms(self, perm_list, obj=None):
         """
         Returns True if the user has any of the specified permissions. For consistency,
@@ -57,13 +53,27 @@ class RolePermsUserMixin(PermissionsMixin):
         This method changes the behaviour of standard Django auth.PermissionsMixin in that
         it returns True based on ANY. Django returns true only if user has ALL permissions
         """
-        return len(perm_list) == 0 or (len(set(perm_list) & self.get_all_permissions()) > 0)
+        return self.has_any_perm(*perm_list)
 
-    def has_all_perms(self, perm_list, obj=None):
+    def has_any_perm(self, *perms):
+        """
+        Returns True if the user has any of the specified permissions.
+        """
+        return utils.has_any_items(perms, self.get_all_permissions())
+
+    def has_all_perms(self, *perms):
         """
         Returns True if the user has all the specified permissions.
         """
-        return self.get_all_permissions() >= set(perm_list)
+        return utils.has_all_items(perms, self.get_all_permissions())
+
+    def has_role(self, role, obj=None):
+        """
+        Returns True if the user has the specified role. For consistency,
+        the obj argument is provided to mirror the has_perms of auth.PermissionsMixin
+        it is not used at the moment.
+        """
+        return role in self.get_all_roles()
 
     def has_roles(self, role_list, obj=None):
         """
@@ -71,7 +81,13 @@ class RolePermsUserMixin(PermissionsMixin):
         the obj argument is provided to mirror the has_perms of auth.PermissionsMixin
         it is not used at the moment.
         """
-        return len(role_list) == 0 or (len(set(role_list) & self.get_all_roles()) > 0)
+        return self.has_any_role(*role_list)
+
+    def has_any_role(self, *roles):
+        """
+        Returns True if the user has any of the specified roles.
+        """
+        return utils.has_any_items(roles, self.get_all_roles())
 
     def has_all_roles(self, role_list, obj=None):
         """
@@ -79,7 +95,7 @@ class RolePermsUserMixin(PermissionsMixin):
         the obj argument is provided to mirror the has_perms of auth.PermissionsMixin
         it is not used at the moment.
         """
-        return self.get_all_roles() >= set(role_list)
+        return utils.has_all_items(role_list, self.get_all_roles())
 
     def has_module_perms(self, module):
         return self.has_perm(module)

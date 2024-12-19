@@ -84,7 +84,15 @@
 </div>
 <hr/>
 <script>
-    $('[data-field-name="{{field.name}}"] .chosen').chosen({allow_single_deselect: true,display_disabled_options: false, search_contains: true});
+    $(function(){
+        window.setTimeout(function(){
+            $('[data-field-name="{{field.name}}"] .chosen').chosen({
+                allow_single_deselect: true,display_disabled_options: false, search_contains: true
+            });
+        }, 0);
+    });
+
+
     $('#{{field.name}}-techniques{{repeat_index}}, #{{field.name}}-facility{{repeat_index}}').change(function(){
     	var tech_field = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
     	var facs_field = tech_field.closest('.controls').find('[name^="{{field.name}}.facility"]');

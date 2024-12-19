@@ -131,7 +131,6 @@ class RemoteProfileManager(ExternalProfileManager):
 
     @classmethod
     def get_user_photo_url(cls, username: str):
-        print(cls.USER_PHOTO_URL.format(username=username))
         return cls.USER_PHOTO_URL.format(username=username)
 
 

@@ -2,7 +2,7 @@
 {% load proposal_tags %}
 {% block form_title %}Delete Review Assignment?{% endblock %}
 {% block form_body %}
-<h4>{{object.get_kind_display}} Review assigned to <strong>{{object.reviewer}}</strong></h4>
+<h4>{{object.type}} assigned to <strong>{{object.reviewer}}</strong></h4>
 <hr class="hr-xs"/>
 {% include "proposals/submission-snippet.html" with submission=object.reference %}
 <small>Created: {{object.created}}, Modified: {{object.modified}}</small>

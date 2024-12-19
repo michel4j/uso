@@ -4,13 +4,13 @@ register = template.Library()
 
 
 @register.filter(name="has_perm")
-def has_perm(user, args):
-    return user.has_perms([args])
+def has_perm(user, arg):
+    return user.has_any_perm(arg)
 
 
 @register.filter(name="has_role")
-def has_role(user, args):
-    return user.has_role(args)
+def has_role(user, arg):
+    return user.has_any_role(arg)
 
 
 @register.filter(name='role_label')

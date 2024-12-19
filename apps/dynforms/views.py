@@ -23,7 +23,7 @@ from .models import DynEntry
 
 load('dynfields')
 
-ADMIN_ROLES = ['developer-admin']
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 
 
 class DynFormViewMixin(object):
@@ -45,7 +45,7 @@ class DynCreateView(DynFormViewMixin, edit.CreateView):
 
 
 class DynFormView(RolePermsViewMixin, DynCreateView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = 'dynforms/test-form.html'
     form_class = DynForm
     model = DynEntry
@@ -64,7 +64,7 @@ class DynFormView(RolePermsViewMixin, DynCreateView):
 
 
 class AddFieldView(RolePermsViewMixin, TemplateView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = "dynforms/field.html"
 
     def get_context_data(self, **kwargs):
@@ -81,7 +81,7 @@ class AddFieldView(RolePermsViewMixin, TemplateView):
 
 
 class GetFieldView(RolePermsViewMixin, TemplateView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = "dynforms/field.html"
 
     def get_context_data(self, **kwargs):
@@ -95,7 +95,7 @@ class GetFieldView(RolePermsViewMixin, TemplateView):
 
 
 class MoveFieldView(RolePermsViewMixin, TemplateView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = 'dynforms/blank.html'
 
     def get_context_data(self, **kwargs):
@@ -109,7 +109,7 @@ class MoveFieldView(RolePermsViewMixin, TemplateView):
 
 
 class PageFieldView(RolePermsViewMixin, TemplateView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = 'dynforms/blank.html'
 
     def get_context_data(self, **kwargs):
@@ -131,7 +131,7 @@ RULE_ACTIONS = [
 
 
 class FieldRulesView(RolePermsViewMixin, FormView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = 'dynforms/rule-editor.html'
     form_class = RulesForm
 
@@ -169,7 +169,7 @@ class FieldRulesView(RolePermsViewMixin, FormView):
 
 
 class DeleteFieldView(RolePermsViewMixin, TemplateView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = "dynforms/edit-settings.html"
 
     def get_context_data(self, **kwargs):
@@ -182,7 +182,7 @@ class DeleteFieldView(RolePermsViewMixin, TemplateView):
 
 
 class EditFieldView(RolePermsViewMixin, FormView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = "dynforms/edit-settings.html"
     form_class = FieldSettingsForm
 
@@ -211,7 +211,7 @@ class EditFieldView(RolePermsViewMixin, FormView):
 
 
 class EditFormView(RolePermsViewMixin, UpdateView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = 'dynforms/builder.html'
     form_class = FormSettingsForm
     queryset = FormType.objects.all()
@@ -240,7 +240,7 @@ class EditFormView(RolePermsViewMixin, UpdateView):
 
 
 class DeletePageView(RolePermsViewMixin, TemplateView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = "dynforms/edit-settings.html"
 
     def get_context_data(self, **kwargs):
@@ -252,7 +252,7 @@ class DeletePageView(RolePermsViewMixin, TemplateView):
 
 
 class FormTypeList(RolePermsViewMixin, ItemListView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     queryset = FormType.objects.all()
     template_name = "item-list.html"
     paginate_by = 10
@@ -270,7 +270,7 @@ class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
     model = FormType
     success_url = reverse_lazy('dynforms-list')
     success_message = "FormType '%(name)s' has been updated."
-    allowed_roles = ['administrator:uso']
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -316,7 +316,7 @@ class DeleteFormType(RolePermsViewMixin, ConfirmDetailView):
 
 
 class CheckFormAPI(RolePermsViewMixin, detail.DetailView):
-    allowed_roles = ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
     template_name = "dynforms/warnings.html"
     model = FormType
 

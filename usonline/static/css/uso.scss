@@ -363,7 +363,6 @@ main.content {
 	padding-left: 100px;
 	margin-top: 80px;
 	padding-bottom: 0;
-	height: 150vh;
 }
 nav.sidebar {
 	background-color: $background-color_4;
@@ -1538,11 +1537,12 @@ ul.icons-list {
 .icon-6 {
 	font-size: 5.5em;
 }
-body.error-body {
+.error-wrapper {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-	min-height: 80vh;
+	min-height: 100vh;
 }
 .tinytron {
 	padding: 0.75em !important;
@@ -1700,11 +1700,11 @@ hr.hr-xxs {
 	margin: .25em 0;
 }
 #error-page {
-	min-height: 50%;
+	min-height: 50vh;
 	font-size: 120%;
 	font-weight: 300;
-	width: 50%;
-	margin: 0 auto;
+	max-width: 50vw;
+	margin: auto;
 	align-self: center;
 	background: #fff;
 	h1 {
@@ -1844,6 +1844,7 @@ form {
 }
 .beamline-info {
 	.table {
+
 		th {
 			width: 30%;
 		}
@@ -2559,7 +2560,7 @@ input[checked=checked] {
 }
 .no-vmargin {
 	margin-top: 0 !important;
-	margin-bottom: 0 !important;
+	//margin-bottom: 0 !important;
 }
 .no-hmargin {
 	margin-left: 0 !important;
@@ -3548,7 +3549,7 @@ body.registration {
 	margin-right: 22px;
 	img {
 		padding: 2px;
-		height: 66%;
+		height: calc(100% * 2 / 3);
 		margin-right: -22px;
 		&:nth-child(even) {
 			align-self: flex-start;
@@ -3577,4 +3578,30 @@ body.registration {
 	}
 }
 
+span.allocation-score {
+	display: inline-block;
+	padding-right: 1em;
+}
 
+.folio-status {
+	padding: 0.25em 1em;
+	display: flex;
+	flex-direction: row;
+	gap: 1em;
+	justify-content: space-between;
+	> * {
+		height: 100%;
+	}
+	> h3:first-of-type, div.h3:first-of-type {
+		align-self: center;
+	}
+}
+
+.bottom-border {
+	border-bottom: solid 1px $background-color_31;
+}
+
+.techniques .label {
+	margin-right: 0.25em;
+	font-weight: normal;
+}

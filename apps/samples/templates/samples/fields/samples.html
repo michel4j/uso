@@ -89,7 +89,6 @@ function update_{{field.name}}() {
 		
 	});
 }
-$('#{{field.name}}-search').chosen({search_contains: true});
 $('#{{field.name}}-search').change(function(){
 	/* Add sample when select changes, then immediately reset select to "" */
 	var tgt_el = $(this);
@@ -167,7 +166,10 @@ $('#{{field.name}}-controls').on('click', 'a.sample-edit-command', function(){
 		});
 	});
 });
-$(document).ready(function(){
-	update_{{field.name}}();
+$(function(){
+    window.setTimeout(function(){
+        $("#{{field.name}}-search").chosen({search_contains: true});
+        update_{{field.name}}();
+    }, 0);
 });
 </script>
