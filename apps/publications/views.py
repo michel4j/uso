@@ -204,13 +204,13 @@ class UnclaimPublication(RolePermsViewMixin, View):
 
 class ActivitySummary(RolePermsViewMixin, TemplateView):
     admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
-    allowed_roles = USO_STAFF_ROLES
+    allowed_roles = USO_STAFF_ROLES + USO_ADMIN_ROLES
     template_name = "publications/activity-summary.html"
 
 
 class QualitySummary(RolePermsViewMixin, TemplateView):
     admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
-    allowed_roles = USO_STAFF_ROLES
+    allowed_roles = USO_STAFF_ROLES + USO_ADMIN_ROLES
     template_name = "publications/quality-summary.html"
 
     def get_context_data(self, **kwargs):
