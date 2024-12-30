@@ -28,10 +28,49 @@ The system provides the following feature sets:
     * User/Institutional agreements
     * Generation of Statistics, Metrics and Reporting
 
+
+Deploying an instance
+=====================
+
+1. From the top-level directory, run the command `prepare-instance.sh` as follows:
+
+   .. code-block:: bash
+
+      ./deploy/prepare-instance.sh <deploy top-level directory>
+
+2. This command will build a docker/podman image "usonline:latest" and create a barebones directory structure. Add any
+   data you want to load into the "local/kickstart/" in either YAML or JSON format. The data should be in the format
+   similar to that produced by the Django "dumpdata" command.
+3. Edit the docker-compose.yml file to reflect your deployment environment. Change the environment settings to create
+   the appropriate database and uso admin accounts.
+4. Run the docker-compose up command to start the database and USO. The database will be initialized with the data in
+   the kickstart directory if provided.
+
+   .. code-block:: bash
+
+       docker-compose up -d
+
+   OR
+
+   .. code-block:: bash
+
+       podman-compose up -d
+
+5. Access the USO site at http://localhost:8080/. The default admin account is "admin" with password "usoadmin" unless you
+   changed the value in "docker-compose.yml".
+6. Logos are needed in a few places. To customize the logo, place two PNG files in the "local/media/logos" directory
+   named "logo-horiz.png" (300 x 90, logo) and "logo-oriz-white.png" (White version for dark backgrounds).
+7. By default, Profile photos for users should be placed in the "local/media/idphoto/<username>.jpg" for each user.
+   Alternatively, they can be fetched from a remote server through the Profile manager. See RemoteProfileManager for an
+   example. The photo should be minimum 200 x 200 pixels.
+
+The system is now ready for use.
+
+
 Main Concepts
 =============
 Users
-    Anyone who uses the USO system. Users need a user-account in order
+    Anyone who uses the USO system needs a user-account in order
     to use the system. Accounts can be requested through a registration which
     is completed through the USO system for non-users. On successful registration,
     and verification of the user's email address, an account is created. It is highly
@@ -39,26 +78,51 @@ Users
 
 Role
     A prescribed function or status conferred on a person. An individual's roles will
-    determine which USO pages they can view, which tasks they may be expected to complete.
+    determine which USO pages they can view, which tasks they may be expected to complete. Roles
+    can be managed externally to the USO software and provided through an API. Roles in the USO system are often
+    labelled using hyphenated lowercased words joined by colons. The words after the colon identify the realms. Roles
+    used by the system can be configured in the local settings file using the following settings parameters.
 
     For example:
 
-    - *User*: Any person who performs experiments in the facility
-    - *Reviewer*: A person who reviews proposals
-    - *Beamline Staff*, *Beamline Admin*, *Contractor*, etc
+    .. code-block:: python
+
+        USO_ADMIN_ROLES = ["admin:uso"]                     # Admins of the USO system
+        USO_CONTRACTS_ROLES = ["staff:contracts"]           # Contracts staff
+        USO_CURATOR_ROLES = ["curator:publications"]        # Publications Curator
+        USO_HSE_ROLES = ["staff:hse"]                       # Health and Safety staff, who perform safety reviews
+        USO_MANAGER_ROLES = ["manager:science"]             # Science Manager
+        USO_REVIEWER_ROLES = ["reviewer"]                   # Scientific Reviewers
+        USO_STAFF_ROLES = ["staff"]                         # General Staff, note that "staff:uso" implies "staff"
+        USO_STUDENT_ROLES = ["student"]                     # Students
+        USO_USER_ROLES = ["user"]                           # Other non-staff users
+        USO_FACILITY_ADMIN_ROLE = 'admin:-'                 # role templates '-' means propagate down subunits
+        USO_FACILITY_STAFF_ROLE = 'staff:-'                 # '+' means propagate up subunits
+
+    Facility roles are special roles which are used to manage access to facilities. The roles can be specified
+    be specified with wildcards to allow for propagation of roles to subunits. For example, the role "admin:-"
+    will propagate the role "admin" to all subunits of the facility. The role "staff:+" will propagate the role
+    to all parent units of the facility. The role "staff:*" is equivalent to "staff:{}" and will not propagate beyond
+    the current facility. For example if a user has the role "staff:cmcf" and the facility has a parent facility "bio"
+    and a sub-facility "cmcf-bm", setting USO_FACILITY_STAFF_ROLE to "staff:-" implies that users with "staff:bio"
+    roles will implicitly have "staff:cmcf" roles and users with "staff:cmcf" roles will implicitly have "staff:cmcf-bm".
+    However "staff:cmcf" will not necessarily have "staff:bio" roles.
+
 
 Permission
     A qualification that permits a person to carry out a task. Usually acquired after appropriate
-    training has been completed. Permissions are stored and managed externally to the USO software.
+    training has been completed. Permissions can be stored and managed externally to the USO software.
     Permissions are often labelled using hyphenated uppercased words in the USO system.
 
     Some Examples of permissions:
 
-    - *Facility Access*: Equivalent to a valid access badge to enter the facility.
-    - *Cryo Worker*:  Qualified to work with cryogenics
-    - *CMCF-ID User*: Qualified to perform experiments on the CMCF-ID beamline
-    - *Lab Access*: Qualified to work in a laboratory
-    - *Animal Worker*: Qualified to work with animals.
+    - *FACILITY-ACCESS*: Equivalent to a valid access badge to enter the facility.
+    - *CRYO-WORKER*:  Qualified to work with cryogenics
+    - *CMCF-ID-USER*: Qualified to perform experiments on the CMCF-ID beamline. Every beamline
+      has a unique permissions for access which is of the form "<beamline.acronym>-USER",
+      "<beamline.acronym>-REMOTE-USER".
+    - *LAB-ACCESS*: Qualified to work in a laboratory
+    - *ANIMAL-WORKER*: Qualified to work with animals.
 
 Proposal
     A document submitted by prospective users which describes the planned research
@@ -69,7 +133,7 @@ Cycle
     A period of time, typically 6 months long, during which experiments are scheduled and performed
     at the facility. There are typically two cycles per year Jan 1st - June 30, and July 1st - Dec 31st.
 
-Beamline Configuration
+Facility Configuration
     This is the specification of all the techniques available on the given beamline starting from
     specified cycle, and the review track through which submissions will be reviewed. Configurations for a
     given cycle can be edited until the day before the call opens. Only individuals
@@ -98,7 +162,7 @@ Review Track
     A prescribed sequence of reviews through which submitted proposals (Submissions) are subjected. Submissions
     undergo reviews based on the types of proposals the requested facilities, and when they were submitted.
     Some proposals may result in multiple submissions if the requested facilities were configured to require
-    more than one Review Track.
+    more than one Review Track. There is no limit to the number of ReviewTracks that can be created.
 
     Examples of Review Tracks:
 
@@ -113,9 +177,40 @@ Review Track
       priority access. Restrictions may apply to submissions received through this
       method.
 
+ReviewType and FormType
+    The type of review to be completed. The review type species the review FormType, the scoring scheme in the form of
+    score fields and weighting for the specific FormType, and the reviewer role required to complete the review. The FormType
+    is a dynamic form specification which includes all the questions to be answered during the review process. FormTypes
+    and ReviewTypes can be managed through the USO system administrator screens. Configuration of which ReviewTypes
+    are used for creating scientific, technical and safety reviews is accomplished through the following configuration
+    parameters.
+
+    .. code-block:: python
+
+        USO_SAFETY_REVIEWS = ["safety", "ethics", "equipment"]      # reviews assigned by safety approver
+        USO_TECHNICAL_REVIEWS = ["technical"]                       # technical review type
+        USO_SCIENCE_REVIEWS = ["scientific"]                        # science review type
+        USO_SAFETY_APPROVAL = "approval"                            # safety approval review type
+
+
+    The strings in the lists above are the code names of the ReviewTypes defined within the database.  For example,
+    to create a new review type with code "special-science" and make that the default scientific review, a new
+    FormType should be created and designed with the appropriate form fields, then a new review type should be created
+    linked to the new FormType, specifying the scoring scheme as a dictionary mapping field names from the FormType to
+    weights. Finally, changing the USO_SCIENCE_REVIEWS to ["special-science"] will switch all future scientific reviews
+    to use the "special-review" form and scoring scheme.
+
+    An example scoring scheme where scores are calculated as a weighted average of three different fields, would be
+    implemented as "{'field_one': 0.6, 'field_two': 0.2, 'field_three': 0.2}". Within the form designer, each of the
+    fields may represent a number of possible values and are by default always a non-zero integer value. The final score
+    is calculated as a sum of all the field values multiplied by the corresponding weight. The final score can then have
+    a wide variety of possible values, depending on the number of fields, the number of choices per field, and the range
+    of values for the weights. Even the ordering of values can be different so that either low or high values are considered
+    better.
+
 Review
     A questionnaire to be completed online. The questionnaire varies depending
-    on the type of review to be completed (Technical, Scientific, etc). Reviews are usually
+    on the ReviewType to be completed. Reviews are usually
     assigned to a person (Reviewer) or to a Role. When assigned to a role, any individual who has the role
     can claim and complete the review. In addition, any individual who has the role can re-claim
     and complete a partially completed review started by someone else. However, when assigned
@@ -165,7 +260,7 @@ Materials
     approval of all the materials, only some of them, or rejection. Changes to materials can be initiated
     through amendments which can be submitted at any time and will require review and approval before use.
     Note that each user can manage a list of pre-defined samples which can be re-used in multiple proposals
-    and materials. Reviews of materials containing peviously reviewed samples may be expedited.
+    and materials. Reviews of materials containing previously reviewed samples may be expedited.
 
 Session
     A period of time during which a project is using a beamline/facility. A valid session requires
@@ -219,16 +314,17 @@ On the *start date*, the state becomes **"Active"** and on the *end date* it swi
 
 User/Institutional Agreements
 -----------------------------
-A valid *User Agreement* is needed to participate in experiments and a valid *Institutional Agreement*
-is a pre-requisite for the *User Agreement*.
+The system implements *User Agreements*.  Agreements created in the system and required of users prior to
+experiments.  *Institutional Agreements* can also required of users' institutions.
 
 The *User* role is not assigned at registration. Instead, Any person submitting a
 proposal or participating on a research team will automatically be assigned the *User* role.
 
-Every person with *User* role will be required to accept a *User Agreement*. However,
+Every person with the *User* role will be required to accept any *User Agreements* assigned to the *User* role. However,
 their institution must have a valid *Institutional Agreement* in place before they can accept the
 *User agreement*. If the process to establish the *Institutional Agreement* has not been initiated,
-users will be presented with a form requesting the contact person at their institution for that purpose.
+users will be presented with a form requesting the contact person at their institution for that purpose. Individual
+institutions can be exempted from the requirement to have an *Institutional Agreement* in place.
 
 
 User-Interface Components:
@@ -311,8 +407,3 @@ Detail Page
         :alt: Project Detail Page
 
         Screenshot of a Project Detail Page.
-
-
-
-
-
