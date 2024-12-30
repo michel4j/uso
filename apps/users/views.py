@@ -551,16 +551,15 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
         institution_info = data.pop('institution_info', {})
         research_areas = data.pop('research_field')
         obj = self.get_object()
-        old_institution = obj.institution
+
         if obj.address:
             models.Address.objects.filter(pk=obj.address.pk).update(**address_info)
+        else:
+            address = models.Address.objects.create(**address_info)
+            data['address'] = address
         if institution_info:
             institution = models.Institution.objects.create(**institution_info)
             data['institution'] = institution
-        else:
-            institution = None
-        if old_institution != institution:
-            obj.acceptances.filter(user=obj, agreement__code=USO_USER_AGREEMENT).update(active=False)
         models.User.objects.filter(username=obj.username).update(**data)
 
         info = {
