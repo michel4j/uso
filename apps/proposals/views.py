@@ -1187,7 +1187,7 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
 
 class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "proposals/submission_detail.html"
-    queryset = models.Submission.objects.with_scores()
+    model = models.Submission
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
 
@@ -1197,6 +1197,9 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
             obj.proposal.spokesperson.username, obj.proposal.delegate_username, obj.proposal.leader_username
         ]
         )
+
+    def get_queryset(self):
+        return self.model.objects.with_scores()
 
     def check_admin(self):
         submission = self.get_object()

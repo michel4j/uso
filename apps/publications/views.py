@@ -55,14 +55,14 @@ def _fmt_citations(citation, obj=None):
 class PublicationList(RolePermsViewMixin, ItemListView):
     queryset = models.Publication.objects.filter(reviewed=True).select_subclasses()
     template_name = "publications/publication-list.html"
-    paginate_by = 15
+    paginate_by = 25
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
     list_title = "All Publications"
     list_columns = ['cite', 'facility_codes', 'kind']
     list_transforms = {'cite': _fmt_citations, 'areas': _format_areas}
     list_search = ['authors', 'title', 'keywords']
     ordering = ['-year', 'kind', 'authors']
-    admin_roles = ['publications-admin']
+    admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
 
     def get_queryset(self, *args, **kwargs):
         qset = self.queryset
@@ -110,11 +110,9 @@ class PublicationReviewList(PublicationAdminList):
     list_transforms = {'cite': _fmt_citations, 'areas': _format_areas}
     list_search = ['authors', 'title', 'keywords']
     ordering = ['-year', 'kind', 'authors']
-    admin_roles = ['publications-admin']
 
 
 class UserPublicationList(RolePermsViewMixin, ItemListView):
-    admin_roles = ['publications-admin']
     template_name = "publications/publication-list.html"
     paginate_by = 15
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
@@ -147,7 +145,6 @@ def get_author_matches(user):
 
 class ClaimPublicationList(RolePermsViewMixin, ItemListView):
     model = models.Publication
-    admin_roles = ['publications-admin']
     template_name = "publications/claim-publications.html"
     paginate_by = 15
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]

@@ -1,5 +1,5 @@
 aniso8601~=9.0.1
-django==5.0.9
+django==5.0.10
 django-crispy-forms~=2.3
 crispy-bootstrap3
 django-formtools==2.5.1

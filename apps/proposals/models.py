@@ -377,13 +377,16 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
 
 class Technique(TimeStampedModel):
     TYPES = Choices(
-        ('diffraction', _('Diffraction/Scattering')), ('imaging', _('Imaging/Microscopy')),
+        ('diffraction', _('Diffraction/Scattering')),
+        ('imaging', _('Imaging')),
+        ('microscopy', _('Microscopy')),
         ('spectroscopy', _('Spectroscopy')),
         ('other', _('Other')), )
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     category = models.CharField(_('Category'), max_length=50, choices=TYPES, default=TYPES.other)
     acronym = models.CharField(_('Acronym'), max_length=20, null=True, blank=True)
+    parent = models.ForeignKey('self', related_name='children', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.name if not self.acronym else '{} ({})'.format(self.name, self.acronym)
