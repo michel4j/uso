@@ -209,11 +209,10 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
         return allowed
 
     def get_queryset(self, *args, **kwargs):
-        self.queryset = models.Project.objects.filter(
-            Q(allocations__beamline=self.facility) | Q(allocations__beamline__parent=self.facility)
-        ).distinct()
+        flt = Q(beamlines=self.facility) | Q(beamlines__parent=self.facility)
         if self.kwargs.get('cycle'):
-            self.queryset.filter(allocations__cycle=self.kwargs['cycle']).distinct()
+            flt &= Q(allocations__cycle=self.kwargs['cycle'])
+        self.queryset = self.model.objects.filter(flt).distinct()
         return super().get_queryset(*args, **kwargs)
 
 

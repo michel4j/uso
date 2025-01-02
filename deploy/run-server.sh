@@ -35,6 +35,12 @@ if [ ! -f /usonline/local/.dbinit ]; then
     touch /usonline/local/.dbinit
     chown -R apache:apache /usonline/local/media
 
+    # Create superuser if not already created
+    if [ -n "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -n "${DJANGO_SUPERUSER_USERNAME}" ] && [ -n "${DJANGO_SUPERUSER_EMAIL}" ]; then
+        echo "Creating Superuser ..."
+        /usonline/manage.py createsuperuser --noinput
+    fi
+
     if [ -d /usonline/local/kickstart ]; then
         echo "Loading kickstart data ..."
         for f in /usonline/local/kickstart/*.{yml,json,yaml}; do
@@ -43,12 +49,6 @@ if [ ! -f /usonline/local/.dbinit ]; then
             /usonline/manage.py loaddata "$f"
           fi
         done
-    fi
-
-    # Create superuser if not already created
-    if [ -n "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -n "${DJANGO_SUPERUSER_USERNAME}" ] && [ -n "${DJANGO_SUPERUSER_EMAIL}" ]; then
-        echo "Creating Superuser ..."
-        /usonline/manage.py createsuperuser --noinput
     fi
 else
     for trial in {1..5}; do
