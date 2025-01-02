@@ -257,11 +257,12 @@ def get_comments(feedback):
 
 @register.filter(name="cycle_comments", autoescape=True)
 def cycle_comments(cycle):
-    if isinstance(cycle, str): return ""
+    if isinstance(cycle, str) or cycle is None:
+        return ""
     if cycle.state > cycle.STATES.open:
         txt = (
             "<span class='text-danger'>The submission deadline for the selected period elapsed on "
-            "<em>{close_date}</em>. Submissions for General User Access will be considered for discretionary time only,"
+            "<em>{close_date}</em>. Regular submissions will be considered for discretionary time only,"
             "until the next call for proposals, at which time you must resubmit to be considered for additional beam time. </span>"
         )
     elif cycle.state == cycle.STATES.open:
