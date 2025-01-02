@@ -22,22 +22,22 @@ class ProposalsBlock(BaseBlock):
         from proposals import models
         user = context['request'].user
 
-        cycle = models.ReviewCycle.objects.current().first()
-        if not cycle:
-            return ""
         filters = Q(leader_username=user.username) | Q(spokesperson=user) | Q(delegate_username=user.username)
         proposals = models.Proposal.objects.filter(filters)
         drafts = proposals.filter(state=models.Proposal.STATES.draft)
-        submitted = proposals.filter(state=models.Proposal.STATES.submitted,
-                                     submissions__cycle__start_date__gte=cycle.start_date).distinct()
+
+        today = timezone.now().date()
+        submitted = proposals.filter(
+            Q(state=models.Proposal.STATES.submitted) &
+            (Q(submissions__cycle__start_date__gt=today) | Q(submissions__cycle__state=models.Cycle.STATES.open)) &
+            Q(submissions__state__lt=models.Submission.STATES.reviewed),
+        ).distinct()
         open_cycles = models.ReviewCycle.objects.filter(state=models.Cycle.STATES.open)
         ctx.update({
             "drafts": drafts,
             "submitted": submitted,
             "open_cycles": open_cycles
         })
-        # if not (open_cycles.exists() or drafts.exists() or submitted.exists()):
-        #     return ""
         return super().render(ctx)
 
 
