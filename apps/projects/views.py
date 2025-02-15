@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q, Sum, Case, When, IntegerField, Value, F
 from django.db.models.functions import Coalesce
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -1240,6 +1240,9 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
             cur_date = self.kwargs.get('date', timezone.now().date().isoformat())
 
         facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
+        if not facility:
+            raise Http404
+
         fac_children = [f.acronym for f in facility.dtrace() if
                         f.kind not in [facility.TYPES.village, facility.TYPES.sector]]
 
