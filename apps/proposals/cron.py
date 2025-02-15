@@ -3,9 +3,9 @@ from datetime import timedelta
 
 from django.utils import timezone
 
-from . import utils
 from isocron import BaseCronJob
 from notifier import notify
+from . import utils
 
 
 class CreateCycles(BaseCronJob):
@@ -20,8 +20,8 @@ class CreateCycles(BaseCronJob):
         if not models.ReviewCycle.objects.filter().count():
             out = utils.create_cycle(dt)
 
-        # We should always have 2 future cycles, 1 year in advance for schedule
-        if models.ReviewCycle.objects.filter(start_date__gt=dt).count() < 2:
+        # We should always have 4 future cycles, 1 year in advance for schedule
+        if models.ReviewCycle.objects.filter(start_date__gt=dt).count() < 4:
             last_cycle = models.ReviewCycle.objects.latest('start_date')
             out = utils.create_cycle(last_cycle.start_date)
 
@@ -145,17 +145,18 @@ class CloseReviews(BaseCronJob):
                 if queryset.count():
                     logs.append(f"{queryset.count()} {track.acronym} Reviews closed")
 
-        # for Rapid Access Track change review state to complete if review has been completed more than 1 days ago.
-        deadline = timezone.localtime(timezone.now() - timedelta(days=1)).date()
         ra_reviews = models.Submission.objects.filter(track__special=True).values_list('reviews', flat=True)
+
+        # for Rapid Access Track change review state to complete if review has been completed more than 1 hour ago.
         queryset = models.Review.objects.filter(
             pk__in=ra_reviews, state__lt=models.Review.STATES.closed, is_complete=True,
-            modified__date__lte=deadline
+            # modified__date__lte=timezone.localtime(timezone.now() - timedelta(days=1)).date()
         )
 
         queryset.update(state=models.Review.STATES.closed, modified=timezone.now())
-        ra_submissions = models.Submission.objects.filter(track__special=True,
-                                                          state__lt=models.Submission.STATES.reviewed).exclude(
+        ra_submissions = models.Submission.objects.filter(
+            track__special=True,
+            state__lt=models.Submission.STATES.reviewed).exclude(
             reviews__state__lt=models.Review.STATES.closed
         )
         for submission in ra_submissions:

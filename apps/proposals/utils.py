@@ -4,11 +4,11 @@ import operator
 from collections import defaultdict
 from datetime import date, timedelta, datetime
 
+from django.conf import settings
 from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField
 from django.utils.safestring import mark_safe
 from fuzzywuzzy import fuzz
 from model_utils import Choices
-from django.conf import settings
 
 OPEN_WEEKDAY = 2  # Day of week to open call (2 = Wednesday)
 CLOSE_WEEKDAY = 2  # Day of week to close call (2 = Wednesday)
@@ -141,8 +141,7 @@ def check_conflict(user, proposal):
                          for t in proposal.proposal.get_full_team()
                      } | {
                          " ".join(
-                             [i.get('first_name', ''), i.get('last_name', ''),
-                              i.get('other_names', '')]
+                             [i.get('first_name', ''), i.get('last_name', ''), i.get('other_names', '')]
                          ).strip().lower()
                          for i in proposal.proposal.details.get('inappropriate_reviewers', [])
                      }

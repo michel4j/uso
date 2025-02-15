@@ -82,7 +82,6 @@ class NotifyProjects(BaseCronJob):
         yesterday = today - timedelta(days=1)
 
         # Send notifications for recently completed allocations
-        # cycle = ReviewCycle.objects.get(pk=24)
         cycle = ReviewCycle.objects.filter(alloc_date=yesterday, state=ReviewCycle.STATES.evaluation).first()
         if cycle:
             projects = models.Project.objects.filter(allocations__cycle=cycle)
@@ -114,12 +113,12 @@ class CreateProjects(BaseCronJob):
 
         # create allocations for recently closed review cycles
         cycle = ReviewCycle.objects.filter(alloc_date=today, state=ReviewCycle.STATES.review).first()
-        # cycle = ReviewCycle.objects.get(pk=25)
         log = []
         if cycle:
             # general user access
             submissions = cycle.submissions.exclude(track__special=True).filter(
-                state=Submission.STATES.reviewed, project__isnull=True)
+                state=Submission.STATES.reviewed, project__isnull=True
+            )
             expiry = (cycle.start_date.replace(year=cycle.start_date.year + 2))
             for submission in submissions:
                 utils.create_project(submission)
