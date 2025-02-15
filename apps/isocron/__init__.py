@@ -57,16 +57,17 @@ class BaseCronJob(object, metaclass=CronJobMeta):
         return "EVERY: {0}, AT: {1}, RETRY: {2}".format(self.run_every, self.run_at, self.retry_after)
 
     def run_thread(self, force=False):
-        if (self.ready() and self.condition()) or force:
-            thread = threading.Thread(target=self.run)
-            thread.start()
-            return thread
+        thread = threading.Thread(target=self.run, args=(force,), daemon=True)
+        thread.start()
+        return thread
 
-    def run(self):
+    def run(self, force=False):
         from .models import JobLog
+        if not (self.ready() and self.condition() or force):
+            return 0
 
         now = timezone.localtime(timezone.now())
-        msgs = [] if not self.job_log.message else self.job_log.message.split("\n$$\n")
+        msgs = []
         try:
             JobLog.objects.filter(pk=self.job_log.pk).update(state=JobLog.STATES.running)
             out = self.do()

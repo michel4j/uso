@@ -18,32 +18,21 @@ class Command(BaseCommand):
                             dest="force",
                             default=False,
                             help="Force jobs to run this time")
-        parser.add_argument('--verbose',
-                            action="store_true",
-                            dest="verbose",
-                            default=False,
-                            help="Be very noisy")
+        parser.add_argument('jobs', nargs='*', type=str)
 
     def handle(self, *args, **options):
-        skipped = []
-        job_threads = {}
         jobs = BaseCronJob.get_all().items()
         out = ""
         for name, cron_job in jobs:
-            if args and name not in args:
+            if options.get('jobs') and name not in options.get('jobs', []):
                 continue
-            thread = cron_job.run_thread(force=options.get('force'))
-            if thread:
-                job_threads[cron_job] = thread
-            else:
-                skipped.append(cron_job)
+            code = cron_job.run(force=options.get('force'))
 
-        for job, thread in job_threads.items():
-            thread.join()
-            out += '{} ({})\n'.format(job.job_log.code, job.job_log.get_state_display())
-
-        for job in skipped:
-            out += '{} ({})\n'.format(job.job_log.code, 'Skipped')
-
-        if options.get('verbose'):
-            sys.stdout.write(out)
+            if options.get('verbosity', 1) > 0:
+                if code == 0:
+                    out += f'{cron_job.job_log.code} (Skipped)\n'
+                elif code == 1:
+                    out += f'{cron_job.job_log.code} (Success)\n'
+                else:
+                    out += f'{cron_job.job_log.code} (Failed)\n'
+                sys.stdout.write(out)
