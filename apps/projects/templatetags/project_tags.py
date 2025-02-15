@@ -155,16 +155,14 @@ def event_icon(context, event_time, icon="bi-calendar2-event", size="icon-3x", d
 
 @register.simple_tag(takes_context=False)
 def get_facility_cycle_stats(facility, cycle):
-    if cycle.schedule.state == cycle.schedule.STATES.draft:
-        return {}
 
     reservations = models.Reservation.objects.filter(beamline=facility, cycle=cycle)
     total = cycle.schedule.normal_shifts()
     unavailable = reservations.filter(kind__in=['', None]).aggregate(total=Coalesce(Sum('shifts'), 0))
 
-    aggrs = {
+    aggregations = {
         'total': Count('id', distinct=True),
-        'total_shifts': Sum('allocations__shifts'),
+        'shifts': Sum('allocations__shifts'),
         'avg_shifts': Avg('allocations__shifts'),
     }
     active_projects = models.Project.objects.filter(
@@ -174,9 +172,10 @@ def get_facility_cycle_stats(facility, cycle):
     new_projects = active_projects.filter(cycle=cycle)
 
     return {
+        'total_shifts': total,
         'available_shifts': total - unavailable['total'],
-        'active': active_projects.aggregate(**aggrs),
-        'new': new_projects.aggregate(**aggrs),
+        'active': active_projects.aggregate(**aggregations),
+        'new': new_projects.aggregate(**aggregations),
     }
 
 

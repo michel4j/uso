@@ -1,4 +1,5 @@
 import calendar
+from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
@@ -75,13 +76,8 @@ class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
             parent = parent.parent
         config_items = ConfigItem.objects.filter(filters)
         if config_items.count():
-            cycle = ReviewCycle.objects.current().first()
-            next_cycle = ReviewCycle.objects.next(cycle.start_date)
-            prev_cycle = ReviewCycle.objects.prev(cycle.start_date)
-            today = timezone.now().date()
-            context['cycles'] = (
-                [next_cycle, cycle] if next_cycle.state > next_cycle.STATES.open else [cycle, prev_cycle]
-            )
+            one_year_ahead = (timezone.now() + timedelta(days=365)).date()
+            context['cycles'] = ReviewCycle.objects.filter(end_date__lte=one_year_ahead).order_by('-start_date')[:6]
         return context
 
 
@@ -118,7 +114,6 @@ class FacilityTags(RolePermsViewMixin, detail.DetailView):
         if self.request.GET.get('tags'):
             tag_pks = self.request.GET.get('tags').split(',')
             selected = self.object.tags().filter(pk__in=tag_pks)
-            print(tag_pks, selected)
         else:
             selected = []
         context['choices'] = [(tag, tag in selected) for tag in self.object.tags().all()]

@@ -1,9 +1,9 @@
 import functools
 import operator
-import pprint
 from mimetypes import MimeTypes
 
 from django import template
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from proposals import models
@@ -240,17 +240,16 @@ def get_options(context, data={}):
 def get_cycle_options(context):
     data = context.get("data")
     selected_cycle = None
-    options = []
+    today = timezone.now().date()
+
     if data:
         selected_cycle = models.ReviewCycle.objects.filter(pk=data).first()
 
-    if selected_cycle:
-        context['selected_cycle'] = selected_cycle
-        options = [
-            (c.pk, c, c == context.get('selected_cycle'))
-            for c in [models.ReviewCycle.objects.next(), models.ReviewCycle.objects.current().first()]
-        ]
-    return options
+    context['selected_cycle'] = selected_cycle
+    return [
+        (c.pk, c, c == context.get('selected_cycle'))
+        for c in models.ReviewCycle.objects.filter(end_date__gt=today).order_by('end_date')[:2]
+    ]
 
 
 @register.filter

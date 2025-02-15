@@ -74,6 +74,11 @@ def create_project(submission):
     }
     scores['facilities'] = bl_scores
 
+    bl_specs = {
+        entry['facility']: entry
+        for entry in proposal.details.get('beamline_reqs', [])
+    }
+
     if not vetoed and scores['facilities']:
         project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
         project.techniques.add(*submission.techniques.all())
@@ -81,11 +86,11 @@ def create_project(submission):
         facility_scores = scores.pop('facilities', {})
         del scores['technical']
         for bl, score in facility_scores.items():
-            shift_request = bl.get('shifts') or 0
+            if not bl in bl_specs:
+                continue
+            spec = bl_specs[bl]
             alloc_scores = {**scores, 'technical': score}
-            create_project_allocations(
-                project, bl, cycle, scores=alloc_scores, shift_request=shift_request
-            )
+            create_project_allocations(project, spec, cycle, scores=alloc_scores)
         project.refresh_team()
 
         # create materials
@@ -113,7 +118,9 @@ def create_project(submission):
             )
 
 
-def create_project_allocations(project, spec, cycle, shifts=0, shift_request=0, scores=None):
+def create_project_allocations(project, spec, cycle, shifts=0, shift_request=None, scores=None):
+    if shift_request is None:
+        shift_request = spec.get('shifts', 0)
     facilities = Facility.objects.filter(
         Q(kind=Facility.TYPES.beamline, parent__pk=spec['facility'])
         | Q(kind=Facility.TYPES.beamline, pk=spec['facility'])
