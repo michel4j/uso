@@ -27,7 +27,7 @@
             <span class="tool-label">View Log</span>
         </a>
         {% if object.state == object.STATES.ready %}
-             {% if admin %}
+             {% if admin or owner %}
                 <a href="#0" data-url="{% url 'delete-session' pk=object.pk %}" class="text-danger pull-right">
                     <i class="ti icon-2 bi-trash icon-fw"></i><br/>
                     <span class="tool-label">Delete</span>
@@ -40,18 +40,18 @@
         {% elif object.state == object.STATES.live %}
             {% if object.is_live %}
             <a href="#0" data-url="{% url 'session-signoff' pk=object.pk %}" class="pull-left">
-                <i class="ti icon-2 bi-power icon-fw"></i><br/>
+                <i class="icon-2 bi-power icon-fw"></i><br/>
                 <span class="tool-label">Sign-Off</span>
             </a>
             {% if can_terminate %}
                 <a href="#0" data-url="{% url 'terminate-session' pk=object.pk %}" class="text-danger pull-right">
-                    <i class="ti icon-2 bi-stop-circle icon-fw"></i><br/>
+                    <i class="icon-2 bi-stop-circle icon-fw"></i><br/>
                     <span class="tool-label">Terminate</span>
                 </a>
             {% endif %}
             {% endif %}
             <a href="#0" data-url="{% url 'session-signon' pk=object.pk %}" class="pull-left">
-                <i class="ti icon-2 bi-pencil-square icon-fw"></i><br/>
+                <i class="icon-2 bi-pencil-square icon-fw"></i><br/>
                 <span class="tool-label">Update</span>
             </a>
             {% if admin %}

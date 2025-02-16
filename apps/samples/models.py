@@ -193,7 +193,7 @@ class Sample(TimeStampedModel):
         txt = ""
         for p in self.precautions():
             p_txt = p.text.format(keywords.get(p.code, '{}'))
-            txt += "{}.  ".format(p_txt)
+            txt += "- {}.  \n".format(p_txt)
         return txt
 
     def hazards_text(self):

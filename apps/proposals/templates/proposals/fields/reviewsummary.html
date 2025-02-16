@@ -5,74 +5,90 @@
 {% get_approval_reviews as approval_reviews %}
 {% all_reviews_completed as all_complete %}
 {% for rev in approval_reviews %}
-<div class="tinytron">
-	<div class="row narrow-gutter">
-		<div class="col-xs-8" id="{{field.name}}-{{rev.review.pk}}-description">
-			<h5 class="no-vmargin">
-                {{rev.review.type}}
-                <small class="text-condensed">
-                    [
-                    {% if rev.review.state > rev.review.STATES.open %}
-                    {{ rev.review.get_state_display}}
-                    {% elif not rev.review.reviewer %}
-                    Unclaimed
+    <div class="tinytron">
+        <div class="row narrow-gutter">
+            <div class="col-xs-8" id="{{ field.name }}-{{ rev.review.pk }}-description">
+                <h5 class="no-vmargin">
+                    {% if rev.review.reviewer %}
+                        <i class="text-muted bi-person-square icon-lg" title="{{ rev.review.reviewer }}"></i>
                     {% else %}
-                    In progress
-                    {% endif %}]
-                </small>
-            </h5>
-			<em class="text-muted">{% if rev.review.reviewer %}{{rev.review.reviewer}}{% else %}{{rev.review.role|human_role}}{% endif %}</em>
-        </div>
-        <div class="col-xs-4" id="{{field.name}}-{{rev.review.pk}}-form">
-            {% if rev.review.state < rev.review.STATES.submitted and rev.review.type.is_safety %}
-
-            <a href="#0" title="Delete Review" data-review-prefix="{{field.name}}-{{rev.review.pk}}"
-               class="pull-right delete-review-command">
-                <i class="bi-x-lg text-danger icon-1x icon-fw"></i>
-            </a>
-
-            {% endif %}
-            <span class="pull-right text-right text-condensed" style="line-height: 24px;">
-                {% if rev.rejected %}
-				    <text class="text-danger"><span class="badge progress-bar-danger">{{rev.rejected|length}}</span>&nbsp;REJECTED</text>
-				{% endif %}
-			</span>
-			<div class="pull-right" style="margin-right: 2em;">
-                {%  if rev.hazards %}
-				{% show_pictograms rev.hazards size=24 %}
+                        <i class="text-muted bi-person-bounding-box icon-lg"
+                           title="{{ rev.review.role|human_role }}"></i>
+                    {% endif %}
+                    {{ rev.review.type }}
+                    <span class="text-muted">
+                        |
+                        {% if rev.review.state > rev.review.STATES.open %}
+                            {{ rev.review.get_state_display }}
+                        {% elif not rev.review.reviewer %}
+                            Unclaimed
+                        {% else %}
+                            In progress
+                        {% endif %}
+                    </span>
+                </h5>
+            </div>
+            <div class="col-xs-4" id="{{ field.name }}-{{ rev.review.pk }}-form">
+                {% if rev.review.state < rev.review.STATES.submitted and rev.review.type.is_safety %}
+                    <a href="#0" title="Delete Review" data-review-prefix="{{ field.name }}-{{ rev.review.pk }}"
+                       class="pull-right delete-review-command">
+                        <i class="bi-x-lg text-danger icon-1x icon-fw"></i>
+                    </a>
                 {% endif %}
-			</div>
+                <span class="pull-right text-right text-condensed" style="line-height: 24px;">
+                {% if rev.rejected %}
+                    <text class="text-danger"><span class="badge progress-bar-danger">{{ rev.rejected|length }}</span>&nbsp;REJECTED</text>
+                {% endif %}
+			</span>
+                <div class="pull-right" style="margin-right: 2em;">
+                    {% if rev.hazards %}
+                        {% show_pictograms rev.hazards size=24 %}
+                    {% endif %}
+                </div>
 
-            {% if rev.review.type.is_safety %}
-                <span class="review-inputs">
-                    <input name="{{field.name}}.review.{{rev.review.pk}}" type="hidden" value="{{rev.review.pk}}">
-                    <input name="{{field.name}}.completed.{{rev.review.pk}}" type="hidden" value="{% if rev.review.is_submitted %}1{% endif %}">
+                {% if rev.review.type.is_safety %}
+                    <span class="review-inputs">
+                    <input name="{{ field.name }}.review.{{ rev.review.pk }}" type="hidden" value="{{ rev.review.pk }}">
+                    <input name="{{ field.name }}.completed.{{ rev.review.pk }}" type="hidden"
+                           value="{% if rev.review.is_submitted %}1{% endif %}">
                 </span>
-            {% endif %}
-        </div>
-        <div class="col-xs-12">
-            <div class="progress-striped progress-xs progress
+                {% endif %}
+            </div>
+
+
+            <div class="col-xs-12">
+                {% if rev.recommendation %}
+                    <div class="text-muted"><strong>Recommendation:</strong>&emsp;{{ rev.recommendation }}
+                    </div>{% endif %}
+                {% if rev.permissions %}
+                    <div class="text-muted safety-permissions"><strong>Permissions:</strong>&emsp;{{ rev.permissions }}
+                    </div>{% endif %}
+            </div>
+            <div class="col-xs-12">
+                {% if rev.comments %}
+                    <div class="text-muted"><strong>Comments:</strong></div>
+                    <ul class="review-comments list-unstyled">
+                        {{ rev.comments }}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="col-xs-12">
+                <div class="progress-striped progress-xs progress
                 {% if rev.review.reviewer and rev.review.state < rev.review.STATES.submitted %}active{% endif %}"
-				value="{{rev.completeness}}">
-				<div aria-valuetext="{{rev.completeness}}%" aria-valuemax="100"
-					aria-valuemin="0" aria-valuenow="{{rev.completeness}}" role="progressbar"
-                     class="progress-bar progress-bar-info"
-                    style="width: {{rev.completeness}}%;">
-					<span class="sr-only">{{rev.completeness}}% Complete</span>
-				</div>
-			</div>
-			{% if rev.comments or rev.comments_committee %}
-			    {{rev.comments|markdown}}
-			{% endif %}
-            {% if rev.comments_safety %}
-                {{rev.comments_safety|markdown}}
-            {% endif %}
-		</div>
-	</div>
-</div>
+                     value="{{ rev.completeness }}">
+                    <div aria-valuetext="{{ rev.completeness }}%" aria-valuemax="100"
+                         aria-valuemin="0" aria-valuenow="{{ rev.completeness }}" role="progressbar"
+                         class="progress-bar progress-bar-info"
+                         style="width: {{ rev.completeness }}%;">
+                        <span class="sr-only">{{ rev.completeness }}% Complete</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endfor %}
 <script>
-    $(".delete-review-command").click(function(){
+    $(".delete-review-command").click(function () {
         var el = $(this);
         var rev_form = $('#' + el.attr('data-review-prefix') + '-form');
         var rev_desc = $('#' + el.attr('data-review-prefix') + '-description');

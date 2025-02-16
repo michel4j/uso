@@ -180,7 +180,7 @@ def get_facility_cycle_stats(facility, cycle):
 
 
 @register.simple_tag(takes_context=True)
-def get_equipment_list(context, data=[]):
+def get_equipment_list(context, data=()):
     if not 'review' in context:
         return []
 
