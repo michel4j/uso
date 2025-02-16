@@ -1013,14 +1013,6 @@ class ReviewCycleList(RolePermsViewMixin, ItemListView):
     allowed_roles = USO_ADMIN_ROLES
 
 
-class CreateReviewCycle(SuccessMessageMixin, RolePermsViewMixin, edit.CreateView):
-    form_class = forms.ReviewCycleForm
-    template_name = "beamlines/form.html"
-    model = models.ReviewCycle
-    success_url = reverse_lazy('review-cycle-list')
-    allowed_roles = USO_ADMIN_ROLES
-
-
 class EditReviewCycle(SuccessMessageMixin, RolePermsViewMixin, edit.UpdateView):
     form_class = forms.ReviewCycleForm
     template_name = "forms/modal.html"
@@ -1276,6 +1268,27 @@ class ReviewerList(RolePermsViewMixin, ItemListView):
     link_url = 'edit-reviewer-profile'
     ordering = ['-created']
     allowed_roles = USO_ADMIN_ROLES
+
+
+class AddReviewCycles(RolePermsViewMixin, ConfirmDetailView):
+    template_name = "proposals/forms/create-cycle.html"
+    model = models.ReviewCycle
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        cycle = self.get_object()
+        return reverse('review-cycle-detail', kwargs={'pk': cycle.pk})
+
+    def confirmed(self, *args, **kwargs):
+        current_cycle = self.get_object()
+        utils.create_cycle(current_cycle.end_date)
+        next_cycle = models.ReviewCycle.objects.next(current_cycle.start_date)
+
+        ActivityLog.objects.log(
+            self.request, current_cycle, kind=ActivityLog.TYPES.create, description='Cycles created'
+        )
+        self.success_url = reverse('review-cycle-detail', kwargs={'pk': next_cycle.pk})
+        return JsonResponse({"url": self.success_url})
 
 
 class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):

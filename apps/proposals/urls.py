@@ -28,8 +28,8 @@ urlpatterns = [
     path('facilities/<int:pk>/submissions/', views.BeamlineSubmissionList.as_view(), name='beamline-submissions'),
 
     path('cycles/', views.ReviewCycleList.as_view(), name="review-cycle-list"),
-    path('cycles/new', views.CreateReviewCycle.as_view(), name="create-review-cycle"),
     path('cycles/<int:pk>/', views.ReviewCycleDetail.as_view(), name="review-cycle-detail"),
+    path('cycles/<int:pk>/add/', views.AddReviewCycles.as_view(), name="add-review-cycles"),
     path('cycles/<int:pk>/edit/', views.EditReviewCycle.as_view(), name="edit-review-cycle"),
     path('review-tracks/<int:pk>/edit/', views.EditReviewTrack.as_view(), name="edit-review-track"),
     path('cycles/<int:pk>/assign/<int:track>/', views.AssignReviewers.as_view(), name="assign-reviewers"),
