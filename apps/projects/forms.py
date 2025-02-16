@@ -142,7 +142,6 @@ class HandOverForm(forms.ModelForm):
         end_choices = shift_choices("Shifts", size=self.facility.shift_size)
 
         self.fields['start_time'].choices = start_choices.choices
-        self.fields['start_time'].initial = start_choices.NOW
         self.fields['end_time'].choices = end_choices.choices
 
         self.helper.layout = Layout(

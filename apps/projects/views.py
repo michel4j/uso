@@ -395,12 +395,11 @@ class CreateProject(RolePermsViewMixin, edit.CreateView):
 class SessionDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "projects/session-detail.html"
     model = models.Session
-    allowed_roles = USO_STAFF_ROLES
     admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
     terminate_roles = USO_HSE_ROLES + USO_ADMIN_ROLES
 
     def check_owner(self, obj):
-        obj.is_owned_by(self.request.user)
+        return obj.is_owned_by(self.request.user)
 
     def check_allowed(self):
         session = self.get_object()
@@ -457,17 +456,20 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
     def get_initial(self):
         initial = super().get_initial()
 
-        start = timezone.now()
         limit = timezone.now() + timedelta(days=4)
         self.project = models.Project.objects.get(pk=self.kwargs['pk'])
-        self.beamtime = self.project.beamtimes.filter(start__gte=start, end__lte=limit, beamline=self.facility).first()
+        self.beamtime = self.project.beamtimes.filter(start__gte=timezone.now(), end__lte=limit, beamline=self.facility).first()
 
         one_shift = timedelta(hours=self.facility.shift_size)
-        now = round_time(timezone.localtime(timezone.now()) + one_shift, one_shift)
-        initial['start'] = now if not self.beamtime else self.beamtime.start
-        alt_end = now + one_shift
-        initial['end'] = alt_end if not self.beamtime else self.beamtime.end
+        start = timezone.localtime(self.beamtime.start) if self.beamtime else timezone.localtime(timezone.now())
+        end = timezone.localtime(self.beamtime.end) if self.beamtime else timezone.localtime(timezone.now() + one_shift)
 
+        initial['start_date'] = start.date()
+        initial['end_date'] = end.date()
+        initial['start_time'] = start.strftime('%H:%M')
+        initial['end_time'] = end.strftime('%H:%M')
+        print(timezone.localtime(self.beamtime.start), timezone.localtime(self.beamtime.end))
+        print(initial)
         return initial
 
     def form_valid(self, form):

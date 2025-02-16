@@ -47,12 +47,12 @@ class DateSpanQuerySet(QuerySet):
     def next(self, dt=None):
         """Return the next instance by start_date"""
         dt = timezone.now().date() if not dt else dt
-        return self.filter(start_date__gte=dt).order_by('start_date').first()
+        return self.filter(start_date__gt=dt).order_by('start_date').first()
 
     def prev(self, dt=None):
         """Return the next instance by start_date"""
         dt = timezone.now().date() if not dt else dt
-        return self.filter(start_date__lte=dt).order_by('-start_date').first()
+        return self.filter(start_date__lt=dt).order_by('-start_date').first()
 
     def inactive(self):
         """A proxy for expired"""

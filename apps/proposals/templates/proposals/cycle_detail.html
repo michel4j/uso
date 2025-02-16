@@ -11,13 +11,17 @@
 {% block folio-subtitle %}Cycle &mdash; {{ object.pk }}{% endblock %}
 
 {% block folio-tools %}
-    <a class="pull-right"
-       {% if next_cycle %}href='{% url "review-cycle-detail" pk=next_cycle.pk %}'
-       {% else %}href='#0' disabled{% endif %}
-    >
-        <i class="bi-chevron-right icon-2 icon-fw"></i><br/>
-        <span class="tool-label">Next</span>
-    </a>
+    {% if next_cycle %}
+        <a class="pull-right" href='{% url "review-cycle-detail" pk=next_cycle.pk %}'>
+            <i class="bi-chevron-right icon-2 icon-fw"></i><br/>
+            <span class="tool-label">Next</span>
+        </a>
+    {% else %}
+        <a class="pull-right" href='#0!' data-url='{% url "add-review-cycles" pk=object.pk %}'>
+            <i class="bi-plus-lg icon-2 icon-fw"></i><br/>
+            <span class="tool-label">Add</span>
+        </a>
+    {% endif %}
     <a class="pull-right"
        {% if prev_cycle %}href='{% url "review-cycle-detail" pk=prev_cycle.pk %}'
        {% else %}href='#0' disabled{% endif %}

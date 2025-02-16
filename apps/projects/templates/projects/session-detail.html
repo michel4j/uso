@@ -27,7 +27,7 @@
             <span class="tool-label">View Log</span>
         </a>
         {% if object.state == object.STATES.ready %}
-             {% if admin or owner %}
+             {% if admin  %}
                 <a href="#0" data-url="{% url 'delete-session' pk=object.pk %}" class="text-danger pull-right">
                     <i class="ti icon-2 bi-trash icon-fw"></i><br/>
                     <span class="tool-label">Delete</span>
