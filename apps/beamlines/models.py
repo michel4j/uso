@@ -3,6 +3,7 @@ import re
 from functools import lru_cache
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -14,7 +15,7 @@ from misc.fields import StringListField
 from misc.utils import flatten
 from scheduler.models import Event
 
-User = getattr(settings, "AUTH_USER_MODEL")
+UserModel = getattr(settings, "AUTH_USER_MODEL")
 USO_FACILITY_STAFF_ROLE = getattr(settings, "USO_FACILITY_STAFF_ROLE", "staff:+")
 USO_FACILITY_ADMIN_ROLE = getattr(settings, "USO_FACILITY_ADMIN_ROLE", "admin:-")
 
@@ -129,6 +130,10 @@ class Facility(TimeStampedModel):
         _roles = self.expand_role(USO_FACILITY_ADMIN_ROLE)
         return user.has_any_role(*_roles)
 
+    def staff_list(self):
+        User = get_user_model()
+        return User.objects.all_with_roles(*self.expand_role(USO_FACILITY_STAFF_ROLE))
+
     def natural_key(self):
         return (self.acronym,)
 
@@ -137,7 +142,7 @@ class Facility(TimeStampedModel):
 
 
 class UserSupport(Event):
-    staff = models.ForeignKey(User, related_name="support", on_delete=models.CASCADE)
+    staff = models.ForeignKey(UserModel, related_name="support", on_delete=models.CASCADE)
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE, related_name="support")
     tags = models.ManyToManyField('beamlines.FacilityTag', related_name='support', blank=True)
 

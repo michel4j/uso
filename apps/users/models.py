@@ -92,10 +92,12 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def all_with_roles(self, *roles: str):
-        return self.filter(functools.reduce(operator.or_, [Q(roles__icontains=f'<{role}>') for role in roles]))
+        expr = functools.reduce(operator.or_, [Q(roles__icontains=f'<{role}>') for role in roles])
+        return self.filter(expr)
 
     def all_with_permissions(self, *perms: str):
-        return self.filter(functools.reduce(operator.or_, [Q(permissions__icontains=f'<{perm}>') for perm in perms]))
+        expr = functools.reduce(operator.or_, [Q(permissions__icontains=f'<{perm}>') for perm in perms])
+        return self.filter(expr)
 
 
 def name_initials(name: str) -> str:

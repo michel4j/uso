@@ -708,7 +708,8 @@ class TerminateSession(RolePermsViewMixin, edit.CreateView):
         data = form.cleaned_data
         session = self.get_object()
 
-        models.Session.objects.filter(pk=session.pk).update(state=models.Session.STATES.terminated)
+        session.state = models.Session.STATES.terminated
+        session.save()
         msg = 'Session Terminated by {} on {} because: "{}"'.format(
             self.request.user, timezone.localtime(timezone.now()), data['reason']
         )

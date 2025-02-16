@@ -1,14 +1,12 @@
 
+from datetime import timedelta, date, time, datetime
 
-import bisect
-from datetime import timedelta
-
-from crispy_forms.bootstrap import StrictButton, PrependedText, InlineCheckboxes
+from crispy_forms.bootstrap import StrictButton, PrependedText, AppendedText, InlineCheckboxes, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
 from django import forms
 from django.contrib.auth import get_user_model
-from django.db.models import Q
+from django.db.models import Q, TextChoices
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
@@ -18,6 +16,11 @@ from dynforms.forms import DynFormMixin
 from misc.utils import Joiner
 from proposals.models import ReviewCycle
 from scheduler.utils import round_time
+
+
+class DateField(AppendedText):
+    def __init__(self, field_name, *args, **kwargs):
+        super().__init__(field_name, mark_safe('<i class="bi-calendar"></i>'), *args, **kwargs)
 
 
 class ProjectForm(DynFormMixin, forms.ModelForm):
@@ -56,12 +59,16 @@ class ExtensionForm(forms.ModelForm):
     class Meta:
         model = models.Session
         fields = ["shifts"]
+        widgets = {
+            'shifts': forms.NumberInput(attrs={'min': 1, 'max': 10}),
+        }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         self.session = kwargs.pop('session', None)
         super().__init__(*args, **kwargs)
 
+        self.fields['shifts'].initial = 1
         self.helper = FormHelper()
         self.helper.title = "Extend Session"
         self.helper.form_action = self.request.path
@@ -69,9 +76,9 @@ class ExtensionForm(forms.ModelForm):
             Div(
                 Div(
                     HTML(
-                        "<div class='tinytron bg-info text-info'>"
-                        "<h5><strong>{{session.project}}</strong>: {{session.start}} &mdash; {{session.end}}</h5>"
-                        "<hr class='hr-xs'/>"
+                        "<div class='alert alert-info'>"
+                        "<strong>{{session.project}}</strong>: {{session.start}} &mdash; {{session.end}}"
+                        "</div>"
                     ),
                 ),
                 Field("shifts", css_class="col-sm-12"),
@@ -89,70 +96,32 @@ class ExtensionForm(forms.ModelForm):
         )
 
 
-class DateShiftWidget(forms.MultiWidget):
-    def __init__(self, attrs={}, shift_size=8, show_now=False, minute_precision=30, select_time=True):
-        self.show_now = show_now
-        self.minute_precision = minute_precision
-        date_attrs = attrs.get('date', {})
-        time_attrs = attrs.get('time', {})
-        if select_time:
-            time_attrs['class'] = " ".join({cls for cls in time_attrs.get('class', '').split() + ["chosen"]})
-            widgets = (
-                forms.DateInput(attrs=date_attrs),
-                forms.Select(attrs=time_attrs, choices=self._choices_from_size(shift_size))
-            )
-        else:
-            time_attrs['class'] = " ".join({cls for cls in time_attrs.get('class', '').split()})
-            time_attrs['data-minstep'] = minute_precision
-            widgets = (
-                forms.DateInput(attrs=date_attrs),
-                forms.TimeInput(attrs=time_attrs)
-            )
-        super().__init__(widgets, attrs)
+def shift_choices(name="Shifts", size=8, show_now=False):
+    times = list(range(0, 24, size))
+    choices = {}
 
-    def _choices_from_size(self, size):
-        times = list(range(0, 24, size))
-        choices = [
-            ('{:02d}:00:00'.format(h), '{:02d}:00'.format(h))
-            for h in times
-        ]
-        if self.show_now:
-            times = list(range(0, 24, size))
-            now = round_time(
-                timezone.localtime(timezone.now()) + timedelta(minutes=self.minute_precision / 2),
-                timedelta(minutes=self.minute_precision)
-            )
-            if now.minute != 0 and now.hour not in times:
-                pos = bisect.bisect_left(times, now.hour)
-                choices.insert(pos, (now.strftime('%H:%M'), now.strftime('Now %H:%M')))
-        return choices
+    if show_now:
+        now = timezone.localtime(timezone.now())
+        choices["NOW"] = (now.strftime('%H:%M'), now.strftime('Now %H:%M'))
+    for h in times:
+        choices[f"T{h:02d}"] = (f'{h:02d}:00', f'{h:02d}:00')
 
-    def decompress(self, value):
-        if value:
-            return [value.date(), value.time().replace(microsecond=0, second=0)]
-        return [None, None]
-
-    def format_output(self, rendered_widgets):
-        template = (
-            "<div class='row no-space'>"
-            "<div class='col-xs-8'>{0}</div>"
-            "<div class='col-xs-4'>{1}</div>"
-            "</div>"
-        ).format(*rendered_widgets)
-        return template
-
-
-class DateShiftField(forms.SplitDateTimeField):
-    widget = DateShiftWidget
+    return TextChoices(name, choices)
 
 
 class HandOverForm(forms.ModelForm):
-    start = DateShiftField()
-    end = DateShiftField()
+    start_date = forms.DateField(required=True)
+    end_date = forms.DateField(required=True)
+    start_time = forms.ChoiceField(required=True, choices=shift_choices(show_now=False))
+    end_time = forms.ChoiceField(required=True, choices=shift_choices(show_now=False))
 
     class Meta:
         model = models.Session
-        fields = ['start', 'end', 'kind']
+        fields = ['start', 'end', 'kind', 'start_time', 'end_time', 'start_date', 'end_date']
+        widgets = {
+            'start': forms.HiddenInput,
+            'end': forms.HiddenInput,
+        }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
@@ -169,8 +138,12 @@ class HandOverForm(forms.ModelForm):
         )
 
         # adjust widget shift size based on beamline
-        self.fields['start'].widget = DateShiftWidget(shift_size=self.facility.shift_size, show_now=True)
-        self.fields['end'].widget = DateShiftWidget(shift_size=self.facility.shift_size)
+        start_choices = shift_choices("ShiftsNow", size=self.facility.shift_size, show_now=True)
+        end_choices = shift_choices("Shifts", size=self.facility.shift_size)
+
+        self.fields['start_time'].choices = start_choices.choices
+        self.fields['start_time'].initial = start_choices.NOW
+        self.fields['end_time'].choices = end_choices.choices
 
         self.helper.layout = Layout(
             Div(
@@ -194,8 +167,10 @@ class HandOverForm(forms.ModelForm):
                 css_class="row modal-body"
             ),
             Div(
-                Div(Field('start'), css_class='col-sm-6'),
-                Div(Field('end'), css_class='col-sm-6'),
+                Div(DateField('start_date'), css_class='col-sm-6'),
+                Div(DateField('end_date'), css_class='col-sm-6'),
+                Div(Field('start_time', css_class="chosen"), css_class='col-sm-6'),
+                Div(Field('end_time', css_class="chosen"), css_class='col-sm-6'),
                 Div(Field("kind", css_class="chosen"), css_class="col-xs-12"),
                 css_class="row"
             ),
@@ -212,13 +187,30 @@ class HandOverForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
+        for field in ['start_date', 'end_date', 'start_time', 'end_time']:
+            if not (field in cleaned_data and cleaned_data.get(field)):
+                continue
+
+            elif field in ['start_time', 'end_time']:
+                cleaned_data[field] = datetime.strptime(cleaned_data[field], '%H:%M').time()
+
+        for name in ['start', 'end']:
+            if f'{name}_date' in cleaned_data and f'{name}_time' in cleaned_data:
+                cleaned_data[name] = timezone.make_aware(
+                    datetime.combine(cleaned_data[f'{name}_date'], cleaned_data[f'{name}_time'])
+                )
+
         if cleaned_data['start'] and cleaned_data['end']:
             if self.project.start_date > cleaned_data['start'].date():
-                self.add_error('start', 'Session must start while project is active')
+                self.add_error(None, 'Session must start while project is active')
             if self.project.end_date and (self.project.end_date < cleaned_data['end'].date()):
-                self.add_error('end', 'Session must end before project expires')
+                self.add_error(None, 'Session must end before project expires')
             if cleaned_data['end'] <= cleaned_data['start']:
-                self.add_error('end', 'Session must end later than its starting time')
+                self.add_error(None, 'Session must end later than its starting time')
+
+        for field in ['start_date', 'end_date', 'start_time', 'end_time']:
+            if field in cleaned_data:
+                del cleaned_data[field]
         return cleaned_data
 
 
@@ -408,10 +400,10 @@ class LabSessionForm(forms.ModelForm):
 class SessionForm(forms.ModelForm):
     class Meta:
         model = models.Session
-        fields = ['samples', 'team']
+        fields = ['samples', 'team', 'staff']
         widgets = {
             'samples': forms.CheckboxSelectMultiple,
-            'team': forms.CheckboxSelectMultiple
+            'team': forms.CheckboxSelectMultiple,
         }
 
     def __init__(self, *args, **kwargs):
@@ -441,6 +433,10 @@ class SessionForm(forms.ModelForm):
             "Select all team members who will be participating during this session. "
             "Only team members who have the appropriate permissions can be added."
         )
+        self.fields['staff'].queryset = self.session.beamline.staff_list()
+        self.fields['staff'].help_text = (
+            "Select the staff member who will be present during this session. "
+        )
         self.helper = FormHelper()
         self.helper.title = "Beamtime Sign-On"
         self.helper.form_action = self.request.path
@@ -450,14 +446,15 @@ class SessionForm(forms.ModelForm):
             Div(
                 Div(
                     HTML(
-                        "<div class='tinytron bg-info text-info'>"
-                        "<h5><strong>{{project}}</strong>: {{session.start}} &mdash; {{session.end}}</h5>"
+                        "<div class='alert alert-info'>"
+                        "<strong>{{project}}</strong>: {{session.start}} &mdash; {{session.end}}"
                         "</div>"
                     ),
                     Div(
                         Div(InlineCheckboxes('samples', template="projects/fields/%s/sample-selection.html"),
                             css_class="col-sm-12 sample-list"),
                         Div(InlineCheckboxes("team"), css_class="col-sm-12"),
+                        Div(Field("staff", css_class="chosen"), css_class="col-sm-12"),
                         css_class="row narrow-gutter"
                     ),
                     css_class="col-xs-12"

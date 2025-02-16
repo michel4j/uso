@@ -388,26 +388,26 @@ class SessionQueryset(EventQuerySet):
 
 
 class Session(TimeStampedModel, TimeFramedModel):
-    STATES = Choices(
-        ('ready', _('Ready')),
-        ('live', _('Active')),
-        ('complete', _('Complete')),
-        ('cancelled', _('Cancelled')),
-        ('terminated', _('Terminated')),
-    )
-    TYPES = Choices(
-        ('onsite', _('On-Site')),
-        ('remote', _('Remote')),
-        ('mailin', _('Mail-In')),
-    )
+    class STATES(models.TextChoices):
+        ready = ('ready', _('Ready'))
+        live = ('live', _('Active'))
+        complete = ('complete', _('Complete'))
+        cancelled = ('cancelled', _('Cancelled'))
+        terminated = ('terminated', _('Terminated'))
+
+    class TYPES(models.TextChoices):
+        onsite = ('onsite', _('On-Site'))
+        remote = ('remote', _('Remote'))
+        mailin = ('mailin', _('Mail-In'))
+
     project = models.ForeignKey('Project', related_name='sessions', on_delete=models.CASCADE)
     beamline = models.ForeignKey('beamlines.Facility', related_name="sessions", on_delete=models.CASCADE)
     samples = models.ManyToManyField('ProjectSample', related_name='sessions', blank=True)
     team = models.ManyToManyField('users.User', related_name='sessions', verbose_name="Team Members")
     staff = models.ForeignKey('users.User', related_name="+", null=True, blank=True, on_delete=models.SET_NULL)
     spokesperson = models.ForeignKey('users.User', related_name="+", null=True, blank=True, on_delete=models.SET_NULL)
-    state = models.CharField(max_length=15, choices=STATES, default=STATES.ready)
-    kind = models.CharField(_('Session Type'), max_length=15, choices=TYPES, default=TYPES.onsite)
+    state = models.CharField(max_length=15, choices=STATES.choices, default=STATES.ready)
+    kind = models.CharField(_('Session Type'), max_length=15, choices=TYPES.choices, default=TYPES.onsite)
     details = models.JSONField(default=dict, null=True, blank=True, editable=False)
 
     objects = SessionQueryset.as_manager()
