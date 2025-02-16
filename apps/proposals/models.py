@@ -170,19 +170,24 @@ _submission_code_func = Concat(
 
 
 class Submission(TimeStampedModel):
-    STATES = Choices(
-        (0, 'pending', 'Pending'), (1, 'started', 'Started'), (2, 'reviewed', 'Reviewed'),
-        (3, 'complete', 'Complete'), )
-    TYPES = Choices(
-        ('user', 'User Access'), ('staff', 'Staff Access'), ('purchased', 'Purchased Access'),
-        ('beamteam', 'Beam Team'),
-        ('education', 'Education/Outreach')
-    )
+    class STATES(models.IntegerChoices):
+        pending = (0, 'Pending')
+        started = (1, 'Started')
+        reviewed = (2, 'Reviewed')
+        complete = (3, 'Complete')
+
+    class TYPES(models.TextChoices):
+        user = ('user', 'User Access')
+        staff = ('staff', 'Staff Access')
+        purchased = ('purchased', 'Purchased Access')
+        beamteam = ('beamteam', 'Beam Team')
+        education = ('education', 'Education/Outreach')
+
     proposal = models.ForeignKey(Proposal, related_name='submissions', on_delete=models.CASCADE)
-    kind = models.CharField(_('Access Type'), max_length=20, choices=TYPES, default=TYPES.user)
+    kind = models.CharField(_('Access Type'), max_length=20, choices=TYPES.choices, default=TYPES.user)
     track = models.ForeignKey('ReviewTrack', on_delete=models.CASCADE, related_name='submissions')
     cycle = models.ForeignKey("ReviewCycle", on_delete=models.CASCADE, related_name='submissions')
-    state = models.IntegerField(choices=STATES, default=STATES.pending)
+    state = models.IntegerField(choices=STATES.choices, default=STATES.pending)
     techniques = models.ManyToManyField('ConfigItem', blank=True, related_name='submissions')
     reviews = GenericRelation('proposals.Review')
     comments = models.TextField(blank=True)

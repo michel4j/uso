@@ -317,6 +317,7 @@ def assign_brute_force(cycle, track) -> tuple:
     """
     assignments = defaultdict(set)
     submissions = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
+    num_assigned = 0
     for submission in submissions.order_by('?'):
         technique_ids = [t.technique.pk for t in submission.techniques.all()]
         area_ids = [a.pk for a in submission.proposal.areas.all()]
@@ -351,7 +352,7 @@ def assign_brute_force(cycle, track) -> tuple:
 
         if not prc_reviewers.count():
             continue
-
+        num_assigned += len(assignments[submission])
         if track.max_proposals == 0:
             assignments[submission] |= set(cycle.reviewers.filter(committee=track))
         else:
@@ -361,12 +362,15 @@ def assign_brute_force(cycle, track) -> tuple:
             if prc:
                 assignments[submission].add(prc)
 
-    return assignments, {}, True
+    return assignments, {}, num_assigned > 0
 
 
 def assign_reviewers(cycle, track):
     if USO_REVIEW_ASSIGNMENT == "CMACRA":
-        return assign_cmacra(cycle, track)
+        try:
+            return assign_cmacra(cycle, track)
+        except:
+            return assign_brute_force(cycle, track)
     else:
         return assign_brute_force(cycle, track)
 

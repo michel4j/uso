@@ -1313,38 +1313,36 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
         cycle = models.ReviewCycle.objects.filter(state=models.ReviewCycle.STATES.assign).get(pk=self.kwargs.get('pk'))
         track = models.ReviewTrack.objects.get(pk=self.kwargs.get('track'))
 
-        # remove all currently assigned scientific reviews
-        to_delete = track.submissions.filter(cycle=cycle).filter(
-            reviews__type__code__in=USO_SCIENCE_REVIEWS
-        ).distinct().values_list('reviews', flat=True)
-        models.Review.objects.filter(pk__in=to_delete).delete()
-
         # assign reviewers and prc members
         assignment, reviewer_assignment, success = utils.assign_reviewers(cycle, track)
 
         if success:
+            # remove all currently assigned pending scientific reviews
+            to_delete = track.submissions.filter(cycle=cycle).filter(
+                reviews__state=models.Review.STATES.pending, reviews__type__code__in=USO_SCIENCE_REVIEWS
+            ).distinct().values_list('reviews', flat=True)
+            models.Review.objects.filter(pk__in=to_delete).delete()
+
+            review_types = ReviewType.objects.scientific()
+            to_create = []
+            for review_type in review_types:
+                for submission, reviewers in assignment.items():
+                    to_create.extend(
+                        [
+                            models.Review(
+                                reviewer=u.user, reference=submission, type=review_type, cycle=submission.cycle,
+                                form_type=review_type.form_type, due_date=cycle.due_date
+                            ) for u in reviewers
+                        ]
+                    )
+                break  # only one type of review for now
             messages.success(self.request, 'Reviewer assignment successful')
+            models.Review.objects.bulk_create(to_create)
+            ActivityLog.objects.log(
+                self.request, track, kind=ActivityLog.TYPES.task, description='Reviewers Assigned'
+            )
         else:
             messages.error(self.request, 'No feasible reviewer assignment was found')
-
-        review_types = ReviewType.objects.scientific()
-        to_create = []
-        for review_type in review_types:
-            for submission, reviewers in assignment.items():
-                to_create.extend(
-                    [
-                        models.Review(
-                            reviewer=u.user, reference=submission, type=review_type, cycle=submission.cycle,
-                            form_type=review_type.form_type, due_date=cycle.due_date
-                        ) for u in reviewers
-                    ]
-                )
-            break  # only one type of review for now
-
-        models.Review.objects.bulk_create(to_create)
-        ActivityLog.objects.log(
-            self.request, track, kind=ActivityLog.TYPES.task, description='Reviewers Assigned'
-        )
         return JsonResponse({"url": ""})
 
 
@@ -1393,7 +1391,7 @@ class AssignedSubmissionList(RolePermsViewMixin, ItemListView):
 class ReviewerAssignments(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    # grid_template = "proposals/assigned-grid.html"
+    #template_name = "proposals/assigned-grid.html"
     paginate_by = 20
     list_columns = ['proposal', 'cycle', 'track', 'state']
     list_filters = ['created', 'state', 'track', 'cycle']
@@ -1515,7 +1513,7 @@ class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
             self.object.reviews.filter(reviewer__reviewer__committee__isnull=False).delete()
             messages.success(self.request, "Committee members were swapped.")
 
-        review_type = ReviewType.objects.scienfic().first()
+        review_type = ReviewType.objects.scientific().first()
         if review_type:
             to_add = [
                 models.Review(

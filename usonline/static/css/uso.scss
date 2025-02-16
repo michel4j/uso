@@ -2448,16 +2448,14 @@ div {
 		}
 	}
 }
+
+.grid-reviewer {
+	padding: 0.25em 0;
+}
 .grid-reviewer+.grid-reviewer {
 	border-top: 1px solid rgba(0,0,0,0.1);
 }
-.grid-reviewer {
-	&:not(.title) {
-		&:hover {
-			background-color: $background-color_12;
-		}
-	}
-}
+
 [id^='assignment-plot'] {
 	.proposal-bar {
 		fill: #6baed6;

@@ -450,8 +450,7 @@ class ReviewerAssignmentForm(forms.ModelForm):
 
         cycle_reviewers = cycle.reviewers.filter(areas_filter)
         cycle_reviewers = cycle_reviewers.filter(techniques_filter)
-        cycle_reviewers = cycle_reviewers.exclude(pk__in=self.instance.reviewers()) | cycle.reviewers.filter(
-            committee=track)
+        cycle_reviewers = cycle_reviewers.all() | cycle.reviewers.filter(committee=track)
         cycle_reviewers = cycle_reviewers.distinct().annotate(
             num_reviews=Sum(
                 Case(
@@ -461,15 +460,17 @@ class ReviewerAssignmentForm(forms.ModelForm):
                 )
             ),
         )
-        matched_reviewers = cycle_reviewers.filter(num_reviews__lt=track.max_proposals)
 
-        candidates = [
-            rev.pk for rev in matched_reviewers.all()
-            if utils.check_conflict(rev.user, self.instance) == 0
+        if track.max_proposals > 0:
+            cycle_reviewers = cycle_reviewers.exclude(num_reviews__gt=track.max_proposals)
+
+        conflicts = [
+            rev.pk for rev in cycle_reviewers.all()
+            if utils.check_conflict(rev.user, self.instance) == 1
         ]
-        queryset = cycle.reviewers.filter(Q(pk__in=candidates) | Q(committee=track))
+        cycle_reviewers = cycle_reviewers.exclude(pk__in=conflicts)
 
-        self.fields['reviewers'].queryset = queryset.distinct()
+        self.fields['reviewers'].queryset = cycle_reviewers.distinct()
         self.helper.title = 'Add Reviewers'
         self.helper.layout = Layout(
             Div(
