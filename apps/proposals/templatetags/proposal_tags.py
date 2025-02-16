@@ -30,8 +30,17 @@ STATE_CLASSES = {
     Review.STATES.pending: "text-warning",
 }
 
-RISK_LEVELS = {0: "Unknown", 1: "Low", 2: "Moderate", 3: "High", 4: "Unacceptable", 5: "Unknown"}
-
+RISK_LEVELS = {1: "Low", 2: "Medium", 3: "High", 4: "Unacceptable"}
+SCOPES = {
+    'any': '1',
+    'all': 'A',
+    'optional': 'O',
+}
+SCOPE_LABELS = {
+    'any': 'warning',
+    'all': 'danger',
+    'optional': 'info',
+}
 FILE_TYPES = {
     'application/pdf': 'bi-filetype-pdf text-danger',
     'image/png': 'bi-filetype-png text-success',
@@ -109,6 +118,7 @@ def display_state(review):
     return mark_safe(state)
 
 
+
 @register.simple_tag(takes_context=True)
 def get_approval_reviews(context):
     from samples.models import Hazard
@@ -138,12 +148,18 @@ def get_approval_reviews(context):
                 operator.__add__, [s.get('hazards', []) for s in r.details.get('samples', [])],
                 []
             )
+            risk_text = RISK_LEVELS.get(r.details.get('risk_level', 0), '')
+            permissions = ''.join([
+                f'<span class="label label-{SCOPE_LABELS[scope]}">{perm.title()}&nbsp;[{SCOPES[scope]}]</span>'
+                for perm, scope in r.details.get('requirements', {}).items()
+            ])
             rev_list.append(
                 {
                     "review": r,
                     "rejected": [s['sample'] for s in r.details.get('samples', []) if s.get('rejected')],
-                    "comments": r.comments(),
-                    "recommendation": r.details.get('risk_level'),
+                    "comments": mark_safe(r.comments()),
+                    "recommendation": f"{risk_text} risk" if risk_text else '',
+                    "permissions": mark_safe(permissions),
                     "completeness": r.validate().get('progress'),
                     "hazards": Hazard.objects.filter(pk__in=hazards),
                 }

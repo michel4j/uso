@@ -340,6 +340,7 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
     def techniques(self):
         return Technique.objects.filter(pk__in=self.configs().values_list('techniques', flat=True)).distinct()
 
+
     def tracks(self):
         return ReviewTrack.objects.filter(pk__in=self.submissions.values_list('track', flat=True))
 
@@ -690,11 +691,14 @@ class Review(DynEntryMixin, GenericContentMixin):
         if self.state == self.STATES.pending:
             return ""
         comments = self.details.get('comments', '').strip()
-        if self.details.get('comments_committee', '').strip():
-            comments = comments + "\n\n" + "<em class='text-danger'>{}</em>".format(
-                self.details['comments_committee'].strip()
-            )
-        return comments
+        committee_comments = self.details.get('comments_committee', '').strip()
+        full_comments = ""
+        if comments:
+            full_comments += f"<li class='text-info'>{comments}</li>"
+        if committee_comments:
+            full_comments += f"<li class='text-danger'>{committee_comments}</li>"
+
+        return full_comments
 
 
 # Aliases

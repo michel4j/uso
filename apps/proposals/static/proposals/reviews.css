@@ -5,15 +5,7 @@
 
 ul.review-comments {
 	margin-bottom: 0;
-	padding-bottom: 15px;
-	font-size: 90%;
-}
-ul.review-comments div.comment-header {
-    padding: 1em 1em;
-    min-height: 3em;
-    line-height: 1.2;
-	background-color: rgba(0,0,0,0.1);
-	border-bottom: 1px dotted rgba(0,0,0,0.2);
+    font-style: italic;
 }
 
 div.comment-body {
@@ -23,6 +15,11 @@ div.comment-body {
 	font-style: italic;
 }
 
+.safety-permissions .label {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: 0.125em;
+}
 
 .review-col {
   max-height: calc(100vh - 95px);

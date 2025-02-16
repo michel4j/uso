@@ -625,16 +625,24 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         return context
 
     def _valid_review(self, data, form_action):
+        self.success_url = reverse("edit-review", kwargs={'pk': self.object.pk})
+        message = 'Review saved successfully'
+        activity_description = 'Review saved'
+        activity_type = ActivityLog.TYPES.modify
         if form_action == 'submit':
-            self.success_url = reverse("user-dashboard")
+            message = 'Review submitted successfully'
+            activity_description = 'Review submitted'
+            activity_type = ActivityLog.TYPES.task
+            self.success_url = self.object.reference.get_absolute_url()
             self.object.state = models.Review.STATES.submitted
-            self.object.save()
-        else:
-            self.success_url = reverse("edit-review", kwargs={'pk': self.object.pk})
+            data['state'] = models.Review.STATES.submitted
+        self.queryset.filter(pk=self.object.pk).update(**data)
+        messages.success(self.request, message)
+        ActivityLog.objects.log(self.request, self.object, kind=activity_type, description=activity_description)
 
     def _valid_approval(self, data, form_action):
         # change review configuration in case anything changed
-        self.success_url = reverse("edit-review", kwargs={'pk': self.object.pk})
+
         if form_action == "save":
             # remove deleted reviews
             preserved_pks = {int(r.get('review')) for r in data['details'].get('reviews', [])}
@@ -658,8 +666,6 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             self.object.reference.update_due_dates()
 
         elif form_action == 'submit':
-            self.success_url = self.object.reference.get_absolute_url()
-
             risk_level = data['details'].get('risk_level', 0)
             if risk_level < 4:
                 # only modify samples if we are approving the material
@@ -676,14 +682,14 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
 
                 for rev in safety_reviews:
                     controls |= set(map(int, rev.details.get('controls', [])))
-                    for smpl in rev.details.get('samples', []):
-                        if smpl.get('rejected'):
-                            rejected.add(smpl['sample'])
-                        key = int(smpl['sample'])
-                        ethics[key].update(smpl.get('ethics', {}))
-                        hazards[key] |= set(smpl.get('hazards', []))
-                        keywords[key].update(smpl.get('keywords', {}))
-                        for code, kind in list(smpl.get('permissions', {}).items()):
+                    for sample in rev.details.get('samples', []):
+                        if sample.get('rejected'):
+                            rejected.add(sample['sample'])
+                        key = int(sample['sample'])
+                        ethics[key].update(sample.get('ethics', {}))
+                        hazards[key] |= set(sample.get('hazards', []))
+                        keywords[key].update(sample.get('keywords', {}))
+                        for code, kind in list(sample.get('permissions', {}).items()):
                             perms[key][code].append(kind)
                     for code, kind in list(rev.details.get('requirements', {}).items()):
                         req_types[code].append(kind)
@@ -701,24 +707,24 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
                     equipment[k]['decision'] = list(v)
 
                 samples = {k: list(v) for k, v in list(hazards.items()) if v}
-                for smpl in self.object.reference.project_samples.all():
-                    smpl = smpl.sample
-                    smpl.hazards.add(*samples.get(smpl.pk, []))
-                    if smpl.pk in keywords:
-                        smpl.details['keywords'] = keywords.get(smpl.pk)
-                    if smpl.pk in ethics:
-                        smpl.details['ethics'] = ethics.get(smpl.pk)
-                        if ethics[smpl.pk].get('expiry'):
-                            smpl.expiry = ethics[smpl.pk]['expiry']
-                    if smpl.pk in perms:
-                        smpl.details['permissions'] = {k: min(v) for k, v in list(perms[smpl.pk].items())}
-                    if smpl.pk not in rejected:
-                        smpl.is_editable = False
-                        smpl.state = smpl.STATES.approved
+                for project_sample in self.object.reference.project_samples.all():
+                    sample = project_sample.sample
+                    sample.hazards.add(*samples.get(sample.pk, []))
+                    if sample.pk in keywords:
+                        sample.details['keywords'] = keywords.get(sample.pk)
+                    if sample.pk in ethics:
+                        sample.details['ethics'] = ethics.get(sample.pk)
+                        if ethics[sample.pk].get('expiry'):
+                            project_sample.expiry = ethics[sample.pk]['expiry']
+                    if sample.pk in perms:
+                        sample.details['permissions'] = {k: min(v) for k, v in list(perms[sample.pk].items())}
+                    if sample.pk not in rejected:
+                        sample.is_editable = False
+                        project_sample.state = project_sample.STATES.approved
                     else:
-                        smpl.state = smpl.STATES.rejected
-                    smpl.save()
-                    smpl.save()
+                        project_sample.state = project_sample.STATES.rejected
+                    project_sample.save()
+                    sample.save()
 
                 self.object.reference.controls.add(*controls)
                 self.object.reference.state = self.object.reference.STATES.approved
@@ -740,6 +746,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         data = form.cleaned_data
         form_action = data['details']['form_action']
         data['is_complete'] = True if self.object.validate(data['details']).get('progress') > 95.0 else False
+        data['modified'] = timezone.now()
+
         if self.object.type.score_fields:
             total_score = 0.0
             for field, weight in self.object.type.score_fields.items():
@@ -747,23 +755,10 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             data['score'] = total_score
 
         self._valid_review(data, form_action)
+        if self.object.type.code == USO_SAFETY_APPROVAL:
+            self._valid_approval(data, form_action)
 
-        # Save the review
-        if form_action == 'submit':
-            messages.success(self.request, 'Review submitted successfully')
-            ActivityLog.objects.log(
-                self.request, self.object, kind=ActivityLog.TYPES.task, description='Review submitted'
-            )
-        elif form_action == 'save':
-            if self.object.type.code == USO_SAFETY_APPROVAL:
-                self._valid_approval(data, form_action)
-            messages.success(self.request, 'Review saved successfully')
-            ActivityLog.objects.log(
-                self.request, self.object, kind=ActivityLog.TYPES.modify, description='Review modified'
-            )
-        data['modified'] = timezone.now()
-        self.queryset.filter(pk=self.object.pk).update(**data)
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(self.success_url)
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial()

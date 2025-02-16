@@ -23,24 +23,26 @@
 				<tr>
 					<td>
 						<div class="checkbox {% if sample.pk in field.value %}disabled{% endif %}" style="margin-top: 2px;">
-							<input type="checkbox"
+							<label for="id_{{ field.html_name }}_{{ forloop.counter }}">
+								<input type="checkbox"
 								   {% if sample.pk in field.value %}checked="checked" onclick="return false;"{% endif %}
 								   name="{{ field.html_name }}"
 								   id="id_{{ field.html_name }}_{{ forloop.counter }}"
 								   value="{{ sample.pk }}"
 								   {{ field.field.widget.attrs|flatatt }}>
-							<label for="id_{{ field.html_name }}_{{ forloop.counter }}">
-								{{ sample.sample.name }}
+                                {{ sample.sample.name }}
 								{% if sample.sample.description %} &mdash; {{sample.sample.description}}{% endif %}
 							</label>
 						</div>
 
 					</td>
 					<td>{{sample.quantity}}</td>
-					<td>
-						{% for pic in sample.sample.pictograms %}
-						<img class="media-object pull-right" width="22" height="22" src="{% static 'samples/pictograms/{{pic.code}}.svg' %}" title="{{pic.name}}">
-						{% endfor %}
+					<td class="text-right">
+                        {% for hz in sample.sample.pictograms %}
+                            {% with 'samples/pictograms/'|add:hz.code|add:'.svg' as pictogram_svg %}
+                            <img width="24" src="{%  static pictogram_svg %}" title="{{ hz.name }}">
+                            {% endwith %}
+                        {% endfor %}
 					</td>
 				</tr>
 				{% empty %}

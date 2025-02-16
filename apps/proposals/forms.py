@@ -19,6 +19,11 @@ from dynforms.utils import DotExpandedDict
 from .models import get_user_model
 
 
+class DateField(AppendedText):
+    def __init__(self, field_name, *args, **kwargs):
+        super().__init__(field_name, mark_safe('<i class="bi-calendar"></i>'), *args, **kwargs)
+
+
 class ProposalForm(DynFormMixin, forms.ModelForm):
     type_code = 'proposal'
 
@@ -320,12 +325,12 @@ class ReviewCycleForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Div(
-                Div(AppendedText("start_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
-                Div(AppendedText("end_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
-                Div(AppendedText("open_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
-                Div(AppendedText("close_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
-                Div(AppendedText("due_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
-                Div(AppendedText("alloc_date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
+                Div(DateField("start_date"), css_class="col-sm-6"),
+                Div(DateField("end_date"), css_class="col-sm-6"),
+                Div(DateField("open_date"), css_class="col-sm-6"),
+                Div(DateField("close_date"), css_class="col-sm-6"),
+                Div(DateField("due_date"), css_class="col-sm-6"),
+                Div(DateField("alloc_date"), css_class="col-sm-6"),
                 css_class="row narrow-gutter"
             ),
             Div(
