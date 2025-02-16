@@ -81,14 +81,14 @@
         {% if material.controls.count %}
             <div class="row text-wide">
                 <div class="col-xs-12">
+                <div class="alert alert-warning">
                     <h3>Controls</h3>
-                </div>
-                <div class="col-xs-12">
-                    <ul class="tinytron bg-warning">
+                    <ul class="list-ruled">
                         {% for control in material.controls.all %}
                             <li>{{ control.description }}</li>
                         {% endfor %}
                     </ul>
+                </div>
                 </div>
             </div>
         {% endif %}
