@@ -1040,7 +1040,11 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
 
     def check_allowed(self):
         self.facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
-        return super().check_allowed() or self.facility.is_admin(self.request.user)
+        self.cycle = ReviewCycle.objects.filter(pk=self.kwargs['pk']).first()
+        allowed = (
+            super().check_allowed() or self.facility.is_admin(self.request.user)
+        ) and (self.cycle.state == self.cycle.STATES.evaluation)
+        return allowed
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

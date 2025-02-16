@@ -1,69 +1,79 @@
 {% extends "proposals/track_box.html" %}
 {% load project_tags %}
 {% get_cycle_requests facility=facility cycle=cycle as requests %}
-{% block box_class %}{% if cycle.state < cycle.STATES.schedule %}bg-darken{% elif cycle.state < cycle.STATES.archive %}bg-info{% else %}bg-danger insensitive{% endif %}{% endblock %}
+{% block box_class %}{% if cycle.state < cycle.STATES.schedule %}bg-darken{% elif cycle.state < cycle.STATES.archive %}
+    bg-info{% else %}bg-danger insensitive{% endif %}{% endblock %}
 {% block box_header %}
-    <h4 class="text-condensed" style="margin-bottom: 0;">{{cycle}}</h4>
+    <h4 class="text-condensed" style="margin-bottom: 0;">{{ cycle }}</h4>
     <small class="hidden-xs text-muted">{{ cycle.get_state_display }}</small>
 {% endblock %}
 {% block box_tools_style %}{% endblock %}
 {% block box_subheader %}{% endblock %}
-{% block box_tools_class %}{% if owner or admin  %}{% else %}hidden{% endif %}{% endblock %}
+{% block box_tools_class %}{% if owner or admin %}{% else %}hidden{% endif %}{% endblock %}
 {% block box_tools %}
-{% if owner or admin  %}
-    {% if facility.kind == 'beamline' or facility.kind == 'equipment' %}
-    {% if cycle.state <= cycle.STATES.archive %}
-     <a href='{% url "allocate-review-cycle" pk=cycle.pk fac=facility.acronym %}' class="pull-right">
-        <i class="bi-diagram-3 icon-2 icon-fw"></i><br/>
-        <span class="tool-label">Allocate</span>
-     </a>
-     {% if requests.count and cycle %}
-     <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}' class="pull-right" style="position: relative;">
-         <i class="bi-inbox icon-2 icon-fw"></i><br/>
-         <span class="tool-label">Requests</span>
-         <div class="bubble progress-bar-warning"><div>{{ request.count }}</div></div>
-     </a>
-     {% endif %}
-    {% with schedule=cycle.schedule %}
-    {% if schedule %}
-     <a href='{% url "schedule-beamtime" pk=schedule.pk fac=facility.acronym %}' class="pull-right">
-        <i class="bi-calendar-plus icon-2 icon-fw"></i><br/>
-        <span class="tool-label">Schedule</span>
-     </a>
-     <a href='{% url "schedule-support" pk=schedule.pk fac=facility.pk %}' class="pull-right">
-        <i class="bi-person-plus icon-2 icon-fw"></i><br/>
-        <span class="tool-label">Support</span>
-     </a>
+    {% if owner or admin %}
+        {% if facility.kind == 'beamline' or facility.kind == 'equipment' %}
+            {% if cycle.state <= cycle.STATES.archive %}
+                {% if cycle.state == cycle.STATES.evaluation %}
+                    <a href='{% url "allocate-review-cycle" pk=cycle.pk fac=facility.acronym %}' class="pull-right">
+                        <i class="bi-diagram-3 icon-2 icon-fw"></i><br/>
+                        <span class="tool-label">Allocate</span>
+                    </a>
+                {% endif %}
+                {% if requests.count and cycle %}
+                    <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}' class="pull-right"
+                       style="position: relative;">
+                        <i class="bi-inbox icon-2 icon-fw"></i><br/>
+                        <span class="tool-label">Requests</span>
+                        <div class="bubble progress-bar-warning">
+                            <div>{{ request.count }}</div>
+                        </div>
+                    </a>
+                {% endif %}
+                {% with schedule=cycle.schedule %}
+                    {% if schedule %}
+                        <a href='{% url "schedule-beamtime" pk=schedule.pk fac=facility.acronym %}' class="pull-right">
+                            <i class="bi-calendar-plus icon-2 icon-fw"></i><br/>
+                            <span class="tool-label">Schedule</span>
+                        </a>
+                        <a href='{% url "schedule-support" pk=schedule.pk fac=facility.pk %}' class="pull-right">
+                            <i class="bi-person-plus icon-2 icon-fw"></i><br/>
+                            <span class="tool-label">Support</span>
+                        </a>
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
+        {% endif %}
+        {% if cycle %}
+            <a href='{% url "beamline-projects" fac=facility.pk cycle=cycle.pk %}' class="pull-right">
+                <i class="bi-list-ol icon-2 icon-fw"></i><br/>
+                <span class="tool-label">Projects</span>
+            </a>
+        {% endif %}
     {% endif %}
-    {% endwith %}
-    {% endif %}
-    {% endif %}
-    {% if cycle %}
-     <a href='{% url "beamline-projects" fac=facility.pk cycle=cycle.pk %}' class="pull-right">
-        <i class="bi-list-ol icon-2 icon-fw"></i><br/>
-        <span class="tool-label">Projects</span>
-     </a>
-    {% endif %}
-{% endif %}
 {% endblock %}
 {% block box_content %}
     {% get_facility_cycle_stats facility cycle as stats %}
     <div class="col-sm-12">
         <table class="table table-condensed table-ruled">
-        <tbody>
+            <tbody>
             <tr>
                 <th class="text-muted">Projects</th>
-                <td class="text-right">{{stats.active.total|default:"0"}} Total / {{stats.new.total|default:"0"}} New</td>
+                <td class="text-right">{{ stats.active.total|default:"0" }} Total / {{ stats.new.total|default:"0" }}
+                    New
+                </td>
             </tr>
             <tr>
                 <th class="text-muted">Shifts</th>
-                <td class="text-right">{{stats.active.shifts|default:"0"}} Allocated / {{stats.available_shifts|floatformat:"0"}} Available</td>
+                <td class="text-right">{{ stats.active.shifts|default:"0" }} Allocated
+                    / {{ stats.available_shifts|floatformat:"0" }} Available
+                </td>
             </tr>
             <tr>
                 <th class="text-muted">Average Shifts</th>
-                <td class="text-right">{{stats.active.avg_shifts|floatformat|default:"0"}} Per Project</td>
+                <td class="text-right">{{ stats.active.avg_shifts|floatformat|default:"0" }} Per Project</td>
             </tr>
-        </tbody>
+            </tbody>
         </table>
     </div>
 {% endblock %}}

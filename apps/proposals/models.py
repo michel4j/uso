@@ -320,9 +320,13 @@ class ReviewCycleManager(models.Manager.from_queryset(ReviewCycleQuerySet)):
 
 class ReviewCycle(DateSpanMixin, TimeStampedModel):
     STATES = Choices(
-        (0, 'pending', _('Call Pending')), (1, 'open', _('Call Open')), (2, 'assign', _('Assigning')),
+        (0, 'pending', _('Call Pending')),
+        (1, 'open', _('Call Open')),
+        (2, 'assign', _('Assigning')),
         (3, 'review', _('Review')),
-        (4, 'evaluation', _('Allocation')), (5, 'schedule', _('Scheduling')), (6, 'active', _('Active')),
+        (4, 'evaluation', _('Allocation')),
+        (5, 'schedule', _('Scheduling')),
+        (6, 'active', _('Active')),
         (7, 'archive', _('Archived')), )
     TYPES = Choices(
         ('mock', 'Mock Cycle'), ('normal', 'Normal Cycle'), )
