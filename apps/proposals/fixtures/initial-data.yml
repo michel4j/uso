@@ -62,3 +62,415 @@
     form_type: 5
     score_fields: {}
     role: safety-approver
+- model: proposals.technique
+  pk: 1
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Photo Emission/Electron Spectroscopy
+    description: Studies the electronic structure of a material by analyzing the kinetic
+      energy of photoelectrons emitted when the material is irradiated with photons
+    category: spectroscopy
+    acronym: PES
+    parent: null
+- model: proposals.technique
+  pk: 2
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Angle-Resolved Photo Electron Spectroscopy
+    description: Studies the electronic band structure, energy-momentum dispersion
+      of solids
+    category: spectroscopy
+    acronym: ARPES
+    parent: 1
+- model: proposals.technique
+  pk: 3
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Auger Electron Spectroscopy
+    description: Studies the elemental composition, chemical state of surfaces
+    category: spectroscopy
+    acronym: AES
+    parent: null
+- model: proposals.technique
+  pk: 4
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Absorption Spectroscopy
+    description: Analyzes the absorption of X-rays by a sample, providing information
+      on the electronic and chemical states of elements
+    category: spectroscopy
+    acronym: XAS
+    parent: null
+- model: proposals.technique
+  pk: 5
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Absorption Near-Edge Structure
+    description: Studies the electronic structure of the absorbing atom and its local
+      environment
+    category: spectroscopy
+    acronym: XANES
+    parent: 4
+- model: proposals.technique
+  pk: 6
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Extended X-ray Absorption Fine Structure
+    description: Determines the local atomic structure around the absorbing atom
+    category: spectroscopy
+    acronym: EXAFS
+    parent: 4
+- model: proposals.technique
+  pk: 7
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Fluorescence Spectroscopy
+    description: Identifies elements in a sample by measuring the characteristic X-rays
+      emitted after excitation
+    category: spectroscopy
+    acronym: XRF
+    parent: null
+- model: proposals.technique
+  pk: 8
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Raman Spectroscopy
+    description: Studies the electronic structure of materials
+    category: spectroscopy
+    acronym: XRS
+    parent: null
+- model: proposals.technique
+  pk: 9
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Fourier Transform Infrared Spectroscopy
+    description: Studies the vibrational modes of molecules
+    category: spectroscopy
+    acronym: FTIR
+    parent: null
+- model: proposals.technique
+  pk: 10
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Photo Electron Photo Ion Coincidence Spectroscopy
+    description: Studies the dynamics of molecular ionization and fragmentation
+    category: spectroscopy
+    acronym: PEPICO
+    parent: null
+- model: proposals.technique
+  pk: 11
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Magnetic Dichroism
+    description: Studies the magnetic properties of materials
+    category: spectroscopy
+    acronym: XMD
+    parent: null
+- model: proposals.technique
+  pk: 12
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Magnetic Linear Dichroism
+    description: Studies the magnetic properties of materials
+    category: spectroscopy
+    acronym: XMLD
+    parent: 11
+- model: proposals.technique
+  pk: 13
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Magnetic Circular Dichroism
+    description: Studies the magnetic properties of materials
+    category: spectroscopy
+    acronym: XMCD
+    parent: 11
+- model: proposals.technique
+  pk: 14
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Resonant Elastic X-ray Scattering
+    description: Probes the electronic structure and excitations in materials
+    category: spectroscopy
+    acronym: REXS
+    parent: null
+- model: proposals.technique
+  pk: 15
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Resonant Inelastic X-ray Scattering
+    description: Probes the electronic structure and excitations in materials
+    category: spectroscopy
+    acronym: RIXS
+    parent: null
+- model: proposals.technique
+  pk: 16
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Emission Spectroscopy
+    description: Analyzes the X-rays emitted by a sample after excitation
+    category: spectroscopy
+    acronym: XES
+    parent: null
+- model: proposals.technique
+  pk: 17
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Excited Optical Luminescence
+    description: Uses X-rays to excite a material, which then emits light in the visible
+      or near-infrared region of the electromagnetic spectrum
+    category: spectroscopy
+    acronym: XEOL
+    parent: null
+- model: proposals.technique
+  pk: 18
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Differential Aperture X-ray Microscopy
+    description: Studies the local structure and crystallographic orientation within
+      materials
+    category: microscopy
+    acronym: DAXM
+    parent: null
+- model: proposals.technique
+  pk: 19
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray fluorescence microscopy
+    description: Maps the spatial distribution of elemental concentrations in materials
+      based on X-ray Fluorescence
+    category: microscopy
+    acronym: XFM
+    parent: null
+- model: proposals.technique
+  pk: 20
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Fourier Transform Infrared Microscopy
+    description: Maps the spatial distribution of molecules in materials based on
+      vibrational modes
+    category: microscopy
+    acronym: null
+    parent: null
+- model: proposals.technique
+  pk: 21
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Photoemission Electron Microscopy
+    description: Used for visualizing and understanding the chemical and electronic
+      properties of materials at high spatial resolution
+    category: microscopy
+    acronym: PEEM
+    parent: null
+- model: proposals.technique
+  pk: 22
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Computed Tomography
+    description: Creates 3D images of objects by acquiring multiple 2D projections
+    category: imaging
+    acronym: CT
+    parent: null
+- model: proposals.technique
+  pk: 23
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Diffraction-Enhanced Imaging
+    description: Create 2D images by using diffraction to enhance contrast
+    category: imaging
+    acronym: DEI
+    parent: null
+- model: proposals.technique
+  pk: 24
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: K-edge Subtraction Imaging
+    description: Create 2D images by using X-ray absorption to enhance contrast
+    category: imaging
+    acronym: KES
+    parent: null
+- model: proposals.technique
+  pk: 25
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Energy-dispersive X-ray diffraction
+    description: Uses Polychromatic X-rays to characterize materials based on their
+      diffraction patterns
+    category: diffraction
+    acronym: EDXRD
+    parent: null
+- model: proposals.technique
+  pk: 26
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Ptychography
+    description: Used to reconstruct an object's image from its diffraction pattern
+      without using traditional lenses
+    category: imaging
+    acronym: null
+    parent: 25
+- model: proposals.technique
+  pk: 27
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Scanning Transmission X-ray Microscopy
+    description: Used to study the distribution of elements at high spatial resolution
+      using X-ray absorption
+    category: imaging
+    acronym: STXM
+    parent: null
+- model: proposals.technique
+  pk: 28
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Confocal X-ray Microscopy
+    description: Uses a focused X-ray beam to scan the sample point-by-point with
+      a pinhole to generate a 3D image
+    category: imaging
+    acronym: CXM
+    parent: null
+- model: proposals.technique
+  pk: 29
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Small-Angle X-Ray Scattering
+    description: Investigates the structure of materials on the nanometer scale
+    category: diffraction
+    acronym: SAXS
+    parent: null
+- model: proposals.technique
+  pk: 30
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Grazing Incidence Small-Angle X-Ray Scattering
+    description: Investigates the structure of material surfaces on the nanometer
+      scale
+    category: diffraction
+    acronym: GI-SAXS
+    parent: 29
+- model: proposals.technique
+  pk: 31
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Wide-Angle X-Ray Scattering
+    description: Studies the atomic or molecular structure of materials
+    category: diffraction
+    acronym: WAXS
+    parent: null
+- model: proposals.technique
+  pk: 32
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Powder Diffraction
+    description: Studies the arrangement of atoms in crystalline materials
+    category: diffraction
+    acronym: null
+    parent: null
+- model: proposals.technique
+  pk: 33
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Single Crystal Diffraction
+    description: Determines the 3D structure of single crystals
+    category: diffraction
+    acronym: null
+    parent: null
+- model: proposals.technique
+  pk: 34
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Macromolecular Crystallography
+    description: Determines the 3D structure of proteins and other biomolecules
+    category: diffraction
+    acronym: MX
+    parent: 33
+- model: proposals.technique
+  pk: 36
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Pair Distribution Function
+    description: Used to determine the local atomic structure of materials, particularly
+      those lacking long-range order
+    category: diffraction
+    acronym: PDF
+    parent: null
+- model: proposals.technique
+  pk: 37
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: Diffraction Anomalous Fine Structure
+    description: Combines Anomalous X-ray Diffraction and X-ray Absorption Spectroscopy
+      to study the local atomic structure of materials
+    category: diffraction
+    acronym: DAFS
+    parent: null
+- model: proposals.technique
+  pk: 38
+  fields:
+    created: 2015-10-05 17:48:10+00:00
+    modified: 2016-08-04 18:05:11+00:00
+    name: X-ray Lithography
+    description: Uses X-rays to create high resolution microscopic patterns on silicon
+      wafers
+    category: other
+    acronym: null
+    parent: null
+- model: proposals.reviewtrack
+  pk: 1
+  fields:
+    created: 2024-12-31 00:42:51.749657+00:00
+    modified: 2024-12-31 00:42:51.749657+00:00
+    name: General Access
+    acronym: GA
+    description: General Access through Peer Review
+    special: null
+    min_reviewers: 0
+    max_proposals: 20
+    notify_offset: 1
+- model: proposals.reviewtrack
+  pk: 2
+  fields:
+    created: 2025-02-15 17:23:26.420255+00:00
+    modified: 2025-02-15 17:23:42.642083+00:00
+    name: Rapid Access
+    acronym: RA
+    description: Rapid Access Requests received Outside a call
+    special: true
+    min_reviewers: 0
+    max_proposals: 0
+    notify_offset: 1
