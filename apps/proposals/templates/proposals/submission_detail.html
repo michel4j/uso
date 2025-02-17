@@ -79,7 +79,7 @@
             {% if object.state != object.STATES.complete %}
                 <em>Incomplete</em>
             {% else %}
-                {% if object.techical_score < 4 %}
+                {% if object.scores.technical < 4 %}
                     <span class="badge progress-bar-success">&nbsp;Approved&nbsp;</span>
                 {% else %}
                     <span class="badge progress-bar-danger">&nbsp;Rejected&nbsp;</span>
