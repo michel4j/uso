@@ -36,9 +36,9 @@ if [ ! -f /usonline/local/.dbinit ]; then
     chown -R apache:apache /usonline/local/media
 
     # Create superuser if not already created
-    if [ -n "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -n "${DJANGO_SUPERUSER_USERNAME}" ] && [ -n "${DJANGO_SUPERUSER_EMAIL}" ]; then
+    if [ -n "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -n "${DJANGO_SUPERUSER_USERNAME}" ]; then
         echo "Creating Superuser ..."
-        /usonline/manage.py createsuperuser --noinput --email "${DJANGO_SUPERUSER_EMAIL}"
+        /usonline/manage.py createsuperuser --noinput
     fi
 
     if [ -d /usonline/local/kickstart ]; then
