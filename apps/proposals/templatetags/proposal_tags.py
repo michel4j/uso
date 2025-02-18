@@ -279,12 +279,16 @@ def team_roles(roles):
 def show_facility_requirements(context, reqs, cycle=None):
     out_ctx = {'facilities': []}
 
+    if cycle is not None:
+        cycle = models.ReviewCycle.objects.filter(pk=cycle).first()
+    reference_date = timezone.now().date() if not cycle else cycle.start_date
+
     for req in reqs:
         beamline = None
         config = None
         if req.get('facility'):
             beamline = models.Facility.objects.get(pk=req['facility'])
-            config = beamline.configs.active(cycle=cycle).accepting().first()
+            config = beamline.configs.active(d=reference_date).accepting().first()
         if req.get('techniques'):
             techniques = models.Technique.objects.filter(pk__in=[t for t in req['techniques'] if t])
         else:

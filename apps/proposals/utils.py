@@ -504,7 +504,7 @@ def get_techniques_matrix(cycle=None, sel_techs=(), sel_fac=None):
     if not sel_techs:
         sel_techs = [0]
 
-    for conf in models.FacilityConfig.objects.active(cycle=cycle.pk).accepting():
+    for conf in models.FacilityConfig.objects.active(d=cycle.start_date).accepting():
         for t in conf.items.values_list('technique', flat=True):
             tech_facs[t].append(conf.facility.pk)
             fac_techs[conf.facility.pk].append(t)

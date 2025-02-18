@@ -254,7 +254,7 @@ class SubmitProposal(RolePermsViewMixin, ConfirmDetailView):
         conf_items = models.ConfigItem.objects.none()
         beamteam = []
         for req in requirements:
-            config = models.FacilityConfig.objects.active(cycle=cycle.pk).accepting().filter(
+            config = models.FacilityConfig.objects.active(d=cycle.start_date).accepting().filter(
                 facility__pk=req.get('facility')
             ).last()
             if config:
