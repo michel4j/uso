@@ -4,6 +4,8 @@ import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
+PROFILE_PHOTO_FORMAT = getattr(settings, 'USO_PROFILE_PHOTO_FORMAT', 'webp')
+
 
 class ExternalProfileManager:
     PROFILE_FIELDS = []
@@ -72,7 +74,7 @@ class ExternalProfileManager:
 
     @classmethod
     def get_user_photo_url(cls, username: str):
-        return f'{settings.MEDIA_URL}/idphoto/{username}.jpg'
+        return f'{settings.MEDIA_URL}/photo/{username}.{PROFILE_PHOTO_FORMAT}'
 
 
 class RemoteProfileManager(ExternalProfileManager):
