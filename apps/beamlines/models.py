@@ -68,7 +68,7 @@ class Facility(TimeStampedModel):
         return self.acronym
 
     def active_config(self):
-        return self.configs.filter(cycle__start_date__lte=timezone.now().date()).latest('cycle')
+        return self.configs.filter(start_date__lte=timezone.now().date()).latest('start_date')
 
     def active_techniques(self):
         from proposals import models
