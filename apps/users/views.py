@@ -267,7 +267,7 @@ class UserList(RolePermsViewMixin, ItemListView):
     list_columns = ['get_full_name', 'username', 'roles', 'address', 'institution']
     list_search = [
         'first_name', 'last_name', 'email', 'preferred_name', 'address__city', 'address__country',
-        'institution__name'
+        'institution__name', 'roles'
     ]
     list_transforms = {'roles': lambda x, y: ", ".join(x)}
     order_by = ['-created']
