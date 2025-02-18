@@ -264,11 +264,12 @@ class UserList(RolePermsViewMixin, ItemListView):
     model = models.User
     paginate_by = 25
     list_filters = ['modified', 'classification', 'institution']
-    list_columns = ['get_full_name', 'email', 'username', 'address', 'institution']
+    list_columns = ['get_full_name', 'username', 'roles', 'address', 'institution']
     list_search = [
         'first_name', 'last_name', 'email', 'preferred_name', 'address__city', 'address__country',
         'institution__name'
     ]
+    list_transforms = {'roles': lambda x, y: ", ".join(x)}
     order_by = ['-created']
     link_url = 'users-admin'
     link_attr = "data-url"

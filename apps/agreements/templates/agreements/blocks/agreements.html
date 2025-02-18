@@ -25,8 +25,7 @@
             <h5>Institution Required</h5>
             <hr class="hr-xs"/>
             <p>In order to use the facility, all users must be affiliated with an institution which has a valid
-                Institutional Agreement
-                with the CLS. You have not selected an institution. Please update your profile.</p>
+                Institutional Agreement. You have not selected an institution. Please update your profile.</p>
         </div>
     {% endif %}
     {% if request_contact %}
@@ -34,14 +33,12 @@
             <h5>Institutional Agreement Required</h5>
             <hr class="hr-xs"/>
             <p>In order to use the facility, all users must be affiliated with an institution which has a valid
-                Institutional Agreement
-                with the CLS. The institution you have selected in your profile "{{ user.institution }}" does not have
-                the appropriate agreement in place.
+                Institutional Agreement. The institution you have selected in your profile "{{ user.institution }}" does not have
+                the appropriate agreement.
             </p>
             <p>
                 To assist us in initiating the process, please provide the contact information of the person at your
-                institution
-                who is responsible for such matters.
+                institution who is responsible for such matters.
 
             </p>
             {% if user.institution %}
