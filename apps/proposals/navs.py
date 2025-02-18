@@ -29,6 +29,9 @@ class CurrentCycle(BaseNav):
     def get_url(self):
         from proposals.models import ReviewCycle
         cycle = ReviewCycle.objects.current().first()
+        if not cycle:
+            cycle = ReviewCycle.objects.next()
+
         return "" if not cycle else reverse('review-cycle-detail', kwargs={'pk': cycle.pk})
 
 
