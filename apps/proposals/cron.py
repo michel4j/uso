@@ -63,7 +63,7 @@ class NotifyReviewers(BaseCronJob):
     def do(self):
         from proposals import models
         cycle = models.ReviewCycle.objects.next()
-        today = timezone.localtime(timezone.now()).date()
+        today = timezone.localtime(timezone.now())
         yesterday = today - timedelta(days=1)
         if cycle:
             info = defaultdict(list)
