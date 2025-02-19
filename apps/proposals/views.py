@@ -1314,7 +1314,7 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
         track = models.ReviewTrack.objects.get(pk=self.kwargs.get('track'))
 
         # assign reviewers and prc members
-        assignment, reviewer_assignment, success = utils.assign_reviewers(cycle, track)
+        assignment, success = utils.assign_reviewers(cycle, track)
 
         if success:
             # remove all currently assigned pending scientific reviews
@@ -1343,7 +1343,7 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
             )
         else:
             messages.error(self.request, 'No feasible reviewer assignment was found')
-        return JsonResponse({"url": ""})
+        return JsonResponse({"url": self.get_success_url()})
 
 
 class ReviewCompatibility(RolePermsViewMixin, detail.DetailView):

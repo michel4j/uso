@@ -3603,6 +3603,8 @@ span.allocation-score {
 }
 
 .techniques .label {
-	margin-right: 0.25em;
+	margin: 0.125em;
+	font-size: inherit;
+	display: inline-block;
 	font-weight: normal;
 }

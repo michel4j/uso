@@ -17,7 +17,7 @@ pymemcache~=4.0.0
 docutils==0.21.2
 fuzzywuzzy~=0.18.0
 ipaddress~=1.0.23
-#ortools
+ortools
 #lxml~=5.0.2
 numpy
 scipy

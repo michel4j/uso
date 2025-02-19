@@ -249,18 +249,15 @@ def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=
     status = solver.Solve()
 
     conflicts = {
-        prop: [rev for j, rev in enumerate(reviewers) if conflict_mat[i][j]]
+        prop: {rev for j, rev in enumerate(reviewers) if conflict_mat[i][j]}
         for i, prop in enumerate(proposals)
     }
     prop_results = {
-        prop: [rev for j, rev in enumerate(reviewers) if M[i, j].SolutionValue()]
+        prop: {rev for j, rev in enumerate(reviewers) if M[i, j].SolutionValue()}
         for i, prop in enumerate(proposals)
     }
-    revs_results = {
-        rev: [prop for i, prop in enumerate(proposals) if M[i, j].SolutionValue()]
-        for j, rev in enumerate(reviewers)
-    }
-    return prop_results, revs_results, conflicts, solver, status
+
+    return prop_results, conflicts, solver, status
 
 
 def assign_cmacra(cycle, track):
@@ -278,7 +275,7 @@ def assign_cmacra(cycle, track):
     areas = models.SubjectArea.objects.filter(pk__in=proposals.values_list('proposal__areas', flat=True).distinct())
 
     # assign external reviewers
-    prop_results, revs_results, conflicts, solver, status = cmacra_optimize(
+    prop_results, conflicts, solver, status = cmacra_optimize(
         proposals, reviewers, techniques, areas, track.min_reviewers, track.max_proposals
     )
 
@@ -286,15 +283,13 @@ def assign_cmacra(cycle, track):
     committee = track.committee.all()
     com_min = 1
     com_max = 2 + proposals.count() // max(1, committee.count())
-    com_results, com_rev_results, com_conflicts, com_solver, com_status = cmacra_optimize(
+    com_results, com_conflicts, com_solver, com_status = cmacra_optimize(
         proposals, committee, techniques, areas, com_min, com_max
     )
 
     # merge results
     for prop, revs in com_results.items():
         prop_results[prop] |= set(revs)
-    for rev, props in com_rev_results.items():
-        revs_results[rev] |= set(props)
 
     if {solver.OPTIMAL, solver.FEASIBLE} & {com_status, status}:
         success = True
@@ -304,7 +299,7 @@ def assign_cmacra(cycle, track):
     print(f"Objective : {solver.Objective().Value() + com_solver.Objective().Value():0.2f}")
     print(f"Duration  : {solver.WallTime() + com_solver.WallTime():0.2f} ms")
     print(f"Status    : {status}, {com_status}; Success: {success}")
-    return prop_results, revs_results, success
+    return prop_results, success
 
 
 def assign_brute_force(cycle, track) -> tuple:
@@ -362,15 +357,12 @@ def assign_brute_force(cycle, track) -> tuple:
             if prc:
                 assignments[submission].add(prc)
 
-    return assignments, {}, num_assigned > 0
+    return assignments, num_assigned > 0
 
 
 def assign_reviewers(cycle, track):
     if USO_REVIEW_ASSIGNMENT == "CMACRA":
-        try:
-            return assign_cmacra(cycle, track)
-        except:
-            return assign_brute_force(cycle, track)
+        return assign_cmacra(cycle, track)
     else:
         return assign_brute_force(cycle, track)
 

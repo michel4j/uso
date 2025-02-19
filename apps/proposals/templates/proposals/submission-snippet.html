@@ -1,9 +1,9 @@
 {% load cycle_tags %}
-<p class="no-margin text-condensed"><a href="{{ submission.get_absolute_url }}">{{submission}}:</a>
-{{submission.proposal.title}}.</p>
+<h4 class="no-margin text-condensed"><a href="{{ submission.get_absolute_url }}">{{submission}}:</a>
+{{submission.proposal.title}}.</h4>
 {{submission.proposal.authors}} &mdash;
 <em>{{submission.proposal.spokesperson.institution|default:"No Institution"}}</em>
-<div class="tinytron bg-darken techniques">
+<div class="techniques">
     {% if submission.techniques.exists %}
     {% for item in submission.techniques.all %}
         <span class="label label-primary" title="{{ item.technique }}">{{item.technique }} | {{item.config.facility.acronym}}
