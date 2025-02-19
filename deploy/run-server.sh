@@ -25,21 +25,25 @@ if [ ! -f /usonline/local/__init__.py ]; then
 fi
 
 # check of database exists and initialize it if not
+for trial in {1..5}; do
+    echo "Migrating database tables ... (attempt $trial)"
+    /usonline/manage.py migrate --noinput && break
+    sleep 5
+done
+
 if [ ! -f /usonline/local/.dbinit ]; then
-    echo "Initializing database tables ..."
-    for try in {1..5}; do
-        /usonline/manage.py migrate --noinput && break
-        sleep 5
-    done
+    echo "Loading initial data ..."
     /usonline/manage.py loaddata initial-data &&
-    touch /usonline/local/.dbinit
-    chown -R apache:apache /usonline/local/media
 
     # Create superuser if not already created
     if [ -n "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -n "${DJANGO_SUPERUSER_USERNAME}" ]; then
         echo "Creating Superuser ..."
         /usonline/manage.py createsuperuser --noinput
     fi
+
+    # run cron jobs for the first time
+    echo "Running initial background tasks ..."
+    /usonline/manage.py runcrons --force -v3
 
     if [ -d /usonline/local/kickstart ]; then
         echo "Loading kickstart data ..."
@@ -50,17 +54,8 @@ if [ ! -f /usonline/local/.dbinit ]; then
           fi
         done
     fi
-    # run cron jobs for the first time
-    echo "Running initial background tasks ..."
-    /usonline/manage.py runcrons --force -v3
-
-
-else
-    for trial in {1..5}; do
-        echo "Migrating database tables ... (attempt $trial)"
-        /usonline/manage.py migrate --noinput && break
-        sleep 5
-    done
+    touch /usonline/local/.dbinit
+    chown -R apache:apache /usonline/local/media
 fi
 
 # create log directory if missing
