@@ -1,3 +1,4 @@
+
 from io import BytesIO, StringIO
 from collections import defaultdict
 from datetime import date
@@ -35,6 +36,10 @@ def join_strings(authors):
     return authors
 
 
+def join_creators(authors):
+    return '; '.join([a['name'] for a in authors if 'name' in a])
+
+
 def get_thesis_kind(field):
     if any(key in field.lower() for key in ['phd', 'ph.d.', 'doctor', 'dsc']):
         return 'phd_thesis'
@@ -61,7 +66,7 @@ def extract_date(field):
 SCHEMA_MAP = {
     'code': ('identifier', str),
     'title': ('name', str),
-    'authors': ('creator', join_strings),
+    'authors': ('creator', join_creators),
     'editor': ('contributor', join_names),
     'kind': ('inSupportOf', get_thesis_kind),
     'publisher': ('publisher', join_names),
@@ -72,7 +77,7 @@ SCHEMA_MAP = {
 THESIS_META_MAP = {
     'code': ('identifier', str),
     'title': ('title', str),
-    'authors': ('creator', join_strings),
+    'authors': ('creator', lambda x: [x] if isinstance(x, str) else x),
     'editor': ('contributor', join_strings),
     'kind': ('description', get_thesis_kind),
     'publisher': ('publisher', join_strings),
@@ -281,7 +286,7 @@ def get_book(isbn):
 
     for isbn in isbns:
         isbn = re.sub(r'[\s_-]', '', isbn)
-        url = "https://www.googleapis.com/books/v1/volumes?q=isbn:{0}".format(isbn)
+        url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}"
         r = requests.get(url)
         if r.status_code == requests.codes.ok:
             record = r.json()
@@ -293,10 +298,12 @@ def get_book(isbn):
                          len(i.get('identifier', '')) == 13]
             isbn = isbn_list[0] if len(isbn_list) > 0 else isbn
             info = {
-                'isbn': isbn,
-                'main_title': record['title'] + (
-                    "" if not record.get('subtitle') else ": {0}".format(record['subtitle'])),
-                'editor': '; '.join(record.get('authors', [])),
+                'authors': record.get('authors', []),
+                'code': isbn,
+                'title': (
+                    record['title']
+                    + ("" if not record.get('subtitle') else f": {record['subtitle']}")
+                ),
                 'publisher': record.get('publisher', ''),
                 'kind': 'chapter',
                 'date': '{0}-01-01'.format(record['publishedDate']) if len(
@@ -305,26 +312,26 @@ def get_book(isbn):
             }
             if len(info['date']) == 7:
                 info['date'] = '{0}-01'.format(info['date'])
+
             return info
 
 
 def get_patent(number):
-    number = number.replace(' ', '').replace('/', '').upper()
-    r = requests.get('https://www.google.com/patents/{0}.enw'.format(number))
-    if r.status_code == requests.codes.ok:
-        dat = enw(f"{r.text}")
+    number = number.replace(' ', '').upper()
+    url = f'https://patents.google.com/patent/{number}'
+    info = get_url_meta(url, extras={'itemprop':'priorArtKeywords'})
 
-    pp = {
-        'authors': dat.get('A', '').split(';'),
-        'title': dat.get('T', ''),
-        'date': f'{dat["D"]}-01-01',
-        'kind': "patent",
-        'reviewed': False,
-        'keywords': dat.get('K', ''),
-        'category': None,
-        'number': number,
-    }
-    return pp
+    if info:
+        return {
+            'authors': info.get('contributor', []),
+            'title': info.get('title', '').strip(),
+            'date': info.get('date')[0] if isinstance(info.get('date'), list) else info.get('date', ''),
+            'kind': "patent",
+            'reviewed': False,
+            'keywords': '; '.join(info.get('priorArtKeywords', [])),
+            'category': None,
+            'number': number,
+        }
 
 
 def get_resource_meta(doi, resource="works", debug=False):
@@ -568,14 +575,8 @@ def get_aip(doi):
 
 
 def get_doi_meta(doi):
-    r = requests.get('https://dx.doi.org/{0}'.format(doi))
-    if r.status_code == requests.codes.ok:
-        root = html.parse(r.content.decode('utf-8'))
-        raw_info = defaultdict(list)
-        for e in root.xpath('/html//meta'):
-            raw_info[e['name']].append(e['content'])
-        info = {k: (v[0] if len(v) == 1 else v) for k, v in raw_info}
-        return info
+    url = doi if doi.startswith('http') else f'https://dx.doi.org/{doi}'
+    return get_url_meta(url)
 
 
 def get_schema_meta(url):
@@ -594,14 +595,34 @@ def get_schema_meta(url):
     return {}
 
 
+def get_url_meta(url, extras=None):
+    """
+    Get metadata from a URL
+    :param url: The URL to fetch
+    :param extras: additional properties to fetch name, value keyword pairs
+    :return:
+    """
+    extras = {} if not extras else extras
+    r = requests.get(url)
+    if r.status_code == requests.codes.ok:
+        root = etree.parse(BytesIO(r.content), etree.HTMLParser())
+        raw_info = [
+            (get_meta_key(el.get('name', 'junk')), el.get('content'))
+            for el in root.xpath('//meta')
+        ] + [
+            (value, el.text)
+            for prop, value in extras.items()
+            for el in root.xpath(f"//*[@{prop}='{value}']")
+        ]
+        schema_info = defaultdict(list)
+        for k, v in raw_info:
+            schema_info[k].append(v)
+        schema_info = {k: (v[0] if len(v) == 1 else v) for k, v in schema_info.items()}
+        return schema_info
+
+
 def get_thesis_meta(uri):
-    r = requests.get(uri)
-    root = etree.parse(BytesIO(r.content), etree.HTMLParser())
-    raw_info = [(get_meta_key(el.get('name', 'junk')), el.get('content')) for el in root.xpath('//meta')]
-    schema_info = defaultdict(list)
-    for k, v in raw_info:
-        schema_info[k].append(v)
-    schema_info = {k: (v[0] if len(v) == 1 else v) for k, v in schema_info.items()}
+    schema_info = get_url_meta(uri)
     if schema_info:
         pub_info = {
             field: converter(schema_info[k])
@@ -644,7 +665,6 @@ def get_pub(doi, debug=False):
         if not record['container-title'] and re.match(r'10.1063/\d\.\d+', doi):
             record.update(get_aip(doi))
 
-        print(record)
         # prepare affiliation
         affiliations = defaultdict(list)
         for author in record.get('author', []):

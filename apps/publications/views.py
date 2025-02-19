@@ -1,5 +1,6 @@
 import functools
 import json
+
 import math
 import operator
 
@@ -331,6 +332,8 @@ class PublicationWizard(SessionWizardView):
         """ Create the new publication here, based on the cleaned_data from the forms """
         data = form_list[-1].cleaned_data
         details = json.loads(data['details'])
+        if isinstance(details['authors'], str):
+            details['authors'] = [v.strip() for v in details['authors'].split(';')]
 
         info = {}
         info.update(
@@ -391,12 +394,12 @@ class PublicationWizard(SessionWizardView):
                 step = data.get('submit')
                 self.storage.current_step = step
                 data = None
+
         form = super().get_form(step, data, files)
         if self.steps.next == step:
             form_info = {}
             if step == "1" or self.form_list['1'] == form.__class__:
                 cleaned_data = self.get_cleaned_data_for_step(self.steps.first) or {}
-
                 if cleaned_data['details']:
                     info = json.loads(cleaned_data['details'])
                     kind = info.get('kind', None)
@@ -427,28 +430,24 @@ class PublicationWizard(SessionWizardView):
                                 }
                             )
 
-                        elif kind in ['msc_thesis', 'phd_thesis']:
-                            details = info
+                        elif kind in ['msc_thesis', 'phd_thesis', 'chapter']:
+                            details.update(info)
                         elif kind in models.Book.TYPES:
-                            if 'isbn' in info:
-                                details['code'] = info.get('isbn', None)
-                                fields = [
-                                    'main_title', 'editor', 'publisher', 'title', 'authors', 'edition', 'address',
-                                    'volume', 'pages',
-                                    'keywords', 'date'
-                                ]
-                            elif 'book' in info:
-                                details.update({'code': info.get('code', None), 'edition': info.get('number', None)})
-                                details.update(
-                                    {f: info['book'].get(f, None) for f in ['main_title', 'publisher', 'editor']}
-                                )
-                                fields = ['title', 'authors', 'volume', 'pages', 'date', 'keywords']
-
-                        elif kind in models.Patent.TYPES:
-                            fields = ['title', 'authors', 'date', 'keywords']
+                            info['edition'] = info.get('number', None)
+                            fields = [
+                                'main_title', 'editor', 'publisher', 'title', 'authors', 'edition', 'address',
+                                'volume', 'pages', 'keywords', 'date', 'code', 'keywords'
+                            ]
+                            if 'book' in info:
+                                # replace title, publisher and editor from main book
+                                info['main_title'] = info['book'].get('title', None)
+                                info['editor'] = '; '.join(info['book'].get('authors', []))
+                                info['publisher'] = info['book'].get('publisher', None)
                             details.update({f: info.get(f, None) for f in fields})
-                            details['code'] = info.get('number', "").strip()
-
+                        elif kind in models.Patent.TYPES:
+                            fields = ['title', 'authors', 'date', 'keywords', 'code']
+                            info['code'] = info.get('number', "").strip()
+                            details.update({f: info.get(f, None) for f in fields})
                         form_info['details'] = json.dumps(details)
 
             elif step == "2" or self.form_list['2'] == form.__class__:
@@ -503,7 +502,7 @@ class PublicationWizard(SessionWizardView):
 def abbrev_author(name):
     parts = [x.strip() for x in name.strip().split(',')]
     if len(parts) > 1:
-        return "{}, {}".format(parts[0].upper(), '' if not parts[1] else parts[1][0].upper())
+        return f"{parts[0].upper()}, {'' if not parts[1] else parts[1][0].upper()}"
     else:
         return name.strip().upper()
 

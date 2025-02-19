@@ -60,8 +60,8 @@ def cite(context, obj):
 def get_citation(cls="article", data="{}"):
     cls = 'article' if cls == 'proceeding' else cls
     pub = json.loads(data)
-    if isinstance(pub['authors'], list):
-        pub['authors'] = ', '.join(pub['authors'])
+    if isinstance(pub.get('authors', []), list):
+        pub['authors'] = ', '.join(pub.get('authors', []))
     try:
         pub['date'] = datetime.strptime(pub['date'], "%Y-%M-%d")
     except:

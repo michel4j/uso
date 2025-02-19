@@ -1,5 +1,4 @@
 
-
 from datetime import datetime, date
 from crispy_forms.bootstrap import AppendedText, AccordionGroup, Accordion
 from crispy_forms.helper import FormHelper
@@ -236,21 +235,23 @@ class PubWizardForm1(forms.Form):
         )
 
     def clean(self):
-        super().clean()
-        data = self.cleaned_data
+        data = super().clean()
         reference = data.get("reference")
         code = data.get("code")
         if not code:
-            raise forms.ValidationError(_('Provide a reference for the publication'),
-                                        code='reference-required',
-                                        params={'reference': reference})
+            raise forms.ValidationError(
+                _('Provide a reference for the publication'),
+                code='reference-required',
+                params={'reference': reference}
+            )
         elif reference in ['doi', 'isbn', 'patent', 'url']:
             details = REFERENCE_FETCH[reference](code)
             if not details:
                 raise forms.ValidationError(
                     _('Unable to find %(reference)s with that reference'),
                     code='not-found',
-                    params={'reference': reference})
+                    params={'reference': reference}
+                )
             else:
                 data['details'] = json.dumps(details, default=json_default)
         return data
@@ -297,18 +298,18 @@ class PubWizardForm2(forms.Form):
         )
 
     def update_helper(self):
-
         try:
             details = json.loads(self.initial.get('details', ""))
         except:
             details = {}
-        kind = details.get('kind', None)
 
-        for f in list(self.fields.keys()):
-            if details.get(f, None):
-                self.initial[f] = details[f]
+        print("INITIAL", details)
+        kind = details.get('kind', None)
+        for field in list(self.fields.keys()):
+            if details.get(field, None):
+                self.fields[field].initial = details[field]
                 if kind and 'thesis' not in kind:
-                    self.fields[f].widget = forms.HiddenInput()
+                    self.fields[field].widget = forms.HiddenInput()
 
         if kind and 'thesis' not in kind:
             template_name = 'default'
@@ -409,11 +410,12 @@ class PubWizardForm2(forms.Form):
 
 class PubWizardForm3(forms.Form):
     details = forms.CharField(required=False, widget=forms.HiddenInput, initial="{}")
-    obj = forms.ModelChoiceField(queryset=Publication.objects.all().select_subclasses(), widget=forms.HiddenInput,
-                                 required=False)
+    obj = forms.ModelChoiceField(
+        queryset=Publication.objects.all().select_subclasses(), widget=forms.HiddenInput, required=False
+    )
 
     beamlines = forms.ModelMultipleChoiceField(queryset=Facility.objects.all(), required=False)
-    funders = forms.ModelMultipleChoiceField(queryset=FundingSource.objects.all(), required=False)
+    funders = forms.ModelMultipleChoiceField(queryset=FundingSource.objects.none(), required=False)
     author = forms.BooleanField(required=False, label="I am an author on this paper", widget=forms.CheckboxInput)
     notes = forms.CharField(max_length=512, required=False, widget=forms.Textarea,
                             label=_(
