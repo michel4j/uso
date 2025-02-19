@@ -1653,7 +1653,10 @@ class AddReviewerList(RolePermsViewMixin, ItemListView):
     paginate_by = 60
     list_filters = ['modified', 'user__classification', 'cycles']
     list_columns = ['user', 'user__institution__name', 'technique_names', 'committee']
-    list_search = ['user__first_name', 'user__last_name', 'user__email']
+    list_search = [
+        'user__first_name', 'user__last_name', 'user__email', 'techniques__name', 'areas__name',
+        'techniques__acronym'
+    ]
     order_by = ['user__last_name']
     ordering_proxies = {'user': 'user__last_name'}
     list_transforms = {'techniques': _name_list, 'areas': _name_list}
