@@ -307,6 +307,7 @@ class FacilityConfigForm(forms.ModelForm):
         raw_settings = DotExpandedDict(self.data).with_lists().get('settings', {})
         settings = list(zip(raw_settings.get('technique', []), raw_settings.get('value', [])))
         data['settings'] = {int(k): v for k, v in settings if v}
+        data['start_date'] = data['cycle'].start_date
         return data
 
 

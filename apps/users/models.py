@@ -2,6 +2,7 @@ import functools
 import hashlib
 import json
 import operator
+import os
 from datetime import timedelta
 from functools import lru_cache
 
@@ -88,6 +89,12 @@ class CustomUserManager(BaseUserManager):
         Creates and saves a superuser with the given username and password.
         """
         other_fields['roles'] = USO_ADMIN_ROLES
+        if os.environ.get('DJANGO_SUPERUSER_EMAIL'):
+            other_fields['email'] = os.environ.get('DJANGO_SUPERUSER_EMAIL')
+        if os.environ.get('DJANGO_SUPERUSER_FIRST_NAME'):
+            other_fields['first_name'] = os.environ.get('DJANGO_SUPERUSER_FIRST_NAME')
+        if os.environ.get('DJANGO_SUPERUSER_LAST_NAME'):
+            other_fields['last_name'] = os.environ.get('DJANGO_SUPERUSER_LAST_NAME')
         user = self.create_user(username, password=password, **other_fields)
         return user
 

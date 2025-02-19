@@ -644,18 +644,22 @@ def get_pub(doi, debug=False):
         if not record['container-title'] and re.match(r'10.1063/\d\.\d+', doi):
             record.update(get_aip(doi))
 
-        # prepare affiliations
-        _affil = [[n['name'] for n in a.get('affiliation', [])] for a in record.get('author', [])]
-        _institutions = list(sorted({n for n in itertools.chain(*_affil)}))
-        affiliation = None
-        if _institutions:
-            affiliation = {
-                'institutions': _institutions,
-                'authors': [[_institutions.index(name) for name in names] for names in _affil],
-            }
+        print(record)
+        # prepare affiliation
+        affiliations = defaultdict(list)
+        for author in record.get('author', []):
+            author_name = ', '.join([author['family'], author.get('given', '')])
+            if 'affiliation' in author:
+                for affil in author['affiliation']:
+                    if 'id' in affil:
+                        a_entry = affil['id']
+                        if isinstance(a_entry, list) and len(a_entry) > 0:
+                            key = a_entry[0]['id']
+                            affiliations[key].append(author_name)
+
         pub_dict = {
             'authors': [n['family'] + ', ' + n.get('given', '') for n in record.get('author', [])],
-            'affiliation': affiliation,
+            'affiliation': dict(affiliations),
             'title': ': '.join([t.strip() for t in record['title']]) if isinstance(record['title'], list) else record[
                 'title'].strip(),
             'keywords': re.sub(r'\(([^()]+)\)', r'', '; '.join(record.get('subject', []))),

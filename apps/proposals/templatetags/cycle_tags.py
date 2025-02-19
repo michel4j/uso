@@ -74,7 +74,7 @@ def show_submissions(context, cycle, track):
         Q(techniques__isnull=True) | Q(areas__isnull=True)
     )
     fac_ids = set(
-        models.FacilityConfig.objects.active(cycle=cycle).accepting().filter(
+        models.FacilityConfig.objects.active(d=cycle.start_date).accepting().filter(
             items__track=track).values_list('facility', flat=True).distinct()
     )
     if track.special:

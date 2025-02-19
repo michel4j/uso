@@ -185,7 +185,7 @@ register_serializer('yml', 'django.core.serializers.pyyaml')
 from users.profiles import ExternalProfileManager
 
 # ROLES
-USO_ADMIN_ROLES = ["admin:uso"]
+USO_ADMIN_ROLES = ["admin:uso", "staff"]
 USO_CONTRACTS_ROLES = ["staff:contracts"]
 USO_CURATOR_ROLES = ["curator:publications"]
 USO_HSE_ROLES = ["staff:hse"]

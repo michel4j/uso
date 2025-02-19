@@ -50,6 +50,11 @@ if [ ! -f /usonline/local/.dbinit ]; then
           fi
         done
     fi
+    # run cron jobs for the first time
+    echo "Running initial background tasks ..."
+    /usonline/manage.py runcrons --force -v3
+
+
 else
     for trial in {1..5}; do
         echo "Migrating database tables ... (attempt $trial)"

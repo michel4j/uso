@@ -33,11 +33,13 @@ services:
     environment:
       DJANGO_SUPERUSER_USERNAME: admin
       DJANGO_SUPERUSER_PASSWORD: usoadmin
+      DJANGO_SUPERUSER_FIRST_NAME: Admin
+      DJANGO_SUPERUSER_LAST_NAME: User
       DJANGO_SUPERUSER_EMAIL: admin@example.com
     ports:
       - 8080:80
     volumes:
       - ./local:/usonline/local:Z
     labels:
-      deck-chores.isocron.command: /usonline/manage.py runcrons --verbose
+      deck-chores.isocron.command: /usonline/manage.py runcrons -v3
       deck-chores.isocron.interval: 00:10:00

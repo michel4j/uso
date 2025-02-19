@@ -98,7 +98,7 @@ class FacilityDetails(RolePermsViewMixin, TemplateView):
             self.object = models.Facility.objects.get(pk=self.kwargs['pk'])
             context['object'] = context['facility'] = self.object
             contact_role = "beamline-admin:{}".format(self.object.acronym.lower())
-            config = self.object.configs.active(cycle=self.request.GET.get('cycle', None)).first()
+            config = self.object.configs.first()
             contacts = User.objects.all_with_roles(contact_role)
             context['contacts'] = contacts
             context['config'] = config

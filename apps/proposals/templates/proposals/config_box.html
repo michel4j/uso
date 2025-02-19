@@ -19,7 +19,7 @@
                 {% endif %}
             {% endif %}
             <h3 class="no-vmargin">
-                From {{ config.cycle.start_date|date:"M jS/Y" }}
+                From {{ config.start_date|date:"M jS/Y" }}
                 {% if active %}
                     <strong class="text-condensed">&mdash; Current</strong>
                     {% elif pending %}

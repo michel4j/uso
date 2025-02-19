@@ -344,11 +344,10 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
         return self.schedule
 
     def configs(self):
-        return FacilityConfig.objects.active(cycle=self.pk)
+        return FacilityConfig.objects.active(d=self.start_date)
 
     def techniques(self):
         return Technique.objects.filter(pk__in=self.configs().values_list('techniques', flat=True)).distinct()
-
 
     def tracks(self):
         return ReviewTrack.objects.filter(pk__in=self.submissions.values_list('track', flat=True))
@@ -373,9 +372,7 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
         return self.end_date - timedelta(days=1)
 
     def name(self):
-        return "{}-{} {}".format(
-            self.start_date.strftime('%b'), self.last_date().strftime('%b'), self.start_date.strftime('%Y')
-        )
+        return f"{self.start_date.strftime('%b')}-{self.last_date().strftime('%b')} {self.start_date.strftime('%Y')}"
 
     def __str__(self):
         return self.name()
@@ -409,27 +406,20 @@ class Technique(TimeStampedModel):
 
 
 class FacilityConfigQueryset(models.QuerySet):
-    def active(self, cycle=None, year=None, d=None):
-        pre_extras = {}
-        extras = {'cycle': F('latest')}
-        if cycle:
-            pre_extras['facility__configs__cycle__lte'] = cycle
-
+    def active(self, year=None, d=None):
         if year and not d:
             d = date(year, 12, 31)
-        elif not cycle and not year:
+        elif not d:
             d = timezone.now().date()
 
-        if d:
-            pre_extras['facility__configs__cycle__start_date__lte'] = d
-
+        pre_extras = {'facility__configs__start_date__lte':  d}
         return self.annotate(
             latest=Max(
                 Case(
-                    When(Q(**pre_extras), then=F('facility__configs__cycle')), output_field=models.IntegerField()
+                    When(Q(**pre_extras), then=F('facility__configs__start_date')), output_field=models.DateField()
                 )
             )
-        ).filter(**extras)
+        ).filter(start_date=F('latest'))
 
     def accepting(self):
         return self.filter(accept=True)
@@ -437,52 +427,42 @@ class FacilityConfigQueryset(models.QuerySet):
     def pending(self, d=None):
         if not d:
             d = timezone.now().date()
-        return self.filter(cycle__start_date__gt=d)
+        return self.filter(start_date__gt=d)
 
-    def expired(self, cycle=None, year=None, d=None):
-        pre_extras = {}
-        extras = {'cycle__lt': F('latest')}
-        if cycle:
-            pre_extras['facility__configs__cycle__lte'] = cycle
-
+    def expired(self, year=None, d=None):
         if year and not d:
             d = date(year, 12, 31)
-        elif not cycle and not year:
+        elif not d:
             d = timezone.now().date()
 
-        if d:
-            pre_extras['facility__configs__cycle__start_date__lte'] = d
-
+        pre_extras = {'facility__configs__start_date__lte':  d}
         return self.annotate(
             latest=Max(
                 Case(
-                    When(Q(**pre_extras), then=F('facility__configs__cycle')), output_field=models.IntegerField()
+                    When(Q(**pre_extras), then=F('facility__configs__start_date')), output_field=models.DateField()
                 )
             )
-        ).filter(**extras)
-
-
-class FacilityConfigManager(models.Manager.from_queryset(FacilityConfigQueryset)):
-    use_for_related_fields = True
+        ).filter(start_date__lt=F('latest'))
 
 
 class FacilityConfig(TimeStampedModel):
-    cycle = models.ForeignKey(ReviewCycle, verbose_name=_('Start Cycle'), on_delete=models.CASCADE)
+    cycle = models.ForeignKey(ReviewCycle, verbose_name=_('Start Cycle'), on_delete=models.SET_NULL, null=True)
+    start_date = models.DateField(_("Start Date"))
     accept = models.BooleanField("Accept Proposals", default=False)
     facility = models.ForeignKey(Facility, related_name="configs", on_delete=models.CASCADE)
     techniques = models.ManyToManyField(Technique, through="ConfigItem", related_name="configs")
     comments = models.TextField(blank=True, null=True)
-    objects = FacilityConfigManager()
+    objects = FacilityConfigQueryset.as_manager()
 
     class Meta:
         unique_together = ("cycle", "facility")
-        get_latest_by = "cycle"
-        ordering = ['-cycle']
+        get_latest_by = "start_date"
+        ordering = ['-start_date']
         verbose_name = "Facility Configuration"
 
     def __str__(self):
         if self.pk:
-            return "{}/{}".format(self.facility.acronym, self.cycle.pk)
+            return f"{self.facility.acronym}/{self.start_date.strftime('%Y-%m-%d')}"
         else:
             return "<unsaved>"
 
@@ -490,7 +470,9 @@ class FacilityConfig(TimeStampedModel):
         return FacilityConfig.objects.filter(facility=self.facility, pk=self.pk).active().exists()
 
     def is_editable(self):
-        return self.cycle.open_date > timezone.now().date()
+        if self.cycle:
+            return self.cycle.open_date > timezone.now().date()
+        return False
 
     def siblings(self):
         return FacilityConfig.objects.filter(facility=self.facility).exclude(pk=self.pk)
@@ -525,7 +507,7 @@ class ConfigItem(TimeStampedModel):
         unique_together = [("config", "technique")]
 
     def __str__(self):
-        return "{}/{}/{}".format(self.config, self.track.acronym, self.technique.short_name())
+        return f"{self.config}/{self.track.acronym}/{self.technique.short_name()}"
 
 
 class Reviewer(TimeStampedModel):
