@@ -56,13 +56,13 @@
                 <tbody>
                 {% if object.roles %}
                 <tr>
-                    <td class="item"><i class="bi-person-vcard icon-fw"></i></td>
-                    <td>{% for r in object.roles %}<span title="Role: {{ r }}" class="label label-info">{{r|role_label}}</span> {% endfor %}</td>
+                    <td class="item text-left col-xs-1"><i class="bi-person-vcard icon-fw"></i></td>
+                    <td class="col-xs-10">{% for r in object.roles %}<span title="Role: {{ r }}" class="label label-info">{{r|role_label}}</span> {% endfor %}</td>
                 </tr>
                 {% endif %}
                 {% if object.permissions %}
                 <tr>
-                    <td class="item"><i class="bi-key icon-fw"></i></td>
+                    <td class="item text-left"><i class="bi-key icon-fw"></i></td>
                     <td>{% for p in object.permissions %}<span class="label label-success">{{p}}</span> {% endfor %}</td>
                 </tr>
                 {% endif %}
