@@ -57,9 +57,15 @@ def review_compat(reviewer, submission):
         techniques = reviewer.reviewer.techniques.filter(
             pk__in=submission.techniques.values_list('technique', flat=True))
         areas = reviewer.reviewer.areas.all() & submission.proposal.areas.all()
-        return "{} / {}".format(techniques.count(), areas.count())
+        return mark_safe(
+            f"<span class='text-primary'>{techniques.count()}</span>&nbsp;:&nbsp;"
+            f"<span class='text-success'>{areas.count()}</span>"
+        )
     else:
-        return mark_safe("&middot; / &middot;")
+        return mark_safe(
+            f"<span class='text-primary'>&middot;</span>&nbsp;:&nbsp;"
+            f"<span class='text-success'>&middot;</span>"
+        )
 
 
 @register.filter(name="facility_acronyms")

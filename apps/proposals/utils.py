@@ -156,7 +156,8 @@ def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=
 
     # Init Solver
     solver = pywraplp.Solver("CMACRASolver", pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
-    subjects = [subj for subj in itertools.chain(techniques, areas)]
+    #subjects = [subj for subj in itertools.chain(techniques, areas)]
+    subjects = [subj for subj in techniques]
 
     num_proposals = proposals.count()
     num_reviewers = reviewers.count()
@@ -213,7 +214,7 @@ def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=
             solver.Add(
                 solver.Sum(
                     [rev_subj_mat[k][j] * M[i, k] for k in range(num_reviewers)]
-                ) >= pro_subj_mat[i][j] * t[i, j]
+                ) >= pro_subj_mat[i][j] #* t[i, j]
             )
             solver.Add(
                 t[i, j] == solver.Sum(

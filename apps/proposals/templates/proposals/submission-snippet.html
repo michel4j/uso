@@ -9,9 +9,11 @@
         <span class="label label-primary" title="{{ item.technique }}">{{item.technique }} | {{item.config.facility.acronym}}
         </span>
     {% endfor %}
-    <hr class="hr-xxs"/>
+
     {% endif %}
     {% for area in submission.proposal.areas.all %}
         <span class="label label-success" title="Area">{{ area.name }}</span>
     {% endfor %}
+    <hr class="hr-xxs"/>
+    <p class="text-muted">{{ submission.proposal.details.abstract|truncatewords:50 }}</p>
 </div>
