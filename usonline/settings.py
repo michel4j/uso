@@ -214,6 +214,9 @@ USO_TECHNICAL_REVIEWS = ["technical"]             # technical review type
 USO_SCIENCE_REVIEWS = ["scientific"]             # science review type
 USO_SAFETY_APPROVAL = "approval"                 # safety approval review type
 
+
+DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
+
 try:
     from local.settings import *
 except ImportError:

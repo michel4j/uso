@@ -76,34 +76,36 @@ class Proposal(DynEntryMixin):
         """Return a unique list of team members including everyone with team roles ('leader', 'delegate' and
         'spokesperson'). The team roles for each member will be in the key 'roles' which is a list """
 
-        full_team = OrderedDict()
-        full_team[self.spokesperson.email.strip().lower()] = {
-            'first_name': self.spokesperson.first_name, 'last_name': self.spokesperson.last_name,
-            'email': self.spokesperson.email.strip().lower(),
-            'roles': ['spokesperson']
+        leader_email = self.details.get('leader', {}).get('email', '').strip().lower()
+        spokesperson_email = self.spokesperson.email.strip().lower()
+        spokesperson_roles = ['spokesperson'] + ['leader'] if spokesperson_email == leader_email else []
+
+        full_team = {
+            spokesperson_email: {
+                'first_name': self.spokesperson.first_name,
+                'last_name': self.spokesperson.last_name,
+                'email': self.spokesperson.email.strip().lower(),
+                'roles': spokesperson_roles
+            }
         }
-        leader = self.details.get('leader', {})
-        for k in ['delegate', '*', 'leader']:
-            if k == '*':
-                for member in self.details.get('team_members', []):
-                    email = member.get('email', '').strip().lower()
-                    if email in full_team: continue
-                    if email == leader.get("email", '').strip().lower(): continue
-                    full_team[email] = {
-                        'first_name': member.get('first_name', ''), 'last_name': member.get('last_name', ''),
-                        'email': email, 'roles': []
-                    }
-            else:
-                member = self.details.get(k, {})
-                if member and member.get('email', '').strip():
-                    email = member['email'].strip().lower()
-                    if email in full_team:
-                        full_team[email]['roles'].append(k)
-                    else:
-                        full_team[email] = {
-                            'first_name': member.get('first_name', ''), 'last_name': member.get('last_name', ''),
-                            'email': email, 'roles': [k]
-                        }
+        delegate_email = self.details.get('delegate', {}).get('email', '').strip().lower()
+        if delegate_email and delegate_email != spokesperson_email:
+            delegate = self.details.get('delegate', {})
+            full_team[delegate_email] = {
+                'first_name': delegate.get('first_name', ''),
+                'last_name': delegate.get('last_name', ''),
+                'email': delegate_email,
+                'roles': ['delegate']
+            }
+        for member in self.details.get('team_members', []):
+            email = member.get('email', '').strip().lower()
+            if email not in full_team:
+                full_team[email] = {
+                    'first_name': member.get('first_name', ''),
+                    'last_name': member.get('last_name', ''),
+                    'email': email,
+                    'roles': []
+                }
 
         return list(full_team.values())
 
@@ -511,7 +513,7 @@ class ConfigItem(TimeStampedModel):
 
 
 class Reviewer(TimeStampedModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='reviewer')
     techniques = models.ManyToManyField(Technique, related_name="reviewers")
     areas = models.ManyToManyField(SubjectArea, verbose_name=_('Subject Areas'), )
     karma = models.DecimalField(max_digits=4, decimal_places=2, default='0.0')

@@ -426,9 +426,11 @@ class ReviewCyclePoolForm(forms.ModelForm):
 
 
 class ReviewerAssignmentForm(forms.ModelForm):
-    reviewers = forms.ModelMultipleChoiceField(label="Add Reviewer", queryset=models.Reviewer.objects.all(),
-                                               help_text="Select Reviewers to add to the above proposal. "
-                                                         "The list shows compatible reviewers who have room to review more proposals")
+    reviewers = forms.ModelMultipleChoiceField(
+        label="Add Reviewer", queryset=models.Reviewer.objects.none(),
+        help_text="Select Reviewers to add to the above proposal. "
+                  "The list shows compatible reviewers who have room to review more proposals"
+    )
 
     class Meta:
         model = models.Submission
@@ -444,15 +446,14 @@ class ReviewerAssignmentForm(forms.ModelForm):
 
         cycle = self.instance.cycle
         track = self.instance.track
-        technique_ids = [t.technique.pk for t in self.instance.techniques.all()]
-        area_ids = [a.pk for a in self.instance.proposal.areas.all()]
-        techniques_filter = functools.reduce(operator.__or__, [Q(techniques__pk=t) for t in technique_ids])
-        areas_filter = functools.reduce(operator.__or__, [Q(areas=a) for a in area_ids], Q())
 
-        cycle_reviewers = cycle.reviewers.filter(areas_filter)
-        cycle_reviewers = cycle_reviewers.filter(techniques_filter)
-        cycle_reviewers = cycle_reviewers.all() | cycle.reviewers.filter(committee=track)
-        cycle_reviewers = cycle_reviewers.distinct().annotate(
+        prop_info = utils.get_submission_info(self.instance)
+
+        tech_filter = Q(techniques__in=prop_info['techniques'])
+        area_filter = Q(areas__in=prop_info['areas'])
+
+        reviewers = cycle.reviewers.filter(tech_filter, area_filter, Q(committee__isnull=True) | Q(committee=track))
+        reviewers = reviewers.distinct().annotate(
             num_reviews=Sum(
                 Case(
                     When(Q(user__reviews__cycle=cycle), then=Value(1)),
@@ -463,15 +464,15 @@ class ReviewerAssignmentForm(forms.ModelForm):
         )
 
         if track.max_proposals > 0:
-            cycle_reviewers = cycle_reviewers.exclude(num_reviews__gt=track.max_proposals)
+            reviewers = reviewers.exclude(num_reviews__gt=track.max_proposals)
 
         conflicts = [
-            rev.pk for rev in cycle_reviewers.all()
-            if utils.check_conflict(rev.user, self.instance) == 1
+            rev.pk for rev in reviewers.all()
+            if utils.veto_conflict(prop_info, utils.get_reviewer_info(rev))
         ]
-        cycle_reviewers = cycle_reviewers.exclude(pk__in=conflicts)
+        reviewers = reviewers.exclude(pk__in=conflicts)
 
-        self.fields['reviewers'].queryset = cycle_reviewers.distinct()
+        self.fields['reviewers'].queryset = reviewers.distinct()
         self.helper.title = 'Add Reviewers'
         self.helper.layout = Layout(
             Div(

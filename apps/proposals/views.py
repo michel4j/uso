@@ -1355,15 +1355,19 @@ class ReviewCompatibility(RolePermsViewMixin, detail.DetailView):
         context = super().get_context_data(**kwargs)
         review = self.get_object()
         cycle = review.cycle
+
         if hasattr(review.reviewer, 'reviewer'):
-            context['compat_techniques'] = review.reviewer.reviewer.techniques.filter(
+            user = review.reviewer
+            reviewer = user.reviewer
+
+            context['compat_techniques'] = reviewer.techniques.filter(
                 pk__in=review.reference.techniques.values_list('technique', flat=True)
             )
-            context['compat_areas'] = review.reviewer.reviewer.areas.all() & review.reference.proposal.areas.all()
-        context['conflict'] = utils.check_conflict(review.reviewer, review.reference)
-        context['workload'] = review.reviewer.reviews.filter(cycle=cycle)
-        context['reviewer'] = review.reviewer
-        context['submission'] = review.reference
+            context['compat_areas'] = reviewer.areas.all() & review.reference.proposal.areas.all()
+            context['conflict'] = utils.has_conflict(review.reference, reviewer)
+            context['workload'] = user.reviews.filter(cycle=cycle)
+            context['reviewer'] = reviewer
+            context['submission'] = review.reference
         return context
 
 
@@ -1390,8 +1394,7 @@ class AssignedSubmissionList(RolePermsViewMixin, ItemListView):
 
 class ReviewerAssignments(RolePermsViewMixin, ItemListView):
     model = models.Submission
-    template_name = "item-list.html"
-    #template_name = "proposals/assigned-grid.html"
+    template_name = "proposals/assignment-list.html"
     paginate_by = 20
     list_columns = ['proposal', 'cycle', 'track', 'state']
     list_filters = ['created', 'state', 'track', 'cycle']
@@ -1405,9 +1408,9 @@ class ReviewerAssignments(RolePermsViewMixin, ItemListView):
 
     def check_allowed(self):
         allowed = super().check_allowed()
-        reviewer = self.request.user.reviewer
-        if not allowed and reviewer and reviewer.active:
-            allowed = reviewer.pk == self.kwargs.get("pk")
+        if not allowed and hasattr(self.request.user, 'reviewer'):
+            reviewer = self.request.user.reviewer
+            allowed = reviewer and reviewer.active and reviewer.committee
         return allowed
 
     def get_queryset(self, *args, **kwargs):
@@ -1422,8 +1425,7 @@ class ReviewerAssignments(RolePermsViewMixin, ItemListView):
 
 class PRCAssignments(RolePermsViewMixin, ItemListView):
     model = models.Submission
-    template_name = "item-list.html"
-    grid_template = "proposals/assigned-grid.html"
+    template_name = "proposals/assignment-list.html"
     paginate_by = 20
     list_columns = ['proposal', 'cycle', 'track', 'state']
     list_filters = ['created', 'state', 'track', 'cycle']
@@ -1437,9 +1439,9 @@ class PRCAssignments(RolePermsViewMixin, ItemListView):
 
     def check_allowed(self):
         allowed = super().check_allowed()
-        reviewer = self.request.user.reviewer
-        if not allowed and reviewer and reviewer.active:
-            allowed = False if not reviewer.committee else True
+        if not allowed and hasattr(self.request.user, 'reviewer'):
+            reviewer = self.request.user.reviewer
+            allowed = reviewer and reviewer.active and reviewer.committee
         return allowed
 
     def get_queryset(self, *args, **kwargs):
@@ -1492,9 +1494,7 @@ class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
         allowed = super().check_allowed()
         if not allowed:
             submission = self.get_object()
-            if not hasattr(self.request.user, 'reviewer'):
-                allowed = False
-            else:
+            if hasattr(self.request.user, 'reviewer'):
                 reviewer = self.request.user.reviewer
                 allowed = (
                         reviewer and reviewer.active and reviewer.committee == submission.track and
@@ -1539,9 +1539,7 @@ class DeleteReview(RolePermsViewMixin, ConfirmDetailView):
         allowed = super().check_allowed()
         if not allowed:
             review = self.get_object()
-            if not hasattr(self.request.user, 'reviewer'):
-                allowed = False
-            else:
+            if hasattr(self.request.user, 'reviewer'):
                 reviewer = self.request.user.reviewer
                 allowed = (
                         reviewer and reviewer.active and reviewer.committee == review.reference.track
@@ -1584,8 +1582,10 @@ class AnswerClarification(ClarificationResponse):
         if not proposal:
             return False
         else:
-            return (self.request.user == proposal.spokesperson) or (
-                    self.request.user.username in [proposal.delegate_username, proposal.leader_username])
+            return (
+                (self.request.user == proposal.spokesperson) or
+                (self.request.user.username in [proposal.delegate_username, proposal.leader_username])
+            )
 
     def form_valid(self, form):
         response = super().form_valid(form)

@@ -3,8 +3,10 @@ import itertools
 import operator
 from collections import defaultdict
 from datetime import date, timedelta, datetime
+from typing import Literal
 
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField
 from django.utils.safestring import mark_safe
 from fuzzywuzzy import fuzz
@@ -127,202 +129,289 @@ def create_mock(start_date, end_date, open_date, close_date, due_date, alloc_dat
         )
 
 
-def check_conflict(user, proposal):
-    # exclude matching emails
-    emails = {email.lower() for email in [_f for _f in [user.email, user.alt_email] if _f]}
-    proposal_emails = {email.lower() for email in proposal.proposal.team}
-    if emails & proposal_emails:
-        return 1
-
-    # exclude matching names
-    user_name = user.get_full_name().strip().lower()
-    proposal_names = {
-                         " ".join([t.get('first_name', ''), t.get('last_name', '')]).strip().lower()
-                         for t in proposal.proposal.get_full_team()
-                     } | {
-                         " ".join(
-                             [i.get('first_name', ''), i.get('last_name', ''), i.get('other_names', '')]
-                         ).strip().lower()
-                         for i in proposal.proposal.details.get('inappropriate_reviewers', [])
-                     }
-    for name in proposal_names:
-        if fuzz.ratio(name, user_name) > 90: return 1
-        if fuzz.token_sort_ratio(name, user_name) > 90: return 1
-    return 0
+def get_submission_info(submission):
+    """
+    Get submission information for matching
+    :param submission: submission
+    :return: dictionary
+    """
+    proposal = submission.proposal
+    return {
+        'techniques': set(submission.techniques.values_list('technique__pk', flat=True)),
+        'areas': set(proposal.areas.values_list('pk', flat=True)),
+        'emails': {user.get('email', '') for user in proposal.get_full_team()},
+        'conflicts': {
+            f'{r["fist_name"]},{r["last_name"]}'.strip().lower()
+            for r in proposal.details.get('inappropriate_reviewers', [])
+        }
+    }
 
 
-def cmacra_optimize(proposals, reviewers, techniques, areas, minimum=1, maximum=4):
+def get_reviewer_info(reviewer):
+    """
+    Get reviewer information for matching
+    :param reviewer: reviewer
+    :return: dictionary
+    """
+    return {
+        'techniques': set(reviewer.techniques.values_list('pk', flat=True)),
+        'areas': set(reviewer.areas.filter(category__isnull=True).values_list('pk', flat=True)),
+        'emails': {
+            email.strip().lower() for email in [_f for _f in [reviewer.user.email, reviewer.user.alt_email] if _f]
+        },
+        'name': f'{reviewer.user.first_name},{reviewer.user.last_name}'.strip().lower()
+    }
+
+
+def is_incompatible(proposal, reviewer, committee=False) -> Literal[0, 1]:
+    """
+    Check if a reviewer is incompatible with a submission
+    :param proposal: proposal information dictionary
+    :param reviewer: reviewer information dictionary
+    :param committee: flag to indicate committee review
+    :return: 0 if compatible, 1 if incompatible
+    """
+    return max(
+        veto_conflict(proposal, reviewer),
+        veto_technique(proposal, reviewer, committee),
+        veto_subject(proposal, reviewer)
+    )
+
+
+def has_conflict(proposal, reviewer) -> Literal[0, 1]:
+    """
+    Check if a reviewer has a conflict with a submission
+    :param proposal: proposal information dictionary
+    :param reviewer: reviewer information dictionary
+    """
+    p_info = get_submission_info(proposal)
+    r_info = get_reviewer_info(reviewer)
+    return veto_conflict(p_info, r_info)
+
+
+def veto_conflict(proposal: dict, reviewer: dict, lax: bool = False) -> Literal[0, 1]:
+    """
+    Check if a reviewer is incompatible with a submission based on emails and names
+    :param proposal: proposal information
+    :param reviewer: reviewer information
+    :param lax: ignore this check
+    :return: 0 or 1
+    """
+
+    if lax:
+        return 0
+    return 1 if any((
+        proposal['emails'] & reviewer['emails'],
+        reviewer['name'] in proposal['conflicts'],
+    )) else 0
+
+
+def veto_technique(proposal: dict, reviewer: dict, lax: bool = False) -> Literal[0, 1]:
+    """
+    Check if a reviewer is incompatible with a submission based on techniques
+    :param proposal: proposal information
+    :param reviewer: reviewer information
+    :param lax: ignore this check
+    :return: 0 or 1
+    """
+    if lax:
+        return 0
+    return 0 if len(proposal['techniques'] & reviewer['techniques']) else 1
+
+
+def veto_subject(proposal: dict, reviewer: dict, lax: bool = False) -> Literal[0, 1]:
+    """
+    Check if a reviewer is incompatible with a submission based on subject areas
+    :param proposal: proposal information
+    :param reviewer: reviewer information
+    :param lax: ignore this check
+    :return: 0 or 1
+    """
+    if lax:
+        return 0
+    return 0 if len(proposal['areas'] & reviewer['areas']) else 1
+
+
+def reward_cost(proposal, reviewer) -> float:
+    """
+    Calculate the reward cost for a proposal-reviewer pair
+    :param proposal: proposal
+    :param reviewer: reviewer
+    :return: reward
+    """
+    reward = 10
+    # reward for matching technique
+    reward *= len(proposal['techniques'] & reviewer['techniques'])
+    reward *= len(proposal['areas'] & reviewer['areas'])
+    return reward
+
+
+def penalty_cost(proposal, reviewer):
+    """
+    Calculate the penalty cost for a proposal-reviewer pair
+    :param proposal: proposal
+    :param reviewer: reviewer
+    :return: penalty
+    """
+    cost = 100
+    # reward for matching technique
+    scale = len(proposal['techniques'] & reviewer['techniques'])
+    scale *= len(proposal['areas'] & reviewer['areas'])
+    cost = max(0, cost - scale * 10)
+    return cost
+
+
+def mip_optimize(proposals, reviewers, min_assignment=1, max_workload=4, committee=False, method='SCIP'):
+    """
+    Given a set of submissions and reviewers, assign reviewers
+    :param proposals: submissions queryset
+    :param reviewers: reviewers queryset
+    :param cycle: review cycle
+    :param min_assignment: minimum number of reviews to assign
+    :param max_workload: maximum workload for each reviewer
+    :param committee: whether this is a committee assignment or now
+    :param method: solver method, one of 'SCIP', 'CLP', 'GLOP'
+    :return: assignments dictionary mapping submission to a set of reviewers
+    """
+
     from ortools.linear_solver import pywraplp
 
-    # Init Solver
-    solver = pywraplp.Solver("CMACRASolver", pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
-    #subjects = [subj for subj in itertools.chain(techniques, areas)]
-    subjects = [subj for subj in techniques]
+    proposal_list = list(proposals)
+    reviewer_list = list(reviewers)
 
-    num_proposals = proposals.count()
-    num_reviewers = reviewers.count()
-    num_subjects = len(subjects)
+    proposals_info = {prop: get_submission_info(prop) for prop in proposal_list}
+    reviewers_info = {rev: get_reviewer_info(rev) for rev in reviewer_list}
+    num_workers = len(reviewers_info)
+    num_tasks = len(proposals_info)
 
-    rev_subjects = {
-        rev: set(itertools.chain(rev.techniques.all(), rev.areas.all()))
-        for rev in reviewers
-    }
-    pro_subjects = {
-        prop: set(itertools.chain(prop.techniques.all(), prop.proposal.areas.all()))
-        for prop in proposals
-    }
+    costs = [
+        [reward_cost(prop_info, rev_info) for prop, prop_info in proposals_info.items()]
+        for rev, rev_info in reviewers_info.items()
+    ]
+    invalid = [
+        [
+            is_incompatible(prop_info, rev_info, committee)
+            for prop, prop_info in proposals_info.items()
+        ]
+        for rev, rev_info in reviewers_info.items()
+    ]
 
-    rev_techniques = {
-        rev: set(rev.techniques.all())
-        for rev in reviewers
-    }
-    pro_techniques = {
-        prop: set(prop.techniques.all())
-        for prop in proposals
-    }
-    rev_areas = {
-        rev: set(rev.techniques.all())
-        for rev in reviewers
-    }
-    pro_areas = {
-        prop: set(prop.proposal.areas.all())
-        for prop in proposals
+    solver = pywraplp.Solver.CreateSolver(method)
+
+    if not solver:
+        return
+
+    # x[i, j] is an array of 0-1 variables, which will be 1
+    # if worker i is assigned to task j.
+    x = {
+        (i, j): solver.IntVar(0, 1, f"")
+        for i in range(num_workers) for j in range(num_tasks)
     }
 
-    # rev_tech_mat = [[int(subj in rev_techniques[rev]) for subj in techniques] for rev in reviewers]
-    # pro_tech_mat = [[int(subj in pro_techniques[pro]) for subj in techniques] for pro in proposals]
-    # rev_area_mat = [[int(subj in rev_areas[rev]) for subj in areas] for rev in reviewers]
-    # pro_area_mat = [[int(subj in pro_areas[pro]) for subj in areas] for pro in proposals]
+    # Each worker is assigned to at most max_workload tasks.
+    for i in range(num_workers):
+        solver.Add(solver.Sum([x[i, j] for j in range(num_tasks)]) <= max_workload)
 
-    conflict_mat = [[check_conflict(rev.user, pro) for rev in reviewers] for pro in proposals]
-    rev_subj_mat = [[int(subj in rev_subjects[rev]) for subj in subjects] for rev in reviewers]
-    pro_subj_mat = [[int(subj in pro_subjects[pro]) for subj in subjects] for pro in proposals]
+    # Each task is assigned to min_assignment workers.
+    max_assignment = min_assignment if committee else min_assignment + 2
+    for j in range(num_tasks):
+        solver.Add(solver.Sum([x[i, j] for i in range(num_workers)]) >= min_assignment)
+        solver.Add(solver.Sum([x[i, j] for i in range(num_workers)]) <= max_assignment)
 
-    M = {
-        (i, j): solver.IntVar(0, 1, "M[{},{}]".format(i, j))
-        for j in range(num_reviewers) for i in range(num_proposals)
-    }
-    t = {
-        (i, j): solver.IntVar(0, minimum, "t[{},{}]".format(i, j))
-        for j in range(num_subjects) for i in range(num_proposals)
-    }
-
-    # Constraints
-    # Subject Match constraints
-    for i in range(num_proposals):
-        for j in range(num_subjects):
-            solver.Add(
-                solver.Sum(
-                    [rev_subj_mat[k][j] * M[i, k] for k in range(num_reviewers)]
-                ) >= pro_subj_mat[i][j] #* t[i, j]
-            )
-            solver.Add(
-                t[i, j] == solver.Sum(
-                    [M[i, k] * pro_subj_mat[i][j] * rev_subj_mat[k][j] for k in range(num_reviewers)]
-                )
-            )
-
-    # Proposal Coverage constraints
-    # coverage equal to minimum
-    for i in range(num_proposals):
+        # no task is assigned to incompatible workers
         solver.Add(
-            solver.Sum(
-                [M[i, k] for k in range(num_reviewers)]
-            ) == minimum
+            solver.Sum([x[i, j] * invalid[i][j] for i in range(num_workers)]) == 0
         )
 
-    # Reviewer workload and conflicts constraints
-    for k in range(num_reviewers):
-        solver.Add(
-            solver.Sum(
-                [M[i, k] for i in range(num_proposals)]
-            ) <= maximum
-        )
-        solver.Add(
-            solver.Sum(
-                [M[i, k] * conflict_mat[i][k] for i in range(num_proposals)]
-            ) == 0
-        )
+    # Objective
+    objective_terms = []
+    for i in range(num_workers):
+        for j in range(num_tasks):
+            objective_terms.append(costs[i][j] * x[i, j])
 
-    # solution and search
-    score = solver.Sum(list(t.values()))
-    solver.Maximize(score)
+    solver.Maximize(solver.Sum(objective_terms))
+    print(f"Solving with {solver.SolverVersion()}")
     status = solver.Solve()
 
-    conflicts = {
-        prop: {rev for j, rev in enumerate(reviewers) if conflict_mat[i][j]}
-        for i, prop in enumerate(proposals)
-    }
-    prop_results = {
-        prop: {rev for j, rev in enumerate(reviewers) if M[i, j].SolutionValue()}
-        for i, prop in enumerate(proposals)
-    }
-
-    return prop_results, conflicts, solver, status
-
-
-def assign_cmacra(cycle, track):
-    """
-    Assign reviewers to proposals using CMACRA algorithm
-    :param cycle: Target cycle
-    :param track: Targe review track
-    :return: dictionary mapping submissions to a set of reviewers, dictionary mapping reviewers to a set of submissions,
-    boolean indicating success of the assignment
-    """
-    from proposals import models
-    reviewers = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).order_by('?').distinct()
-    proposals = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
-    techniques = cycle.techniques().filter(items__track=track).distinct()
-    areas = models.SubjectArea.objects.filter(pk__in=proposals.values_list('proposal__areas', flat=True).distinct())
-
-    # assign external reviewers
-    prop_results, conflicts, solver, status = cmacra_optimize(
-        proposals, reviewers, techniques, areas, track.min_reviewers, track.max_proposals
-    )
-
-    # assign committee members
-    committee = track.committee.all()
-    com_min = 1
-    com_max = 2 + proposals.count() // max(1, committee.count())
-    com_results, com_conflicts, com_solver, com_status = cmacra_optimize(
-        proposals, committee, techniques, areas, com_min, com_max
-    )
-
-    # merge results
-    for prop, revs in com_results.items():
-        prop_results[prop] |= set(revs)
-
-    if {solver.OPTIMAL, solver.FEASIBLE} & {com_status, status}:
-        success = True
+    if status == pywraplp.Solver.OPTIMAL or status == pywraplp.Solver.FEASIBLE:
+        print(f"Total cost = {solver.Objective().Value()}\n")
+        assignments = {
+            proposal_list[j]: {
+                reviewer_list[i]
+                for i in range(num_workers)
+                if (x[i, j].solution_value() > 0.5)
+            }
+            for j in range(num_tasks)
+        }
     else:
-        success = False
-
-    print(f"Objective : {solver.Objective().Value() + com_solver.Objective().Value():0.2f}")
-    print(f"Duration  : {solver.WallTime() + com_solver.WallTime():0.2f} ms")
-    print(f"Status    : {status}, {com_status}; Success: {success}")
-    return prop_results, success
+        print("No solution found.")
+        assignments = {}
+    return assignments, solver, status
 
 
-def assign_brute_force(cycle, track) -> tuple:
+def assign_mip(cycle, track, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tuple[dict, bool]:
     """
-    Assign reviewers to proposals using brute force
-    :param cycle: Target cycle
-    :param track: Targe review track
-    :return: dictionary mapping submissions to a set of reviewers, optional dictionary mapping reviewers to
-    a set of submissions, boolean indicating success of the assignment
+    Assign reviewers to proposals using linear/constrained optimization
+    :param cycle: Review Cycle
+    :param track: Review Track
+    :param method: one of 'SCIP', 'CLP', 'GLOP'
+    :return: assignments dictionary mapping submission to a set of reviewers, boolean indicating success of assignment
     """
+
+    reviewers = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).distinct()
+    committee = track.committee.all()
+    submissions = cycle.submissions.filter(track=track).order_by('pk').distinct()
+    results = {}
+    max_proposals = track.max_proposals
+    paginator = Paginator(submissions, 100)
+    success = []
+    for page in paginator.page_range:
+        proposals = paginator.page(page).object_list
+        prop_results, solver, status = mip_optimize(proposals, reviewers, track.min_reviewers, max_proposals)
+        print(f'External Reviewers:  Page {page} of {paginator.num_pages}')
+        print(f"Objective : {solver.Objective().Value()}")
+        print(f"Duration  : {solver.WallTime():0.2f} ms")
+        print(f"Status    : {status}")
+        success.append(status in {solver.OPTIMAL, solver.FEASIBLE})
+
+        com_max = 2 + proposals.count() // max(1, committee.count())
+        com_results, solver, status = mip_optimize(proposals, committee, 1, com_max, committee=True)
+        print(f'Committee Members:  Page {page} of {paginator.num_pages}')
+        print(f"Objective : {solver.Objective().Value()}")
+        print(f"Duration  : {solver.WallTime():0.2f} ms")
+        print(f"Status    : {status}")
+        success.append(status in {solver.OPTIMAL, solver.FEASIBLE})
+
+        for prop, revs in com_results.items():
+            prop_results[prop] |= set(revs)
+
+        results.update(prop_results)
+
+    return results, any(success)
+
+
+def optimize_brute_force(submissions, reviewers, cycle, min_assignment=1, max_workload=4, committee=False):
+    """
+    Given a set of submissions and reviewers, assign reviewers
+    :param submissions: submissions queryset
+    :param reviewers: reviewers queryset
+    :param cycle: review cycle
+    :param min_assignment: minimum number of reviews to assign
+    :param max_workload: maximum workload for each reviewer
+    :param committee: whether this is a committee assignment or now
+    :return: assignments dictionary mapping submission to a set of reviewers
+    """
+    proposals_info = {prop.pk: get_submission_info(prop) for prop in submissions}
+    reviewers_info = {rev.pk: get_reviewer_info(rev) for rev in reviewers}
+
     assignments = defaultdict(set)
-    submissions = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
-    num_assigned = 0
     for submission in submissions.order_by('?'):
-        technique_ids = [t.technique.pk for t in submission.techniques.all()]
-        area_ids = [a.pk for a in submission.proposal.areas.all()]
-        techniques_filter = functools.reduce(operator.__or__, [Q(techniques__pk=t) for t in technique_ids])
-        areas_filter = functools.reduce(operator.__or__, [Q(areas=a) for a in area_ids], Q())
+        prop = proposals_info[submission.pk]
+        tech_filter = Q(techniques__in=prop['techniques'])
+        area_filter = Q(areas__in=prop['areas'])
 
-        cycle_reviewers = cycle.reviewers.filter(areas_filter)
-        cycle_reviewers = cycle_reviewers.filter(techniques_filter)
-        cycle_reviewers = cycle_reviewers.distinct().annotate(
+        filters = tech_filter & area_filter
+        matched_reviewers = reviewers.filter(filters).annotate(
             num_reviews=Sum(
                 Case(
                     When(Q(user__reviews__cycle=cycle), then=Value(1)),
@@ -330,108 +419,60 @@ def assign_brute_force(cycle, track) -> tuple:
                     output_field=IntegerField()
                 )
             ),
-        )
-        prc_reviewers = cycle_reviewers.filter(committee=track)
-        matched_reviewers = cycle_reviewers.filter(num_reviews__lt=track.max_proposals)
+        ).filter(num_reviews__lt=max_workload).order_by().distinct()
 
-        candidates = [
-            rev.pk for rev in matched_reviewers.exclude(committee=track).all()
-            if check_conflict(rev.user, submission) == 0
+        conflicts = [
+            rev.pk for rev in matched_reviewers
+            if veto_conflict(prop, reviewers_info[rev.pk])
         ]
 
-        queryset = cycle.reviewers.filter(Q(pk__in=candidates)).order_by('?')
+        valid_reviewers = matched_reviewers.exclude(pk__in=conflicts).order_by('?')
+        print(submission.pk, valid_reviewers.count(), len(conflicts))
 
-        if queryset.count() > track.min_reviewers:
-            assignments[submission] |= set(queryset[:track.min_reviewers])
+        if valid_reviewers.count() > min_assignment:
+            assignments[submission] |= set(valid_reviewers[:min_assignment])
         else:
-            assignments[submission] |= set(queryset.all())
+            assignments[submission] |= set(valid_reviewers.all())
 
-        if not prc_reviewers.count():
-            continue
-        num_assigned += len(assignments[submission])
-        if track.max_proposals == 0:
-            assignments[submission] |= set(cycle.reviewers.filter(committee=track))
-        else:
-            prc_quota = (1 + submissions.count() // prc_reviewers.count())
-            prc_candidates = prc_reviewers.filter(num_reviews__lt=prc_quota)
-            prc = prc_candidates.order_by('?').first()
-            if prc:
-                assignments[submission].add(prc)
+    return assignments
+
+
+def assign_brute_force(cycle, track) -> tuple[dict, bool]:
+    """
+    Assign reviewers to proposals using brute force
+    :param cycle: Review Cycle
+    :param track: Review Track
+    :return: assignments dictionary mapping submission to a set of reviewers, boolean indicating success of assignment
+    """
+
+    submissions = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
+    reviewers = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).order_by('?').distinct()
+    assignments = optimize_brute_force(submissions, reviewers, cycle, track.min_reviewers, track.max_proposals)
+
+    committee = track.committee.order_by('?')
+    if committee.count():
+        committee_assignments = optimize_brute_force(submissions, committee, cycle, 1, 2 + submissions.count() // committee.count())
+        for submission, reviewers in committee_assignments.items():
+            assignments[submission] |= set(reviewers)
+
+    num_assigned = sum(len(revs) for revs in assignments.values())
 
     return assignments, num_assigned > 0
 
 
-def assign_reviewers(cycle, track):
+def assign_reviewers(cycle, track) -> tuple[dict, bool]:
+    """
+    Perform assignments according to settings options
+    :param cycle: Review Cycle
+    :param track: Review Track
+    :return:
+    """
     if USO_REVIEW_ASSIGNMENT == "CMACRA":
-        return assign_cmacra(cycle, track)
+        return assign_mip(cycle, track, 'CLP')
+    elif USO_REVIEW_ASSIGNMENT == "MIP":
+        return assign_mip(cycle, track, 'SCIP')
     else:
         return assign_brute_force(cycle, track)
-
-
-def _create_submissions(proposal):
-    from . import models
-    reqs = proposal.details['beamline_reqs']
-    cycle = models.ReviewCycle.objects.get(pk=proposal.details['first_cycle'])
-    effective_date = cycle.start_date
-
-    fcs = []
-    for req in reqs:
-        fc = models.FacilityConfig.objects.active(effective_date).filter(facility__pk=req.get('facility')).last()
-        if fc:
-            fcs.append((fc, fc.items.filter(technique__kind__pk__in=req.get('techniques', []))))
-    info = {
-        "requests": fcs,
-        "cycle": cycle,
-    }
-
-    cycle = info["cycle"]
-    tracks = defaultdict(list)
-    special_track = models.ReviewTrack.objects.get(special=True)
-
-    SPECIAL = ['maintenance', 'staff', 'staff-commissioning', 'beamteam',
-               'beamteam-commissioning', 'purchased', 'user-special', 'usr-commissioning']
-
-    for fc in info["requests"]:
-        if proposal.details.get('proposal_type', 'user') in SPECIAL:
-            tracks[special_track].append(fc[1].operating())
-        else:
-            track = models.ReviewTrack.objects.exclude(special=True).filter(
-                pk__in=fc[1].operating().values_list('technique__track', flat=True).distinct()
-            ).first()
-            if track:
-                tracks[track].append(fc[1].operating())
-        if fc[1].commissioning().count():
-            tracks[special_track].append(fc[1].commissioning())
-
-    # create a review for each technical review type for each requested beamline, if more than one
-    # technical review type is specified in USO_TECHNICAL_REVIEWS create them all
-    review_types = models.ReviewType.objects.technical()
-    to_create = []
-    for track, fcs in list(tracks.items()):
-        obj, created = models.Submission.objects.get_or_create(
-            proposal=proposal,
-            track=track,
-            cycle=cycle
-        )
-        items = [v for v in itertools.chain(*fcs)]
-        obj.techniques.add(*items)
-        obj.save()
-
-        acronyms = {i.config.facility.acronym for i in items}
-        to_create.extend(
-            [
-                models.Review(
-                    role=rev_type.role.format(acronym), proposal=obj, type=rev_type, form_type=rev_type.form_type
-                )
-                for acronym in acronyms for rev_type in review_types
-            ]
-        )
-
-    # create review objects for technical
-    models.Review.objects.bulk_create(to_create)
-
-    proposal.state = proposal.STATES.submitted
-    proposal.save()
 
 
 DECISIONS = Choices(
@@ -442,25 +483,7 @@ DECISIONS = Choices(
 )
 
 
-def combine_ethics_reviews(info, existing):
-    new_info = {}
-    new_info.update(existing)
-    sample = int(info['sample'])
-    decision = info['decision']
-    if 'decision' in existing:
-        decision = sorted([decision, existing.get('decision', 0)], key=lambda x: getattr(DECISIONS, x, 0))[-1]
-    new_info.update(sample=sample, decision=decision)
-
-    if info.get('expiry'):
-        expiry = datetime.strptime(info['expiry'], '%Y-%m-%d').date()
-        if existing.get('expiry'):
-            expiry = min(expiry, existing['expiry'])
-        new_info.update(expiry=expiry)
-
-    return new_info
-
-
-def _color_scale(val, lo=1, hi=5, max_saturation=180):
+def color_scale(val, lo=1, hi=5, max_saturation=180):
     if not isinstance(val, float):
         return ''
     n = int(min(255, max(0, (val - lo) * max_saturation // (hi - lo))))
@@ -469,14 +492,14 @@ def _color_scale(val, lo=1, hi=5, max_saturation=180):
 
 def score_format(val, obj=None):
     if val:
-        return mark_safe(f"<span style='font-weight: bold; color: {_color_scale(val, 1, 5)};'>{val:.2f}</span>")
+        return mark_safe(f"<span style='font-weight: bold; color: {color_scale(val, 1, 5)};'>{val:.2f}</span>")
     else:
         return mark_safe("&hellip;")
 
 
 def stdev_format(val, obj=None):
     if val:
-        return mark_safe(f"<span style='font-weight: bold; color: {_color_scale(val, 0.1, 3)};'>{val:.2f}</span>")
+        return mark_safe(f"<span style='font-weight: bold; color: {color_scale(val, 0.1, 3)};'>{val:.2f}</span>")
     else:
         return mark_safe("&hellip;")
 
@@ -484,7 +507,7 @@ def stdev_format(val, obj=None):
 def get_techniques_matrix(cycle=None, sel_techs=(), sel_fac=None):
     """Generate a dictionary mapping each technique to a list of available facilities and
     each facility to a list available techniques. Entries in the lists are tuples of the form
-    (primary_key, unicode label, bool selected). The selected field will be true if the primary key was passed in
+    (primary_key, Unicode label, bool selected). The selected field will be true if the primary key was passed in
     the sel_techs or sel_fac.
     """
     from proposals import models
@@ -509,7 +532,7 @@ def get_techniques_matrix(cycle=None, sel_techs=(), sel_fac=None):
         )
     ).order_by('name')
 
-    facs = models.Facility.objects.filter(pk__in=list(fac_techs.keys())).annotate(
+    facilities = models.Facility.objects.filter(pk__in=list(fac_techs.keys())).annotate(
         selected=Case(
             When(pk=sel_fac, then=Value(1)),
             default=Value(0), output_field=BooleanField()
@@ -522,7 +545,7 @@ def get_techniques_matrix(cycle=None, sel_techs=(), sel_fac=None):
         ],
         'facilities': [
             (f.pk, str(f), f.selected, fac_techs[f.pk])
-            for f in facs
+            for f in facilities
         ]
     }
     return matrix
