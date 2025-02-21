@@ -452,7 +452,7 @@ class ReviewerAssignmentForm(forms.ModelForm):
         tech_filter = Q(techniques__in=prop_info['techniques'])
         area_filter = Q(areas__in=prop_info['areas'])
 
-        reviewers = cycle.reviewers.filter(tech_filter, area_filter, Q(committee__isnull=True) | Q(committee=track))
+        reviewers = cycle.reviewers.filter(tech_filter, area_filter, Q(committee__isnull=True))
         reviewers = reviewers.distinct().annotate(
             num_reviews=Sum(
                 Case(
@@ -466,11 +466,14 @@ class ReviewerAssignmentForm(forms.ModelForm):
         if track.max_proposals > 0:
             reviewers = reviewers.exclude(num_reviews__gt=track.max_proposals)
 
-        conflicts = [
+        valid = [
             rev.pk for rev in reviewers.all()
-            if utils.veto_conflict(prop_info, utils.get_reviewer_info(rev))
+            if not utils.veto_conflict(prop_info, utils.get_reviewer_info(rev))
+        ] + [
+            rev.pk for rev in track.committee.all()
+            if not utils.veto_conflict(prop_info, utils.get_reviewer_info(rev))
         ]
-        reviewers = reviewers.exclude(pk__in=conflicts)
+        reviewers = models.Reviewer.objects.filter(Q(pk__in=valid)).order_by('committee')
 
         self.fields['reviewers'].queryset = reviewers.distinct()
         self.helper.title = 'Add Reviewers'
