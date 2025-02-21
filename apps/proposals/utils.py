@@ -549,3 +549,8 @@ def get_techniques_matrix(cycle=None, sel_techs=(), sel_fac=None):
         ]
     }
     return matrix
+
+
+def user_format(value, obj):
+    return str(obj.proposal.spokesperson)
+

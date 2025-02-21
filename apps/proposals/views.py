@@ -1071,7 +1071,7 @@ class EditReviewTrack(RolePermsViewMixin, edit.UpdateView):
 class SubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    list_columns = ['title', 'code', 'proposal__spokesperson__last_name', 'cycle', 'kind', 'facilities', 'state']
+    list_columns = ['title', 'code', 'spokesperson', 'cycle', 'kind', 'facilities', 'state']
     list_filters = ['created', 'state', 'track', 'kind', 'cycle']
     list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
     link_url = "submission-detail"
@@ -1092,13 +1092,19 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
 class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    list_columns = ['code', 'title', 'proposal__spokesperson__last_name', 'cycle', 'kind', 'facilities', 'state']
+    list_columns = ['code', 'title', 'spokesperson', 'cycle', 'kind', 'facilities', 'state']
     list_filters = ['created', 'state', 'track', 'kind', 'cycle']
     list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
     link_url = "submission-detail"
     order_by = ['-cycle_id']
     list_title = 'Proposal Submissions'
-    list_transforms = {'facilities': _fmt_beamlines, 'title': utils.truncated_title}
+    list_transforms = {
+        'facilities': _fmt_beamlines,
+        'title': utils.truncated_title,
+        'proposal__spokesperson': utils.user_format
+
+    }
+
     list_styles = {'title': 'col-xs-2'}
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
@@ -1113,7 +1119,9 @@ class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
         return allowed
 
     def get_queryset(self, *args, **kwargs):
-        self.queryset = models.Submission.objects.filter(techniques__config__facility=self.kwargs['pk'])
+        self.queryset = models.Submission.objects.filter(
+            techniques__config__facility=self.kwargs['pk']
+        ).order_by().distinct()
         return super().get_queryset(*args, **kwargs)
 
 

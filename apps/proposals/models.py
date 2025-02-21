@@ -195,7 +195,7 @@ class Submission(TimeStampedModel):
     comments = models.TextField(blank=True)
     objects = SubmissionManager()
 
-    @property
+    #@property
     def code(self):
         return f'{self.track.acronym}{self.proposal.pk:0>6}'
 
@@ -206,7 +206,7 @@ class Submission(TimeStampedModel):
 
     def __str__(self):
         return '{}~{}'.format(
-            self.code, self.proposal.spokesperson.last_name, )
+            self.code(), self.proposal.spokesperson.last_name, )
 
     def get_absolute_url(self):
         return reverse('submission-detail', kwargs={'pk': self.pk})
@@ -214,13 +214,19 @@ class Submission(TimeStampedModel):
     def title(self):
         return self.proposal.title
 
+    def spokesperson(self):
+        return self.proposal.spokesperson
+
     def siblings(self):
         return self.proposal.submissions.exclude(pk=self.pk)
 
     def facilities(self):
         return Facility.objects.filter(pk__in=self.techniques.values_list('config__facility', flat=True)).distinct()
 
+    code.sort_field = 'id'
+    title.sort_field = 'proposal__title'
     facilities.sort_field = 'techniques__config__facility__acronym'
+    spokesperson.sort_field = 'proposal__spokesperson__first_name'
 
     def close(self):
         comments = ""

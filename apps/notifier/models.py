@@ -115,6 +115,9 @@ class Notification(TimeStampedModel):
         subject = note_type.description
         return "{}: {}".format(subject, self.user if self.user else "; ".join(self.emails))
 
+    note_type.sort_field = 'kind'
+    to.sort_field = 'user__first_name'
+
 
 class MessageTemplateQueryset(models.QuerySet):
     def active(self):

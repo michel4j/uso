@@ -9,7 +9,7 @@ from functools import lru_cache
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -221,7 +221,6 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         last = '' if not self.last_name else f'{self.last_name}'
         first = '' if not first_name else f'{first_name} '
         return f'{first} {last}'
-    get_full_name.short_description = "Full Name"
 
     def get_name_variants(self):
         first_initials = name_initials(self.first_name)
@@ -247,6 +246,9 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
 
     def get_all_roles(self):
         return set(self.roles)
+
+    get_full_name.short_description = "Full Name"
+    get_full_name.sort_field = 'first_name'
 
 
 class Institution(DateSpanMixin, TimeStampedModel):
@@ -282,6 +284,7 @@ class Institution(DateSpanMixin, TimeStampedModel):
         return self.users.count()
 
     num_users.short_description = 'Users'
+    num_users.sort_field = 'users__id'
 
     def email_users(self):
         if self.domains:
