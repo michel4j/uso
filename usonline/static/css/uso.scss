@@ -187,9 +187,10 @@ body {
 pre {
 	font-family: $font-family_2;
 }
-body.modal-open {
+body.modal-open{
 	padding-right: 0 !important;
 }
+
 .h5 {
 	font-size: 16px;
 }
@@ -3605,7 +3606,7 @@ span.allocation-score {
 
 .techniques .label {
 	margin: 0.125em;
-	font-size: inherit;
+	font-size: 0.95em;
 	display: inline-block;
 	font-weight: normal;
 }

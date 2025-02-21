@@ -5,8 +5,8 @@
 {% block form_body %}
 <div class="tinytron techniques {% if conflict %} bg-danger {% else %} bg-success {% endif %}">
     <h4 style="margin:0;">
-        {%  if admin and reviewer.reviewer %}
-            <strong><a class="next-url" href="{% url 'edit-reviewer-profile' pk=reviewer.reviewer.pk %}">{{reviewer}}</a></strong>
+        {%  if admin %}
+            <strong><a class="next-url" href="{% url 'edit-reviewer-profile' pk=reviewer.pk %}">{{reviewer}}</a></strong>
         {% else %}
             <strong>{{reviewer}}</strong>
         {%  endif %}
@@ -15,14 +15,14 @@
         </span>
         {% if conflict %}<span class="pull-right label label-danger">Conflict</span>{% endif %}
     </h4>
-    <small class="text-muted">{{reviewer.institution}}</small>
-    {% for tech in reviewer.reviewer.techniques.all %}
+    <small class="text-muted">{{reviewer.user.institution}}</small>
+    {% for tech in reviewer.techniques.all %}
     {% if forloop.first %}
     <hr class="hr-xs"/>
     {% endif %}
     <span class="label {% if tech in compat_techniques %}label-primary{% else %}label-default{% endif %}">{{tech}}</span>
     {% endfor %}
-    {% for area in reviewer.reviewer.areas.all %}
+    {% for area in reviewer.areas.all %}
     {% if forloop.first %}
     <hr class="hr-xs"/>
     {% endif %}

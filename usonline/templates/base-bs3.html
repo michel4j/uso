@@ -58,12 +58,13 @@
     	</div>
     </main>
 
-    <div id="modal-form"></div>
+
     <div id="page-spinner"></div>
 	<div id="help-content" class="main-content removed"></div>
 {% endblock %}
 </div>
 {% include "messages.html" %}
+<div id="modal-form"></div>
 <!-- Bootstrap -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.4.1/jquery-migrate.js" integrity="sha512-aXhtv7JyykxclIxaskNvi+ccQ9tHYSw3JeKpY2xQ1OnqrczvNmYKkxzcXSdi8j+TVNsX4+ju8Jy2odH04GEg8w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chosen-js@1.8.7/chosen.jquery.min.js" integrity="sha256-c4gVE6fn+JRKMRvqjoDp+tlG4laudNYrXI1GncbfAYY=" crossorigin="anonymous"></script>
@@ -103,17 +104,19 @@ $(document).ready(function(){
 	});
 
     // Handle data-url and data-href
-    $(document).on('click', '[data-href]', function(){
-        var sel = getSelection().toString();
+    $(document).on('click', '[data-href]', function(e){
+        let sel = getSelection().toString();
         if(!sel) {
             window.document.location = $(this).data("href");
         }
+        e.preventDefault();
     });
-    $(document).on('click', '[data-url]', function(){
-        var sel = getSelection().toString();
+    $(document).on('click', '[data-url]', function(e){
+        let sel = getSelection().toString();
         if(!sel) {
             $('#modal-form').load($(this).data('url'));
         }
+        e.preventDefault();
     });
 
 	//Display help information in a footer
