@@ -1,6 +1,4 @@
-import functools
-import itertools
-import operator
+
 from collections import defaultdict
 from datetime import date, timedelta, datetime
 from typing import Literal
@@ -9,7 +7,6 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField
 from django.utils.safestring import mark_safe
-from fuzzywuzzy import fuzz
 from model_utils import Choices
 
 OPEN_WEEKDAY = 2  # Day of week to open call (2 = Wednesday)
@@ -349,43 +346,46 @@ def mip_optimize(proposals, reviewers, min_assignment=1, max_workload=4, committ
     return assignments, solver, status
 
 
-def assign_mip(cycle, track, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tuple[dict, bool]:
+def assign_mip(cycle, stage, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tuple[dict, bool]:
     """
     Assign reviewers to proposals using linear/constrained optimization
     :param cycle: Review Cycle
-    :param track: Review Track
+    :param stage: Review Stage
     :param method: one of 'SCIP', 'CLP', 'GLOP'
     :return: assignments dictionary mapping submission to a set of reviewers, boolean indicating success of assignment
     """
-
+    track = stage.track
     reviewers = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).distinct()
-    committee = track.committee.all()
-    submissions = cycle.submissions.filter(track=track).order_by('pk').distinct()
+    committee = track.committee.order_by('?').all()
+    proposals = cycle.submissions.filter(track=track).order_by('?').distinct()
     results = {}
-    max_proposals = track.max_proposals
-    paginator = Paginator(submissions, 100)
+    max_workload = track.max_workload
+
     success = []
-    for page in paginator.page_range:
-        proposals = paginator.page(page).object_list
-        prop_results, solver, status = mip_optimize(proposals, reviewers, track.min_reviewers, max_proposals)
-        print(f'External Reviewers:  Page {page} of {paginator.num_pages}')
-        print(f"Objective : {solver.Objective().Value()}")
-        print(f"Duration  : {solver.WallTime():0.2f} ms")
-        print(f"Status    : {status}")
-        success.append(status in {solver.OPTIMAL, solver.FEASIBLE})
 
-        com_max = 2 + proposals.count() // max(1, committee.count())
-        com_results, solver, status = mip_optimize(proposals, committee, 1, com_max, committee=True)
-        print(f'Committee Members:  Page {page} of {paginator.num_pages}')
-        print(f"Objective : {solver.Objective().Value()}")
-        print(f"Duration  : {solver.WallTime():0.2f} ms")
-        print(f"Status    : {status}")
-        success.append(status in {solver.OPTIMAL, solver.FEASIBLE})
+    prop_results, solver, status = mip_optimize(
+        proposals, reviewers, stage.min_reviews, max_workload, method=method
+    )
+    print('External Reviewers:')
+    print(f"Objective : {solver.Objective().Value()}")
+    print(f"Duration  : {solver.WallTime():0.2f} ms")
+    print(f"Status    : {status}")
+    success.append(status in {solver.OPTIMAL, solver.FEASIBLE})
 
-        for prop, revs in com_results.items():
-            prop_results[prop] |= set(revs)
+    com_max = 2 + proposals.count() // max(1, committee.count())
+    com_results, solver, status = mip_optimize(
+        proposals, committee, track.min_reviewers, com_max, committee=True, method=method
+    )
+    print('Committee Members:')
+    print(f"Objective : {solver.Objective().Value()}")
+    print(f"Duration  : {solver.WallTime():0.2f} ms")
+    print(f"Status    : {status}")
+    success.append(status in {solver.OPTIMAL, solver.FEASIBLE})
 
-        results.update(prop_results)
+    for prop, revs in com_results.items():
+        prop_results[prop] |= set(revs)
+
+    results.update(prop_results)
 
     return results, any(success)
 
@@ -437,17 +437,17 @@ def optimize_brute_force(submissions, reviewers, cycle, min_assignment=1, max_wo
     return assignments
 
 
-def assign_brute_force(cycle, track) -> tuple[dict, bool]:
+def assign_brute_force(cycle, stage) -> tuple[dict, bool]:
     """
     Assign reviewers to proposals using brute force
     :param cycle: Review Cycle
-    :param track: Review Track
+    :param stage: Review stage
     :return: assignments dictionary mapping submission to a set of reviewers, boolean indicating success of assignment
     """
-
+    track = stage.track
     submissions = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
     reviewers = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).order_by('?').distinct()
-    assignments = optimize_brute_force(submissions, reviewers, cycle, track.min_reviewers, track.max_proposals)
+    assignments = optimize_brute_force(submissions, reviewers, cycle, stage.min_reviews, track.max_workload)
 
     committee = track.committee.order_by('?')
     if committee.count():
@@ -460,19 +460,19 @@ def assign_brute_force(cycle, track) -> tuple[dict, bool]:
     return assignments, num_assigned > 0
 
 
-def assign_reviewers(cycle, track) -> tuple[dict, bool]:
+def assign_reviewers(cycle, stage) -> tuple[dict, bool]:
     """
     Perform assignments according to settings options
     :param cycle: Review Cycle
-    :param track: Review Track
+    :param stage: Review Stage
     :return:
     """
     if USO_REVIEW_ASSIGNMENT == "CMACRA":
-        return assign_mip(cycle, track, 'CLP')
+        return assign_mip(cycle, stage, 'CLP')
     elif USO_REVIEW_ASSIGNMENT == "MIP":
-        return assign_mip(cycle, track, 'SCIP')
+        return assign_mip(cycle, stage, 'SCIP')
     else:
-        return assign_brute_force(cycle, track)
+        return assign_brute_force(cycle, stage)
 
 
 DECISIONS = Choices(
@@ -483,7 +483,7 @@ DECISIONS = Choices(
 )
 
 
-def color_scale(val, lo=1, hi=5, max_saturation=180):
+def scale_color(val, lo=1, hi=5, max_saturation=180):
     if not isinstance(val, float):
         return ''
     n = int(min(255, max(0, (val - lo) * max_saturation // (hi - lo))))
@@ -492,14 +492,14 @@ def color_scale(val, lo=1, hi=5, max_saturation=180):
 
 def score_format(val, obj=None):
     if val:
-        return mark_safe(f"<span style='font-weight: bold; color: {color_scale(val, 1, 5)};'>{val:.2f}</span>")
+        return mark_safe(f"<span style='font-weight: bold; color: {scale_color(val, 1, 5)};'>{val:.2f}</span>")
     else:
         return mark_safe("&hellip;")
 
 
 def stdev_format(val, obj=None):
     if val:
-        return mark_safe(f"<span style='font-weight: bold; color: {color_scale(val, 0.1, 3)};'>{val:.2f}</span>")
+        return mark_safe(f"<span style='font-weight: bold; color: {scale_color(val, 0.1, 3)};'>{val:.2f}</span>")
     else:
         return mark_safe("&hellip;")
 

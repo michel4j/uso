@@ -1,0 +1,11 @@
+<div class="stat-card {{ style }}">
+   <div class="header">{{ header }}</div>
+   <div class="info">
+      <p>{{ description }}</p>
+       {% if url %}
+        <a href="{{ url }}" class="value">{{ value }}<span class="unit">{{ units }}</span></a>
+       {% else %}
+        <p class="value">{{ value }}<span class="unit">{{ units }}</span></p>
+       {% endif %}
+   </div>
+</div>

@@ -50,7 +50,9 @@
 {% block form_js %}
     <script type="text/javascript">
         function initModal() {
-            var myForm = $('#modalForm');
+            let myForm = $('#modalForm');
+            let form_container = $('#modal-form');
+
             myForm.find(".chosen").chosen({
                 placeholder_text_single: "Select an option",
                 search_contains: true,
@@ -140,7 +142,8 @@
 
             // Empty modal on close
             myForm.on('hidden.bs.modal', function() {
-                //myForm.empty();
+                form_container.empty();
+                $(".modal-backdrop").remove();
             });
             // load custom init
             initForm();

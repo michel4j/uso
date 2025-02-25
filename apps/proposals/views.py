@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.encoding import force_str
@@ -288,8 +288,6 @@ class SubmitProposal(RolePermsViewMixin, ConfirmDetailView):
         cycle = info["cycle"]
 
         # create submissions and technical reviews
-        review_types = ReviewType.objects.technical()
-
         to_create = []
         for track, items in list(info['requests'].items()):
             obj = models.Submission.objects.create(
@@ -305,18 +303,31 @@ class SubmitProposal(RolePermsViewMixin, ConfirmDetailView):
             obj.save()
             due_date = min(cycle.due_date, timezone.now().date() + timedelta(weeks=2))
 
-            # create review objects for each technical review type, for each facility
-            to_create.extend(
-                [
-                    models.Review(
-                        role=review_type.role.format(acronym), cycle=cycle, reference=obj, type=review_type,
-                        form_type=review_type.form_type, state=models.Review.STATES.open,
-                        due_date=due_date, details={'requirements': {'facility': facility.pk, 'tags': []}}
+            # create review objects for the first stage of each review track
+            stage = track.stages.first()
+            if stage:
+                review_type = stage.kind
+                if review_type.per_facility:
+                    # create one review for each facility
+                    to_create.extend(
+                        [
+                            models.Review(
+                                role=review_type.role.format(acronym), cycle=cycle, reference=obj, type=review_type,
+                                form_type=review_type.form_type, state=models.Review.STATES.open,
+                                due_date=due_date, details={'facility': facility.pk}
+                            )
+                            for acronym, facility in technical_info
+                        ]
                     )
-                    for acronym, facility in technical_info
-                    for review_type in review_types
-                ]
-            )
+                else:
+                    # create one for the whole proposal
+                    to_create.append(
+                        models.Review(
+                            role=review_type.role, cycle=cycle, reference=obj, type=review_type,
+                            form_type=review_type.form_type, state=models.Review.STATES.open,
+                            due_date=due_date
+                        )
+                    )
 
         # create review objects for technical
         models.Review.objects.bulk_create(to_create)
@@ -509,7 +520,7 @@ class ReviewList(RolePermsViewMixin, ItemListView):
     queryset = models.Review.objects.all()
     template_name = "item-list.html"
     paginate_by = 25
-    list_columns = ['type', 'title', 'role', 'reviewer', 'state', 'due_date']
+    list_columns = ['type', 'title', 'stage', 'role', 'reviewer', 'state', 'due_date']
     list_filters = ['created', 'modified', CycleFilterFactory.new('cycle'),
                     filters.FutureDateListFilterFactory.new('due_date'), 'state', 'type']
 
@@ -606,8 +617,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         if not allowed:
             obj = self.get_object()
             allowed = (
-                    obj.state != models.Review.STATES.closed and (
-                    obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
+                obj.state != models.Review.STATES.closed and (
+                obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
             )
         return allowed
 
@@ -636,7 +647,9 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             self.success_url = self.object.reference.get_absolute_url()
             self.object.state = models.Review.STATES.submitted
             data['state'] = models.Review.STATES.submitted
+
         self.queryset.filter(pk=self.object.pk).update(**data)
+        self.object.reference.update_state()
         messages.success(self.request, message)
         ActivityLog.objects.log(self.request, self.object, kind=activity_type, description=activity_description)
 
@@ -814,7 +827,7 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
 
 class ReviewDetail(RolePermsViewMixin, detail.DetailView):
     model = models.Review
-    template_name = "proposals/review_detail.html"
+    template_name = "proposals/review-detail.html"
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
 
@@ -834,7 +847,7 @@ def accumulate(iterator):
 
 
 class ReviewCycleDetail(RolePermsViewMixin, detail.DetailView):
-    template_name = "proposals/cycle_detail.html"
+    template_name = "proposals/cycle-detail.html"
     model = models.ReviewCycle
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES + USO_MANAGER_ROLES
@@ -857,7 +870,7 @@ class EditConfig(RolePermsViewMixin, edit.UpdateView):
 
     def check_allowed(self):
         config = self.get_object()
-        return (super().check_allowed() or config.facility.is_admin(self.request.user))
+        return super().check_allowed() or config.facility.is_admin(self.request.user)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1061,11 +1074,60 @@ class EditReviewTrack(RolePermsViewMixin, edit.UpdateView):
         models.ReviewTrack.objects.filter(pk=obj.pk).update(**data)
         obj.committee.clear()
         obj.committee.add(*committee)
-        return JsonResponse(
-            {
-                "url": ""
-            }
-        )
+        return JsonResponse({"url": ""})
+
+
+class AddReviewStage(RolePermsViewMixin, edit.CreateView):
+    form_class = forms.ReviewStageForm
+    template_name = "forms/modal.html"
+    model = models.ReviewStage
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        track = models.ReviewTrack.objects.get(acronym=self.kwargs['track'])
+        initial.update(track=track, position=(track.stages.count() + 1))
+        return initial
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        models.ReviewStage.objects.create(**data)
+        return JsonResponse({"url": ""})
+
+
+class EditReviewStage(RolePermsViewMixin, edit.UpdateView):
+    form_class = forms.ReviewStageForm
+    template_name = "forms/modal.html"
+    model = models.ReviewStage
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        models.ReviewStage.objects.filter(pk=self.object.pk).update(**data)
+        return JsonResponse({"url": ""})
+
+
+class DeleteReviewStage(RolePermsViewMixin, ConfirmDetailView):
+    model = models.ReviewStage
+    template_name = "forms/delete.html"
+    allowed_roles = USO_ADMIN_ROLES
+
+    def confirmed(self, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return JsonResponse({"url": ""})
 
 
 class SubmissionList(RolePermsViewMixin, ItemListView):
@@ -1114,14 +1176,18 @@ class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
 
     def check_allowed(self):
         from beamlines.models import Facility
-        self.facility = Facility.objects.get(pk=self.kwargs['pk'])
+        self.facility = Facility.objects.get(acronym=self.kwargs['fac'])
         allowed = (super().check_allowed() or self.facility.is_staff(self.request.user))
         return allowed
 
     def get_queryset(self, *args, **kwargs):
-        self.queryset = models.Submission.objects.filter(
-            techniques__config__facility=self.kwargs['pk']
+        queryset = models.Submission.objects.all()
+        if self.kwargs.get('cycle'):
+            queryset = queryset.filter(cycle=self.kwargs['cycle'])
+        queryset = models.Submission.objects.filter(
+            techniques__config__facility__acronym=self.kwargs['fac']
         ).order_by().distinct()
+        self.queryset = queryset
         return super().get_queryset(*args, **kwargs)
 
 
@@ -1181,7 +1247,7 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
 
 
 class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
-    template_name = "proposals/submission_detail.html"
+    template_name = "proposals/submission-detail.html"
     model = models.Submission
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
@@ -1266,6 +1332,14 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
         return context
 
 
+class ReviewTrackList(RolePermsViewMixin, ItemListView):
+    template_name = "item-list.html"
+    model = models.ReviewTrack
+    list_columns = ['acronym', 'name', 'description', 'duration']
+    list_filters = ['created', 'modified', 'require_call']
+    list_search = ['acronym', 'name', 'committee__last_name', 'description']
+
+
 class ReviewerList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     model = models.Reviewer
@@ -1306,48 +1380,43 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
 
     def get_success_url(self):
         cycle = self.get_object()
-        track = models.ReviewTrack.objects.get(pk=self.kwargs.get('track'))
-        return reverse('assigned-reviewers', kwargs={'cycle': cycle.pk, 'track': track.pk})
+        stage = models.ReviewStage.objects.get(pk=self.kwargs.get('stage'))
+        return reverse('assigned-reviewers', kwargs={'cycle': cycle.pk, 'stage': stage.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cycle = models.ReviewCycle.objects.get(pk=self.kwargs.get('pk'))
-        track = models.ReviewTrack.objects.get(pk=self.kwargs.get('track'))
+        stage = models.ReviewStage.objects.get(pk=self.kwargs.get('stage'))
         context['cycle'] = cycle
-        context['track'] = track
+        context['stage'] = stage
         return context
 
     def confirmed(self, *args, **kwargs):
         cycle = models.ReviewCycle.objects.filter(state=models.ReviewCycle.STATES.assign).get(pk=self.kwargs.get('pk'))
-        track = models.ReviewTrack.objects.get(pk=self.kwargs.get('track'))
+        stage = models.ReviewStage.objects.get(pk=self.kwargs.get('stage'))
 
         # assign reviewers and prc members
-        assignment, success = utils.assign_reviewers(cycle, track)
+        assignment, success = utils.assign_reviewers(cycle, stage)
 
         if success:
-            # remove all currently assigned pending scientific reviews
-            to_delete = track.submissions.filter(cycle=cycle).filter(
-                reviews__state=models.Review.STATES.pending, reviews__type__code__in=USO_SCIENCE_REVIEWS
-            ).distinct().values_list('reviews', flat=True)
-            models.Review.objects.filter(pk__in=to_delete).delete()
-
-            review_types = ReviewType.objects.scientific()
+            # remove all currently assigned pending reviews for this stage
+            stage.reviews.all().delete()
             to_create = []
-            for review_type in review_types:
-                for submission, reviewers in assignment.items():
-                    to_create.extend(
-                        [
-                            models.Review(
-                                reviewer=u.user, reference=submission, type=review_type, cycle=submission.cycle,
-                                form_type=review_type.form_type, due_date=cycle.due_date
-                            ) for u in reviewers
-                        ]
-                    )
-                break  # only one type of review for now
+
+            for submission, reviewers in assignment.items():
+                to_create.extend(
+                    [
+                        models.Review(
+                            reviewer=u.user, reference=submission, type=stage.kind, cycle=submission.cycle,
+                            form_type=stage.kind.form_type, due_date=cycle.due_date, stage=stage
+                        ) for u in reviewers
+                    ]
+                )
+
             messages.success(self.request, 'Reviewer assignment successful')
             models.Review.objects.bulk_create(to_create)
             ActivityLog.objects.log(
-                self.request, track, kind=ActivityLog.TYPES.task, description='Reviewers Assigned'
+                self.request, stage, kind=ActivityLog.TYPES.task, description='Reviewers Assigned'
             )
         else:
             messages.error(self.request, 'No feasible reviewer assignment was found')
@@ -1356,7 +1425,7 @@ class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
 
 class ReviewCompatibility(RolePermsViewMixin, detail.DetailView):
     model = models.Review
-    template_name = "proposals/review_compat.html"
+    template_name = "proposals/review-compat.html"
     admin_roles = USO_ADMIN_ROLES
 
     def get_context_data(self, **kwargs):
@@ -1382,7 +1451,7 @@ class ReviewCompatibility(RolePermsViewMixin, detail.DetailView):
 class AssignedSubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "proposals/assignment-list.html"
-    paginate_by = 10
+    paginate_by = 5
     list_columns = ['proposal', 'cycle', 'track', 'state']
     list_filters = ['created', 'state', 'track', 'cycle']
     list_search = ['proposal__title', 'proposal__id', 'proposal__team', 'proposal__keywords',
@@ -1394,10 +1463,16 @@ class AssignedSubmissionList(RolePermsViewMixin, ItemListView):
     allowed_roles = USO_ADMIN_ROLES
 
     def get_queryset(self, *args, **kwargs):
-        track = models.ReviewTrack.objects.get(pk=self.kwargs['track'])
-        cycle = models.ReviewCycle.objects.get(pk=self.kwargs['cycle'])
-        self.queryset = cycle.submissions.filter(track=track).all()
+        self.stage = models.ReviewStage.objects.get(pk=self.kwargs['stage'])
+        self.cycle = models.ReviewCycle.objects.get(pk=self.kwargs['cycle'])
+        self.queryset = self.cycle.submissions.filter(track=self.stage.track).all()
         return super().get_queryset(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cycle'] = self.cycle
+        context['stage'] = self.stage
+        return context
 
 
 class ReviewerAssignments(RolePermsViewMixin, ItemListView):
@@ -1427,13 +1502,19 @@ class ReviewerAssignments(RolePermsViewMixin, ItemListView):
         self.queryset = self.reviewer.committee_proposals(self.cycle)
         return super().get_queryset(*args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cycle'] = self.cycle
+        context['reviewer'] = self.reviewer
+        return context
+
     def get_list_title(self):
         return '{} ~ {}'.format(self.reviewer.user, self.cycle)
 
 
 class PRCAssignments(RolePermsViewMixin, ItemListView):
     model = models.Submission
-    template_name = "proposals/assignment-list.html"
+    template_name = "item-list.html"
     paginate_by = 20
     list_columns = ['proposal', 'cycle', 'track', 'state']
     list_filters = ['created', 'state', 'track', 'cycle']
@@ -1442,7 +1523,7 @@ class PRCAssignments(RolePermsViewMixin, ItemListView):
     link_url = "submission-detail"
     list_styles = {'proposal': 'col-xs-6'}
     order_by = ['-cycle__start_date', '-created']
-    list_title = 'Reviewer Assignments'
+    list_title = 'Committee Assignments'
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
@@ -1453,9 +1534,12 @@ class PRCAssignments(RolePermsViewMixin, ItemListView):
         return allowed
 
     def get_queryset(self, *args, **kwargs):
-        self.reviewer = models.Reviewer.objects.get(pk=self.request.user.reviewer.pk)
-        self.cycle = models.ReviewCycle.objects.next()
-        self.queryset = self.reviewer.committee_proposals(self.cycle)
+        reviewer = models.Reviewer.objects.filter(user=self.request.user).first()
+        if not reviewer:
+            self.queryset = self.model.objects.none()
+        else:
+            cycle = models.ReviewCycle.objects.next()
+            self.queryset = reviewer.committee_proposals(cycle)
         return super().get_queryset(*args, **kwargs)
 
 
@@ -1517,17 +1601,17 @@ class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
 
     def form_valid(self, form):
         data = form.cleaned_data
+        stage = models.ReviewStage.objects.get(pk=self.kwargs['stage'])
         if data['reviewers'].filter(committee__isnull=False).exists():
-            self.object.reviews.filter(reviewer__reviewer__committee__isnull=False).delete()
+            self.object.reviews.filter(stage=stage, reviewer__reviewer__committee__isnull=False).delete()
             messages.success(self.request, "Committee members were swapped.")
 
-        review_type = ReviewType.objects.scientific().first()
-        if review_type:
+        if stage.kind:
             to_add = [
                 models.Review(
                     reviewer=rev.user, cycle=self.object.cycle, reference=self.object,
-                    due_date=self.object.cycle.due_date,
-                    type=review_type, state=models.Review.STATES.pending, form_type=review_type.form_type
+                    due_date=self.object.cycle.due_date, stage=stage,
+                    type=stage.kind, state=models.Review.STATES.pending, form_type=stage.kind.form_type
                 ) for rev in data['reviewers']
             ]
             models.Review.objects.bulk_create(to_add)

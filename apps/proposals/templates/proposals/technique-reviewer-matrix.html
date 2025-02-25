@@ -1,0 +1,26 @@
+{% if cycle.state == cycle.STATES.assign  and techniques %}
+    <div class="col-xs-12">
+        <small class="text-muted">
+            Submissions and eligible reviewers by Technique &emsp;
+            <i class="bi-circle-fill text-info-light"></i>&nbsp;Submissions &emsp;
+            <i class="bi-circle-fill text-danger-light"></i>&nbsp;Reviewers
+        </small>
+        <hr class="hr-xs"/>
+    </div>
+    {% for tech, counts in techniques.items %}
+        <div class="col-xs-12 col-sm-6 col-md-4 text-condensed">
+            <div class="row narrow-gutter">
+                <div class="col-xs-10">
+                    <span class="overflow ellipsis">{{ tech }}</span>
+                </div>
+                <div class="col-xs-1 text-center text-info-light" style="border-right: 1px solid rgba(0,0,0,0.25);">
+                    {{ counts.submissions }}
+                </div>
+                <div class="col-xs-1 text-center text-danger-light">
+                    {{ counts.reviewers }}
+                </div>
+            </div>
+            <div style="border-bottom: 1px dotted rgba(0,0,0,0.15);"></div>
+        </div>
+    {% endfor %}
+{% endif %}

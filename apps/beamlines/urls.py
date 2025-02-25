@@ -7,6 +7,7 @@ urlpatterns = [
     path('facilities/map/', views.BeamlineList.as_view(template_name="beamlines/selector.html"), name='beamline-map'),
     path('facilities/new/', views.CreateFacility.as_view(), name='create-beamline'),
     path('facilities/<int:pk>/', views.BeamlineDetail.as_view(), name='facility-detail'),
+    path('facilities/<slug:fac>/', views.BeamlineDetail.as_view(), name='facility-detail'),
     path('facilities/<int:pk>/edit/', views.EditFacility.as_view(), name='edit-beamline'),
     path('facilities/<int:fac>/support/<int:pk>/', views.ScheduleSupport.as_view(), name="schedule-support"),
     path(

@@ -1,5 +1,5 @@
 from django import template
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Avg, StdDev, F
 from datetime import datetime, timedelta
 from calendar import timegm
 from django.utils.translation import gettext as _
@@ -34,15 +34,19 @@ def state_display(state):
     return models.ReviewCycle.STATES[state]
 
 
-@register.inclusion_tag('proposals/cycle_track.html', takes_context=True)
-def show_track(context, track, info):
+@register.filter(name="for_stage")
+def for_stage(queryset, stage):
+    return queryset.filter(stage=stage).order_by('reviewer__reviewer__committee')
+
+
+@register.inclusion_tag('proposals/cycle-track.html', takes_context=True)
+def show_track(context, track):
     return {
         'admin': context.get('admin'),
         'owner': context.get('owner'),
         'cycle': context.get('object'),
         'cycle_state': context.get('cycle_state'),
         'track': track,
-        'info': info,
     }
 
 
@@ -73,49 +77,64 @@ def facility_acronyms(beamlines):
     return ", ".join(beamlines.values_list('acronym', flat=True))
 
 
-@register.inclusion_tag('proposals/track_submissions.html', takes_context=True)
+@register.inclusion_tag('proposals/track-submissions.html', takes_context=True)
 def show_submissions(context, cycle, track):
     submissions = cycle.submissions.filter(track=track)
     reviewers = cycle.reviewers.exclude(
         Q(techniques__isnull=True) | Q(areas__isnull=True)
     )
-    fac_ids = set(
-        models.FacilityConfig.objects.active(d=cycle.start_date).accepting().filter(
-            items__track=track).values_list('facility', flat=True).distinct()
-    )
-    if track.special:
-        fac_ids |= set(
-            cycle.submissions.filter(track=track).values_list('techniques__config__facility', flat=True).distinct()
-        )
-    facs = models.Facility.objects.filter(pk__in=fac_ids)
-    facilities = {
-        fac: submissions.filter(techniques__config__facility=fac, track=track).distinct().count()
-        for fac in facs
-    }
+    facilities = cycle.submissions.filter(track=track).annotate(
+        facility=F('techniques__config__facility__acronym')
+    ).values('facility').annotate(count=Count('id', distinct=True))
     techs = cycle.techniques().filter(items__track=track).distinct()
-    techniques = {
-        tech: {
-            'submissions': submissions.filter(techniques__technique=tech).distinct().count(),
-            'reviewers': tech.reviewers.filter(cycles=cycle).distinct().count(),
-        }
-        for tech in techs
-    }
+
     info = {
         'admin': context.get('admin'),
         'owner': context.get('owner'),
         'facilities': facilities,
-        'techniques': techniques,
         'cycle': cycle,
         'track': track,
         'total_submissions': submissions.count(),
-        'total_facilities': facs.count(),
+        'total_facilities': facilities.count(),
         'total_techniques': techs.count(),
         'total_reviewers': reviewers.count(),
     }
     return info
 
 
-@register.inclusion_tag('proposals/track_reviews.html', takes_context=True)
+@register.inclusion_tag('proposals/technique-reviewer-matrix.html', takes_context=True)
+def technique_matrix(context, cycle, track):
+    techs = models.Technique.objects.filter(
+        items__track=track, items__submissions__cycle=cycle
+    ).annotate(
+        num_proposals=Count('items__submissions', distinct=True),
+        num_reviewers=Count('reviewers', distinct=True)
+    ).values('name', 'acronym', 'num_proposals', 'num_reviewers')
+    techniques = {
+        f'{t["name"]} ({t["acronym"]})': {
+            'submissions': t['num_proposals'],
+            'reviewers': t['num_reviewers'],
+        } for t in techs
+    }
+    # techs = cycle.techniques().filter(items__track=track).distinct()
+    # techniques = {
+    #     tech: {
+    #         'submissions': submissions.filter(techniques__technique=tech).distinct().count(),
+    #         'reviewers': tech.reviewers.filter(cycles=cycle).distinct().count(),
+    #     }
+    #     for tech in techs
+    # }
+    info = {
+        'admin': context.get('admin'),
+        'owner': context.get('owner'),
+        'techniques': techniques,
+        'cycle': cycle,
+        'track': track,
+    }
+    return info
+
+
+@register.inclusion_tag('proposals/track-reviews.html', takes_context=True)
 def show_track_reviews(context, cycle, track):
     submissions = models.Submission.objects.filter(cycle=cycle, track=track)
     reviews = models.Review.objects.filter(pk__in=submissions.values_list('reviews', flat=True))
@@ -289,3 +308,19 @@ def cycle_comments(cycle):
         start_duration=timesince.timeuntil(cycle.start_date),
         open_duration=timesince.timeuntil(cycle.open_date))
     return mark_safe(out)
+
+
+@register.inclusion_tag('misc/stat-card.html')
+def stage_stats(stage, cycle):
+    stats = stage.reviews.filter(cycle=cycle).aggregate(
+        avg_score=Avg('score'),
+        std_dev=StdDev('score'),
+        total=Count('id'),
+        completed=Count('id', filter=Q(state=models.Review.STATES.submitted)),
+    )
+    percentage = 100 * stats['completed'] / max(1, stats['total'])
+    return {
+        'description': mark_safe(f"{stage.kind}: {stats['completed']}&nbsp;/&nbsp;{stats['total']} completed"),
+        'value': f"{percentage:0.1f}",
+        'units': "%",
+    }

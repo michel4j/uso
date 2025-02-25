@@ -1,30 +1,22 @@
-{% extends "item-list.html" %}
+{% extends "tooled-item-list.html" %}
 {% load static %}
 
-
-{% block folio-content %}
-    <div class="pad-wrapper">
-        <div class="row">
-            <div class="list-tools">
-                <span>
-                {% include "itemlist/filters.html" %}
-                </span>
-            </div>
-        </div>
-        <div class="row">
-            {% for object in object_list %}
-                <div class="grid-cell col-xs-12">
-                   {% include "proposals/assigned-grid.html" %}
-                </div>
-            {% endfor %}
-
-        </div>
-            <div class="row">
-            <div class="col-xs-12">
-                {% include "itemlist/pagination.html" %}
-            </div>
-        </div>
-    </div>
+{% block list-tools %}
+    {% if stage and cycle.state == cycle.STATES.assign and stage.kind.is_scientific %}
+        <a href="#0" data-url='{% url "assign-reviewers" pk=cycle.pk stage=stage.pk %}'
+           class="pull-right">
+            <i class="bi-diagram-3 icon-2 icon-fw"></i><br/>
+            <span class="tool-label">Auto&nbsp;Assign</span>
+        </a>
+    {% endif %}
 {% endblock %}
+{% block list-content %}
+    {% for object in object_list %}
+        <div class="grid-cell col-xs-12">
+           {% include "proposals/assigned-grid.html" %}
+        </div>
+    {% endfor %}
+{% endblock %}
+
 
 

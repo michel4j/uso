@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from proposals import models
-from proposals.utils import color_scale, get_techniques_matrix
+from proposals.utils import scale_color, get_techniques_matrix
 from django.conf import settings
 from users.models import User
 from ..models import Proposal, Review
@@ -362,7 +362,7 @@ def get_technique(pk):
 
 @register.filter(name="color_scale")
 def color_scale(val):
-    return color_scale(val)
+    return scale_color(val)
 
 
 @register.simple_tag(takes_context=True)

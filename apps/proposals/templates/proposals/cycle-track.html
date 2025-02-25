@@ -1,0 +1,67 @@
+{% load cycle_tags %}
+{% load misc %}
+<div class="pagelet bg-{{track.acronym.lower}}" style="min-height: 320px; margin-bottom: 1px; padding-top: 1em;">
+
+<div class="pagelet-body">
+    <div class="col-xs-12">
+        {% if admin %}
+        <span class="box-tools pull-right">
+             <a href="#0" data-url="{% url 'edit-review-track' pk=track.pk %}"
+                class="pull-right ">
+                <i class="bi-sliders2 icon-2 icon-fw"></i><br/>
+                <span class="tool-label">Parameters</span>
+            </a>
+            {%  if cycle.state >= cycle.STATES.review  %}
+            <a href='{% url "review-evaluation" cycle=cycle.pk track=track.acronym %}'
+               class="pull-right">
+                <i class="bi-clipboard icon-2 icon-fw"></i><br/>
+                <span class="tool-label">Evaluate</span>
+            </a>
+            {%  endif %}
+            <a href='{% url "submission-list" %}?cycle__id__exact={{cycle.pk}}&track__id__exact={{track.pk}}'
+               class="pull-right">
+                <i class="bi-journal-medical icon-2 icon-fw"></i><br/>
+                <span class="tool-label">Submissions</span>
+            </a>
+        </span>
+        {% endif %}
+        <h3 style="margin: 0.35em 0;"><strong>{{track.acronym}}</strong> <span class="hidden-xs">&mdash; {{track.name}}</span></h3>
+    </div>
+    <div class="col-xs-12 col-sm-12">
+        <hr class="hr-xs"/>
+        {% show_submissions cycle track %}
+    </div>
+    <div class="col-xs-12">
+        <div class="track-stages bg-darken">
+            {% for stage in track.stages.all %}
+                <div class="track-stage">
+                    <div class="track-stage-title">
+                        <a href="#/" data-url="{% url 'edit-review-stage' track=track.acronym pk=stage.pk %}"
+                           title="{{ stage.kind }}">
+                            <i class="bi-{{ stage.position }}-square icon-lg"></i>
+                            <span class="hidden-xs">&nbsp;{{ stage.kind }}</span>
+                        </a>
+                        <a href='{% url "assigned-reviewers" cycle=cycle.pk stage=stage.pk %}' title="Assignments">
+                            <i class="bi-people icon-2 icon-fw"></i><br/>
+                        </a>
+                    </div>
+                    <div class="track-stage-body">
+                        {% stage_stats stage cycle %}
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="track-stage">
+                <div class="track-stage-body">
+                    <a href="#/" data-url="{% url 'add-review-stage' track=track.acronym %}"
+                       title="Add Review Stage"><i class="bi-plus-lg icon-2 icon-fw"></i> Add Review Stage
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% technique_matrix cycle track %}
+</div>
+</div>
+
+
+

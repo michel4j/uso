@@ -73,10 +73,10 @@
         {{ object.get_kind_display }}
     </div>
 
-    <div>
-        {% if object.track.special %}
+    <!--div>
+        {% if not object.track.require_call %}
             <small class="text-wide text-muted">Final Decision:</small><br/>
-            {% if object.state != object.STATES.complete %}
+            {% if object.state != object.STATES.closed %}
                 <em>Incomplete</em>
             {% else %}
                 {% if object.scores.technical < 4 %}
@@ -96,7 +96,7 @@
                 {% endwith %}
             {% endif %}
         {% endif %}
-    </div>
+    </div-->
 {% endblock %}
 
 {% block folio-content %}
@@ -187,10 +187,10 @@
             <div class="row section">
                 <div class="col-xs-12">
                     <h3>Reviews</h3>
-                    {% include "proposals/reviews_table.html" with reviews=object.reviews.all %}
+                    {% include "proposals/reviews-table.html" with reviews=object.reviews.all %}
                 </div>
             </div>
         {% endif %}
     </div>
-    {% include "proposals/review_results.html" %}
+    {% include "proposals/review-results.html" %}
 {% endblock %}

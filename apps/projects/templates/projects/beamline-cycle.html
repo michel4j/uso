@@ -1,4 +1,4 @@
-{% extends "proposals/track_box.html" %}
+{% extends "proposals/track-box.html" %}
 {% load project_tags %}
 {% get_cycle_requests facility=facility cycle=cycle as requests %}
 {% block box_class %}{% if cycle.state < cycle.STATES.schedule %}bg-darken{% elif cycle.state < cycle.STATES.archive %}

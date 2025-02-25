@@ -25,9 +25,8 @@ class TechnicalTags(FieldType):
     options = ['required', 'hide', 'nolabel']
     settings = ['label', 'options']
 
-    def clean(self, value, multi=False, validate=True):
-        if not isinstance(value, dict):
-            return {}
-        if isinstance(value.get('facility'), list):
-            value['facility'] = value['facility'][0]
-        return value
+    def clean(self, val, multi=False, validate=True):
+        val = super().clean(val, multi=multi, validate=validate)
+        if isinstance(val, str):
+            val = int(val.strip())
+        return val

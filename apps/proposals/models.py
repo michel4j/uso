@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Case, Avg, When, F, Q, StdDev, Max
+from django.db.models import Case, Avg, When, F, Q, StdDev, Max, Count
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
@@ -157,10 +157,6 @@ class SubmissionQuerySet(QuerySet):
         return self.annotate(**annotations).distinct()
 
 
-class SubmissionManager(models.Manager.from_queryset(SubmissionQuerySet)):
-    use_for_related_fields = True
-
-
 from django.db.models.functions import Concat
 from misc.functions import String, LPad
 
@@ -193,9 +189,8 @@ class Submission(TimeStampedModel):
     techniques = models.ManyToManyField('ConfigItem', blank=True, related_name='submissions')
     reviews = GenericRelation('proposals.Review')
     comments = models.TextField(blank=True)
-    objects = SubmissionManager()
+    objects = SubmissionQuerySet.as_manager()
 
-    #@property
     def code(self):
         return f'{self.track.acronym}{self.proposal.pk:0>6}'
 
@@ -210,6 +205,9 @@ class Submission(TimeStampedModel):
 
     def get_absolute_url(self):
         return reverse('submission-detail', kwargs={'pk': self.pk})
+
+    def update_state(self):
+        pass
 
     def title(self):
         return self.proposal.title
@@ -279,7 +277,7 @@ class ScoreAdjustment(TimeStampedModel):
     value = models.FloatField(default=0.5)
 
     def __str__(self):
-        return '{} Score Adjustment: {:+}'.format(self.submission, self.value)
+        return f'{self.submission} Score Adjustment: {self.value:+}'
 
 
 class ReviewTrack(TimeStampedModel):
@@ -287,12 +285,24 @@ class ReviewTrack(TimeStampedModel):
     acronym = models.CharField(max_length=10, unique=True)
     description = models.TextField(null=True)
     special = models.BooleanField("Special Requests", null=True, default=None, unique=True)
-    min_reviewers = models.IntegerField("Min Reviews/Proposal", default=0)
-    max_proposals = models.IntegerField("Max Proposals/Reviewer", default=0)
-    notify_offset = models.IntegerField("Notification Delay (days)", default=1)
+    require_call = models.BooleanField("Require Call", default=True)
+    min_reviewers = models.IntegerField("Assignment", default=0)
+    max_workload = models.IntegerField("Max. Workload", default=0)
+    notify_offset = models.IntegerField("Notify After", default=1)
+    duration = models.IntegerField("Project Cycles", default=4)
 
     def __str__(self):
-        return "{0} - {1}".format(self.acronym, self.name)
+        return f"{self.acronym} - {self.name}"
+
+    def stage_progress(self, cycle):
+        """
+        Return a dictionary of the progress of each stage in the track for the given cycle
+        :param cycle: ReviewCycle
+        :return:
+        """
+        return Review.objects.filter(cycle=cycle, stage__track=self).values('stage').annotate(
+            count=Count('stage'), complete=Count('stage', filter=Q(state=Review.STATES.submitted))
+        )
 
 
 class ReviewCycleQuerySet(DateSpanQuerySet):
@@ -337,7 +347,9 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
         (6, 'active', _('Active')),
         (7, 'archive', _('Archived')), )
     TYPES = Choices(
-        ('mock', 'Mock Cycle'), ('normal', 'Normal Cycle'), )
+        ('mock', 'Mock Cycle'),
+        ('normal', 'Normal Cycle'),
+    )
     kind = models.CharField(_('Cycle Type'), max_length=20, choices=TYPES, default=TYPES.normal)
     open_date = models.DateField(_("Call Open Date"))
     close_date = models.DateField(_("Call Close Date"))
@@ -363,12 +375,8 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
     def num_submissions(self):
         return self.submissions.count()
 
-    num_submissions.short_description = 'Proposals'
-
     def num_facilities(self):
         return self.configs().count()
-
-    num_facilities.short_citation = 'Facilities'
 
     def is_closed(self):
         return self.close_date < timezone.now().date()
@@ -384,6 +392,9 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
 
     def __str__(self):
         return self.name()
+
+    num_submissions.short_description = 'Proposals'
+    num_facilities.short_description = 'Facilities'
 
     class Meta:
         unique_together = ("start_date", "open_date")
@@ -524,13 +535,13 @@ class Reviewer(TimeStampedModel):
     areas = models.ManyToManyField(SubjectArea, verbose_name=_('Subject Areas'), )
     karma = models.DecimalField(max_digits=4, decimal_places=2, default='0.0')
     committee = models.ForeignKey(
-        ReviewTrack, related_name='committee', verbose_name="PRC Member", null=True, on_delete=models.SET_NULL
+        ReviewTrack, related_name='committee', verbose_name="Committee Member", null=True, on_delete=models.SET_NULL
     )
     comments = models.TextField(blank=True, null=True)
     active = models.BooleanField(default=True)
 
     def __str__(self):
-        return "{}, {}{}".format(self.user.last_name, self.user.first_name, ' *' if self.committee else '')
+        return f"{self.user.last_name}, {self.user.first_name}{' *' if self.committee else ''}"
 
     def institution(self):
         return self.user.institution
@@ -544,6 +555,7 @@ class Reviewer(TimeStampedModel):
     def committee_proposals(self, cycle):
         if self.committee:
             return cycle.submissions.filter(track=self.committee, reviews__reviewer=self.user).distinct()
+        return Submission.objects.none()
 
     def technique_names(self):
         return ', '.join(self.techniques.values_list('name', flat=True))
@@ -641,19 +653,51 @@ class ReviewType(TimeStampedModel):
     description = models.TextField(blank=True, null=True)
     form_type = models.ForeignKey(FormType, on_delete=models.CASCADE, null=True)
     score_fields = models.JSONField(default=dict, blank=True, null=True)
+    low_better = models.BooleanField("Lower Score Better", default=True)
+    is_safety = models.BooleanField(default=False)
+    is_scientific = models.BooleanField(default=False)
+    per_facility = models.BooleanField(_("Per Facility"), default=False)
     role = models.CharField(max_length=100, null=True, blank=True)
     objects = ReviewTypeQueryset.as_manager()
 
     def __str__(self):
         return self.description.strip()
 
-    def is_safety(self):
-        return self.code in USO_SAFETY_REVIEWS + [USO_SAFETY_APPROVAL]
+
+class ReviewStageQuerySet(models.QuerySet):
+    def with_stats(self):
+        return self.annotate(
+            avg_score=Avg('reviews__score'),
+            std_dev=StdDev('reviews__score'),
+            num_reviews=Count('reviews'),
+            progress=Count('reviews', filter=Q(reviews__state=Review.STATES.submitted)) / Count('reviews'),
+        )
+
+
+class ReviewStage(TimeStampedModel):
+    track = models.ForeignKey(_('ReviewTrack'), on_delete=models.CASCADE, related_name='stages')
+    kind = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name='stages')
+    position = models.IntegerField(_("Position"), default=0)
+    min_reviews = models.IntegerField("Minimum Reviews", default=1)
+    blocks = models.BooleanField(_("Block Downstream"), default=True)
+    pass_score = models.FloatField(_("Passing Score"), null=True, blank=True)
+    objects = ReviewStageQuerySet.as_manager()
+
+    def __str__(self):
+        return f"{self.track.acronym} - Stage {self.position}"
+
+    class Meta:
+        unique_together = ('track', 'kind')
+        ordering = ('track', 'position')
 
 
 class Review(DynEntryMixin, GenericContentMixin):
     STATES = Choices(
-        (0, 'pending', 'Pending'), (1, 'open', 'Open'), (2, 'submitted', 'Submitted'), (3, 'closed', 'Closed'), )
+        (0, 'pending', 'Pending'),
+        (1, 'open', 'Open'),
+        (2, 'submitted', 'Submitted'),
+        (3, 'closed', 'Closed'),
+    )
     reviewer = models.ForeignKey(User, related_name='reviews', null=True, on_delete=models.SET_NULL)
     role = models.CharField(max_length=100, null=True, blank=True)
     state = models.IntegerField(choices=STATES, default=STATES.pending)
@@ -661,6 +705,7 @@ class Review(DynEntryMixin, GenericContentMixin):
     due_date = models.DateField(null=True)
     cycle = models.ForeignKey(ReviewCycle, verbose_name=_('Cycle'), related_name='reviews', on_delete=models.CASCADE)
     type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name='reviews')
+    stage = models.ForeignKey(ReviewStage, null=True, on_delete=models.SET_NULL, related_name='reviews')
 
     objects = ReviewQueryset.as_manager()
 

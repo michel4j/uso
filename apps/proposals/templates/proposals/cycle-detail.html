@@ -89,14 +89,14 @@
         </div>
         {% for track in tracks %}
             <div class="col-xs-12">
-                {% show_track track info %}
+                {% show_track track %}
             </div>
         {% endfor %}
     </div>
 {% endblock %}
 
 {% block extra_js %}
-    {% include "proposals/cycle_timeline.html" %}
+    {% include "proposals/cycle-timeline.html" %}
     <script>
         function plot_reviewer_bars(plot_element, data, domain) {
             var margin = {

@@ -693,7 +693,7 @@
   pk: 4
   fields:
     created: 2015-03-26 19:10:13+00:00
-    modified: 2024-12-05 05:52:54.112090+00:00
+    modified: 2025-02-23 00:56:00.430364+00:00
     name: Technical Review
     code: technical-review
     description: Technical review form to be completed by reviewers
@@ -728,14 +728,14 @@
         field_type: scorechoices
         instructions: ''
         default_choices: []
-      - name: requirements
+      - name: facility
         tags: ''
-        label: Requirements
+        label: Facility
         options:
+        - hide
         - nolabel
         field_type: technicaltags
-        instructions: Please select additional tags or priority areas which should
-          be considered during scheduling and/or tracked for this project if approved.
+        instructions: Facility ID
       - name: comments
         size: small
         tags: ''

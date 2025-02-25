@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, detail
@@ -58,6 +58,14 @@ class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
     template_name = 'beamlines/detail.html'
     model = models.Facility
     admin_roles = USO_ADMIN_ROLES
+
+    def get_object(self, *args, **kwargs):
+        if self.kwargs.get('fac'):
+            object = models.Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
+            if not object:
+                raise Http404
+            return object
+        return super().get_object(*args, **kwargs)
 
     def check_admin(self):
         facility = self.get_object()

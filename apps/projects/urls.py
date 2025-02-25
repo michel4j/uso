@@ -18,8 +18,8 @@ urlpatterns = [
     path('allocations/cycles/<int:pk>/<str:fac>/', views.AllocateBeamtime.as_view(), name="allocate-review-cycle"),
     path('allocations/<int:pk>/edit/', views.EditAllocation.as_view(), name='edit-allocation'),
 
-    path('facilities/<int:fac>/projects/<int:cycle>/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
-    path('facilities/<int:fac>/projects/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
+    path('facilities/<slug:fac>/projects/<int:cycle>/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
+    path('facilities/<slug:fac>/projects/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
 
     path('materials/', views.MaterialList.as_view(), name='material-list'),
     path('materials/<int:pk>/', views.MaterialDetail.as_view(), name='material-detail'),

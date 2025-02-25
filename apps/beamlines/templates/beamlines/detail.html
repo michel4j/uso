@@ -47,11 +47,11 @@
         </a>
     {% endif %}
     {% if admin or user|is_staff:object %}
-        <a href="{% url "beamline-projects" fac=object.pk %}" class="pull-right">
+        <a href="{% url "beamline-projects" fac=object.acronym %}" class="pull-right">
             <i class="bi-briefcase icon-2 icon-fw"></i><br/>
             <span class="tool-label">Projects</span>
         </a>
-        <a href="{% url "beamline-submissions" pk=object.pk %}" class="pull-right">
+        <a href="{% url "beamline-submissions" fac=object.acronym %}" class="pull-right">
             <i class="bi-journal-medical icon-2 icon-fw"></i><br/>
             <span class="tool-label">Submissions</span>
         </a>

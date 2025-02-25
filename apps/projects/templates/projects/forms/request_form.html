@@ -36,7 +36,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
     <script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
     {% if cycle %}
-        {% include "proposals/cycle_timeline.html" with object=cycle %}
+        {% include "proposals/cycle-timeline.html" with object=cycle %}
     {% endif %}
     <script type="text/javascript">
         $(".chosen").chosen({

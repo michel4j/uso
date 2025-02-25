@@ -4,21 +4,5 @@
 <div class="controls" id="{{ field.name }}-controls">
     <div class="row no-space" id="{{ field.name }}-tags-selector">
     </div>
-    <input type="hidden" name="{{ field.name }}.facility" value="{{ data.facility }}">
+    <input type="hidden" name="{{ field.name }}" value="{{ data }}">
 </div>
-<script>
-    var tags_field = $('[name="{{field.name}}.tags"]');
-    var tags_container = $("#{{field.name}}-tags-selector");
-    var tags_url = "{% url 'facility-tags' %}";
-    var tags = [];
-    tags_url += '{{data.facility}}' + '/{{field.name}}.tags/?';
-    tags_field.find('option').filter(function () {
-        return this.value ? true : false;
-    }).each(function () {
-        tags.push($(this).attr('value'));
-    });
-    if (tags) {
-        tags_url += '&tags=' + "{{data.tags|join:','}}";
-    }
-    tags_container.load(tags_url);
-</script>

@@ -18,10 +18,17 @@
                 </span>
             </div>
         </div>
+
+        <div class="row">
+        {% block list-content %}
+            <div class="list-content col-xs-12">
+                {% include "itemlist/list.html" %}
+            </div>
+        {% endblock %}
+        </div>
         <div class="row">
             <div class="col-xs-12">
-        {% include "itemlist/list.html" %}
-        {% include "itemlist/pagination.html" %}
+                {% include "itemlist/pagination.html" %}
             </div>
         </div>
     </div>

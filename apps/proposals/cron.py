@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import timedelta
 
+from django.db.models import Min, F
 from django.utils import timezone
 
 from isocron import BaseCronJob
@@ -123,7 +124,7 @@ class RemindReviewers(BaseCronJob):
 
 
 class CloseReviews(BaseCronJob):
-    run_every = "PT4H"
+    run_every = "PT15M"
 
     def do(self):
         from proposals import models
@@ -132,37 +133,31 @@ class CloseReviews(BaseCronJob):
         today = timezone.localtime(timezone.now()).date()
         if cycle and cycle.due_date < today:
             # Do not process Rapid Access Track
-            for track in cycle.tracks().exclude(special=True):
-                revs = models.Submission.objects.filter(track=track, cycle=cycle).values_list('reviews', flat=True)
-                queryset = models.Review.objects.filter(
-                    state__in=[models.Review.STATES.open, models.Review.STATES.submitted],
-                    pk__in=revs,
-                    cycle=cycle
+            for track in cycle.tracks().filter(require_call=True):
+                revs = models.Review.objects.filter(
+                    cycle=cycle, stage__track=track,
+                    state=models.Review.STATES.submitted
                 )
-                queryset.update(state=models.Review.STATES.closed)
+                if revs.exists():
+                    revs.update(state=models.Review.STATES.closed, modified=timezone.now())
+                    logs.append(f"{revs.count()} {track} Reviews closed")
+
                 for submission in cycle.submissions.filter(track=track):
                     submission.close()
-                if queryset.count():
-                    logs.append(f"{queryset.count()} {track.acronym} Reviews closed")
 
-        ra_reviews = models.Submission.objects.filter(track__special=True).values_list('reviews', flat=True)
+        # Close RA reviews if they are complete
+        cycle = models.ReviewCycle.objects.filter(open_date__lt=today, end_date__gt=today).first()
+        for track in cycle.tracks().filter(require_call=False):
+            revs = models.Review.objects.filter(cycle=cycle, stage__track=track, state=models.Review.STATES.submitted)
+            if revs.exists():
+                revs.update(state=models.Review.STATES.closed, modified=timezone.now())
+                logs.append(f"{revs.count()} {track} Reviews closed")
 
-        # for Rapid Access Track change review state to complete if review has been completed more than 1 hour ago.
-        queryset = models.Review.objects.filter(
-            pk__in=ra_reviews, state__lt=models.Review.STATES.closed, is_complete=True,
-            # modified__date__lte=timezone.localtime(timezone.now() - timedelta(days=1)).date()
-        )
-
-        queryset.update(state=models.Review.STATES.closed, modified=timezone.now())
-        ra_submissions = models.Submission.objects.filter(
-            track__special=True,
-            state__lt=models.Submission.STATES.reviewed).exclude(
-            reviews__state__lt=models.Review.STATES.closed
-        )
-        for submission in ra_submissions:
-            submission.close()
-
-        if queryset.count():
-            logs.append("{} RA Reviews closed".format(queryset.count()))
+        ra_subs = cycle.submissions.filter(track__require_call=False).exclude(state=models.Submission.STATES.complete)
+        to_close = ra_subs.annotate(min_state=Min('reviews__state')).values('id', 'min_state').filter(min_state=models.Review.STATES.closed)
+        if to_close:
+            for submission in cycle.submissions.filter(pk__in=[s['id'] for s in to_close]):
+                submission.close()
+            logs.append(f"{len(to_close)} RA Reviews closed")
 
         return '\n'.join(logs)
