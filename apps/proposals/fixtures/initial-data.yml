@@ -400,7 +400,7 @@
       scientific_merit: 0.6
     low_better: true
     is_safety: false
-    is_scientific: false
+    is_scientific: true
     per_facility: false
     role: reviewer
 - model: proposals.reviewtype
