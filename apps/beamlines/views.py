@@ -85,7 +85,7 @@ class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
         config_items = ConfigItem.objects.filter(filters)
         if config_items.count():
             one_year_ahead = (timezone.now() + timedelta(days=365)).date()
-            context['cycles'] = ReviewCycle.objects.filter(end_date__lte=one_year_ahead).order_by('-start_date')[:6]
+            context['cycles'] = ReviewCycle.objects.filter(start_date__lte=one_year_ahead).order_by('-start_date')[:6]
         return context
 
 
