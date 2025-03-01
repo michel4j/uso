@@ -89,18 +89,18 @@ class ReviewerForm(forms.Form):
         required=True
     )
     techniques = forms.ModelMultipleChoiceField(
-        queryset=models.Technique.objects.all(),
+        queryset=models.Technique.objects.none(),
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
     areas = forms.ModelMultipleChoiceField(
         label="Main Areas",
-        queryset=models.SubjectArea.objects.filter(category__isnull=True).order_by('name'),
+        queryset=models.SubjectArea.objects.none(),
         required=False
     )
     sub_areas = forms.ModelMultipleChoiceField(
         label=_("Sub-areas"),
-        queryset=models.SubjectArea.objects.exclude(category__isnull=True).order_by('name'),
+        queryset=models.SubjectArea.objects.none(),
         required=False
     )
 
@@ -121,7 +121,8 @@ class ReviewerForm(forms.Form):
                 techs[kind] = qs.count()
                 if 'techniques' in self.initial:
                     self.fields[kind].initial = self.initial['techniques'].filter(category=kind)
-
+        self.fields['areas'].queryset = models.SubjectArea.objects.filter(category__isnull=True).order_by('name')
+        self.fields['sub_areas'].queryset = models.SubjectArea.objects.exclude(category__isnull=True).order_by('name')
         tech_fields = Div(
             Div(
                 HTML(
@@ -143,17 +144,32 @@ class ReviewerForm(forms.Form):
 
         if admin:
             if self.initial['reviewer'].active:
-                extra_btns = Div(
-                    StrictButton('Disable Reviewer', type='submit', name="submit", value='disable',
-                                 css_class="btn btn-danger"),
-                    css_class="pull-left"
+                disable_btn = StrictButton(
+                    'Disable Reviewer', type='submit', name="submit", value='disable',
+                    css_class="btn btn-danger"
                 )
             else:
-                extra_btns = Div(
-                    StrictButton('Re-Enable Reviewer', type='submit', name="submit", value='enable',
-                                 css_class="btn btn-warning"),
-                    css_class="pull-left"
+                disable_btn = StrictButton(
+                    'Enable Reviewer', type='submit', name="submit", value='enable',
+                    css_class="btn btn-warning"
                 )
+
+            if self.initial['reviewer'].is_suspended():
+                suspend_btn = StrictButton(
+                    'Reinstate Reviewer', type='submit', name="submit", value='reinstate',
+                    css_class="btn btn-info"
+                )
+            else:
+                suspend_btn = StrictButton(
+                    'Opt Out', type='submit', name="submit", value='suspend',
+                    css_class="btn btn-secondary"
+                )
+            extra_btns = Div(
+                disable_btn,
+                suspend_btn,
+                css_class="pull-left"
+            )
+
         else:
             extra_btns = Div(css_class="pull-left")
 
@@ -193,24 +209,26 @@ class ReviewerForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         for tech in models.Technique.TYPES:
-            cleaned_data['techniques'] = list(chain(cleaned_data.get(tech[0], []), cleaned_data['techniques']))
-        cleaned_data['areas'] = list(chain(cleaned_data.get('areas', []),
-                                           [sa for sa in cleaned_data.get('sub_areas', []) if
-                                            sa.category in cleaned_data.get('areas', [])]))
+            cleaned_data['techniques'] = list(
+                chain(cleaned_data.get(tech[0], []), cleaned_data['techniques'])
+            )
+        cleaned_data['areas'] = list(
+            chain(
+                cleaned_data.get('areas', []),
+                [sa for sa in cleaned_data.get('sub_areas', []) if sa.category in cleaned_data.get('areas', [])]
+            )
+        )
         return cleaned_data
 
 
-class OptOutForm(forms.Form):
-    cycle = forms.ModelChoiceField(
-        queryset=models.ReviewCycle.objects.all(),
-        label=_("Review Cycle"),
-        required=False,
-        widget=forms.HiddenInput
-    )
-    reason = forms.CharField(
-        required=False,
-        label="Let us know why you are opting out for this round of reviews (optional)"
-    )
+class OptOutForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Reviewer
+        fields = ['comments']
+        widgets = {
+            'comments': forms.Textarea(attrs={'rows': 3, }),
+        }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
@@ -228,7 +246,7 @@ class OptOutForm(forms.Form):
                         HTML("{% include 'proposals/forms/optout-header.html' %}"),
                         css_class="col-xs-12"
                     ),
-                    Div('reason', css_class="col-xs-12"),
+                    Div('comments', css_class="col-xs-12"),
                     css_class="col-xs-12 narrow-gutter"
                 ),
                 css_class="row"
@@ -458,7 +476,7 @@ class ReviewerAssignmentForm(forms.ModelForm):
         tech_filter = Q(techniques__in=prop_info['techniques'])
         area_filter = Q(areas__in=prop_info['areas'])
 
-        reviewers = cycle.reviewers.filter(tech_filter, area_filter, Q(committee__isnull=True))
+        reviewers = models.Reviewer.objects.available(cycle).filter(tech_filter, area_filter)
         reviewers = reviewers.annotate(
             num_reviews=Count('user__reviews', filter=Q(user__reviews__cycle=cycle), distinct=True)
         )

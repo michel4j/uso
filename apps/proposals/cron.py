@@ -33,64 +33,52 @@ class CycleStateManager(BaseCronJob):
     run_every = "PT2H"
 
     def do(self):
-        from proposals import models
+        from . import models
         today = timezone.localtime(timezone.now()).date()
         yesterday = today - timedelta(days=1)
 
+        # check and switch to open
         models.ReviewCycle.objects.filter(
             open_date__lte=today, close_date__gte=today, state=models.ReviewCycle.STATES.pending
         ).update(state=models.ReviewCycle.STATES.open)
 
+        # check and switch to assign
         models.ReviewCycle.objects.filter(close_date=yesterday, state=models.ReviewCycle.STATES.open).update(
             state=models.ReviewCycle.STATES.assign
         )
 
-        cur_cycles = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.active).filter(
+        # check and switch to active
+        models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.active).filter(
             start_date__lte=today, end_date__gte=today
-        )
-        if cur_cycles.exists():
-            cur_cycles.update(state=models.ReviewCycle.STATES.active)
-            cycle = cur_cycles.last()
-            next_cycle = models.ReviewCycle.objects.next(cycle.start_date)
-            next_cycle.reviewers.add(*cycle.reviewers.all())
+        ).update(state=models.ReviewCycle.STATES.active)
 
-        models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.archive).filter(end_date__lt=today).update(
-            state=models.ReviewCycle.STATES.archive)
+        # check and switch to archive
+        models.ReviewCycle.objects.exclude(
+            state=models.ReviewCycle.STATES.archive
+        ).filter(end_date__lt=today).update(
+            state=models.ReviewCycle.STATES.archive
+        )
 
 
 class NotifyReviewers(BaseCronJob):
     run_every = "P1D"
 
     def do(self):
-        from proposals import models
+        from . import models
         cycle = models.ReviewCycle.objects.next()
         today = timezone.localtime(timezone.now())
         yesterday = today - timedelta(days=1)
         if cycle:
             info = defaultdict(list)
-            reviews = models.Review.objects.none()
 
-            # Notify technical reviews one day later
-            reviews |= models.Review.objects.technical().filter(
+            # Notify technical reviews one day later to avoid spamming
+            reviews = models.Review.objects.technical().filter(
                 state=models.Review.STATES.pending, created__lte=yesterday
             )
-
-            # gather all reviews for each reviewer
-            for rev in reviews.all():
-                if rev.reviewer:
-                    info[rev.reviewer].append(rev)
-                else:
-                    info[rev.role].append(rev)
-
-            # generate notifications
-            for recipient, revs in list(info.items()):
-                notify.send([recipient], 'review-request', level=notify.LEVELS.important, context={
-                    'reviews': revs,
-                })
-                models.Review.objects.filter(pk__in=[r.pk for r in revs]).update(state=models.Review.STATES.open)
-
-            if len(list(info.values())):
-                return "{} reviewer notifications sent".format(len(list(info.values())))
+            count = utils.notify_reviewers(reviews)
+            reviews.update(state=models.Review.STATES.open)
+            if count:
+                return f"{count} reviewer notification(s) sent"
 
 
 class RemindReviewers(BaseCronJob):

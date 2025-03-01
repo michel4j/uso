@@ -1,6 +1,6 @@
 import os
 from collections import OrderedDict
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 import numpy
 from django.conf import settings
@@ -11,6 +11,7 @@ from django.db.models import Case, Avg, When, F, Q, StdDev, Max, Count
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
@@ -24,9 +25,6 @@ from publications.models import SubjectArea
 
 
 User = getattr(settings, "AUTH_USER_MODEL")
-USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
-USO_TECHNICAL_REVIEWS = getattr(settings, "USO_TECHNICAL_REVIEWS", [])
-USO_SCIENCE_REVIEWS = getattr(settings, "USO_SCIENCE_REVIEWS", [])
 USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", 'approval')
 
 
@@ -529,6 +527,26 @@ class ConfigItem(TimeStampedModel):
         return f"{self.config}/{self.track.acronym}/{self.technique.short_name()}"
 
 
+class ReviewerQueryset(models.QuerySet):
+    def available(self, cycle=None):
+        if not cycle:
+            cycle_time = timezone.now()
+        else:
+            cycle_time = datetime.combine(cycle.open_date, datetime.min.time())
+
+        expiry = (cycle_time - timedelta(days=364)).date()
+        return self.filter(
+            Q(committee__isnull=True)
+            & Q(active=True)
+            & (Q(declined__isnull=True) | Q(declined__lt=expiry))
+            & Q(techniques__isnull=False)
+            & Q(areas__isnull=False)
+        ).distinct()
+
+    def committee(self):
+        return self.filter(committee__isnull=False)
+
+
 class Reviewer(TimeStampedModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='reviewer')
     techniques = models.ManyToManyField(Technique, related_name="reviewers")
@@ -539,9 +557,17 @@ class Reviewer(TimeStampedModel):
     )
     comments = models.TextField(blank=True, null=True)
     active = models.BooleanField(default=True)
+    declined = models.DateField("Opted-out", null=True, blank=True)
+
+    objects = ReviewerQueryset.as_manager()
 
     def __str__(self):
         return f"{self.user.last_name}, {self.user.first_name}{' *' if self.committee else ''}"
+
+    def is_suspended(self, dt=None):
+        dt = timezone.now() if not dt else datetime.combine(dt, datetime.min.time())
+        expiry = (dt - timedelta(days=364)).date()
+        return self.declined is not None and self.declined >= expiry
 
     def institution(self):
         return self.user.institution
@@ -557,11 +583,22 @@ class Reviewer(TimeStampedModel):
             return cycle.submissions.filter(track=self.committee, reviews__reviewer=self.user).distinct()
         return Submission.objects.none()
 
-    def technique_names(self):
-        return ', '.join(self.techniques.values_list('name', flat=True))
+    def topic_names(self):
+        techniques = ', '.join(self.techniques.values_list('acronym', flat=True))
+        subjects = ', '.join(self.areas.values_list('name', flat=True))
+        style = ''
+        if not self.active:
+            style = 'text-danger'
+        elif self.is_suspended():
+            style = 'text-warning'
 
-    technique_names.short_description = 'Techniques'
-    technique_names.sort_field = 'techniques__name'
+        return mark_safe(
+            f"<section class='{style}'><span>{techniques}</span><br>"
+            f"<em>{subjects}</em></section>"
+        )
+
+    topic_names.short_description = 'Topics'
+    topic_names.sort_field = 'techniques__name'
 
     def area_names(self):
         return ', '.join(self.areas.values_list('name', flat=True))
@@ -575,13 +612,13 @@ class Reviewer(TimeStampedModel):
 
 class ReviewQueryset(GenericContentQueryset):
     def scientific(self):
-        return self.filter(type__code__in=USO_SCIENCE_REVIEWS).order_by('reviewer__reviewer__committee')
+        return self.filter(type__kind=ReviewType.Types.scientific).order_by('reviewer__reviewer__committee')
 
     def technical(self):
-        return self.filter(type__code__in=USO_TECHNICAL_REVIEWS)
+        return self.filter(type__kind=ReviewType.Types.technical)
 
     def safety(self):
-        return self.filter(type__code__in=USO_SAFETY_REVIEWS)
+        return self.filter(type__kind=ReviewType.Types.safety)
 
     def complete(self):
         return self.filter(state__gte=Review.STATES.submitted)
@@ -611,16 +648,16 @@ class ReviewQueryset(GenericContentQueryset):
 
 class ReviewTypeQueryset(models.QuerySet):
     def safety(self):
-        return self.filter(code__in=USO_SAFETY_REVIEWS)
+        return self.filter(kind=ReviewType.Types.safety)
 
     def safety_approval(self):
-        return self.filter(code=USO_SAFETY_APPROVAL)
+        return self.filter(kind=ReviewType.Types.approval)
 
     def technical(self):
-        return self.filter(code__in=USO_TECHNICAL_REVIEWS)
+        return self.filter(kind=ReviewType.Types.technical)
 
     def scientific(self):
-        return self.filter(code__in=USO_SCIENCE_REVIEWS)
+        return self.filter(kind=ReviewType.Types.scientific)
 
     def scored(self):
         return self.exclude(Q(score_fields={}) | Q(score_fields__isnull=True))
@@ -649,19 +686,40 @@ class ReviewTypeQueryset(models.QuerySet):
 
 
 class ReviewType(TimeStampedModel):
+    class Types(models.TextChoices):
+        safety = ('safety', _('Safety Review'))
+        technical = ('technical', _('Technical Review'))
+        scientific = ('scientific', _('Scientific Review'))
+        approval = ('approval', _('Safety Approval'))
+
     code = models.SlugField(max_length=100, unique=True)
+    kind = models.CharField(max_length=20, choices=Types.choices, default=Types.technical)
     description = models.TextField(blank=True, null=True)
     form_type = models.ForeignKey(FormType, on_delete=models.CASCADE, null=True)
     score_fields = models.JSONField(default=dict, blank=True, null=True)
     low_better = models.BooleanField("Lower Score Better", default=True)
-    is_safety = models.BooleanField(default=False)
-    is_scientific = models.BooleanField(default=False)
     per_facility = models.BooleanField(_("Per Facility"), default=False)
     role = models.CharField(max_length=100, null=True, blank=True)
     objects = ReviewTypeQueryset.as_manager()
 
     def __str__(self):
         return self.description.strip()
+
+    @property
+    def is_scientific(self):
+        return self.kind == self.Types.scientific
+
+    @property
+    def is_safety(self):
+        return self.kind == self.Types.safety
+
+    @property
+    def is_approval(self):
+        return self.kind == self.Types.approval
+
+    @property
+    def is_technical(self):
+        return self.kind == self.Types.technical
 
 
 class ReviewStageQuerySet(models.QuerySet):

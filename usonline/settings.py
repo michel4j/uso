@@ -209,9 +209,7 @@ USO_PDB_FACILITIES = {
 }
 ROLEPERMS_DEBUG = False
 
-USO_SAFETY_REVIEWS = ["safety", "ethics", "equipment"]     # reviews assigned by safety approver
 USO_TECHNICAL_REVIEWS = ["technical"]             # technical review type
-USO_SCIENCE_REVIEWS = ["scientific"]             # science review type
 USO_SAFETY_APPROVAL = "approval"                 # safety approval review type
 
 

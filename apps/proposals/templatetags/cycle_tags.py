@@ -80,9 +80,7 @@ def facility_acronyms(beamlines):
 @register.inclusion_tag('proposals/track-submissions.html', takes_context=True)
 def show_submissions(context, cycle, track):
     submissions = cycle.submissions.filter(track=track)
-    reviewers = cycle.reviewers.exclude(
-        Q(techniques__isnull=True) | Q(areas__isnull=True)
-    )
+    reviewers = models.Reviewer.objects.available(cycle)
     facilities = cycle.submissions.filter(track=track).annotate(
         facility=F('techniques__config__facility__acronym')
     ).values('facility').annotate(count=Count('id', distinct=True))
@@ -116,14 +114,6 @@ def technique_matrix(context, cycle, track):
             'reviewers': t['num_reviewers'],
         } for t in techs
     }
-    # techs = cycle.techniques().filter(items__track=track).distinct()
-    # techniques = {
-    #     tech: {
-    #         'submissions': submissions.filter(techniques__technique=tech).distinct().count(),
-    #         'reviewers': tech.reviewers.filter(cycles=cycle).distinct().count(),
-    #     }
-    #     for tech in techs
-    # }
     info = {
         'admin': context.get('admin'),
         'owner': context.get('owner'),
@@ -136,8 +126,7 @@ def technique_matrix(context, cycle, track):
 
 @register.inclusion_tag('proposals/track-reviews.html', takes_context=True)
 def show_track_reviews(context, cycle, track):
-    submissions = models.Submission.objects.filter(cycle=cycle, track=track)
-    reviews = models.Review.objects.filter(pk__in=submissions.values_list('reviews', flat=True))
+    reviews = models.Review.objects.filter(cycle=cycle, stage__track=track).distinct()
 
     info = []
     rev_list = [('Technical', reviews.technical(), 'info'), ('Scientific', reviews.scientific(), 'success')]
@@ -250,10 +239,10 @@ def get_next_cycle(dt=datetime.today()):
 
 @register.filter(name="reviewer_window")
 def reviewer_window(cycle, reviewer):
-    if reviewer in cycle.reviewers.all():
-        dt = datetime.today().date()
-        return dt > cycle.open_date and dt <= cycle.close_date
-    return False
+    potential = (
+        reviewer.active and not reviewer.is_suspended(cycle.open_date)
+    )
+    return potential
 
 
 @register.filter(name="active_reviews")

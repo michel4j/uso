@@ -390,8 +390,9 @@
   pk: 1
   fields:
     created: 2024-12-13 15:18:31.392480+00:00
-    modified: 2024-12-16 03:11:35.114418+00:00
+    modified: 2025-02-28 16:12:37.501964+00:00
     code: scientific
+    kind: scientific
     description: Scientific Review
     form_type: 3
     score_fields:
@@ -399,23 +400,20 @@
       suitability: 0.2
       scientific_merit: 0.6
     low_better: true
-    is_safety: false
-    is_scientific: true
     per_facility: false
     role: reviewer
 - model: proposals.reviewtype
   pk: 2
   fields:
     created: 2024-12-13 15:19:10.905250+00:00
-    modified: 2025-02-22 20:41:40.517708+00:00
+    modified: 2025-02-28 16:12:29.008701+00:00
     code: technical
+    kind: technical
     description: Technical Review
     form_type: 4
     score_fields:
       suitability: 1
     low_better: true
-    is_safety: false
-    is_scientific: false
     per_facility: true
     role: reviewer:{}
 - model: proposals.reviewtype
@@ -424,54 +422,50 @@
     created: 2024-12-13 15:26:19.539592+00:00
     modified: 2025-02-22 20:42:16.640204+00:00
     code: safety
+    kind: technical
     description: Safety Review
     form_type: 7
     score_fields: {}
     low_better: true
-    is_safety: true
-    is_scientific: false
     per_facility: false
     role: safety-reviewer
 - model: proposals.reviewtype
   pk: 4
   fields:
     created: 2024-12-13 15:27:41.258391+00:00
-    modified: 2025-02-22 20:42:04.735635+00:00
+    modified: 2025-02-28 16:12:14.905289+00:00
     code: ethics
+    kind: safety
     description: Ethics Review
     form_type: 6
     score_fields: {}
     low_better: true
-    is_safety: true
-    is_scientific: false
     per_facility: false
     role: ethics-reviewer
 - model: proposals.reviewtype
   pk: 5
   fields:
     created: 2024-12-13 15:29:04.722458+00:00
-    modified: 2025-02-22 20:41:59.558747+00:00
+    modified: 2025-02-28 16:12:08.374886+00:00
     code: equipment
+    kind: safety
     description: Equipment Review
     form_type: 14
     score_fields: {}
     low_better: true
-    is_safety: true
-    is_scientific: false
     per_facility: false
     role: equipment-reviewer
 - model: proposals.reviewtype
   pk: 6
   fields:
     created: 2024-12-13 15:30:20.121523+00:00
-    modified: 2025-02-22 20:42:33.129613+00:00
+    modified: 2025-02-28 16:12:00.407665+00:00
     code: approval
+    kind: approval
     description: Safety Approval
     form_type: 5
     score_fields: {}
     low_better: true
-    is_safety: false
-    is_scientific: false
     per_facility: false
     role: safety-approver
 - model: proposals.reviewtrack
@@ -485,7 +479,7 @@
     special: null
     require_call: true
     min_reviewers: 1
-    max_workload: 10
+    max_workload: 30
     notify_offset: 1
     duration: 4
 - model: proposals.reviewtrack
