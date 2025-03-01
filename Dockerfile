@@ -5,7 +5,9 @@ MAINTAINER Kathryn Janzen <kathryn.janzen@lightsource.ca>
 COPY requirements.txt /
 COPY deploy/run-server.sh /
 COPY deploy/wait-for-it.sh /
+COPY deploy/apache /usonline/apache
 ADD . /usonline
+
 
 RUN set -ex && \
     apk add --no-cache --virtual libpq apache2-ssl apache2-mod-wsgi openssl bash sed py3-pip && \

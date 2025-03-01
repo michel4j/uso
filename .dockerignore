@@ -84,4 +84,7 @@ venv.bak/
 .idea/
 junk/
 temp/
+deploy/*
+!deploy/apache/
+!deploy/*.sh
 
