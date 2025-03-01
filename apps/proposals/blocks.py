@@ -86,11 +86,13 @@ class ReviewsBlock(BaseBlock):
         })
 
         if cycle.state == cycle.STATES.active and next_cycle:
+            reviewer_available_next_cycle = models.Reviewer.objects.available(next_cycle).filter(user=user).exists()
             ctx.update({
-                "upcoming_call": (next_cycle.reviewers.filter(user=user).exists() and
-                                  next_cycle.state == cycle.STATES.pending
-                                  and next_cycle.open_date <= amonth),
-                "can_review": user.reviews.scientific().exists() and not next_cycle.reviewers.filter(
-                    user=user).exists(),
+                "upcoming_call": (
+                    reviewer_available_next_cycle and
+                    next_cycle.state == cycle.STATES.pending and
+                    next_cycle.open_date <= amonth
+                ),
+                "can_review": reviewer_available_next_cycle,
             })
         return super().render(ctx)
