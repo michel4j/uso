@@ -1,0 +1,4000 @@
+- name: butylenediamine
+  source: ChemIDplus
+- name: 4-Hydroxybenzoate-O-glucoside
+  source: KEGG COMPOUND
+- name: CSF
+  source: SUBMITTER
+- name: benzalkonium chlorides
+  source: ChEBI
+- name: sodium D-gluconate
+  source: IUPAC
+- name: phosphatidylcholine(O-34:3)
+  source: ChEBI
+- name: Cholesterol ester
+  source: KEGG COMPOUND
+- name: calcium sulfate--water (2/1)
+  source: IUPAC
+- name: 3-chloroacrylic acids
+  source: ChEBI
+- name: 3beta-(acetyloxy)olean-18-en-28-oic acid
+  source: IUPAC
+- name: radon(0)
+  source: IUPAC
+- name: -SSSSSH
+  source: IUPAC
+- name: TMDA
+  source: SUBMITTER
+- name: arachidonyl
+  source: ChEBI
+- name: 3,7-dimethylocta-1,6-diene-3,4,5-triol
+  source: SUBMITTER
+- name: NPP
+  source: DrugBank
+- name: Molephantin
+  source: KEGG COMPOUND
+- name: (9Z,12Z)-octadeca-9,12-dienoylcarnitine
+  source: ChEBI
+- name: Inabenfide
+  source: KEGG COMPOUND
+- name: 4-methyltridecanoic acid
+  source: SUBMITTER
+- name: GY
+  source: ChEBI
+- name: (1S,6R)-3,7,7-trimethylbicyclo[4.1.0]hept-3-ene
+  source: IUPAC
+- name: (2S,3S)-3-hydroxyasparagine
+  source: UniProt
+- name: aldooctoses
+  source: ChEBI
+- name: sulfirgamide
+  source: DrugCentral
+- name: 4-(beta-D-ribofuranosyl)aminobenzene 5'-phosphate
+  source: UniProt
+- name: DHC-A 20:0/16:0
+  source: SUBMITTER
+- name: N(alpha)-acetylglycine methylamide
+  source: ChEBI
+- name: actinomycins
+  source: ChEBI
+- name: 1alpha,17beta-dihydroxyandrost-4-en-3-one
+  source: IUPAC
+- name: LPE(0:0/22:5(7Z,10Z,13Z,16Z,19Z))
+  source: SUBMITTER
+- name: BRL 15572 cation
+  source: ChEBI
+- name: Phosphatidylserine(18:3/20:3)
+  source: HMDB
+- name: Prostratol F
+  source: KNApSAcK
+- name: Galbeta1-4[Fucalpha1-3][6OSO3]GlcNAc
+  source: ChEBI
+- name: anti-atherogenic agents
+  source: ChEBI
+- name: valerophenone
+  source: ChemIDplus
+- name: silicide(-I)
+  source: IUPAC
+- name: Prostaglandin C2
+  source: SUBMITTER
+- name: L-758,298
+  source: ChemIDplus
+- name: meningococcal polysaccharide Y
+  source: ChEBI
+- name: amide antifungal agents
+  source: ChEBI
+- name: glycolophenone
+  source: NIST Chemistry WebBook
+- name: long chain digalactosyl-diacylglycerol
+  source: SUBMITTER
+- name: L-erythro-Pentulose
+  source: KEGG COMPOUND
+- name: PbCl2
+  source: ChEBI
+- name: SM(d18:1/16:1(OH))
+  source: ChEBI
+- name: 3-phenylprop-2-en-1-yl acetate
+  source: IUPAC
+- name: Man(b1-3)Man(b1-4)GlcNAc(b1-4)GlcNAc
+  source: SUBMITTER
+- name: GPCho 44:8
+  source: SUBMITTER
+- name: 4-O-galactosyl-D-xylose
+  source: ChemIDplus
+- name: Ammoniak
+  source: ChemIDplus
+- name: Cestocid
+  source: ChemIDplus
+- name: 2-mercapto-N-methylacetamide
+  source: ChEBI
+- name: Sodium sulfacetamide
+  source: ChemIDplus
+- name: 2-Hydroxycyclohexan-1-one
+  source: KEGG COMPOUND
+- name: Ammonium hexachlororhodate(III)
+  source: ChemIDplus
+- name: 6,8-dihydroxy-3-(2-oxopropyl)-isocoumarin
+  source: UniProt
+- name: cogomycin
+  source: DrugCentral
+- name: L-selenocysteinyl
+  source: JCBN
+- name: L-3-mercaptolactate
+  source: ChEBI
+- name: radon compounds
+  source: ChEBI
+- name: phenformin
+  source: ChemIDplus
+- name: silsesquioxane cages
+  source: ChEBI
+- name: GlcNAcbeta1-3Galbeta1-3GalNAcalpha
+  source: ChEBI
+- name: 2-(hydroxyamino)-6-(methylsulfanyl)hexanoic acid
+  source: IUPAC
+- name: tetradecan-1-ol
+  source: UniProt
+- name: glycyllysine
+  source: ChEBI
+- name: L-tyrosyl-L-isoleucyl-L-leucine
+  source: UniProt
+- name: SK-3530
+  source: DrugBank
+- name: 7-methylguanosine
+  source: IUPAC
+- name: Kaempferol 3,7-di-O-glucoside
+  source: ChemIDplus
+- name: carbovir phosphate dianion
+  source: ChEBI
+- name: 2',3',5'-Triacetyluridine
+  source: ChemIDplus
+- name: 3,8-dimethyl-5-(2-propyl)azulene
+  source: ChemIDplus
+- name: Iminoaspartate
+  source: KEGG COMPOUND
+- name: 17a-oxa-D-homoandrost-4-ene-3,17-dione
+  source: ChemIDplus
+- name: SM(22:0)
+  source: ChEBI
+- name: Hexadecanoyl-lysophosphatidylethanolamine
+  source: ChEBI
+- name: GlcNAc-(alpha1,3)-GalNAc-(alpha1)
+  source: ChEBI
+- name: Puri-Nethol
+  source: DrugBank
+- name: PE 33:2
+  source: ChEBI
+- name: Diacylglycerol(40:4)
+  source: HMDB
+- name: 5alpha-Androstane-17beta,19-diol-3-one
+  source: ChemIDplus
+- name: oxitropium iodide
+  source: DrugCentral
+- name: 4,4'-disulfanediylbis(2-ammoniobutanoate)
+  source: IUPAC
+- name: tasmaderm
+  source: DrugCentral
+- name: 2,6-Dimethoxyphenol
+  source: KEGG COMPOUND
+- name: 2-Octaprenyl-6-methoxyphenol
+  source: KEGG COMPOUND
+- name: Diacylglycerol
+  source: HMDB
+- name: 1-octadecadienoyl-2,3-dioctadecenoyl-sn-glycerol
+  source: ChEBI
+- name: oxygen
+  source: IUPAC
+- name: 4-tert-butylcyclohexan-1-one
+  source: SUBMITTER
+- name: ergosterol biosynthesis inhibitors
+  source: ChEBI
+- name: 20-hydroxy steroids
+  source: ChEBI
+- name: (1S,2S,5S)-5-isopropenyl-2-methylcyclohexanol
+  source: ChEBI
+- name: 1-(1-Methyl-1H-pyrrol-2-yl)ethanone
+  source: ChemIDplus
+- name: ganglioside GalGal-GD1b (d20:1(4E))
+  source: UniProt
+- name: 2-phenylacetaldehyde
+  source: NIST Chemistry WebBook
+- name: 4-heptanecarboxylic acid
+  source: ChemIDplus
+- name: Citrel
+  source: ChEBI
+- name: 1,2,5,6-tetrabromohexane
+  source: SUBMITTER
+- name: CL 56:2
+  source: SUBMITTER
+- name: metformina
+  source: WHO MedNet
+- name: A-L-T-Q
+  source: ChEBI
+- name: (3beta,24S)-cholest-5-ene-3,24,26-triol
+  source: IUPAC
+- name: alcohol:NAD+ oxidoreductase inhibitors
+  source: ChEBI
+- name: R1881 (synthetic androgen)
+  source: ChEBI
+- name: hem
+  source: IUPAC
+- name: perindopril arginine and amlodipine besylate
+  source: ChEBI
+- name: E. coli lipid A(4-)
+  source: ChEBI
+- name: (E)-diphenyldiazene oxide
+  source: ChEBI
+- name: 4-oxopyrrolidine-2-carboxylic acid
+  source: IUPAC
+- name: imipramine n-oxide
+  source: DrugCentral
+- name: Phosphatidylcholine(20:0/22:1n9)
+  source: HMDB
+- name: X12690747
+  source: PPDB
+- name: (E)-8-hydroxyoctadec-11-en-9-ynoic acid
+  source: SUBMITTER
+- name: TG(16:1/20:4/22:6)
+  source: ChEBI
+- name: NSC602733
+  source: ChEBI
+- name: N-acetyl-D-tryptophan
+  source: IUPAC
+- name: dinitrogen tetroxide
+  source: NIST Chemistry WebBook
+- name: 8-METHYL-8-AZABICYCLO[3,2,1]OCTAN-3-ONE
+  source: PDBeChem
+- name: (R)-2-((R)-2-aminopropanoyloxy)propionic acid
+  source: ChEBI
+- name: MCB 613
+  source: ChEBI
+- name: 5-[(E)-1,2-diphenylethenyl]-2-methoxyphenol
+  source: SUBMITTER
+- name: 4-isocyanatodiphenylmethane
+  source: ChEBI
+- name: Diacylglycerol(38:3)
+  source: HMDB
+- name: polycations
+  source: SUBMITTER
+- name: (-)-X-14547A
+  source: ChEBI
+- name: N-indoleacetylglutamine
+  source: ChEBI
+- name: THA-CoA
+  source: SUBMITTER
+- name: Luteoloside
+  source: ChemIDplus
+- name: arabinomannan
+  source: ChEBI
+- name: alpha-picolinaldehyde
+  source: NIST Chemistry WebBook
+- name: 3-hydroxy-4-(trimethylammonio)butanoate
+  source: IUPAC
+- name: magnesium dihydroxide
+  source: IUPAC
+- name: 1-haloalkane
+  source: UniProt
+- name: bevantolol
+  source: WHO MedNet
+- name: beta-bourbenene
+  source: HMDB
+- name: monohexosyldiacylglycerol
+  source: ChEBI
+- name: Leptanal
+  source: ChemIDplus
+- name: DNA replicase inhibitors
+  source: ChEBI
+- name: chenodeoxycholylglycine
+  source: ChemIDplus
+- name: D-mannose 6-phosphate
+  source: UniProt
+- name: N-palmitoylsphing-4-enine
+  source: ChEBI
+- name: (2E)-ethyl 3-(2-furyl)acrylate
+  source: ChemIDplus
+- name: paredrine
+  source: DrugCentral
+- name: phosphoric acid potassium salt (1:3)
+  source: ChEBI
+- name: dTDP-4-amino-4,6-dideoxy-5-C-methyl-L-mannose
+  source: KEGG COMPOUND
+- name: (2S)-2-(phosphonooxy)propanoic acid
+  source: IUPAC
+- name: N-palmitoyl-C16-DHS
+  source: SUBMITTER
+- name: DGlu
+  source: JCBN
+- name: 2,3-dihydropyridine-2,6-dicarboxylate
+  source: IUPAC
+- name: alpha-L-glutamyl-L-isoleucine
+  source: HMDB
+- name: poly(amide)
+  source: ChEBI
+- name: GPCho(18:3n3/18:2n6)
+  source: HMDB
+- name: nucleoside monophosphate dianion
+  source: ChEBI
+- name: 2-hydroxy-2,4-dimethyl-1-benzouran-3-one
+  source: SUBMITTER
+- name: Dipterocarpol
+  source: KEGG COMPOUND
+- name: 4-Nitrososulfamethoxazole
+  source: ChemIDplus
+- name: 2'-O-alpha-L-fucosyl-lactose
+  source: ChEBI
+- name: PC(44:11)
+  source: SUBMITTER
+- name: hexadecanols
+  source: ChEBI
+- name: butyl 3-hydroxy-2-methylidenebutanoate
+  source: SUBMITTER
+- name: '[(E)-dodec-9-enyl] acetate'
+  source: SUBMITTER
+- name: aldehydo-D-allose
+  source: IUPAC
+- name: PS 44:4
+  source: SUBMITTER
+- name: a ganglioside Ac-O-7-GD1a
+  source: UniProt
+- name: PC(14:1w5/20:1w9)
+  source: HMDB
+- name: omega-ketohexacosanoic acid
+  source: ChEBI
+- name: 11beta-hydroxypregn-4-ene-3,20-dione
+  source: IUPAC
+- name: butane-1,4-diyl dimethanesulfonate
+  source: IUPAC
+- name: glycyl-L-glutamate residue
+  source: UniProt
+- name: benoxyl
+  source: DrugCentral
+- name: PC 13:0
+  source: ChEBI
+- name: globotriaosylceramide(d18:0)
+  source: SUBMITTER
+- name: 2-chloro-N-(2,5-diphenylpyrazol-3-yl)benzamide
+  source: SUBMITTER
+- name: Tetradec-11-ensaeure
+  source: ChEBI
+- name: 7(S),14(S)-diHDHA
+  source: ChEBI
+- name: PS(18:2w6/16:0)
+  source: HMDB
+- name: 3-(hydroxynitrorylidene)propanoic acid
+  source: IUPAC
+- name: IPC-1 (C16)
+  source: SUBMITTER
+- name: 5-octyl-2-oxooxolane-3-carboxylic acid
+  source: SUBMITTER
+- name: 1-monomyristin
+  source: ChemIDplus
+- name: glycinebetainyl-CoA(3-)
+  source: ChEBI
+- name: 1,2,3-triimidodicarbonic diamide
+  source: IUPAC
+- name: MMA
+  source: ChemIDplus
+- name: L-Leu-L-Trp
+  source: ChEBI
+- name: 2,3,4,5,6-pentadeuteriopyridine
+  source: SUBMITTER
+- name: Steroid O-sulfate
+  source: KEGG COMPOUND
+- name: glandicoline B
+  source: UniProt
+- name: N(epsilon)-flucloxacilloyl-L-lysine residue
+  source: ChEBI
+- name: dodecanehydrazide
+  source: SUBMITTER
+- name: aklavin(1+)
+  source: ChEBI
+- name: Phosphatidylcholine(16:1/20:3)
+  source: HMDB
+- name: PC(34:4)
+  source: HMDB
+- name: Acrylaldehyde
+  source: KEGG COMPOUND
+- name: MAP2 inhibitors
+  source: ChEBI
+- name: organoberyllium compounds
+  source: ChEBI
+- name: desethyl atrazine
+  source: ChemIDplus
+- name: L-hyoscyamine
+  source: UniProt
+- name: phosphorofluoridic acid
+  source: IUPAC
+- name: glycinyl ester
+  source: ChEBI
+- name: isoleucine cation
+  source: JCBN
+- name: PI(18:2w6/16:0)
+  source: HMDB
+- name: but-2-en-1-ol
+  source: IUPAC
+- name: Tetrahydropteridine
+  source: KEGG COMPOUND
+- name: bentiromido
+  source: ChemIDplus
+- name: 1-nitrocyclohexene
+  source: IUPAC
+- name: AT-RvD2
+  source: SUBMITTER
+- name: cariprazine
+  source: KEGG DRUG
+- name: copper chelators
+  source: ChEBI
+- name: (Gal)2 (GalNAc)1 (Glc)1 (GlcNAc)1 (LFuc)2 (Cer)1
+  source: KEGG GLYCAN
+- name: (Z)-2-methylureidoacrylate peracid
+  source: UniProt
+- name: L-tyrosine
+  source: UniProt
+- name: Diglyceride
+  source: HMDB
+- name: diethylcarbamic acid
+  source: SUBMITTER
+- name: 4-morpholin-4-yl-3-nitrobenzenesulonamide
+  source: SUBMITTER
+- name: APO
+  source: ChEBI
+- name: Man(a1-3)Man(b1-6)[Man(a1-3)]Man(b1-4)GlcNAc
+  source: SUBMITTER
+- name: adapalenum
+  source: ChemIDplus
+- name: 4-phenyl-2-butanone
+  source: SUBMITTER
+- name: 3',5'-Cyclic diguanylic acid
+  source: KEGG COMPOUND
+- name: (+)-nicardipine
+  source: ChEBI
+- name: MoOS(OH)Dtpp-mP
+  source: MetaCyc
+- name: Thymidine diphosphate-L-rhamnose
+  source: ChemIDplus
+- name: 3-[(E)-undec-5-en-10-ynyl]phenol
+  source: SUBMITTER
+- name: N-acetylaminomethylphosphonic acid
+  source: ChEBI
+- name: dpGdpG
+  source: ChEBI
+- name: (E)-propylidene-lambda(4)-sulfanone
+  source: ChEBI
+- name: p-Nitrophenyl 6-deoxy-alpha-L-galactopyranoside
+  source: ChemIDplus
+- name: Glc(?1-2)[Glc(?1-4)]Glc
+  source: SUBMITTER
+- name: Diphthamide
+  source: KEGG COMPOUND
+- name: KOCN
+  source: IUPAC
+- name: (R)-(+)-methcathinone
+  source: ChemIDplus
+- name: chromenemonocarboxylic acids
+  source: ChEBI
+- name: cyclo(L-tyrosyl-L-tyrosyl)
+  source: UniProt
+- name: 1,3-Benzodioxole, 4-methoxy-6-(2-propenyl)-
+  source: ChEBI
+- name: Amifostine
+  source: KEGG COMPOUND
+- name: acetone oxime
+  source: UniProt
+- name: 12-hydroxyabieta-8,11,13-trien-7-one
+  source: IUPAC
+- name: (-)-nocardicin C
+  source: ChEBI
+- name: D-cellohexaono-1,5-lactone
+  source: UniProt
+- name: beryllium hydride
+  source: NIST Chemistry WebBook
+- name: fused-ring polycyclic compounds
+  source: ChEBI
+- name: L-tyrosyl
+  source: JCBN
+- name: PG(18:3n6/18:1n7)
+  source: HMDB
+- name: (R)-2-Hydroxypropyl-CoM
+  source: KEGG COMPOUND
+- name: 4-hydroxyprotoasukamycin
+  source: UniProt
+- name: 1,1-dimethylethyl methyl ketone
+  source: NIST Chemistry WebBook
+- name: N-(p-Methylbenzenesulfonyl)-N'-butylurea
+  source: NIST Chemistry WebBook
+- name: 8-chloro-2'-deoxyguanosine
+  source: IUPAC
+- name: a medium-chain fatty aldehyde
+  source: UniProt
+- name: YC-93 free base
+  source: ChEBI
+- name: 1,2-dihydroxypropane-1,2,3-tricarboxylic acid
+  source: SUBMITTER
+- name: S-5920
+  source: ChemIDplus
+- name: o-Aminophenyl mercaptan
+  source: NIST Chemistry WebBook
+- name: chlormerodrin (197Hg)
+  source: KEGG DRUG
+- name: ROS1 inhibitor
+  source: ChEBI
+- name: L-histidine base residue
+  source: JCBN
+- name: TAG(15:0_18:1_18:3)
+  source: SUBMITTER
+- name: phosphotyrosine
+  source: ChEBI
+- name: KPT-8602
+  source: SUBMITTER
+- name: trans-beta-D-glucosyl-2-hydroxycinnamate
+  source: Chemical Ontology
+- name: (5R,3S)-benzyl-D-penilloic acid
+  source: ChEBI
+- name: 2,4-dinitrobenzenamine
+  source: ChEBI
+- name: 2-acetamido-2-deoxy-D-galactonic acid
+  source: IUPAC
+- name: SM(d18:1/16:0(OH))
+  source: ChEBI
+- name: poly(2,7-fluorene)s
+  source: ChEBI
+- name: 19-Nor-5beta-androstane-3alpha,17beta-diol
+  source: KEGG COMPOUND
+- name: Triacylglycerol
+  source: HMDB
+- name: patent alum
+  source: ChEBI
+- name: hydroperoxyl
+  source: IUPAC
+- name: 2-hydroxytricosanoate
+  source: IUPAC
+- name: L-alpha-Glycerophosphocholine
+  source: ChemIDplus
+- name: aromatase inhibitors
+  source: ChEBI
+- name: diiodobuphenine
+  source: DrugCentral
+- name: 4-methoxybenzamide
+  source: SUBMITTER
+- name: DG (0:0/18:1(n-9)/18:0)
+  source: SUBMITTER
+- name: 5,7,4'-scutellarein trimethylether
+  source: ChEBI
+- name: Di-beta-aminopropionitrile fumarate
+  source: ChemIDplus
+- name: C12:0-di-sulfatide
+  source: ChEBI
+- name: SQDG(32:3)
+  source: SUBMITTER
+- name: N-Acetyl-p-aminobenzoic acid
+  source: DrugBank
+- name: d(5'-GCAG-3')
+  source: ChEBI
+- name: cis-9-octadecenyl alcohol
+  source: ChemIDplus
+- name: TG(18:2w6/18:0/18:3w3)
+  source: HMDB
+- name: 17,18-epoxyicosatetraenoic acid
+  source: ChEBI
+- name: 1,2-diacyl-sn-glycero-3-phosphoserine(1-)
+  source: ChEBI
+- name: tetramercury(2+) ion
+  source: IUPAC
+- name: ethyl (2Z,4E,9R)-9-hydroxydeca-2,4-dienoate
+  source: SUBMITTER
+- name: 7-epi-MaR1
+  source: ChEBI
+- name: Palmitoleic acid, methyl ester
+  source: NIST Chemistry WebBook
+- name: (2E,11Z)-icosadienoyl-coenzyme A
+  source: ChEBI
+- name: ARP101
+  source: ChEBI
+- name: NeuAc(a2-3)Gal(?1-3)a-GalNAc
+  source: SUBMITTER
+- name: cyclohex-1-ene-1-carbonyl-coenzyme A
+  source: ChEBI
+- name: 2-hydroxy-3-(3-oxoprop-1-enyl)but-2-enedioic acid
+  source: IUPAC
+- name: imidacloprid-3-hydroxy
+  source: SUBMITTER
+- name: cyclo(L-Trp-L-Trp)
+  source: UniProt
+- name: (R)-Pantoyl lactone
+  source: KEGG COMPOUND
+- name: phosphatidylethanolamine(38:1)
+  source: SUBMITTER
+- name: alpha,alpha'-dipyridyl
+  source: NIST Chemistry WebBook
+- name: PE(0:0/20:4(8Z,11Z,14Z,17Z))
+  source: ChEBI
+- name: (2S)-2-amino-3-naphthalen-2-ylpropanoic acid
+  source: PDBeChem
+- name: Sumax
+  source: DrugBank
+- name: PC [18:1(omega-9)/18:0]
+  source: SUBMITTER
+- name: Lysin
+  source: ChEBI
+- name: polyhydroxyvalerates
+  source: SUBMITTER
+- name: N,N-diethyl-4-hydroxybenzamide
+  source: SUBMITTER
+- name: element 114
+  source: ChEBI
+- name: cyclohexen-3-one
+  source: NIST Chemistry WebBook
+- name: methylfumarate
+  source: Chemical Ontology
+- name: 1-butene-4-nitrile
+  source: ChemIDplus
+- name: PE O-40:4
+  source: SUBMITTER
+- name: Lecithin
+  source: HMDB
+- name: a neolactoside VI(3)-alpha-Gal-nLc6Cer(t18:0)
+  source: UniProt
+- name: Diovascole
+  source: ChemIDplus
+- name: (11E)-8-hydroxyoctadeca-11,17-dien-9-ynoic acid
+  source: SUBMITTER
+- name: phenethyl beta-D-xylosyl-(1->6)-beta-D-glucoside
+  source: ChEBI
+- name: (3beta,11alpha)-olean-13(18)-ene-3,11-diol
+  source: IUPAC
+- name: N-[12-(S)-HPETE]-alanine
+  source: ChEBI
+- name: alpha-linolenoyl group
+  source: UniProt
+- name: Phosphatidylcholine(18:0/18:4n3)
+  source: HMDB
+- name: phosphatidylethanolamine(40:6)
+  source: SUBMITTER
+- name: N,N'-diacetylchitobiosyldiphosphodolichol
+  source: UniProt
+- name: Tetrathal
+  source: ChemIDplus
+- name: Methylamylnitrosamin
+  source: ChemIDplus
+- name: hydrogen tyrosinate
+  source: IUPAC
+- name: XK 70-1
+  source: ChemIDplus
+- name: DAG(16:0/18:2n6)
+  source: HMDB
+- name: Mavik
+  source: ChemIDplus
+- name: dimethyl fuchsin
+  source: ChEBI
+- name: H-Thr-Asn-OH
+  source: ChEBI
+- name: 5'-CpGpApGpCpTpGpCpCpTpTpCpApGpTpCpG-3'
+  source: ChEBI
+- name: DAG(20:2/18:3)
+  source: HMDB
+- name: L-methionyl
+  source: ChEBI
+- name: epoxystearate
+  source: ChEBI
+- name: phosphino radical
+  source: NIST Chemistry WebBook
+- name: hydridoberyllium(1+)
+  source: IUPAC
+- name: L-Gln-L-Trp
+  source: HMDB
+- name: Lysophosphatidylcholine(18:4)
+  source: HMDB
+- name: (S)-2-amino-4-(methylthio)butyric acid
+  source: ChemIDplus
+- name: Lysopine
+  source: ChemIDplus
+- name: 4-hydroxy-3-methyl-6-(5-methylhexyl)pyran-2-one
+  source: SUBMITTER
+- name: Flindersine
+  source: KEGG COMPOUND
+- name: 8,9-dihydroxy-(5Z,11Z,14Z)-eicosatrienoate
+  source: UniProt
+- name: phosphatidylethanolamine(O-18:2_18:2)
+  source: SUBMITTER
+- name: N-methylaminoisobutanoate
+  source: SUBMITTER
+- name: bGalNAc
+  source: ChEBI
+- name: G5'ppp5'm(2')AACA-mRNA
+  source: UniProt
+- name: 4,4'-pentane-2,3-diylbis(2-fluorophenol)
+  source: IUPAC
+- name: Malonodialdehyde
+  source: ChemIDplus
+- name: Epivoacorine
+  source: KEGG COMPOUND
+- name: 2-morpholin-4-ylethanamine
+  source: SUBMITTER
+- name: chitin synthase (EC 2.4.1.16) inhibitors
+  source: ChEBI
+- name: Na2Cr2O7
+  source: IUPAC
+- name: itramin
+  source: DrugBank
+- name: modafinil
+  source: WHO MedNet
+- name: 1,2-Anthraquinonediol
+  source: ChemIDplus
+- name: procollagen amino acid residue
+  source: ChEBI
+- name: 2-nitroguanidine
+  source: IUPAC
+- name: silylbenzene
+  source: ChemIDplus
+- name: arylsulfonic acid
+  source: ChEBI
+- name: Propoxycaine
+  source: KEGG COMPOUND
+- name: mercury(II) potassium iodide
+  source: ChemIDplus
+- name: LysoPC(24:1n9/0:0)
+  source: HMDB
+- name: potassium 2-methoxy-3,6-dichlorobenzoate
+  source: ChEBI
+- name: 17beta-hydroxy-3-oxo-19-nor-5alpha-androst-1-ene
+  source: UniProt
+- name: 4-hydroxy-1,3-dihydro-2H-pyrrol-2-one
+  source: IUPAC
+- name: 1-carboxyheptan-1-aminium
+  source: IUPAC
+- name: epoxy fatty acid(1-)
+  source: ChEBI
+- name: (2R,3S,4R)-3,4,5-trihydroxy-2-methoxypentanal
+  source: SUBMITTER
+- name: 3-butyl-3a,4,5,6-tetrahydro-3H-2-benzouran-1-one
+  source: SUBMITTER
+- name: alphaFuc(1-2)betaGal(1-3)betaGalNAc
+  source: ChEBI
+- name: risamal
+  source: DrugCentral
+- name: (S)-1-phenylethylamine
+  source: UniProt
+- name: (3R)-3-hydroxypentanoic acid
+  source: IUPAC
+- name: PC(18:1/20:5)
+  source: HMDB
+- name: OxLDL
+  source: ChEBI
+- name: 7,17-dihydroperoxy-omega3-docosapentaenoic acid
+  source: ChEBI
+- name: (S)-beta-macrocarpen-15-al
+  source: ChEBI
+- name: an N-acyl-D-glucosamine
+  source: UniProt
+- name: 7-hydroxy-6-methoxy-2-phenylchromen-4-one
+  source: SUBMITTER
+- name: (2S)-2-amino-9-(methylsulfanyl)nonanoic acid
+  source: IUPAC
+- name: Silikon
+  source: ChEBI
+- name: 1,5-dihydroxy-3-methoxy-9H-xanthen-9-one
+  source: IUPAC
+- name: TG 16:0_18:1_20:2
+  source: SUBMITTER
+- name: prostaglandin E2 1,3-bis(nitrooxy)prop-2-yl ester
+  source: ChEBI
+- name: (2E,12Z)-hexadecadienal
+  source: UniProt
+- name: (S)-tryptophan
+  source: NIST Chemistry WebBook
+- name: C26DH GlcCer
+  source: LIPID MAPS
+- name: tRNA precursor
+  source: KEGG COMPOUND
+- name: Jasmone
+  source: KEGG COMPOUND
+- name: pentitol phosphates
+  source: ChEBI
+- name: Gal-16
+  source: ChEBI
+- name: triacylglycerol(62:5)
+  source: SUBMITTER
+- name: 1-O-hexadecyl (9Z)-hexadecenoate
+  source: UniProt
+- name: (3S,5R,6E,8E)-deca-6,8-diene-1,3,5-triol
+  source: SUBMITTER
+- name: PC(16:0/20:3n-3)
+  source: SUBMITTER
+- name: QL dipeptide
+  source: HMDB
+- name: all-cis-9,12,15-N-phenyloctadecatrieneamide
+  source: ChEBI
+- name: resolvin conjugate in tissue regeneration 2(1-)
+  source: ChEBI
+- name: (Z)-Furanoid linalool oxide
+  source: HMDB
+- name: PI 40:2
+  source: SUBMITTER
+- name: diphenylpyraline
+  source: ChemIDplus
+- name: 1-isopropyl-4-methylbicyclo[3.1.0]hexane
+  source: IUPAC
+- name: TG(14:0/16:0/18:0)
+  source: ChEBI
+- name: manool
+  source: UniProt
+- name: N-(9Z-octadecenoyl)-L-methioninate
+  source: SUBMITTER
+- name: 3-(hydroxyimino)butan-2-one
+  source: IUPAC
+- name: dihydromonacolin L acid(1-)
+  source: ChEBI
+- name: 1,3,5-trinitrobenzene
+  source: IUPAC
+- name: 1,8-naphthyridine
+  source: IUPAC
+- name: Diacylglycerol(20:0/18:1)
+  source: HMDB
+- name: 3-benzyl-4-phenyl-2H-uran-5-one
+  source: SUBMITTER
+- name: naproxcinod
+  source: KEGG DRUG
+- name: LSETETdL
+  source: JCBN
+- name: purgative
+  source: ChEBI
+- name: (S)-beta-OH lauric acid
+  source: ChEBI
+- name: DCD
+  source: ChEBI
+- name: SU-5402
+  source: ChEBI
+- name: 7-cis,7'-cis,9-cis,9'-cis-psi,psi-carotene
+  source: IUPAC
+- name: 2,4-diamino-6-chloro-s-triazine
+  source: NIST Chemistry WebBook
+- name: Hexylaldehyde
+  source: HMDB
+- name: amidoalkyl phosphates
+  source: ChEBI
+- name: galactose phosphates
+  source: ChEBI
+- name: 3-(3,4-dihydroxyphenyl)-2-methylpropanoic acid
+  source: SUBMITTER
+- name: L-leucyl-L-threonyl-L-glutamine
+  source: IUPAC
+- name: Dihydromyricetin
+  source: KEGG COMPOUND
+- name: (2E)-2-(hydroxyimino)-4-methylpentanoic acid
+  source: IUPAC
+- name: DAG(20:1w9/18:4w3)
+  source: HMDB
+- name: carbon group element
+  source: ChEBI
+- name: AgF
+  source: IUPAC
+- name: Oxbarukain
+  source: HMDB
+- name: E7389
+  source: ChemIDplus
+- name: Gibberellin-A-12-aldehyde
+  source: ChemIDplus
+- name: D-Melibiose
+  source: ChemIDplus
+- name: pteroylglutamate
+  source: ChEBI
+- name: Pentadecyl alcohol
+  source: HMDB
+- name: 3-hydroxytetracosanoyl-coenzyme A
+  source: ChEBI
+- name: all-trans-(3S,3'S)-astaxanthin
+  source: UniProt
+- name: LysoPE(dm16:0e)
+  source: ChEBI
+- name: nicotinic cholinergic antagonists
+  source: ChEBI
+- name: 1-PRENCSO
+  source: SUBMITTER
+- name: NAAG
+  source: KEGG COMPOUND
+- name: procarbazinum
+  source: DrugBank
+- name: torasemide
+  source: WHO MedNet
+- name: 2-hydrazinylbutanedioic acid
+  source: SUBMITTER
+- name: dehidroemetina
+  source: WHO MedNet
+- name: hydroxy-1,2-naphthoquinones
+  source: ChEBI
+- name: PC(15:1/20:4)
+  source: ChEBI
+- name: amorphous silica
+  source: ChemIDplus
+- name: arginine decarboxylase inhibitors
+  source: ChEBI
+- name: PG(36:2)
+  source: HMDB
+- name: LPS 16:2
+  source: SUBMITTER
+- name: sphingomyelin(30:0)
+  source: SUBMITTER
+- name: lysoPC P-16:0
+  source: ChEBI
+- name: 1-hexadecanoyl-sn-glycero-3-phosphoethanolamine
+  source: UniProt
+- name: o-Hydroxybenzanilide
+  source: ChemIDplus
+- name: PI(18:1n7/18:1n7)
+  source: HMDB
+- name: 3-hydroxyvalerylcarnitine
+  source: ChEBI
+- name: GM1 lactone
+  source: ChEBI
+- name: threonylglutamic acid
+  source: ChEBI
+- name: Orfadin
+  source: DrugBank
+- name: azanediidosulfidocarbon
+  source: IUPAC
+- name: 2,2,3,3-tetradeuteriosuccinic acid
+  source: ChEBI
+- name: Detmol
+  source: ChemIDplus
+- name: H1 receptor antagonists
+  source: IUPHAR
+- name: (S)-(-)-serine
+  source: NIST Chemistry WebBook
+- name: poly(DL-lactic-co-glycolic acid)
+  source: SUBMITTER
+- name: PVP8-Ag NPs
+  source: ChEBI
+- name: alkaline phosphatase inhibitor
+  source: ChEBI
+- name: 5'-d(TTTTTTTTTT)-3'
+  source: ChEBI
+- name: (1E)-1-aci-nitro-omega-(methylsulfanyl)alkane
+  source: UniProt
+- name: flunarizine HCl
+  source: DrugCentral
+- name: L-threo-3-deoxyhexulosonate
+  source: ChEBI
+- name: (+)-Paeoniflorigenone
+  source: KNApSAcK
+- name: (R)-(Homo)2-citrate
+  source: KEGG COMPOUND
+- name: 2,7-dihydroxy-5-methyl-1-naphthoate
+  source: IUPAC
+- name: HSeNC
+  source: IUPAC
+- name: DHC-A 20:0/30:0
+  source: SUBMITTER
+- name: ganglioside GD2 (d18:0)
+  source: UniProt
+- name: (+-)-tamsulosin
+  source: ChEBI
+- name: GPCho(20:3n6/20:0)
+  source: HMDB
+- name: N-(beta-hydroxyethyl)iminodiacetic acid
+  source: NIST Chemistry WebBook
+- name: cis-11-Bromovincamine
+  source: DrugCentral
+- name: triplet carbene
+  source: ChEBI
+- name: 6-Thioguanine
+  source: DrugBank
+- name: Aniline Yellow
+  source: ChemIDplus
+- name: isopropyl-N-phenylcarbamate
+  source: ChemIDplus
+- name: 9,12-dihydroxyoctadecanoic acid
+  source: SUBMITTER
+- name: oxidoreductase oxidizing metal ions inhibitor
+  source: ChEBI
+- name: 1,2-DG 20:0/20:4(omega-6)
+  source: SUBMITTER
+- name: (E)-coniferaldehyde
+  source: UniProt
+- name: RvD1n-3 DPA
+  source: SUBMITTER
+- name: 4-amino-4-carbamoylbutanoic acid
+  source: IUPAC
+- name: C-X-C motif chemokine receptor 4 antagonists
+  source: ChEBI
+- name: D-glycero-D-manno-Heptose 7-phosphate
+  source: KEGG COMPOUND
+- name: EC 3.6.3.44 inhibitors
+  source: ChEBI
+- name: Raf kinase inhibitor
+  source: ChEBI
+- name: 5-Methoxyindol-3-ylacetic acid
+  source: HMDB
+- name: Herbax
+  source: ChemIDplus
+- name: hymecromone 7-sulfate
+  source: ChEBI
+- name: dl-ketamine
+  source: ChemIDplus
+- name: EMD 335823
+  source: SUBMITTER
+- name: L-carnitinyl-CoA(3-)
+  source: SUBMITTER
+- name: (3R)-hydroxypentanoic acid
+  source: ChEBI
+- name: DG(20:0/18:3n6)
+  source: HMDB
+- name: Guanosine 5'-phosphate
+  source: KEGG COMPOUND
+- name: lacto A-8(t18:0)
+  source: SUBMITTER
+- name: GDP-alpha-D-mannuronate(3-)
+  source: ChEBI
+- name: 1-Methyl-5-p-toluoylpyrrole-2-acetic acid
+  source: ChemIDplus
+- name: Uncinatone
+  source: KEGG COMPOUND
+- name: 5-hydroxy-8-methoxy-4-phenylisoquinolin-1(2H)-one
+  source: IUPAC
+- name: Chlorat(VII)
+  source: ChEBI
+- name: (R)-2-(6-chloro-9H-carbazol-2-yl)-propionic acid
+  source: ChEBI
+- name: L-(-)-Threonine
+  source: DrugBank
+- name: phenyl-GABA
+  source: DrugCentral
+- name: deoxyuridine phosphates
+  source: ChEBI
+- name: Glycolic-lactic acid polyester
+  source: ChemIDplus
+- name: lanosta-9(11),24-dien-3beta-ol
+  source: IUPAC
+- name: 2-methyl-4-heptanone
+  source: HMDB
+- name: hydrogen allarate
+  source: IUPAC
+- name: cyclic polypyrroles
+  source: ChEBI
+- name: 4,4'-Thiobiphenyl
+  source: KEGG COMPOUND
+- name: lipopeptidophosphoglycans
+  source: ChEBI
+- name: Heparinic acid
+  source: ChemIDplus
+- name: Cobamamide
+  source: KEGG COMPOUND
+- name: 1,6-Hexanediol
+  source: ChemIDplus
+- name: 4-Butoxy-N-hydroxybenzeneacetamide
+  source: ChemIDplus
+- name: 2,4,4-trimethylpentan-2-amine
+  source: SUBMITTER
+- name: D-Arabinonate
+  source: KEGG COMPOUND
+- name: 1,2-Dinitroglycerin
+  source: ChemIDplus
+- name: 5-vinyl-2-oxazolidine-2-thione
+  source: ChEBI
+- name: Senecialdehyde
+  source: ChemIDplus
+- name: (R,S)-Reticuline
+  source: KEGG COMPOUND
+- name: S-4-fluorobenzoyl CoA
+  source: ChEBI
+- name: PA 14:0_0:0
+  source: ChEBI
+- name: Phosphatidylcholine(18:4n3/20:1n9)
+  source: HMDB
+- name: glycoprotein-IIb/IIIa receptor antagonist
+  source: ChEBI
+- name: Undulatone
+  source: KEGG COMPOUND
+- name: demethylmenaquinols
+  source: ChEBI
+- name: isoquinolinonaphthyridine
+  source: ChEBI
+- name: acetylated coumaric acid
+  source: ChEBI
+- name: L-leucine methyl ester
+  source: IUPAC
+- name: 8-amino-7-oxononanoate
+  source: IUPAC
+- name: 6-(4-oxo-1,3-thiazolidin-2-yl)hexanoic acid
+  source: SUBMITTER
+- name: EC 3.10.* inhibitors
+  source: ChEBI
+- name: 6-chloro-2-methyl-9H-beta-carbolin-2-ium
+  source: IUPAC
+- name: Tasocitinib
+  source: KEGG DRUG
+- name: alkatetraenes
+  source: ChEBI
+- name: sulphamethiozole
+  source: ChEBI
+- name: 2-arylchromen-4-one
+  source: ChEBI
+- name: prednison
+  source: ChEBI
+- name: sulfitos
+  source: ChEBI
+- name: 2-heptanoyl-sn-lysophosphatidylcholine
+  source: SUBMITTER
+- name: Daphnetol
+  source: ChemIDplus
+- name: T-I
+  source: SUBMITTER
+- name: PF 04691502
+  source: SUBMITTER
+- name: SbPh4(+)
+  source: IUPAC
+- name: lenomorelinum
+  source: WHO MedNet
+- name: GP1c(d20:0)(5-)
+  source: SUBMITTER
+- name: Karbamid
+  source: ChEBI
+- name: (E)-isopentadec-2-enoyl-coenzyme A(4-)
+  source: ChEBI
+- name: Luridin chloride
+  source: ChemIDplus
+- name: PC(18:0/22:6(4Z,7Z,10Z,13Z,16Z,19Z))
+  source: LIPID MAPS
+- name: L-Leu-Gly-Gly
+  source: ChEBI
+- name: 4-[(1S)-1-hydroxy-2-(methylamino)ethyl]phenol
+  source: IUPAC
+- name: Mexican aspirin
+  source: ChEBI
+- name: Phosphatidylcholine(18:4w3/16:0)
+  source: HMDB
+- name: TG(45:1)
+  source: ChEBI
+- name: thiolan-2-one
+  source: HMDB
+- name: gamma-ethyl cytidine triphosphate
+  source: ChEBI
+- name: cyanide salt
+  source: ChEBI
+- name: emulsifiers
+  source: ChEBI
+- name: 1H-indole-2-carboxylic acid
+  source: SUBMITTER
+- name: aryl alcohol
+  source: ChEBI
+- name: GPC(16:0/18:0)
+  source: ChEBI
+- name: dTDP-4-oxo-2,6-dideoxy-D-allose
+  source: KEGG COMPOUND
+- name: Amyl acetic ester
+  source: NIST Chemistry WebBook
+- name: (2S,6R)-10-formyltetrahydrofolic acid
+  source: ChEBI
+- name: 1,2-benzisothiazoles
+  source: ChEBI
+- name: 3,4-Dihydro-5-methyl-2H-pyrrole
+  source: ChemIDplus
+- name: desogestrel
+  source: ChEBI
+- name: 3-oxo-13,17-secoandrost-4-eno-17,13alpha-lactone
+  source: IUPAC
+- name: clafanone
+  source: DrugCentral
+- name: Galalpha1,3(Fucalpha1,2)Gal
+  source: ChEBI
+- name: poly(carbazole)s
+  source: ChEBI
+- name: Lecithin
+  source: HMDB
+- name: Lau
+  source: CBN
+- name: PG(18:1w9/20:3w9)
+  source: HMDB
+- name: organochlorides
+  source: ChEBI
+- name: MLN-0128
+  source: ChEBI
+- name: Bisphenol S
+  source: KEGG COMPOUND
+- name: methyl (2Z)-2-cyclohex-2-en-1-ylideneacetate
+  source: SUBMITTER
+- name: tetrakis(thiocyanato)argentate(I)
+  source: IUPAC
+- name: 3-carboxy-2-hydroxy-4-methylpentanoic acid
+  source: ChEBI
+- name: Glc(?1-4)GlcNAc(?1-4)Gal(?1-3)a-GalNAc
+  source: SUBMITTER
+- name: (RS)-econazole nitrate
+  source: ChEBI
+- name: GPCho(36:3)
+  source: HMDB
+- name: 1-Oleoyl-2-eicsoate
+  source: HMDB
+- name: ferrous sulfate (dried)
+  source: ChEBI
+- name: DHC-B' 20:0/30:0
+  source: SUBMITTER
+- name: (+)-L-methylergothioneine
+  source: ChEBI
+- name: phosphatidylethanolamine(O-32:5)
+  source: SUBMITTER
+- name: (R)-metanephrine
+  source: UniProt
+- name: 6-O-adenylylstreptidine
+  source: UniProt
+- name: GPCho(18:1w9/18:0)
+  source: HMDB
+- name: 2-hydroxy-2,3-dihydrogenistein
+  source: UniProt
+- name: Samaderin A
+  source: KEGG COMPOUND
+- name: N-[(1H-indol-3-yl)acetyl]valine
+  source: IUPAC
+- name: an L-N,N-dihydroxypolyhomomethionine
+  source: UniProt
+- name: Steroidhormone
+  source: ChEBI
+- name: an N-acetylarylamine
+  source: UniProt
+- name: Cephazolidin
+  source: ChemIDplus
+- name: Angustibalin
+  source: KEGG COMPOUND
+- name: Fluorure d'ammonium
+  source: ChEBI
+- name: 5alpha-cholest-7-en-3beta-ol
+  source: ChEBI
+- name: trans-2,3-Dimethylacrolein
+  source: HMDB
+- name: 3-oxotriacontanoyl-coenzyme A(4-)
+  source: ChEBI
+- name: Mustin hydrochloride
+  source: ChemIDplus
+- name: gamma-Terpinyl acetate
+  source: KEGG COMPOUND
+- name: 2-(dimethylamino)ethyl dihydrogen phosphate
+  source: IUPAC
+- name: xanbon
+  source: DrugCentral
+- name: 1-amino-2-fluorobenzene
+  source: ChemIDplus
+- name: diethylnitrosoamine
+  source: ChemIDplus
+- name: isoxadifen ethyl
+  source: ChEBI
+- name: 5-butyl-2,4-dimethyl-1,3-oxazole
+  source: SUBMITTER
+- name: gallopamil hydrochloride
+  source: DrugCentral
+- name: Evomonosid
+  source: ChemIDplus
+- name: 2-Pyrrolidinoneacetamide
+  source: DrugCentral
+- name: hormones
+  source: Chemical Ontology
+- name: (3beta)-Lup-20(29)-en-3-yl acetate
+  source: ChEBI
+- name: DAG(14:0/18:1)
+  source: HMDB
+- name: hydroxymethylphosphonate
+  source: ChEBI
+- name: silsesquioxanes
+  source: ChEBI
+- name: (4R,5S)-4,5,6-trihydroxy-2,3-dioxohexanoate
+  source: Chemical Ontology
+- name: 2-(2'-hydroxylphenyl)benzoxazole
+  source: ChEBI
+- name: GGTI 2133 free base
+  source: ChEBI
+- name: (+)-Xylose
+  source: ChemIDplus
+- name: 2,2-dimethylpropionate
+  source: ChEBI
+- name: methyl (E)-undec-9-enoate
+  source: SUBMITTER
+- name: lysophosphatidylcholine (19:0/0:0)
+  source: ChEBI
+- name: diphenyl benzene-1,2-dicarboxylate
+  source: IUPAC
+- name: (2S)-hydroxy(phenyl)acetic acid
+  source: IUPAC
+- name: 1,5-dimethyl-1,2,3,4-tetrahydronaphthalene
+  source: IUPAC
+- name: Selenic acid, disodium salt
+  source: ChemIDplus
+- name: Benzedrine
+  source: ChEBI
+- name: 28-nortyphasterol
+  source: UniProt
+- name: maltobiose
+  source: NIST Chemistry WebBook
+- name: ponatinib HCl
+  source: ChEBI
+- name: chlorquinaldol
+  source: WHO MedNet
+- name: 3'-(N-Acetyl-alpha-neuraminosyl)lactose
+  source: HMDB
+- name: tris(N,N-dimethyldithiocarbamato)iron(III)
+  source: ChemIDplus
+- name: Isonaringenin
+  source: ChemIDplus
+- name: 12:1, n-9
+  source: ChEBI
+- name: GalNAc(b1-4)Gal(b1-3)GalNAc
+  source: SUBMITTER
+- name: d5-PMMA
+  source: ChEBI
+- name: cholyl-coenzyme A
+  source: ChEBI
+- name: microtubule-associated protein kinase inhibitor
+  source: ChEBI
+- name: Glyceryl tridecanoate
+  source: NIST Chemistry WebBook
+- name: (E)-1-(2-hydroxyphenoxy)tricos-1-en-3-one
+  source: SUBMITTER
+- name: rac-flufiprole
+  source: ChEBI
+- name: Acebutolol
+  source: KEGG COMPOUND
+- name: 2M4VP
+  source: ChEBI
+- name: UCP inhibitor
+  source: ChEBI
+- name: alkaline earth molecular entity
+  source: ChEBI
+- name: XR-729
+  source: ChEBI
+- name: purine 2'-deoxyribonucleoside 5'-monophosphates
+  source: ChEBI
+- name: 9E-tetradecenoic acid
+  source: LIPID MAPS
+- name: amrubicin
+  source: ChEBI
+- name: Caprylyl acetate
+  source: ChemIDplus
+- name: perbromometallate anions
+  source: ChEBI
+- name: tripotassium citrate monohydrate
+  source: ChEBI
+- name: HSQGTFTSDYSKYLDSRRAQDFVQWLMNT
+  source: ChEBI
+- name: 5alpha,6beta-dihydroxy-5,6-dihydrophysalin B
+  source: IUPAC
+- name: EC 2.7.* inhibitors
+  source: ChEBI
+- name: (2S)-butane-1,2-diol
+  source: IUPAC
+- name: sodium tetradecyl sulfate
+  source: KEGG DRUG
+- name: N-Salicyloylglycine
+  source: ChemIDplus
+- name: Urombrine
+  source: ChemIDplus
+- name: sulfated Lewis X
+  source: ChEBI
+- name: caffeic acid 3-O-sulfate
+  source: ChEBI
+- name: (1S,2R)-1,2-dimethylcyclohexane
+  source: SUBMITTER
+- name: 2,2'-dithienyl
+  source: NIST Chemistry WebBook
+- name: TG(50:2)
+  source: HMDB
+- name: poly(isoprene)
+  source: ChEBI
+- name: gamma-aminobutyric acid lactam
+  source: NIST Chemistry WebBook
+- name: gamma-aminobutyric acid transaminase inhibitor
+  source: ChEBI
+- name: cocoonase inhibitor
+  source: ChEBI
+- name: Pt
+  source: ChEBI
+- name: neurotoxins
+  source: ChEBI
+- name: demethylpterocarpin
+  source: ChEBI
+- name: hemeproteins
+  source: IUBMB
+- name: GLM-NH2
+  source: ChEBI
+- name: Asiatic acid
+  source: KEGG COMPOUND
+- name: methyl thiophene-2-carboxylate
+  source: SUBMITTER
+- name: lysergic acid amide
+  source: ChemIDplus
+- name: CP 690550
+  source: DrugCentral
+- name: DAG(20:3/16:0)
+  source: HMDB
+- name: 1-stearoyl-2-arachidonoyl-GPI
+  source: ChEBI
+- name: (E)-Ferulic acid
+  source: ChemIDplus
+- name: 3,5-dimethylbenzoate
+  source: IUPAC
+- name: L-threonine derivatives
+  source: ChEBI
+- name: phosphatidylinositol mannosides
+  source: ChEBI
+- name: A-P-G
+  source: ChEBI
+- name: 2-(cyclohexylamino)ethanesulfonic acid
+  source: IUPAC
+- name: NeuAc-alpha2->8NeuAc2->3LacCer
+  source: KEGG COMPOUND
+- name: Fuc(?1-2)[GalNAc(?1-3)]Gal(?1-3)a-GalNAc
+  source: SUBMITTER
+- name: P(nBA)
+  source: ChEBI
+- name: Lecithin
+  source: ChEBI
+- name: gamma-hydroxybutyrate
+  source: ChemIDplus
+- name: soluble guanylate cyclase activators
+  source: ChEBI
+- name: BH4(+)
+  source: IUPAC
+- name: ARSENATE
+  source: PDBeChem
+- name: Phenanthrene-9,10-oxide
+  source: KEGG COMPOUND
+- name: myo-inosose-2
+  source: ChEBI
+- name: pyridine-1-oxide
+  source: ChemIDplus
+- name: 3alpha-hydroxyetiocholan-17-one 3-glucuronide
+  source: ChEBI
+- name: (E)-6-phenylhex-3-en-2-one
+  source: SUBMITTER
+- name: 3,4-dihydroxycyclobut-3-ene-1,2-dione
+  source: IUPAC
+- name: 2-hydroxyoctanoyl-CoA
+  source: UniProt
+- name: PSer(16:0/20:4w6)
+  source: HMDB
+- name: acido 7-tetradecanoico
+  source: ChEBI
+- name: (nonanoylamino)acetic acid
+  source: IUPAC
+- name: (-)-trans-Chrysanthemumsaeure
+  source: ChEBI
+- name: acetyl chloride
+  source: IUPAC
+- name: N-amidinosarcosine
+  source: ChemIDplus
+- name: Diglyceride
+  source: HMDB
+- name: gentiobiosylthevetoside
+  source: ChEBI
+- name: (-)-ibogamine
+  source: ChEBI
+- name: sumiklat inhibitors
+  source: ChEBI
+- name: 4-ethylbenzenemethanol
+  source: ChEBI
+- name: CH3CH(OH)CONH2
+  source: ChEBI
+- name: DMDP
+  source: KEGG COMPOUND
+- name: 1-(4-oxobutyl)guanidine
+  source: IUPAC
+- name: Adancor
+  source: ChEBI
+- name: 2-O-alpha-D-galactopyranosyl-D-galactopyranosyl
+  source: ChEBI
+- name: N-methyl-D-aspartate receptor antagonists
+  source: ChEBI
+- name: PC(O-38:0)
+  source: SUBMITTER
+- name: 4-O-beta-D-galactopyranosyl-D-mannopyranose
+  source: IUPAC
+- name: Fluonid
+  source: ChemIDplus
+- name: Cefmenoxime hemihydrochloride
+  source: ChemIDplus
+- name: 2-carboxylato-D-arabinitol 1-phosphate
+  source: ChEBI
+- name: mugineate
+  source: UniProt
+- name: succinyl oxide
+  source: ChemIDplus
+- name: L-Phe-L-Phe-L-Asp
+  source: ChEBI
+- name: tritriacontane-16,18-dione
+  source: IUPAC
+- name: Cholest-5-ene
+  source: KEGG COMPOUND
+- name: 2-O-beta-D-glucopyranosyl-D-xylopyranose
+  source: IUPAC
+- name: CDP-1-stearoyl-2-docosahexaenoyl-sn-glycerol(2-)
+  source: ChEBI
+- name: '[N2O](.-)'
+  source: ChEBI
+- name: S186
+  source: ChemIDplus
+- name: 2,3-dihydroxypropyl propanoate
+  source: SUBMITTER
+- name: Glycolic acid - lactic acid copolymer
+  source: ChemIDplus
+- name: methyl-5-furfural
+  source: NIST Chemistry WebBook
+- name: beta-GalNAc
+  source: ChEBI
+- name: Phosphatidylcholine(18:1n9/22:4n6)
+  source: HMDB
+- name: Phosphatidylserine(18:3n3/18:1n9)
+  source: HMDB
+- name: (E)-1-hydroxy-4-(3,5-dimethoxy)styrylbenzene
+  source: ChEBI
+- name: cis-p-coumaroylagmatine
+  source: ChEBI
+- name: PC(O-38:7)
+  source: ChEBI
+- name: HA synthesis inhibitor
+  source: ChEBI
+- name: dihydroalstonine
+  source: UniProt
+- name: D-Rha
+  source: JCBN
+- name: N-methyl-N-nitrosouree
+  source: ChEBI
+- name: sodium trimethylsilylpropanoate
+  source: ChEBI
+- name: MMPR
+  source: ChemIDplus
+- name: Phenylmethyl ethanoate
+  source: ChemIDplus
+- name: poly(cis-1,4-isoprene)
+  source: MetaCyc
+- name: chondroitin sulphate
+  source: ChemIDplus
+- name: 3-methylbutyrate
+  source: ChEBI
+- name: PC(36:4)
+  source: HMDB
+- name: (Z)-1-propene-1,2,3-tricarboxylic acid
+  source: ChemIDplus
+- name: ADP-L-glycero-beta-D-manno-heptose
+  source: UniProt
+- name: ethambutol HCl
+  source: ChemIDplus
+- name: (2S,3R)-2-ammonio-3-hydroxybutanoyl
+  source: IUPAC
+- name: vitamin G
+  source: DrugBank
+- name: corrole
+  source: CBN
+- name: MP-D
+  source: ChEBI
+- name: Daphnin
+  source: KEGG COMPOUND
+- name: 17-(3-Pyridyl)androsta-5,16-dien-3beta-ol
+  source: ChemIDplus
+- name: alpha-Tocopherol nicotinate
+  source: DrugCentral
+- name: Apigenin
+  source: KEGG COMPOUND
+- name: (RS)-mosapride
+  source: ChEBI
+- name: benzylthiol
+  source: UniProt
+- name: 3'-dehydropuerarin
+  source: SUBMITTER
+- name: SAN 6915H
+  source: PPDB
+- name: aceto-
+  source: SUBMITTER
+- name: 4-Hydroxycinnamoyl-CoA
+  source: KEGG COMPOUND
+- name: Strigol
+  source: KEGG COMPOUND
+- name: enkephalin L
+  source: HMDB
+- name: 1,4-ethylenepiperazine
+  source: ChemIDplus
+- name: GalCer(d18:1/24:1)
+  source: ChEBI
+- name: Hydrocortisone caproate
+  source: KEGG COMPOUND
+- name: S-Propionylcoenzyme A
+  source: ChemIDplus
+- name: dichloromethylene
+  source: NIST Chemistry WebBook
+- name: alpha-hydroxylaurate
+  source: ChEBI
+- name: PIno(20:2w6/18:2w6)
+  source: HMDB
+- name: Cobyrinic acid
+  source: KEGG COMPOUND
+- name: RG-7204
+  source: DrugBank
+- name: 2-methylphenol
+  source: IUPAC
+- name: Rizmylate
+  source: ChEBI
+- name: Brevicolline
+  source: KEGG COMPOUND
+- name: Hpz
+  source: IUPAC
+- name: (E,14R)-14-methylhexadec-8-enal
+  source: SUBMITTER
+- name: DAG(18:1n7/18:0)
+  source: HMDB
+- name: 4-Chloro-2-methylphenol
+  source: KEGG COMPOUND
+- name: MA 144 S1
+  source: ChemIDplus
+- name: 9Z,12Z,15Z,18Z-Tetracosatetraenoic acid
+  source: LIPID MAPS
+- name: 7-deoxyloganetic alcohol
+  source: UniProt
+- name: '[O3I(mu-O)3IO3](4-)'
+  source: IUPAC
+- name: 9-ODA
+  source: ChEBI
+- name: 4-methyl-6,7-dihydroxycoumarin
+  source: ChemIDplus
+- name: an N-acylsphinganine-1-phosphoethanolamine
+  source: UniProt
+- name: 6-butyl-1,4-dioxan-2-one
+  source: SUBMITTER
+- name: 1,2,4-trimethylidenecyclohexane
+  source: SUBMITTER
+- name: 1-palmitoyl-2-linolenoyl-GPA
+  source: SUBMITTER
+- name: methyl-d3 cyanide
+  source: SUBMITTER
+- name: 3',4',5,6-tetrahydroxy-3,7-dimethoxyflavone
+  source: UniProt
+- name: alpha-glucosidase inhibitor
+  source: ChEBI
+- name: AMN 082
+  source: ChEBI
+- name: 1-Vaccenoyl-2-docosapentaenoyl-sn-glycerol
+  source: HMDB
+- name: 2,3-dihydroflavon-3-ol
+  source: UniProt
+- name: D-Pantetheine
+  source: ChemIDplus
+- name: phenethylglucosinolate
+  source: ChEBI
+- name: p-phlorizin
+  source: ChemIDplus
+- name: tetracosyl alcohol
+  source: ChemIDplus
+- name: Duboisine
+  source: KEGG COMPOUND
+- name: metochalcon
+  source: DrugCentral
+- name: threo-1,4-Dimercapto-2,3-butanediol
+  source: KEGG COMPOUND
+- name: bile acid hydroxylation conjugates
+  source: ChEBI
+- name: HT-2
+  source: ChemIDplus
+- name: glycerophosphoinositol synthesis inhibitors
+  source: ChEBI
+- name: N-Acetylimidazole
+  source: KEGG COMPOUND
+- name: Dasytrichone
+  source: KEGG COMPOUND
+- name: GPCho(36:2)
+  source: HMDB
+- name: Colestimide
+  source: KEGG COMPOUND
+- name: hexadec-2-enoyl-coenzyme A
+  source: ChEBI
+- name: alpha-L-rhamnosyl-(1->3)-D-glucitol
+  source: ChEBI
+- name: 4-fumarylacetoacetate dianion
+  source: ChEBI
+- name: phosphatidylserine(44:6)
+  source: SUBMITTER
+- name: S-octanoyl-4'-phosphopantetheine
+  source: UniProt
+- name: 6-hydroxyhexanoic acid
+  source: IUPAC
+- name: globoside NeuGc-GalGb4Cer (d18:1(4E))
+  source: UniProt
+- name: GPG(18:2/20:3)
+  source: HMDB
+- name: pyrazinoisoquinolines
+  source: ChEBI
+- name: (2R)-2-amino-4-(methylsulfanyl)butanoyl
+  source: IUPAC
+- name: MEK2 inhibitors
+  source: ChEBI
+- name: pyrazine-2,5-diol
+  source: IUPAC
+- name: DAG(18:2/20:3)
+  source: HMDB
+- name: polybrominated biphenyl
+  source: ChEBI
+- name: 5'-CpG-3'
+  source: ChEBI
+- name: 3-acetamido-2-hydroxy-4-methoxybenzamide
+  source: SUBMITTER
+- name: Butyrosin A
+  source: ChEBI
+- name: testosterone
+  source: UniProt
+- name: lysophosphatidylethanolamine 6:0 zwitterion
+  source: ChEBI
+- name: 17beta-Hydroxy-5alpha-androstan-3-one
+  source: KEGG COMPOUND
+- name: 5-methyl-2-furancarboxyaldehyde
+  source: NIST Chemistry WebBook
+- name: environmental food contaminants
+  source: ChEBI
+- name: Dimethamine
+  source: KEGG COMPOUND
+- name: flucytosine
+  source: WHO MedNet
+- name: Secnidal
+  source: KEGG DRUG
+- name: Lubiprostone
+  source: KEGG COMPOUND
+- name: 4-[2-(2-methylphenyl)-2-oxoethyl]benzamide
+  source: SUBMITTER
+- name: Inlyta
+  source: KEGG DRUG
+- name: tetrathietane
+  source: IUPAC
+- name: 1,2,8-trihydroxy-3-methyl-9,10-anthraquinone
+  source: IUPAC
+- name: 16-Acetylgitoxigenin
+  source: ChEBI
+- name: PC(O-16:1/20:4)
+  source: ChEBI
+- name: noxiron
+  source: DrugCentral
+- name: 1-hexadecyl-sn-glycerol 3-phosphate
+  source: ChEBI
+- name: Pramiel
+  source: DrugBank
+- name: Tn saccharide component
+  source: ChEBI
+- name: 3-oxocholan-24-oyl-CoA
+  source: UniProt
+- name: Aflatoxin-M1-8,9-epoxide
+  source: KEGG COMPOUND
+- name: 4-O-alpha-D-glucopyranosyl-alpha-D-glucopyranose
+  source: ChEBI
+- name: GUANOSINE-5'-DIPHOSPHATE-BETA-L-GALACTOSE
+  source: PDBeChem
+- name: deoxyhypusine residue
+  source: UniProt
+- name: clavulonic acid
+  source: ChEBI
+- name: L-cysteinylglycine disulfide dizwitterion
+  source: SUBMITTER
+- name: DFMO
+  source: ChemIDplus
+- name: 2alpha-MeGA1
+  source: ChEBI
+- name: ganglioside Gal-(Fuc)-GM1 (t18:0)
+  source: UniProt
+- name: Glc(a1-2)[GlcNAc(a1-3)]Gal
+  source: IUPAC
+- name: PC 12:0
+  source: ChEBI
+- name: DAG(20:4n3/18:1n7)
+  source: HMDB
+- name: 1L-conduritol B epoxide
+  source: ChEBI
+- name: noxfire
+  source: ChemIDplus
+- name: laccaic acid
+  source: ChEBI
+- name: coumaroylagmatine
+  source: ChEBI
+- name: 2-[2-(dimethoxyamino)propan-2-yl]propane-1,3-diol
+  source: SUBMITTER
+- name: PC(16:1/0:0)
+  source: ChEBI
+- name: trioxo-lambda(7)-chloranyloxy
+  source: IUPAC
+- name: loperamidum
+  source: ChemIDplus
+- name: 3-ammoniobutanoate
+  source: SUBMITTER
+- name: (1S,2S)-OPC8
+  source: ChEBI
+- name: 1-O-oleoyl-NAS
+  source: SUBMITTER
+- name: 2-(Methoxy-carbonylamino)-benzimidazol
+  source: ChemIDplus
+- name: isoammodendrine
+  source: ChEBI
+- name: 3-(4-aminobutanoyl)pyridine-6-ol
+  source: ChEBI
+- name: 4-chloro-3-methyl-1,2-benzenediol
+  source: ChEBI
+- name: CGS-16949A
+  source: DrugCentral
+- name: 2-Amino-4-nitroanisole
+  source: ChemIDplus
+- name: tetraethyllead
+  source: IUPAC
+- name: 1-O-alkyl-sn-glycero-3-phospho-L-serine
+  source: UniProt
+- name: Galbeta1-4GlcNAcbeta
+  source: ChEBI
+- name: Buten
+  source: ChEBI
+- name: UDPglucose
+  source: KEGG COMPOUND
+- name: Pent-2t-ensaeure
+  source: ChEBI
+- name: (2S)-2-(acetylamino)-6-aminohexanoic acid
+  source: IUPAC
+- name: trovafloxacin monomesylate
+  source: ChEBI
+- name: Galalpha1-4Galbeta1-4Glcbeta-R
+  source: ChEBI
+- name: Man(a1-2)Man(a1-3)[Man(a1-2)Man(a1-6)]Man
+  source: SUBMITTER
+- name: Helio fast rubin BBL
+  source: ChEBI
+- name: (14R,22)-diHDHA
+  source: ChEBI
+- name: acetate
+  source: UniProt
+- name: N-(1-methylethyl)-N'-phenyl-1,4-benzenediamine
+  source: NIST Chemistry WebBook
+- name: N-propanoyltaurine
+  source: UniProt
+- name: glymidine sodique
+  source: WHO MedNet
+- name: (-)-N-methyl-L-proline
+  source: KNApSAcK
+- name: Narcozep
+  source: DrugBank
+- name: (R)-amygdalin
+  source: UniProt
+- name: rel-(2R,6S)-4-dodecyl-2,6-dimethylmorpholine
+  source: ChEBI
+- name: 1-[(E)-octadec-9-enoyl]glycerol
+  source: ChEBI
+- name: lomustina
+  source: WHO MedNet
+- name: propane-1,3-diol
+  source: IUPAC
+- name: GlcNAc(b1-2)a-Man
+  source: SUBMITTER
+- name: N-Hydroxy-4-aminobiphenyl
+  source: KEGG COMPOUND
+- name: -OBrO
+  source: IUPAC
+- name: ceramide-1-phosphoethanolamine zwitterion
+  source: SUBMITTER
+- name: oxymetazoline
+  source: WHO MedNet
+- name: Mercaptobenzothiazole
+  source: ChemIDplus
+- name: cis-10-heptadecenoate
+  source: ChEBI
+- name: (3beta,16alpha)-3,16-dihydroxypregn-5-en-20-one
+  source: ChemIDplus
+- name: fluorine-19
+  source: ChEBI
+- name: a 1,3-diacylglycerol
+  source: UniProt
+- name: dinor-L-arginine
+  source: ChEBI
+- name: thiopropazatum
+  source: ChemIDplus
+- name: 9-(9Z-octadecenoyloxy)-octadecanoic acid
+  source: LIPID MAPS
+- name: 2-(Dimethylamino)-1-ethanol
+  source: ChemIDplus
+- name: Biobenzyfuroline
+  source: ChemIDplus
+- name: 3-aminobutanoic acid
+  source: ChEBI
+- name: 9-(octadecanoyloxy)octadecanoic acid
+  source: IUPAC
+- name: '[Myelin basic protein]-arginine'
+  source: KEGG COMPOUND
+- name: Acutumidine
+  source: KEGG COMPOUND
+- name: (2R)-2-hydroxypropanoic acid
+  source: IUPAC
+- name: 2,3-dimethyl-5-phenylpiperazine
+  source: SUBMITTER
+- name: (2S)-hydroxy(4-hydroxyphenyl)acetonitrile
+  source: IUPAC
+- name: 2-hydroxy-3,5,5-trimethylcyclohex-2-en-1-one
+  source: SUBMITTER
+- name: 3-O-Methylmethyldopa
+  source: ChemIDplus
+- name: globoside GalGalGb3Cer (d18:1(4E))
+  source: UniProt
+- name: meta-iodonitrobenzene
+  source: ChEBI
+- name: GPCho(22:5/14:0)
+  source: HMDB
+- name: TAG(49:2)
+  source: ChEBI
+- name: Simon metabolite
+  source: LIPID MAPS
+- name: all-trans-4-hydroxyretinal
+  source: UniProt
+- name: 1-(2-aminophenyl)decane-1,3-dione
+  source: UniProt
+- name: Phosphatidylglycerol(18:1/18:1)
+  source: HMDB
+- name: santamarine
+  source: ChEBI
+- name: 2,4-dichlorobenzoate
+  source: IUPAC
+- name: Fe(3+)
+  source: IUPAC
+- name: PS 1145
+  source: ChEBI
+- name: Rhodamine tetramethylisothiocyanate
+  source: ChemIDplus
+- name: Poly(acrylic acid), sodium salt
+  source: ChemIDplus
+- name: 5-methoxyfuranocoumarin
+  source: SUBMITTER
+- name: collagen protease inhibitor
+  source: ChEBI
+- name: 2-bromo-1,5-dinitrobenzene
+  source: ChEBI
+- name: Diacylglycerol(18:3/20:3)
+  source: HMDB
+- name: 2-Methyl-1,4-naphthochinon
+  source: ChemIDplus
+- name: phenozolone
+  source: DrugCentral
+- name: ganglioside GA2 III3-sulfates
+  source: ChEBI
+- name: PC(36:3)
+  source: HMDB
+- name: 3-methyl-benzenemethanol
+  source: MetaCyc
+- name: beta,gamma-angelica lactone
+  source: NIST Chemistry WebBook
+- name: Liatrin
+  source: KEGG COMPOUND
+- name: 3,7,11-trimethyl-1,6,10-dodecatrien-3-ol
+  source: ChemIDplus
+- name: aminodiacetate
+  source: UniProt
+- name: HxB3
+  source: ChEBI
+- name: cerous(III) chloride
+  source: ChemIDplus
+- name: Diacylglycerol(18:2n6/14:1n5)
+  source: HMDB
+- name: Diphenylenemethane
+  source: KEGG COMPOUND
+- name: CHIR265
+  source: ChEBI
+- name: 2-aminoethanesulfinate
+  source: IUPAC
+- name: phosphatidylserine(43:6)
+  source: ChEBI
+- name: SM 18:1
+  source: ChEBI
+- name: Phosphatidylglycerol(16:1n7/20:3n6)
+  source: HMDB
+- name: chalcocarbonic acids
+  source: ChEBI
+- name: (2-aminobenzyl)malonyl-CoA
+  source: UniProt
+- name: hydroxy fatty acid(1-)
+  source: SUBMITTER
+- name: 2-ethyl-4,6-dihydroxybenzoic acid
+  source: SUBMITTER
+- name: 1-protocatechuoyl-beta-D-glucose
+  source: ChEBI
+- name: CC
+  source: ChemIDplus
+- name: cyclo-GTVAVQFL
+  source: SUBMITTER
+- name: adenylyl MoO3-molybdopterin cofactor
+  source: UniProt
+- name: Streptidine
+  source: KEGG COMPOUND
+- name: (10Z,13Z,16Z)-3-oxodocosatrienoyl-coenzyme A(4-)
+  source: ChEBI
+- name: 5-hydroxyoctadecanoate
+  source: IUPAC
+- name: (E)-2-(carboxymethylamino)oct-4-enoic acid
+  source: SUBMITTER
+- name: PC(22:5/14:0)
+  source: HMDB
+- name: (9Z)-tetradec-9-enoic acid
+  source: IUPAC
+- name: 2-(hydroxyamino)-7-(methylsulfanyl)heptanoate
+  source: IUPAC
+- name: enasidenib
+  source: WHO MedNet
+- name: 4-formylbenzenesulfonate
+  source: UniProt
+- name: Methoprene
+  source: KEGG COMPOUND
+- name: cupric sulfide
+  source: ChemIDplus
+- name: 1,2-dibromo-2,2-dichloroethyl dimethyl phosphate
+  source: IUPAC
+- name: methyl butanoate
+  source: HMDB
+- name: I(.)
+  source: IUPAC
+- name: (+)-herquline C
+  source: ChEBI
+- name: sodium laurate
+  source: ChEBI
+- name: (14S,22)-diHDHA
+  source: ChEBI
+- name: Potassium monophosphate
+  source: ChemIDplus
+- name: PC(37:6)
+  source: ChEBI
+- name: 1,4-dihydroxyanthra-9,10-quinone
+  source: NIST Chemistry WebBook
+- name: fluconazol
+  source: ChemIDplus
+- name: HOAc
+  source: ChEBI
+- name: 1-stearoyl-2-oleoyl-GPE (18:0/18:1)
+  source: ChEBI
+- name: pnictogen hydrides
+  source: ChEBI
+- name: 9-oxononanoate
+  source: IUPAC
+- name: UDP-alpha-GlcNAc(3keto)A(3-)
+  source: ChEBI
+- name: teprin
+  source: DrugCentral
+- name: 3beta,16beta-dihydroxyolean-12-en-28-oate
+  source: IUPAC
+- name: trifluoperazine
+  source: ChEBI
+- name: 1-(ergostan-3beta-yl)-L-aspartate
+  source: UniProt
+- name: 5'''-episilvestrol
+  source: ChEBI
+- name: glucosamine 6-phosphate synthase inhibitor
+  source: ChEBI
+- name: Na
+  source: IUPAC
+- name: SHCHC
+  source: KEGG COMPOUND
+- name: dithionic acid
+  source: IUPAC
+- name: pentenedioates
+  source: ChEBI
+- name: Protandren
+  source: KEGG COMPOUND
+- name: poly[4-(4-benzoylphenoxy)phenol]
+  source: ChEBI
+- name: Calligonine
+  source: KEGG COMPOUND
+- name: bromoalkanes
+  source: ChEBI
+- name: dhk-LXA4
+  source: SUBMITTER
+- name: L-Sulforaphane
+  source: ChemIDplus
+- name: beta,beta-caroten-4-one
+  source: IUPAC
+- name: 2-amino-2-deoxy-D-mannonic acid
+  source: IUPAC
+- name: Rogaine
+  source: DrugBank
+- name: CDP-DG(18:2(9Z,12Z)/18:2(9Z,12Z))
+  source: ChEBI
+- name: 24-Hydroxycalcidiol
+  source: HMDB
+- name: 3',4'-dichlorophenylpropionanilide
+  source: ChemIDplus
+- name: s-tetrachlorobenzene
+  source: NIST Chemistry WebBook
+- name: n-tetradecanamide
+  source: ChEBI
+- name: pentafluoroferrate(2-)
+  source: IUPAC
+- name: Eisentrioxid
+  source: ChEBI
+- name: N-(2-methylpropyl)ormamide
+  source: SUBMITTER
+- name: AlO(OH) (boehmite type)
+  source: IUPAC
+- name: Roxithromycin
+  source: KEGG COMPOUND
+- name: 4-methoxy-17beta-estradiol 3-O-glucuronide
+  source: ChEBI
+- name: purine nucleotides
+  source: ChEBI
+- name: 2-(Acetyloxy)-1-[(acetyloxy)methyl]ethyl acetate
+  source: HMDB
+- name: nitrophenol
+  source: IUPAC
+- name: 3-hydroxyadipoyl-coenzyme A
+  source: ChEBI
+- name: 5-hydroxypyridine-3-carboxylic acid
+  source: SUBMITTER
+- name: 3-trisulfanyl-L-alanine
+  source: IUPAC
+- name: 4-(diaminomethylideneamino)butanoic acid
+  source: ChEBI
+- name: 3,5-dimethylbenzaldehyde
+  source: UniProt
+- name: carbenicillin indanyl
+  source: ChemIDplus
+- name: N(2),N(2)-dimethyl-3',5'-cyclic-GMP
+  source: ChEBI
+- name: DG(14:0/16:0/0:0)
+  source: LIPID MAPS
+- name: 11-dehydro-thromboxane B2
+  source: UniProt
+- name: D-Alanine
+  source: KEGG COMPOUND
+- name: 5'-acylphosphoinosines
+  source: ChEBI
+- name: carboxyl ester hydrolase inhibitor
+  source: ChEBI
+- name: 4(5)-Carboxyfluorescein
+  source: ChemIDplus
+- name: (E)-dodec-7-en-1-ol
+  source: SUBMITTER
+- name: NeuGc(a2-3)Gal(b1-4)GlcNAc(b1-3)Gal(b1-3)GalNAc
+  source: SUBMITTER
+- name: Imidazole
+  source: KEGG COMPOUND
+- name: Thiazyl trifluoride
+  source: NIST Chemistry WebBook
+- name: cholestane-3alpha,7alpha,12alpha,25,26-pentol
+  source: IUPAC
+- name: oxodocosahexaenoates
+  source: SUBMITTER
+- name: (7Z,10Z,13Z,16Z)-3-oxodocosatetraenoyl-coenzyme A
+  source: ChEBI
+- name: Gal(b1-3)Gal(b1-3)a-Gal
+  source: SUBMITTER
+- name: diaminoheptanedioate
+  source: Chemical Ontology
+- name: 14,15-epoxy-12-hydroxy-(10E,17Z)-eicosadienoate
+  source: UniProt
+- name: GPCho(16:1/22:0)
+  source: HMDB
+- name: (19)F
+  source: ChEBI
+- name: PC(18:1w7/24:0)
+  source: HMDB
+- name: Spectinomycin dihydrochloride pentahydrate
+  source: ChemIDplus
+- name: 2,2-bis(hydroxymethyl)-1,3-propanediol
+  source: ChemIDplus
+- name: 3-(3-sulanylbutan-2-ylsulanyl)butan-2-ol
+  source: SUBMITTER
+- name: acetonchloroform
+  source: DrugCentral
+- name: glycochenodeoxycholate sulfate
+  source: ChEBI
+- name: L-tryptophyl-L-leucine
+  source: IUPAC
+- name: 2-hydroxycyclohexan-1-one
+  source: IUPAC
+- name: C
+  source: JCBN
+- name: gamma-L-Glutamyl-L-cysteine
+  source: KEGG COMPOUND
+- name: polyhydromethylsiloxanes
+  source: SUBMITTER
+- name: amyl alcohol, normal
+  source: ChemIDplus
+- name: (S)-beta-hydroxylauric acid
+  source: ChEBI
+- name: N-(2-aminoethyl)-1-aziridineethanamine
+  source: ChemIDplus
+- name: GPEtn(34:1)
+  source: HMDB
+- name: 1-methylcyclohexa-1,4-diene
+  source: SUBMITTER
+- name: 1-Vaccenoyl-2-stearoyl-3-oleoyl-glycerol
+  source: HMDB
+- name: phenylmethanol
+  source: IUPAC
+- name: amidino
+  source: IUPAC
+- name: O-(4-hydroxy-3,5-diiodophenyl)-3-iodo-D-tyrosine
+  source: IUPAC
+- name: methanetriol
+  source: SUBMITTER
+- name: 2,2-Dichloroethenyl dimethyl phosphate
+  source: KEGG COMPOUND
+- name: sym-triazine
+  source: NIST Chemistry WebBook
+- name: tirilazad mesilate
+  source: DrugCentral
+- name: Glc(b1-4)Glc(a1-2)Glc
+  source: SUBMITTER
+- name: L-Threonyl-L-LYSYL-L-prolyl-L-arginine
+  source: HMDB
+- name: EINECS 307-780-4
+  source: ChemIDplus
+- name: Rugosinone
+  source: KEGG COMPOUND
+- name: biochanin A
+  source: UniProt
+- name: Heteropyrithiamine
+  source: ChEBI
+- name: Moenomycin A
+  source: KEGG COMPOUND
+- name: hexadecenoyl-coenzyme A
+  source: ChEBI
+- name: octafluoropropane
+  source: IUPAC
+- name: Clofibrate
+  source: KEGG COMPOUND
+- name: PS(44:0)
+  source: SUBMITTER
+- name: (E)-2-Methoxy-4-(prop-1-enyl)phenol
+  source: HMDB
+- name: H(+)-K(+)-ATPase inhibitor
+  source: ChEBI
+- name: 2-phenylsuccinyl-CoA
+  source: UniProt
+- name: apelin-12 peptide
+  source: ChEBI
+- name: (-)-premnaspirodiene
+  source: ChEBI
+- name: PE(O-32:2)
+  source: SUBMITTER
+- name: Penoxaline
+  source: ChemIDplus
+- name: hydroxy ketone ascarosides
+  source: ChEBI
+- name: (2S)-2-aminopropan-1-ol
+  source: IUPAC
+- name: 2'4'6'4-Tetrahydroxychalcone
+  source: KEGG COMPOUND
+- name: agoniste
+  source: ChEBI
+- name: hyda#1
+  source: SMID
+- name: Octadecanoic acid, sodium salt
+  source: ChemIDplus
+- name: O-Ac-GD3
+  source: ChEBI
+- name: Ametrex
+  source: ChemIDplus
+- name: LysoPC(10:0/0:0)
+  source: HMDB
+- name: (1-methylpiperidin-4-yl) butanoate
+  source: SUBMITTER
+- name: Myristyl glycol
+  source: ChemIDplus
+- name: Benzenesulphonic acid
+  source: ChemIDplus
+- name: D-threaric acid
+  source: IUPAC
+- name: (icosanoylamino)acetate
+  source: IUPAC
+- name: polipeptido
+  source: ChEBI
+- name: (2Z,4E)-2-hydroxy-6-oxonona-2,4-dienedioate
+  source: IUPAC
+- name: betaGal(1->3)betaGalNAc
+  source: ChEBI
+- name: (4-amino-2-methylpyrimidin-5-yl)methanaminium
+  source: IUPAC
+- name: (Carboxymethyl)trimethylammonium hydroxide
+  source: ChemIDplus
+- name: 6-hydroxyhexanoic acid lactone
+  source: ChemIDplus
+- name: diethyldithiocarbamate zinc salt
+  source: ChEBI
+- name: GalNAc(a1-4)GalNAc(b1-4)GlcNAc(b1-3)Man(b1-4)Glc
+  source: SUBMITTER
+- name: PC-O 40:8
+  source: ChEBI
+- name: PVP-AgNP
+  source: ChEBI
+- name: pratosartan
+  source: ChemIDplus
+- name: 11-nor-9-carboxy-THC
+  source: ChEBI
+- name: icosanols
+  source: ChEBI
+- name: L-alanine amide
+  source: MetaCyc
+- name: FCM
+  source: KEGG DRUG
+- name: isocyanic acid
+  source: IUPAC
+- name: gamma-glutamylcysteine synthetase inhibitor
+  source: ChEBI
+- name: (-)-Menthyl acetate
+  source: KEGG COMPOUND
+- name: diethylcarbamazine citrate
+  source: DrugCentral
+- name: 10-hydroxyhenicosane
+  source: ChEBI
+- name: (E,7S,10S)-7,10-dihydroxyoctadec-8-enoic acid
+  source: SUBMITTER
+- name: Ptychodiscus brevis toxin 1
+  source: ChemIDplus
+- name: dichloromanganese--water (1/4)
+  source: IUPAC
+- name: caesium tetrabromidochromate(II)
+  source: IUPAC
+- name: Galactosamine
+  source: ChemIDplus
+- name: TG(14:0/18:2(9Z,12Z)/20:5(5Z,8Z,11Z,14Z,17Z))
+  source: LIPID MAPS
+- name: trimethylaminomethane
+  source: ChemIDplus
+- name: cis-decalin
+  source: ChemIDplus
+- name: K-A dipeptide
+  source: ChEBI
+- name: Auraviketone
+  source: KEGG COMPOUND
+- name: 22alpha-Hydroxy-5alpha-campestan-3-one
+  source: KEGG COMPOUND
+- name: (2R)-3-hydroxy-2-methylpropanoate
+  source: SUBMITTER
+- name: PC(36:4)
+  source: ChEBI
+- name: trypanothione disulfide
+  source: UniProt
+- name: Tn antigen saccharide component
+  source: ChEBI
+- name: GlcNS-GlcUA-GlcNS-GlcUA-pNP
+  source: ChEBI
+- name: 2,3,4,6,7,8-HxCDF
+  source: KEGG COMPOUND
+- name: a neolactoside III(6)-sulfo-nLc4Cer
+  source: UniProt
+- name: o-Xylol
+  source: ChemIDplus
+- name: o-Tolualdehyde
+  source: KEGG COMPOUND
+- name: 1,7,7-trimethyltricyclo[2.2.1.0(2,6)]heptane
+  source: IUPAC
+- name: Poly(benzyl L-glutamate)
+  source: ChEBI
+- name: polonium-218
+  source: ChEBI
+- name: 3-ketolauroyl-CoA
+  source: ChEBI
+- name: DG(34:4)
+  source: HMDB
+- name: 2-methoxy-1-phenylethan-1-one
+  source: IUPAC
+- name: (2E)-hex-2-en-1-yl propanoate
+  source: IUPAC
+- name: (A3'p5')2A
+  source: ChEBI
+- name: Poly-HEMA
+  source: ChEBI
+- name: Phosphatidylcholine(18:3n6/16:0)
+  source: HMDB
+- name: NAD-specific malate dehydrogenase inhibitors
+  source: ChEBI
+- name: Muscol
+  source: ChEBI
+- name: 2S-dimethylaminooctadecane-1,3R-diol
+  source: LIPID MAPS
+- name: (R)-glycerol nucleic acids
+  source: ChEBI
+- name: (5R)-tolvaptan
+  source: ChEBI
+- name: LPE P-20:0
+  source: ChEBI
+- name: n-Butyraldehyde oxime
+  source: ChemIDplus
+- name: 1-METHYLGUANIDINE
+  source: PDBeChem
+- name: (Glc)1 (Man)4
+  source: KEGG GLYCAN
+- name: 4-formyl-5-methylbenzene-1,3-diol
+  source: ChemIDplus
+- name: trihydridogallium
+  source: IUPAC
+- name: dithallium(1+) sulfate
+  source: IUPAC
+- name: (chloromethyl)ethylene oxide
+  source: ChemIDplus
+- name: D-menthol
+  source: ChEBI
+- name: a 1,2-benzoquinone
+  source: UniProt
+- name: ganglioside GalNAcGal-(Fuc)-GA1 (d18:0)
+  source: UniProt
+- name: hexose bisphosphatase inhibitor
+  source: ChEBI
+- name: 1,4-dihydroxyl-2-chlorobenzene
+  source: UM-BBD
+- name: PI(18:2/16:0)
+  source: HMDB
+- name: N-cyclopropyl-1,3,5-triazine-2,4,6-triamine
+  source: ChemIDplus
+- name: 4-amino-L-phenylalanine
+  source: KEGG COMPOUND
+- name: Hippuric acid
+  source: KEGG COMPOUND
+- name: PC(18:4w3/24:0)
+  source: HMDB
+- name: alpha-Hydroxy-1H-indole-3-propanoic acid
+  source: ChemIDplus
+- name: dicamba olamine
+  source: ChEBI
+- name: PS(17:1/18:1)
+  source: ChEBI
+- name: 5-HTQ
+  source: KEGG COMPOUND
+- name: (Z)-2-methoxy-4-propenylphenol
+  source: NIST Chemistry WebBook
+- name: (2E)-hept-2-enoic acid
+  source: IUPAC
+- name: xylo-hexosulose
+  source: ChemIDplus
+- name: 2-Methyl-1,4-naphthohydroquinone
+  source: ChemIDplus
+- name: chrodrimanin B
+  source: UniProt
+- name: Gal(b1-3)GlcNAc(b1-6)a-Man
+  source: SUBMITTER
+- name: 3-nitro-N-hydroxyethyl-p-anisidine
+  source: ChEBI
+- name: 4-HADNT C-glucoside
+  source: SUBMITTER
+- name: histidylalanine
+  source: ChEBI
+- name: Xyl(b1-6)a-Glc
+  source: IUPAC
+- name: (135)55Cs
+  source: ChEBI
+- name: suxamethonium chloride dihydrate
+  source: ChEBI
+- name: Se-methyl-D-selenocysteino
+  source: ChEBI
+- name: manganese
+  source: IUPAC
+- name: 3,4-dinitrotoluene
+  source: UniProt
+- name: fumigatonoid B
+  source: UniProt
+- name: ethenylbenzene
+  source: NIST Chemistry WebBook
+- name: Costus lactone
+  source: ChemIDplus
+- name: (E,12S)-12-hydroxyoctadec-9-enoic acid
+  source: SUBMITTER
+- name: metalutin
+  source: DrugCentral
+- name: Diacylglycerol(38:5)
+  source: HMDB
+- name: Fuc(a1-2)[GlcNAc(b1-3)]Gal
+  source: SUBMITTER
+- name: N-bromo-1H-indole
+  source: ChEBI
+- name: Gal(b1-4)GlcNAc(b1-4)Gal(b1-4)b-GlcNAc
+  source: SUBMITTER
+- name: 3,12-dihydroxypentadecanoic acid
+  source: SUBMITTER
+- name: cefpiramide anion
+  source: ChemIDplus
+- name: (7E)-pentatriaconta-1,7-dien-11-ol
+  source: SUBMITTER
+- name: anti-pellagra vitamin
+  source: NIST Chemistry WebBook
+- name: lipid A 4'-(2-aminoethyl diphosphate) (E. coli)
+  source: UniProt
+- name: Zolpidem hemitartrate
+  source: ChemIDplus
+- name: sapienoyl-coenzyme A
+  source: ChEBI
+- name: (R)-malate
+  source: UniProt
+- name: polyphenylene ethynylene
+  source: ChEBI
+- name: 2-phospho-L-ascorbate
+  source: MetaCyc
+- name: cyclohexanone
+  source: UniProt
+- name: Protein L-methionine S-oxide
+  source: KEGG COMPOUND
+- name: (1R)-1,4,5,10-tetrahydrophenazine-1-carboxylate
+  source: IUPAC
+- name: TMZ
+  source: ChEBI
+- name: 3-heptadecylbenzene-1,2-diol
+  source: IUPAC
+- name: PC(38:5)
+  source: HMDB
+- name: N(2),3-epsilonG
+  source: ChEBI
+- name: 7,8-Dihydro-7,8-dihydroxykynurenate
+  source: KEGG COMPOUND
+- name: AR42
+  source: DrugBank
+- name: Fucalpha1-2[6OSO3]Galbeta1-4[6OSO3]Glc
+  source: ChEBI
+- name: '[5-methyl-4-oxo-2-(3-oxobutan-2-yl)heptyl] ormate'
+  source: SUBMITTER
+- name: (2Z,4E)-2-hydroxyhexa-2,4-dienedioic acid
+  source: IUPAC
+- name: (9Z,12Z)-octadeca-9,12-dienoic acid
+  source: IUPAC
+- name: indapamida
+  source: DrugBank
+- name: Tanshinone
+  source: ChEMBL
+- name: monamines
+  source: Chemical Ontology
+- name: NNK
+  source: KEGG COMPOUND
+- name: 2-Oxo-2,3-dihydrofuran-5-acetate
+  source: KEGG COMPOUND
+- name: opatanol
+  source: DrugCentral
+- name: Diacylglycerol
+  source: HMDB
+- name: 4-Acetoxy-3-methoxycinnamic acid
+  source: ChemIDplus
+- name: Desmethyldiazepam
+  source: ChemIDplus
+- name: thulium
+  source: IUPAC
+- name: C6-Nbd-cer
+  source: ChemIDplus
+- name: 4-propan-2-ylcyclohexene-1-carbaldehyde
+  source: SUBMITTER
+- name: hentriacontane
+  source: IUPAC
+- name: (-)-Methyl jasmonate
+  source: KEGG COMPOUND
+- name: 1,2-dipalmitoyl-sn-glycerol-3-phosphate
+  source: ChEBI
+- name: GW 843682X
+  source: ChEBI
+- name: n-decanoic acid
+  source: NIST Chemistry WebBook
+- name: (4Z,7Z,10Z,13Z,16Z)-docosapentaenoyl-coenzyme A
+  source: ChEBI
+- name: DG(18:4/22:0)
+  source: HMDB
+- name: Nocardicin A
+  source: KEGG COMPOUND
+- name: NK-3 receptor antagonist
+  source: ChEBI
+- name: polygalactose
+  source: SUBMITTER
+- name: 1H-pyrrole-2-carboxyaldehyde
+  source: NIST Chemistry WebBook
+- name: 2,6-dichlorohydroquinone
+  source: UniProt
+- name: 3,3,5-trimethylcyclohexanol
+  source: IUPAC
+- name: Phosphatidylcholine(24:0/18:2w6)
+  source: HMDB
+- name: 5-phenylpentan-1-ol
+  source: SUBMITTER
+- name: '[Leu(5)]-enkephalin'
+  source: HMDB
+- name: PI(20:2w6/16:0)
+  source: HMDB
+- name: (S)-3-hydroxyisobutanoyl-CoA(4-)
+  source: SUBMITTER
+- name: 1-acylglycerol-3-phosphate
+  source: ChEBI
+- name: hypertenain
+  source: DrugCentral
+- name: 2,4-dimethyldecane
+  source: SUBMITTER
+- name: marimastat
+  source: KEGG DRUG
+- name: 3,5-dioxosuberic acid
+  source: ChEBI
+- name: GPCho(20:4w6/18:1w7)
+  source: HMDB
+- name: free fatty acid 20:5
+  source: ChEBI
+- name: 5-deoxy-alpha-D-ribofuranose 1-phosphate
+  source: IUPAC
+- name: 2-Acyl-sn-glycerol 3-phosphate
+  source: KEGG COMPOUND
+- name: 2-Hydroxy-8-methylchromene-2-carboxylate
+  source: KEGG COMPOUND
+- name: monoprotium
+  source: IUPAC
+- name: Diacylglycerol(20:1/14:1)
+  source: HMDB
+- name: 2-(butan-2-yl)-1,3-dioxolane
+  source: IUPAC
+- name: HADACIDIN
+  source: PDBeChem
+- name: 4'-Deoxycirramycin A1
+  source: ChemIDplus
+- name: Monosodium 3,5-diacetamido-2,4,6-triiodobenzoate
+  source: ChemIDplus
+- name: Lecithin
+  source: HMDB
+- name: taxa-4(20),11-dien-5alpha-yl acetate
+  source: UniProt
+- name: (RS)-2-amino-4-sulfobutyric acid
+  source: ChEBI
+- name: N-alkylpiperazines
+  source: ChEBI
+- name: grupo organoheterilo
+  source: IUPAC
+- name: 1,3-benzodiazine
+  source: NIST Chemistry WebBook
+- name: (2S,5S)-2,5-bis(4-hydroxybenzyl)piperazin-1-ium
+  source: IUPAC
+- name: levodopa-4'-monophosphate
+  source: ChemIDplus
+- name: DNA-cytosine methyltransferase inhibitors
+  source: ChEBI
+- name: derivatives of sulfinic acid
+  source: ChEBI
+- name: perillyl alcohol
+  source: UniProt
+- name: 3,3,7,7-tetramethyl-1,2,5-trithiepane
+  source: SUBMITTER
+- name: 3,3-dimethylnonanoic acid
+  source: SUBMITTER
+- name: luvungin A
+  source: UniProt
+- name: Glutathione disulfide
+  source: KEGG COMPOUND
+- name: Divaricoside
+  source: KEGG COMPOUND
+- name: goralatida
+  source: WHO MedNet
+- name: '>SO'
+  source: IUPAC
+- name: Diacylglycerol(16:0/0:0/18:2w6)
+  source: HMDB
+- name: Amben ethyl ester
+  source: NIST Chemistry WebBook
+- name: BRN1070340
+  source: KEGG COMPOUND
+- name: o-sulfanilic acid
+  source: NIST Chemistry WebBook
+- name: butoconazolum
+  source: ChemIDplus
+- name: mitochondrial ubiquinone
+  source: ChEBI
+- name: 3-(2-Aminoethyl)-1H-indol-5-ol
+  source: KEGG COMPOUND
+- name: GPCho(20:2w6/16:1w7)
+  source: HMDB
+- name: biperiden HCl
+  source: ChemIDplus
+- name: tartrate salts
+  source: ChEBI
+- name: nicardipine
+  source: WHO MedNet
+- name: Phosphatidylglycerol(18:3w6/22:6w3)
+  source: HMDB
+- name: Orsellinate depside
+  source: KEGG COMPOUND
+- name: 25-hydroxyvitamin D3 3-O-(beta-D-glucuronide)(1-)
+  source: ChEBI
+- name: streptidin
+  source: ChemIDplus
+- name: AF 802
+  source: ChemIDplus
+- name: thial
+  source: ChEBI
+- name: heptanoate esters
+  source: ChEBI
+- name: N(epsilon)-benzylpenicilloyl-L-lysine residue
+  source: ChEBI
+- name: N-22
+  source: DrugCentral
+- name: 1-O-(1Z)-alkenyl-2-acetyl-sn-phosphatidylcholine
+  source: SUBMITTER
+- name: DG(38:3)
+  source: HMDB
+- name: Ile-
+  source: JCBN
+- name: cadina-1(10),4-diene
+  source: IUPAC
+- name: C24:0-CoA
+  source: ChEBI
+- name: penicillanic acid
+  source: ChemIDplus
+- name: tigliane
+  source: ChEBI
+- name: (oag)1
+  source: ChEBI
+- name: radioprotective agents
+  source: ChEBI
+- name: CDP-3,6-dideoxy-D-glycero-D-glycero-4-hexulose
+  source: MetaCyc
+- name: 3-methyl-1-[1-(3-methylbutoxy)ethoxy]butane
+  source: SUBMITTER
+- name: ethyl 2'-deoxyuridine triphosphate
+  source: ChEBI
+- name: beta-D-Galp-(1->4)-beta-D-Manp
+  source: IUPAC
+- name: Phosphonomycin
+  source: KEGG COMPOUND
+- name: (Z,Z)-2,4-hexadienedioic acid
+  source: ChemIDplus
+- name: RNA transcriptase inhibitor
+  source: ChEBI
+- name: myricetin 3-O-beta-D-glucopyranosiduronic acid
+  source: ChEBI
+- name: 3beta-hydroxy-5alpha-pregnan-20-one succinate
+  source: ChEBI
+- name: PC(18:1w7/20:2w6)
+  source: HMDB
+- name: 2-trans,6-trans-farnesyl diphosphate
+  source: Chemical Ontology
+- name: Benzene-1,2,4-tricarboxylic-1,2-anhydride
+  source: NIST Chemistry WebBook
+- name: hydroxyphenylacetaldehyde oximes
+  source: ChEBI
+- name: d(TCAACC)
+  source: ChEBI
+- name: 5-n-amylresorcinol
+  source: ChemIDplus
+- name: 2-(4-methylcyclohex-3-en-1-yl)propanal
+  source: IUPAC
+- name: N,N'-bis(4-chlorophenyl)urea
+  source: IUPAC
+- name: cinnamic acid, ion(1-)
+  source: ChemIDplus
+- name: DAG(14:1w5/20:3w6)
+  source: HMDB
+- name: Tetrabenazine
+  source: KEGG COMPOUND
+- name: HTeCN
+  source: IUPAC
+- name: ethyl (R)-(-)-2-hydroxy-2-phenylacetate
+  source: ChEBI
+- name: apolipoproteins
+  source: ChEBI
+- name: Reduced acceptor
+  source: KEGG COMPOUND
+- name: dipyridodiazepines
+  source: ChEBI
+- name: C18-sphinganine
+  source: ChEBI
+- name: N,N-dimethylguanosine
+  source: IUPAC
+- name: isogloboside NeuAcGal-iGb4Cer (d18:0)
+  source: UniProt
+- name: 6-methyl-1-heptanol
+  source: NIST Chemistry WebBook
+- name: phosphatidylethanolamine(28:3)
+  source: SUBMITTER
+- name: TAG(18:1w9/18:1w7/18:2w6)
+  source: HMDB
+- name: 2-methylhexan-3-one
+  source: HMDB
+- name: naratriptanum
+  source: WHO MedNet
+- name: (9S,10R)-9,10-epoxy-18-hydroxystearic acid
+  source: ChEBI
+- name: 2-deoxyglucopyranose
+  source: ChEBI
+- name: DLSFHLLRKXIEIEKQEKEKQQAENNKLLLDLI
+  source: ChEBI
+- name: GCDCS
+  source: ChemIDplus
+- name: 1-[(2R,6R)-6-methylpiperidin-2-yl]propan-2-one
+  source: ChEBI
+- name: 1-methoxyindole-3-carbaldehyde
+  source: SUBMITTER
+- name: boldenone
+  source: ChEBI
+- name: (2E,9Z,12Z,15Z,18Z,21Z)-tetracosahexaenoyl-CoA
+  source: UniProt
+- name: Pyrotartaric anhydride
+  source: NIST Chemistry WebBook
+- name: DAG(18:3n6/18:1n7)
+  source: HMDB
+- name: banzel
+  source: DrugCentral
+- name: 3',4',5,5',7-pentahydroxyflavone
+  source: ChEBI
+- name: o-Methoxyphenyl sulfate
+  source: ChemIDplus
+- name: makena
+  source: DrugCentral
+- name: STW 33-I
+  source: ChEBI
+- name: 7-methyl-Z-tetradecen-1-ol acetate
+  source: ChEBI
+- name: pholcodinum
+  source: ChemIDplus
+- name: Planvate
+  source: ChemIDplus
+- name: 2-aminopurine riboside-3',5'-cyclic monophosphate
+  source: ChEBI
+- name: vorinostat
+  source: WHO MedNet
+- name: Zexbrevin B
+  source: KEGG COMPOUND
+- name: glucosyl-heptosyl3-KDO2-lipid A-phosphate(8-)
+  source: ChEBI
+- name: Phosphatidylcholine
+  source: ChEBI
+- name: TRIETHYLAMMONIUM ION
+  source: PDBeChem
+- name: crotonobetainyl-CoA(3-)
+  source: ChEBI
+- name: C14:2n-9,11
+  source: LIPID MAPS
+- name: (Man)1 (Xyl)1
+  source: KEGG GLYCAN
+- name: EC 3.1.27.3 inhibitor
+  source: ChEBI
+- name: DL-2-Aminohexanedioic acid
+  source: HMDB
+- name: SRK inhibitor
+  source: ChEBI
+- name: amyloid red
+  source: ChEBI
+- name: Rezzayo
+  source: KEGG DRUG
+- name: epoxyicosatetraenoate
+  source: ChEBI
+- name: 6-deoxy-6-sulfo-D-glucose(1-)
+  source: ChEBI
+- name: (S)-alpha-amino-4-hydroxybenzenepropanoic acid
+  source: NIST Chemistry WebBook
+- name: Acetyl-GPL-2 terminal disaccharide
+  source: ChEBI
+- name: tetrafluorophosphanium
+  source: IUPAC
+- name: arsenite
+  source: UniProt
+- name: ICL 670A
+  source: ChemIDplus
+- name: 4-oxo-13-cis RA
+  source: SUBMITTER
+- name: LysoPE(22:6/0:0)
+  source: SUBMITTER
+- name: NPI 2358
+  source: ChemIDplus
+- name: PC(18:1w9/24:0)
+  source: HMDB
+- name: 3-Amino-2-methylpropanoate
+  source: KEGG COMPOUND
+- name: Diacylglycerol
+  source: HMDB
+- name: 2-methyloxolane-3-thiol
+  source: SUBMITTER
+- name: (2Z,6E)-3,7,11-trimethyldodeca-2,6,10-trien-1-ol
+  source: IUPAC
+- name: lithium tetrahydroaluminate(1-)
+  source: NIST Chemistry WebBook
+- name: PNI
+  source: ChEBI
+- name: 1,4,5,6-tetrahydro-6-oxonicotinate
+  source: UniProt
+- name: 3-oxosphinganine synthetase inhibitors
+  source: ChEBI
+- name: beta-estradiol 3-benzoate
+  source: ChEBI
+- name: racemic pavine
+  source: ChEBI
+- name: beta-D-N-acetylgalactosaminyl-(1->3)-D-galactose
+  source: ChEBI
+- name: 2-methylcrotonyl-coenzyme A
+  source: ChEBI
+- name: hexaazabenzene
+  source: ChEBI
+- name: ganglioside GD1a (NeuGc/NeuAc) (d18:0)
+  source: UniProt
+- name: apixaban
+  source: WHO MedNet
+- name: chymase inhibitors
+  source: ChEBI
+- name: 12:01:00 PM
+  source: ChEBI
+- name: 5-methoxypyrrolidin-2-one
+  source: SUBMITTER
+- name: 5-pentadec-8-enylbenzene-1,3-diol
+  source: SUBMITTER
+- name: Isoetharine
+  source: KEGG COMPOUND
+- name: para-hydroxybenzoic acid hydrazide
+  source: ChEBI
+- name: 11-hexadecenoic acid
+  source: ChemIDplus
+- name: Fuc(a1-2)[GalNAc(a1-3)]Gal(b1-3)Gal(b1-4)b-Glc
+  source: SUBMITTER
+- name: beta-D-glucosyl-(1<->1')-N-acyleicosasphingosine
+  source: ChEBI
+- name: edetate disodium
+  source: ChemIDplus
+- name: nikkomycins
+  source: ChEBI
+- name: rac-chlozolinate
+  source: ChEBI
+- name: pravastatin
+  source: ChemIDplus
+- name: beta-D-mannosyl-(1->2)-beta-D-mannosyl group
+  source: ChEBI
+- name: butylene-2
+  source: ChemIDplus
+- name: ecabet sodium
+  source: DrugCentral
+- name: mefexamide hydrochloride
+  source: DrugCentral
+- name: 2-hendecanone
+  source: Chemical Ontology
+- name: indole-3-acetyl-aspartate(2-)
+  source: ChEBI
+- name: anileridinum
+  source: ChemIDplus
+- name: leukotriene-B4 20-monooxygenase inhibitors
+  source: ChEBI
+- name: (85)Rb
+  source: ChemIDplus
+- name: 1-(Indol-3-yl)propanol 3-phosphate
+  source: KEGG COMPOUND
+- name: boroxin
+  source: IUPAC
+- name: MoOS(OH)Dtpp-mP(4-)
+  source: ChEBI
+- name: Protopine
+  source: KEGG COMPOUND
+- name: promazine 5-sulfoxide
+  source: ChEBI
+- name: Orchinol
+  source: KEGG COMPOUND
+- name: 1-Methylpyridinio-3-carboxylate
+  source: KEGG COMPOUND
+- name: N-hydroxy-2-(4-isobutylphenyl)propanamide
+  source: IUPAC
+- name: Carbobenzoxyglycine
+  source: ChemIDplus
+- name: X-gal
+  source: ChEBI
+- name: iproheptine hydrochloride
+  source: DrugCentral
+- name: sphingomyelin(28:1)
+  source: SUBMITTER
+- name: versulin
+  source: ChEBI
+- name: adipinic acid
+  source: NIST Chemistry WebBook
+- name: 4alpha-formyl-5alpha-cholest-7-en-3beta-ol
+  source: UniProt
+- name: ginsenoside Rb3
+  source: UniProt
+- name: SM 40:1
+  source: SUBMITTER
+- name: Propamidine diisethionate
+  source: ChemIDplus
+- name: 2-pyrazol-1-ylbenzonitrile
+  source: SUBMITTER
+- name: (1-oxo-2,3-dihydroinden-4-yl) benzoate
+  source: SUBMITTER
+- name: DHBB
+  source: ChEBI
+- name: 4-hydroxy-L-mandelic acid
+  source: ChEBI
+- name: Glc(a1-6)GlcNAc
+  source: IUPAC
+- name: (2S)-3',4'-dihydroxyphenylalanine residue
+  source: SUBMITTER
+- name: glycylglycylproline
+  source: ChEBI
+- name: CDCA
+  source: IUPHAR
+- name: 3-hydroxybutane-1,2,3-tricarboxylate
+  source: UniProt
+- name: (E)-hexacos-9-enoic acid
+  source: SUBMITTER
+- name: Tymirium
+  source: ChEBI
+- name: Na[alpha-Kdo1Me-(2->8)-alpha-Kdo-OAll]
+  source: ChEBI
+- name: dihydrotachysterol
+  source: ChemIDplus
+- name: N-[(1Z,2S)-2-methylbutylidene]hydroxylamine
+  source: IUPAC
+- name: Decanoyl-[acyl-carrier protein]
+  source: KEGG COMPOUND
+- name: 4-Nitrobenzenemethanol
+  source: ChemIDplus
+- name: Lecithin
+  source: HMDB
+- name: Methionylthreonine
+  source: HMDB
+- name: 10-formyl-tetrahydropteroyl-[gamma-Glu]n
+  source: SUBMITTER
+- name: PC(18:0/24:0)
+  source: LIPID MAPS
+- name: Phosphatidylethanolamine(40:3)
+  source: HMDB
+- name: 3-oxo-C26:6(omega-3)-CoA(4-)
+  source: ChEBI
+- name: (6E,8Z,11Z,14Z)-5-hydroxyicosatetraenoyl-CoA(4-)
+  source: ChEBI
+- name: pent-1-en-3-one
+  source: IUPAC
+- name: (15S)-hydroperoxy-(11Z,13E)-eicosadienoate
+  source: UniProt
+- name: 1,4-dimethyl-7-(1-methylethyl)azulene
+  source: ChemIDplus
+- name: Cyclohexancarbonsaeure
+  source: ChEBI
+- name: NeuAc2-GD3
+  source: ChEBI
+- name: PS(O-30:3)
+  source: SUBMITTER
+- name: Lecithin
+  source: HMDB
+- name: 4-acetaminoantipyrine
+  source: ChemIDplus
+- name: methyl 1H-indole-5-carboxylate
+  source: SUBMITTER
+- name: PC 16:0_20:4
+  source: SUBMITTER
+- name: (2E,11Z,14Z)-eicosatrienoyl-CoA
+  source: UniProt
+- name: Disodium sulbenicillin
+  source: ChemIDplus
+- name: dimethylallyl pyrophosphate
+  source: ChEBI
+- name: alpha-D-arabinopyranose
+  source: IUPAC
+- name: spermine dialdehyde
+  source: UniProt
+- name: 2-ethoxy-5-[(E)-prop-1-enyl]phenol
+  source: SUBMITTER
+- name: 1,3-propanediamine
+  source: KEGG COMPOUND
+- name: Triphenylaceto stannane
+  source: ChemIDplus
+- name: Phthorothanum
+  source: ChemIDplus
+- name: poly[(R)-3-hydroxyalkanoate]
+  source: UniProt
+- name: SiMe4
+  source: ChEBI
+- name: behenic alcohol
+  source: NIST Chemistry WebBook
+- name: (9Z)-octadec-9-enamide
+  source: IUPAC
+- name: ORF15927
+  source: DrugCentral
+- name: polonium, isotope of mass 216
+  source: ChemIDplus
+- name: decanedioic acid 1,10-dimethyl ester
+  source: ChEBI
+- name: L-aspartate dicarboxylate residue(2-)
+  source: SUBMITTER
+- name: 14(S)-HDPAn-6
+  source: SUBMITTER
+- name: trihydroxy-9,10-anthraquinones
+  source: IUPAC
+- name: (R)-mevalonate
+  source: UniProt
+- name: L 86 8275
+  source: ChemIDplus
+- name: 4-(Phenylazo)-N,N-dimethylaniline
+  source: ChemIDplus
+- name: Phosphatidylcholine(22:4n6/16:0)
+  source: HMDB
+- name: hexane-1,5-diol
+  source: SUBMITTER
+- name: Norepinephrine
+  source: KEGG COMPOUND
+- name: GPEtn(35:0)
+  source: HMDB
+- name: hexatriacontapentaenoic acids
+  source: ChEBI
+- name: boronic acids
+  source: IUPAC
+- name: Ribomycine
+  source: ChemIDplus
+- name: Lecithin
+  source: HMDB
+- name: Betamethasone 17,21-dipropionate
+  source: ChemIDplus
+- name: cetyltrimethylammonium
+  source: ChEBI
+- name: GPL-4 terminal monosaccharide
+  source: ChEBI
+- name: inositol-P-ceramide-A (20:0/22:0)
+  source: SUBMITTER
+- name: traseolide
+  source: ChEBI
+- name: L-alpha-Asp-L-Lys
+  source: ChEBI
+- name: TG(16:0/16:1/18:2)
+  source: HMDB
+- name: noble gas
+  source: ChEBI
+- name: EC 3.6.*.* inhibitors
+  source: ChEBI
+- name: Cetadiol
+  source: KEGG COMPOUND
+- name: octane-1,2-diol
+  source: IUPAC
+- name: 95 kDa type IV collagenase/gelatinase inhibitors
+  source: ChEBI
+- name: (R)-K-13675
+  source: ChEBI
+- name: N-palmitoyl 5-hydroxytryptamine
+  source: SUBMITTER
+- name: '[CoCl4](2-)'
+  source: IUPAC
+- name: aminopolycarboxylic acid
+  source: ChEBI
+- name: dapdiamides
+  source: ChEBI
+- name: enalapril hydrogen maleate
+  source: ChEBI
+- name: 1-(4-hydroxyphenyl)pentan-3-one
+  source: SUBMITTER
+- name: 13-methyl-3-oxotetradecanoyl-coenzyme A(4-)
+  source: ChEBI
+- name: oxyphencyclimine monohydrochloride
+  source: DrugCentral
+- name: N-caproyl ethanolamine
+  source: ChEBI
+- name: selagin
+  source: ChEBI
+- name: 2-undecanol
+  source: SUBMITTER
+- name: CAC-I-785
+  source: ChEBI
+- name: PS(O-34:5)
+  source: SUBMITTER
+- name: Peptidoglycan(N-acetyl-D-glucosamine)
+  source: KEGG COMPOUND
+- name: 3-hexenoic acids
+  source: ChEBI
+- name: 8-methyldodecanoic acid
+  source: SUBMITTER
+- name: dibasic processing enzyme inhibitor
+  source: ChEBI
+- name: trans-Dodecensaeure
+  source: ChEBI
+- name: CFB inhibitor
+  source: ChEBI
+- name: lactose phosphates
+  source: ChEBI
+- name: disulfanide
+  source: IUPAC
+- name: 2-[[(E)-4-hydroxyoct-2-enoyl]amino]acetic acid
+  source: SUBMITTER
+- name: GPG(36:3)
+  source: HMDB
+- name: EC 2.4.1.34 (1,3-beta-glucan synthase) inhibitors
+  source: ChEBI
+- name: HOPhG-Ser-Bu
+  source: ChEBI
+- name: PI(4)P
+  source: ChEBI
+- name: 3'-O-L-tyrosyl-AMP
+  source: ChEBI
+- name: 3,4-bis(2-ethylhexyl)phthalic acid
+  source: SUBMITTER
+- name: Dichlorodiphenyldichloroethane
+  source: KEGG COMPOUND
+- name: Octadecylamine
+  source: ChemIDplus
+- name: magnesium sulfate--water (1/7)
+  source: IUPAC
+- name: D-myo-inositol (2)-monophosphate(2-)
+  source: SUBMITTER
+- name: SGK inhibitors
+  source: ChEBI
+- name: (R)-p-mentha-1,8-diene
+  source: ChemIDplus
+- name: Cotoran
+  source: ChemIDplus
+- name: tetrapyrrole fundamental parents
+  source: ChEBI
+- name: HOE-280
+  source: DrugBank
+- name: oxidoiodine(.)
+  source: IUPAC
+- name: heptadienedioates
+  source: ChEBI
+- name: 1-O-phosphono-D-ribofuranose
+  source: ChEBI
+- name: 4-Aminophenol
+  source: KEGG COMPOUND
+- name: TN saccharide
+  source: ChEBI
+- name: Ocaliva
+  source: KEGG DRUG
+- name: trans-3,4-dihydroxycinnamoyl-coenzyme A(4-)
+  source: ChEBI
+- name: methopyranorin
+  source: DrugCentral
+- name: (R)-SAL
+  source: ChEBI
+- name: phenyl anhydride
+  source: NIST Chemistry WebBook
+- name: G Y S I T S H Y
+  source: JCBN
+- name: N,N-Dibutyl-1-butanamine
+  source: ChemIDplus
+- name: Methyl enanthate
+  source: HMDB
+- name: homatropini methylbromidum
+  source: WHO MedNet
+- name: 13-deoxocarminomycin
+  source: ChEBI
+- name: sialosylneolactohexaosylceramide (NeuGc)
+  source: ChEBI
+- name: indole-3-butanoic acid
+  source: ChemIDplus
+- name: p-Hydroxyphenyl lactic acid
+  source: ChemIDplus
+- name: 1-Erucoyl-2-g-linolenoyl-sn-glycerol
+  source: HMDB
+- name: oleoylleucinate
+  source: ChEBI
+- name: GalNAc alpha 1-O-Ser
+  source: ChEBI
+- name: carboxymethyltheophylline
+  source: DrugCentral
+- name: NaCl
+  source: IUPAC
+- name: Triglyceride
+  source: HMDB
+- name: PS(44:5)
+  source: SUBMITTER
+- name: 4-hydroxycinnamoyl(feruloyl)methane
+  source: ChEBI
+- name: NH2-FA anion
+  source: ChEBI
+- name: (R)-6-(Isopropyl)-3-methylcyclohex-2-en-1-one
+  source: ChemIDplus
+- name: GPCho(16:0/20:2n6)
+  source: HMDB
+- name: 2'-IMP
+  source: SUBMITTER
+- name: valine tRNA
+  source: JCBN
+- name: quercetin 3-gentiobioside
+  source: ChEBI
+- name: 3,4,5-trihydroxybenzoate esters
+  source: ChEBI
+- name: 3-hexaprenyl-4-hydroxy-5-methoxybenzoate anion
+  source: ChEBI
+- name: dipolar aprotic solvent
+  source: IUPAC
+- name: Tiotropium bromide monohydrate
+  source: KEGG DRUG
+- name: phosphatidic acid(38:0)
+  source: ChEBI
+- name: Onoact (TN)
+  source: KEGG COMPOUND
+- name: deoxyguanosine diphosphate
+  source: Chemical Ontology
+- name: 2-HYDROXY-SUCCINIC ACID
+  source: PDBeChem
+- name: N,N-diisopropyltryptamine
+  source: ChemIDplus
+- name: nitric acid, thallium(3+) salt
+  source: ChEBI
+- name: ketodocosahexaenoic acids
+  source: ChEBI
+- name: PIP(18:0/18:1)
+  source: HMDB
+- name: PI(18:2n6/20:3n9)
+  source: HMDB
+- name: phosphatidylcholine(O-41:1)
+  source: ChEBI
+- name: sodium(1+)
+  source: IUPAC
+- name: alpha-D-glucosamine 6-(dihydrogen phosphate)
+  source: ChEBI
+- name: 2,4,6-TCP
+  source: UM-BBD
+- name: Diglyceride
+  source: HMDB
+- name: Chrysophanol 8-glucoside
+  source: KEGG COMPOUND
+- name: 1,2-Butandiol
+  source: NIST Chemistry WebBook
+- name: PC(18:2/16:0)
+  source: HMDB
+- name: N-octadecatrienoylsphingosine-1-phosphocholine
+  source: ChEBI
+- name: copper coordination entity
+  source: ChEBI
+- name: L-leucyl-L-arginine
+  source: IUPAC
+- name: tizanidine
+  source: ChemIDplus
+- name: quinoxaline fungicide
+  source: ChEBI
+- name: 4-Methyl-2-oxo-2H-1-benzopyran-7-yl butyrate
+  source: ChemIDplus
+- name: (E)-11-methyloctadec-12-enoic acid
+  source: SUBMITTER
+- name: prostaglandin E 9-ketoreductase inhibitors
+  source: ChEBI
+- name: Arbo 9
+  source: HMDB
+- name: 2-Aminoanthracene
+  source: KEGG COMPOUND
+- name: '[4-(carbamimidamido)butyl]phosphoramidic acid'
+  source: IUPAC
+- name: plasmanate
+  source: ChEBI
+- name: GSK 461364A
+  source: ChEBI
+- name: 4-phenoxydiphenyl oxide
+  source: NIST Chemistry WebBook
+- name: (2R)-2,3-bis(stearoyloxy)propyl phosphate
+  source: IUPAC
+- name: 1-(sn-glycero-3-Phospho)-1D-myo-inositol
+  source: KEGG COMPOUND
+- name: 6-O-phosphonato-D-fructose
+  source: IUPAC
+- name: Ethyl (S)-3-hydroxyhexanoate
+  source: KEGG COMPOUND
+- name: Fucalpha1-3(Glcbeta1-4)GlcNAcbetaOMe
+  source: ChEBI
+- name: 4''-HO-CBD
+  source: ChEBI
+- name: poly(3-hydroxycarboxylate)
+  source: ChEBI
+- name: 1,4-beta-D-Xylan
+  source: KEGG COMPOUND
+- name: 7,8-Dihydroxy-2H-1-benzopyran-2-one
+  source: ChemIDplus
+- name: 5'-adenylic acid glycine anhydride(1-)
+  source: ChEBI
+- name: DG(40:7)
+  source: ChEBI
+- name: (+)-Pantothenic acid
+  source: HMDB
+- name: 4,5alpha-dihydrotestosterone
+  source: ChEBI
+- name: heparanase 1 inhibitors
+  source: ChEBI
+- name: Phosphatidylglycerol(18:1w9/22:5w3)
+  source: HMDB
+- name: Seradix
+  source: ChemIDplus
+- name: Phytanoyl-CoA
+  source: KEGG COMPOUND
+- name: GalNAc-GM1b(NeuGc)(d18:0)(1-)
+  source: SUBMITTER
+- name: DAG(20:0/18:1n7)
+  source: HMDB
+- name: (3S)-3-hydroxy-N(6),N(6),N(6)-trimethyl-L-lysine
+  source: UniProt
+- name: N-(2,6-dichloro-m-tolyl)anthranilic acid
+  source: ChemIDplus
+- name: 3'-isopropoxy-2-methylbenzoic acid anilide
+  source: ChEBI
+- name: 7beta-hydroxy-3-oxochol-24-oyl-CoA
+  source: UniProt
+- name: GPCho(32:3)
+  source: HMDB
+- name: GPG(18:2n6/22:6n3)
+  source: HMDB
+- name: Sorbidilat
+  source: DrugBank
+- name: 3-nitropropyl-beta-D-glucopyranoside
+  source: ChemIDplus
+- name: DMH-1
+  source: ChEBI
+- name: 5-O-phosphonato-L-ribulose
+  source: IUPAC
+- name: 2-methylmaleate
+  source: UniProt
+- name: dopamine drugs
+  source: ChEBI
+- name: 3-Deoxy-D-glucosone
+  source: ChemIDplus
+- name: Procyclidine
+  source: KEGG COMPOUND
+- name: Multum
+  source: DrugBank
+- name: hexanedioyl-coenzyme A(5-)
+  source: SUBMITTER
+- name: N-acylsphinganines
+  source: LIPID MAPS
+- name: L-tryptophan pyrrolase inhibitor
+  source: ChEBI
+- name: beta-D-GlcNAc-(1->4)-alpha-D-Rha
+  source: ChEBI
+- name: carbamodithioic acid
+  source: IUPAC
+- name: perillate
+  source: UniProt
+- name: a neolactoside IV(3)-beta-GalNAc-nLc4Cer
+  source: UniProt
+- name: tsDNA polynucleotide
+  source: ChEBI
+- name: carbocerate
+  source: MetaCyc
+- name: triangulo-triarsenic
+  source: IUPAC
+- name: Galb1-3(Fuca1-4)GlcNAcb1-3Galb1-4(Fuca1-3)GlcNAcb
+  source: ChEBI
+- name: Eve
+  source: ChEBI
+- name: dimethoxymethylbenzene
+  source: SUBMITTER
+- name: L-seryl-L-valine
+  source: IUPAC
+- name: PI(36:2)
+  source: HMDB
+- name: cisteina
+  source: ChEBI
+- name: L-Tyr-L-Glu
+  source: ChEBI
+- name: cesium salts
+  source: ChEBI
+- name: Raniben
+  source: DrugBank
+- name: lithium-6
+  source: ChEBI
+- name: Licodione
+  source: KEGG COMPOUND
+- name: glutathione disulfide dianion
+  source: ChEBI
+- name: GlcNAc(b1-3)Gal(b1-3)[NeuGc(a2-6)]GalNAc
+  source: SUBMITTER
+- name: Arachidonyltrifluoromethane
+  source: ChemIDplus
+- name: MLN0128
+  source: DrugBank
+- name: N-aminothiourea
+  source: ChemIDplus
+- name: cGMP-PDE inhibitors
+  source: ChEBI
+- name: Sodium mercaptoacetate
+  source: ChemIDplus
+- name: EI
+  source: NIST Chemistry WebBook
+- name: sodium selenite hydrate
+  source: ChEBI
+- name: DR 3355
+  source: ChEBI
+- name: L-arginyl-L-threonyl-L-threonyl-L-aspartic acid
+  source: IUPAC
+- name: ethyl 2-benzyl-3-oxobutanoate
+  source: SUBMITTER
+- name: tetracenomycin F2
+  source: UniProt
+- name: 1-hydroxy-9,10-anthraquinone
+  source: IUPAC
+- name: L-Glucitol
+  source: KEGG COMPOUND
+- name: GPG(36:2)
+  source: HMDB
+- name: TG(16:0/16:0/18:1)
+  source: HMDB
+- name: O-acyl carbohydrates
+  source: ChEBI
+- name: White sugar
+  source: HMDB
+- name: 58Ce
+  source: IUPAC
+- name: zinc cation
+  source: IUPAC
+- name: cysteaminium(1+)
+  source: ChEBI
+- name: Glucurolactone
+  source: ChemIDplus
+- name: l-Cafedrine
+  source: DrugCentral
+- name: dTMP
+  source: UniProt
+- name: 3,22-Dihydroxyolean-12-en-29-oic acid
+  source: ChemIDplus
+- name: NeuAcalpha2-6Galbeta1-4GlcNAcbeta1-3GalNAc
+  source: ChEBI
+- name: carboxy-SAM
+  source: ChEBI
+- name: tritrans,polycis-undecaprenol phosphate
+  source: ChEBI
+- name: muonium molecular entity
+  source: ChEBI
+- name: (R)-(-)-lactic acid
+  source: ChemIDplus
+- name: NADH dehydrogenase (ubiquinone) inhibitor
+  source: ChEBI
+- name: tetraaqua(ethane-1,2-diamine)nickel(2+)
+  source: IUPAC
+- name: L-serino
+  source: JCBN
+- name: butyl 9-octadecenoate
+  source: ChemIDplus
+- name: Palmitoyl-L-carnitine
+  source: HMDB
+- name: (2S)-2-amino-3-oxopropanoate
+  source: IUPAC
+- name: octane-1,8-diol
+  source: IUPAC
+- name: CI Basic Violet 14, monohydrochloride
+  source: ChemIDplus
+- name: L-alpha-aspartyl-L-glutamic acid
+  source: IUPAC
+- name: proteinogenic amino-acid derivative
+  source: ChEBI
+- name: 5-methyl-3-nitrobenzene-1,2-diol
+  source: IUPAC
+- name: EC 5.3.3.5 inhibitors
+  source: ChEBI
+- name: iodine tetraoxide
+  source: IUPAC
+- name: maltodextrin phosphorylase inhibitors
+  source: ChEBI
+- name: primary metabolites
+  source: ChEBI
+- name: catinona
+  source: ChemIDplus
+- name: pentyl dodecanoate
+  source: IUPAC
+- name: cychloral
+  source: DrugCentral
+- name: Phosphorpentoxid
+  source: ChEBI
+- name: (12S)-hydroxy-(5Z,8E,10E)-heptadecatrienoate
+  source: UniProt
+- name: Noroxylin
+  source: ChemIDplus
+- name: 2,2,6,6-tetramethyl-4-acetamidopiperidin-1-oxyl
+  source: ChEBI
+- name: o-hydroxybenzoyl-coenzyme A
+  source: ChEBI
+- name: (+-)-prasugrel hydrochloride
+  source: ChEBI
+- name: 2-benzyl-2-hydroxybutanedioic acid
+  source: SUBMITTER
+- name: Phosphatidylcholine(18:4n3/18:1n7)
+  source: HMDB
+- name: Ac-Met-Thr residue
+  source: ChEBI
+- name: octreotida
+  source: ChEBI
+- name: Diacylglycerol
+  source: HMDB
+- name: DAG(24:1n9/14:0)
+  source: HMDB
+- name: methanuidyl
+  source: IUPAC
+- name: 1-methyl-4-(propan-2-yl)cyclohexanol
+  source: IUPAC
+- name: 5-ethyl-4-methyl-2-octyl-1,3-thiazole
+  source: SUBMITTER
+- name: 14(15)-EpETrE-EA
+  source: LIPID MAPS
+- name: GalNAcGal-(Fuc)-GA1(d18:0)
+  source: SUBMITTER
+- name: ponsinomycin
+  source: DrugCentral
+- name: beta-Phenylalanoyl-CoA
+  source: KEGG COMPOUND
+- name: 3-chloropropan-2-ol
+  source: ChEBI
+- name: (2Z)-3-(2-hydroxyphenyl)acrylate
+  source: ChEBI
+- name: L-aspartate
+  source: UniProt
+- name: sodium (o-(2,6-dichloroanilino)phenyl)acetate
+  source: ChemIDplus
+- name: Cholospect
+  source: ChemIDplus
+- name: SB224289
+  source: ChEBI
+- name: hassio
+  source: ChEBI
+- name: (2t,6c)-dodecadienoyl-coenzyme A
+  source: ChEBI
+- name: acid lead arsenate
+  source: ChemIDplus
+- name: cholesta-5,7-dien-3beta-yl benzoate
+  source: IUPAC
+- name: (2S,3R)-2-azaniumyl-3-hydroxypent-4-ynoate
+  source: ChEBI
+- name: dTDP-6-deoxy-L-talose
+  source: KEGG COMPOUND
+- name: Phosphatidylglycerol(16:1/22:4)
+  source: HMDB
+- name: Prolin
+  source: ChEBI
+- name: Phosphatidylserine(32:1)
+  source: HMDB
+- name: D-Sedoheptulose 7-phosphate
+  source: KEGG COMPOUND
+- name: alpha-methylene aldehyde
+  source: ChEBI
+- name: 1-Amino-2,4-dinitrobenzene
+  source: KEGG COMPOUND
+- name: (-)-alpha-neoclovene
+  source: NIST Chemistry WebBook
+- name: XMU MP 1
+  source: ChEBI
+- name: acid red 37
+  source: ChEBI
+- name: 2-monoglyceride 20:5
+  source: ChEBI
+- name: Neu5Aca2-8Neu5Aca2-3Galb1-4Glcb
+  source: IUPAC
+- name: L-cystathionine zwitterion
+  source: ChEBI
+- name: inositol phosphophytoceramide
+  source: ChEBI
+- name: pyrimidin-4-ylmethanol
+  source: SUBMITTER
+- name: N-Butyl 4-hydroxybenzoate
+  source: HMDB
+- name: Muse
+  source: DrugBank
+- name: diisopropyl phosphate
+  source: UniProt
+- name: epigallocatechin 3-O-gallate
+  source: ChEBI
+- name: levomethorphan
+  source: WHO MedNet
+- name: dUMP dianion
+  source: ChEBI
+- name: SAN 371
+  source: ChemIDplus
+- name: HMG-CoA reductase kinase inhibitor
+  source: ChEBI
+- name: 5,6-bis(oxidanylidene)-1H-indole-2-carboxylate
+  source: ChEBI
+- name: 7,8-Dihydrozeaxanthin
+  source: LIPID MAPS
+- name: virginiamycine
+  source: WHO MedNet
+- name: alpha,alpha-dimethylpropionic acid
+  source: NIST Chemistry WebBook
+- name: methylcathinone
+  source: ChemIDplus
+- name: (3R,7R)-3,7-diacetyloxydocosanoic acid
+  source: SUBMITTER
+- name: 2-methyl-3-sulfanylbutan-1-ol
+  source: IUPAC
+- name: PE P-18:0/22:6
+  source: SUBMITTER
+- name: (R)-(+)-temafloxacin
+  source: ChEBI
+- name: (Z)-icos-11-enal
+  source: SUBMITTER
+- name: oxane-2,6-dione
+  source: IUPAC
+- name: aethadion
+  source: DrugCentral
+- name: 1,1-Dimethylethyl benzoate
+  source: KEGG COMPOUND
+- name: KRN 7000
+  source: ChemIDplus
+- name: N-eicosanoylsphingosine-1-phosphocholine
+  source: SUBMITTER
+- name: (2-hydroxyethyl) hydrogen adipate
+  source: ChemIDplus
+- name: Balsoxine
+  source: KEGG COMPOUND
+- name: UDP-glucose 4-epimerase inhibitors
+  source: ChEBI
+- name: LacCer
+  source: MetaCyc
+- name: Plaunol D
+  source: KEGG COMPOUND
+- name: 2-hydroxyethylphosphonate
+  source: UniProt
+- name: 3,6-dimethyl-4,5,6,7-tetrahydro-1-benzofuran
+  source: IUPAC
+- name: 2,2-Dimethyl-3-hydroxybutyric acid
+  source: ChemIDplus
+- name: difluorine(1+)
+  source: IUPAC
+- name: zinc chloride, anhydrous
+  source: NIST Chemistry WebBook
+- name: BMS-582664
+  source: ChemIDplus
+- name: pyrazolooxadiazepines
+  source: ChEBI
+- name: sigma-receptor modulators
+  source: ChEBI
+- name: L-Thr-6-alpha-D-GalA-3-OAc-(1->3)-beta-D-Gal-NAc
+  source: ChEBI
+- name: TH9507
+  source: ChemIDplus
+- name: (S)-2-Cyclopentene-1-tridecanoic acid
+  source: ChemIDplus
+- name: 10E-heptadecenoic acid
+  source: LIPID MAPS
+- name: Cek7 inhibitor
+  source: ChEBI
+- name: Zactin
+  source: ChemIDplus
+- name: aporphine alkaloids
+  source: ChEBI
+- name: esiclene
+  source: DrugCentral
+- name: propinox hydrochloride
+  source: DrugCentral
+- name: (5E,9E,12E)-octadeca-5,9,12-trienoic acid
+  source: SUBMITTER
+- name: octamethylene glycol
+  source: NIST Chemistry WebBook
+- name: PC(35:4)
+  source: ChEBI
+- name: SMYD1 inhibitors
+  source: ChEBI
+- name: Chlorure de magnesium hydrate
+  source: ChemIDplus
+- name: citral B
+  source: ChEBI
+- name: GO
+  source: ChEBI
+- name: dinitrophenols
+  source: ChEBI
+- name: (2E,13Z)-eicosadienoyl-coenzyme A(4-)
+  source: ChEBI
+- name: 1-palmitoyl-2-palmitoleoyl-GPC (16:0/16:1)
+  source: ChEBI
+- name: feruloyl-CoA
+  source: UniProt
+- name: Futhan
+  source: KEGG COMPOUND
+- name: CV71VTP0VN
+  source: DrugCentral
+- name: (3E)-3-Octen-2-one
+  source: HMDB
+- name: radical
+  source: IUPAC
+- name: -Hsl
+  source: JCBN
+- name: tetraoxophosphate(3-)
+  source: IUPAC
+- name: Hexastar
+  source: ChEBI
+- name: cethromycine
+  source: WHO MedNet
+- name: C1-(3-Indolyl)-glycerol 3-phosphate
+  source: KEGG COMPOUND
+- name: Gasmotin (TN)
+  source: KEGG COMPOUND
+- name: rhenium
+  source: IUPAC
+- name: gadolinium molecular entities
+  source: ChEBI
+- name: FOSCARNET SODIUM
+  source: ChEMBL
+- name: CAY 10574
+  source: ChEBI
+- name: PG(16:1w7/20:3w9)
+  source: HMDB
+- name: GalNAc(a1-6)a-GalNAc
+  source: IUPAC
+- name: HCA-6G
+  source: ChEBI
+- name: 2-hydroxyglutaryl-coenzyme A
+  source: ChEBI
+- name: N-acyl-hexosamines
+  source: ChEBI
+- name: TG(52:3)
+  source: HMDB
+- name: type 4 phosphodiesterase inhibitor
+  source: ChEBI
+- name: 15-methylpalmitate
+  source: SUBMITTER
+- name: dimethyloctadecylamine
+  source: DrugCentral
+- name: cyclohexylsulfamate
+  source: IUPAC
+- name: 5-Oxo-2,5-dihydrofuran-2-acetate
+  source: KEGG COMPOUND
+- name: 2-hydroxy-2-(4-hydroxyphenyl)acetate
+  source: Chemical Ontology
+- name: 1-hydroxy-2-methylpropyl-thiamine diphosphate
+  source: ChEBI
+- name: GPCho(34:2)
+  source: HMDB
+- name: (S)-2-(4-(2-bromo-acetamido)benzyl)-DOTA
+  source: ChEBI
+- name: (2Z,6Z,8Z,12E)-hexadeca-2,6,8,12-tetraenoic acid
+  source: SUBMITTER
+- name: Ac-Val-OMe
+  source: ChEBI
+- name: dioxidophosphate
+  source: UniProt
+- name: 5alpha-Tetrahydrocortisol
+  source: HMDB
+- name: GalGalNAc-GM1b(NeuGc)(d18:0)(1-)
+  source: SUBMITTER
+- name: Norwegian saltpeter
+  source: ChemIDplus
+- name: 3H-Pyrazol
+  source: ChEBI
+- name: Nitrit
+  source: ChEBI
+- name: phthalic acid monoesters
+  source: ChEBI
+- name: myo-Inositol 1,3-bisphosphate
+  source: KEGG COMPOUND
+- name: E-R-G-M
+  source: ChEBI
+- name: phosphatidylcholine(O-38:1)
+  source: SUBMITTER
+- name: 2,2,4-trimethylpentane-1,3-diol
+  source: SUBMITTER
+- name: n-heptanal
+  source: ChemIDplus
+- name: Galf(b1-3)[Galf(b1-5)]a-Galf
+  source: SUBMITTER
+- name: 1',3-dihydroxy-gamma-carotene
+  source: ChEBI
+- name: PC(16:1(9Z)/22:2(13Z,16Z))
+  source: ChEBI
+- name: Resiniferonol
+  source: KEGG COMPOUND
+- name: Lecithin
+  source: HMDB
+- name: GDP-4-dehydro-alpha-D-rhamnose
+  source: UniProt
+- name: (2H6)Acetone
+  source: ChemIDplus
+- name: LysoPC(P-19:1)
+  source: ChEBI
+- name: poly(prop-1-ene)
+  source: IUPAC
+- name: N,N,N-Trimethyl-1-octanaminium bromide
+  source: ChemIDplus
+- name: PA(18:1(omega-9)/18:1(omega-7))(2-)
+  source: SUBMITTER
+- name: m-methoxybenzaldehyde
+  source: ChEBI
+- name: glutamate
+  source: IUPAC
+- name: azaperone
+  source: KEGG DRUG
+- name: PG(18:1n9/20:3n6)
+  source: HMDB
+- name: N-(meta-trifluoromethylphenyl)-N,N'-dimethylurea
+  source: ChemIDplus
+- name: GPCho(42:2)
+  source: HMDB
+- name: LPC(24:0)
+  source: SUBMITTER
+- name: berbericinine
+  source: ChemIDplus
+- name: 4,5-dimethyl-7,9-dihydro-3H-purine-2,6,8-trione
+  source: SUBMITTER
+- name: lavoltidina
+  source: ChemIDplus
+- name: Argold
+  source: ChemIDplus
+- name: Acylcarnitine C19:0
+  source: ChEBI
+- name: gamma-aminobutyric acid reuptake inhibitors
+  source: ChEBI
+- name: Melibiose
+  source: KEGG COMPOUND
+- name: THZ
+  source: ChEBI
+- name: Regitine
+  source: ChemIDplus
+- name: XKW
+  source: SUBMITTER
+- name: (4-chlorophenyl)acetate
+  source: IUPAC
+- name: N-(4-hydroxy-beta-phenethyl)-4-hydroxycinnamide
+  source: ChEBI
+- name: (3E)-hexa-3,5-dienoic acid
+  source: SUBMITTER
+- name: TBT
+  source: UM-BBD
+- name: oestrogen antagonist
+  source: ChEBI
+- name: sobrepin
+  source: DrugCentral
+- name: PA(16:1(9Z)/0:0)
+  source: LIPID MAPS
+- name: DG (20:4(n-6)/18:1(n-9)/0:0)
+  source: SUBMITTER
+- name: montanic acid
+  source: NIST Chemistry WebBook
+- name: triacetinase inhibitors
+  source: ChEBI
+- name: propa-1,2-diene
+  source: IUPAC
+- name: trans-dec-2-enoyl-CoA tetraanion
+  source: ChEBI
+- name: Galb1-4(Fuca1-3)GlcNAcb1-3Galb1-3(Fuca1-4)GlcNAcb
+  source: ChEBI
+- name: 4-Hydroxybutanoate
+  source: KEGG COMPOUND
+- name: piroheptine
+  source: WHO MedNet
+- name: N-hexacosenoyl-D-galactosylsphing-4-enine
+  source: ChEBI
+- name: DU-6859
+  source: DrugCentral
+- name: disodium trioxidocarbonate
+  source: IUPAC
+- name: triprostatin B
+  source: ChEBI
+- name: Tracylglycerol(16:1/18:1/20:1)
+  source: HMDB
+- name: '{[(2S)-2-ammoniopropanoyl]amino}acetate'
+  source: IUPAC
+- name: trihydrobiopterin(.1+)
+  source: ChEBI
+- name: 1-acyl-sn-glycero-3-phosphocholines
+  source: ChEBI
+- name: FEMA 4267 (E form)
+  source: ChEBI
+- name: beta-blocker
+  source: ChEBI
+- name: O-succinyl-L-homoserine
+  source: UniProt
+- name: ribose derivatives
+  source: ChEBI
+- name: 2-hydroxyisobutyryl-CoA(4-)
+  source: ChEBI
+- name: P2X antagonist
+  source: ChEBI
+- name: N-(4-chlorophenyl)-5-nitrofuran-2-carboxamide
+  source: SUBMITTER
+- name: (S)-3-hydroxylauroyl-coenzyme A
+  source: ChEBI
+- name: methylamylnitrosamine
+  source: ChemIDplus
+- name: 4-(3-dodeca-1,3-diynyloxiran-2-yl)butanoic acid
+  source: SUBMITTER
+- name: 1,1'-(OH)2-3,4-Didehydrolycopene
+  source: LIPID MAPS
+- name: 2-hydroxydocosanoyl-CoA
+  source: ChEBI
+- name: PI(20:1/18:1)
+  source: HMDB
+- name: Androderm
+  source: ChemIDplus
+- name: 12alpha,13alpha-dihydroxyfumitremorgin C
+  source: UniProt
+- name: Phosphatidylcholine(36:2)
+  source: HMDB
+- name: Ser-HoPhe-OH
+  source: SUBMITTER
+- name: DAG(36:4)
+  source: HMDB
+- name: PC(18:2w6/20:1w9)
+  source: HMDB
+- name: Diacylglycerol(36:0)
+  source: HMDB
+- name: 7-O-beta-L-(beta-L-glucosyl)apigenin
+  source: ChEBI
+- name: ALe(d)
+  source: ChEBI
+- name: 17-hydroxyoctadecanoic acid
+  source: SUBMITTER
+- name: 3-(4-hydroxycyclohex-2-enylidene)pyruvate(1-)
+  source: ChEBI
+- name: prostaglandin synthetase inhibitors
+  source: ChEBI
+- name: sulfaguanidin
+  source: DrugCentral
+- name: (E)-6-hydroxyferuloyl-CoA
+  source: UniProt
+- name: GPCho(38:1)
+  source: SUBMITTER
+- name: 4-Methyl-pentanoate
+  source: ChEBI
+- name: 1-phenylethyl ormate
+  source: SUBMITTER
+- name: cycloserine
+  source: ChemIDplus
+- name: 1,3,5-trihydroxy-10-methylacridin-9-one
+  source: SUBMITTER
+- name: (Ade)CN-Cba
+  source: CBN
+- name: 1-propylene
+  source: NIST Chemistry WebBook
+- name: Eperisone hydrochloride
+  source: KEGG COMPOUND
+- name: o-cresolsulfuric acid
+  source: ChEBI
+- name: 3alpha-hydroxy-5beta-cholan-24-oate
+  source: IUPAC
