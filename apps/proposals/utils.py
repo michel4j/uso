@@ -4,10 +4,11 @@ from datetime import date, timedelta, datetime
 from typing import Literal
 
 from django.conf import settings
-from django.core.paginator import Paginator
 from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField
 from django.utils.safestring import mark_safe
 from model_utils import Choices
+
+from notifier import notify
 
 OPEN_WEEKDAY = 2  # Day of week to open call (2 = Wednesday)
 CLOSE_WEEKDAY = 2  # Day of week to close call (2 = Wednesday)
@@ -354,15 +355,17 @@ def assign_mip(cycle, stage, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tu
     :param method: one of 'SCIP', 'CLP', 'GLOP'
     :return: assignments dictionary mapping submission to a set of reviewers, boolean indicating success of assignment
     """
+    from .models import Reviewer
     track = stage.track
-    reviewers = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).distinct()
+    reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()[:400]
     committee = track.committee.order_by('?').all()
     proposals = cycle.submissions.filter(track=track).order_by('?').distinct()
     results = {}
     max_workload = track.max_workload
 
-    success = []
+    print(f"Assigning {proposals.count()} proposals to {reviewers.count()} reviewers.")
 
+    success = []
     prop_results, solver, status = mip_optimize(
         proposals, reviewers, stage.min_reviews, max_workload, method=method
     )
@@ -444,9 +447,10 @@ def assign_brute_force(cycle, stage) -> tuple[dict, bool]:
     :param stage: Review stage
     :return: assignments dictionary mapping submission to a set of reviewers, boolean indicating success of assignment
     """
+    from .models import Reviewer
     track = stage.track
     submissions = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
-    reviewers = cycle.reviewers.filter(committee__isnull=True).exclude(techniques__isnull=True).order_by('?').distinct()
+    reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()
     assignments = optimize_brute_force(submissions, reviewers, cycle, stage.min_reviews, track.max_workload)
 
     committee = track.committee.order_by('?')
@@ -549,6 +553,32 @@ def get_techniques_matrix(cycle=None, sel_techs=(), sel_fac=None):
         ]
     }
     return matrix
+
+
+def notify_reviewers(reviews):
+    """
+    Notify reviewers of pending reviews to complete
+    :param reviews: Reviews queryset
+    :return: number of notifications sent
+    """
+    info = defaultdict(list)
+    # gather all reviews for each reviewer
+    for review in reviews.all():
+        if review.reviewer:
+            info[review.reviewer].append(review)
+        else:
+            info[review.role].append(review)
+
+    # generate notifications
+    count = 0
+    for recipient, user_reviews in info.items():
+        notify.send(
+            [recipient], 'review-request', level=notify.LEVELS.important, context={
+                'reviews': user_reviews,
+            }
+        )
+        count += 1
+    return count
 
 
 def user_format(value, obj):

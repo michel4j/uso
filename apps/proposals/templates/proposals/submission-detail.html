@@ -23,10 +23,12 @@
 {% endblock %}
 
 {% block folio-tools %}
+    {% if admin  %}
     <a href='{% url 'proposal-detail' object.proposal.pk %}' class="pull-right">
         <i class="bi-file-earmark-richtext icon-2 icon-fw"></i><br/>
         <span class="tool-label">Proposal</span>
     </a>
+    {% endif %}
     {% if object.project.exists %}
         <a href='{% url 'project-detail' object.project.first.pk %}' class="pull-right">
             <i class="bi-briefcase icon-2 icon-fw"></i><br/>
@@ -105,7 +107,6 @@
             <div class="col-sm-12">
                 <h4>Summary</h4>
                 {{ object.proposal.details.abstract|markdown }}
-
             </div>
         </div>
         <div class="row narrow-gutter">
@@ -122,23 +123,17 @@
             </div>
             <div class="col-xs-12 col-sm-6">
                 <h4>Techniques Requested</h4>
-                <ul>
-                    <li>Through {{ object.track }} [this submission]
-                        <ul>
-                            {% for item in object.techniques.all %}
-                                <li><strong>{{ item.technique }} &mdash; {{ item.config.facility }}</strong></li>
-                            {% endfor %}
-                        </ul>
+                <ul class="list-unstyled list-ruled">
+                    {% for item in object.techniques.all %}
+                    <li>
+                        <strong>{{ submission.track }}</strong>  &mdash; {{ item }}
                     </li>
+                    {% endfor %}
                     {% for submission in object.siblings.all %}
-                        <li>Through {{ submission.track }} [<a
-                                href='{% url "submission-detail" pk=submission.pk %}'>{{ submission }}</a>]
-                            <ul>
-                                {% for item in submission.techniques.all %}
-                                    <li class="text-muted">{{ item }} &mdash; {{ item.config.facility }}</li>
-                                {% endfor %}
-                            </ul>
-                        </li>
+                        {% for item in submission.techniques.all %}
+                            <strong>{{ submission.track }}</strong>  &mdash; {{ item }}
+                            <a href='{% url "submission-detail" pk=submission.pk %}'><i class="bi-arrow-right-circle icon-fw"></i></a>
+                        {% endfor %}
                     {% endfor %}
                 </ul>
             </div>
@@ -183,7 +178,7 @@
                 </div>
             </div>
         {% endif %}
-        {% if admin %}
+        {% if admin or committee_member %}
             <div class="row section">
                 <div class="col-xs-12">
                     <h3>Reviews</h3>

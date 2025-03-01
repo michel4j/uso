@@ -158,11 +158,23 @@ Call for Proposals
     The period during which proposals are accepted for a given Cycle. This period is usually
     4 weeks long and occurs about 4 months before the start date of the given Cycle.
 
-Review Track
-    A prescribed sequence of reviews through which submitted proposals (Submissions) are subjected. Submissions
-    undergo reviews based on the types of proposals the requested facilities, and when they were submitted.
+Review Track and Review Stage
+    A Review Track is a prescribed sequence of reviews through which submitted proposals (Submissions) are subjected.
     Some proposals may result in multiple submissions if the requested facilities were configured to require
     more than one Review Track. There is no limit to the number of ReviewTracks that can be created.
+
+    Each review track can configure one or more Review Stage defining how reviews are performed. A review stage
+    specifies the type of review to complete for that stage, whether the stage can block passage of the proposal, and
+    the score threshold required to pass that stage. If a review fails to meet the threshold and the review stage blocks
+    passage, the proposal will fail and not result in a project. Note that review stages with the "Block Downstream"
+    option set, do not currently prevent downstream reviews from happening. Rather, at the end of all reviews, the scores
+    are evaluated in sequence and downstream scores are ignored if the review fails. This behaviour may change in
+    future versions.
+
+    While the review stage can specify any defined review at any stage, a specific type of review can only be specified
+    once for all stages of the review track.  If it is ever needed to repeat a review during a review track, this can
+    be accomplished by creating a new Review Type, pointing to the same Review Form, and assigning this to the new
+    Review Stage.
 
     Examples of Review Tracks:
 
@@ -182,23 +194,8 @@ ReviewType and FormType
     score fields and weighting for the specific FormType, and the reviewer role required to complete the review. The FormType
     is a dynamic form specification which includes all the questions to be answered during the review process. FormTypes
     and ReviewTypes can be managed through the USO system administrator screens. Configuration of which ReviewTypes
-    are used for creating scientific, technical and safety reviews is accomplished through the following configuration
-    parameters.
-
-    .. code-block:: python
-
-        USO_SAFETY_REVIEWS = ["safety", "ethics", "equipment"]      # reviews assigned by safety approver
-        USO_TECHNICAL_REVIEWS = ["technical"]                       # technical review type
-        USO_SCIENCE_REVIEWS = ["scientific"]                        # science review type
-        USO_SAFETY_APPROVAL = "approval"                            # safety approval review type
-
-
-    The strings in the lists above are the code names of the ReviewTypes defined within the database.  For example,
-    to create a new review type with code "special-science" and make that the default scientific review, a new
-    FormType should be created and designed with the appropriate form fields, then a new review type should be created
-    linked to the new FormType, specifying the scoring scheme as a dictionary mapping field names from the FormType to
-    weights. Finally, changing the USO_SCIENCE_REVIEWS to ["special-science"] will switch all future scientific reviews
-    to use the "special-review" form and scoring scheme.
+    are used for creating scientific, technical and safety reviews can also be configured through the system administrator
+    screens.
 
     An example scoring scheme where scores are calculated as a weighted average of three different fields, would be
     implemented as "{'field_one': 0.6, 'field_two': 0.2, 'field_three': 0.2}". Within the form designer, each of the
@@ -206,7 +203,7 @@ ReviewType and FormType
     is calculated as a sum of all the field values multiplied by the corresponding weight. The final score can then have
     a wide variety of possible values, depending on the number of fields, the number of choices per field, and the range
     of values for the weights. Even the ordering of values can be different so that either low or high values are considered
-    better.
+    better by changing the "Lower is better" option on the system administrator screens for the Review Type.
 
 Review
     A questionnaire to be completed online. The questionnaire varies depending
@@ -216,6 +213,11 @@ Review
     and complete a partially completed review started by someone else. However, when assigned
     to a person, only the assigned person is allowed to complete the review. All reviews must be
     be completed online through the USO system.
+
+    Per-facility review types should specify a wildcard role such as 'staff:{}' so that the facility-specific role
+    filled in by substituting the facility acronym. For example, for a per-facility technical review type, with
+    a review type role of 'reviewer:{}', when reviews are created for the CMCF facility, the review will be assigned
+    to the 'reviewer:cmcf' role.
 
 Clarification
     A question asked by a reviewer to the spokesperson (or delegate, or project leader) during the review

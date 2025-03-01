@@ -39,9 +39,6 @@ urlpatterns = [
     path('cycles/<int:cycle>/committee/<int:pk>/', views.ReviewerAssignments.as_view(), name="prc-reviews"),
     path('cycles/<int:cycle>/committee/<str:track>/', views.PRCList.as_view(), name="prc-members"),
     path('cycles/<int:cycle>/<str:track>/evaluation/', views.ReviewEvaluationList.as_view(), name='review-evaluation'),
-    path('cycles/<int:cycle>/add-reviewer/<int:pk>/', views.AddReviewerAPI.as_view(), name="add-cycle-reviewer"),
-    path('cycles/<int:cycle>/remove-reviewer/<int:pk>/', views.RemoveReviewerAPI.as_view(), name="del-cycle-reviewer"),
-    path('cycles/<int:pk>/reviewers/', views.AddReviewerList.as_view(), name="change-cycle-reviewers"),
 
     path('tracks/', views.ReviewTrackList.as_view(), name="review-track-list"),
     path('tracks/<slug:track>/stages/add/', views.AddReviewStage.as_view(), name="add-review-stage"),
