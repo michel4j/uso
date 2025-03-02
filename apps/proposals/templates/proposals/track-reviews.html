@@ -1,13 +1,7 @@
 {% extends "proposals/track-box.html" %}
 {% load cycle_tags %}
 {% block box_class %}bg-transparent{% endblock %}
-{% block box_header %}
-<h4 class="no-vmargin">
-    <strong>{{total_reviews}}</strong> Review{{total_reviews|pluralize:",s"}}
-</h4>
-{% endblock %}
 {% block box_tools_class %}hidden{% endblock %}
-{% block box_subheader %}Distribution and progress of reviews{% endblock %}
 {% block box_content %}
     {% if track.committee.count %}
     <div class="ibox-content col-xs-12">
@@ -25,17 +19,4 @@
         </div>
     </div>
     {% endif %}
-    {% for review_type in review_types%}
-    <div class="ibox-content col-xs-12">
-        <h4><strong>{{review_type.total}}</strong> {{review_type.name}} / <strong>{{review_type.reviewers}}</strong> Reviewer{{review_type.reviewers|pluralize:",s"}}</h4>
-        <div class="progress">
-            <div class="progress-bar progress-bar-{{review_type.css}}" role="progressbar" aria-valuenow=""
-                 aria-valuemin="0" aria-valuemax="100" style="width: {{review_type.percent}}%">
-                <span>{{review_type.percent}}% Complete</span>
-            </div>
-        </div>
-        <span>{% if review_type.complete %}{{review_type.complete}} Completed by {{review_type.complete_reviewers}} Reviewer{{review_type.complete_reviewers|pluralize:",s"}}{% else %}&nbsp;{% endif %}</span>
-    </div>
-    {% endfor %}
-
-{% endblock %}}
+{% endblock %}

@@ -737,7 +737,7 @@ class ReviewStage(TimeStampedModel):
     kind = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name='stages')
     position = models.IntegerField(_("Position"), default=0)
     min_reviews = models.IntegerField("Minimum Reviews", default=1)
-    blocks = models.BooleanField(_("Block Downstream"), default=True)
+    blocks = models.BooleanField(_("Block Passage"), default=True)
     pass_score = models.FloatField(_("Passing Score"), null=True, blank=True)
     objects = ReviewStageQuerySet.as_manager()
 

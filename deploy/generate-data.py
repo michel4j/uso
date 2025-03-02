@@ -14,6 +14,9 @@ from unidecode import unidecode
 # This script is used to generate fake data for the Bespoke system. some external data is used to generate the data
 # such as sample photos, universities, country names, and sample types. The data is saved in YAML format
 
+PHOTOS_DIR = Path("~/Stuff/data-gen/avatars")       # Path photos dir, names should be numbers,
+                                                    # 0.webp, 1.webp, etc Odd for female even for male
+DATA_DIR = Path(__file__).parent / 'data'
 
 SUBJECTS = [1, 2, 3, 4, 5, 6, 7]
 HAZARD_TYPES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15]
@@ -56,13 +59,13 @@ DEPARTMENTS = [
     'Education'
 ]
 
-with open('universities.yml', 'r') as file:
+with open(DATA_DIR / 'universities.yml', 'r') as file:
     UNIVERSITIES = yaml.safe_load(file)
 
-with open('country-names.yml', 'r') as file:
+with open(DATA_DIR / 'country-names.yml', 'r') as file:
     NAMES = yaml.safe_load(file)
 
-with open('samples.yml', 'r') as file:
+with open(DATA_DIR / 'samples.yml', 'r') as file:
     SAMPLES = yaml.safe_load(file)
 
 print('Loaded all databases ...')
@@ -77,8 +80,8 @@ EQUATIONS = [
     r'$$ \int_{0}^{\infty} e^{-x^2} \,dx = \frac{\sqrt{\pi}}{2} $$'
     r'$$ \sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6} $$'
 ]
-
-NUM_PHOTOS = 160  # Odd images are for females, even are for males
+PHOTOS_DIR = PHOTOS_DIR.expanduser().resolve()
+NUM_PHOTOS = len(list(PHOTOS_DIR.glob('*.webp')))
 
 ROLES = ["admin:uso", "staff:contracts", "curator:publications", "staff:hse", "manager:science" "safety-approver"]
 TECHNIQUES = {
@@ -263,7 +266,7 @@ class FakeUser:
 
     def make_random_info(self):
         self.user_count += 1
-        kind = {1: 'male', 0: 'female'}.get(self.user_count % 2)
+        kind = {0: 'male', 1: 'female'}.get(self.user_count % 2)
 
         is_staff = random.randint(0, 100) < 4  # 4% chance of being staff
         if is_staff:
@@ -337,7 +340,7 @@ class FakeUser:
     def save_photo(self, username):
         photo_file = self.photo_path / f'{username}.webp'
         photo_index = self.user_count % NUM_PHOTOS
-        orig_file = Path(f'avatars') / f"{photo_index:03d}.webp"
+        orig_file = PHOTOS_DIR / f"{photo_index:03d}.webp"
         ref_file = self.photo_path / orig_file.name
         if not ref_file.exists():
             shutil.copy(orig_file, ref_file)

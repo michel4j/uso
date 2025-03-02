@@ -204,7 +204,7 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
             return '{} Projects'.format(self.facility.acronym)
 
     def check_allowed(self):
-        self.facility = Facility.objects.get(acronym=self.kwargs['fac'])
+        self.facility = Facility.objects.get(pk=self.kwargs['fac'])
         allowed = super().check_allowed() or self.facility.is_staff(self.request.user)
         return allowed
 
