@@ -83,7 +83,10 @@ EQUATIONS = [
 PHOTOS_DIR = PHOTOS_DIR.expanduser().resolve()
 NUM_PHOTOS = len(list(PHOTOS_DIR.glob('*.webp')))
 
-ROLES = ["admin:uso", "staff:contracts", "curator:publications", "staff:hse", "manager:science" "safety-approver"]
+ROLES = [
+    "admin:uso", "staff:contracts", "curator:publications", "staff:hse", "manager:science", "safety-approver",
+    "equipment-reviewer",
+]
 TECHNIQUES = {
     1: {'name': 'Photo Emission/Electron Spectroscopy', 'acronym': 'PES', 'techniques': [1, 2, 3]},
     4: {'name': 'X-ray Absorption Spectroscopy', 'acronym': 'XAS', 'techniques': [7, 4, 5, 6]},
@@ -365,6 +368,7 @@ class FakeUser:
             'fields': {
                 'created': '2024-12-30 20:49:59.049236+00:00',
                 'modified': '2024-12-30 20:49:59.049236+00:00',
+                'password': os.environ.get('DJANGO_FAKE_PASSWORD', ''),
                 'username': info['username'],
                 'institution': institution['pk'],
                 'address': address,
