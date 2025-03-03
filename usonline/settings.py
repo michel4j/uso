@@ -13,6 +13,7 @@ import sys
 from django.conf import global_settings
 from Crypto.Random import get_random_bytes
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(__file__)
 BASE_DIR = os.path.dirname(PROJECT_DIR)
@@ -211,7 +212,7 @@ ROLEPERMS_DEBUG = False
 
 USO_TECHNICAL_REVIEWS = ["technical"]             # technical review type
 USO_SAFETY_APPROVAL = "approval"                 # safety approval review type
-
+GOOGLE_API_KEY = ""
 
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
 
