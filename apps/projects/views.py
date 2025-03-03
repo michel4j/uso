@@ -204,7 +204,7 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
             return '{} Projects'.format(self.facility.acronym)
 
     def check_allowed(self):
-        self.facility = Facility.objects.get(pk=self.kwargs['fac'])
+        self.facility = Facility.objects.get(acronym=self.kwargs['fac'])
         allowed = super().check_allowed() or self.facility.is_staff(self.request.user)
         return allowed
 
@@ -468,8 +468,7 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
         initial['end_date'] = end.date()
         initial['start_time'] = start.strftime('%H:%M')
         initial['end_time'] = end.strftime('%H:%M')
-        print(timezone.localtime(self.beamtime.start), timezone.localtime(self.beamtime.end))
-        print(initial)
+
         return initial
 
     def form_valid(self, form):
@@ -962,7 +961,7 @@ class UpdateTeam(RolePermsViewMixin, edit.UpdateView):
         initial.update(
             {
                 'team_members': self.project.team_members(), 'leader': self.project.get_leader(),
-                'delegate': self.project.get_delegate(),
+                'delegate': self.project.delegate,
                 'invoice_address': self.project.invoice_address(), 'invoice_email': self.project.invoice_email()
             }
         )
@@ -1332,7 +1331,7 @@ class AskClarification(RequestClarification):
         full_url = "{}{}".format(getattr(settings, 'SITE_URL', ""), success_url)
 
         sent = []
-        for user in [project.spokesperson, project.get_delegate(), project.leader()]:
+        for user in [project.spokesperson, project.delegate, project.leader]:
             if not user:
                 continue
             if isinstance(user, dict):

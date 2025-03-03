@@ -71,13 +71,19 @@
 {% block folio-statusbar %}
     <h3 class="no-vmargin"><span class="label label-info text-condensed">{{ project.state.title }}</span></h3>
     <div>
-        <small class="text-wide text-muted">Project Leader:</small><br/>{{ project.get_leader|default:"&hellip;" }}
+        <small class="text-wide text-muted">Project Leader:</small><br/>
+        {{ project.get_leader|default:"&hellip;" }}<br/>
+        {{ project.get_leader.institution|default:"" }}
     </div>
     <div>
-        <small class="text-wide text-muted">Spokesperson:</small><br/>{{ project.spokesperson|default:"&hellip;" }}
+        <small class="text-wide text-muted">Spokesperson:</small><br/>
+        {{ project.spokesperson|default:"&hellip;" }}<br/>
+        {{ project.spokesperson.institution|default:"&hellip;" }}
     </div>
     <div>
-        <small class="text-wide text-muted">Delegate:</small><br/>{{ project.get_delegate|default:"&hellip;" }}
+        <small class="text-wide text-muted">Delegate:</small><br/>
+        {{ project.delegate|default:"&hellip;" }}<br/>
+        {{ project.delegate.institution|default:"&hellip;" }}
     </div>
     <div>
         <small class="text-wide text-muted">Validity:</small><br/>{{ project.start_date|date:"" }}

@@ -1,4 +1,4 @@
-
+import re
 
 from django.conf import settings
 from django.db import models
@@ -192,8 +192,11 @@ class Sample(TimeStampedModel):
         keywords = self.details.get('keywords', {})
         txt = ""
         for p in self.precautions():
-            p_txt = p.text.format(keywords.get(p.code, '{}'))
-            txt += "- {}.  \n".format(p_txt)
+            num_blanks = p.text.count('{}')
+            values = re.split(r'\s*[;,|]\s*', keywords.get(p.code, ''))
+            full_values = values + ['*'] * (num_blanks - len(values))
+            p_txt = p.text.format(*full_values)
+            txt += f" - {p_txt}.  \n"
         return txt
 
     def hazards_text(self):

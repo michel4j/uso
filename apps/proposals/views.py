@@ -675,6 +675,7 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             for rev_info in data['details'].pop('additional_reviews', []):
                 if not rev_info.get('type'):
                     continue
+
                 rev_type = ReviewType.objects.filter(pk=rev_info.get('type')).first()
                 reviewer = User.objects.filter(username__iexact=rev_info.get('reviewer', 'x')).first()
                 role = rev_type.role
@@ -1147,8 +1148,11 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
     list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
     link_url = "submission-detail"
     order_by = ['-cycle_id']
-    list_title = 'Submissions'
-    list_transforms = {'facilities': _fmt_beamlines, 'title': utils.truncated_title}
+    list_title = 'Submitted Proposals'
+    list_transforms = {
+        'facilities': _fmt_beamlines,
+        'title': utils.truncated_title
+    }
     list_styles = {'title': 'col-xs-2'}
     admin_roles = USO_ADMIN_ROLES
     paginate_by = 25
@@ -1166,11 +1170,25 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
             return None
 
 
+class CycleSubmissionList(SubmissionList):
+    def get_queryset(self, *args, **kwargs):
+        qset = super().get_queryset(*args, **kwargs)
+        qset = qset.filter(cycle_id=self.kwargs['cycle'])
+        return qset
+
+
+class TrackSubmissionList(CycleSubmissionList):
+    def get_queryset(self, *args, **kwargs):
+        qset = super().get_queryset(*args, **kwargs)
+        qset = qset.filter(track__acronym=self.kwargs['track'])
+        return qset
+
+
 class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
     list_columns = ['code', 'title', 'spokesperson', 'cycle', 'kind', 'facilities', 'state']
-    list_filters = ['created', 'state', 'track', 'kind', 'cycle']
+    list_filters = ['created', 'state', 'track', 'kind']
     list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
     link_url = "submission-detail"
     order_by = ['-cycle_id']
@@ -1752,7 +1770,7 @@ class ReviewerOptions(RolePermsViewMixin, TemplateView):
         selected = get_user_model().objects.filter(username=reviewer).first()
 
         if role:
-            context['options'] = [('', role.replace('-', ' ').title() + ' Role', True)] + [
+            context['options'] = [('', role.replace('-', ' ').upper() + ' Role', True)] + [
                 (user.username, user, user == selected) for user in candidates]
         else:
             context['options'] = []

@@ -153,7 +153,7 @@ def get_reviewer_info(reviewer):
     """
     return {
         'techniques': set(reviewer.techniques.values_list('pk', flat=True)),
-        'areas': set(reviewer.areas.filter(category__isnull=True).values_list('pk', flat=True)),
+        'areas': set(reviewer.areas.values_list('pk', flat=True)),
         'emails': {
             email.strip().lower() for email in [_f for _f in [reviewer.user.email, reviewer.user.alt_email] if _f]
         },
@@ -272,28 +272,34 @@ def mip_optimize(proposals, reviewers, min_assignment=1, max_workload=4, committ
     :return: assignments dictionary mapping submission to a set of reviewers
     """
 
+    import numpy
     from ortools.linear_solver import pywraplp
 
     proposal_list = list(proposals)
     reviewer_list = list(reviewers)
 
+    print('Mixed Integer Programming Optimization')
     proposals_info = {prop: get_submission_info(prop) for prop in proposal_list}
+    print('Summarized Proposals ...')
     reviewers_info = {rev: get_reviewer_info(rev) for rev in reviewer_list}
-    num_workers = len(reviewers_info)
-    num_tasks = len(proposals_info)
-
+    print('Summarized Reviewers ...')
+    print('Calculating costs and incompatibilities...')
     costs = [
         [reward_cost(prop_info, rev_info) for prop, prop_info in proposals_info.items()]
         for rev, rev_info in reviewers_info.items()
     ]
-    invalid = [
+    invalid = numpy.array([
         [
             is_incompatible(prop_info, rev_info, committee)
             for prop, prop_info in proposals_info.items()
         ]
         for rev, rev_info in reviewers_info.items()
-    ]
+    ])
 
+    print('Done calculating costs! Will now optimize...')
+
+    num_workers = len(reviewers_info)
+    num_tasks = len(proposals_info)
     solver = pywraplp.Solver.CreateSolver(method)
 
     if not solver:
@@ -357,7 +363,7 @@ def assign_mip(cycle, stage, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tu
     """
     from .models import Reviewer
     track = stage.track
-    reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()[:400]
+    reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()[:200]
     committee = track.committee.order_by('?').all()
     proposals = cycle.submissions.filter(track=track).order_by('?').distinct()
     results = {}
@@ -430,8 +436,6 @@ def optimize_brute_force(submissions, reviewers, cycle, min_assignment=1, max_wo
         ]
 
         valid_reviewers = matched_reviewers.exclude(pk__in=conflicts).order_by('?')
-        print(submission.pk, valid_reviewers.count(), len(conflicts))
-
         if valid_reviewers.count() > min_assignment:
             assignments[submission] |= set(valid_reviewers[:min_assignment])
         else:

@@ -272,7 +272,7 @@ def get_cycle_options(context):
 def team_roles(roles):
     ROLES = {'leader': 'P', 'delegate': 'D', 'spokesperson': 'S'}
     roles = [ROLES.get(r) for r in roles if r in ROLES]
-    return '({0})'.format(', '.join(roles)) if roles else ''
+    return f'({", ".join(roles)})' if roles else ''
 
 
 @register.inclusion_tag("proposals/facility-reqs.html", takes_context=True)
@@ -343,7 +343,7 @@ def reviewer_reviews(context):
 @register.simple_tag(takes_context=True)
 def update_review_data(context):
     data = context['data']
-    context['review_types'] = models.ReviewType.objects.filter(code__in=USO_SAFETY_REVIEWS)
+    context['review_types'] = models.ReviewType.objects.safety()
     if isinstance(data, dict) and data.get('review'):
         review = models.Review.objects.filter(pk=data.get('review')).first()
         if review:

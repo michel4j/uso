@@ -15,8 +15,16 @@ div.comment-body {
 	font-style: italic;
 }
 
+.safety-permissions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0.5em 0;
+}
 .safety-permissions .label {
-    font-size: inherit;
+    font-size: 95%;
     font-weight: inherit;
     margin: 0.125em;
 }

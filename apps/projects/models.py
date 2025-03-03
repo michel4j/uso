@@ -1,5 +1,3 @@
-
-
 import functools
 import operator
 from collections import OrderedDict
@@ -8,10 +6,10 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
-from django.urls import reverse
 from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from model_utils import Choices
@@ -45,7 +43,10 @@ class Project(DateSpanMixin, TimeStampedModel):
     title = models.TextField(null=True)
     team = models.ManyToManyField('users.User', related_name="projects")
     pending_team = StringListField(blank=True, null=True)
-    cycle = models.ForeignKey('proposals.ReviewCycle', null=False, verbose_name=_('First Cycle'), related_name='projects', on_delete=models.CASCADE)
+    cycle = models.ForeignKey(
+        'proposals.ReviewCycle', null=False, verbose_name=_('First Cycle'),
+        related_name='projects', on_delete=models.CASCADE
+    )
     techniques = models.ManyToManyField('proposals.ConfigItem', blank=True, related_name='projects')
     beamlines = models.ManyToManyField('beamlines.Facility', through='Allocation', related_name="projects")
     clarifications = GenericRelation(Clarification)
@@ -61,6 +62,7 @@ class Project(DateSpanMixin, TimeStampedModel):
 
     def code(self):
         return f"{self.cycle.pk:0>2d}{self.get_kind_display()[0].upper()}{self.pk:0>5d}"
+
     code.sort_field = 'id'
 
     def is_owned_by(self, user):
@@ -68,6 +70,7 @@ class Project(DateSpanMixin, TimeStampedModel):
 
     def facility_codes(self):
         return ', '.join([bl.acronym for bl in self.beamlines.distinct()])
+
     facility_codes.sort_field = 'beamlines__acronym'
     facility_codes.short_description = 'Facilities'
 
@@ -83,10 +86,8 @@ class Project(DateSpanMixin, TimeStampedModel):
             return 'pending'
         else:
             return {True: 'active', False: 'inactive'}.get(self.is_active(), 'inactive')
-    state.sort_field = 'end_date'
 
-    def get_delegate(self):
-        return self.delegate
+    state.sort_field = 'end_date'
 
     def get_leader(self):
         return self.leader or self.spokesperson
@@ -97,12 +98,14 @@ class Project(DateSpanMixin, TimeStampedModel):
         return self.details['team_members'] or [{'first_name': '', 'last_name': '', 'email': ''}]
 
     def invoice_address(self):
-        return self.details.get('invoice_address', {}) or {'place': self.get_leader().address.address_1,
-                                                           'street': self.get_leader().address.address_2,
-                                                           'city': self.get_leader().address.city,
-                                                           'region': self.get_leader().address.region,
-                                                           'country': self.get_leader().address.country,
-                                                           'code': self.get_leader().address.postal_code}
+        return self.details.get('invoice_address', {}) or {
+            'place': self.get_leader().address.address_1,
+            'street': self.get_leader().address.address_2,
+            'city': self.get_leader().address.city,
+            'region': self.get_leader().address.region,
+            'country': self.get_leader().address.country,
+            'code': self.get_leader().address.postal_code
+        }
 
     def invoice_email(self):
         return self.details.get('invoice_email', None) or self.get_leader().email
@@ -144,7 +147,10 @@ class Project(DateSpanMixin, TimeStampedModel):
     def beamline_allocations(self):
         from proposals.models import Technique
         allocations = []
-        this_cycle = ReviewCycle.objects.current().latest('start_date')
+        this_cycle = ReviewCycle.objects.current().filter(
+            start_date__lte=self.end_date, start_date__gte=self.start_date
+        ).order_by('start_date').first()
+
         for beamline in self.beamlines.distinct():
             allocs_for_bl = self.allocations.filter(beamline=beamline)
             num_allocs = allocs_for_bl.count()
@@ -184,7 +190,7 @@ class Project(DateSpanMixin, TimeStampedModel):
                 'can_decline': self.cycle.is_pending() and allocation.shifts,
                 'techniques': ", ".join([t.short_name() for t in techniques]),
                 'can_request': (self.is_pending() or self.is_active()) and (
-                            beamline.flex_schedule or allocation.discretionary),
+                        beamline.flex_schedule or allocation.discretionary),
                 'shift_request': allocation.shift_requests.first(),
                 'alloc_request': self.allocation_requests.filter(beamline=beamline, cycle=next_cycle).first(),
             })
@@ -631,7 +637,8 @@ class ShiftRequest(TimeStampedModel):
     allocation = models.ForeignKey('Allocation', on_delete=models.CASCADE, related_name="shift_requests")
     comments = models.TextField(blank=True, null=True)
     justification = models.TextField(blank=True, null=True)
-    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="shift_requests", verbose_name='Scheduling Tags')
+    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="shift_requests",
+                                  verbose_name='Scheduling Tags')
     shift_request = models.IntegerField(default=0)
     good_dates = models.TextField(blank=True, null=True)
     poor_dates = models.TextField(blank=True, null=True)
@@ -701,6 +708,7 @@ class BeamTime(Event):
 
     def principal_investigator(self):
         return self.project.get_leader()
+
     principal_investigator.sort_field = 'project__leader'
 
     class Meta:
