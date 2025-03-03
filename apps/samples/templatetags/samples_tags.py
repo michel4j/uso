@@ -83,6 +83,7 @@ def get_precautions(context, hazards):
 
 @register.simple_tag(takes_context=True)
 def precaution_text(context, precaution):
+    return precaution.text
     sample = context['sample']
     data = context['data']
     sample_info = {d['sample']: d for d in data}

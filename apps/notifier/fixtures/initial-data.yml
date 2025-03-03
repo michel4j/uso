@@ -10,7 +10,7 @@
       has declined their allocation.\r\n---\r\nUser: {{request.user}}\r\nProject:
       \ {{allocation.project.code}} ({{site}}{% url 'project-detail' pk=allocation.project.pk
       %})\r\nBeamline: {{allocation.beamline}}\r\nAllocated Shifts:  {{shifts}}\r\n\r\nReason
-      given:\r\n{{comments}}\r\n---\r\n\r\nSincerely,\r\nThe CLS Users Office Team"
+      given:\r\n{{comments}}\r\n---\r\n\r\nSincerely,\r\nThe Users Office Team"
     active: true
 - model: notifier.messagetemplate
   pk: 2
@@ -28,7 +28,7 @@
       {{session.spokesperson}}  \r\nProject:  [{{session.project.code}}]({{site}}{%
       url 'project-detail' pk=session.project.pk %})  \r\nBeamline: {{session.beamline}}
       \ \r\n\r\nHistory:\r\n{% for log in session.details.history %}\r\n- {{log|safe}}\r\n{%
-      endfor %}\r\n\r\nSincerely,\r\nThe CLS Users Office Team"
+      endfor %}\r\n\r\nSincerely,\r\nThe Users Office Team"
     active: true
 - model: notifier.messagetemplate
   pk: 3
@@ -46,7 +46,7 @@
       Responsible: {{session.spokesperson}}  \r\nProject:  [{{session.project.code}}]({{site}}{%
       url 'project-detail' pk=session.project.pk %})  \r\nBeamline: {{session.beamline}}
       \ \r\n\r\nHistory:\r\n{% for log in session.details.history %}\r\n- {{log|safe}}\r\n{%
-      endfor %}\r\n\r\nSincerely,\r\nThe CLS Users Office Team"
+      endfor %}\r\n\r\nSincerely,\r\nThe Users Office Team"
     active: true
 - model: notifier.messagetemplate
   pk: 4
@@ -65,7 +65,7 @@
       comments for hints on how to improve your proposal. You can also contact the
       relevant beamline staff if you have\r\nany questions about preparing your proposal
       for submission.\r\n\r\nWe look forward to having you as a user in the future.\r\n\r\nSincerely,\r\nThe
-      CLS Users Office Team"
+      Users Office Team"
     active: true
 - model: notifier.messagetemplate
   pk: 5
@@ -106,7 +106,7 @@
       You may choose to improve your score by submitting an improved proposal instead\r\nof
       a renewal.\r\n{% endif %}{% endif %}{% endfor %}\r\n\r\n{% if project.approved
       %}We look forward to having you as a user during the \"{{cycle}}\" cycle.{%
-      endif %}\r\n\r\nSincerely,\r\nThe CLS Users Office Team"
+      endif %}\r\n\r\nSincerely,\r\nThe Users Office Team"
     active: true
 - model: notifier.messagetemplate
   pk: 6
@@ -123,8 +123,8 @@
       }}{% endif %}\r\n{% endfor %}\r\nRequest to applicant:\r\n\"{{clarification|safe}}\"\r\n\r\nResponse
       from applicant:\r\n\"{{response|safe}}\"\r\n\r\n\r\n** To avoid delays please
       complete and submit your review before the due date.**\r\n\r\nIf you have any
-      questions or concerns, please contact contact our office at\r\nclsuo@lightsource.ca
-      or 306-657-3700.\r\n\r\nSincerely,\r\nCLSI User Services Office"
+      questions or concerns, please contact contact our office.
+      \r\n\r\nSincerely,\r\nUser Services Office"
     active: true
 - model: notifier.messagetemplate
   pk: 7
@@ -140,10 +140,9 @@
       can be submitted by either the original submitter (the spokesperson), the team
       leader or the\r\ndesignated delegate through the URL {{respond_url}}. Only one
       response will be accepted.\r\n\r\n** To avoid delays in the review, please respond
-      before {{due_date}}.**\r\n\r\nNote that you must be registered at the CLS to
+      before {{due_date}}.**\r\n\r\nNote that you must be registered to
       view the or respond to clarifications requests.\r\nIf you have any questions
-      or concerns, please contact contact our office at\r\nclsuo@lightsource.ca or
-      306-657-3700.\r\n\r\nSincerely,\r\nCLSI User Services Office"
+      or concerns, please contact contact our office.\r\n\r\nSincerely,\r\nUser Services Office"
     active: true
 - model: notifier.messagetemplate
   pk: 8
@@ -156,7 +155,7 @@
     content: 'Dear Reviewer,
 
 
-      The following proposal{{reviews|length|pluralize:",s"}} submitted to the CLS
+      The following proposal{{reviews|length|pluralize:",s"}} submitted to the
       {{reviews|length|pluralize:"has,have"}} been
 
       assigned to you for review.
@@ -184,14 +183,12 @@
       We appreciate your effort in completing the reviews in a timely manner.
 
 
-      If you have any questions or concerns, please contact our office at
-
-      clsuo@lightsource.ca or 306-657-3700.
+      If you have any questions or concerns, please contact our office.
 
 
       Sincerely,
 
-      CLSI User Services Office'
+      User Services Office'
     active: true
 - model: notifier.messagetemplate
   pk: 9
@@ -207,7 +204,7 @@
       received.  The other members of your team have also\r\nbeen notified by email.{%
       else %}You are receiving this message because you are a team member on a research
       proposal titled\r\n\r\n\"{{proposal_title|safe}}\"\r\n\r\nwhich has been submitted
-      to the CLS by {{spokesperson}}. The proposal is for research to be conducted
+      by {{spokesperson}}. The proposal is for research to be conducted
       during the scheduling\r\nperiod of \"{{cycle}}\". As a member of the team, you
       can view the proposal at {{proposal_url}}.{% endif %}\r\n{% if is_delegate %}Additionally,
       {{spokesperson}} has designated you to act as a delegate in matters\r\nrelated
@@ -217,10 +214,10 @@
       results of the review. Please note\r\nthat further clarification maybe required
       during the review process, at which time you will be contacted. To avoid delays\r\nin
       the review, please respond to any such clarifications in a timely manner.{%
-      endif %}\r\n{% if not is_spokesperson %}Note that you must be registered at
-      the CLS to view the proposal or respond to clarifications.{% endif %}\r\nIf
+      endif %}\r\n{% if not is_spokesperson %}Note that you must be registered 
+      to view the proposal or respond to clarifications.{% endif %}\r\nIf
       you have any questions or concerns, please contact the spokesperson, {{spokesperson}}.
-      You can also contact our office at\r\nclsuo@lightsource.ca or 306-657-3700.\r\n\r\nSincerely,\r\nCLSI
+      You can also contact our office.\r\n\r\nSincerely,\r\n
       User Services Office"
     active: true
 - model: notifier.messagetemplate
@@ -232,7 +229,7 @@
     description: Review Reminder
     kind: full
     content: "Dear Reviewer,\r\n\r\nThis is reminder that the following review{{reviews|length|pluralize:\",s\"}}
-      assigned to you,\r\nor associated with your roles at the CLS {{reviews|length|pluralize:\"is,are\"}}
+      assigned to you,\r\nor associated with your roles {{reviews|length|pluralize:\"is,are\"}}
       due on {{due_date|date}}.\r\n\r\n{% for rev in reviews %}\r\n{{rev.get_kind_display}}\r\n{{rev.proposal}}\r\n{{site}}{%
       url \"edit-review\" pk=rev.pk %}\r\nDue date: {{rev.due_date}}\r\n{% if not
       forloop.last %}---{% endif %}{% endfor %}\r\n\r\nPlease complete the review{{reviews|length|pluralize:\",s\"}}
@@ -240,8 +237,7 @@
       you have already completed the review, but did not submit it yet, please do
       so to ensure your opinion will be considered.\r\n\r\nWe appreciate your effort
       in completing and submitting the reviews before midnight on {{due_date|date}}.\r\n\r\nIf
-      you have any questions or concerns, please contact our office at\r\nclsuo@lightsource.ca
-      or 306-657-3700.\r\n\r\nSincerely,\r\nCLSI User Services Office"
+      you have any questions or concerns, please contact our office at.\r\n\r\nSincerely,\r\nUser Services Office"
     active: true
 - model: notifier.messagetemplate
   pk: 11
@@ -252,14 +248,13 @@
     description: Review Request
     kind: full
     content: "Dear Reviewer,\r\n\r\nThe following proposal{{reviews|length|pluralize:\",s\"}}
-      submitted to the CLS {{reviews|length|pluralize:\"has,have\"}} been\r\nassigned
+      {{reviews|length|pluralize:\"has,have\"}} been\r\nassigned
       to you for review.\r\n\r\n{% for rev in reviews %}\r\n{{rev.get_kind_display}}\r\n{{rev.proposal}}\r\n{{site}}{%
       url \"edit-review\" pk=rev.pk %}\r\nDue date: {{rev.due_date}}\r\n{% if not
       forloop.last %}---{% endif %}{% endfor %}\r\n\r\nYou can complete the review{{reviews|length|pluralize:\",s\"}}
       by following the corresponding\r\nlink{{reviews|length|pluralize:\",s\"}} above.\r\n\r\nWe
       appreciate your effort in completing the reviews in a timely manner.\r\n\r\nIf
-      you have any questions or concerns, please contact our office at\r\nclsuo@lightsource.ca
-      or 306-657-3700.\r\n\r\nSincerely,\r\nCLSI User Services Office"
+      you have any questions or concerns, please contact our office at.\r\n\r\nSincerely,\r\nUser Services Office"
     active: true
 - model: notifier.messagetemplate
   pk: 12
@@ -269,11 +264,11 @@
     name: auto-password-reset
     description: Auto Password Reset
     kind: full
-    content: "Dear {{name}},\r\n\r\nYour password to your CLSI user portal account
+    content: "Dear {{name}},\r\n\r\nYour password to your user portal account
       is being reset.  Please follow the link to choose a new password:\r\n\r\n{{reset_url}}\r\n\r\nThis
       link will be valid for the next 24 hours. \r\n\r\nIf you have any concerns about
-      this please contact the User Services Online Support at uso-support@lightsource.ca.\r\n\r\nAll
-      the best!\r\nThe CLS Users Office Team"
+      this please contact the User Services Online Support.\r\n\r\nAll
+      the best!\r\nThe Users Office Team"
     active: true
 - model: notifier.messagetemplate
   pk: 13
@@ -286,33 +281,27 @@
     content: 'Dear {{name}},
 
 
-      You now have a Canadian Light Source, Inc. user portal account!  Your new username
+      You now have a user portal account!  Your new username
       is:
 
 
       {{ username }}
 
 
-      Go to {{login_url}} and enter your credentials to log in.  With your new CLSI
+      Go to {{login_url}} and enter your credentials to log in.  With your new
 
-      user portal account, you can update your contact information, submit proposals
-      for accessing the CLS,
-
+      user portal account, you can update your contact information, submit proposals,
       request beamtime against your active proposals, and let us know about your most
-      recent publication involving
-
-      CLS work, and much more!
+      recent publication involving experiments performed here, among other things.
 
 
       All the best!
 
-      The CLS Users Office Team
+      The Users Office Team
 
 
-      Note: If you did not register at the CLSI user portal, please get in touch with
-      the CLS Users Office at
-
-      clsuo@lightsource.ca.'
+      Note: If you did not register at the user portal, please get in touch with
+      us.'
     active: true
 - model: notifier.messagetemplate
   pk: 14
@@ -328,7 +317,7 @@
       in new %}\r\n- {{institution.name}}, {{institution.location}}{%  endfor %}\r\n\r\nIn
       addition there are {{ pending.count }} institutions which do not have an institutional
       agreement in place.\r\nYou can manage the details and update the institutional
-      agreements at\r\n\r\n{{url}}\r\n\r\nPlease contact the CLS Users Office at clsuo@lightsource.ca
+      agreements at\r\n\r\n{{url}}\r\n\r\nPlease contact the Users Office
       if you have any questions or concerns about this message."
     active: true
 - model: notifier.messagetemplate
@@ -340,10 +329,10 @@
     description: New Password
     kind: full
     content: "Dear {{name}},\r\n\r\nYou have successfully changed the password for
-      your account with the Canadian Light Source, Inc. user portal!\r\nTo login,
+      your account with the user portal!\r\nTo login,
       go to {{login_url}} and enter your username ({{username}}) and new password.\r\n\r\nAll
-      the best!\r\nThe CLS Users Office Team\r\n\r\nNote: If you did not change your
-      password at the CLSI user portal, please contact the CLS Users Office at\r\nclsuo@lightsource.ca."
+      the best!\r\nThe Users Office Team\r\n\r\nNote: If you did not change your
+      password at the user portal, please contact the Users Office."
     active: true
 - model: notifier.messagetemplate
   pk: 16
@@ -353,11 +342,11 @@
     name: password-reset
     description: Password Reset
     kind: full
-    content: "Dear {{name}},\n\nYou have requested a change to your CLSI user portal
+    content: "Dear {{name}},\n\nYou have requested a change to your user portal
       account.  Please follow the link to choose a new password:\n\n{{reset_url}}\n\nThis
       link will be valid for the next 24 hours. \n\nYou may disregard this email if
-      you did not request a change at the CLSI user portal.\n\nAll the best!\nThe
-      CLS Users Office Team"
+      you did not request a change at the user portal.\n\nAll the best!\nThe
+      Users Office Team"
     active: true
 - model: notifier.messagetemplate
   pk: 17
@@ -370,7 +359,7 @@
     content: 'Dear {{name}},
 
 
-      Thank you for registering at the Canadian Light Source, Inc. user portal!  Before
+      Thank you for registering at the user portal!  Before
       we can activate your account,
 
       you must verify your email address by following the link and completing your
@@ -383,10 +372,10 @@
       {{verification_url}}
 
 
-      You may disregard this email if you did not register at the CLSI user portal.
+      You may disregard this email if you did not register at the user portal.
 
 
       All the best!
 
-      The CLS Users Office Team'
+      The Users Office Team'
     active: true

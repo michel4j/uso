@@ -284,10 +284,7 @@ def mip_optimize(proposals, reviewers, min_assignment=1, max_workload=4, committ
     reviewers_info = {rev: get_reviewer_info(rev) for rev in reviewer_list}
     print('Summarized Reviewers ...')
     print('Calculating costs and incompatibilities...')
-    costs = [
-        [reward_cost(prop_info, rev_info) for prop, prop_info in proposals_info.items()]
-        for rev, rev_info in reviewers_info.items()
-    ]
+
     invalid = numpy.array([
         [
             is_incompatible(prop_info, rev_info, committee)
@@ -329,9 +326,14 @@ def mip_optimize(proposals, reviewers, min_assignment=1, max_workload=4, committ
 
     # Objective
     objective_terms = []
-    for i in range(num_workers):
-        for j in range(num_tasks):
-            objective_terms.append(costs[i][j] * x[i, j])
+    # costs = [
+    #     [reward_cost(prop_info, rev_info) for prop, prop_info in proposals_info.items()]
+    #     for rev, rev_info in reviewers_info.items()
+    # ]
+    # for i in range(num_workers):
+    #     for j in range(num_tasks):
+    #         solver.Add(x[i, j] * invalid[i][j] == 0)
+    #         objective_terms.append(costs[i][j] * x[i, j])
 
     solver.Maximize(solver.Sum(objective_terms))
     print(f"Solving with {solver.SolverVersion()}")
@@ -383,7 +385,7 @@ def assign_mip(cycle, stage, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tu
 
     com_max = 2 + proposals.count() // max(1, committee.count())
     com_results, solver, status = mip_optimize(
-        proposals, committee, track.min_reviewers, com_max, committee=True, method=method
+        proposals, committee, track.min_reviewers, com_max, committee=False, method=method
     )
     print('Committee Members:')
     print(f"Objective : {solver.Objective().Value()}")
