@@ -1,0 +1,35 @@
+
+{% load misc %}
+<div class="col-xs-12 col-sm-6">
+    <h5>
+        {% if cycle.state < cycle.STATES.open %}
+            Participating
+        {% else %}
+            Submitted
+        {% endif %}
+    </h5>
+    <hr class="hr-xxs"/>
+    {% if cycle.state >= cycle.STATES.open %}
+        {% stat_card description="Proposals" value=total_submissions units="" %}
+    {% endif %}
+    {% stat_card description="Facilities" value=total_facilities units="" %}
+    {% stat_card description="Techniques" value=total_techniques units="" %}
+    {% stat_card description="Committee" value=track.committee.count units="MBRS" %}
+</div>
+<div class="col-xs-12 col-sm-6">
+    <h5>
+        {% if cycle.state < cycle.STATES.open %}
+            Available Techniques
+        {% else %}
+            Proposals by Facility
+        {% endif %}
+    </h5>
+    <hr class="hr-xxs"/>
+    <div class="count-list">
+    {% for entry in facilities %}
+        <div class="count-list-item">
+            <a class="name" href="{% url "beamline-submissions" fac=entry.facility_acronym cycle=cycle.pk %}">{{ entry.facility_acronym }}</a>&ensp;<strong class="value">{{ entry.count }}</strong>
+        </div>
+    {% endfor %}
+    </div>
+</div>

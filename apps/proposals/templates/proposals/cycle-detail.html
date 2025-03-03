@@ -82,16 +82,34 @@
 {% endblock %}
 
 {% block folio-content %}
-    <div class="row narrow-gutter">
+    <div class="folio-status bg-darken">
+        <div style="width: 100%; padding: 0.5em 0;" id="timeline" data-toggle="tooltip" title="Cycle Timeline"></div>
+    </div>
+    <div class="row">
         <div class="col-xs-12">
-            <div class="bottom-border" style="width: 100%;" id="timeline" data-toggle="tooltip"
-                 title="Cycle Timeline"></div>
-        </div>
-        {% for track in tracks %}
-            <div class="col-xs-12">
-                {% show_track track %}
+            <ul id="#track-tabs" class="nav nav-tabs" style="margin-top: 1em;">
+                {% for track in tracks  %}
+                    <li class="{% if forloop.first %}active{% endif %}">
+                        <a href="#nav-track-{{ forloop.counter }}"
+                           data-toggle="tab"
+                           class="bg-track-{{ forloop.counter }}"
+                           {% if forloop.first %}aria-expanded="true"{% endif %}
+                        >
+                            <strong>{{ track.acronym }}</strong><span class="hidden-xs">&nbsp;&ndash;&nbsp;{{ track.name }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="tab-content">
+                {% for track in tracks %}
+                    <div class="tab-pane bg-track-{{ forloop.counter }} {% if forloop.first %}active{% endif %}"
+                         id="nav-track-{{ forloop.counter }}"
+                         data-page-number="{{ forloop.counter0 }}">
+                        {% show_track track %}
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
     </div>
 {% endblock %}
 

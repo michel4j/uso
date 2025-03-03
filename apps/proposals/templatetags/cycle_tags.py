@@ -1,5 +1,5 @@
 from django import template
-from django.db.models import Q, Count, Avg, StdDev, F
+from django.db.models import Q, Count, Avg, StdDev, F, Max, Value
 from datetime import datetime, timedelta
 from calendar import timegm
 from django.utils.translation import gettext as _
@@ -58,11 +58,12 @@ def review_count(reviewer, cycle):
 @register.filter(name="review_compat")
 def review_compat(reviewer, submission):
     if hasattr(reviewer, 'reviewer'):
-        techniques = reviewer.reviewer.techniques.filter(
-            pk__in=submission.techniques.values_list('technique', flat=True))
+        techniques = set(
+            submission.techniques.values_list('technique', flat=True)
+        ) & set(reviewer.reviewer.techniques.values_list('pk', flat=True))
         areas = reviewer.reviewer.areas.all() & submission.proposal.areas.all()
         return mark_safe(
-            f"<span class='text-primary'>{techniques.count()}</span>&nbsp;:&nbsp;"
+            f"<span class='text-primary'>{len(techniques)}</span>&nbsp;:&nbsp;"
             f"<span class='text-success'>{areas.count()}</span>"
         )
     else:
@@ -77,14 +78,21 @@ def facility_acronyms(beamlines):
     return ", ".join(beamlines.values_list('acronym', flat=True))
 
 
-@register.inclusion_tag('proposals/track-submissions.html', takes_context=True)
-def show_submissions(context, cycle, track):
-    submissions = cycle.submissions.filter(track=track)
-    reviewers = models.Reviewer.objects.available(cycle)
-    facilities = cycle.submissions.filter(track=track).annotate(
-        facility=F('techniques__config__facility__acronym')
-    ).values('facility').annotate(count=Count('id', distinct=True))
-    techs = cycle.techniques().filter(items__track=track).distinct()
+@register.inclusion_tag('proposals/track-stats.html', takes_context=True)
+def show_track_stats(context, cycle, track):
+    #reviewers = models.Reviewer.objects.available(cycle)
+    if cycle.state < cycle.STATES.open:
+        submissions = models.Submission.objects.none()
+        techs = cycle.techniques().filter(items__track=track).distinct()
+        facilities = cycle.configs().annotate(
+            facility_acronym=F('facility__acronym')
+        ).values('facility_acronym').annotate(count=Count('techniques', distinct=True))
+    else:
+        submissions = cycle.submissions.filter(track=track)
+        facilities = cycle.submissions.filter(track=track).annotate(
+            facility_acronym=F('techniques__config__facility__acronym')
+        ).values('facility_acronym').annotate(count=Count('id', distinct=True))
+        techs = cycle.techniques().filter(items__track=track, items__submissions__in=submissions).distinct()
 
     info = {
         'admin': context.get('admin'),
@@ -95,24 +103,31 @@ def show_submissions(context, cycle, track):
         'total_submissions': submissions.count(),
         'total_facilities': facilities.count(),
         'total_techniques': techs.count(),
-        'total_reviewers': reviewers.count(),
+        #'total_reviewers': reviewers.count(),
     }
     return info
 
 
 @register.inclusion_tag('proposals/technique-reviewer-matrix.html', takes_context=True)
-def technique_matrix(context, cycle, track):
+def show_technique_matrix(context, cycle, track):
     techs = models.Technique.objects.filter(
         items__track=track, items__submissions__cycle=cycle
     ).annotate(
         num_proposals=Count('items__submissions', distinct=True),
         num_reviewers=Count('reviewers', distinct=True)
-    ).values('name', 'acronym', 'num_proposals', 'num_reviewers')
+    ).annotate(
+        redundancy=F('num_reviewers') / F('num_proposals')
+    ).values(
+        'name', 'acronym', 'num_proposals', 'num_reviewers', 'redundancy'
+    ).order_by('redundancy')
+
     techniques = {
-        f'{t["name"]} ({t["acronym"]})': {
+        t["acronym"]: {
+            'name': t['name'],
             'submissions': t['num_proposals'],
             'reviewers': t['num_reviewers'],
-        } for t in techs
+            'redundancy': t['redundancy'] * 100,
+        } for t in techs[:20]
     }
     info = {
         'admin': context.get('admin'),
@@ -124,8 +139,8 @@ def technique_matrix(context, cycle, track):
     return info
 
 
-@register.inclusion_tag('proposals/track-reviews.html', takes_context=True)
-def show_track_reviews(context, cycle, track):
+@register.inclusion_tag('proposals/track-committee.html', takes_context=True)
+def show_track_committee(context, cycle, track):
     reviews = models.Review.objects.filter(cycle=cycle, stage__track=track).distinct()
 
     info = []
@@ -277,7 +292,8 @@ def cycle_comments(cycle):
         txt = (
             "<span class='text-danger'>The submission deadline for the selected period elapsed on "
             "<em>{close_date}</em>. Regular submissions will be considered for discretionary time only,"
-            "until the next call for proposals, at which time you must resubmit to be considered for additional beam time. </span>"
+            "until the next call for proposals, at which time you must resubmit to be considered "
+            "for additional beam time. </span>"
         )
     elif cycle.state == cycle.STATES.open:
         txt = (
@@ -289,7 +305,8 @@ def cycle_comments(cycle):
         txt = (
             "<span class='text-muted'>The call for proposals to be scheduled during the selected period "
             "will open in {open_duration} on <em>{open_date}</em>. The list of available techniques and beamlines "
-            "may change before that date. Note that the earliest beam time for the selected scheduling period is in {start_duration}.</span>"
+            "may change before that date. Note that the earliest beam time for the selected scheduling period is "
+            "in {start_duration}.</span>"
         )
     out = txt.format(
         close_date=cycle.close_date.strftime("%b %d, %Y"),
@@ -299,17 +316,26 @@ def cycle_comments(cycle):
     return mark_safe(out)
 
 
-@register.inclusion_tag('misc/stat-card.html')
+@register.inclusion_tag('proposals/stage-stats.html')
 def stage_stats(stage, cycle):
-    stats = stage.reviews.filter(cycle=cycle).aggregate(
+    info = stage.reviews.filter(cycle=cycle).aggregate(
         avg_score=Avg('score'),
         std_dev=StdDev('score'),
         total=Count('id'),
         completed=Count('id', filter=Q(state=models.Review.STATES.submitted)),
     )
-    percentage = 100 * stats['completed'] / max(1, stats['total'])
+    percentage = 100 * info['completed'] / max(1, info['total'])
     return {
-        'description': mark_safe(f"{stage.kind}: {stats['completed']}&nbsp;/&nbsp;{stats['total']} completed"),
-        'value': f"{percentage:0.1f}",
-        'units': "%",
+        'entries': [
+            {
+                'description': "Reviews",
+                'value': f"{info['total']}",
+                'units': "REV",
+            },
+            {
+                'description': "Completed",
+                'value': f"{percentage:0.1f}",
+                'units': "%",
+            }
+        ]
     }

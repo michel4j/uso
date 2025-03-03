@@ -1,0 +1,4 @@
+{% load misc %}
+{% for entry in entries %}
+{% stat_card description=entry.description value=entry.value units=entry.units %}
+{% endfor %}
