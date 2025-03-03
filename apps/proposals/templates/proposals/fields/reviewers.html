@@ -9,7 +9,7 @@
                     class="chosen select form-control" data-placeholder="Select Review Type">
                 <option value="" data-review-role=""></option>
                 {% for rev_type in review_types %}
-                <option value="{{ rev_type.pk }}" data-review-role="{{  rev_type.role }}">{{ rev_type }}</option>
+                <option value={{ rev_type.pk }} data-review-role="{{  rev_type.role }}">{{ rev_type }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -30,9 +30,8 @@
 
 <script>
     function update_reviewers_field(element) {
-        var reviewer = element.closest('.controls').find('select[name^="{{field.name}}.reviewer"]');
-        var role = element.find(':selected').attr('data-review-role');
-        var username = reviewer.attr('data-selected-username');
+        const reviewer = element.closest('.controls').find('select[name^="{{field.name}}.reviewer"]');
+        const role = element.find(':selected').attr('data-review-role');
         reviewer.load('{% url "reviewer-options" %}?role=' + role , function () {
             reviewer.trigger("chosen:updated");
         });

@@ -11,13 +11,11 @@
 		<div class="row">
             <div class="col-sm-12">
                 <div class="pull-right">
-                    {% for hz in material.pictograms %}
-                    {% if forloop.first %}<div class="text-right">{% endif %}
-                        {% with 'samples/pictograms/'|add:hz.code|add:'.svg' as pictogram_svg %}
-                    <img width="24" src="{% static pictogram_svg %}" title="{{hz.name}}">
-                        {% endwith %}
-                    {% if forloop.last %}</div>{% endif %}
-                    {% endfor %}
+                    <div class="pictogram-box pictogram-sm">
+                        {% for hz in material.pictograms %}
+                            <img src="{% pictogram_url hz %}" title="{{ hz.name }}">
+                        {% endfor %}
+                    </div>
                 </div>
                 <div class="pull-left">
                     <span class="text-condensed text-muted"><strong>

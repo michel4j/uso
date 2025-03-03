@@ -24,12 +24,12 @@
 {% block body_class %}{% endblock %}
 
 {% block full %}
-    <div id="review-form" class="row narrow-gutter">
+    <div id="review-form" class="row">
         <div class="col-sm-6 col-md-7 review-col">
             <div id="proposal-area" class="pagelet scroll-parent">
                 <div class="scroll-box" style="height: 100%; padding: 0.75em;">
                     <div class="pagelet-body">
-                        {% if review.type.is_safety %}
+                        {% if review.type.is_safety or review.type.is_approval %}
                             {% include "projects/safety-detail.html" with material=reference %}
                         {% else %}
                             {% include "proposals/proposal-content.html" with proposal=reference.proposal %}
