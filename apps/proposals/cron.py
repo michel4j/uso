@@ -43,7 +43,9 @@ class CycleStateManager(BaseCronJob):
         ).update(state=models.ReviewCycle.STATES.open)
 
         # check and switch to assign
-        models.ReviewCycle.objects.filter(close_date=yesterday, state=models.ReviewCycle.STATES.open).update(
+        models.ReviewCycle.objects.filter(
+            close_date__lte=today, state=models.ReviewCycle.STATES.open,
+        ).update(
             state=models.ReviewCycle.STATES.assign
         )
 
@@ -69,8 +71,6 @@ class NotifyReviewers(BaseCronJob):
         today = timezone.localtime(timezone.now())
         yesterday = today - timedelta(days=1)
         if cycle:
-            info = defaultdict(list)
-
             # Notify technical reviews one day later to avoid spamming
             reviews = models.Review.objects.technical().filter(
                 state=models.Review.STATES.pending, created__lte=yesterday
