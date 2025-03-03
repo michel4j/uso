@@ -35,11 +35,10 @@ class CycleStateManager(BaseCronJob):
     def do(self):
         from . import models
         today = timezone.localtime(timezone.now()).date()
-        yesterday = today - timedelta(days=1)
 
         # check and switch to open
         models.ReviewCycle.objects.filter(
-            open_date__lte=today, close_date__gte=today, state=models.ReviewCycle.STATES.pending
+            open_date__lte=today, state=models.ReviewCycle.STATES.pending
         ).update(state=models.ReviewCycle.STATES.open)
 
         # check and switch to assign
