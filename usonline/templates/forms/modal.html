@@ -26,11 +26,11 @@
         <div class="modal-content">
             <div class="modal-header">
 
-                <h3 class="modal-title">
+                <h4 class="modal-title">
                     {% block form_title %}{{ form.helper.title }}{% endblock %}
                     <button type="button" class="close pull-right" data-dismiss="modal" aria-hidden="true">
                         <i class="bi-x-lg"></i></button>
-                </h3>
+                </h4>
             </div>
             <div class="modal-body" id="form-content">
                 {% block form_body %}{% crispy form form.helper %}{% endblock %}

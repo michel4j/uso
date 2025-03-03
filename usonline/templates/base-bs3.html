@@ -119,15 +119,6 @@ $(document).ready(function(){
         e.preventDefault();
     });
 
-	//Display help information in a footer
- 	{#$('.help-btn').click(function(){#}
-	{#var loadUrl = '{% url "help-info" %}?module='+ $(this).attr('rel');#}
- 	{#	$("#help-content").load(loadUrl, function(){#}
- 	{#    	$('#help-content').toggleClass('removed shown');#}
- 	{#		$('.content.main-content').toggleClass('with-help');#}
- 	{#	});#}
- 	{#});#}
-
 	// Remove modal content after it is hidden
  	$(document).on('hidden.bs.modal', '.modal', function () {
  	    $(this).remove();
