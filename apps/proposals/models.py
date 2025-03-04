@@ -536,8 +536,7 @@ class ReviewerQueryset(models.QuerySet):
 
         expiry = (cycle_time - timedelta(days=364)).date()
         return self.filter(
-            Q(committee__isnull=True)
-            & Q(active=True)
+            Q(active=True)
             & (Q(declined__isnull=True) | Q(declined__lt=expiry))
             & Q(techniques__isnull=False)
             & Q(areas__isnull=False)

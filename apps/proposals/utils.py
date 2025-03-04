@@ -4,8 +4,11 @@ from datetime import date, timedelta, datetime
 from typing import Literal
 
 from django.conf import settings
-from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField
+from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField, F
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models.functions import Concat, Lower
 from django.utils.safestring import mark_safe
+from docutils.nodes import entry
 from model_utils import Choices
 
 from notifier import notify
@@ -171,7 +174,7 @@ def is_incompatible(proposal, reviewer, committee=False) -> Literal[0, 1]:
     """
     return max(
         veto_conflict(proposal, reviewer),
-        veto_technique(proposal, reviewer, committee),
+        veto_technique(proposal, reviewer),
         veto_subject(proposal, reviewer)
     )
 
@@ -237,11 +240,8 @@ def reward_cost(proposal, reviewer) -> float:
     :param reviewer: reviewer
     :return: reward
     """
-    reward = 10
     # reward for matching technique
-    reward *= len(proposal['techniques'] & reviewer['techniques'])
-    reward *= len(proposal['areas'] & reviewer['areas'])
-    return reward
+    return 100 * len(proposal['techniques'] & reviewer['techniques']) * len(proposal['areas'] & reviewer['areas'])
 
 
 def penalty_cost(proposal, reviewer):
@@ -259,44 +259,191 @@ def penalty_cost(proposal, reviewer):
     return cost
 
 
-def mip_optimize(proposals, reviewers, min_assignment=1, max_workload=4, committee=False, method='SCIP'):
+class Assigner:
+    def __init__(self, submissions, reviewers, stage, cycle):
+        self.cycle = cycle
+        self.track = stage.track
+        self.submissions = submissions
+        self.reviewers = reviewers
+
+        self.committee = reviewers.filter(committee=self.track)
+        self.pool = reviewers.filter(committee__isnull=True).order_by('?')[:200]
+
+        self.prop_info = {
+            item['pk']: item
+            for item in self.submissions.values('pk').annotate(
+                areas=ArrayAgg('proposal__areas__pk', distinct=True),
+                techs=ArrayAgg('techniques__technique__pk', distinct=True),
+                emails=F('proposal__team'),
+                names=F('proposal__details__inappropriate_reviewers')
+            )
+        }
+        for pk, item in self.prop_info.items():
+            names = set() if not item['names'] else {
+                f"{r['last_name']},{r['first_name']}".strip().lower() for r in item.pop('names')
+            }
+            self.prop_info[item['pk']].update({
+                'techs': set(item['techs']),
+                'areas': set(item['areas']),
+                'names': names,
+                'emails': set(item['emails']),
+            })
+        self.rev_info = {
+            item['pk']: item
+            for item in self.reviewers.values('pk').annotate(
+                areas=ArrayAgg('areas__pk', distinct=True),
+                techs=ArrayAgg('techniques__pk', distinct=True),
+                name=Lower(Concat('user__last_name', Value(','), 'user__first_name')),
+                email=Lower('user__email'),
+                alt_email=Lower('user__alt_email')
+            )
+        }
+
+        for pk, item in self.rev_info.items():
+            self.rev_info[item['pk']].update({
+                'techs': set(item['techs']),
+                'areas': set(item['areas']),
+                'names': {item.pop('name')},
+                'emails': {item.pop('email'), item.pop('alt_email')} - {None, ''}
+            })
+
+    def get_proposal_info(self, submission):
+        return self.prop_info[submission.pk]
+
+    def get_reviewer_info(self, reviewer):
+        return self.rev_info[reviewer.pk]
+
+    def is_incompatible(self, proposal, reviewer, committee=False) -> Literal[0, 1]:
+        """
+        Check if a reviewer is incompatible with a submission
+        :param proposal: proposal information dictionary
+        :param reviewer: reviewer information dictionary
+        :param committee: flag to indicate committee review
+        :return: 0 if compatible, 1 if incompatible
+        """
+        return max(
+            self.veto_conflict(proposal, reviewer),
+            self.veto_technique(proposal, reviewer),
+            self.veto_subject(proposal, reviewer)
+        )
+
+    def has_conflict(self, proposal, reviewer) -> Literal[0, 1]:
+        """
+        Check if a reviewer has a conflict with a submission
+        :param proposal: proposal information dictionary
+        :param reviewer: reviewer information dictionary
+        """
+        return self.veto_conflict(proposal.pk, reviewer.pk)
+
+    def veto_conflict(self, proposal: int, reviewer: int, lax: bool = False) -> Literal[0, 1]:
+        """
+        Check if a reviewer is incompatible with a submission based on emails and names
+        :param proposal: proposal pk
+        :param reviewer: reviewer pk
+        :param lax: ignore this check
+        :return: 0 or 1
+        """
+        p_info = self.prop_info[proposal]
+        r_info = self.rev_info[reviewer]
+        if lax:
+            return 0
+        return 1 if any((
+            p_info['emails'] & r_info['emails'],
+            p_info['names'] & r_info['names'],
+        )) else 0
+
+    def veto_technique(self, proposal: int, reviewer: int, lax: bool = False) -> Literal[0, 1]:
+        """
+        Check if a reviewer is incompatible with a submission based on techniques
+        :param proposal: proposal information
+        :param reviewer: reviewer information
+        :param lax: ignore this check
+        :return: 0 or 1
+        """
+        p_info = self.prop_info[proposal]
+        r_info = self.rev_info[reviewer]
+
+        if lax:
+            return 0
+        return 0 if len(p_info['techs'] & r_info['techs']) else 1
+
+    def veto_subject(self, proposal: int, reviewer: int, lax: bool = False) -> Literal[0, 1]:
+        """
+        Check if a reviewer is incompatible with a submission based on subject areas
+        :param proposal: proposal information
+        :param reviewer: reviewer information
+        :param lax: ignore this check
+        :return: 0 or 1
+        """
+        p_info = self.prop_info[proposal]
+        r_info = self.rev_info[reviewer]
+
+        if lax:
+            return 0
+        return 0 if len(p_info['areas'] & r_info['areas']) else 1
+
+    def reward_cost(self, proposal, reviewer) -> float:
+        """
+        Calculate the reward cost for a proposal-reviewer pair
+        :param proposal: proposal
+        :param reviewer: reviewer
+        :return: reward
+        """
+        # reward for matching technique
+        p_info = self.prop_info[proposal]
+        r_info = self.rev_info[reviewer]
+        return 100 * len(p_info['techs'] & r_info['techs']) * len(p_info['areas'] & r_info['areas'])
+
+    def penalty_cost(self, proposal, reviewer):
+        """
+        Calculate the penalty cost for a proposal-reviewer pair
+        :param proposal: proposal
+        :param reviewer: reviewer
+        :return: penalty
+        """
+        p_info = self.prop_info[proposal]
+        r_info = self.rev_info[reviewer]
+        cost = 100
+        # reward for matching technique
+        scale = len(p_info['techs'] & r_info['techs'])
+        scale *= len(p_info['areas'] & r_info['areas'])
+        cost = max(0, cost - scale * 10)
+        return cost
+
+
+def mip_optimize(assigner, min_assignment=1, max_workload=4, committee=False, method='SCIP'):
     """
     Given a set of submissions and reviewers, assign reviewers
-    :param proposals: submissions queryset
-    :param reviewers: reviewers queryset
-    :param cycle: review cycle
+    :param assigner: Assigner instance
     :param min_assignment: minimum number of reviews to assign
     :param max_workload: maximum workload for each reviewer
     :param committee: whether this is a committee assignment or now
     :param method: solver method, one of 'SCIP', 'CLP', 'GLOP'
+    :param assigner: Assigner instance
     :return: assignments dictionary mapping submission to a set of reviewers
     """
 
     import numpy
     from ortools.linear_solver import pywraplp
 
-    proposal_list = list(proposals)
-    reviewer_list = list(reviewers)
+    proposal_list = list(assigner.submissions)
+    if committee:
+        reviewer_list = list(assigner.committee)
+    else:
+        reviewer_list = list(assigner.pool)
 
     print('Mixed Integer Programming Optimization')
-    proposals_info = {prop: get_submission_info(prop) for prop in proposal_list}
-    print('Summarized Proposals ...')
-    reviewers_info = {rev: get_reviewer_info(rev) for rev in reviewer_list}
-    print('Summarized Reviewers ...')
-    print('Calculating costs and incompatibilities...')
-
     invalid = numpy.array([
         [
-            is_incompatible(prop_info, rev_info, committee)
-            for prop, prop_info in proposals_info.items()
+            assigner.is_incompatible(prop.pk, rev.pk, committee)
+            for prop in proposal_list
         ]
-        for rev, rev_info in reviewers_info.items()
+        for rev in reviewer_list
     ])
-
     print('Done calculating costs! Will now optimize...')
 
-    num_workers = len(reviewers_info)
-    num_tasks = len(proposals_info)
+    num_workers = len(reviewer_list)
+    num_tasks = len(proposal_list)
     solver = pywraplp.Solver.CreateSolver(method)
 
     if not solver:
@@ -313,6 +460,11 @@ def mip_optimize(proposals, reviewers, min_assignment=1, max_workload=4, committ
     for i in range(num_workers):
         solver.Add(solver.Sum([x[i, j] for j in range(num_tasks)]) <= max_workload)
 
+        # no reviewer is assigned to incompatible proposal
+        solver.Add(
+            solver.Sum([x[i, j] * invalid[i][j] for j in range(num_tasks)]) == 0
+        )
+
     # Each task is assigned to min_assignment workers.
     max_assignment = min_assignment if committee else min_assignment + 2
     for j in range(num_tasks):
@@ -326,14 +478,14 @@ def mip_optimize(proposals, reviewers, min_assignment=1, max_workload=4, committ
 
     # Objective
     objective_terms = []
-    # costs = [
-    #     [reward_cost(prop_info, rev_info) for prop, prop_info in proposals_info.items()]
-    #     for rev, rev_info in reviewers_info.items()
-    # ]
-    # for i in range(num_workers):
-    #     for j in range(num_tasks):
-    #         solver.Add(x[i, j] * invalid[i][j] == 0)
-    #         objective_terms.append(costs[i][j] * x[i, j])
+    costs = [
+        [assigner.reward_cost(prop.pk, rev.pk) for prop in proposal_list]
+        for rev in reviewer_list
+    ]
+    for i in range(num_workers):
+        for j in range(num_tasks):
+            solver.Add(x[i, j] * invalid[i][j] == 0)
+            objective_terms.append(costs[i][j] * x[i, j])
 
     solver.Maximize(solver.Sum(objective_terms))
     print(f"Solving with {solver.SolverVersion()}")
@@ -365,28 +517,26 @@ def assign_mip(cycle, stage, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tu
     """
     from .models import Reviewer
     track = stage.track
-    reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()[:200]
-    committee = track.committee.order_by('?').all()
+    reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()
     proposals = cycle.submissions.filter(track=track).order_by('?').distinct()
     results = {}
     max_workload = track.max_workload
 
     print(f"Assigning {proposals.count()} proposals to {reviewers.count()} reviewers.")
 
+    assigner = Assigner(proposals, reviewers, stage, cycle)
+
     success = []
-    prop_results, solver, status = mip_optimize(
-        proposals, reviewers, stage.min_reviews, max_workload, method=method
-    )
+    prop_results, solver, status = mip_optimize(assigner, stage.min_reviews, max_workload, method=method)
     print('External Reviewers:')
     print(f"Objective : {solver.Objective().Value()}")
     print(f"Duration  : {solver.WallTime():0.2f} ms")
     print(f"Status    : {status}")
     success.append(status in {solver.OPTIMAL, solver.FEASIBLE})
-
+    
+    committee = assigner.committee
     com_max = 2 + proposals.count() // max(1, committee.count())
-    com_results, solver, status = mip_optimize(
-        proposals, committee, track.min_reviewers, com_max, committee=False, method=method
-    )
+    com_results, solver, status = mip_optimize(assigner, track.min_reviewers, com_max, committee=True, method=method)
     print('Committee Members:')
     print(f"Objective : {solver.Objective().Value()}")
     print(f"Duration  : {solver.WallTime():0.2f} ms")
@@ -401,24 +551,24 @@ def assign_mip(cycle, stage, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tu
     return results, any(success)
 
 
-def optimize_brute_force(submissions, reviewers, cycle, min_assignment=1, max_workload=4, committee=False):
+def optimize_brute_force(assigner, min_assignment=1, max_workload=4, committee=False):
     """
     Given a set of submissions and reviewers, assign reviewers
-    :param submissions: submissions queryset
-    :param reviewers: reviewers queryset
-    :param cycle: review cycle
+    :param assigner: assigner instance
     :param min_assignment: minimum number of reviews to assign
     :param max_workload: maximum workload for each reviewer
     :param committee: whether this is a committee assignment or now
     :return: assignments dictionary mapping submission to a set of reviewers
     """
-    proposals_info = {prop.pk: get_submission_info(prop) for prop in submissions}
-    reviewers_info = {rev.pk: get_reviewer_info(rev) for rev in reviewers}
+
+    cycle = assigner.cycle
+    reviewers = assigner.committee if committee else assigner.pool
+    submissions = assigner.submissions
 
     assignments = defaultdict(set)
     for submission in submissions.order_by('?'):
-        prop = proposals_info[submission.pk]
-        tech_filter = Q(techniques__in=prop['techniques'])
+        prop = assigner.get_proposal_info(submission)
+        tech_filter = Q(techniques__in=prop['techs'])
         area_filter = Q(areas__in=prop['areas'])
 
         filters = tech_filter & area_filter
@@ -434,7 +584,7 @@ def optimize_brute_force(submissions, reviewers, cycle, min_assignment=1, max_wo
 
         conflicts = [
             rev.pk for rev in matched_reviewers
-            if veto_conflict(prop, reviewers_info[rev.pk])
+            if assigner.veto_conflict(prop, assigner.veto_conflict(submission.pk, rev.pk))
         ]
 
         valid_reviewers = matched_reviewers.exclude(pk__in=conflicts).order_by('?')
@@ -455,18 +605,23 @@ def assign_brute_force(cycle, stage) -> tuple[dict, bool]:
     """
     from .models import Reviewer
     track = stage.track
-    submissions = cycle.submissions.exclude(techniques__isnull=True).filter(track=track).distinct()
     reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()
-    assignments = optimize_brute_force(submissions, reviewers, cycle, stage.min_reviews, track.max_workload)
+    proposals = cycle.submissions.filter(track=track).order_by('?').distinct()
+    max_workload = track.max_workload
+
+    print(f"Assigning {proposals.count()} proposals to {reviewers.count()} reviewers.")
+    assigner = Assigner(proposals, reviewers, stage, cycle)
+    assignments = optimize_brute_force(assigner, stage.min_reviews, max_workload)
 
     committee = track.committee.order_by('?')
     if committee.count():
-        committee_assignments = optimize_brute_force(submissions, committee, cycle, 1, 2 + submissions.count() // committee.count())
+        committee_assignments = optimize_brute_force(
+            assigner, 1, 2 + proposals.count() // committee.count()
+        )
         for submission, reviewers in committee_assignments.items():
             assignments[submission] |= set(reviewers)
 
     num_assigned = sum(len(revs) for revs in assignments.values())
-
     return assignments, num_assigned > 0
 
 
@@ -478,9 +633,9 @@ def assign_reviewers(cycle, stage) -> tuple[dict, bool]:
     :return:
     """
     if USO_REVIEW_ASSIGNMENT == "CMACRA":
-        return assign_mip(cycle, stage, 'CLP')
+        return assign_mip(cycle, stage, method='CLP')
     elif USO_REVIEW_ASSIGNMENT == "MIP":
-        return assign_mip(cycle, stage, 'SCIP')
+        return assign_mip(cycle, stage, method='SCIP')
     else:
         return assign_brute_force(cycle, stage)
 
