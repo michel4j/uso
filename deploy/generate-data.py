@@ -173,13 +173,6 @@ class FakeUser:
         }
         self.new_reviewers = []
         self.new_addresses = []
-        self.cycle_info = {
-            'model': 'proposals.reviewcycle',
-            'pk': 1,
-            'fields': {
-                'reviewers': []
-            }
-        }
 
         self.user_count = 1
         self.reviewer_count = 1
@@ -603,6 +596,13 @@ class FakeProposal:
         else:
             team = users[2:]
 
+        if self.proposal_count < 50:
+            cycle = 1
+            track = 2
+        else:
+            cycle = 2
+            track = random.choice([1, 1, 1, 2])
+
         info = {
             'model': 'proposals.proposal',
             'pk': self.proposal_count,
@@ -632,7 +632,7 @@ class FakeProposal:
                         'areas': areas,
                         'keywords': '; '.join([self.fake.word() for _ in range(5)])
                     },
-                    'first_cycle': '1',
+                    'first_cycle': cycle,
                     'team_members': [
                         {'first_name': user['fields']['first_name'],
                          'last_name': user['fields']['last_name'],
@@ -674,8 +674,6 @@ class FakeProposal:
         if random.choice([True, False]):
             info['fields']['is_complete'] = True
             info['fields']['state'] = 1
-            cycle = 1
-            track = random.choice([1, 1, 1, 2])
             facility_info = {
                 'pk': facility,
                 'acronym': acronym
