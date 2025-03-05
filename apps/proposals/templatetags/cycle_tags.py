@@ -2,6 +2,8 @@ from django import template
 from django.db.models import Q, Count, Avg, StdDev, F, Max, Value
 from datetime import datetime, timedelta
 from calendar import timegm
+
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext as _
 from proposals import models
 from publications import stats
@@ -319,8 +321,8 @@ def cycle_comments(cycle):
 @register.inclusion_tag('proposals/stage-stats.html')
 def stage_stats(stage, cycle):
     info = stage.reviews.filter(cycle=cycle).aggregate(
-        avg_score=Avg('score', filter=Q(state__gte=models.Review.STATES.submitted)),
-        std_dev=StdDev('score', filter=Q(state__gte=models.Review.STATES.submitted)),
+        avg_score=Coalesce(Avg('score', filter=Q(state__gte=models.Review.STATES.submitted)), Value(0.0)),
+        std_dev=Coalesce(StdDev('score', filter=Q(state__gte=models.Review.STATES.submitted)), Value(0.0)),
         total=Count('id'),
         completed=Count('id', filter=Q(state__gte=models.Review.STATES.submitted)),
     )

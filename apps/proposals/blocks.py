@@ -67,7 +67,6 @@ class ReviewsBlock(BaseBlock):
             state__gt=models.Review.STATES.pending, state__lt=models.Review.STATES.submitted,
         )
 
-        amonth = (timezone.now() + timedelta(weeks=4)).date()
         if hasattr(user, 'reviewer'):
             reviewer = user.reviewer
             if next_cycle.state == next_cycle.STATES.review and reviewer.committee:
@@ -77,8 +76,9 @@ class ReviewsBlock(BaseBlock):
         elif not reviews.count():
             return None
 
+        soon = (timezone.now() + timedelta(weeks=12)).date()
         ctx.update({
-            "reviews": reviews.filter(due_date__lte=amonth).order_by('due_date', 'created'),
+            "reviews": reviews.filter(due_date__lte=soon).order_by('due_date', 'created'),
             "all_reviews": reviews,
             "next_cycle": next_cycle,
         })
@@ -89,7 +89,7 @@ class ReviewsBlock(BaseBlock):
                 "upcoming_call": (
                     reviewer_available_next_cycle and
                     next_cycle.state == cycle.STATES.pending and
-                    next_cycle.open_date <= amonth
+                    next_cycle.open_date <= soon
                 ),
                 "can_review": reviewer_available_next_cycle,
             })
