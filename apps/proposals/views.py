@@ -540,6 +540,24 @@ class ReviewList(RolePermsViewMixin, ItemListView):
     admin_roles = USO_ADMIN_ROLES
 
 
+class StageReviewList(ReviewList):
+    list_title = 'Stage Reviews'
+
+    def get_list_title(self):
+        stage = models.ReviewStage.objects.filter(pk=self.kwargs.get('stage')).first()
+        cycle = models.ReviewCycle.objects.filter(pk=self.kwargs.get('cycle')).first()
+        if stage and cycle:
+            return f"{cycle} / {stage} - Reviews"
+        else:
+            return self.list_title
+
+    def get_queryset(self, *args, **kwargs):
+        self.queryset = models.Review.objects.filter(
+            cycle=self.kwargs.get('cycle'), stage=self.kwargs.get('stage'),
+        )
+        return super().get_queryset(*args, **kwargs)
+
+
 class UserReviewList(ReviewList):
     list_title = 'My Reviews'
 

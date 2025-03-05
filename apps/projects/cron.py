@@ -58,7 +58,7 @@ class NotifyProjects(BaseCronJob):
                 'submission_urls': ", ".join([
                     '{}{}'.format(SITE_URL, s.get_absolute_url()) for s in project.submissions.all()
                 ]),
-                'project_url': '{}{}'.format(SITE_URL, project.get_absolute_url()),
+                'project_url': f'{SITE_URL}{project.get_absolute_url()}',
                 'allocations': project.allocations.filter(cycle=cycle),
             }
             notify.send([project.spokesperson], 'submission-success', level=notify.LEVELS.important, context=info)
@@ -69,7 +69,7 @@ class NotifyProjects(BaseCronJob):
                 'submission': submission,
                 'cycle': cycle,
                 'submission_urls': ", ".join([
-                    '{}{}'.format(SITE_URL, s.get_absolute_url()) for s in [submission]
+                    f'{SITE_URL}{s.get_absolute_url()}' for s in [submission]
                 ]),
             }
             notify.send(

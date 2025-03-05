@@ -21,6 +21,7 @@ urlpatterns = [
     path('submission/<int:pk>/assign/<int:stage>/', views.AddReviewAssignment.as_view(), name='add-reviewer-assignment'),
 
     path('reviews/', views.ReviewList.as_view(), name='review-list'),
+    path('reviews/<int:cycle>/<int:stage>/', views.StageReviewList.as_view(), name='stage-review-list'),
     path('reviews/<int:pk>/compatibility/', views.ReviewCompatibility.as_view(), name="show-compatibility"),
 
     path('facilities/<int:pk>/configs/new/', views.AddFacilityConfig.as_view(), name='add-facility-config'),

@@ -319,10 +319,10 @@ def cycle_comments(cycle):
 @register.inclusion_tag('proposals/stage-stats.html')
 def stage_stats(stage, cycle):
     info = stage.reviews.filter(cycle=cycle).aggregate(
-        avg_score=Avg('score'),
-        std_dev=StdDev('score'),
+        avg_score=Avg('score', filter=Q(state__gte=models.Review.STATES.submitted)),
+        std_dev=StdDev('score', filter=Q(state__gte=models.Review.STATES.submitted)),
         total=Count('id'),
-        completed=Count('id', filter=Q(state=models.Review.STATES.submitted)),
+        completed=Count('id', filter=Q(state__gte=models.Review.STATES.submitted)),
     )
     percentage = 100 * info['completed'] / max(1, info['total'])
     return {
@@ -336,6 +336,11 @@ def stage_stats(stage, cycle):
                 'description': "Completed",
                 'value': f"{percentage:0.1f}",
                 'units': "%",
+            },
+            {
+                'description': mark_safe("Avg&nbsp;Score"),
+                'value': f"{info['avg_score']:0.1f}",
+                'units': "",
             }
         ]
     }
