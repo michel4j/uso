@@ -1,5 +1,6 @@
 import functools
 import operator
+import urllib.parse
 from mimetypes import MimeTypes
 
 from django import template
@@ -117,6 +118,15 @@ def display_state(review):
              '<div class="{style}" style="width: {size};"></div></span>').format(**params)
     return mark_safe(state)
 
+
+@register.filter
+def review_email(review):
+    return mark_safe('&'.join([
+        f"subject=Re: {review}",
+        f"body=Dear {review.reviewer.first_name},%0D%0A"
+        f"I'm writing concerning review {review} at {review.get_absolute_url()}%0D%0A."
+        f"...\n"
+    ]))
 
 
 @register.simple_tag(takes_context=True)

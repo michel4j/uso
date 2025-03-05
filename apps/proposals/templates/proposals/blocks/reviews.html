@@ -43,13 +43,13 @@
                 </div>
             </div>
             <hr class="hr-xs bottom-edge"/>
-            <div id="review-list" class="row scroll-box" style="max-height: 300px;">
+            <div id="review-list" class="row scroll-box" style="max-height: 200px;">
             <ul class="list-unstyled list-ruled col-xs-12">
                 {% for review in reviews.pending %}
                     <li class="text-condensed" style="line-height: 1.7;">
                         <a class="pull-right" href='{% url "edit-review" pk=review.pk %}'
                            data-toggle="tooltip" title="Review Proposal"><i class="bi-pencil-square"></i></a>
-                        <span class="overflow ellipsis" title="Due {{ review.due_date|timeuntil }}">{{ review }}</span>
+                        <span class="overflow ellipsis" title="Due in {{ review.due_date|timeuntil }}">{{ review }}</span>
                     </li>
                 {% endfor %}
             </ul>
@@ -64,7 +64,6 @@
 
     </div>
     {% if user.reviewer %}
-
         {% if user.reviewer.committee %}
             <div class="tinytron bg-info">
                 <p>You are a Committee member in the <strong>{{ user.reviewer.committee.name }}
