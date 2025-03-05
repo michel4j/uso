@@ -44,7 +44,7 @@ class ProposalsBlock(BaseBlock):
 class ReviewsBlock(BaseBlock):
     block_type = BLOCK_TYPES.dashboard
     template_name = "proposals/blocks/reviews.html"
-    priority = 2
+    priority = 1
 
     def check_allowed(self, request):
         return request.user.is_authenticated
@@ -94,3 +94,4 @@ class ReviewsBlock(BaseBlock):
                 "can_review": reviewer_available_next_cycle,
             })
         return super().render(ctx)
+

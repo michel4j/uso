@@ -769,6 +769,10 @@ class Review(DynEntryMixin, GenericContentMixin):
     def __str__(self):
         return f"{self.reference} - {self.type}"
 
+    def get_absolute_url(self):
+        url = reverse('edit-review', kwargs={'pk': self.pk})
+        return f'{settings.SITE_URL}{url}'
+
     def title(self):
         return f'{self.type} of {self.content_type.name.title()} {self.reference}'
 
