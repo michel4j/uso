@@ -217,7 +217,7 @@ h5 {
 	padding: 15px 15px;
 }
 .uso-wrapper {
-	height: calc(100vh + 80px);
+	height: calc(100vh + 100px);
 }
 header {
 	>.brand {
@@ -2131,7 +2131,9 @@ a {
 	font-size: 150%;
 }
 #proposal-form {
-	margin-bottom: 80px;
+	.df-form-body {
+		padding-bottom: 80px;
+	}
 	.df-form-footer {
 		position: fixed;
 		bottom: 0;

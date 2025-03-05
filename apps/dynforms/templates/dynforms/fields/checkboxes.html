@@ -14,12 +14,13 @@
 	{% endfor %}
 	{% if "other" in field.options %}
         <div class="checkbox">
-        <label class="other-input-label" for="{{field.name}}_other" ><input id="{{field.name}}_othersrc"  type="text" placeholder="Other" value="{{field.other_choice}}">
+        <label class="other-input-label" for="{{field.name}}_other" >
             <input id="{{field.name}}_other"
               name="{{field.name}}"
               value="{{field.other_choice}}"
               aria-label="Other"
               type="checkbox" {% if field.other_choice in data %}checked="checked"{% endif %}>
+            <input id="{{field.name}}_othersrc"  type="text" placeholder="Other" value="{{field.other_choice}}">
         </label>
         </div>
 	{% endif %}
