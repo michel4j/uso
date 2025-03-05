@@ -179,7 +179,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     def can_review(self):
         return self.has_any_role(*USO_REVIEWER_ROLES)
 
-    def fetch_profile(self,force=False, delay=15):
+    def fetch_profile(self, force=False, delay=15):
         # update profile only once per `delay` minutes
         if not self.last_updated:
             force = True
