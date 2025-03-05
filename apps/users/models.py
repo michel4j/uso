@@ -177,7 +177,12 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         return self.has_any_role(*USO_ADMIN_ROLES)
 
     def can_review(self):
-        return self.has_any_role(*USO_REVIEWER_ROLES)
+        return (
+            self.classification in [self.STAFF.faculty, self.STAFF.professional]
+        )
+
+    def is_reviewer(self):
+        return hasattr(self, 'reviewer')
 
     def fetch_profile(self, force=False, delay=15):
         # update profile only once per `delay` minutes

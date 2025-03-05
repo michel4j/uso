@@ -54,10 +54,7 @@ class ReviewsBlock(BaseBlock):
         from proposals import models
 
         user = context['request'].user
-
-        cycle = models.ReviewCycle.objects.current().first()
         next_cycle = models.ReviewCycle.objects.next()
-        cycle = next_cycle if cycle is None else cycle
 
         filters = Q(reviewer=user)
         if user.roles:
@@ -69,12 +66,13 @@ class ReviewsBlock(BaseBlock):
 
         if hasattr(user, 'reviewer'):
             reviewer = user.reviewer
+            ctx.update({
+                'reviewer': reviewer,
+            })
             if next_cycle.state == next_cycle.STATES.review and reviewer.committee:
                 ctx.update({
                     'committee_proposals': reviewer.committee_proposals(next_cycle).count()
                 })
-        elif not reviews.count():
-            return None
 
         soon = (timezone.now() + timedelta(weeks=12)).date()
         ctx.update({
@@ -83,15 +81,16 @@ class ReviewsBlock(BaseBlock):
             "next_cycle": next_cycle,
         })
 
-        if cycle.state == cycle.STATES.active and next_cycle:
-            reviewer_available_next_cycle = models.Reviewer.objects.available(next_cycle).filter(user=user).exists()
+        next_call = models.ReviewCycle.objects.next_call()
+        if next_call:
+            reviewer_available_next_call = models.Reviewer.objects.available(next_call).filter(user=user).exists()
+            can_review = user.can_review()
             ctx.update({
                 "upcoming_call": (
-                    reviewer_available_next_cycle and
-                    next_cycle.state == cycle.STATES.pending and
-                    next_cycle.open_date <= soon
+                    reviewer_available_next_call
                 ),
-                "can_review": reviewer_available_next_cycle,
+                "next_call": next_call,
+                "can_review": can_review,
             })
         return super().render(ctx)
 

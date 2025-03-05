@@ -477,7 +477,8 @@ class EditReviewerProfile(RolePermsViewMixin, edit.FormView):
         if self.kwargs.get('pk'):
             reviewer = models.Reviewer.objects.filter(pk=self.kwargs.get('pk')).first()
         else:
-            reviewer, created = models.Reviewer.objects.get_or_create(user=self.request.user)
+            #reviewer, created = models.Reviewer.objects.get_or_create(user=self.request.user)
+            reviewer = None
 
         if reviewer:
             initial['reviewer'] = reviewer
@@ -499,16 +500,16 @@ class EditReviewerProfile(RolePermsViewMixin, edit.FormView):
 
         if self.request.POST.get('submit') == 'disable':
             models.Reviewer.objects.filter(pk=reviewer.pk).update(active=False)
-            messages.add_message(self.request, messages.SUCCESS, 'Reviewer {} Disabled'.format(reviewer))
+            messages.add_message(self.request, messages.SUCCESS, f'Reviewer {reviewer} Disabled')
         elif self.request.POST.get('submit') == 'enable':
             models.Reviewer.objects.filter(pk=reviewer.pk).update(active=True)
-            messages.add_message(self.request, messages.SUCCESS, 'Reviewer {} Re-enabled'.format(reviewer))
+            messages.add_message(self.request, messages.SUCCESS, f'Reviewer {reviewer} Re-enabled')
         elif self.request.POST.get('submit') == 'suspend':
             models.Reviewer.objects.filter(pk=reviewer.pk).update(declined=timezone.now().date())
-            messages.add_message(self.request, messages.SUCCESS, 'Reviewer {} Suspended'.format(reviewer))
+            messages.add_message(self.request, messages.SUCCESS, f'Reviewer {reviewer} Suspended')
         elif self.request.POST.get('submit') == 'reinstate':
             models.Reviewer.objects.filter(pk=reviewer.pk).update(declined=None)
-            messages.add_message(self.request, messages.SUCCESS, 'Reviewer {} Reinstated'.format(reviewer))
+            messages.add_message(self.request, messages.SUCCESS, f'Reviewer {reviewer} Reinstated')
 
         # add added entries
         reviewer.areas.add(*form.cleaned_data.get('areas', []))
@@ -1608,12 +1609,13 @@ class ReviewerOptOut(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.OptOutForm
     template_name = "forms/modal.html"
     success_url = reverse_lazy("user-dashboard")
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
         if not allowed:
             reviewer = self.get_object()
-            allowed = reviewer.user == self.request.user
+            allowed = self.request.user == reviewer.user
         return allowed
 
     def get_form_kwargs(self):

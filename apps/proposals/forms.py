@@ -83,11 +83,6 @@ class ReviewForm(DynFormMixin, forms.ModelForm):
 
 
 class ReviewerForm(forms.Form):
-    reviewer = forms.ModelChoiceField(
-        queryset=models.Reviewer.objects.all(),
-        widget=forms.HiddenInput,
-        required=True
-    )
     techniques = forms.ModelMultipleChoiceField(
         queryset=models.Technique.objects.none(),
         widget=forms.CheckboxSelectMultiple,
@@ -174,7 +169,10 @@ class ReviewerForm(forms.Form):
             extra_btns = Div(css_class="pull-left")
 
         self.helper = FormHelper()
-        self.helper.title = "Edit {0}'s Reviewer Profile".format(self.initial['reviewer'].user.get_full_name())
+        if 'reviewer' in self.initial:
+            self.helper.title = f"Edit {self.initial['reviewer'].user.get_full_name()}'s Reviewer Profile"
+        else:
+            self.helper.title = "Add Reviewer Profile"
         self.helper.layout = Layout(
             Field('reviewer', readonly=True),
             Div(
@@ -241,7 +239,6 @@ class OptOutForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field('cycle', readonly=True),
                     Div(
                         HTML("{% include 'proposals/forms/optout-header.html' %}"),
                         css_class="col-xs-12"
