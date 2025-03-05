@@ -14,15 +14,20 @@ class CreateCycles(BaseCronJob):
 
     def do(self):
         from proposals import models
-        dt = timezone.now().date()
+        today = timezone.now().date()
         out = ""
 
-        # if there are no cycles, create the first two.
+        # if there are no cycles, create the first four.
         if not models.ReviewCycle.objects.filter().count():
-            out = utils.create_cycle(dt)
+
+            six_months = timedelta(days=6*4*7)
+            dt = today - six_months
+            for i in range(4):
+                out = utils.create_cycle(dt)
+                dt = dt + six_months
 
         # We should always have 4 future cycles, 1 year in advance for schedule
-        if models.ReviewCycle.objects.filter(start_date__gt=dt).count() < 4:
+        if models.ReviewCycle.objects.filter(start_date__gt=today).count() < 4:
             last_cycle = models.ReviewCycle.objects.latest('start_date')
             out = utils.create_cycle(last_cycle.start_date)
 

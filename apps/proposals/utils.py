@@ -56,10 +56,10 @@ def create_cycle(today=None):
     if not today:
         today = date.today()
 
-    if today.month <= 6:
-        start_date = date(today.year, 1, 1)
-        end_date = date(today.year, 7, 1)
-        open_year = today.year - 1
+    if today.month > 6:
+        start_date = date(today.year + 1, 1, 1)
+        end_date = date(today.year + 1, 7, 1)
+        open_year = today.year
         open_week = 31
     else:
         start_date = date(today.year, 7, 1)
