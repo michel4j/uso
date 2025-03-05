@@ -56,16 +56,15 @@ class ReviewsBlock(BaseBlock):
         user = context['request'].user
 
         cycle = models.ReviewCycle.objects.current().first()
-        if not cycle:
-            return ""
         next_cycle = models.ReviewCycle.objects.next()
+        cycle = next_cycle if cycle is None else cycle
 
         filters = Q(reviewer=user)
         if user.roles:
             filters |= functools.reduce(operator.__or__, [Q(reviewer__isnull=True, role=r) for r in user.roles], Q())
 
         reviews = models.Review.objects.filter(filters).filter(
-            state__gt=models.Review.STATES.pending, state__lte=models.Review.STATES.submitted,
+            state__gt=models.Review.STATES.pending, state__lt=models.Review.STATES.submitted,
         )
 
         amonth = (timezone.now() + timedelta(weeks=4)).date()
@@ -81,7 +80,6 @@ class ReviewsBlock(BaseBlock):
         ctx.update({
             "reviews": reviews.filter(due_date__lte=amonth).order_by('due_date', 'created'),
             "all_reviews": reviews,
-            "cycle": cycle,
             "next_cycle": next_cycle,
         })
 
