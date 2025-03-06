@@ -482,8 +482,7 @@ class EditReviewerProfile(RolePermsViewMixin, edit.FormView):
         if self.kwargs.get('pk'):
             reviewer = models.Reviewer.objects.filter(pk=self.kwargs.get('pk')).first()
         else:
-            # reviewer, created = models.Reviewer.objects.get_or_create(user=self.request.user)
-            reviewer = None
+            reviewer = models.Reviewer.objects.filter(user=self.request.user).first()
 
         if reviewer:
             initial['reviewer'] = reviewer

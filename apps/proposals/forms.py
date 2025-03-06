@@ -137,8 +137,9 @@ class ReviewerForm(forms.Form):
                 )
             )
 
+        reviewer = self.initial.get('reviewer')
         if admin:
-            if self.initial['reviewer'].active:
+            if reviewer and reviewer.active:
                 disable_btn = StrictButton(
                     'Disable Reviewer', type='submit', name="submit", value='disable',
                     css_class="btn btn-danger"
@@ -149,7 +150,7 @@ class ReviewerForm(forms.Form):
                     css_class="btn btn-warning"
                 )
 
-            if self.initial['reviewer'].is_suspended():
+            if reviewer and reviewer.is_suspended():
                 suspend_btn = StrictButton(
                     'Reinstate Reviewer', type='submit', name="submit", value='reinstate',
                     css_class="btn btn-info"
@@ -169,12 +170,11 @@ class ReviewerForm(forms.Form):
             extra_btns = Div(css_class="pull-left")
 
         self.helper = FormHelper()
-        if 'reviewer' in self.initial:
-            self.helper.title = f"Edit {self.initial['reviewer'].user.get_full_name()}'s Reviewer Profile"
+        if reviewer:
+            self.helper.title = f"Edit {reviewer.user.get_full_name()}'s Reviewer Profile"
         else:
             self.helper.title = "Add Reviewer Profile"
         self.helper.layout = Layout(
-            Field('reviewer', readonly=True),
             Div(
                 Div(
                     HTML(
