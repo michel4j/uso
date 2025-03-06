@@ -12,7 +12,7 @@
                             <span class="pull-right">
                                 {% if user|is_admin:fac %}
                                     <span class="label label-info">Admin</span>
-                                {% elif user|is_admin:fac %}
+                                {% elif user|is_staff:fac %}
                                     <span class="label label-success">Staff</span>
                                 {% endif %}
                             </span>

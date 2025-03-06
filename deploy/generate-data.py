@@ -283,7 +283,7 @@ class FakeUser:
                     roles += f'<admin:{fac.lower()}><reviewer:{fac.lower()}>'
                 elif random.choice([True, False]):
                     roles += f'<reviewer:{fac.lower()}>'
-            elif random.choice([True, False]):
+            elif random.choice([True, True, False]):
                 roles += '<{}>'.format(random.choice(ROLES))
             if kind == 'male':
                 first_name = fake_first_name_male("Canada")
