@@ -34,6 +34,7 @@ urlpatterns = [
     path('sessions/<int:pk>/stop/', views.TerminateSession.as_view(), name='terminate-session'),
 
     path('sessions/<int:pk>/handover/<str:fac>/', views.SessionHandOver.as_view(), name="session-handover"),
+    path('sessions/<int:pk>/handover/<str:fac>/<int:event>/', views.SessionHandOver.as_view(), name="session-handover"),
     path('sessions/<int:pk>/extend/', views.SessionExtend.as_view(), name="session-extend"),
     path('sessions/<int:pk>/signon/', views.SessionSignOn.as_view(), name='session-signon'),
     path('sessions/<int:pk>/signoff/', views.SessionSignOff.as_view(), name='session-signoff'),

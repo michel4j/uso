@@ -31,10 +31,11 @@ class MyFacilities(BaseBlock):
             admin_pattern.findall(role) for role in user.get_all_roles() if admin_pattern.match(role)
         ]))
         acronyms = staff_acronyms + admin_acronyms
+        print(acronyms)
         if acronyms:
             filters = reduce(operator.__or__, [
                 models.Q(acronym__iexact=acronym) for acronym in staff_acronyms
-            ])
+            ], models.Q(pk__isnull=True))
         else:
             return None
 

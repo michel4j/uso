@@ -455,10 +455,8 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
-
-        limit = timezone.now() + timedelta(days=4)
         self.project = models.Project.objects.get(pk=self.kwargs['pk'])
-        self.beamtime = self.project.beamtimes.filter(start__gte=timezone.now(), end__lte=limit, beamline=self.facility).first()
+        self.beamtime = self.project.beamtimes.filter(pk=self.kwargs.get('event')).first()
 
         one_shift = timedelta(hours=self.facility.shift_size)
         start = timezone.localtime(self.beamtime.start) if self.beamtime else timezone.localtime(timezone.now())
@@ -468,6 +466,8 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
         initial['end_date'] = end.date()
         initial['start_time'] = start.strftime('%H:%M')
         initial['end_time'] = end.strftime('%H:%M')
+
+        print(initial, self.beamtime)
 
         return initial
 
