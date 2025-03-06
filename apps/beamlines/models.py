@@ -126,7 +126,6 @@ class Facility(TimeStampedModel):
         return user.has_any_role(*_roles)
 
     def is_admin(self, user):
-
         _roles = self.expand_role(USO_FACILITY_ADMIN_ROLE)
         return user.has_any_role(*_roles)
 
