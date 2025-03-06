@@ -75,7 +75,7 @@ class ReviewsBlock(BaseBlock):
 
         soon = (timezone.now() + timedelta(weeks=12)).date()
         ctx.update({
-            "reviews": reviews.filter(due_date__lte=soon).order_by('due_date', 'created'),
+            "reviews": reviews.filter(due_date__lte=soon).order_by('cycle', 'due_date'),
             "all_reviews": reviews,
             "next_cycle": next_cycle,
         })
@@ -84,7 +84,7 @@ class ReviewsBlock(BaseBlock):
         if next_call:
             reviewer_available_next_call = models.Reviewer.objects.available(next_call).filter(user=user).exists()
             can_review = user.can_review()
-            show = can_review
+            show |= can_review
             ctx.update({
                 "upcoming_call": (
                     reviewer_available_next_call

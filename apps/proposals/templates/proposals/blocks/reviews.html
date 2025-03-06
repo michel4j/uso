@@ -48,7 +48,7 @@
                             <a class="pull-right" href='{% url "edit-review" pk=review.pk %}'
                                data-toggle="tooltip" title="Review Proposal"><i class="bi-pencil-square"></i></a>
                             <span class="overflow ellipsis"
-                                  title="Due in {{ review.due_date|timeuntil }}">{{ review }}</span>
+                                  title="Due in {{ review.due_date|timeuntil }}">{{ review }} </span>
                         </li>
                     {% endfor %}
                 </ul>
