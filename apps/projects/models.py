@@ -194,7 +194,6 @@ class Project(DateSpanMixin, TimeStampedModel):
                 'shift_request': allocation.shift_requests.first(),
                 'alloc_request': self.allocation_requests.filter(beamline=beamline, cycle=next_cycle).first(),
             })
-
         return allocations
 
     def active_allocations(self):
