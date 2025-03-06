@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-xs-12">
         {% if owner or admin %}
-            <span class="box-tools pull-right" style="">
+            <div class="box-tools pull-right" style="">
                 {% if falloc.can_renew  %}
                 <a href='{% url "create-alloc-request" pk=project.pk fac=falloc.facility.acronym cycle=falloc.next_cycle.pk %}' class="pull-right">
                     <i class="bi-arrow-clockwise icon-2 icon-fw"></i><br/>
@@ -17,19 +17,19 @@
                     <span class="tool-label">Decline</span>
                 </a>
                 {% endif %}
-                {%  if owner and falloc.can_request %}
+                {%  if falloc.can_request %}
                 <a href='{% url "create-shift-request" pk=falloc.allocation.pk %}' class="pull-right">
                     <i class="bi-calendar2-week icon-2 icon-fw"></i><br/>
                     <span class="tool-label">Request Shifts</span>
                 </a>
                 {% endif %}
-                {% if user|is_staff:falloc.facility and project.is_active %}
+                {% if admin or user|is_staff:falloc.facility and project.is_active %}
                 <a href="#0" data-url='{% url 'session-handover' pk=project.pk fac=falloc.facility.acronym %}' class="pull-right text-danger">
                     <i class="bi-play-circle icon-2 icon-fw"></i><br/>
                     <span class="tool-label">Hand-Over</span>
                 </a>
                 {% endif %}
-            </span>
+            </div>
         {% endif %}
         <h3 class="text-condensed" style="margin-top:0.25em;">
             <a href="{% url 'facility-detail' pk=falloc.facility.pk %}">{{ falloc.facility.acronym }}</a>
