@@ -28,8 +28,8 @@ class ProposalsBlock(BaseBlock):
 
         today = timezone.now().date()
         submitted = proposals.filter(
-            Q(state=models.Proposal.STATES.submitted) &
-            (Q(submissions__cycle__start_date__gt=today) | Q(submissions__cycle__state=models.Cycle.STATES.open)) &
+            Q(state__gte=models.Proposal.STATES.submitted) &
+            # (Q(submissions__cycle__start_date__gt=today) | Q(submissions__cycle__state=models.Cycle.STATES.open)) &
             Q(submissions__state__lt=models.Submission.STATES.reviewed),
         ).distinct()
         open_cycles = models.ReviewCycle.objects.filter(state=models.Cycle.STATES.open)
@@ -52,7 +52,7 @@ class ReviewsBlock(BaseBlock):
     def render(self, context):
         ctx = copy.copy(context)
         from proposals import models
-
+        show = False
         user = context['request'].user
         next_cycle = models.ReviewCycle.objects.next()
 
@@ -63,8 +63,9 @@ class ReviewsBlock(BaseBlock):
         reviews = models.Review.objects.filter(filters).filter(
             state__gt=models.Review.STATES.pending, state__lt=models.Review.STATES.submitted,
         )
-
+        show = reviews.exists()
         if hasattr(user, 'reviewer'):
+            show = True
             reviewer = user.reviewer
             ctx.update({
                 'reviewer': reviewer,
@@ -85,6 +86,7 @@ class ReviewsBlock(BaseBlock):
         if next_call:
             reviewer_available_next_call = models.Reviewer.objects.available(next_call).filter(user=user).exists()
             can_review = user.can_review()
+            show = can_review
             ctx.update({
                 "upcoming_call": (
                     reviewer_available_next_call
@@ -92,5 +94,7 @@ class ReviewsBlock(BaseBlock):
                 "next_call": next_call,
                 "can_review": can_review,
             })
-        return super().render(ctx)
+        if show:
+            return super().render(ctx)
+
 

@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse, Http404
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.encoding import force_str
@@ -77,13 +77,18 @@ class UserProposalList(RolePermsViewMixin, ItemListView):
     paginate_by = 25
 
     def get_queryset(self, *args, **kwargs):
-        qchain = Q(spokesperson=self.request.user)
-        if self.request.user.email:
-            qchain |= Q(team__icontains=self.request.user.email)
-        if self.request.user.alt_email:
-            qchain |= Q(team__icontains=self.request.user.alt_email)
+        flts = (
+            Q(spokesperson=self.request.user) |
+            Q(leader_username=self.request.user.username) |
+            Q(delegate_username=self.request.user.username) 
+        )
 
-        self.queryset = models.Proposal.objects.filter(qchain)
+        if self.request.user.email:
+            flts |= Q(team__icontains=self.request.user.email)
+        if self.request.user.alt_email:
+            flts |= Q(team__icontains=self.request.user.alt_email)
+
+        self.queryset = models.Proposal.objects.filter(flts)
         return super().get_queryset(*args, **kwargs)
 
 
@@ -477,7 +482,7 @@ class EditReviewerProfile(RolePermsViewMixin, edit.FormView):
         if self.kwargs.get('pk'):
             reviewer = models.Reviewer.objects.filter(pk=self.kwargs.get('pk')).first()
         else:
-            #reviewer, created = models.Reviewer.objects.get_or_create(user=self.request.user)
+            # reviewer, created = models.Reviewer.objects.get_or_create(user=self.request.user)
             reviewer = None
 
         if reviewer:
@@ -645,8 +650,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         if not allowed:
             obj = self.get_object()
             allowed = (
-                obj.state != models.Review.STATES.closed and (
-                obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
+                    obj.state != models.Review.STATES.closed and (
+                    obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
             )
         return allowed
 
@@ -1306,9 +1311,9 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
 
     def check_owner(self, obj):
         return (
-            self.request.user.username in [
-                obj.proposal.spokesperson.username, obj.proposal.delegate_username, obj.proposal.leader_username
-            ]
+                self.request.user.username in [
+            obj.proposal.spokesperson.username, obj.proposal.delegate_username, obj.proposal.leader_username
+        ]
         )
 
     def get_queryset(self):
@@ -1324,10 +1329,10 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
         is_committee = reviewer and reviewer.committee == submission.track
         is_committee_reviewer = is_committee and submission.reviews.filter(reviewer=self.request.user).exists()
         return (
-            super().check_allowed() or
-            self.check_admin() or
-            self.check_owner(submission) or
-            is_committee_reviewer
+                super().check_allowed() or
+                self.check_admin() or
+                self.check_owner(submission) or
+                is_committee_reviewer
         )
 
     def get_context_data(self, **kwargs):
@@ -1734,8 +1739,8 @@ class AnswerClarification(ClarificationResponse):
             return False
         else:
             return (
-                (self.request.user == proposal.spokesperson) or
-                (self.request.user.username in [proposal.delegate_username, proposal.leader_username])
+                    (self.request.user == proposal.spokesperson) or
+                    (self.request.user.username in [proposal.delegate_username, proposal.leader_username])
             )
 
     def form_valid(self, form):

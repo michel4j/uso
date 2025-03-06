@@ -35,7 +35,7 @@ services:
       DJANGO_SUPERUSER_PASSWORD: usoadmin
       DJANGO_SUPERUSER_FIRST_NAME: Admin
       DJANGO_SUPERUSER_LAST_NAME: User
-      DJANGO_SUPERUSER_EMAIL: admin@example.com
+      DJANGO_SUPERUSER_EMAIL: admin@bespoke.com
     ports:
       - 8080:80
     volumes:
