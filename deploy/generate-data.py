@@ -285,6 +285,11 @@ class FakeUser:
                     roles += f'<reviewer:{fac.lower()}>'
             elif random.choice([True, False]):
                 roles += '<{}>'.format(random.choice(ROLES))
+            if kind == 'male':
+                first_name = fake_first_name_male("Canada")
+            else:
+                first_name = fake_first_name_female("Canada")
+            last_name = fake_last_name("Canada")
         else:
             inst_info = random.choice(UNIVERSITIES)
             institution = inst_info['university']
@@ -299,11 +304,11 @@ class FakeUser:
             zip_code = self.fake.postalcode()
             classification = random.choice(CLASSIFICATIONS)
 
-        if kind == 'male':
-            first_name = fake_first_name_male(country)
-        else:
-            first_name = fake_first_name_female(country)
-        last_name = fake_last_name(country)
+            if kind == 'male':
+                first_name = fake_first_name_male(country)
+            else:
+                first_name = fake_first_name_female(country)
+            last_name = fake_last_name(country)
         other_name = ''
         if random.randint(0, 100) < 10:
             other_name = self.fake.name_nonbinary()
