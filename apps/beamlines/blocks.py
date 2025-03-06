@@ -30,8 +30,12 @@ class MyFacilities(BaseBlock):
         admin_acronyms = itertools.chain(*[
             admin_pattern.findall(role) for role in user.get_all_roles() if admin_pattern.match(role)
         ])
-        staff_filters = reduce(operator.__or__, [models.Q(acronym__iexact=acronym) for acronym in staff_acronyms])
-        admin_filters = reduce(operator.__or__, [models.Q(acronym__iexact=acronym) for acronym in admin_acronyms])
+        staff_filters = reduce(operator.__or__, [
+            models.Q(acronym__iexact=acronym) for acronym in staff_acronyms
+        ], models.Q())
+        admin_filters = reduce(operator.__or__, [
+            models.Q(acronym__iexact=acronym) for acronym in admin_acronyms
+        ], models.Q())
 
         facilities = models.Facility.objects.filter(staff_filters | admin_filters)
         if facilities.exists():
