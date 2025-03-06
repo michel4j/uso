@@ -1,4 +1,5 @@
 {% extends "misc/blocks/panel.html" %}
+{% load roleperms %}
 {% block panel_title %}My Profile{% endblock %}
 {% block panel_tools %}
 <a href="{% url 'view-my-profile' %}" class="btn btn-xs btn-white pull-right" title="View My Profile">
@@ -36,6 +37,20 @@
         <td class="item"><i class="bi-paint-bucket icon-fw"></i></td>
         <td>{{object.research_field.all|join:", "}}</td>
     </tr>
+    {% if object.roles or object.permissions %}
+            {% if object.roles %}
+            <tr>
+                <td class="item text-left col-xs-1"><i class="bi-person-vcard icon-fw"></i></td>
+                <td class="col-xs-10">{% for r in object.roles %}<span title="Role: {{ r }}" class="label label-info">{{r|role_label}}</span> {% endfor %}</td>
+            </tr>
+            {% endif %}
+            {% if object.permissions %}
+            <tr>
+                <td class="item text-left"><i class="bi-key icon-fw"></i></td>
+                <td>{% for p in object.permissions %}<span class="label label-success">{{p}}</span> {% endfor %}</td>
+            </tr>
+            {% endif %}
+        {% endif %}
     </tbody>
 </table>
 {% endblock %}
