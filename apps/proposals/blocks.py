@@ -75,7 +75,7 @@ class ReviewsBlock(BaseBlock):
 
         soon = (timezone.now() + timedelta(weeks=12)).date()
         ctx.update({
-            "reviews": reviews.filter(due_date__lte=soon).order_by('cycle', 'due_date'),
+            "reviews": reviews.filter(Q(due_date__lte=soon) | Q(due_date__isnull=True)).order_by('cycle', 'due_date'),
             "all_reviews": reviews,
             "next_cycle": next_cycle,
         })
