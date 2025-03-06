@@ -1241,7 +1241,7 @@ class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
         queryset = models.Submission.objects.all()
         if self.kwargs.get('cycle'):
             queryset = queryset.filter(cycle=self.kwargs['cycle'])
-        queryset = models.Submission.objects.filter(
+        queryset = queryset.filter(
             techniques__config__facility__acronym=self.kwargs['fac']
         ).order_by().distinct()
         self.queryset = queryset

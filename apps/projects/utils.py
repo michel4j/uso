@@ -1,19 +1,16 @@
 import io
-from collections import defaultdict
 from typing import Any
 
 from django.conf import settings
+from django.db.models import F, Q, Avg
 from django.http import HttpResponse
 from django.template import Context
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-import operator
-from functools import reduce
-from django.db.models import F, Q, Value as V, FloatField, Avg
-from django.db.models.functions import Cast
+
 from beamlines.models import Facility
-from . import models
 from proposals.models import ReviewType
+from . import models
 
 USO_SCORE_VETO_FUNCTION = getattr(settings, "USO_SCORE_VETO_FUNCTION", lambda score: score > 4)
 USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
@@ -41,7 +38,7 @@ def to_int(val, default=0):
 
 def calculate_end_date(start_date, duration):
     year = start_date.year
-    year_offset, month_offset = divmod(start_date.month - 1 + duration * 6,  12)
+    year_offset, month_offset = divmod(start_date.month - 1 + duration * 6, 12)
     end_year = year + year_offset
     end_month = 1 + month_offset
     return start_date.replace(year=end_year, month=end_month)
@@ -99,7 +96,7 @@ def create_project(submission):
     for stage in track.stages.all():
         stage_code = stage.kind.code
         if stage.kind.per_facility:
-            check_facilities = True     # check passage for each facility independently
+            check_facilities = True  # check passage for each facility independently
             facility_scoring = submission.reviews.complete().filter(stage=stage).annotate(
                 facility=F('details__facility')
             ).values('facility').annotate(
@@ -113,9 +110,9 @@ def create_project(submission):
 
             passes_review = len(stage_scores) > 0
             if passes_review and stage.blocks:
-                valid_facilities = set(stage_scores.keys())     # only these facilities can be valid
+                valid_facilities = set(stage_scores.keys())  # only these facilities can be valid
             elif passes_review:
-                valid_facilities |= set(stage_scores.keys())    # add any valid ones from this stage to the set
+                valid_facilities |= set(stage_scores.keys())  # add any valid ones from this stage to the set
             scores[stage_code] = stage_scores
         else:
             score = scores[stage_code]
