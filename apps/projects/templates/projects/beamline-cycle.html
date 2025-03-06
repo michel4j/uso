@@ -20,36 +20,42 @@
                         <span class="tool-label">Allocate</span>
                     </a>
                 {% endif %}
-                {% if facility.flex_schedule and cycle %}
-                    <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}' class="pull-right"
-                       style="position: relative;">
-                        <i class="bi-inbox icon-2 icon-fw"></i><br/>
-                        <span class="tool-label">Requests</span>
-                        {% if requests.count %}
+
+            {% endif %}
+        {% endif %}
+        {% if cycle.state >= cycle.STATES.schedule %}
+            <a href='{% url "beamline-projects" fac=facility.acronym cycle=cycle.pk %}' class="pull-right">
+                <i class="bi-briefcase icon-2 icon-fw"></i><br/>
+                <span class="tool-label">Projects</span>
+            </a>
+            {% if facility.flex_schedule and cycle %}
+                <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}' class="pull-right"
+                   style="position: relative;">
+                    <i class="bi-inbox icon-2 icon-fw"></i><br/>
+                    <span class="tool-label">Requests</span>
+                    {% if requests.count %}
                         <div class="bubble progress-bar-warning">
                             <div>{{ requests.count|default:0 }}</div>
                         </div>
-                        {% endif %}
+                    {% endif %}
+                </a>
+            {% endif %}
+            {% with schedule=cycle.schedule %}
+                {% if schedule %}
+                    <a href='{% url "schedule-beamtime" pk=schedule.pk fac=facility.acronym %}' class="pull-right">
+                        <i class="bi-calendar-plus icon-2 icon-fw"></i><br/>
+                        <span class="tool-label">Schedule</span>
+                    </a>
+                    <a href='{% url "schedule-support" pk=schedule.pk fac=facility.pk %}' class="pull-right">
+                        <i class="bi-person-plus icon-2 icon-fw"></i><br/>
+                        <span class="tool-label">Support</span>
                     </a>
                 {% endif %}
-                {% with schedule=cycle.schedule %}
-                    {% if schedule %}
-                        <a href='{% url "schedule-beamtime" pk=schedule.pk fac=facility.acronym %}' class="pull-right">
-                            <i class="bi-calendar-plus icon-2 icon-fw"></i><br/>
-                            <span class="tool-label">Schedule</span>
-                        </a>
-                        <a href='{% url "schedule-support" pk=schedule.pk fac=facility.pk %}' class="pull-right">
-                            <i class="bi-person-plus icon-2 icon-fw"></i><br/>
-                            <span class="tool-label">Support</span>
-                        </a>
-                    {% endif %}
-                {% endwith %}
-            {% endif %}
-        {% endif %}
-        {% if cycle %}
-            <a href='{% url "beamline-projects" fac=facility.pk cycle=cycle.pk %}' class="pull-right">
-                <i class="bi-list-ol icon-2 icon-fw"></i><br/>
-                <span class="tool-label">Projects</span>
+            {% endwith %}
+        {% else %}
+            <a href='{% url "beamline-submissions" fac=facility.acronym cycle=cycle.pk %}' class="pull-right">
+                <i class="bi-journal-medical icon-2 icon-fw"></i><br/>
+                <span class="tool-label">Submissions</span>
             </a>
         {% endif %}
     {% endif %}

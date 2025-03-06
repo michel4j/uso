@@ -7,7 +7,7 @@
     <span class="text-muted">{{ object }}</span>{% endblock %}
 
 {% block folio-title %}
-    <strong>{{ object.acronym }}</strong> &mdash; {{ object.name }}
+    <strong>{{ object.acronym }}</strong> &mdash; {{ object.get_kind_display }}
 {% endblock %}
 
 {% block folio-subtitle %}
@@ -15,7 +15,7 @@
         {% if not forloop.last %}
             <a href="{% url 'facility-detail' pk=fac.pk %}" title="{{ fac.name }}">{{ fac.acronym }}</a> &nbsp;/&nbsp;
         {% else %}
-            {{ fac.acronym }} ({{ fac.get_kind_display }})
+            {{ fac.name }}
         {% endif %}
     {% endfor %}
 {% endblock %}

@@ -26,10 +26,8 @@ class ProposalsBlock(BaseBlock):
         proposals = models.Proposal.objects.filter(filters)
         drafts = proposals.filter(state=models.Proposal.STATES.draft)
 
-        today = timezone.now().date()
         submitted = proposals.filter(
             Q(state__gte=models.Proposal.STATES.submitted) &
-            # (Q(submissions__cycle__start_date__gt=today) | Q(submissions__cycle__state=models.Cycle.STATES.open)) &
             Q(submissions__state__lt=models.Submission.STATES.reviewed),
         ).distinct()
         open_cycles = models.ReviewCycle.objects.filter(state=models.Cycle.STATES.open)
@@ -52,7 +50,7 @@ class ReviewsBlock(BaseBlock):
     def render(self, context):
         ctx = copy.copy(context)
         from proposals import models
-        show = False
+
         user = context['request'].user
         next_cycle = models.ReviewCycle.objects.next()
 
