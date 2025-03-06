@@ -30,6 +30,7 @@ urlpatterns = [
     path('facilities/configs/<int:pk>/delete/', views.DeleteConfig.as_view(), name='delete-facility-config'),
     path('facilities/<slug:fac>/submissions/', views.BeamlineSubmissionList.as_view(), name='beamline-submissions'),
     path('facilities/<slug:fac>/submissions/<int:cycle>/', views.BeamlineSubmissionList.as_view(), name='beamline-submissions'),
+    path('facilities/<slug:fac>/proposals/', views.FacilityDraftProposals.as_view(), name='beamline-proposals'),
 
     path('cycles/', views.ReviewCycleList.as_view(), name="review-cycle-list"),
     path('cycles/<int:pk>/', views.ReviewCycleDetail.as_view(), name="review-cycle-detail"),

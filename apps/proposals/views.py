@@ -24,6 +24,7 @@ from misc.views import ConfirmDetailView, ClarificationResponse, RequestClarific
 from notifier import notify
 from roleperms.views import RolePermsViewMixin
 from users.models import User
+from beamlines.models import Facility
 from . import forms
 from . import models
 from . import utils
@@ -107,6 +108,26 @@ class ProposalList(RolePermsViewMixin, ItemListView):
     def get_queryset(self, *args, **kwargs):
         self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft)
         return super().get_queryset(*args, **kwargs)
+
+
+class FacilityDraftProposals(ProposalList):
+    list_title = 'Facility Draft Proposals'
+
+    def check_allowed(self):
+        allowed = super().check_allowed()
+        facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
+        if not facility:
+            return False
+        allowed |= facility.is_admin(self.request.user)
+        return allowed
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
+        self.queryset = queryset.filter(state=models.Proposal.STATES.draft).filter(
+            details__beamline_reqs__contains=[{'facility': facility.pk}]
+        )
+        return self.queryset
 
 
 class PRCList(RolePermsViewMixin, ItemListView):
