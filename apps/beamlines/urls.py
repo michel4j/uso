@@ -11,7 +11,7 @@ urlpatterns = [
     path('facilities/<int:pk>/edit/', views.EditFacility.as_view(), name='edit-beamline'),
     path('facilities/<int:fac>/support/<int:pk>/', views.ScheduleSupport.as_view(), name="schedule-support"),
     path(
-        'facilities/config/<int:pk>/',
+        'facilities/<int:pk>/config/',
         views.BeamlineDetail.as_view(template_name="proposals/facility-config.html"),
         name='facility-config-detail'
     ),
