@@ -71,7 +71,7 @@ class Logout(BaseNav):
     parent = Home
     weight = 100
     styles = "visible-xs"
-    url = reverse('portal-logout')
+    url = "#logout-action"
 
 
 class Agreements(BaseNav):
