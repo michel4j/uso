@@ -422,7 +422,7 @@
     created: 2024-12-13 15:26:19.539592+00:00
     modified: 2025-02-22 20:42:16.640204+00:00
     code: safety
-    kind: technical
+    kind: safety
     description: Safety Review
     form_type: 7
     score_fields: {}
