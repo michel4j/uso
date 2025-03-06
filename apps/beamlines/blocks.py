@@ -24,20 +24,21 @@ class MyFacilities(BaseBlock):
         # generate filters for staff and admin roles
         staff_pattern = re.compile(re.sub(r'[+-]$', '(?P<acronym>.+)$', USO_FACILITY_STAFF_ROLE))
         admin_pattern = re.compile(re.sub(r'[+-]$', '(?P<acronym>.+)$', USO_FACILITY_ADMIN_ROLE))
-        staff_acronyms = itertools.chain(*[
+        staff_acronyms = list(itertools.chain(*[
             staff_pattern.findall(role) for role in user.get_all_roles() if staff_pattern.match(role)
-        ])
-        admin_acronyms = itertools.chain(*[
+        ]))
+        admin_acronyms = list(itertools.chain(*[
             admin_pattern.findall(role) for role in user.get_all_roles() if admin_pattern.match(role)
-        ])
-        staff_filters = reduce(operator.__or__, [
-            models.Q(acronym__iexact=acronym) for acronym in staff_acronyms
-        ], models.Q())
-        admin_filters = reduce(operator.__or__, [
-            models.Q(acronym__iexact=acronym) for acronym in admin_acronyms
-        ], models.Q())
+        ]))
+        acronyms = staff_acronyms + admin_acronyms
+        if acronyms:
+            filters = reduce(operator.__or__, [
+                models.Q(acronym__iexact=acronym) for acronym in staff_acronyms
+            ])
+        else:
+            return None
 
-        facilities = models.Facility.objects.filter(staff_filters | admin_filters)
+        facilities = models.Facility.objects.filter(filters)
         if facilities.exists():
             ctx.update({
                 "facilities": facilities,
