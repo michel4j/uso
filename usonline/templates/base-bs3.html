@@ -136,24 +136,6 @@ $(document).ready(function(){
         $(this).getNiceScroll().resize();
     });
 
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        let target = $(e.target).attr('href');
-        if (history.pushState) {
-            history.pushState(null, null, target);
-        } else {
-            location.hash = target;
-        }
-    });
-
-    let hash = window.location.hash;
-    hash = hash.replace('#', '');
-    if (hash) {
-        setTimeout(function() {
-            window.scrollTo(0, 0);
-        }, 0);
-        $(`a[href="#${hash}"]`).tab('show');
-    }
-
     $(document).on('click', 'a[href="#logout-action"]', function(e){
         e.preventDefault();
         $('#logout-form').submit();
