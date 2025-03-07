@@ -56,7 +56,7 @@ class Facility(TimeStampedModel):
     source = models.CharField("Source Type", max_length=255, null=True, blank=True)
     state = models.CharField(max_length=20, choices=STATES, default=STATES.design)
     parent = models.ForeignKey(
-        "Facility", null=True, related_name="children", verbose_name="Parent Facility", on_delete=models.SET_NULL
+        "Facility", null=True, blank=True, related_name="children", verbose_name="Parent Facility", on_delete=models.SET_NULL
     )
     flex_schedule = models.BooleanField("Allocation Not Required", default=False)
     shift_size = models.IntegerField("Shift Size (hrs)", choices=SIZES, default=SIZES.eight)
@@ -126,7 +126,6 @@ class Facility(TimeStampedModel):
         return user.has_any_role(*_roles)
 
     def is_admin(self, user):
-
         _roles = self.expand_role(USO_FACILITY_ADMIN_ROLE)
         return user.has_any_role(*_roles)
 

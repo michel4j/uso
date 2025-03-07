@@ -6,9 +6,7 @@
     name: Registration
     code: registration
     description: You will receive an email immediately upon submitting this form with
-      instructions to complete your registration. If you do not receive a reply, please
-      contact the CLSI User Services Office at clsuo@lightsource.ca or phone (306)
-      657-3700.
+      instructions to complete your registration. User Office.
     pages:
     - name: Tell us about yourself
       fields:
@@ -132,7 +130,7 @@
 
           * The details provide are accurate and complete to the best of your knowledge.
 
-          * CLS may contact you by email or phone about matters concerning your registration
+          * We may contact you by email or phone about matters concerning your registration
           and eventual, possible or actual use of the facility.
 
           * The registration has been completed by the person identified in the registration,
@@ -693,7 +691,7 @@
   pk: 4
   fields:
     created: 2015-03-26 19:10:13+00:00
-    modified: 2024-12-05 05:52:54.112090+00:00
+    modified: 2025-02-23 00:56:00.430364+00:00
     name: Technical Review
     code: technical-review
     description: Technical review form to be completed by reviewers
@@ -728,14 +726,14 @@
         field_type: scorechoices
         instructions: ''
         default_choices: []
-      - name: requirements
+      - name: facility
         tags: ''
-        label: Requirements
+        label: Facility
         options:
+        - hide
         - nolabel
         field_type: technicaltags
-        instructions: Please select additional tags or priority areas which should
-          be considered during scheduling and/or tracked for this project if approved.
+        instructions: Facility ID
       - name: comments
         size: small
         tags: ''
@@ -811,7 +809,7 @@
   pk: 5
   fields:
     created: 2015-03-26 19:10:54+00:00
-    modified: 2024-12-05 05:50:33.761890+00:00
+    modified: 2025-03-03 02:35:28.284450+00:00
     name: Safety Approval
     code: safety-approval
     description: Final Safety Approval Form to be completed by the safety approver
@@ -888,8 +886,6 @@
       - Submit
     - - save
       - Save
-    - - save
-      - Assign
 - model: dynforms.formtype
   pk: 6
   fields:
@@ -942,7 +938,7 @@
   pk: 7
   fields:
     created: 2015-10-16 18:40:18+00:00
-    modified: 2024-12-05 22:53:01.861498+00:00
+    modified: 2025-03-03 03:19:41.432146+00:00
     name: Safety Review
     code: safety-review
     description: Safety review form to be completed by safety reviewers
@@ -960,9 +956,8 @@
       fields:
       - name: requirements
         tags: ''
-        label: Risk Level of Experiment
-        options:
-        - required
+        label: Permission Requirements
+        options: []
         field_type: permissions
         instructions: ''
       - name: controls
@@ -1369,12 +1364,12 @@
   pk: 12
   fields:
     created: 2015-12-10 17:47:19+00:00
-    modified: 2024-11-30 19:00:41.185853+00:00
+    modified: 2025-03-03 03:45:52.888007+00:00
     name: User Feedback
     code: feedback
     description: Form to capture user feedback following beamtime.
     pages:
-    - name: Storage Ring & Beamline Operations
+    - name: Operations
       fields:
       - name: section-005
         tags: ''
@@ -1651,7 +1646,7 @@
         options: []
         field_type: paragraphtext
         instructions: ''
-    - name: Administrative Support and User Communications
+    - name: Administrative Support
       fields:
       - name: admin_registration
         tags: ''
@@ -1703,7 +1698,7 @@
         default_choices: []
       - name: admin_web_pages
         tags: ''
-        label: CLSI web pages and user information
+        label: Web pages and user information
         choices:
         - Excellent
         - Good
@@ -1776,7 +1771,7 @@
         options: []
         field_type: paragraphtext
         instructions: ''
-    - name: Facility User Amenities
+    - name: User Amenities
       fields:
       - name: amenities_overall
         tags: ''
@@ -1860,77 +1855,6 @@
         size: small
         tags: ''
         label: Comments
-        units: chars
-        default: ''
-        maximum: null
-        minimum: null
-        options: []
-        field_type: paragraphtext
-        instructions: ''
-    - name: Overall Success and Satisfaction
-      fields:
-      - name: overall_satisfaction
-        tags: ''
-        label: Overall Success and Satisfaction
-        choices:
-        - Very Satisfied
-        - Satisfied
-        - Neutral
-        - Dissatisfied
-        - Very Dissatisfied
-        - N/A
-        default: []
-        options:
-        - inline
-        field_type: multiplechoice
-        instructions: ''
-        default_choices: []
-      - name: overall_enough_shifts
-        tags: ''
-        label: Did you have enough time to complete your experiment?
-        choices:
-        - 'Yes'
-        - 'No'
-        default: []
-        options:
-        - inline
-        field_type: multiplechoice
-        instructions: ''
-        default_choices: []
-      - name: overall_enough_shifts_comments
-        size: small
-        tags: ''
-        label: If not, how many additional shifts would have allowed you to complete
-          your experiment?
-        units: chars
-        default: ''
-        maximum: null
-        minimum: null
-        options: []
-        field_type: paragraphtext
-        instructions: ''
-    - name: CLS Users' Advisory Committee
-      fields:
-      - name: uac_nomination_comments
-        size: small
-        tags: ''
-        label: Annual Award
-        units: chars
-        default: ''
-        maximum: null
-        minimum: null
-        options: []
-        field_type: paragraphtext
-        instructions: The Users' Advisory Committee (UAC) has created an award to
-          be given to a CLS staff member for exemplary service in supporting the research
-          of CLS users.  The award will be presented yearly at the Annual Users' Meegin.  Nominations
-          are accepted by any member of the UAC until June 1 or you may give a recommendation
-          now.
-      - name: uac_recommendation_comments
-        size: small
-        tags: ''
-        label: Do you have any restaurant & food or accommodation recommendations
-          to share with other users?
         units: chars
         default: ''
         maximum: null

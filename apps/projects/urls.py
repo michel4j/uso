@@ -12,14 +12,15 @@ urlpatterns = [
 
     path('allocations/<int:pk>/request/shift/new/', views.CreateShiftRequest.as_view(), name="create-shift-request"),
     path('allocations/request/shift/<int:pk>/edit/', views.EditShiftRequest.as_view(), name='edit-shift-request'),
+    path('allocations/request/shift/<int:pk>/manage/', views.AdminShiftRequest.as_view(), name='manage-shift-request'),
     path('allocations/request/', views.AllocRequestList.as_view(), name="alloc-request-list"),
     path('allocations/request/shift/<int:pk>/<int:cycle>/', views.ShiftRequestList.as_view(), name='shift-request-list'),
     path('allocations/<int:pk>/decline/', views.DeclineAllocation.as_view(), name="decline-alloc"),
     path('allocations/cycles/<int:pk>/<str:fac>/', views.AllocateBeamtime.as_view(), name="allocate-review-cycle"),
     path('allocations/<int:pk>/edit/', views.EditAllocation.as_view(), name='edit-allocation'),
 
-    path('facilities/<int:fac>/projects/<int:cycle>/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
-    path('facilities/<int:fac>/projects/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
+    path('facilities/<slug:fac>/projects/<int:cycle>/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
+    path('facilities/<slug:fac>/projects/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
 
     path('materials/', views.MaterialList.as_view(), name='material-list'),
     path('materials/<int:pk>/', views.MaterialDetail.as_view(), name='material-detail'),
@@ -34,6 +35,7 @@ urlpatterns = [
     path('sessions/<int:pk>/stop/', views.TerminateSession.as_view(), name='terminate-session'),
 
     path('sessions/<int:pk>/handover/<str:fac>/', views.SessionHandOver.as_view(), name="session-handover"),
+    path('sessions/<int:pk>/handover/<str:fac>/<int:event>/', views.SessionHandOver.as_view(), name="session-handover"),
     path('sessions/<int:pk>/extend/', views.SessionExtend.as_view(), name="session-extend"),
     path('sessions/<int:pk>/signon/', views.SessionSignOn.as_view(), name='session-signon'),
     path('sessions/<int:pk>/signoff/', views.SessionSignOff.as_view(), name='session-signoff'),

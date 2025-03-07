@@ -24,7 +24,7 @@ KEYWORD_XPATH = {
 }
 
 USO_PDB_FACILITIES = getattr(settings, 'USO_PDB_FACILITIES', {})
-
+GOOGLE_API_KEY = getattr(settings, 'GOOGLE_API_KEY', '')
 
 def join_names(authors):
     return '; '.join(a['name'] for a in authors)
@@ -286,7 +286,7 @@ def get_book(isbn):
 
     for isbn in isbns:
         isbn = re.sub(r'[\s_-]', '', isbn)
-        url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}"
+        url = f"https://www.googleapis.com/books/v1/volumes?q=isbn%3D{isbn}&key={GOOGLE_API_KEY}"
         r = requests.get(url)
         if r.status_code == requests.codes.ok:
             record = r.json()
@@ -318,7 +318,7 @@ def get_book(isbn):
 
 def get_patent(number):
     number = number.replace(' ', '').upper()
-    url = f'https://patents.google.com/patent/{number}'
+    url = f'https://patents.google.com/patent/{number}?key={GOOGLE_API_KEY}'
     info = get_url_meta(url, extras={'itemprop':'priorArtKeywords'})
 
     if info:

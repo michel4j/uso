@@ -22,6 +22,7 @@ from misc.models import DateSpanMixin
 from roleperms.models import RolePermsUserMixin
 
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', [''])
+USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', [''])
 USO_REVIEWER_ROLES = getattr(settings, 'USO_REVIEWER_ROLES', ['reviewer'])
 USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER')
 
@@ -177,9 +178,14 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         return self.has_any_role(*USO_ADMIN_ROLES)
 
     def can_review(self):
-        return self.has_any_role(*USO_REVIEWER_ROLES)
+        return (
+            self.classification in [self.STAFF.faculty, self.STAFF.professional]
+        ) and not self.has_any_role(*USO_STAFF_ROLES)
 
-    def fetch_profile(self,force=False, delay=15):
+    def is_reviewer(self):
+        return hasattr(self, 'reviewer')
+
+    def fetch_profile(self, force=False, delay=15):
         # update profile only once per `delay` minutes
         if not self.last_updated:
             force = True

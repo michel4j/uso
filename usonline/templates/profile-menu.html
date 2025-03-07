@@ -12,8 +12,8 @@
             <li><a href="{% url 'change-password' %}"><i class="bi-lock icon-fw"></i>&nbsp;Change Password</a></li>
             <li role="separator" class="divider"></li>
             <li>
-                <a href="#0" onclick="$('#logout-form').submit();"><i class="bi-power icon-fw"></i>&nbsp;Logout</a></li>
-                <form class="hidden" id="logout-form" action="{% url 'portal-logout' %}" method="post">{% csrf_token %}</form>
+                <a href="#logout-action"><i class="bi-power icon-fw"></i>&nbsp;Logout</a>
+            </li>
         </ul>
     </li>
     {% with request.user.notifications.web.all as notifications %}

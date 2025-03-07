@@ -74,6 +74,12 @@ def is_user(user, beamline):
 def is_staff(user, beamline):
     return beamline.is_staff(user)
 
+
+@register.filter(name="is_admin")
+def is_admin(user, beamline):
+    return beamline.is_admin(user)
+
+
 @register.filter(name="is_remote_user")
 def is_remote_user(user, beamline):
     return beamline.is_user(user, remote=True)

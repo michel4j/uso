@@ -13,6 +13,7 @@ import sys
 from django.conf import global_settings
 from Crypto.Random import get_random_bytes
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(__file__)
 BASE_DIR = os.path.dirname(PROJECT_DIR)
@@ -202,18 +203,16 @@ USO_THROTTLE_KEY = get_random_bytes(16)
 USO_ADMIN_PERMS = []
 USO_OPEN_WEATHER_KEY = "fc083799c6457d859764913163f6b584"
 USO_PROFILE_MANAGER = ExternalProfileManager
-USO_REVIEW_ASSIGNMENT = "CMACRA"    # or either "CMACRA" or "BRUTE_FORCE"
+USO_REVIEW_ASSIGNMENT = "MIP"    # or either "MIP" or  "CMACRA" or "BRUTE_FORCE"
 USO_PDB_FACILITIES = {
     "CLSI08B1-1": ["CMCF-ID"],
     "CLSI08ID-1": ["CMCF-BM"],
 }
 ROLEPERMS_DEBUG = False
 
-USO_SAFETY_REVIEWS = ["safety", "ethics", "equipment"]     # reviews assigned by safety approver
 USO_TECHNICAL_REVIEWS = ["technical"]             # technical review type
-USO_SCIENCE_REVIEWS = ["scientific"]             # science review type
 USO_SAFETY_APPROVAL = "approval"                 # safety approval review type
-
+GOOGLE_API_KEY = ""
 
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
 

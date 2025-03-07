@@ -487,9 +487,11 @@ class VerifyView(PasswordChangeMixin, UpdateView):
             i = models.Institution.objects.filter(name__iexact=details['institution']).first()
             if not i:
                 location = ", ".join(
-                    [_f for _f in [address_info['city'], address_info['region'], address_info['country']] if _f])
-                i = models.Institution.objects.create(name=details['institution'], sector=details['sector'],
-                                                      location=location)
+                    [_f for _f in [address_info['city'], address_info['region'], address_info['country']] if _f]
+                )
+                i = models.Institution.objects.create(
+                    name=details['institution'], sector=details['sector'], location=location
+                )
             initial['institution'] = i
             initial['address'] = models.Address.objects.create(**address_info)
 
@@ -581,7 +583,7 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
         USO_PROFILE_MANAGER.update_profile(obj.username, info)
 
         obj.research_field.set(research_areas)
-        messages.success(self.request, "{}'s profile updated.".format(obj))
+        messages.success(self.request, f"{obj}'s profile updated.")
         return HttpResponseRedirect(self.success_url)
 
 

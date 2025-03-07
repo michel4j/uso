@@ -1,4 +1,5 @@
 import pprint
+import re
 from collections import defaultdict
 
 from django import template
@@ -82,12 +83,17 @@ def get_precautions(context, hazards):
 
 @register.simple_tag(takes_context=True)
 def precaution_text(context, precaution):
+    return precaution.text
     sample = context['sample']
     data = context['data']
     sample_info = {d['sample']: d for d in data}
     sample_keywords = sample_info[sample.pk].get('keywords', {})
-    return mark_safe(precaution.text.format(
-        "<strong class='text-primary'>{}</strong>".format(sample_keywords.get(precaution.code, '{}'))))
+    keyword = sample_keywords.get(precaution.code, '')
+    num_blanks = precaution.text.count('{}')
+    values = re.split(r'\s*[;,|]\s*', keyword.get(precaution.code, ''))
+    full_values = values + ['***'] * (num_blanks - len(values))
+    formatted_text = re.sub(r'(\{\})', r'<strong class="text-primary">\1</strong>', precaution.text)
+    return mark_safe(formatted_text.format(*full_values))
 
 
 @register.simple_tag(takes_context=True)

@@ -7,6 +7,7 @@ COPY deploy/run-server.sh /
 COPY deploy/wait-for-it.sh /
 ADD . /usonline
 
+
 RUN set -ex && \
     apk add --no-cache --virtual libpq apache2-ssl apache2-mod-wsgi openssl bash sed py3-pip && \
     /usr/bin/python3 -m venv /venv && source /venv/bin/activate && \

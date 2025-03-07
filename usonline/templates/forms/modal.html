@@ -26,11 +26,11 @@
         <div class="modal-content">
             <div class="modal-header">
 
-                <h3 class="modal-title">
+                <h4 class="modal-title">
                     {% block form_title %}{{ form.helper.title }}{% endblock %}
                     <button type="button" class="close pull-right" data-dismiss="modal" aria-hidden="true">
                         <i class="bi-x-lg"></i></button>
-                </h3>
+                </h4>
             </div>
             <div class="modal-body" id="form-content">
                 {% block form_body %}{% crispy form form.helper %}{% endblock %}
@@ -50,7 +50,9 @@
 {% block form_js %}
     <script type="text/javascript">
         function initModal() {
-            var myForm = $('#modalForm');
+            let myForm = $('#modalForm');
+            let form_container = $('#modal-form');
+
             myForm.find(".chosen").chosen({
                 placeholder_text_single: "Select an option",
                 search_contains: true,
@@ -140,7 +142,8 @@
 
             // Empty modal on close
             myForm.on('hidden.bs.modal', function() {
-                //myForm.empty();
+                form_container.empty();
+                $(".modal-backdrop").remove();
             });
             // load custom init
             initForm();

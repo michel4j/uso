@@ -1,0 +1,29 @@
+{% extends "misc/blocks/panel.html" %}
+{% load cycle_tags %}
+{% load beamline_tags %}
+{% block panel_title %}My Facilities{% endblock %}
+{% block panel_content %}
+    {% if facilities.exists %}
+        <div class="pad-wrapper">
+            <div class="row scroll-box" style="max-height: 200px;">
+                <ul class="list-unstyled list-ruled col-xs-12">
+                    {% for fac in facilities %}
+                        <li class="text-condensed" >
+                            <span class="pull-right">
+                                {% if user|is_admin:fac %}
+                                    <span class="label label-info">Admin</span>
+                                {% elif user|is_staff:fac %}
+                                    <span class="label label-success">Staff</span>
+                                {% endif %}
+                            </span>
+                            <a href='{% url "facility-detail" fac=fac.acronym %}' data-toggle="tooltip">
+                                <strong title="{{ fac.name }}">{{ fac.acronym }}</strong><span class="hidden-xs">&nbsp;&ndash;&nbsp;{{ fac.name }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+

@@ -58,7 +58,7 @@ class NotifyProjects(BaseCronJob):
                 'submission_urls': ", ".join([
                     '{}{}'.format(SITE_URL, s.get_absolute_url()) for s in project.submissions.all()
                 ]),
-                'project_url': '{}{}'.format(SITE_URL, project.get_absolute_url()),
+                'project_url': f'{SITE_URL}{project.get_absolute_url()}',
                 'allocations': project.allocations.filter(cycle=cycle),
             }
             notify.send([project.spokesperson], 'submission-success', level=notify.LEVELS.important, context=info)
@@ -69,7 +69,7 @@ class NotifyProjects(BaseCronJob):
                 'submission': submission,
                 'cycle': cycle,
                 'submission_urls': ", ".join([
-                    '{}{}'.format(SITE_URL, s.get_absolute_url()) for s in [submission]
+                    f'{SITE_URL}{s.get_absolute_url()}' for s in [submission]
                 ]),
             }
             notify.send(
@@ -104,7 +104,7 @@ class NotifyProjects(BaseCronJob):
         return ""
 
 
-class CreateProjects(BaseCronJob):
+class CreateCallProjects(BaseCronJob):
     run_at = ["00:15"]  # Should run before Notify projects
 
     def do(self):
@@ -115,14 +115,14 @@ class CreateProjects(BaseCronJob):
         cycle = ReviewCycle.objects.filter(alloc_date=today, state=ReviewCycle.STATES.review).first()
         log = []
         if cycle:
-            # general user access
+            # Create Projects for general user access
             submissions = cycle.submissions.exclude(track__special=True).filter(
                 state=Submission.STATES.reviewed, project__isnull=True
             )
-            expiry = (cycle.start_date.replace(year=cycle.start_date.year + 2))
-            for submission in submissions:
-                utils.create_project(submission)
-            log.append("Processed {} Peer-Reviewed submissions for cycle {}".format(submissions.count(), cycle))
+            if submissions.exists():
+                for submission in submissions:
+                    utils.create_project(submission)
+                log.append(f"Created {submissions.count()} projects for cycle {cycle}")
 
             # create allocations for allocation requests
             count = 0
@@ -140,41 +140,52 @@ class CreateProjects(BaseCronJob):
                 models.AllocationRequest.objects.filter(pk=alloc_request.pk).update(
                     state=models.AllocationRequest.STATES.complete)
                 count += 1
-            log.append("Created {} allocations from Allocation Requests for cycle {}".format(count, cycle))
+            log.append(f"Created {count} allocations from Allocation Requests for cycle {cycle}")
             ReviewCycle.objects.filter(pk=cycle.pk).update(state=ReviewCycle.STATES.evaluation)
-
-        # convert rapid access proposals to projects
-        cycle = ReviewCycle.objects.current().first()
-        if cycle is None:
-            log.append("No current cycle found")
-            return "\n".join(log)
-
-        submissions = Submission.objects.filter(
-            cycle__pk__gte=cycle.pk, track__special=True, state=Submission.STATES.reviewed, project__isnull=True
-        ).distinct()
-        for submission in submissions:
-            utils.create_project(submission)
-        log.append("Created {} projects from Rapid-Access submissions".format(submissions.count()))
-
-        # create allocation objects for flexible beamlines every cycle, until expiry
-        next_cycle = ReviewCycle.objects.next()
-
-        # projects on flexible beamlines which are still active next cycle but which do not have allocations for it yet
-        flex_projects = models.Project.objects.exclude(cycle=next_cycle).filter(
-            beamlines__flex_schedule=True, end_date__gte=next_cycle.end_date
-        ).exclude(allocations__cycle=next_cycle).distinct()
-
-        flex_allocations = models.Allocation.objects.filter(
-            project__in=flex_projects, beamline__flex_schedule=True, cycle=cycle).distinct()
-
-        for alloc in flex_allocations:
-            utils.create_allocation(alloc.project, alloc.beamline, next_cycle,
-                                    procedure=alloc.procedure, justification=alloc.justification, shifts=0)
-        log.append(
-            "Created {} allocations for flexible scheduling for cycle {}".format(flex_allocations.count(), next_cycle))
-
         return "\n".join(log)
 
+
+class CreateRapidAccessProjects(BaseCronJob):
+    run_every = "PT15M"
+
+    def do(self):
+        from proposals.models import ReviewCycle, Submission
+        # Handle rapid-access submissions and flexible beamlines
+        today = timezone.localtime(timezone.now()).date()
+        cycle = ReviewCycle.objects.filter(open_date__lte=today, end_date__gte=today).first()
+        log = []
+        if cycle:
+            submissions = Submission.objects.filter(
+                cycle__start_date__gte=cycle.start_date, track__require_call=False, state=Submission.STATES.reviewed,
+                project__isnull=True
+            ).distinct()
+            if submissions.exists():
+                for submission in submissions:
+                    utils.create_project(submission)
+                log.append(f"Created {submissions.count()} projects for non-call review tracks")
+
+            # create allocation objects for flexible beamlines every cycle, until expiry
+            next_cycle = ReviewCycle.objects.next()
+
+            # which projects on flexible beamlines which are still active next cycle do not have allocations yet
+            flex_projects = models.Project.objects.exclude(cycle=next_cycle).filter(
+                beamlines__flex_schedule=True, end_date__gte=next_cycle.end_date
+            ).exclude(allocations__cycle=next_cycle).distinct()
+
+            flex_allocations = models.Allocation.objects.filter(
+                project__in=flex_projects, beamline__flex_schedule=True, cycle=cycle
+            ).distinct()
+            if flex_allocations.exists():
+                for alloc in flex_allocations:
+                    utils.create_allocation(
+                        alloc.project, alloc.beamline, next_cycle,
+                        procedure=alloc.procedure, justification=alloc.justification, shifts=0
+                    )
+                log.append(
+                    f"Created {flex_allocations.count()} allocations for flexible scheduling for cycle {next_cycle}"
+                )
+
+        return "\n".join(log)
 
 class AutoSignOff(BaseCronJob):
     run_at = ["08:00", "16:00", "00:00"]

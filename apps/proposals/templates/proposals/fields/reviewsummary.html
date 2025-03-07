@@ -61,8 +61,11 @@
                     <div class="text-muted"><strong>Recommendation:</strong>&emsp;{{ rev.recommendation }}
                     </div>{% endif %}
                 {% if rev.permissions %}
-                    <div class="text-muted safety-permissions"><strong>Permissions:</strong>&emsp;{{ rev.permissions }}
-                    </div>{% endif %}
+                    <div class="text-muted safety-permissions">
+                        <strong>Permissions:</strong>&emsp;
+                        {{ rev.permissions }}
+                    </div>
+                {% endif %}
             </div>
             <div class="col-xs-12">
                 {% if rev.comments %}

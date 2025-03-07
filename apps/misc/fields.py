@@ -83,7 +83,7 @@ def json_default(obj):
 
 
 STRING_LIST_PATTERN = re.compile(r"<([^><]+)>")
-FORM_FIELD_SPLITTER = re.compile(r"[,;<>]+")
+FORM_FIELD_SPLITTER = re.compile(r"\s*[;]\s*")
 
 
 class StringListField(models.TextField):

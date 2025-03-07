@@ -768,6 +768,36 @@ class ShiftRequestForm(forms.ModelForm):
         return data
 
 
+class RequestAdminForm(forms.ModelForm):
+    class Meta:
+        model = models.ShiftRequest
+        fields = ['state']
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.title = "Process Request"
+        self.helper.form_action = self.request.path
+        self.helper.layout = Layout(
+            Div(
+                Div(Field('state', css_class='chosen'), css_class="col-xs-12"),
+                css_class="row narrow"
+            ),
+            Div(
+                Div(
+                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
+                    StrictButton(
+                        'Save', type='submit', value='decline',
+                        css_class='btn btn-primary pull-right'
+                    ),
+                    css_class="col-xs-12"
+                ),
+                css_class="modal-footer row"
+            )
+        )
+
+
 class AllocRequestForm(ShiftRequestForm):
     class Meta:
         model = models.AllocationRequest

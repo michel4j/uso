@@ -1692,7 +1692,7 @@
     modified: 2015-11-26 03:13:04+00:00
     name: Infectious (RG3 or RG4)
     description: High risk materials, likely to cause serious disease to humans or
-      animals. These materials cannot be used at the CLS.
+      animals.
     code: RG3
 - model: samples.pictogram
   pk: 15
@@ -2005,7 +2005,7 @@
     modified: 2015-11-23 05:25:20+00:00
     signal: danger
     hazard: 189
-    description: 'Self-reactve substances and mixtures; and Organic peroxides: Type
+    description: 'Self-reactive substances and mixtures; and Organic peroxides: Type
       A'
     pictograms:
     - 2
@@ -2028,7 +2028,7 @@
     modified: 2015-11-23 05:25:20+00:00
     signal: danger
     hazard: 171
-    description: 'Self-reactve substances and mixtures; and Organic peroxides: Type
+    description: 'Self-reactive substances and mixtures; and Organic peroxides: Type
       B'
     pictograms:
     - 2
@@ -2052,7 +2052,7 @@
     modified: 2015-11-23 05:25:20+00:00
     signal: danger
     hazard: 175
-    description: 'Self-reactve substances and mixtures; and Organic peroxides: Type
+    description: 'Self-reactive substances and mixtures; and Organic peroxides: Type
       C,D'
     pictograms:
     - 3
@@ -2074,7 +2074,7 @@
     modified: 2015-11-23 05:25:20+00:00
     signal: warning
     hazard: 175
-    description: 'Self-reactve substances and mixtures; and Organic peroxides: Type
+    description: 'Self-reactive substances and mixtures; and Organic peroxides: Type
       E,F'
     pictograms:
     - 3
@@ -44429,19 +44429,6 @@
     - 63
     - 64
 - model: samples.safetycontrol
-  pk: 22
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-09-07 15:04:57.805682+00:00
-    name: Veterinarian Required
-    description: The Animal Research Ethics Board (AREB) requires the presence of
-      a Veterinarian to provide assistance with appropriate anesthetic and monitoring
-      procedures. The UACC Veterinarian must sign on prior to start of live animal
-      experiments. Contact the University of Saskatchewan UACC Veterinarian at 306-966-4125.
-    category: team
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
   pk: 23
   fields:
     created: 2016-04-15 18:38:15+00:00
@@ -44494,28 +44481,6 @@
     name: Use Biosafety Cabinet
     description: Any work involving infectious materials must be performed in a Biosafety
       Cabinet.
-    category: guide
-    kind: engineering
-    active: true
-- model: samples.safetycontrol
-  pk: 28
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-09-07 14:11:01.867812+00:00
-    name: Use fume hood/glove box to manipulate nanomaterials
-    description: All work involving unfixed nanomaterials must be performed in a fume
-      hood and/or glove box.
-    category: guide
-    kind: engineering
-    active: true
-- model: samples.safetycontrol
-  pk: 29
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-09-07 14:11:16.373353+00:00
-    name: Inert atmosphere required
-    description: Sample preparation must be performed in an inert atmosphere. Contact
-      the HSE Department for assistance, if required.
     category: guide
     kind: engineering
     active: true
@@ -44604,144 +44569,6 @@
     kind: ppe
     active: true
 - model: samples.safetycontrol
-  pk: 37
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-06-07 14:59:46+00:00
-    name: Wear PPE for Radioactive materials
-    description: Gloves must be worn when handling radioactive materials.
-    category: ppe
-    kind: ppe
-    active: true
-- model: samples.safetycontrol
-  pk: 38
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Electrical Equipment Review Form
-    description: 'For each piece of electrical equipment, an Electrical Equipment
-      Review Form #8.11.11.1 must be completed prior to use of the electrical equipment
-      to verify compliance with applicable codes and standards.'
-    category: form
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 39
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-09-07 14:09:36.301909+00:00
-    name: Secure compressed gas cylinders
-    description: Compressed gas cylinders must be properly secured at all times. Never
-      store cylinders on transport carts. Store compressed gases in designated areas.
-      Contact the HSE Department for assistance, if required.
-    category: guide
-    kind: engineering
-    active: true
-- model: samples.safetycontrol
-  pk: 40
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Perform leak tests
-    description: Leak testing of possible leak points such as connections, valves,
-      manifolds, etc. must be performed. Contact the HSE Department for assistance,
-      or to acquire specific gas detector to monitor possible leaks.
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 41
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Label hazardous materials containers
-    description: 'Ensure containers with hazardous materials have a supplier or workplace
-      label, as per WHMIS requirements. Refer to Laboratory Safety #11.1.55.1 for
-      specific requirements.'
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 42
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-06-07 18:59:21+00:00
-    name: Label samples appropriately
-    description: All samples must be legibly labeled with product name and should
-      also include the User's name and CLSI project number, and date.
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 43
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Use Lab for sample preparation
-    description: All sample preparation  involving Workplace Hazardous Material Information
-      System (WHMIS) controlled products must be performed inside an appropriate laboratory.
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 44
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Label nanomaterials appropriately
-    description: Ensure samples which contain nanomaterials are labeled specifically
-      as containing nanomaterial.
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 45
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Hydrofluoric Acid delivery
-    description: Contact the CLS Floor Coordinator (ext. 3639) to obtain Hydrofluoric
-      Acid (HF).
-    category: delivery
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 46
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-08-26 15:29:36+00:00
-    name: GMO/RGL2 Delivery by BMIT Lab Manager
-    description: 'Contact the BMIT Lab Manager for delivery and removal of GMO/RGL2
-      materials. Note: ALL GMO/RGL2 materials MUST be stored in a Containment Level
-      II laboratory while on-site.'
-    category: delivery
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 47
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-08-26 15:29:52+00:00
-    name: GMO/RGL2 Delivery by Life Science Lab Manager
-    description: 'Contact the Life Sciences Lab Manager for delivery and removal of
-      GMO/RGL2 materials. Note: ALL GMO/RGL2 materials MUST be stored in a Containment
-      Level II laboratory while on-site.'
-    category: delivery
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 48
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Radioactive Sample Delivery
-    description: Deliver radioactive samples to CLSI HSE a minimum of two days prior
-      to experiment. Contact CLSI HSE Dept. to advise of delivery date. Samples will
-      be delivered to beamline by CLSI HSE prior to experiment.
-    category: delivery
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
   pk: 49
   fields:
     created: 2016-04-15 18:38:15+00:00
@@ -44749,40 +44576,7 @@
     name: Post Safety Data Sheet
     description: Post the printed copy of the Safety Data Sheet (SDS) above work station
       in laboratory behind Lab Permit and remove it upon completion of work. Contact
-      CLSI HSE Dept. to advise when you are ready to start your experiment.
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 50
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Lab Permit
-    description: A valid Lab Permit a#11.11.55.6a should be posted above work space
-      in laboratory if applicable.
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 51
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Live Animal In Use Sign
-    description: Post a aLive Animal In Usea sign at the entrance to the area where
-      live animal is held. Contact the Floor Coordinator to obtain signage.
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 52
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Biohazard Sign
-    description: Complete and post aBiohazarda sign at the entrance to the area where
-      biohazardous samples are in use. Contact the Floor Coordinator to obtain signage.
+      HSE Dept. to advise when you are ready to start your experiment.
     category: signage
     kind: administrative
     active: true
@@ -44795,133 +44589,6 @@
     description: Post approved Exposure Control Plan where work with infectious materials
       is being performed.
     category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 54
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Laser in Use Sign
-    description: Post aCaution - Laser in Usea sign when using laser(s). Contact the
-      HSE Department to obtain signage.
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 55
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Hydrofluoric Acid in Use Sign
-    description: 'Post "Caution - Restricted Access - Hydrofluoric Acid in Use" sign
-      at the entrance to the laboratory when Hydrofluoric acid is in use. Refer to
-      Hydrofluoric Acid Safe Handling Procedure #11.7.55.1 for definition of ain usea.
-      Contact the Floor Coordinator to obtain signage.'
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 56
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Hydrofluoric Acid Use Permit
-    description: 'Post approved Hydrofluoric Acid Use Permit #11.11.55.2 at the entrance
-      to the laboratory when Hydrofluoric acid is in use. Refer to Hydrofluoric Acid
-      Safe Handling Procedure #11.7.55.1 for definition of ain usea.'
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 57
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: 'SyLMAND Lab: Hydrofluoric Acid in Use Sign'
-    description: Post "Caution - Restricted Access - Hydrofluoric Acid in Use" sign
-      at the entrance to the laboratory for the duration of the experiment. Contact
-      the Floor Coordinator to obtain signage.
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 58
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: 'SyLMAND Fume Hood: Hydrofluoric Acid in Use Sign'
-    description: Post "Caution - Restricted Access - Hydrofluoric Acid in Use" sign
-      on the fumehood used for hydrofluoric acid preparations for the duration of
-      the experiment. Contact the Floor Coordinator to obtain signage.
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 59
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: 'SyLMAND Fume Hood: HF Use Permit'
-    description: 'Post HF Acid Use Permit a SyLMAND #11.11.55.7 above fumehood in
-      SyLMAND laboratory and fill in required information on form immediately prior
-      to HF use on each day that HF is used.'
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 60
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-06-07 15:15:37+00:00
-    name: Radioactive Samples In Use
-    description: CLS will provide signage
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 61
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Dispersible Nanomaterials In Use Sign
-    description: Post "Restricted Access a Dispersible/Unbound Nanomaterials In Use"
-      sign on fumehood when working with dispersible/unbound nanomaterial in fumehood.
-      Contact the Floor Coordinator to obtain signage.
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 62
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Post Standard Operating Procedure
-    description: Post relevant SOP at location where associated work is being conducted
-      for the duration of the experiment.
-    category: signage
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 63
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Hazardous Material Disposal
-    description: 'Dispose samples and materials in accordance with the Hazardous Material
-      Management Plan #11.12.56.1 or transport them back to home institution.'
-    category: disposal
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 64
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: HF Disposal
-    description: 'Dispose hydrogen fluoride materials in accordance with Hydrofluoric
-      Acid Safe Handling Procedure #11.7.55.1.'
-    category: disposal
     kind: administrative
     active: true
 - model: samples.safetycontrol
@@ -44947,74 +44614,6 @@
     kind: administrative
     active: true
 - model: samples.safetycontrol
-  pk: 67
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Radioactive waste disposal
-    description: All radioactive samples and any radioactive waste generated must
-      be returned to User's home institution and/or removed at User's expense.
-    category: disposal
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 68
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Storage between visits
-    description: Contact the HSE Department if materials require storage between visits
-      to the CLS.
-    category: disposal
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 69
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-06-07 18:58:42+00:00
-    name: No unauthorized storage
-    description: No unauthorized storage of materials is allowed at the CLS facility.
-      Any materials left at the CLS without authorization will be removed at the User's
-      expense.
-    category: disposal
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 70
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Store in designated area
-    description: Store hazardous chemicals in designated CLS areas. Contact the HSE
-      Department for assistance if required.
-    category: disposal
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 71
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: HF Storage
-    description: 'Store hydrogen fluoride materials in accordance with Hydrofluoric
-      Acid Safe Handling Procedure #11.7.55.1.'
-    category: disposal
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 72
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Hazardous Gas Storage
-    description: 'Store hazardous gases in designated areas as per Laboratory Safety
-      #11.1.55.1 and CLSI Transport Procedure for Hazardous Compressed Gases #11.7.56.6.
-      Contact the HSE Department for assistance if required.'
-    category: disposal
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
   pk: 73
   fields:
     created: 2016-04-15 18:38:15+00:00
@@ -45022,108 +44621,6 @@
     name: Secure Radioactive Samples
     description: Ensure all radioactive samples are accounted for and secured before
       and during experiment.
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 74
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Operate Lasers Safely
-    description: Ensure that the laser or laser device is installed, operated, labeled
-      and maintained in accordance with American National Standards Institute (ANSI)
-      Z136.1-2000, Safe Use of Lasers; and fully inform all workers and users who
-      may be exposed to radiation from a laser or laser device of class 2, 3a, 3b
-      or 4 as to the hazards of this radiation under the conditions of use. Contact
-      the HSE Department to verify compliance.
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 75
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Biological Safety
-    description: 'Handling of all biological samples/materials must follow CLSI Biosafety
-      11.1.55.2. Use Level 2 operational practice when handling RGL2 biological samples.
-      Refer to Laboratory Safety #11.1.55.1.'
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 76
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Laboratory Safety
-    description: 'Follow Laboratory Safety #11.1.55.1 while working in CLS laboratories.'
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 77
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: On-site Transport
-    description: 'Transport samples to and within the CLS facility as per Sample and
-      Material Transport Procedures #11.7.1.1.'
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 78
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Animal Care
-    description: Care and use of live animals must follow CLSI Animal Care and Use
-      11.1.55.3.
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 79
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Compressed Gas Transport
-    description: 'Transport compressed gases within the CLS facility as per Sample
-      and Material Transport Procedures #11.7.1.1.'
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 80
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: HF Handling Procedure
-    description: 'Follow Hydrofluoric Acid Safe Handling Procedure #11.7.55.1 when
-      working with or near Hydrofluoric Acid.'
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 81
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: No Radiological sample preparation
-    description: Radiological sample preparation is not allowed at the CLS.
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 82
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Radioactive Containment
-    description: Appropriate containment at experimental area is required while radioactive
-      samples are in use. Containment will be provided by CLS.
     category: guide
     kind: administrative
     active: true
@@ -45145,7 +44642,7 @@
     modified: 2016-04-15 18:38:15+00:00
     name: Keep Radioactive materials in designated area
     description: Samples, containment, and PPE must remain within designated area
-      during experiment and until experimental area is decommissioned by CLSI HSE.
+      during experiment and until experimental area is decommissioned by HSE.
     category: guide
     kind: administrative
     active: true
@@ -45155,7 +44652,7 @@
     created: 2016-04-15 18:38:15+00:00
     modified: 2016-04-15 18:38:15+00:00
     name: Radiation Surveys Required
-    description: CLSI HSE will perform radiation surveys prior to and after experiment
+    description: HSE will perform radiation surveys prior to and after experiment
       and allow removal of items after area is decommissioned.
     category: guide
     kind: administrative
@@ -45166,55 +44663,9 @@
     created: 2016-04-15 18:38:15+00:00
     modified: 2016-04-15 18:38:15+00:00
     name: Contact HSE if case of actual/potential containment breach
-    description: Contact CLSI HSE Dept. (ext. 3663) in case of actual or potential
+    description: Contact HSE Dept. in case of actual or potential
       breach of containment.
     category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 87
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Survey and dispose gloves after handling radioactive samples
-    description: 'Survey and dispose of gloves after handling radioactive samples
-      as per Radioactive sample handling training #11.11.53.20. A waste container
-      will be provided.'
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 88
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Sealed Source Handling
-    description: 'Follow safe handling procedures as per Sealed Source Handling and
-      Tracking Procedure #11.7.53.2'
-    category: guide
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 89
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Sealed Source Request Form
-    description: Return completed Sealed Source Request Form 11.11.53.1 to the Health,
-      Safety & Environment department for approval and to then obtain required sealed
-      source.
-    category: form
-    kind: administrative
-    active: true
-- model: samples.safetycontrol
-  pk: 90
-  fields:
-    created: 2016-04-15 18:38:15+00:00
-    modified: 2016-04-15 18:38:15+00:00
-    name: Hazardous Gas SOP Form
-    description: 'Post approved SOP Template for Hazardous Gas Use #11.11.55.18 where
-      work with hazardous gas is being performed'
-    category: form
     kind: administrative
     active: true
 - model: samples.safetypermission

@@ -39,7 +39,7 @@ class UserFeedback(DynCreateView):
 
 
 class ReviewCycleFeedback(RolePermsViewMixin, detail.DetailView):
-    template_name = "proposals/cycle_feedback.html"
+    template_name = "proposals/cycle-feedback.html"
     model = ReviewCycle
     admin_roles = USO_ADMIN_ROLES
 

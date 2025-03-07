@@ -1,13 +1,16 @@
 import functools
+import itertools
 import operator
+import time
 from itertools import chain
 
 from crispy_forms.bootstrap import StrictButton, AppendedText, InlineCheckboxes, FormActions, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
+from crispy_forms.templatetags.crispy_forms_field import css_class
 from django import forms
 from django.urls import reverse
-from django.db.models import Case, When, Q, IntegerField, Sum, Value
+from django.db.models import Case, When, Q, IntegerField, Sum, Value, Count
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -80,24 +83,19 @@ class ReviewForm(DynFormMixin, forms.ModelForm):
 
 
 class ReviewerForm(forms.Form):
-    reviewer = forms.ModelChoiceField(
-        queryset=models.Reviewer.objects.all(),
-        widget=forms.HiddenInput,
-        required=True
-    )
     techniques = forms.ModelMultipleChoiceField(
-        queryset=models.Technique.objects.all(),
+        queryset=models.Technique.objects.none(),
         widget=forms.CheckboxSelectMultiple,
         required=False
     )
     areas = forms.ModelMultipleChoiceField(
         label="Main Areas",
-        queryset=models.SubjectArea.objects.filter(category__isnull=True).order_by('name'),
+        queryset=models.SubjectArea.objects.none(),
         required=False
     )
     sub_areas = forms.ModelMultipleChoiceField(
         label=_("Sub-areas"),
-        queryset=models.SubjectArea.objects.exclude(category__isnull=True).order_by('name'),
+        queryset=models.SubjectArea.objects.none(),
         required=False
     )
 
@@ -118,7 +116,8 @@ class ReviewerForm(forms.Form):
                 techs[kind] = qs.count()
                 if 'techniques' in self.initial:
                     self.fields[kind].initial = self.initial['techniques'].filter(category=kind)
-
+        self.fields['areas'].queryset = models.SubjectArea.objects.filter(category__isnull=True).order_by('name')
+        self.fields['sub_areas'].queryset = models.SubjectArea.objects.exclude(category__isnull=True).order_by('name')
         tech_fields = Div(
             Div(
                 HTML(
@@ -138,26 +137,44 @@ class ReviewerForm(forms.Form):
                 )
             )
 
+        reviewer = self.initial.get('reviewer')
         if admin:
-            if self.initial['reviewer'].active:
-                extra_btns = Div(
-                    StrictButton('Disable Reviewer', type='submit', name="submit", value='disable',
-                                 css_class="btn btn-danger"),
-                    css_class="pull-left"
+            if reviewer and reviewer.active:
+                disable_btn = StrictButton(
+                    'Disable Reviewer', type='submit', name="submit", value='disable',
+                    css_class="btn btn-danger"
                 )
             else:
-                extra_btns = Div(
-                    StrictButton('Re-Enable Reviewer', type='submit', name="submit", value='enable',
-                                 css_class="btn btn-warning"),
-                    css_class="pull-left"
+                disable_btn = StrictButton(
+                    'Enable Reviewer', type='submit', name="submit", value='enable',
+                    css_class="btn btn-warning"
                 )
+
+            if reviewer and reviewer.is_suspended():
+                suspend_btn = StrictButton(
+                    'Reinstate Reviewer', type='submit', name="submit", value='reinstate',
+                    css_class="btn btn-info"
+                )
+            else:
+                suspend_btn = StrictButton(
+                    'Opt Out', type='submit', name="submit", value='suspend',
+                    css_class="btn btn-secondary"
+                )
+            extra_btns = Div(
+                disable_btn,
+                suspend_btn,
+                css_class="pull-left"
+            )
+
         else:
             extra_btns = Div(css_class="pull-left")
 
         self.helper = FormHelper()
-        self.helper.title = "Edit {0}'s Reviewer Profile".format(self.initial['reviewer'].user.get_full_name())
+        if reviewer:
+            self.helper.title = f"Edit {reviewer.user.get_full_name()}'s Reviewer Profile"
+        else:
+            self.helper.title = "Add Reviewer Profile"
         self.helper.layout = Layout(
-            Field('reviewer', readonly=True),
             Div(
                 Div(
                     HTML(
@@ -190,24 +207,26 @@ class ReviewerForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         for tech in models.Technique.TYPES:
-            cleaned_data['techniques'] = list(chain(cleaned_data.get(tech[0], []), cleaned_data['techniques']))
-        cleaned_data['areas'] = list(chain(cleaned_data.get('areas', []),
-                                           [sa for sa in cleaned_data.get('sub_areas', []) if
-                                            sa.category in cleaned_data.get('areas', [])]))
+            cleaned_data['techniques'] = list(
+                chain(cleaned_data.get(tech[0], []), cleaned_data['techniques'])
+            )
+        cleaned_data['areas'] = list(
+            chain(
+                cleaned_data.get('areas', []),
+                [sa for sa in cleaned_data.get('sub_areas', []) if sa.category in cleaned_data.get('areas', [])]
+            )
+        )
         return cleaned_data
 
 
-class OptOutForm(forms.Form):
-    cycle = forms.ModelChoiceField(
-        queryset=models.ReviewCycle.objects.all(),
-        label=_("Review Cycle"),
-        required=False,
-        widget=forms.HiddenInput
-    )
-    reason = forms.CharField(
-        required=False,
-        label="Let us know why you are opting out for this round of reviews (optional)"
-    )
+class OptOutForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Reviewer
+        fields = ['comments']
+        widgets = {
+            'comments': forms.Textarea(attrs={'rows': 3, }),
+        }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
@@ -220,12 +239,11 @@ class OptOutForm(forms.Form):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field('cycle', readonly=True),
                     Div(
                         HTML("{% include 'proposals/forms/optout-header.html' %}"),
                         css_class="col-xs-12"
                     ),
-                    Div('reason', css_class="col-xs-12"),
+                    Div('comments', css_class="col-xs-12"),
                     css_class="col-xs-12 narrow-gutter"
                 ),
                 css_class="row"
@@ -354,9 +372,13 @@ class ReviewTrackForm(forms.ModelForm):
     class Meta:
         model = models.ReviewTrack
         fields = ('name', 'acronym', 'description',
-                  'min_reviewers', 'max_proposals', 'committee')
+                  'min_reviewers', 'max_workload', 'committee')
         widgets = {
             'description': forms.Textarea(attrs={'rows': 2, }),
+        }
+        help_texts = {
+            'min_reviewers': 'Committee members per proposal',
+            'max_workload': 'Maximum reviewer workload',
         }
 
     def __init__(self, *args, **kwargs):
@@ -373,7 +395,7 @@ class ReviewTrackForm(forms.ModelForm):
                 Div("acronym", css_class="col-sm-4"),
                 Div("description", css_class="col-sm-12"),
                 Div("min_reviewers", css_class="col-sm-6"),
-                Div("max_proposals", css_class="col-sm-6"),
+                Div("max_workload", css_class="col-sm-6"),
                 Div(Field("committee", css_class="chosen"), css_class="col-sm-12"),
                 css_class="row narrow-gutter"
             ),
@@ -448,34 +470,22 @@ class ReviewerAssignmentForm(forms.ModelForm):
         track = self.instance.track
 
         prop_info = utils.get_submission_info(self.instance)
-
         tech_filter = Q(techniques__in=prop_info['techniques'])
         area_filter = Q(areas__in=prop_info['areas'])
 
-        reviewers = cycle.reviewers.filter(tech_filter, area_filter, Q(committee__isnull=True))
-        reviewers = reviewers.distinct().annotate(
-            num_reviews=Sum(
-                Case(
-                    When(Q(user__reviews__cycle=cycle), then=Value(1)),
-                    default=Value(0),
-                    output_field=IntegerField()
-                )
-            ),
+        reviewers = models.Reviewer.objects.available(cycle).filter(tech_filter, area_filter)
+        reviewers = reviewers.annotate(
+            num_reviews=Count('user__reviews', filter=Q(user__reviews__cycle=cycle), distinct=True)
         )
 
-        if track.max_proposals > 0:
-            reviewers = reviewers.exclude(num_reviews__gt=track.max_proposals)
+        if track.max_workload > 0:
+            reviewers = reviewers.exclude(num_reviews__gt=track.max_workload)
 
-        valid = [
-            rev.pk for rev in reviewers.all()
-            if not utils.veto_conflict(prop_info, utils.get_reviewer_info(rev))
-        ] + [
-            rev.pk for rev in track.committee.all()
-            if not utils.veto_conflict(prop_info, utils.get_reviewer_info(rev))
-        ]
-        reviewers = models.Reviewer.objects.filter(Q(pk__in=valid)).order_by('committee')
+        available = models.Reviewer.objects.filter(pk__in=list(
+            itertools.chain(reviewers.values_list('pk', flat=True), track.committee.values_list('pk', flat=True))
+        )).order_by('committee')
 
-        self.fields['reviewers'].queryset = reviewers.distinct()
+        self.fields['reviewers'].queryset = available
         self.helper.title = 'Add Reviewers'
         self.helper.layout = Layout(
             Div(
@@ -583,6 +593,61 @@ class ReviewCommentsForm(forms.ModelForm):
                     ),
                     css_class="col-xs-12"
                 ),
+                css_class="modal-footer row"
+            ),
+        )
+
+
+class ReviewStageForm(forms.ModelForm):
+    class Meta:
+        model = models.ReviewStage
+        fields = ['track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score']
+        widgets ={
+            'track': forms.HiddenInput(),
+            'kind': forms.Select(attrs={'class': 'chosen'}),
+            'blocks': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'chosen'},),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        if self.instance and self.instance.pk:
+            track = self.instance.track
+            self.helper.title = "Edit Review Stage Information"
+            delete_url = reverse(
+                "delete-review-stage", kwargs={'pk': self.instance.pk, 'track': track.acronym}
+            )
+            buttons = Div(
+                StrictButton('Delete', id="delete-object", css_class="btn btn-danger pull-left", data_url=delete_url),
+                StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary pull-right'),
+                StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-right"),
+                css_class="col-xs-12"
+            )
+        else:
+            track = self.initial['track']
+            self.fields['kind'].queryset = models.ReviewType.objects.exclude(stages__track=track)
+            self.helper.title = "Add Review Stage"
+            buttons = Div(
+                StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary pull-right'),
+                StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-right"),
+                css_class="col-xs-12"
+            )
+
+        self.helper.form_action = self.request.get_full_path()
+        self.helper.layout = Layout(
+            Div(
+                Div("kind", css_class="col-sm-6"),
+                Div("position", css_class="col-sm-6"),
+                Div("min_reviews", css_class="col-sm-4"),
+                Div("pass_score", css_class="col-sm-4"),
+                Div("blocks", css_class="col-sm-4"),
+                css_class="row narrow-gutter"
+            ),
+            Div(
+                'track',
+                buttons,
                 css_class="modal-footer row"
             ),
         )

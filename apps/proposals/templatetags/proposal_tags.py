@@ -1,5 +1,6 @@
 import functools
 import operator
+import urllib.parse
 from mimetypes import MimeTypes
 
 from django import template
@@ -7,7 +8,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from proposals import models
-from proposals.utils import color_scale, get_techniques_matrix
+from proposals.utils import scale_color, get_techniques_matrix
 from django.conf import settings
 from users.models import User
 from ..models import Proposal, Review
@@ -117,6 +118,15 @@ def display_state(review):
              '<div class="{style}" style="width: {size};"></div></span>').format(**params)
     return mark_safe(state)
 
+
+@register.filter
+def review_email(review):
+    return mark_safe('&'.join([
+        f"subject=Re: {review}",
+        f"body=Dear {review.reviewer.first_name},%0D%0A"
+        f"I'm writing concerning review {review} at {review.get_absolute_url()}%0D%0A."
+        f"...\n"
+    ]))
 
 
 @register.simple_tag(takes_context=True)
@@ -272,7 +282,7 @@ def get_cycle_options(context):
 def team_roles(roles):
     ROLES = {'leader': 'P', 'delegate': 'D', 'spokesperson': 'S'}
     roles = [ROLES.get(r) for r in roles if r in ROLES]
-    return '({0})'.format(', '.join(roles)) if roles else ''
+    return f'({", ".join(roles)})' if roles else ''
 
 
 @register.inclusion_tag("proposals/facility-reqs.html", takes_context=True)
@@ -343,7 +353,7 @@ def reviewer_reviews(context):
 @register.simple_tag(takes_context=True)
 def update_review_data(context):
     data = context['data']
-    context['review_types'] = models.ReviewType.objects.filter(code__in=USO_SAFETY_REVIEWS)
+    context['review_types'] = models.ReviewType.objects.safety()
     if isinstance(data, dict) and data.get('review'):
         review = models.Review.objects.filter(pk=data.get('review')).first()
         if review:
@@ -362,7 +372,7 @@ def get_technique(pk):
 
 @register.filter(name="color_scale")
 def color_scale(val):
-    return color_scale(val)
+    return scale_color(val)
 
 
 @register.simple_tag(takes_context=True)

@@ -65,6 +65,7 @@
 </div>
 {% include "messages.html" %}
 <div id="modal-form"></div>
+<form class="hidden" id="logout-form" action="{% url 'portal-logout' %}" method="post">{% csrf_token %}</form>
 <!-- Bootstrap -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-migrate/1.4.1/jquery-migrate.js" integrity="sha512-aXhtv7JyykxclIxaskNvi+ccQ9tHYSw3JeKpY2xQ1OnqrczvNmYKkxzcXSdi8j+TVNsX4+ju8Jy2odH04GEg8w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/chosen-js@1.8.7/chosen.jquery.min.js" integrity="sha256-c4gVE6fn+JRKMRvqjoDp+tlG4laudNYrXI1GncbfAYY=" crossorigin="anonymous"></script>
@@ -119,15 +120,6 @@ $(document).ready(function(){
         e.preventDefault();
     });
 
-	//Display help information in a footer
- 	{#$('.help-btn').click(function(){#}
-	{#var loadUrl = '{% url "help-info" %}?module='+ $(this).attr('rel');#}
- 	{#	$("#help-content").load(loadUrl, function(){#}
- 	{#    	$('#help-content').toggleClass('removed shown');#}
- 	{#		$('.content.main-content').toggleClass('with-help');#}
- 	{#	});#}
- 	{#});#}
-
 	// Remove modal content after it is hidden
  	$(document).on('hidden.bs.modal', '.modal', function () {
  	    $(this).remove();
@@ -143,6 +135,12 @@ $(document).ready(function(){
     $(".scroll-box").scroll(function(){
         $(this).getNiceScroll().resize();
     });
+
+    $(document).on('click', 'a[href="#logout-action"]', function(e){
+        e.preventDefault();
+        $('#logout-form').submit();
+    });
+
     {% if request.user.is_authenticated %}
         //setInterval(serverHeartBeat, 3000);
     {% endif %}

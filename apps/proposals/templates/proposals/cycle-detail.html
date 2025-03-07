@@ -36,7 +36,7 @@
                 <span class="tool-label">Edit</span>
             </a>
         {% endif %}
-        <a href='{% url "change-cycle-reviewers" pk=object.pk %}' class="pull-right">
+        <a href='{% url "reviewer-list" %}' class="pull-right">
             <i class="bi-people icon-2 icon-fw"></i><br/>
             <span class="tool-label">Reviewers</span>
         </a>
@@ -82,22 +82,57 @@
 {% endblock %}
 
 {% block folio-content %}
-    <div class="row narrow-gutter">
+    <div class="folio-status bg-darken">
+        <div style="width: 100%; padding: 0.5em 0;" id="timeline" data-toggle="tooltip" title="Cycle Timeline"></div>
+    </div>
+    <div class="row">
         <div class="col-xs-12">
-            <div class="bottom-border" style="width: 100%;" id="timeline" data-toggle="tooltip"
-                 title="Cycle Timeline"></div>
-        </div>
-        {% for track in tracks %}
-            <div class="col-xs-12">
-                {% show_track track info %}
+            <ul id="#track-tabs" class="nav nav-tabs" style="margin-top: 1em;">
+                {% for track in tracks  %}
+                    <li class="{% if forloop.first %}active{% endif %}">
+                        <a href="#nav-track-{{ forloop.counter }}"
+                           data-toggle="tab"
+                           class="bg-track-{{ forloop.counter }}"
+                           {% if forloop.first %}aria1-expanded="true"{% endif %}
+                        >
+                            <strong>{{ track.acronym }}</strong><span class="hidden-xs">&nbsp;&ndash;&nbsp;{{ track.name }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="tab-content">
+                {% for track in tracks %}
+                    <div class="tab-pane bg-track-{{ forloop.counter }} {% if forloop.first %}active{% endif %}"
+                         id="nav-track-{{ forloop.counter }}"
+                         data-page-number="{{ forloop.counter0 }}">
+                        {% show_track track %}
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
     </div>
 {% endblock %}
 
 {% block extra_js %}
-    {% include "proposals/cycle_timeline.html" %}
+    {% include "proposals/cycle-timeline.html" %}
     <script>
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            let target = $(e.target).attr('href');
+            if (history.pushState) {
+                history.pushState(null, null, target);
+            } else {
+                location.hash = target;
+            }
+        });
+
+        let hash = window.location.hash;
+        hash = hash.replace('#', '');
+        if (hash) {
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+            }, 0);
+            $(`a[href="#${hash}"]`).tab('show');
+        }
         function plot_reviewer_bars(plot_element, data, domain) {
             var margin = {
                     top: 0,

@@ -47,3 +47,8 @@ def spend(context, name, value):
 def define(context, **kwargs):
     for k, v in list(kwargs.items()):
         context[k] = v
+
+
+@register.inclusion_tag('misc/stat-card.html')
+def stat_card(**kwargs):
+    return kwargs

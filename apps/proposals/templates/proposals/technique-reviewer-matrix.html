@@ -1,0 +1,30 @@
+{% if cycle.state == cycle.STATES.assign  and techniques %}
+    <div class="col-xs-12" style="padding-top: 1em;">
+        <h5>Reviewer Redundancy</h5>
+        <hr class="hr-xxs"/>
+    </div>
+    <div class="col-xs-12">
+        <div class="row">
+            {% for tech, counts in techniques.items %}
+                <div class="col-sm-12 col-md-6 col-lg-4">
+                    <div class="count-list-item">
+                        <div class="name overflow ellipsis text-condensed">
+                            {{ tech }}&nbsp;&ndash;&nbsp;{{ counts.name | truncatechars:40 }}
+                        </div>
+                        <div class="value">
+                            <span class="text-info-light" style="border-right: 1px solid rgba(0,0,0,0.15); padding-right: 0.25em;">{{ counts.submissions }}&nbsp;</span>
+                            <span class="text-danger-light" style="padding-left: 0.25em;">{{ counts.reviewers }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-xs-12">
+        <small class="text-muted">
+            <i class="bi-circle-fill text-info-light"></i>&nbsp;Proposals &emsp;
+            <i class="bi-circle-fill text-danger-light"></i>&nbsp;Reviewers
+            (Showing only the bottom 20 techniques by redundancy.)
+        </small>
+    </div>
+{% endif %}

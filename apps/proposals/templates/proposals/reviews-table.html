@@ -6,7 +6,7 @@
         <thead>
         <tr>
             <th colspan="2">Review</th>
-            {%  if admin %}<th>Reviewer</th> {%  endif %}
+            {%  if admin or committee_member %}<th>Reviewer</th> {%  endif %}
             <th>Date</th>
             <th>Score/Overall</th>
             <th>Scores/Details</th>
@@ -21,7 +21,17 @@
         <tr>
             <td width="10%">{{ rev | display_state }}</td>
             <td>{{ rev.type }}</td>
-            {%  if admin %}<td>{{ rev.assigned_to }}</td> {% endif %}
+            {%  if admin or committee_member %}
+                <td>
+                {% if rev.reviewer.reviewer.committee %}
+                    <a href="mailto:{{ rev.reviewer.email }}?{{ rev|review_email }}">{{rev.assigned_to}}</a> <i class="bi-award text-warning"></i>
+                {% elif rev.reviewer %}
+                    <a href="mailto:{{ rev.reviewer.email }}?{{ rev|review_email }}">{{rev.assigned_to}}</a>
+                {% else %}
+                    {{rev.assigned_to}}
+                {% endif %}
+                </td>
+            {% endif %}
             <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.modified|date }}{% elif rev.due_date %}Due {{ rev.due_date|date }}{% else %}&hellip;{% endif %}</td>
             <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.score|floatformat:1 }}{% else %}<em class="text-muted">incomplete</em>{%  endif %}</td>
             <td>{% if rev.state >= rev.STATES.submitted %}{{ rev|display_scores }}{% else %}<em class="text-muted">incomplete</em>{%  endif %}</td>
@@ -29,6 +39,7 @@
                 {% if rev.state >= rev.STATES.submitted and rev.comments %}
                 <a title="Show/Hide Comments" href='#comments-{{rev.pk}}'
                    role="button"
+                   aria-expanded="false"
                    aria-controls="comments-{{rev.pk}}"
                    data-toggle="collapse"><i class="bi-chat-left-dots icon-fw"></i>
                 </a>
@@ -47,9 +58,9 @@
         {% if rev.comments %}
         <tr class="merge-up hidden-row">
             <td colspan=6">
-                <div id="comments-{{rev.pk}}" class="collapse in tinytron bg-warning" style="padding: 0.5em;">
+                <ul id="comments-{{rev.pk}}" class="tinytron bg-info collapse list-unstyled" style="padding: 0.5em;">
                     <strong>Comments:</strong>{{ rev.comments|default:"&hellip;"|markdown }}
-                </div>
+                </ul>
             </td>
         </tr>
         {% endif %}

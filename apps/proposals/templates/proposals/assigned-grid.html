@@ -7,20 +7,24 @@
         </div>
         <div class="col-xs-12 col-sm-4">
             <div class="row no-space bg-transparent">
-                {% for rev in submission.reviews.scientific %}
+                {% for review in submission.reviews|for_stage:stage %}
                 <div class="col-xs-12 grid-reviewer">
-                    <a href="#/" class="col-xs-8" data-url="{% url  'show-compatibility' pk=rev.pk %}">
-                        {% if rev.reviewer.reviewer.committee %}
-                            {{rev.reviewer}} <i class="bi-award text-warning"></i>
+                {% if stage.kind.is_scientific %}
+                    <a href="#/" class="col-xs-8" data-url="{% url  'show-compatibility' pk=review.pk %}">
+                        {% if review.reviewer.reviewer.committee %}
+                            {{review.assigned_to}} <i class="bi-award text-warning"></i>
                         {% else %}
-                            {{rev.reviewer}}
+                            {{review.assigned_to}}
                         {% endif %}
                     </a>
                     <span class="text-muted">
-                        {{rev.reviewer|review_compat:submission}}
+                        {{review.reviewer|review_compat:submission}}
                     </span>
-                    {% if rev.state == rev.STATES.pending and not rev.reviewer.committee %}
-                        <a href="#/" title="Remove Reviewer" data-url="{% url 'delete-review' pk=rev.pk %}"
+                {% else %}
+                    {{review.assigned_to}}
+                {% endif %}
+                    {% if stage.kind.is_scientific and review.state == review.STATES.pending and not review.reviewer.committee %}
+                        <a href="#/" title="Remove Reviewer" data-url="{% url 'delete-review' pk=review.pk %}"
                            class="pull-right text-danger"><i class="bi-x icon-lg"></i>
                         </a>
                     {% else %}
@@ -28,9 +32,9 @@
                     {% endif %}
                 </div>
                 {% endfor %}
-                {%  if submission.cycle.state == submission.cycle.STATES.assign %}
+                {%  if cycle.state == cycle.STATES.assign and stage.kind.is_scientific %}
                     <div class="col-xs-12 grid-reviewer">
-                        <a href="#/" title="Add Reviewer" data-url="{% url 'add-reviewer-assignment' pk=submission.pk %}"
+                        <a href="#/" title="Add Reviewer" data-url="{% url 'add-reviewer-assignment' pk=submission.pk stage=stage.pk %}"
                            class="text-success pull-right"><i class="bi-plus-circle icon-lg"></i>
                         </a>
                     </div>

@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, detail
@@ -59,6 +59,14 @@ class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
     model = models.Facility
     admin_roles = USO_ADMIN_ROLES
 
+    def get_object(self, *args, **kwargs):
+        if self.kwargs.get('fac'):
+            object = models.Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
+            if not object:
+                raise Http404
+            return object
+        return super().get_object(*args, **kwargs)
+
     def check_admin(self):
         facility = self.get_object()
         return super().check_admin() or facility.is_admin(self.request.user)
@@ -76,8 +84,8 @@ class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
             parent = parent.parent
         config_items = ConfigItem.objects.filter(filters)
         if config_items.count():
-            one_year_ahead = (timezone.now() + timedelta(days=365)).date()
-            context['cycles'] = ReviewCycle.objects.filter(end_date__lte=one_year_ahead).order_by('-start_date')[:6]
+            six_months_ago = (timezone.now() - timedelta(days=178)).date()
+            context['cycles'] = ReviewCycle.objects.filter(end_date__gte=six_months_ago).order_by('start_date')[:4]
         return context
 
 

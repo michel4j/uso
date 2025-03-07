@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.views.generic import detail, edit, View, TemplateView
 from itemlist.views import ItemListView
 from rest_framework import generics, permissions
@@ -204,7 +205,7 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
             return '{} Projects'.format(self.facility.acronym)
 
     def check_allowed(self):
-        self.facility = Facility.objects.get(pk=self.kwargs['fac'])
+        self.facility = Facility.objects.get(acronym=self.kwargs['fac'])
         allowed = super().check_allowed() or self.facility.is_staff(self.request.user)
         return allowed
 
@@ -295,18 +296,20 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
     model = models.ShiftRequest
     template_name = "item-list.html"
     paginate_by = 15
-    list_columns = ['allocation__project', 'created', 'allocation__beamline', 'shift_request', 'state']
+    list_columns = ['project', 'spokesperson', 'facility', 'shift_request', 'created', 'state']
     list_filters = ['created', 'modified', 'state']
-    list_search = ['project__title', 'project__spokesperson__username', 'project__id',
-                   'project__spokesperson__last_name',
-                   'project__spokesperson__first_name', 'id']
+    list_search = ['allocation__project__title', 'allocation__project__spokesperson__username', 'project__id',
+                   'allocation__project__spokesperson__last_name',
+                   'allocation__project__spokesperson__first_name', 'id']
+    link_url = "manage-shift-request"
+    link_attr = 'data-url'
     order_by = ['-modified', 'state']
     list_title = 'Shift Requests'
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
     def get_list_title(self):
-        return '{} Shift Requests: {}'.format(self.facility.acronym, self.cycle)
+        return f'{self.facility.acronym} Shift Requests: {self.cycle}'
 
     def check_allowed(self):
         self.facility = Facility.objects.get(pk=self.kwargs['pk'])
@@ -315,7 +318,9 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
         return allowed
 
     def get_queryset(self, *args, **kwargs):
-        self.queryset = models.ShiftRequest.objects.filter(allocation__beamline=self.kwargs['pk'])
+        self.queryset = models.ShiftRequest.objects.filter(
+            allocation__beamline=self.kwargs['pk'], allocation__cycle=self.kwargs['cycle']
+        )
         return super().get_queryset(*args, **kwargs)
 
 
@@ -455,10 +460,8 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
-
-        limit = timezone.now() + timedelta(days=4)
         self.project = models.Project.objects.get(pk=self.kwargs['pk'])
-        self.beamtime = self.project.beamtimes.filter(start__gte=timezone.now(), end__lte=limit, beamline=self.facility).first()
+        self.beamtime = self.project.beamtimes.filter(pk=self.kwargs.get('event')).first()
 
         one_shift = timedelta(hours=self.facility.shift_size)
         start = timezone.localtime(self.beamtime.start) if self.beamtime else timezone.localtime(timezone.now())
@@ -468,8 +471,9 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
         initial['end_date'] = end.date()
         initial['start_time'] = start.strftime('%H:%M')
         initial['end_time'] = end.strftime('%H:%M')
-        print(timezone.localtime(self.beamtime.start), timezone.localtime(self.beamtime.end))
-        print(initial)
+
+        print(initial, self.beamtime)
+
         return initial
 
     def form_valid(self, form):
@@ -962,7 +966,7 @@ class UpdateTeam(RolePermsViewMixin, edit.UpdateView):
         initial.update(
             {
                 'team_members': self.project.team_members(), 'leader': self.project.get_leader(),
-                'delegate': self.project.get_delegate(),
+                'delegate': self.project.delegate,
                 'invoice_address': self.project.invoice_address(), 'invoice_email': self.project.invoice_email()
             }
         )
@@ -1043,7 +1047,7 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         self.cycle = ReviewCycle.objects.filter(pk=self.kwargs['pk']).first()
         allowed = (
             super().check_allowed() or self.facility.is_admin(self.request.user)
-        ) and (self.cycle.state == self.cycle.STATES.evaluation)
+        ) and (self.cycle.state >= self.cycle.STATES.evaluation)
         return allowed
 
     def get_context_data(self, **kwargs):
@@ -1332,7 +1336,7 @@ class AskClarification(RequestClarification):
         full_url = "{}{}".format(getattr(settings, 'SITE_URL', ""), success_url)
 
         sent = []
-        for user in [project.spokesperson, project.get_delegate(), project.leader()]:
+        for user in [project.spokesperson, project.delegate, project.leader]:
             if not user:
                 continue
             if isinstance(user, dict):
@@ -1635,6 +1639,33 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
         self.object.tags.add(*tags)
         messages.add_message(self.request, messages.SUCCESS, msg)
         return HttpResponseRedirect(success_url)
+
+
+class AdminShiftRequest(RolePermsViewMixin, edit.UpdateView):
+    model = models.ShiftRequest
+    form_class = forms.RequestAdminForm
+    template_name = "projects/forms/request-admin.html"
+    allowed_roles = USO_ADMIN_ROLES
+
+    def check_allowed(self):
+        return super().check_allowed() or self.object.allocation.beamline.is_admin(self.request.user)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_success_url(self):
+        cycle = self.object.allocation.cycle
+        return reverse("shift-request-list", kwargs={'pk': self.object.allocation.beamline.pk, 'cycle': cycle.pk})
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        return JsonResponse(
+            {
+                "url": self.get_success_url()
+            }
+        )
 
 
 class RequestPreferencesAPI(RolePermsViewMixin, View):
