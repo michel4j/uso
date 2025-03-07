@@ -142,13 +142,13 @@ class SubmissionQuerySet(QuerySet):
 
             annotations[f"{rev_type.code}_avg"] = Avg(
                 Case(
-                    When(Q(reviews__is_complete=True, reviews__type=rev_type), then=F('reviews__score')),
+                    When(Q(reviews__state__gte=Review.STATES.submitted, reviews__type=rev_type), then=F('reviews__score')),
                     output_field=models.FloatField()
                 )
             )
             annotations[f"{rev_type.code}_std"] = StdDev(
                 Case(
-                    When(Q(reviews__is_complete=True, reviews__type=rev_type), then=F('reviews__score')),
+                    When(Q(reviews__state__gte=Review.STATES.submitted, reviews__type=rev_type), then=F('reviews__score')),
                     output_field=models.FloatField()
                 )
             )

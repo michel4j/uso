@@ -638,13 +638,25 @@ class ShiftRequest(TimeStampedModel):
     justification = models.TextField(blank=True, null=True)
     tags = models.ManyToManyField('beamlines.FacilityTag', related_name="shift_requests",
                                   verbose_name='Scheduling Tags')
-    shift_request = models.IntegerField(default=0)
+    shift_request = models.IntegerField("Shifts Requested", default=0)
     good_dates = models.TextField(blank=True, null=True)
     poor_dates = models.TextField(blank=True, null=True)
     objects = ShiftRequestQueryset.as_manager()
 
     def __str__(self):
         return "Request {}, {}".format(self.pk, self.allocation)
+
+    def project(self):
+        return self.allocation.project
+
+    def spokesperson(self):
+        return self.project().spokesperson
+
+    def facility(self):
+        return self.allocation.beamline
+
+    project.sort_field = 'allocation__project'
+    spokesperson.sort_field = 'allocation__project__spokesperson__last_name'
 
 
 class ProjectSampleQueryset(models.QuerySet):

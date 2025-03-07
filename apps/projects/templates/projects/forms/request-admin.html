@@ -1,0 +1,44 @@
+{% extends "forms/modal.html" %}
+{% load crispy_forms_tags %}
+
+{% load timeish %}
+{% load roleperms %}
+{% load cycle_tags %}
+{% load misc %}
+{% block form_title %}Manage Shift Request{% endblock %}
+{% block form_body %}
+<div class="row narrow-gutter">
+	<div class="col-xs-12">
+		<table class="profile table">
+			<tbody>
+			<tr>
+				<th class="item">Project</th>
+                <td><a href="{% url 'project-detail' pk=object.project.pk  %}">{{object.project}}</a></td>
+			</tr>
+			<tr>
+				<th class="item">Shifts Requested</th>
+				<td>{{object.shift_request}}</td>
+			</tr>
+			<tr>
+				<th class="item">Justification</th>
+				<td>{{object.justification}}</td>
+			</tr>
+			<tr>
+				<th class="item">Comments</th>
+				<td>{{object.comments}}</td>
+			</tr>
+			<tr>
+				<th class="item">Preferred Dates</th>
+				<td>{{object.good_dates}}</td>
+			</tr>
+			<tr>
+				<th class="item">Undesirable Dates</th>
+				<td>{{object.bad_dates}}</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{% crispy form form.helper %}
+{% endblock %}

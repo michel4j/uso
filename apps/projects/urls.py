@@ -12,6 +12,7 @@ urlpatterns = [
 
     path('allocations/<int:pk>/request/shift/new/', views.CreateShiftRequest.as_view(), name="create-shift-request"),
     path('allocations/request/shift/<int:pk>/edit/', views.EditShiftRequest.as_view(), name='edit-shift-request'),
+    path('allocations/request/shift/<int:pk>/manage/', views.AdminShiftRequest.as_view(), name='manage-shift-request'),
     path('allocations/request/', views.AllocRequestList.as_view(), name="alloc-request-list"),
     path('allocations/request/shift/<int:pk>/<int:cycle>/', views.ShiftRequestList.as_view(), name='shift-request-list'),
     path('allocations/<int:pk>/decline/', views.DeclineAllocation.as_view(), name="decline-alloc"),
