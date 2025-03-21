@@ -1,6 +1,6 @@
 FROM python:3.11-alpine
 
-MAINTAINER Kathryn Janzen <kathryn.janzen@lightsource.ca>
+LABEL maintainer="Kathryn Janzen <kathryn.janzen@lightsource.ca>"
 
 COPY requirements.txt /
 COPY deploy/run-server.sh /
@@ -21,5 +21,5 @@ RUN set -ex && \
 
 EXPOSE 443 80
 VOLUME ["/usonline/local"]
-CMD /run-server.sh
+CMD ["/run-server.sh"]
 
