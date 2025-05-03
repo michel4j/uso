@@ -62,7 +62,7 @@ class PublicationReviewForm(forms.ModelForm):
                      Accordion(
                          AccordionGroup("Details",
                                         Div(
-                                            Div(Field('kind', css_class="chosen"), css_class='col-sm-12'),
+                                            Div(Field('kind', css_class="selectize"), css_class='col-sm-12'),
                                             Div('title', css_class='col-sm-12'),
                                             Div('authors', css_class='col-sm-12'),
                                             Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')),
@@ -76,13 +76,13 @@ class PublicationReviewForm(forms.ModelForm):
                      Accordion(
                          AccordionGroup("Additional Information",
                                         Div(
-                                            Div(Field('tags', css_class="chosen", placeholder="select all that apply"),
+                                            Div(Field('tags', css_class="selectize", placeholder="select all that apply"),
                                                 css_class='col-sm-6'),
-                                            Div(Field('areas', css_class="chosen", placeholder="select all that apply"),
+                                            Div(Field('areas', css_class="selectize", placeholder="select all that apply"),
                                                 css_class='col-sm-6'),
-                                            Div(Field('beamlines', css_class="chosen"), css_class='col-sm-6'),
-                                            Div(Field('users', css_class="chosen"), css_class='col-sm-6'),
-                                            Div(Field('funders', css_class="chosen",
+                                            Div(Field('beamlines', css_class="selectize"), css_class='col-sm-6'),
+                                            Div(Field('users', css_class="selectize"), css_class='col-sm-6'),
+                                            Div(Field('funders', css_class="selectize",
                                                       placeholder="select funding sources"),
                                                 css_class='col-sm-12'),
                                             Div('keywords', css_class='col-sm-12'),
@@ -97,7 +97,7 @@ class PublicationReviewForm(forms.ModelForm):
                              css_class="btn btn-danger",
                              data_url=f"{reverse_lazy('delete-publication', kwargs={'pk': self.instance.pk})}"),
                 Div(
-                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
                     StrictButton('Reviewed', type='submit', value='Submit', css_class='btn btn-primary'),
                     css_class='pull-right'),
             )
@@ -124,7 +124,7 @@ class ArticleReviewForm(PublicationReviewForm):
 
     def _extra_fields(self):
         self.fields['code'].widget.attrs['readonly'] = True
-        return Div(Div(Field('journal', css_class="chosen"), css_class='col-sm-4'),
+        return Div(Div(Field('journal', css_class="selectize"), css_class='col-sm-4'),
                    Div('volume', css_class='col-sm-1'),
                    Div("number", css_class='col-sm-1'),
                    Div("pages", css_class='col-sm-2'),
@@ -183,7 +183,7 @@ class PDBReviewForm(PublicationReviewForm):
         self.fields['reference'].required = False
         return Div(
             Div('code', css_class='col-sm-2'),
-            Div(Field('reference', css_class="chosen"), css_class='col-sm-10'),
+            Div(Field('reference', css_class="selectize"), css_class='col-sm-10'),
             css_class="row narrow-gutter"
         )
 
@@ -219,13 +219,13 @@ class PubWizardForm1(forms.Form):
         self.helper.layout = Layout(
 
             Div(
-                Div(Field('reference', css_class="chosen"), css_class="col-sm-12 modal-update"),
+                Div(Field('reference', css_class="selectize"), css_class="col-sm-12 modal-update"),
                 Div('code', css_class="col-sm-12"),
                 css_class="row"
             ),
             Div(
                 Div(
-                    StrictButton('Cancel', value="Cancel", data_dismiss="modal", css_class='btn-default pull-left'),
+                    StrictButton('Cancel', value="Cancel", data_dismiss="modal", css_class='btn-secondary pull-left'),
                     StrictButton('Continue', type="submit", value="Submit", css_class='btn-primary pull-right'),
                     css_class="col-xs-12"
                 ),
@@ -283,14 +283,14 @@ class PubWizardForm2(forms.Form):
         self.helper.title = "Report a Publication"
 
         self.autobuttons = FormActions(
-            StrictButton('Cancel', value="Cancel", data_dismiss="modal", css_class='btn-default pull-left'),
+            StrictButton('Cancel', value="Cancel", data_dismiss="modal", css_class='btn-secondary pull-left'),
             StrictButton('No, Start Over', type="submit", name="wizard_goto_step", value="0",
                          css_class='btn-danger pull-left'),
             StrictButton('Yes, Continue', type="submit", value="Submit", css_class='btn-primary pull-right'),
             css_class="col-xs-12"
         )
         self.buttons = FormActions(
-            StrictButton('Cancel', value="Cancel", data_dismiss="modal", css_class='btn-default pull-left'),
+            StrictButton('Cancel', value="Cancel", data_dismiss="modal", css_class='btn-secondary pull-left'),
             StrictButton('Start Over', type="submit", name="wizard_goto_step", value="0",
                          css_class='btn-danger pull-left'),
             StrictButton('Continue', type="submit", value="Submit", css_class='btn-primary pull-right'),
@@ -396,7 +396,7 @@ class PubWizardForm2(forms.Form):
                     Div(Field('editor', placeholder="Last, First; Last, F.; etc ..."), css_class="col-sm-6"),
 
                     Div("publisher", css_class="col-sm-6"), Div("address", css_class="col-sm-6"),
-                    Div(Field("kind", css_class="chosen"), css_class="col-sm-6"),
+                    Div(Field("kind", css_class="selectize"), css_class="col-sm-6"),
                     Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
                     Div(Field("code", placeholder="Handle link or other link to thesis if available"),
                         css_class="col-sm-12"),
@@ -437,9 +437,9 @@ class PubWizardForm3(forms.Form):
         self.cls_details = AccordionGroup(
             "CLS and Funding Information",
             Div(
-                Div(Field('beamlines', placeholder="Start typing a beamline name", css_class="chosen"),
+                Div(Field('beamlines', placeholder="Start typing a beamline name", css_class="selectize"),
                     css_class='col-sm-6'),
-                Div(Field('funders', placeholder="Start typing a funding source", css_class="chosen"),
+                Div(Field('funders', placeholder="Start typing a funding source", css_class="selectize"),
                     css_class='col-sm-6'),
                 Div('author', css_class="col-sm-12"),
                 css_class="row narrow-gutter",
@@ -516,7 +516,7 @@ class PubWizardForm3(forms.Form):
             ),
             Div(
                 FormActions(
-                    StrictButton('Cancel', value="Cancel", data_dismiss="modal", css_class='btn-default pull-left'),
+                    StrictButton('Cancel', value="Cancel", data_dismiss="modal", css_class='btn-secondary pull-left'),
                     StrictButton('Start Over', type="submit", name="wizard_goto_step", value="0",
                                  css_class='btn-danger pull-left'),
                     StrictButton('Submit', type="submit", value="Submit", css_class='btn-primary pull-right'),

@@ -1,22 +1,25 @@
 {% load dynforms_tags %}
-<div id="df-form-preview" class="pagelet">
+<div id="df-form-preview" class="page">
 
     <!-- Nav tabs -->
     <ul class="nav nav-tabs">
         {% for page in form_spec.pages %}
-            <li class="{% if forloop.counter == active_page %}active{% endif %}"><a href="#page{{ forloop.counter }}"
-                                                                                    data-toggle="tab">{{ page.name }}</a>
+            <li class="nav-item">
+                <a href="#page{{ forloop.counter }}"
+                   class="nav-link {% if forloop.counter == active_page %}active{% endif %}"
+                   data-bs-toggle="tab">{{ page.name }}
+                </a>
             </li>
         {% endfor %}
     </ul>
 
     <!-- Tab panes -->
-    <div class="tab-content pagelet-body">
+    <div class="tab-content page-body">
         {% for page in form_spec.pages %}
             <div class="tab-pane {% if forloop.counter == active_page %}active{% endif %} df-container sortable grid"
                  id="page{{ forloop.counter }}" data-page-number="{forloop.counter0}}">
                 {% for field in page.fields %}
-                    <div class="df-field container no-space" data-fieldtype="{{ field.field_type }}"
+                    <div class="df-field" data-fieldtype="{{ field.field_type }}"
                          data-fieldpos="{{ forloop.counter0 }}">
                         {% include "dynforms/field.html" %}
                     </div>
@@ -29,7 +32,7 @@
 <div id="df-footer">
     <div id="df-footer-content">
         {% for name, label in form_spec.actions %}
-            <button type="button" id="{{ name }}-action" disabled class="btn btn-sm btn-default disabled"
+            <button type="button" id="{{ name }}-action" disabled class="btn btn-sm btn-secondary disabled"
                     name="{{ name }}">{{ label }}</button>
         {% endfor %}
         <div class="vr"></div>

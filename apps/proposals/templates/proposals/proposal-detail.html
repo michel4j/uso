@@ -1,4 +1,4 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
 {% load folio %}
 {% load dynforms_tags %}
@@ -8,58 +8,58 @@
 {% load markup %}
 
 
-{% block page_heading %}
-    <span class="hidden-xs">Proposal</span><span class="text-muted text-narrow"> Preview</span>
+{% block page-pretitle %}
+    Proposal
 {% endblock %}
 
-{% block folio-title %}Proposal &mdash; {{ proposal.code }}{% endblock %}
-{% block folio-subtitle %}
+{% block page-title %}{{ proposal.code }}{% endblock %}
+{% block page-subtitle %}
     Created: {{ proposal.created | date }} &ensp; Last Modified: {{ proposal.modified | date }}
 {% endblock %}
-{% block folio-tools-class %}
+{% block page-tools-class %}
     {% if not owner and not admin %}hidden{% endif %}
 {% endblock %}
 
-{% block folio-tools %}
+{% block page-tools %}
     {% if owner %}
         {% if proposal.state == proposal.STATES.draft %}
             {% if validation.pages %}
                 <a href='#0' title='Incomplete Proposal' disabled class="pull-right">
-                    <i class="bi-exclamation-triangle icon-2 icon-fw"></i><br/>
+                    <i class="bi-exclamation-triangle icon-md icon-fw"></i><br/>
                     <span class="tool-label">Submit</span>
                 </a>
             {% else %}
-                <a href='#0' data-url='{% url "submit-proposal" pk=object.pk %}' class="pull-right">
-                    <i class="bi-arrow-right-circle icon-2 icon-fw text-success"></i><br/>
+                <a href='#0' data-modal-url='{% url "submit-proposal" pk=object.pk %}' class="pull-right">
+                    <i class="bi-arrow-right-circle icon-md icon-fw text-success"></i><br/>
                     <span class="tool-label">Submit</span>
                 </a>
             {% endif %}
             <a href='{% url "edit-proposal" pk=object.pk %}' class="pull-right">
-                <i class="bi-pencil icon-2 icon-fw "></i><br/>
+                <i class="bi-pencil icon-md icon-fw "></i><br/>
                 <span class="tool-label">Edit</span>
             </a>
-            <a href='#0' data-url='{% url "delete-proposal" pk=object.pk %}' class="pull-right">
-                <i class="bi-trash icon-2 text-danger icon-fw"></i><br/>
+            <a href='#0' data-modal-url='{% url "delete-proposal" pk=object.pk %}' class="pull-right">
+                <i class="bi-trash icon-md text-danger icon-fw"></i><br/>
                 <span class="tool-label">Delete</span>
             </a>
         {% endif %}
-        <a href='#0' data-url='{% url "clone-proposal" pk=object.pk %}' class="pull-right">
-            <i class="bi-copy icon-2 icon-fw"></i><br/>
+        <a href='#0' data-modal-url='{% url "clone-proposal" pk=object.pk %}' class="pull-right">
+            <i class="bi-copy icon-md icon-fw"></i><br/>
             <span class="tool-label">Clone</span>
         </a>
-        <a href='#0' data-url='{% url "proposal-attachments" pk=object.pk %}' class="pull-right">
-            <i class="bi-paperclip icon-2 icon-fw"></i>
+        <a href='#0' data-modal-url='{% url "proposal-attachments" pk=object.pk %}' class="pull-right">
+            <i class="bi-paperclip icon-md icon-fw"></i>
             {% if proposal.attachments.exist %}
-                <span class="label label-primary text-condensed">{{ proposal.attachments.count }}</span>
+                <span class="badge bg-primary text-condensed">{{ proposal.attachments.count }}</span>
             {% endif %}<br/>
             <span class="tool-label">Attachments</span>
         </a>
         {% if proposal.clarifications.exists %}
             <a href='#proposal-clarifications' class="pull-right"
-               data-toggle="collapse" title="Clarifications"
+               data-bs-toggle="collapse" title="Clarifications"
                aria-expanded="false" aria-controls="proposal-clarifications">
-                <i class="bi-chat-right-text icon-2 icon-fw"></i><span
-                    class="label label-warning text-condensed">{{ proposal.clarifications.count }}</span><br/>
+                <i class="bi-chat-right-text icon-md icon-fw"></i><span
+                    class="badge rounded-circle bg-warning text-condensed">{{ proposal.clarifications.count }}</span><br/>
                 <span class="tool-label">Clarifications</span>
             </a>
         {% endif %}
@@ -67,8 +67,8 @@
     {% for submission in proposal.submissions.all %}
         <a href='{{ submission.get_absolute_url }}' class="pull-right"
            title="{{ submission.track.acronym }} Submission">
-        <span class="icon-stack icon-3x" style="font-size: 73%;">
-            <i class="bi-journal icon-2x"></i>
+        <span class="icon-stack icon-lg" style="font-size: 73%;">
+            <i class="bi-journal icon-md"></i>
             <strong class="icon-stack-1x icon-stack-text text-condensed"
                     style="top: 0;">{{ submission.track.acronym }}</strong>
         </span><br/>
@@ -78,11 +78,12 @@
 {% endblock %}
 
 
-{% block folio-statusbar-style %}
-    {% folio_status proposal.state draft=proposal.STATES.draft success=proposal.STATES.submitted %}{% endblock %}
+{% block page-status-style %}
+    {% folio_status proposal.state draft=proposal.STATES.draft success=proposal.STATES.submitted %}
+{% endblock %}
 
-{% block folio-statusbar %}
-    <h3 class="no-vmargin"><span class="label label-info text-condensed">{{ proposal.get_state_display }}</span>
+{% block page-status-bar %}
+    <h3 class="no-vmargin"><span class="badge bg-info text-condensed">{{ proposal.get_state_display }}</span>
     </h3>
     <div>
         <small class="text-wide text-muted">Spokesperson:</small><br/>{{ proposal.spokesperson|default:"&hellip;" }}<br/>
@@ -115,9 +116,9 @@
     </div>
 {% endblock %}
 
-{% block folio-content %}
+{% block page-content %}
     {% if proposal.state == proposal.STATES.draft and validation.pages %}
-        <div class="minitron bg-warning">
+        <div class="minitron bg-warning-subtle">
         <div class="row narrow-gutter">
             <i class="bi-exclamation-triangle icon-4 col-xs-1 text-warning"></i>
             <div class="col-xs-11">Please edit and fix the following issues before submitting:<br/>

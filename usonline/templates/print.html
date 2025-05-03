@@ -3,39 +3,40 @@
 
 {% block body_class %}print-base{% endblock %}
 {% block body %}
-<header class="wrapper" role="banner">
-    <div class="container">
-        <div class="col-xs-4 pull-left">
-            <img class="logo"
-                 src="/media/logos/logo-horiz.png"
-                 onerror="this.onerror=null;this.src='{% static 'img/logo-horiz.svg' %}';"
-                 alt="Facility Logo"
-            />
+    <header class="wrapper p-0" role="banner">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-4">
+                    <img class="logo"
+                         src="/media/logos/logo-horiz.png"
+                         onerror="this.onerror=null;this.src='{% static 'img/logo-horiz.svg' %}';"
+                         alt="Facility Logo"
+                    />
+                </div>
+                <div class="col-8">
+                    {% block header-tools %}{% endblock %}
+                </div>
+            </div>
         </div>
-        <div class="col-xs-8 pull-right">
-            {% block header-tools %}{% endblock %}
+    </header>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            {% block banner %}{% endblock %}
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="content">
+            {% block content %}{% endblock %}
         </div>
     </div>
-</header>
-<nav class="navbar navbar-inverse">
-    <div class="container">
-        {% block banner %}{% endblock %}
-    </div>
-</nav>
-
-
-<div class="container">
-    <div class="content">
-        {% block full %}{% endblock %}
-    </div>
-</div>
-<div id="modal-form"></div>
+    <div id="modal-form"></div>
 
 {% endblock %}
 
 {% block extra_js %}
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
             window.print();
         });
     </script>

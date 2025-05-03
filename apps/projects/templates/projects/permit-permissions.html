@@ -1,13 +1,13 @@
-    <div class="pad-wrapper">
+    <div class="container-fluid">
         <div class="minitron bg-info col-xs-12">
             <div class="row narrow-gutter">
                 <div class="col-xs-12">
                     <small class="text-wide text-muted">Required Permissions:</small><br/>
                     {% for perm_code in object.permissions.all %}
-                        <span class="label label-info">{{ perm_code }} (all)</span>&ensp;
+                        <span class="badge bg-info">{{ perm_code }} (all)</span>&ensp;
                     {% endfor %}
                     {% for perm_code in  object.permissions.any %}
-                        <span class="label label-primary">{{ perm_code }} (one)</span>
+                        <span class="badge bg-primary">{{ perm_code }} (one)</span>
                     {% endfor %}
                 </div>
             </div>

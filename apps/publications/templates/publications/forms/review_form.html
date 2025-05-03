@@ -3,25 +3,16 @@
 {% load crispy_forms_tags %}
 {% load pubstats %}
 
-{% block page_heading %}Review Publication{% endblock %}
+{% block page-title %}Review Publication{% endblock %}
 
 
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js" integrity="sha512-BI1itUvyiWbbZ446/8IOccwMPB/xobCTyQTS0r1+k8Pq1VPT3uIJKNCoMH12rKk18J9sH33xQNve7srB0IGYlg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-		<script type="text/javascript">
-	$(document).ready(function(){
-		$(".chosen").chosen({
-			placeholder: "Type or select an option",
-			search_contains: true,
-			allow_single_deselect: true,
-		});
-	});
-	</script>
 {% endblock %}
 
-{% block full %}
-<div class="pagelet">
-	<div class="pagelet-body">
+{% block content %}
+<div class="page">
+	<div class="page-body">
 		<div class="row narrow-gutter">
 		{% with object|get_matches as matches %}
 			<div class="col-sm-{% if matches or object.history %}9{% else %}12{% endif %}">

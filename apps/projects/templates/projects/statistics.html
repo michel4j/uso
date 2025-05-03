@@ -1,24 +1,24 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
 {% load project_stats %}
 {% load plots %}
 
-{% block page_heading %}Project Statistics{% endblock %}
+{% block page-pretitle %}Project Statistics{% endblock %}
 
-{% block folio-title %}
+{% block page-title %}
 Project Statistics
 {% endblock %}
 
-{% block folio-subtitle %}
+{% block page-subtitle %}
 Broken down by Year and Cycle
 {% endblock %}
 
 
-{% block folio-tools-class %}hidden{% endblock %}
+{% block page-tools-class %}hidden{% endblock %}
 
-{% block folio-content %}
+{% block page-content %}
 {% get_stats_tables as tables%}
-<div class="pagelet-body">
+<div class="page-body">
 	{% for tbl in tables %}
 		<div class="row data-reports">
 			<div class="col-xs-12">

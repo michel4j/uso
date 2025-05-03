@@ -7,25 +7,25 @@
             <div class="box-tools pull-right" style="">
                 {% if falloc.can_renew  %}
                 <a href='{% url "create-alloc-request" pk=project.pk fac=falloc.facility.acronym cycle=falloc.next_cycle.pk %}' class="pull-right">
-                    <i class="bi-arrow-clockwise icon-2 icon-fw"></i><br/>
+                    <i class="bi-arrow-clockwise icon-md icon-fw"></i><br/>
                     <span class="tool-label">Renew</span>
                 </a>
                 {% endif %}
                 {% if falloc.can_decline  %}
-                <a href="#0" data-url='{% url "decline-alloc" pk=falloc.allocation.pk %}' class="pull-right">
-                    <i class="bi-x-lg icon-2 icon-fw"></i><br/>
+                <a href="#0" data-modal-url='{% url "decline-alloc" pk=falloc.allocation.pk %}' class="pull-right">
+                    <i class="bi-x-lg icon-md icon-fw"></i><br/>
                     <span class="tool-label">Decline</span>
                 </a>
                 {% endif %}
                 {%  if falloc.can_request %}
                 <a href='{% url "create-shift-request" pk=falloc.allocation.pk %}' class="pull-right">
-                    <i class="bi-calendar2-week icon-2 icon-fw"></i><br/>
+                    <i class="bi-calendar2-week icon-md icon-fw"></i><br/>
                     <span class="tool-label">Request Shifts</span>
                 </a>
                 {% endif %}
                 {% if admin or user|is_staff:falloc.facility and project.is_active %}
-                <a href="#0" data-url='{% url 'session-handover' pk=project.pk fac=falloc.facility.acronym %}' class="pull-right text-danger">
-                    <i class="bi-play-circle icon-2 icon-fw"></i><br/>
+                <a href="#0" data-modal-url='{% url 'session-handover' pk=project.pk fac=falloc.facility.acronym %}' class="pull-right text-danger">
+                    <i class="bi-play-circle icon-md icon-fw"></i><br/>
                     <span class="tool-label">Hand-Over</span>
                 </a>
                 {% endif %}

@@ -1,0 +1,28 @@
+<div class="form-group" id="div_id_choices">
+<label class="control-label ">Choices</label>
+{% for choice in form.initial.choices_info %}
+<div class="controls choices-repeatable">
+    <div class="input-group">
+        <span class="input-group-text">
+            <input type="{{form.initial.choices_type}}"
+                value="{{forloop.counter}}"
+                name="default_choices"
+                {% if forloop.counter in form.initial.default_choices %}checked="checked"{% endif %}
+                class="form-check-input repeat-value-index">
+        </span>
+        <input type="text" value="{{choice.label}}" aria-label="Choice" placeholder="choice label"
+            name="choices"
+            class="form-control">
+
+        <input type="text" value="{{choice.value}}" aria-label="Value" placeholder="choice value"
+            name="values"
+            class="form-control">
+
+        <button type="button" class="btn btn-danger remove-repeat"><i class="bi-dash-lg"></i></button>
+    </div>
+</div>
+{% endfor %}
+<button type="button" name="add" title="Add choices"
+        class="btn btn-success btn-xs"
+        data-repeat-add=".choices-repeatable"><i class="bi-plus-lg"></i></button>
+</div>

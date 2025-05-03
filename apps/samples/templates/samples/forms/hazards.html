@@ -11,9 +11,9 @@
                 {% for group in categories %}
                     <li role="presentation" {% if forloop.first %}class="active"{% endif %}>
                         <a href="#hazard-tab{{ forloop.counter }}" aria-controls="hazard-tab{{ forloop.counter }}"
-                           role="tab" data-toggle="tab">
+                           role="tab" data-bs-toggle="tab">
                             <img width="32" height="32" src="{{ group.image }}" title="{{ group.name }}"
-                                 data-toggle="tooltip" data-placement="bottom"/>
+                                 data-bs-toggle="tooltip" data-placement="bottom"/>
                             <span class="superscript">
 						<span class="badge progress-bar-info category-count"></span>
 					</span>
@@ -68,7 +68,7 @@
     </div>
     <div class="row">
         <div class="modal-footer">
-            <button class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+            <button class="btn btn-secondary pull-left" data-dismiss="modal">Cancel</button>
             <button type="button" data-command="approve" class="sample-decision btn btn-primary">Apply</button>
         </div>
     </div>

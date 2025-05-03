@@ -3,9 +3,9 @@
 
 {% block list-tools %}
     {% if stage and cycle.state == cycle.STATES.assign and stage.kind.is_scientific %}
-        <a href="#0" data-url='{% url "assign-reviewers" pk=cycle.pk stage=stage.pk %}'
+        <a href="#0" data-modal-url='{% url "assign-reviewers" pk=cycle.pk stage=stage.pk %}'
            class="pull-right">
-            <i class="bi-diagram-3 icon-2 icon-fw"></i><br/>
+            <i class="bi-diagram-3 icon-md icon-fw"></i><br/>
             <span class="tool-label">Auto&nbsp;Assign</span>
         </a>
     {% endif %}

@@ -4,6 +4,8 @@ import re
 from datetime import timedelta
 
 import phonenumbers
+from crisp_modals.forms import ModalModelForm, Row, FullWidth, HalfWidth
+from crisp_modals.views import ModalDeleteView
 from crispy_forms.bootstrap import PrependedText, AccordionGroup, Accordion, StrictButton, FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field, HTML
@@ -51,7 +53,7 @@ class InstitutionForm(forms.ModelForm):
                             data_url=f"{reverse_lazy('delete-institution', kwargs={'pk': self.instance.pk})}"
                         ), css_class="text-left col-xs-6"
                     ), Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
                         StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'), css_class='text-right col-xs-6'
                     ), css_class="row"
                 )
@@ -62,7 +64,7 @@ class InstitutionForm(forms.ModelForm):
             btns = Div(
                 Div(
                     HTML('<hr/>'), Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
                         StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'), css_class='text-right col-xs-12'
                     ), css_class="row"
                 )
@@ -71,14 +73,14 @@ class InstitutionForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div('name', css_class='col-sm-12'), Div(Field('location', placeholder='City, Region, Country'), css_class='col-sm-12'),
-                Div(Field('sector', css_class="chosen"), css_class='col-sm-6'), Div(Field('state', css_class="chosen"), css_class='col-sm-6'),
-                Div(Field('parent', css_class="chosen"), css_class='col-sm-12'), Div("domains", css_class='col-sm-12'),
+                Div(Field('sector', css_class="selectize"), css_class='col-sm-6'), Div(Field('state', css_class="selectize"), css_class='col-sm-6'),
+                Div(Field('parent', css_class="selectize"), css_class='col-sm-12'), Div("domains", css_class='col-sm-12'),
                 Div("contact_person", css_class='col-sm-12'), Div("contact_email", css_class='col-sm-6'), Div("contact_phone", css_class='col-sm-6'),
                 css_class="row narrow-gutter"
             ), btns, )
 
 
-class InstitutionContactForm(forms.ModelForm):
+class InstitutionContactForm(ModalModelForm):
     class Meta:
         model = Institution
         fields = ('contact_person', 'contact_email', 'contact_phone')
@@ -86,30 +88,26 @@ class InstitutionContactForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-
-        self.helper.title = "Institutional Contact Person"
-        self.helper.form_action = self.request.get_full_path()
-        btns = Div(
-            Div(
-                HTML('<hr/>'), Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default"),
-                    StrictButton('Submit', type='submit', value='Save', css_class='btn btn-primary'), css_class='text-right col-xs-12'
-                ), css_class="row"
+        self.body.title = "Institutional Contact Person"
+        self.body.form_action = self.request.get_full_path()
+        self.body.append(
+            Row(
+                FullWidth(
+                    HTML(
+                        '<div class="alert alert-light">Please provide the contact details of the person at your '
+                        'institution responsible to institutional agreements and contracts.</div>'
+                    ),
+                )
+            ),
+            Row(
+                FullWidth("contact_person"),
+                HalfWidth("contact_email"),
+                HalfWidth("contact_phone"),
             )
         )
 
-        self.helper.layout = Layout(
-            Div(
-                HTML(
-                    '<div class="tinytron bg-darken">Please provide the contact details of the person at your '
-                    'institution responsible to institutional agreements and contracts. </div>'
-                ), Div("contact_person", css_class='col-sm-12'), Div("contact_email", css_class='col-sm-6'),
-                Div("contact_phone", css_class='col-sm-6'), css_class="row narrow-gutter"
-            ), btns, )
 
-
-class InstitutionDeleteForm(forms.ModelForm):
+class InstitutionDeleteForm(ModalModelForm):
     transfer = forms.ModelChoiceField(
         label="Transfer Users To", required=False, queryset=models.Institution.objects.all()
     )
@@ -125,33 +123,22 @@ class InstitutionDeleteForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
 
-        self.helper.title = "Delete Institution?"
-        self.helper.form_action = reverse_lazy('delete-institution', kwargs={'pk': self.instance.pk})
+        self.body.title = "Delete Institution?"
+        self.body.form_action = reverse_lazy('delete-institution', kwargs={'pk': self.instance.pk})
         self.fields['transfer'].queryset = models.Institution.objects.exclude(pk=self.instance.pk)
         self.initial['transfer'] = self.instance.parent
-        btns = Div(
-            Div(
-                HTML('<hr/>'), Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class='btn btn-default'),
-                    StrictButton('Delete', type='submit', value='Delete', css_class='btn btn-danger'), css_class='text-right col-xs-12'
-                ), css_class="row"
-            )
+        self.body.append(
+            HTML(
+                "<h5>Are you sure you want to delete the following Institution?</h5>"
+                "<div class='minitron bg-danger text-danger'>"
+                "<h4><strong>{{object}}</strong><br/>{{object.location}}</h4>"
+                "<hr class='hr-xs'/>"
+                "<small>Created {{object.created|date}}, &emsp;"
+                "Last Modified {{object.modified|timesince}} ago</small>"
+                "</div>"
+            ),
+            Div(Field('transfer', css_class="selectize"), css_class='col-sm-12'), css_class="row narrow-gutter"
         )
-
-        self.helper.layout = Layout(
-            Div(
-                HTML(
-                    "<h5>Are you sure you want to delete the following Institution?</h5>"
-                    "<div class='minitron bg-danger text-danger'>"
-                    "<h4><strong>{{object}}</strong><br/>{{object.location}}</h4>"
-                    "<hr class='hr-xs'/>"
-                    "<small>Created {{object.created|date}}, &emsp;"
-                    "Last Modified {{object.modified|timesince}} ago</small>"
-                    "</div>"
-                ),
-
-                Div(Field('transfer', css_class="chosen"), css_class='col-sm-12'), css_class="row narrow-gutter"
-            ), btns, )
 
 
 class PasswordResetForm(forms.Form):
@@ -311,31 +298,33 @@ class PasswordChangeForm(forms.Form):
         )
 
 
-class UserAdminForm(forms.Form):
+class UserAdminForm(ModalModelForm):
     extra_roles = forms.MultipleChoiceField(label='Additional Roles', required=False)
-    photo = forms.ImageField(label='Change Photo', required=False)
-    username = forms.CharField(required=True, widget=forms.HiddenInput)
+
+    class Meta:
+        model = User
+        fields = ['roles', 'photo']
 
     def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance')
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
         self.fields['extra_roles'].choices = utils.uso_role_choices()
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
-            Div(
-                Div(Field('extra_roles', css_class="chosen"), css_class='col-sm-6'),
-                Div(Field('photo', template='%s/file_field.html'), css_class='col-sm-6'), css_class="row narrow-gutter"
-            ), 'username', Div(
-                Div(
-                    Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'), css_class='pull-right'
-                    ), css_class="row"
-                ), css_class="modal-footer"
+        self.fields['extra_roles'].initial = self.instance.roles
+        self.body.form_action = self.request.get_full_path()
+        self.body.append(
+            HTML("{% include 'users/user-admin.html' %}"),
+            Row(
+                HalfWidth(Field('extra_roles', css_class="selectize"),),
+                HalfWidth(Field('photo', template='%s/file_field.html'))
             )
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        extra_roles = cleaned_data.get('extra_roles', [])
+        new_roles = [role for role in self.instance.roles if not role in utils.uso_role_choices()] + extra_roles
+        cleaned_data['roles'] = new_roles
+        return cleaned_data
 
 
 class UserProfileForm(forms.ModelForm):
@@ -362,18 +351,18 @@ class UserProfileForm(forms.ModelForm):
         self.helper.layout = Layout(
             Fieldset(
                 "Personal Information", Div(
-                    Div(Field('title', css_class='chosen'), css_class='col-sm-2'), Div('first_name', css_class='col-sm-3'),
+                    Div(Field('title', css_class="selectize"), css_class='col-sm-2'), Div('first_name', css_class='col-sm-3'),
                     Div('last_name', css_class='col-sm-4'), Div('preferred_name', css_class='col-sm-3'), Div('email', css_class='col-sm-6'),
                     Div('alt_email', css_class='col-sm-6'), Div('phone', css_class='col-sm-6'), Div('emergency_phone', css_class='col-sm-6'),
                     css_class="row narrow-gutter"
                 ), Div(
                     Div('emergency_contact', css_class='col-sm-12'), css_class="row narrow-gutter"
                 ), Div(
-                    Div(Field('research_field', css_class='chosen'), css_class='col-sm-12'), Div(
+                    Div(Field('research_field', css_class="selectize"), css_class='col-sm-12'), Div(
                         Field(
                             'institution_name', css_class='institution-input', placeholder="Type full name or select from existing entries"
                         ), css_class='col-sm-8'
-                    ), Div(Field('classification', css_class='chosen'), css_class='col-sm-4'), css_class='row narrow-gutter'
+                    ), Div(Field('classification', css_class="selectize"), css_class='col-sm-4'), css_class='row narrow-gutter'
                 ), ), Fieldset(
                 "Work Address", Div(
                     Div('address_1', css_class='col-sm-12'), Div('address_2', css_class='col-sm-12'), Div('city', css_class='col-sm-6'),
@@ -382,7 +371,7 @@ class UserProfileForm(forms.ModelForm):
                     css_class="address row narrow-gutter"
                 ), ), FormActions(
                 HTML('<hr class"hr-xs"/>'), Div(
-                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
                     StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'), css_class='text-right pull-right'
                 ), ), )
 
@@ -466,15 +455,15 @@ class ProfileForm(forms.Form):
             Accordion(
                 AccordionGroup(
                     _("Change Your Profile"), Div(
-                        Div(Field('title', css_class='chosen'), css_class='col-sm-2'), Div('first_name', css_class='col-sm-3'),
+                        Div(Field('title', css_class="selectize"), css_class='col-sm-2'), Div('first_name', css_class='col-sm-3'),
                         Div('last_name', css_class='col-sm-4'), Div('other_names', css_class='col-sm-3'), Div('email', css_class='col-sm-6'),
                         Div('alt_email', css_class='col-sm-6'), Div('phone', css_class='col-sm-6'), Div('emergency_phone', css_class='col-sm-6'),
                         css_class="row narrow-gutter"
                     ), Div(
                         Div('emergency_contact', css_class='col-sm-12'), css_class="row narrow-gutter"
                     ), Div(
-                        Div(Field('research_field', css_class='chosen'), css_class='col-sm-12'),
-                        Div(Field('classification', css_class='chosen'), css_class='col-sm-6'), Div(
+                        Div(Field('research_field', css_class="selectize"), css_class='col-sm-12'),
+                        Div(Field('classification', css_class="selectize"), css_class='col-sm-6'), Div(
                             Field(
                                 'institution', css_class='institution-input', placeholder="Type full name or select from existing entries"
                             ), css_class='col-sm-6'

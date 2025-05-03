@@ -1,29 +1,28 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load beamline_tags %}
 
 
-{% block page_heading %}<span class="hidden-xs">Laboratory &mdash; </span>
-    <span class="text-muted">{{ object.acronym }}</span>{% endblock %}
+{% block page-title %}<span class="text-muted">{{ object.acronym }}</span>{% endblock %}
 
-{% block folio-title %}
-    {{ object.name }}
+{% block page-pretitle %}
+    Laboratory
 {% endblock %}
 
-{% block folio-subtitle %}
+{% block page-subtitle %}
     {{ object.acronym }}
 {% endblock %}
 
-{% block folio-tools %}
+{% block page-tools %}
     <a href="{% url 'lab-history' pk=object.pk %}" class="pull-right">
-        <i class="bi-clock icon-2 icon-fw"></i><br/>
+        <i class="bi-clock icon-md icon-fw"></i><br/>
         <span class="tool-label">History</span>
     </a>
 {% endblock %}
 
-{% block folio-statusbar-style %}{% if object.available %}bg-success{% else %}bg-darken{% endif %}{% endblock %}
+{% block page-status-style %}{% if object.available %}bg-success{% else %}bg-darken{% endif %}{% endblock %}
 
-{% block folio-statusbar %}
-    <h3 class="no-vmargin"><span class="label label-info text-condensed">{% if object.available %}Available{% else %}Not
+{% block page-status-bar %}
+    <h3 class="no-vmargin"><span class="badge bg-info text-condensed">{% if object.available %}Available{% else %}Not
         Available{% endif %}</span>
     </h3>
     <div>
@@ -37,7 +36,7 @@
 
 {% endblock %}
 
-{% block folio-content %}
+{% block page-content %}
     <div class="minitron bg-transparent">
         <div class="row narrow-gutter">
             <div class="col-xs-12">

@@ -62,7 +62,7 @@
                                 </span>
                             {% endif %}
                             {% if precautions %}
-                                <a title="Precautions" class="command-icon pull-right {% if precautions.count %}highlighted{% endif %}" role="button" data-toggle="collapse"
+                                <a title="Precautions" class="command-icon pull-right {% if precautions.count %}highlighted{% endif %}" role="button" data-bs-toggle="collapse"
                                    aria-expanded="false" aria-controls="{{ field.name }}-precautions-{{ sample.pk }}"
                                    href='#{{ field.name }}-precautions-{{ sample.pk }}'>
                                     <i class="bi-list-ol icon-fw"></i>
@@ -114,7 +114,7 @@
                 </div>
             {% empty %}
                 <div class="empty">
-                    <i class="bi-exclamation-triangle text-warning icon-2x"></i><br/>
+                    <i class="bi-exclamation-triangle text-warning icon-md"></i><br/>
                     This project will not use any samples.
                 </div>
             {% endfor %}

@@ -1,6 +1,6 @@
 <div class="row no-space rules-repeatable">
 	<div class="form-group col-xs-2">
-		<select class="form-control chosen" name="rule.action">
+		<select class="form-control select" name="rule.action">
 		 	{% for act_name, act_lbl in rule_actions %}
 				<option value="{{act_name}}"
 				{% if rule.action == act_name %}selected="selected"{% endif %}
@@ -9,7 +9,7 @@
 		</select>
 	</div>
 	<div class="form-group col-xs-3">
-		<select class="form-control chosen" name="rule.field">
+		<select class="form-control select" name="rule.field">
 		<option value=""></option>
 		 {% for fn, fl in field_choices %}
 			<option value="{{fn}}"
@@ -26,7 +26,7 @@
 		</div>
 	</div>
 	<div class="form-group col-xs-2">
-		<select class="form-control chosen"  name="rule.operator">
+		<select class="form-control select"  name="rule.operator">
 			<option value=""></option> 
 		{% for op_name, op_descr in field_operators %}
 			<option value="{{op_name}}"

@@ -1,40 +1,36 @@
-{% extends "forms/modal.html" %}
+{% extends "crisp_modals/modal.html" %}
 {% load crispy_forms_tags %}
 {% load markup %}
-{% block form_title %}Reviewer Compatibility{% endblock %}
-{% block form_body %}
-<div class="tinytron techniques {% if conflict %} bg-danger {% else %} bg-success {% endif %}">
-    <h4 style="margin:0;">
+{% block modal_title %}Reviewer Compatibility{% endblock %}
+{% block modal_styles %}modal-lg{% endblock %}
+{% block modal_body %}
+<div class="tinytron techniques {% if conflict %} bg-danger-subtle {% else %} bg-success-subtle {% endif %}">
+    <h5 style="margin:0;">
         {%  if admin %}
             <strong><a class="next-url" href="{% url 'edit-reviewer-profile' pk=reviewer.pk %}">{{reviewer}}</a></strong>
         {% else %}
             <strong>{{reviewer}}</strong>
         {%  endif %}
-        <span class="pull-right badge" title="Cycle Workload" style="margin-left: 0.25em;">
+        <span class="pull-right badge rounded-pill bg-secondary" title="Cycle Workload" style="margin-left: 0.25em;">
             {{workload.count}}
         </span>
-        {% if conflict %}<span class="pull-right label label-danger">Conflict</span>{% endif %}
-    </h4>
+        {% if conflict %}<span class="pull-right badge bg-danger">Conflict</span>{% endif %}
+    </h5>
     <small class="text-muted">{{reviewer.user.institution}}</small>
     {% for tech in reviewer.techniques.all %}
     {% if forloop.first %}
     <hr class="hr-xs"/>
     {% endif %}
-    <span class="label {% if tech in compat_techniques %}label-primary{% else %}label-default{% endif %}">{{tech}}</span>
+    <span class="badge {% if tech in compat_techniques %}bg-primary{% else %}bg-secondary{% endif %}">{{tech}}</span>
     {% endfor %}
     {% for area in reviewer.areas.all %}
     {% if forloop.first %}
     <hr class="hr-xs"/>
     {% endif %}
-    <span class="label {% if area in compat_areas %}label-success{% else %}label-default{% endif %}">{{area}}</span>
+    <span class="badge {% if area in compat_areas %}bg-success{% else %}bg-secondary{% endif %}">{{area}}</span>
     {% endfor %}
 </div>
 <div class="tinytron bg-white">
     {% include "proposals/submission-snippet.html" %}
-</div>
-<div class="row">
-	<div class="modal-footer">
-		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	</div>
 </div>
 {% endblock %}

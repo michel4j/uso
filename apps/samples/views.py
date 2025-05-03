@@ -124,7 +124,7 @@ class SampleListView(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     paginate_by = 15
     link_url = 'sample-edit-modal'
-    link_attr = 'data-url'
+    link_attr = 'data-modal-url'
     list_filters = ['kind', 'state']
     list_columns = ['name', 'description', 'kind', 'state']
     list_search = ['name', 'description', 'state', 'kind']

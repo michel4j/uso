@@ -14,7 +14,7 @@
         {% for member in session.team.all %}
             <img class="permit-img-sm pull-left" src="{{ member.get_photo }}"
                  onerror="this.src='/static/img/blank-profile.png';"
-                data-toggle='popover'
+                data-bs-toggle='popover'
                 data-placement="bottom"
                  data-trigger="hover"
                 data-content="{{ member }}, {{ member.email }}, {{member.institution|default:'No Institution'}}"

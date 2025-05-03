@@ -6,12 +6,12 @@
 {% load markup %}
 
 
-{% block page_heading %}Schedule<span class="hidden-xs text-muted"> &mdash; {{subtitle}}</span>{% endblock %}
+{% block page-title %}Schedule<span class="hidden-xs text-muted"> &mdash; {{subtitle}}</span>{% endblock %}
 
-{% block full %}
-<div id="calendar-container" class="pagelet">
+{% block content %}
+<div id="calendar-container" class="page">
 
-	<div class="pad-wrapper">
+	<div class="container-fluid">
         <div class="row">
 		<div id="calendar" class="col-sm-12 slot-{{ shift_duration }}-hrs">
             <div id="spinner"></div>
@@ -45,7 +45,7 @@
 					</ul>
 				</div>
 				<div class="col-xs-1 spinner-container text-center">
-					<i id="spinner" class="icon-2x icon-fw pull-right"></i>
+					<i id="spinner" class="icon-md icon-fw pull-right"></i>
 				</div>
 			</div>
 		</div>

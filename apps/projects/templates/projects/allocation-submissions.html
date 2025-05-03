@@ -17,7 +17,7 @@
                 <td>
                     {% if p.project.submissions.first.pk %}
                         <a href="{% url 'submission-detail' p.project.submissions.first.pk %}"
-                           data-toggle="popover" title="{{ p.project }}" data-content="{{ p.project.title }}"
+                           data-bs-toggle="popover" title="{{ p.project }}" data-content="{{ p.project.title }}"
                            data-trigger="hover"
                         >
                             {{ p.project }}
@@ -43,7 +43,7 @@
                 </td>
                 <td class="text-right">{{ p.shift_request }}</td>
                 <td class="hover-edit text-right">
-                    <a title="Edit Allocation" style="cursor: pointer;" data-url="{% url 'edit-allocation' p.pk %}">
+                    <a title="Edit Allocation" style="cursor: pointer;" data-modal-url="{% url 'edit-allocation' p.pk %}">
                         <text class="text-info pool-{{ p.key }}-item" style="font-weight: 700;">{{ p.shifts }}</text>
                     </a>
                 </td>

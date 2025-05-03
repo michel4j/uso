@@ -20,7 +20,7 @@ class ScheduleForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div('description', css_class="col-xs-6"),
-                Div(Field('config', css_class="chosen"), css_class="col-xs-6"),
+                Div(Field('config', css_class="selectize"), css_class="col-xs-6"),
                 Div(Field('start_date', readonly=True), css_class="col-xs-6"),
                 Div(Field('end_date', readonly=True), css_class="col-xs-6"),
                 css_class="row narrow-gutter"
@@ -28,7 +28,7 @@ class ScheduleForm(forms.ModelForm):
             Div(
                 Div(
                     Div(
-                        StrictButton("Cancel", type="button", css_class="btn btn-default pull-left",
+                        StrictButton("Cancel", type="button", css_class="btn btn-secondary pull-left",
                                      data_dismiss="modal"),
                         StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
                         css_class='pull-right'

@@ -15,7 +15,7 @@
 	<div class="modal-footer">
   			<form action="{{request.get_full_path}}" method="post">{% csrf_token %}
    			<input type="hidden" name="post" value="yes" />
-			<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+			<button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">Cancel</button>
 			<button type="submit" value="Submit" class="btn btn-info">Yes, I'm sure</button>
 		</form>
 	</div>

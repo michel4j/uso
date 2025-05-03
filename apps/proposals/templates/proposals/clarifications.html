@@ -14,7 +14,7 @@
                 <small class="text-muted">answered by {{com.responder}} &ndash; {{com.modified|date}} {{com.modified|time}}</small>
                 {% else %}
                     {% if owner or admin %}
-                    <a href="#0" data-url="{% url response_url_name ref=object.pk pk=com.pk %}"
+                    <a href="#0" data-modal-url="{% url response_url_name ref=object.pk pk=com.pk %}"
                        class="pull-right">
                         <i class="bi-reply icon-fw"></i> <span class="tool-label">Reply</span>
                     </a>

@@ -2,7 +2,7 @@
 {% load l10n %}
 
 <div class="controls row narrow-gutter {{ field_class }}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
-    {% include 'bootstrap3/layout/field_errors_block.html' %}
+    {% include 'bootstrap5/layout/field_errors_block.html' %}
     <div class="col-xs-12">
         <label class="control-label col-xs-12">{{ field.field.label }}</label>
 	</div>
@@ -21,6 +21,6 @@
         </div>
     </div>
     {% endfor %}
-    {% include 'bootstrap3/layout/help_text.html' %}
+    {% include 'bootstrap5/layout/help_text.html' %}
 </div>
 

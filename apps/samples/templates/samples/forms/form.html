@@ -10,11 +10,6 @@
 {% block extra_js %}
 		<script type="text/javascript">
 	$(document).ready(function(){
-		$(".chosen").chosen({
-			placeholder_text_single: "Select an option",
-			search_contains: true,
-			allow_single_deselect: true,
-		});
 		$('#search-compound').click(function(e) {
 			if (jQuery.trim($('input[name="name"]').val()) != '') {
 	            var loadUrl = "{% url 'compound-search' %}" + "?q=" + encodeURIComponent($('input[name="name"]').val());
@@ -89,11 +84,11 @@
 	</script>
 {% endblock %}
 
-{% block page_heading %}{{form.helper.title}}{% endblock %}
+{% block page-title %}{{form.helper.title}}{% endblock %}
 
-{% block full %}
-<div class="pagelet">
-	<div class="pagelet-body">
+{% block content %}
+<div class="page">
+	<div class="page-body">
 		<div id="flip-toggle">
 			<div id="sample-form">
 				{% crispy form form.helper %}

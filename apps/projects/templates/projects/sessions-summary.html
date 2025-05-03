@@ -24,8 +24,8 @@
                 <td class="text-center">
                     {% if user|is_staff:event.beamline %}
                     <a href="#0" title="Hand Over Session"  class="text-danger"
-                        data-url="{% url 'session-handover' pk=event.project.pk fac=event.beamline.acronym event=event.pk %}">
-                        <i class="bi-play-circle icon-2 icon-fw"></i>
+                        data-modal-url="{% url 'session-handover' pk=event.project.pk fac=event.beamline.acronym event=event.pk %}">
+                        <i class="bi-play-circle icon-md icon-fw"></i>
                     </a>
                     {% else %}
                         Hand-over Pending

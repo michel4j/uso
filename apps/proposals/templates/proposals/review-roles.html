@@ -8,7 +8,7 @@
             <hr/>
             <p>
                 This review was originally assigned to the role
-                <span class="label label-info">{{ object.role|human_role }}</span>
+                <span class="badge bg-info">{{ object.role|human_role }}</span>
                 which is currently held by the following individuals:
             </p>
             <ul style="padding-left: 2em;">
@@ -55,7 +55,7 @@
             <hr/>
             <p>
                 This review has been assigned to the role &ensp;<span
-                    class="label label-info">{{ object.role|human_role }}</span>&ensp;
+                    class="badge bg-info">{{ object.role|human_role }}</span>&ensp;
 
                 which is currently held by the following individuals:
             </p>
@@ -76,7 +76,7 @@
         {% endif %}
         <div class="row">
             <div class="col-xs-12">
-                <a href="#0" data-url="{% url 'claim-review' pk=object.pk %}" class="btn btn-primary pull-right">Claim
+                <a href="#0" data-modal-url="{% url 'claim-review' pk=object.pk %}" class="btn btn-primary pull-right">Claim
                     it!</a>
             </div>
         </div>

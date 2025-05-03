@@ -2,8 +2,8 @@
 {% load static %}
 
 
-{% block folio-content %}
-    <div class="pad-wrapper">
+{% block page-content %}
+    <div class="container-fluid">
         <div class="row">
             <div class="list-tools">
                 <span>
@@ -18,7 +18,7 @@
                         <div class="claim-grid">
                             <div>{{ object.cite|safe }}.</div>
                             <div style="position: absolute; right: 2em; top: 25%;">
-                                <a data-toggle="tooltip" title="Add to my list!"
+                                <a data-bs-toggle="tooltip" title="Add to my list!"
                                    href="{% url 'claim-publication' pk=object.pk %}" class="btn btn-xs btn-success"><i
                                         class="bi-plus-lg icon-fw"></i></a>
                             </div>
@@ -27,7 +27,7 @@
                         <div class="claim-grid">
                             <div>{{ object.cite|safe }}.</div>
                             <div style="position: absolute; right: 2em; top: 25%;">
-                                <a data-toggle="tooltip" title="Remove from list!"
+                                <a data-bs-toggle="tooltip" title="Remove from list!"
                                    href="{% url 'unclaim-publication' pk=object.pk %}"
                                    class="btn btn-xs btn-danger"><i class="bi-dash-lg icon-fw"></i></a>
                             </div>

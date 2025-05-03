@@ -10,11 +10,11 @@
             {% if owner or admin and object.state != 'inactive' %}
                 <span class="box-tools pull-right text-center">
                     <a href='{% url "edit-team" pk=project.pk %}' class="pull-right">
-                        <i class="bi-pencil icon-2 icon-fw"></i><br/>
+                        <i class="bi-pencil icon-md icon-fw"></i><br/>
                         <span class="tool-label">Edit Team</span>
                     </a>
                     <a href='{% url "refresh-team" pk=project.pk %}' class="pull-right">
-                       <i class="bi-arrow-clockwise icon-2 icon-fw"></i><br/>
+                       <i class="bi-arrow-clockwise icon-md icon-fw"></i><br/>
                        <span class="tool-label">Refresh Team</span>
                     </a>
                 </span>
@@ -48,7 +48,7 @@
         <div class="col-xs-6 col-sm-4 col-md-3">
             <div class="tinytron {% if user.email.lower == member.email.lower %}thick-border{% endif %} border-3d">
                 {% if user.email.lower == member.email.lower and member != object.spokesperson %}
-                <a data-url="{% url 'remove-team' pk=project.pk user_pk=member.pk %}" class="pull-right"
+                <a data-modal-url="{% url 'remove-team' pk=project.pk user_pk=member.pk %}" class="pull-right"
                        title="Remove yourself from the team">
                         <i class="bi-trash-fill text-danger icon-lg"></i>
                 </a>
@@ -113,7 +113,7 @@
     <div class="tinytron bg-darken" style="font-size: 95%;">
         <div class="row">
             <div class="col-xs-12">
-                    <i class="bi-info-circle text-primary icon-3x icon-fw pull-left"></i>To avoid delays, please ensure all participating team members have the appropriate permissions before your
+                    <i class="bi-info-circle text-primary icon-lg icon-fw pull-left"></i>To avoid delays, please ensure all participating team members have the appropriate permissions before your
                     scheduled beam time. Required permissions are indicated for each team member above. Please contact beamline staff once your project has been scheduled.
                     <hr class="hr-lg"/>
                     <i class="bi-check-circle-fill text-success-light icon-fw"></i>Qualified&emsp;

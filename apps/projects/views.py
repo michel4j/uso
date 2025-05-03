@@ -3,6 +3,7 @@ import functools
 import itertools
 from datetime import timedelta
 
+from crisp_modals.views import ModalCreateView, ModalUpdateView
 from dateutil import parser
 from django.conf import settings
 from django.contrib import messages
@@ -302,7 +303,7 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
                    'allocation__project__spokesperson__last_name',
                    'allocation__project__spokesperson__first_name', 'id']
     link_url = "manage-shift-request"
-    link_attr = 'data-url'
+    link_attr = 'data-modal-url'
     order_by = ['-modified', 'state']
     list_title = 'Shift Requests'
     admin_roles = USO_ADMIN_ROLES
@@ -433,10 +434,9 @@ class LabPermit(RolePermsViewMixin, detail.DetailView):
         return obj.is_owned_by(self.request.user)
 
 
-class SessionHandOver(RolePermsViewMixin, edit.CreateView):
+class SessionHandOver(RolePermsViewMixin, ModalCreateView):
     model = models.Session
     form_class = forms.HandOverForm
-    template_name = "forms/modal.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
@@ -493,9 +493,8 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
         return JsonResponse({"url": ""})
 
 
-class SessionExtend(RolePermsViewMixin, edit.UpdateView):
+class SessionExtend(RolePermsViewMixin, ModalUpdateView):
     model = models.Session
-    template_name = "forms/modal.html"
     form_class = forms.ExtensionForm
     allowed_roles = USO_ADMIN_ROLES
 
@@ -533,9 +532,8 @@ class SessionExtend(RolePermsViewMixin, edit.UpdateView):
         )
 
 
-class SessionSignOn(RolePermsViewMixin, edit.UpdateView):
+class SessionSignOn(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.SessionForm
-    template_name = "forms/modal.html"
     model = models.Session
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
@@ -688,10 +686,9 @@ class SessionSignOff(RolePermsViewMixin, ConfirmDetailView):
         )
 
 
-class TerminateSession(RolePermsViewMixin, edit.CreateView):
+class TerminateSession(RolePermsViewMixin, ModalCreateView):
     model = models.Session
     form_class = forms.TerminationForm
-    template_name = "forms/modal.html"
     allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
     def get_form_kwargs(self):
@@ -745,10 +742,9 @@ class TerminateSession(RolePermsViewMixin, edit.CreateView):
         )
 
 
-class LabSignOn(RolePermsViewMixin, edit.CreateView):
+class LabSignOn(RolePermsViewMixin, ModalCreateView):
     model = models.LabSession
     form_class = forms.LabSessionForm
-    template_name = "forms/modal.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
@@ -1105,10 +1101,9 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         return context
 
 
-class EditAllocation(RolePermsViewMixin, edit.UpdateView):
+class EditAllocation(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.AllocationForm
     model = models.Allocation
-    template_name = "forms/modal.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1151,10 +1146,9 @@ class EditAllocation(RolePermsViewMixin, edit.UpdateView):
         )
 
 
-class EditReservation(RolePermsViewMixin, edit.CreateView):
+class EditReservation(RolePermsViewMixin, ModalCreateView):
     form_class = forms.ReservationForm
     model = models.Reservation
-    template_name = "forms/modal.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1759,9 +1753,8 @@ class ProjectScheduleAPI(generics.ListAPIView):
         return super().get_queryset()
 
 
-class DeclineAllocation(RolePermsViewMixin, edit.UpdateView):
+class DeclineAllocation(RolePermsViewMixin, ModalUpdateView):
     model = models.Allocation
-    template_name = "forms/modal.html"
     form_class = forms.DeclineForm
     allowed_roles = USO_ADMIN_ROLES
 

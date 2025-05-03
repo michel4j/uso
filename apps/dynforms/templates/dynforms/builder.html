@@ -10,17 +10,21 @@
     {% endblock %}
 {% block pre_js %}
     {{ block.super }}
-    {% endblock %}
-{% block page_heading %}Form Designer &mdash; <span class="text-muted">{{ form_spec.name }}</span>{% endblock %}
-{% block full %}
+{% endblock %}
+
+{% block page-title %}<span class="text-muted">{{ form_spec.name }}</span>{% endblock %}
+{% block content %}
     <div class="row">
-        <div id="df-sidebar"><!-- Start Side bar toolbox -->
+        <div id="df-sidebar" class="p-0"><!-- Start Side bar toolbox -->
             <!-- Nav tabs -->
             <ul class="nav nav-tabs">
-                <li class="active"><a href="#add-field" data-toggle="tab"><i
-                        class="bi-plus-lg icon-fw"></i>&nbsp;Add</a></li>
-                <li><a href="#field-settings" data-toggle="tab"><i class="bi-pencil-square"></i>&nbsp;Field</a></li>
-                <li><a href="#form-settings" data-toggle="tab"><i class="bi-layout-window"></i>&nbsp;Form</a></li>
+                <li class="nav-item">
+                    <a href="#add-field" class="nav-link active" data-bs-toggle="tab" aria-current="page">
+                        <i class="bi-plus-lg icon-fw"></i>&nbsp;Add
+                    </a>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#field-settings" data-bs-toggle="tab"><i class="bi-pencil-square"></i>&nbsp;Field</a></li>
+                <li class="nav-item"><a class="nav-link" href="#form-settings" data-bs-toggle="tab"><i class="bi-layout-window"></i>&nbsp;Form</a></li>
             </ul>
 
             <!-- Tab panes -->
@@ -40,7 +44,6 @@
             {% include "dynforms/preview.html" %}
         </div> <!-- End Content area for editing -->
     </div>
-    <div id="modal-holder"></div>
 {% endblock %}
 {% block extra_js %}
     <script>

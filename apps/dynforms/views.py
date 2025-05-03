@@ -1,3 +1,4 @@
+from crisp_modals.views import ModalUpdateView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
@@ -264,9 +265,9 @@ class FormTypeList(RolePermsViewMixin, ItemListView):
     order_by = ['-created']
 
 
-class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
+class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
     form_class = forms.FormTypeForm
-    template_name = "forms/modal.html"
+
     model = FormType
     success_url = reverse_lazy('dynforms-list')
     success_message = "FormType '%(name)s' has been updated."

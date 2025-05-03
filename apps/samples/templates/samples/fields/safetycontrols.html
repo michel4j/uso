@@ -10,7 +10,7 @@
             <strong><em>{{group}}:</em></strong>
                 {% for control in choices %}
                 <div class="checkbox" >
-                    <!--label for="{{field.name}}_{{control.pk}}" data-toggle="popover" data-content="{{control.description}}" data-trigger="hover" data-placement="left">{{control.description}}</label-->
+                    <!--label for="{{field.name}}_{{control.pk}}" data-bs-toggle="popover" data-content="{{control.description}}" data-trigger="hover" data-placement="left">{{control.description}}</label-->
                     <label class="text-condensed" for="{{field.name}}_{{control.pk}}"><input name="{{field.name}}"
                     id="{{field.name}}_{{control.pk}}"
                     value="{{control.pk}}"

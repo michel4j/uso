@@ -1,3 +1,4 @@
+from crisp_modals.views import ModalCreateView, ModalUpdateView
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect, JsonResponse
 from django.utils import timezone
@@ -31,7 +32,7 @@ class ConfirmDetailView(edit.DeleteView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ManageAttachments(RolePermsViewMixin, edit.CreateView):
+class ManageAttachments(RolePermsViewMixin, ModalCreateView):
     template_name = "misc/attachments.html"
     model = models.Attachment
     reference_model = None
@@ -92,8 +93,7 @@ class DeleteAttachment(RolePermsViewMixin, edit.DeleteView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class RequestClarification(RolePermsViewMixin, edit.CreateView):
-    template_name = 'forms/modal.html'
+class RequestClarification(RolePermsViewMixin, ModalCreateView):
     form_class = forms.ClarificationForm
     model = models.Clarification
     reference_model = None
@@ -128,8 +128,7 @@ class RequestClarification(RolePermsViewMixin, edit.CreateView):
         })
 
 
-class ClarificationResponse(RolePermsViewMixin, edit.UpdateView):
-    template_name = 'forms/modal.html'
+class ClarificationResponse(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.ResponseForm
     model = models.Clarification
     reference_model = None

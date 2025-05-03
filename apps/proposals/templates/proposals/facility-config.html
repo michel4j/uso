@@ -1,15 +1,14 @@
-{% extends 'folio.html' %}
+{% extends 'page.html' %}
 {% load crispy_forms_tags %}
 {% load beamline_tags %}
 
-{% block page_heading %}<span class="hidden-xs">Facility &mdash; </span>
-    <span class="text-muted">Configurations</span>{% endblock %}
+{% block page-pretitle %}Facility Configs{% endblock %}
 
-{% block folio-title %}
+{% block page-title %}
     <strong>{{ object.acronym }}</strong> &mdash; Available Techniques
 {% endblock %}
 
-{% block folio-subtitle %}
+{% block page-subtitle %}
     <small>
         <i class="bi-circle-fill text-success-light"></i>&nbsp;Available &emsp;
         <i class="bi-circle-fill text-warning-light"></i>&nbsp;Special Request &emsp;
@@ -17,19 +16,19 @@
     </small>
 {% endblock %}
 
-{% block folio-tools %}
+{% block page-tools %}
     {% if object.kind != 'village' %}
         {% if owner or admin %}
-            <a href='#0' data-url='{% url "add-facility-config" pk=object.pk %}' class="pull-right">
-                <i class="bi-plus-lg icon-2 icon-fw"></i><br/>
+            <a href='#0' data-modal-url='{% url "add-facility-config" pk=object.pk %}' class="pull-right">
+                <i class="bi-plus-lg icon-md icon-fw"></i><br/>
                 <span class="tool-label">Add Config</span>
             </a>
         {% endif %}
     {% endif %}
 {% endblock %}
 
-{% block folio-content %}
-    <div class="pagelet-body">
+{% block page-content %}
+    <div class="page-body">
         {% for config in object.configs.pending %}
             {% include "proposals/config-box.html" with pending=True %}
         {% endfor %}

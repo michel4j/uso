@@ -6,7 +6,7 @@
     <div class="row no-space">
         <div class="field-group-item col-xs-6">
             <select name="{{ field.name }}.type" id="{{ field.name }}-type{{ repeat_index }}"
-                    class="chosen select form-control" data-placeholder="Select Review Type">
+                    class="select form-control" data-placeholder="Select Review Type">
                 <option value="" data-review-role=""></option>
                 {% for rev_type in review_types %}
                 <option value={{ rev_type.pk }} data-review-role="{{  rev_type.role }}">{{ rev_type }}</option>
@@ -16,7 +16,7 @@
         <div class="field-group-item col-xs-6">
             <div class="input-group">
                 <select name="{{ field.name }}.reviewer" id="{{ field.name }}-reviewer{{ repeat_index }}"
-                        class="chosen select form-control"  data-placeholder="Select Reviewer/Role" data-selected-username="">
+                        class="select form-control"  data-placeholder="Select Reviewer/Role" data-selected-username="">
                 </select>
                 <span class="input-group-btn">
                 <button type="button" class="btn btn-white remove-repeat" title="Delete entry">
@@ -45,11 +45,6 @@
     // execute at the end
     $(function () {
         window.setTimeout(function () {
-            $("#{{field.name}}-controls-{{repeat_index}} .chosen").chosen({
-                disable_search_threshold: 5,
-                search_contains: true,
-                allow_single_deselect: true
-            });
             update_reviewers_field($('select[name^="{{field.name}}.type"]'));
         }, 0);
     });

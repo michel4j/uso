@@ -61,12 +61,6 @@ $country.bind('typeahead:selected', function() {
 });
 
 
-$(".chosen").chosen({
-		placeholder_text_single: "Type or select an option",
-		search_contains: true,
-		allow_single_deselect: true,
-});
-
 var institutions = new Bloodhound({
   datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
   queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -84,12 +78,12 @@ $('.institution-input').typeahead(null, {
 </script>
 {% endblock %}
 
-{% block page_heading %}Edit My Profile{% endblock %}
+{% block page-title %}Edit My Profile{% endblock %}
 
-{% block full %}
-<div class="pad-wrapper row-fluid">
-<div class="pagelet col-xs-12">
-	<div class="pagelet-heading"><h3>What would you like to change?</h3></div>
+{% block content %}
+<div class="container-fluid">
+<div class="page col-xs-12">
+	<div class="page-heading"><h3>What would you like to change?</h3></div>
 	<br/>
 	{% crispy form2 form2.helper %}
 	{% crispy form form.helper %}

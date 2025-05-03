@@ -5,21 +5,20 @@
 {% load agreement_tags %}
 
 
-{% block page_heading %}
+{% block page-title %}
     <span class="hidden-xs">My Profile</span>
 {% endblock %}
 
-{% block full %}
-    <div class="pagelet">
-
-    <div class="pagelet-header">
-        <span class="pagelet-title">{{ user.title|default_if_none:"" }} {{user}}</span>
+{% block content %}
+    <div class="page">
+    <div class="page-header">
+        <span class="page-title">{{ user.title|default_if_none:"" }} {{user}}</span>
         <a href="{% url 'edit-my-profile' %}" class="btn btn-xs btn-white pull-right"><span class="sr-only">Edit Profile</span>
-            <i class="bi-pencil icon-1x icon-fw"></i>
+            <i class="bi-pencil icon-sm icon-fw"></i>
         </a>
     </div>
 
-    <div class="pagelet-body">
+    <div class="page-body">
         <div class="col-sm-6 col-lg-9">
 
             <table class="profile table table-condensed" style="font-size: 95%;">
@@ -49,7 +48,7 @@
                     <td>{{object.research_field.all|join:", "}}</td>
                 </tr>
                 <tr>
-                    <td class="item" colspan="2">{% for r in object.roles %}<span class="label label-info">{{r|role_label}}</span> {% endfor %}</td>
+                    <td class="item" colspan="2">{% for r in object.roles %}<span class="badge bg-info">{{r|role_label}}</span> {% endfor %}</td>
                 </tr>
                 </tbody>
             </table>
@@ -58,7 +57,7 @@
         <div class="col-sm-6 col-lg-3">
         {% if object.address %}
             {% if object.address.api_format|api_coords %}
-                <div class="pagelet-content col-xs-12" style="padding-left: 0; padding-right: 0;">
+                <div class="page-content col-xs-12" style="padding-left: 0; padding-right: 0;">
                 {% with object.address.api_format|api_coords as latlng %}
                     <div id="map_canvas" class="col-sm-5 col-md-7" style="height:241px; width: 100%; border:1px #ddd solid;"></div>
 
@@ -96,7 +95,7 @@
                 </div>
             {% endif %}
         {% else %}
-            <div class="pagelet-content">
+            <div class="page-content">
                 <div class="empty">Update your profile</div>
             </div>
         {% endif %}
@@ -107,11 +106,11 @@
 </div>
 
 {% if object|active_agreements %}
-<div class="pagelet">
-    <div class="pagelet-header">
-        <span class="pagelet-title">My Active Agreements</span>
+<div class="page">
+    <div class="page-header">
+        <span class="page-title">My Active Agreements</span>
     </div>
-    <div class="pagelet-body">
+    <div class="page-body">
         <div class="col-sm-12">
         {%  for acceptance in object|active_agreements %}
             <ul class="list-unstyled">
@@ -119,7 +118,7 @@
             <h4 class="text-condensed">
                 <strong>{{ acceptance.agreement.name }}</strong>
                 <span class="text-right pull-right">
-                    <a href='#full-agreement' data-toggle="collapse" title="Full Agreement"
+                    <a href='#full-agreement' data-bs-toggle="collapse" title="Full Agreement"
                        aria-expanded="false" aria-controls="full-agreement"><i class="bi-three-dots icon-fw"></i></a>
                 </span>
             </h4>

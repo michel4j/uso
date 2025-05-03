@@ -12,10 +12,10 @@
         {% endif %}
            title="Clarifications" data-placement="right">
             <span class="icon-stack">
-                <i class="icon-2 bi-chat-left-text"></i>
+                <i class="icon-md bi-chat-left-text"></i>
                 <span class="icon-stack-1x icon-stack-text superscript">
                     {% if target.clarifications.count %}
-                    <i class="bi-circle-fill icon-1 text-info-light"></i>
+                    <i class="bi-circle-fill icon-sm text-info-light"></i>
                     {% endif %}
                 </span>
             </span><br/>
@@ -32,10 +32,10 @@
         {% endif %}
            title="Attachments" data-placement="right">
             <span class="icon-stack">
-                <i class="icon-2 bi-paperclip icon-fw"></i>
+                <i class="icon-md bi-paperclip icon-fw"></i>
                 <span class="icon-stack-text superscript">
                     {% if target.attachments.count %}
-                    <i class="bi-circle-fill icon-1 text-info-light"></i>
+                    <i class="bi-circle-fill icon-sm text-info-light"></i>
                     {% endif %}
                 </span>
             </span><br/>
@@ -44,26 +44,26 @@
     </li>
     <li>
         <a class="" href="{% url 'print-review' pk=object.pk %}" title="Print Document" target="_blank" data-placement="right">
-            <i class="bi-printer icon-2 icon-fw"></i><br/>
+            <i class="bi-printer icon-md icon-fw"></i><br/>
             <span class="tool-label">Print</span>
         </a>
     </li>
     <li>
         <a class="enlarge-text" href="#0" title="Text Size" data-placement="right">
-            <i class="bi-textarea-t icon-2 text-muted"></i><br/>
+            <i class="bi-textarea-t icon-md text-muted"></i><br/>
             <span class="tool-label">Text Size</span>
         </a>
     </li>
     <li class="pull-right">
         <a href="#0"
         {% if review.reference.proposal %}
-           data-url="{% url 'request-proposal-clarification' pk=target.pk %}"
+           data-modal-url="{% url 'request-proposal-clarification' pk=target.pk %}"
         {% elif review.reference.project %}
-           data-url="{% url 'request-project-clarification' pk=target.pk %}"
+           data-modal-url="{% url 'request-project-clarification' pk=target.pk %}"
         {% endif %}
            title="Request Clarification" data-placement="right">
             <span class="icon-stack">
-                <i class="bi-chat icon-2 text-success-light"></i>
+                <i class="bi-chat icon-md text-success-light"></i>
                 <strong class="icon-stack-1x icon-stack-text"><i class="bi-plus-lg"></i></strong>
             </span><br/>
             <span class="tool-label">Clarification</span>

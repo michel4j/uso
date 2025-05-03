@@ -45,7 +45,7 @@ class SampleForm(forms.ModelForm):
                                  css_class="btn btn-danger",
                                  data_url=delete_url),
                     Div(
-                        StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default"),
+                        StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary"),
                         StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
                         css_class='pull-right'
                     ),
@@ -54,7 +54,7 @@ class SampleForm(forms.ModelForm):
                 btns = FormActions(
                     Div(
                         HTML('<hr/>'),
-                        HTML('<i class="bi-lock icon-2x text-muted pull-right"></i>'),
+                        HTML('<i class="bi-lock icon-md text-muted pull-right"></i>'),
                         css_class="col-xs-12"
                     ),
                     css_class="row"
@@ -65,7 +65,7 @@ class SampleForm(forms.ModelForm):
             btns = FormActions(
                 HTML("<hr/>"),
                 Div(
-                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
                     StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
                     css_class='pull-right'
                 ),
@@ -88,8 +88,8 @@ class SampleForm(forms.ModelForm):
                 css_class="row narrow-gutter"
             ),
             Div(
-                Div(Field('kind', css_class="chosen"), css_class='col-sm-6'),
-                Div(Field('state', css_class="chosen"), css_class='col-sm-6'),
+                Div(Field('kind', css_class="selectize"), css_class='col-sm-6'),
+                Div(Field('state', css_class="selectize"), css_class='col-sm-6'),
                 Div(InlineCheckboxes('hazard_types'), css_class='col-xs-12 field-w3'),
                 Div('description', css_class='col-sm-12'),
                 css_class="row narrow-gutter"

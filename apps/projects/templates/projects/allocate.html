@@ -2,7 +2,7 @@
 {% load static %}
 {% load beamline_tags %}
 
-{% block page_heading %}<span class="hidden-xs">Allocation {{ cycle }} &mdash; </span>
+{% block page-title %}<span class="hidden-xs">Allocation {{ cycle }} &mdash; </span>
     <span class="text-muted">{{ facility.acronym }}</span>{% endblock %}
 
 {% block extra_css %}
@@ -17,22 +17,22 @@
     </style>
 {% endblock %}
 
-{% block full %}
-    <div class="pagelet">
-        <div class="pagelet-body">
+{% block content %}
+    <div class="page">
+        <div class="page-body">
             <div class="tinytron bg-white">
                 <h4 style="margin: 0.25em 0;"><strong>Available shifts</strong>
                     <div class="pull-right" style="margin-top: -0.25em;">
-                        <span class="label label-success calc"
+                        <span class="badge bg-success calc"
                               title="Total from Facility Schedule">{{ total_shifts|floatformat }}</span>
                         -
-                        <a href="#0" class="label label-danger calc" title="Unavailable for {{ facility.acronym }}"
-                           data-url="{% url 'edit-reservation' cycle=cycle.pk  fac=facility.acronym %}">
+                        <a href="#0" class="badge bg-danger calc" title="Unavailable for {{ facility.acronym }}"
+                           data-modal-url="{% url 'edit-reservation' cycle=cycle.pk  fac=facility.acronym %}">
                             {{ unavailable_shifts|default:0|floatformat }}
                             <i class="icon-fw bi-pencil"></i>
                         </a>
                         =
-                        <span class="label label-success calc"
+                        <span class="badge bg-success calc"
                               title="Available for {{ facility.acronym }}">{{ available_shifts|default:0|floatformat }}</span>
                     </div>
                 </h4>
@@ -60,23 +60,23 @@
                             <h4 style="margin-top: -0.4em;">
                                 <div class="pull-left">
                                     <span class="stats-title"><small>Available</small></span><br/>
-                                    <span class="label label-success calc"
+                                    <span class="badge bg-success calc"
                                           title="Available for Pool: {{ pool.percent }}% of {{ available_shifts|floatformat }}">
                                         {{ pool.shifts }}</span>
                                 </div>
                                 <div class="pull-left"><br/>&nbsp;-&nbsp;</div>
                                 <div class="pull-left">
                                     <span class="stats-title"><small>Allocated</small></span><br/>
-                                    <span class="label label-info calc"
+                                    <span class="badge bg-info calc"
                                           title="Allocated">{{ pool.used.total|default:0|floatformat }}</span>
                                 </div>
                                 <div class="pull-left"><br/>&nbsp;-&nbsp;</div>
                                 <div class="pull-left">
                                     <span class="stats-title"><small>Reserved</small></span><br/>
-                                    <span class="label label-default calc" title="Edit Reserved"
+                                    <span class="badge bg-default calc" title="Edit Reserved"
                                           style="padding-left: 0px; padding-right: 0px;">
                                         <a href="#0" style="color: #fff;"
-                                           data-url="{% url 'edit-reservation' cycle=cycle.pk  fac=facility.acronym pool=pool.key %}">
+                                           data-modal-url="{% url 'edit-reservation' cycle=cycle.pk  fac=facility.acronym pool=pool.key %}">
                                             {{ pool.reserved.total|default:0 }}
                                             <i class="icon-fw bi-pencil"></i>
                                         </a>
@@ -85,7 +85,7 @@
                                 <div class="pull-left"><br/>&nbsp;=&nbsp;</div>
                                 <div class="pull-left">
                                     <span class="stats-title"><small>Left Over</small></span><br/>
-                                    <span class="label label-warning calc" title="Left Over Shifts">
+                                    <span class="badge bg-warning calc" title="Left Over Shifts">
                                         {{ pool.unused|default:0|floatformat }}</span>
                                 </div>
                             </h4>
@@ -125,19 +125,19 @@
                         <h4 style="margin-top: -0.4em;">
                         <div class="pull-left text-condensed">
                             <span class="stats-title"><small>Total</small></span><br/>
-                            <span class="label label-warning calc" title="Total Discretionary">
+                            <span class="badge bg-warning calc" title="Total Discretionary">
                                 {{ discretionary|default:0|floatformat }}</span>
                         </div>
                         <div class="pull-left"><br/>&nbsp;+&nbsp;</div>
                         <div class="pull-left text-condensed">
                             <span class="stats-title"><small>User Disc</small></span><br/>
-                            <span class="label label-primary calc" title="Left Over Shifts from User Pool">
+                            <span class="badge bg-primary calc" title="Left Over Shifts from User Pool">
                                 {{ pools.user.unused|default:0|floatformat }}</span>
                         </div>
                         <div class="pull-left"><br/>&nbsp;=&nbsp;</div>
                         <div class="pull-left text-condensed">
                             <span class="stats-title"><small>Disc Left</small></span><br/>
-                            <span class="label label-warning calc" title="Remaining Discretionary Shifts">
+                            <span class="badge bg-warning calc" title="Remaining Discretionary Shifts">
                                 {{ pools.user.unused|default:0|floatformat|add:discretionary|default:0 }}</span>
                         </div>
                     </h4>
@@ -165,20 +165,20 @@
                             <h4 style="margin-top: -0.4em;">
                                 <div class="pull-left">
                                     <span class="stats-title"><small>Total</small></span><br/>
-                                    <span class="label label-success calc"
+                                    <span class="badge bg-success calc"
                                           title="Available for Pool: {{ pool.percent }}% of {{ available_shifts|floatformat }}">
                                         {{ pool.shifts }}</span>
                                 </div>
                                 <div class="pull-left"><br/>&nbsp;-&nbsp;</div>
                                 <div class="pull-left">
                                     <span class="stats-title"><small>Allocated</small></span><br/>
-                                    <span class="label label-info calc"
+                                    <span class="badge bg-info calc"
                                           title="Allocated">{{ pool.used.total|default:0|floatformat }}</span>
                                 </div>
                                 <div class="pull-left"><br/>&nbsp;=&nbsp;</div>
                                 <div class="pull-left">
                                     <span class="stats-title"><small>Available</small></span><br/>
-                                    <span class="label label-primary calc" title="Left Over Shifts">
+                                    <span class="badge bg-primary calc" title="Left Over Shifts">
                                         {{ pool.unused|default:0|floatformat }}</span>
                                 </div>
                             </h4>

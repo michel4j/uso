@@ -2,7 +2,7 @@
 {% load project_tags %}
 {% get_cycle_requests facility=facility cycle=cycle as requests %}
 {% block box_class %}{% if cycle.state < cycle.STATES.schedule %}bg-darken{% elif cycle.state < cycle.STATES.archive %}
-    bg-info{% else %}bg-danger insensitive{% endif %}{% endblock %}
+    bg-info-subtle{% else %}bg-danger-subtle insensitive{% endif %}{% endblock %}
 {% block box_header %}
     <h4 class="text-condensed" style="margin-bottom: 0;">{{ cycle }}</h4>
     <small class="hidden-xs text-muted">{{ cycle.get_state_display }}</small>
@@ -16,7 +16,7 @@
             {% if cycle.state <= cycle.STATES.archive %}
                 {% if cycle.state >= cycle.STATES.evaluation %}
                     <a href='{% url "allocate-review-cycle" pk=cycle.pk fac=facility.acronym %}' class="pull-right">
-                        <i class="bi-diagram-3 icon-2 icon-fw"></i><br/>
+                        <i class="bi-diagram-3 icon-md icon-fw"></i><br/>
                         <span class="tool-label">Allocate</span>
                     </a>
                 {% endif %}
@@ -25,13 +25,13 @@
         {% endif %}
         {% if cycle.state >= cycle.STATES.schedule %}
             <a href='{% url "beamline-projects" fac=facility.acronym cycle=cycle.pk %}' class="pull-right">
-                <i class="bi-briefcase icon-2 icon-fw"></i><br/>
+                <i class="bi-briefcase icon-md icon-fw"></i><br/>
                 <span class="tool-label">Projects</span>
             </a>
             {% if facility.flex_schedule and cycle %}
                 <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}' class="pull-right"
                    style="position: relative;">
-                    <i class="bi-inbox icon-2 icon-fw"></i><br/>
+                    <i class="bi-inbox icon-md icon-fw"></i><br/>
                     <span class="tool-label">Requests</span>
                     {% if requests.count %}
                         <div class="bubble progress-bar-warning">
@@ -43,18 +43,18 @@
             {% with schedule=cycle.schedule %}
                 {% if schedule %}
                     <a href='{% url "schedule-beamtime" pk=schedule.pk fac=facility.acronym %}' class="pull-right">
-                        <i class="bi-calendar-plus icon-2 icon-fw"></i><br/>
+                        <i class="bi-calendar-plus icon-md icon-fw"></i><br/>
                         <span class="tool-label">Schedule</span>
                     </a>
                     <a href='{% url "schedule-support" pk=schedule.pk fac=facility.pk %}' class="pull-right">
-                        <i class="bi-person-plus icon-2 icon-fw"></i><br/>
+                        <i class="bi-person-plus icon-md icon-fw"></i><br/>
                         <span class="tool-label">Support</span>
                     </a>
                 {% endif %}
             {% endwith %}
         {% else %}
             <a href='{% url "beamline-submissions" fac=facility.acronym cycle=cycle.pk %}' class="pull-right">
-                <i class="bi-journal-check icon-2 icon-fw"></i><br/>
+                <i class="bi-journal-check icon-md icon-fw"></i><br/>
                 <span class="tool-label">Submissions</span>
             </a>
         {% endif %}
@@ -64,7 +64,7 @@
     {% get_facility_cycle_stats facility cycle as stats %}
     <div class="col-sm-12">
         <hr class="hr-xs"/>
-        <table class="table table-condensed table-ruled">
+        <table class="table table-ruled table-transparent">
             <tbody>
             <tr>
                 <th class="text-muted">Projects</th>

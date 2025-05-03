@@ -1,10 +1,11 @@
-{% extends "forms/modal.html" %}
+{% extends "crisp_modals/modal.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
 {% load proposal_tags %}
-{% block form_body %}
+{% block modal_title %}Attachments{% endblock %}
+{% block modal_body %}
 		<h4><strong>Attachments for {{reference|verbose_name|title}}: </strong>{{reference}}</h4>
-        <div class="tinytron bg-info text-info">
+        <div class="alert bg-info-subtle">
             <dl>
                 <dt>Scientific</dt>
                 <dd>Supporting information for Scientific Review,
@@ -20,7 +21,7 @@
                 <dd>Supporting information that does not fall into the above categories.</dd>
             </dl>
         </div>
-		{% crispy form form.helper %}
+		{% crispy form form.body %}
 		<table class="table table-hover">
 		<thead>
 			<tr><th>File</th><th>Type</th><th>Size</th><th>Added</th><th></th></tr>
@@ -54,11 +55,6 @@
 		{% endfor %}
 		</tbody>
 		</table>
-		<div class="row">
-		    <div class="modal-footer">
-       		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-       		</div>
-     	</div>
 {% endblock %}
 
 {% block form_init %}

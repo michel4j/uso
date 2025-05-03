@@ -1,9 +1,9 @@
-{% extends "projects/base.html" %}
+{% extends "base.html" %}
 
-{% block page_heading %}{{ beamline.acronym }} Usage &mdash; <span class="text-muted">{{object}}</span>{% endblock %}
+{% block page-title %}{{ beamline.acronym }} Usage &mdash; <span class="text-muted">{{object}}</span>{% endblock %}
 
-{% block full %}
-<div class="pagelet col-xs-12">
+{% block content %}
+<div class="page col-xs-12">
 
     <table class="table table-condensed">
       {% for cycle, allocation in info %}{% if allocation %}
@@ -19,7 +19,7 @@
                 <td>{{ session.start }}</td>
                 <td>{{ session.end}}</td>
                 <td class="text-right">
-                    <a href='{% url "session-detail" pk=session.pk %}' data-toggle="tooltip"
+                    <a href='{% url "session-detail" pk=session.pk %}' data-bs-toggle="tooltip"
                        title="View session details">
                     <i class="bi-clipboard icon-fw"></i></a>
                 </td>

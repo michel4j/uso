@@ -5,8 +5,8 @@
             <h3 class="no-vmargin text-condensed">
                 <strong>{{ ctx.facility.acronym }}</strong> &mdash; {{ ctx.facility.name }}
                 {% if ctx.facility.flex_schedule %}
-                    <span class="label label-info pull-right">
-                <strong data-toggle="popover"
+                    <span class="badge bg-info pull-right">
+                <strong data-bs-toggle="popover"
                         data-trigger="hover"
                         data-content="Number of Shifts will be assigned as required based on availability"
                         data-placement="bottom"
@@ -14,7 +14,7 @@
                 </strong>
             </span>
                 {% else %}
-                    <span class="label label-info pull-right">
+                    <span class="badge bg-info pull-right">
                 <strong>{{ ctx.shifts|default:"0" }} Shift{{ ctx.shifts|pluralize:",s" }}</strong>
             </span>
                 {% endif %}
@@ -34,7 +34,7 @@
     <div class="row">
         <div class="col-xs-12">
             <h4>Experimental Procedure:&nbsp;{% for tech in ctx.techniques %}
-                <span class="label label-default" title="{{ tech }}">{{ tech.acronym }}</span>{% endfor %}</h4>
+                <span class="badge bg-light" title="{{ tech }}">{{ tech.acronym }}</span>{% endfor %}</h4>
             <p>{{ ctx.procedure }}</p>
         </div>
     </div>

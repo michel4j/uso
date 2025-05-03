@@ -6,11 +6,11 @@
 {% load markup %}
 
 
-{% block page_heading %}Scheduling <span class="text-muted">&mdash; {{ subtitle }}</span>{% endblock %}
+{% block page-title %}Scheduling <span class="text-muted">&mdash; {{ subtitle }}</span>{% endblock %}
 
-{% block full %}
-    <div id="calendar-container" class="pagelet">
-        <div class="pad-wrapper">
+{% block content %}
+    <div id="calendar-container" class="page">
+        <div class="container-fluid">
         <div class="row narrow-gutter">
             <div id="calendar" class="col-sm-9 slot-{{ shift_duration }}-hrs">
                 <div id="spinner"></div>
@@ -19,18 +19,18 @@
                 <div class="row narrow-gutter">
                     <div class="col-xs-12 calendar-tools">
                         {% if admin and editor_type == 'mode' %}
-                            <div class="btn-group pull-right" data-toggle="buttons">
-                                <label {% if schedule.state != 'draft' %}data-url='{% url "switch-schedule" pk=schedule.pk state='draft' %}'{% endif %}
+                            <div class="btn-group pull-right" data-bs-toggle="buttons">
+                                <label {% if schedule.state != 'draft' %}data-modal-url='{% url "switch-schedule" pk=schedule.pk state='draft' %}'{% endif %}
                                         class="btn btn-sm {% if schedule.state == "draft" %}btn-warning active{% else %}btn-white{% endif %}">
                                     <input type="radio" name="options" id="opt-draft" autocomplete="off" checked>
                                     {{ schedule.STATES.draft }}
                                 </label>
-                                <label {% if schedule.state != 'tentative' %}data-url='{% url "switch-schedule" pk=schedule.pk state='tentative'  %}'{% endif %}
+                                <label {% if schedule.state != 'tentative' %}data-modal-url='{% url "switch-schedule" pk=schedule.pk state='tentative'  %}'{% endif %}
                                         class="btn btn-sm {% if schedule.state == "tentative" %}btn-info active{% else %}btn-white{% endif %}">
                                     <input type="radio" name="options" id="opt-tentative" autocomplete="off">
                                     {{ schedule.STATES.tentative }}
                                 </label>
-                                <label {% if schedule.state != 'live' %}data-url='{% url "switch-schedule" pk=schedule.pk state='live'  %}'{% endif %}
+                                <label {% if schedule.state != 'live' %}data-modal-url='{% url "switch-schedule" pk=schedule.pk state='live'  %}'{% endif %}
                                         class="btn btn-sm {% if schedule.state == "live" %}btn-success active{% else %}btn-white{% endif %}">
                                     <input type="radio" name="options" id="opt-live" autocomplete="off">
                                     {{ schedule.STATES.live }}
@@ -54,7 +54,7 @@
                     <div id="src-tags">
                         {% for tag in tag_types %}
                             <span id="tag-{{ tag.pk }}"
-                                  class="label label-primary pull-left tag cat-{{ forloop.counter0 }}"
+                                  class="badge bg-primary pull-left tag cat-{{ forloop.counter0 }}"
                                   data-tag="{{ tag.pk }}" data-cat="{{ forloop.counter0 }}">{{ tag }}</span>
                         {% endfor %}
                     </div>

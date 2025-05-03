@@ -3,7 +3,7 @@
 {% load l10n %}
 
 <div class="controls row narrow-gutter {{ field_class }}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
-	{% include 'bootstrap3/layout/field_errors_block.html' %}
+	{% include 'bootstrap5/layout/field_errors_block.html' %}
 	{% for cat in form.fields.areas.choices %}
 	{% with field.field.choices|get_category:cat as choices %}{% if choices|length %}
 	<div class="col-xs-12 subarea {% if cat.0 not in form.initial.areas|get_pks %}hidden{% endif %}" id="area_{{cat.0}}">
@@ -30,7 +30,7 @@
 	</div>
 	{% endif %}{% endwith %}
 	{% endfor %}
-	{% include 'bootstrap3/layout/help_text.html' %}
+	{% include 'bootstrap5/layout/help_text.html' %}
 </div>
 
 

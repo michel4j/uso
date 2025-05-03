@@ -1,4 +1,4 @@
-{% extends 'projects/base.html' %}
+{% extends "base.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
 
@@ -12,16 +12,16 @@
         <script src="{% static 'dynforms/dynforms.js' %}"></script>
 {% endblock %}
 
-{% block page_heading %}{{ form.helper.title }}{% endblock %}
+{% block page-title %}{{ form.helper.title }}{% endblock %}
 
-{% block full %}
-    <div class="pagelet">
-        <div class="pagelet-body">
+{% block content %}
+    <div class="page">
+        <div class="page-body">
             <div class="df-form">
                 {% if cycle %}
                     <div class="tinytron bg-darken">
                         <h4 style="margin: 0;"><strong>Period of Interest</strong> &mdash; Cycle {{ cycle }}</h4>
-                        <div width="100%" class="timeline" id="timeline" data-toggle="tooltip" title="Timeline"></div>
+                        <div width="100%" class="timeline" id="timeline" data-bs-toggle="tooltip" title="Timeline"></div>
                         <div class="spacer"></div>
                     </div>
                 {% endif %}
@@ -39,11 +39,6 @@
         {% include "proposals/cycle-timeline.html" with object=cycle %}
     {% endif %}
     <script type="text/javascript">
-        $(".chosen").chosen({
-            placeholder_text_single: "Type or select an option",
-            search_contains: true,
-            allow_single_deselect: true,
-        });
         $('.dateinput').datetimepicker({
             format: "yyyy-mm-dd",
             startDate: '{{cycle.start_date|date:"Y-m-d"}}',

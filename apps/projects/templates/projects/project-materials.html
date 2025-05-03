@@ -11,19 +11,19 @@
                 {% if owner or admin %}
                     <span class="box-tools pull-right text-center">
 					<a href="{% url 'material-detail' pk=material.pk %}" title="View Details" class="pull-right">
-						<i class="bi-card-text icon-2 icon-fw"></i><br/>
+						<i class="bi-card-text icon-md icon-fw"></i><br/>
                         <span class="tool-label">Details</span>
 					</a>
                         {% if project.state != 'inactive' %}
                             <a href='{% url "edit-materials" pk=project.pk %}' title="Amend Materials"
                                class="pull-right">
-						<i class="bi-pencil icon-2 icon-fw"></i><br/>
+						<i class="bi-pencil icon-md icon-fw"></i><br/>
                         <span class="tool-label">Amend</span>
 					</a>
                         {% endif %}
                 </span>
                 {% endif %}
-                <i class="{{ material|material_state_icon }} pull-left icon-2x" style="padding: 0.25em;"></i>
+                <i class="{{ material|material_state_icon }} pull-left icon-md" style="padding: 0.25em;"></i>
                 <h3 class="no-vmargin">
                     <span class="hidden-xs">Samples &amp; Materials &mdash; </span>{{ material }}
                 </h3>
@@ -43,7 +43,7 @@
         <div class="row narrow-gutter">
             <div class="col-xs-2">
                 <h3 class="no-vmargin"><span
-                        class="label label-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
+                        class="badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
                 </h3>
             </div>
             <div class="col-xs-6">

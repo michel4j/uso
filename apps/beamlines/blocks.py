@@ -44,3 +44,4 @@ class MyFacilities(BaseBlock):
                 "facilities": facilities,
             })
             return super().render(ctx)
+

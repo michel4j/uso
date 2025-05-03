@@ -7,10 +7,10 @@
     <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
 {% endblock %}
 
-{% block page_heading %}{{ agreement.name }}{% endblock %}
-{% block full %}
-    <div class="pagelet">
-        <div class="pagelet-body" style="padding: 5em;">
+{% block page-title %}{{ agreement.name }}{% endblock %}
+{% block page-content %}
+    <div class="page">
+        <div class="page-body" style="padding: 5em;">
             <div class="minitron bg-transparent">
                 {{ agreement.content | markdown }}
             </div>
@@ -18,7 +18,6 @@
             <div class="minitron bg-transparent">
             {% crispy form form.helper %}
             </div>
-
         </div>
     </div>
 {% endblock %}

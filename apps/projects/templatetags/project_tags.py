@@ -144,7 +144,7 @@ def risk_background(material):
 
 
 @register.inclusion_tag('projects/event-icon.html', takes_context=True)
-def event_icon(context, event_time, icon="bi-calendar2-event", size="icon-3x", description=""):
+def event_icon(context, event_time, icon="bi-calendar2-event", size="icon-lg", description=""):
     return {
         'size': size,
         'icon': icon,

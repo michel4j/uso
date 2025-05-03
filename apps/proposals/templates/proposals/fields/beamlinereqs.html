@@ -7,7 +7,7 @@
 	    <span class="field-group-item col-xs-7">
 		   <label for="{{field.name}}-techniques{{repeat_index}}">Techniques:<span class="text-danger">∗</span></label>
 		   <select name="{{field.name}}.techniques" id="{{field.name}}-techniques{{repeat_index}}" multiple="multiple"
-                   class="chosen select form-control" data-placeholder="Select techniques">
+                   class="select form-control" data-placeholder="Select techniques">
                {% for tech_id, tech, selected, tech_facs in options.techniques %}
                <option value="{{tech_id}}" data-related="{{tech_facs|jsonify}}" class="option-technique-{{tech_id}}"
                        {% if selected %}selected="selected" {% endif %}>{{tech}}
@@ -30,7 +30,7 @@
         </span>
         <span class="field-group-item col-xs-2">
 			<label for="{{field.name}}-shifts{{repeat_index}}">Shifts:
-                <i class="df-info bi-info-circle text-primary" data-toggle="popover" data-placement="bottom"
+                <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
                    data-trigger="hover"
                    data-content="Specify the number of shifts you are requesting for the first cycle."></i>
             </label>
@@ -54,7 +54,7 @@
     <div class="row no-space">
 	    <span class="field-group-item col-xs-12">
 			<label for="{{field.name}}-procedure">Experimental Procedure:<span class="text-danger">∗</span>
-               <i class="df-info bi-info-circle text-primary" data-toggle="popover" data-placement="bottom"
+               <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
                   data-trigger="hover"
                   data-content="Describe the experimental procedure for this beamline."></i>
 			</label>
@@ -67,7 +67,7 @@
    <div class="row no-space">
        <span class="field-group-item col-xs-12">
 		   <label for="{{field.name}}-justification">Justification of Suitability:<span class="text-danger">∗</span>
-               <i class="df-info bi-info-circle text-primary" data-toggle="popover" data-placement="bottom"
+               <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
                   data-trigger="hover"
                   data-content="Please justify the suitability of this beamline and the corresponding number of shifts requested."></i>
 		   </label>

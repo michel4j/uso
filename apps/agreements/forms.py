@@ -46,7 +46,7 @@ class AgreementForm(forms.ModelForm):
                     StrictButton("Delete", type="submit", name="submit", value="delete", css_class="btn btn-danger")
                 )
             right_buttons.append(
-                StrictButton("Save as New", type="submit", name="submit", value="save-new", css_class="btn btn-default")
+                StrictButton("Save as New", type="submit", name="submit", value="save-new", css_class="btn btn-secondary")
             )
         right_buttons.append(
             StrictButton("Save ", type="submit", name="submit", value="save", css_class="btn btn-primary")
@@ -55,9 +55,9 @@ class AgreementForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div("name", css_class="col-sm-12"),
-                Div(Field("state", css_class="chosen"), css_class="col-sm-3"),
+                Div(Field("state", css_class="selectize"), css_class="col-sm-3"),
                 Div(
-                    Field("roles", css_class="chosen", title="Users with these roles must accept the agreement."),
+                    Field("roles", css_class="selectize", title="Users with these roles must accept the agreement."),
                     css_class="col-sm-9"
                 ),
                 Div("description", css_class="col-sm-12"),

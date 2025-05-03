@@ -9,11 +9,11 @@
             </span>
                 {% if reviewer.committee %}
                     <span class="pull-left " title="PRC Member({{ reviewer.committee }})" style="margin-right: 0.25em;">
-                <i class="bi-award icon-2x text-warning" style="line-height: 1;"></i>
+                <i class="bi-award icon-md text-warning" style="line-height: 1;"></i>
             </span>
                 {% endif %}
                 <span class=""
-                      {% if reviewer.comments.strip %}data-toggle="popover"
+                      {% if reviewer.comments.strip %}data-bs-toggle="popover"
                       data-trigger="hover" data-content="{{ reviewer.comments }}" data-placement="bottom"
                       {% endif %}
                 >
@@ -23,14 +23,14 @@
             </span>
                 <hr class="hr-xs"/>
                 <span class="badge {% if reviewer.techniques.count %}progress-bar-info{% else %}progress-bar-warning{% endif %}"
-                      data-toggle="popover"
+                      data-bs-toggle="popover"
                       data-trigger="hover"
                       data-placement="bottom"
                       data-content="{{ reviewer.techniques.all|join:', ' }}"
                 >{{ reviewer.techniques.count }}</span>
                 Techniques &emsp;
                 <span class="badge {% if reviewer.techniques.count %}progress-bar-info{% else %}progress-bar-warning{% endif %}"
-                      data-toggle="popover"
+                      data-bs-toggle="popover"
                       data-trigger="hover"
                       data-placement="bottom"
                       data-content="{{ reviewer.areas.all|join:', ' }}"
@@ -38,7 +38,7 @@
                 Subject Areas
                 {% if workload %}
                     <a href='#reviewer-workload-{{ reviewer.pk }}' class="pull-right"
-                       data-toggle="collapse" title="Reviewer Workload"
+                       data-bs-toggle="collapse" title="Reviewer Workload"
                        aria-expanded="false" aria-controls="reviewer-workload">
                         <i class="bi-list-ol icon-fw"></i><br/>
                     </a>
@@ -63,10 +63,10 @@
 
                 {% block grid-cell-command %}
                     <div style="position: absolute; right: 1em; top: 1em;">
-                        <a data-toggle="tooltip" title="Add Reviewer"
+                        <a data-bs-toggle="tooltip" title="Add Reviewer"
                            href="{% url 'add-cycle-reviewer' cycle=cycle.pk pk=reviewer.pk %}"
                            class="btn btn-xs btn-success">
-                            <i class="bi-plus-lg icon-1x icon-fw"></i>
+                            <i class="bi-plus-lg icon-sm icon-fw"></i>
                         </a>
                     </div>
                 {% endblock %}

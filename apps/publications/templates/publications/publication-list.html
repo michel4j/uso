@@ -1,8 +1,8 @@
 {% extends "tooled-item-list.html" %}
 
 {% block list-tools %}
-    <a data-url="{% url 'add-publication' %}" class="pull-right">
-        <i class="bi-plus-lg icon-2 icon-fw"></i><br>
+    <a data-modal-url="{% url 'add-publication' %}" class="pull-right">
+        <i class="bi-plus-lg icon-md icon-fw"></i><br>
         <span class="tool-label">Add Publication</span>
     </a>
 {% endblock %}

@@ -7,9 +7,9 @@
     <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
 {% endblock %}
 
-{% block full %}
-    <div id="df-form-preview" class="pagelet">
-        <div class="pad-wrapper">
+{% block content %}
+    <div id="df-form-preview" class="page">
+        <div class="container-fluid">
             <div class="row">
                 <div><!-- Start Content area for editing -->
                     {% include "dynforms/form.html" %}

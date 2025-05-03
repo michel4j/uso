@@ -3,12 +3,12 @@
 {% block list-tools %}
     {% if owner or admin %}
     <a href="{% url 'create-beamline' %}" class="pull-right">
-        <i class="bi-plus-lg icon-2 icon-fw"></i><br>
+        <i class="bi-plus-lg icon-md icon-fw"></i><br>
         <span class="tool-label">Add Facility</span>
     </a>
     {% endif %}
     <a href="{% url 'beamline-map' %}" class="pull-right">
-        <i class="bi-map icon-2 icon-fw"></i><br>
+        <i class="bi-map icon-md icon-fw"></i><br>
         <span class="tool-label">Facility Map</span>
     </a>
 

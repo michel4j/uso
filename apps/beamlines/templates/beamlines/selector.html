@@ -1,4 +1,4 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
 {% load itemlist %}
 {% load beamline_tags %}
@@ -16,15 +16,15 @@
     </style>
 {% endblock %}
 
-{% block page_heading %}{% itemlist_heading %}{% endblock %}
-{% block folio-tools %}
+{% block page-title %}{% itemlist_heading %}{% endblock %}
+{% block page-tools %}
     <a href="{% url 'beamline-list' %}" class="pull-right">
-        <i class="bi-list-ol icon-2 icon-fw"></i><br>
+        <i class="bi-list-ol icon-md icon-fw"></i><br>
         <span class="tool-label">Facility List</span>
     </a>
 {% endblock %}
-{% block folio-content %}
-    <div class="pad-wrapper">
+{% block page-content %}
+    <div class="container-fluid">
         <div class="row">
             <div class="col-xs-12">
                 {% include "itemlist/filters.html" %}

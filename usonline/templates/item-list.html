@@ -1,25 +1,20 @@
-{% extends "folio.html" %}
-{% load static %}
-{% load itemlist %}
+{% extends "page.html" %}
 
+{% block page-pretitle %}List{% endblock %}
+{% block page-title %}{{ list_title }}{% endblock %}
 
+{% block extra_css %}
+    {{ block.super }}
+{% endblock %}
 
-{% block page_heading %}{% itemlist_heading %}{% endblock %}
-{% block folio-no-header %}{% endblock %}
-{% block folio-content %}
-    <div class="pad-wrapper">
-        <div class="row">
-            <div class="list-tools">
-                <span>
-                {% include "itemlist/filters.html" %}
-                </span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="list-content col-xs-12">{% include "itemlist/list.html" %}</div>
-            <div class="col-xs-12">
-                {% include "itemlist/pagination.html" %}
-            </div>
+{% block page-tools %}
+    {% if view.tool_template %}{% include view.tool_template %}{% endif %}
+{% endblock %}
+
+{% block page-content %}
+    <div class="row">
+        <div class="col">
+        {% include "itemlist/embed_list.html" %}
         </div>
     </div>
 {% endblock %}

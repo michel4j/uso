@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import timedelta
 
+from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
@@ -42,7 +43,7 @@ USO_MANAGER_ROLES = getattr(settings, "USO_MANAGER_ROLES", ['manager:science'])
 
 
 def _state_lbl(st, obj=None):
-    return '<i class="icon-1x {0} {1} text-center" title="{2}"></>'.format(
+    return '<i class="icon-sm {0} {1} text-center" title="{2}"></>'.format(
         proposal_tags.state_icon(st), st, models.Proposal.STATES[st]
     )
 
@@ -918,9 +919,8 @@ class ReviewCycleDetail(RolePermsViewMixin, detail.DetailView):
         return context
 
 
-class EditConfig(RolePermsViewMixin, edit.UpdateView):
+class EditConfig(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.FacilityConfigForm
-    template_name = "forms/modal.html"
     model = models.FacilityConfig
     allowed_roles = USO_ADMIN_ROLES
 
@@ -931,6 +931,7 @@ class EditConfig(RolePermsViewMixin, edit.UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
+        kwargs['delete_url'] = reverse('delete-facility-config', kwargs=self.kwargs)
         return kwargs
 
     def get_initial(self):
@@ -979,15 +980,14 @@ class EditConfig(RolePermsViewMixin, edit.UpdateView):
         return JsonResponse({"url": ""})
 
 
-class AddFacilityConfig(RolePermsViewMixin, edit.CreateView):
+class AddFacilityConfig(RolePermsViewMixin, ModalCreateView):
     form_class = forms.FacilityConfigForm
-    template_name = "forms/modal.html"
     model = models.FacilityConfig
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.facility = models.Facility.objects.get(pk=self.kwargs['pk'])
-        return (super().check_allowed() or self.facility.is_admin(self.request.user))
+        return super().check_allowed() or self.facility.is_admin(self.request.user)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1033,22 +1033,13 @@ class AddFacilityConfig(RolePermsViewMixin, edit.CreateView):
         return JsonResponse({"url": ""})
 
 
-class DeleteConfig(RolePermsViewMixin, ConfirmDetailView):
+class DeleteConfig(RolePermsViewMixin, ModalDeleteView):
     model = models.FacilityConfig
-    template_name = "forms/delete.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         config = self.get_object()
-        return (super().check_allowed() or config.facility.is_admin(self.request.user))
-
-    def confirmed(self, *args, **kwargs):
-        self.object = self.get_object()
-        ActivityLog.objects.log(
-            self.request, self.object, kind=ActivityLog.TYPES.delete, description='Configuration deleted'
-        )
-        self.object.delete()
-        return JsonResponse({"url": ""})
+        return super().check_allowed() or config.facility.is_admin(self.request.user)
 
 
 class FacilityOptions(RolePermsViewMixin, View):
@@ -1082,9 +1073,8 @@ class ReviewCycleList(RolePermsViewMixin, ItemListView):
     allowed_roles = USO_ADMIN_ROLES
 
 
-class EditReviewCycle(SuccessMessageMixin, RolePermsViewMixin, edit.UpdateView):
+class EditReviewCycle(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
     form_class = forms.ReviewCycleForm
-    template_name = "forms/modal.html"
     model = models.ReviewCycle
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1106,9 +1096,8 @@ class EditReviewCycle(SuccessMessageMixin, RolePermsViewMixin, edit.UpdateView):
         )
 
 
-class EditReviewTrack(RolePermsViewMixin, edit.UpdateView):
+class EditReviewTrack(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.ReviewTrackForm
-    template_name = "forms/modal.html"
     model = models.ReviewTrack
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1133,9 +1122,8 @@ class EditReviewTrack(RolePermsViewMixin, edit.UpdateView):
         return JsonResponse({"url": ""})
 
 
-class AddReviewStage(RolePermsViewMixin, edit.CreateView):
+class AddReviewStage(RolePermsViewMixin, ModalCreateView):
     form_class = forms.ReviewStageForm
-    template_name = "forms/modal.html"
     model = models.ReviewStage
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
@@ -1157,9 +1145,8 @@ class AddReviewStage(RolePermsViewMixin, edit.CreateView):
         return JsonResponse({"url": ""})
 
 
-class EditReviewStage(RolePermsViewMixin, edit.UpdateView):
+class EditReviewStage(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.ReviewStageForm
-    template_name = "forms/modal.html"
     model = models.ReviewStage
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
@@ -1167,6 +1154,7 @@ class EditReviewStage(RolePermsViewMixin, edit.UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
+        kwargs['delete_url'] = reverse("delete-review-stage", kwargs=self.kwargs)
         return kwargs
 
     def form_valid(self, form):
@@ -1175,15 +1163,9 @@ class EditReviewStage(RolePermsViewMixin, edit.UpdateView):
         return JsonResponse({"url": ""})
 
 
-class DeleteReviewStage(RolePermsViewMixin, ConfirmDetailView):
+class DeleteReviewStage(RolePermsViewMixin, ModalDeleteView):
     model = models.ReviewStage
-    template_name = "forms/delete.html"
     allowed_roles = USO_ADMIN_ROLES
-
-    def confirmed(self, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.delete()
-        return JsonResponse({"url": ""})
 
 
 class SubmissionList(RolePermsViewMixin, ItemListView):

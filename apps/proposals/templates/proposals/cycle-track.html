@@ -6,20 +6,20 @@
         <div class="col-xs-12" style="padding-top: 1em">
             {% if admin %}
                 <div class="box-tools pull-right">
-                    <a href="#0" data-url="{% url 'edit-review-track' pk=track.pk %}" class="pull-right ">
-                        <i class="bi-sliders2 icon-2 icon-fw"></i><br/>
+                    <a href="#0" data-modal-url="{% url 'edit-review-track' pk=track.pk %}" class="pull-right ">
+                        <i class="bi-sliders2 icon-md icon-fw"></i><br/>
                         <span class="tool-label">Parameters</span>
                     </a>
                     {% if cycle.state >= cycle.STATES.review %}
                         <a href='{% url "review-evaluation" cycle=cycle.pk track=track.acronym %}'
                            class="pull-right">
-                            <i class="bi-clipboard icon-2 icon-fw"></i><br/>
+                            <i class="bi-clipboard icon-md icon-fw"></i><br/>
                             <span class="tool-label">Evaluate</span>
                         </a>
                     {% endif %}
                     <a href='{% url "track-submission-list" cycle=cycle.pk track=track.acronym %}'
                        class="pull-right">
-                        <i class="bi-journal-check icon-2 icon-fw"></i><br/>
+                        <i class="bi-journal-check icon-md icon-fw"></i><br/>
                         <span class="tool-label">Submissions</span>
                     </a>
                 </div>
@@ -44,18 +44,18 @@
                 {% for stage in track.stages.all %}
                     <div class="track-stage">
                         <div class="track-stage-title">
-                            <a href="#/" data-url="{% url 'edit-review-stage' track=track.acronym pk=stage.pk %}"
+                            <a href="#/" data-modal-url="{% url 'edit-review-stage' track=track.acronym pk=stage.pk %}"
                                title="{{ stage.kind }}">
-                                <i class="bi-{{ stage.position }}-square icon-lg"></i>
+                                <i class="bi-{{ stage.position }}-square icon-md"></i>
                                 <span class="hidden-xs">&nbsp;{{ stage.kind }}</span>
                             </a>
                             <a href='{% url "stage-review-list" cycle=cycle.pk stage=stage.pk %}'
                                title="Reviews">
-                                <i class="bi-list-ul icon-2 icon-fw"></i>
+                                <i class="bi-list-ul icon-md icon-fw"></i>
                             </a>
                             <a href='{% url "assigned-reviewers" cycle=cycle.pk stage=stage.pk %}'
                                title="Assignments">
-                                <i class="bi-people icon-2 icon-fw"></i>
+                                <i class="bi-people icon-md icon-fw"></i>
                             </a>
                         </div>
                         <div class="track-stage-body">
@@ -65,8 +65,8 @@
                 {% endfor %}
                 <div class="track-stage hidden-xs">
                     <div class="track-stage-body">
-                        <a href="#/" data-url="{% url 'add-review-stage' track=track.acronym %}"
-                           title="Add Review Stage"><i class="bi-plus-lg icon-2 icon-fw"></i> Add Review Stage
+                        <a href="#/" data-modal-url="{% url 'add-review-stage' track=track.acronym %}"
+                           title="Add Review Stage"><i class="bi-plus-lg icon-md icon-fw"></i> Add Review Stage
                         </a>
                     </div>
                 </div>

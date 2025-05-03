@@ -1,17 +1,17 @@
 {% load beamline_tags %}
 
 <div class="cycle-box tinytron
-    {% if active %}{% if config.accept %}bg-success{% else %}bg-danger{% endif %}{%  elif pending %}bg-warning{% else %}bg-darken{% endif %}">
+    {% if active %}{% if config.accept %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}{%  elif pending %}bg-warning-subtle{% else %}bg-darken{% endif %}">
     <div class="row">
         <div class="col-xs-12">
             {% if owner or admin %}
                 {% if config.is_editable %}
                     <span class="box-tools pull-right" style="">
-                 <a href='#0' data-url='{% url "edit-facility-config" pk=config.pk %}' class="pull-right">
+                 <a href='#0' data-modal-url='{% url "edit-facility-config" pk=config.pk %}' class="pull-right">
                     <i class="bi-pencil icon-fw"></i><br/>
                     <span class="tool-label">Edit</span>
                  </a>
-                 <a href='#0' data-url='{% url "delete-facility-config" pk=config.pk %}' class="pull-right">
+                 <a href='#0' data-modal-url='{% url "delete-facility-config" pk=config.pk %}' class="pull-right">
                     <i class="bi-trash icon-fw text-danger"></i><br/>
                     <span class="tool-label">Delete</span>
                  </a>

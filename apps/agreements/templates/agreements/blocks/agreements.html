@@ -47,8 +47,8 @@
                         institution who is responsible for such matters.
                     </p>
                     {% if user.institution %}
-                        <a href="#0" data-url="{% url 'request-institution-contact' user.institution.pk %}"
-                           class="btn btn-sm btn-default pull-right">
+                        <a href="#0" data-modal-url="{% url 'request-institution-contact' user.institution.pk %}"
+                           class="btn btn-sm btn-secondary pull-right">
                             <i class="bi-pencil icon-fw"></i>&nbsp;Institutional Contact
                         </a>
                     {% endif %}

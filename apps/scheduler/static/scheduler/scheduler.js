@@ -447,10 +447,10 @@ function setupEditor(sel, options) {
                     "   </div>" +
                     "</div>" +
                     "<div class='tools'>" +
-                    "   <a href='#0' data-action='comments'><i class='bi-floppy icon-1x'></i><br/>Save</a>" +
-                    "   <a href='#0' data-action='cancel'><i class='bi-ban icon-1x'></i><br/>Cancel</a>" +
-                    "   <a href='#0' data-action='reset'><i class='bi-arrow-clockwise icon-1x'></i><br/>Reset</a>" +
-                    "   <a href='#0' data-action='delete'><i class='bi-trash icon-1x'></i><br/>Delete</a>" +
+                    "   <a href='#0' data-action='comments'><i class='bi-floppy icon-sm'></i><br/>Save</a>" +
+                    "   <a href='#0' data-action='cancel'><i class='bi-ban icon-sm'></i><br/>Cancel</a>" +
+                    "   <a href='#0' data-action='reset'><i class='bi-arrow-clockwise icon-sm'></i><br/>Reset</a>" +
+                    "   <a href='#0' data-action='delete'><i class='bi-trash icon-sm'></i><br/>Delete</a>" +
                     "</div>");
             }
         });

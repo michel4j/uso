@@ -1,36 +1,46 @@
-<ul class="nav navbar-nav navbar-right profile-menu hidden-xs">
-    <li class="dropdown pull-right">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-            <img src="{{request.user.get_photo}}" onerror="this.src='/static/img/blank-profile.png';" title="{{request.user}}" data-placement="bottom">
-            <i class="bi-chevron-down"></i>
+<ul class="navbar-nav ms-auto profile-menu d-flex flex-row align-items-center me-3">
+    {% with request.user.notifications.web.all as notifications %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle"
+               href="#0" id="navbarDropdownNotifications" role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false" title="Notifications">
+                <i class="bi bi-bell icon-fw icon-md"></i>
+                {% if notifications.pending.count %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info">
+                    {{ notifications.pending.count }}
+                    </span>
+                {% endif %}
+            </a>
+            {% include "notifier/notifications.html" %}
+        </li>
+    {% endwith %}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" 
+           href="#0" id="navbarDropdown" role="button"
+           data-bs-toggle="dropdown"
+           aria-expanded="false" title="Profile Menu">
+            <img src="{{ request.user.get_photo }}" onerror="this.src='/static/img/blank-profile.png';"
+                 title="{{ request.user }}" data-bs-placement="bottom" class="rounded-circle"
+                 style="width: 30px; height: 30px;"  alt="{{ request.user }}"
+            />
         </a>
-        <ul class="dropdown-menu">
-            <li><a href="{% url 'edit-my-profile' %}"><i class="bi-person-gear icon-fw"></i>&nbsp;Edit profile</a></li>
-            {% if request.user.can_review %}<li><a href="{% url 'edit-reviewer-profile' %}"><i class="bi-sliders icon-fw"></i>&nbsp;Reviewer Expertise</a></li>{% endif %}
-            <!--li><a href="{% url 'sync-profile' %}"><i class="bi-arrow-clockwise icon-fw"></i>&nbsp;Synchronize</a></li-->
-            <li role="separator" class="divider"></li>
-            <li><a href="{% url 'change-password' %}"><i class="bi-lock icon-fw"></i>&nbsp;Change Password</a></li>
-            <li role="separator" class="divider"></li>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'edit-my-profile' %}"><i class="bi bi-person-gear icon-fw"></i>&nbsp;Edit
+                profile</a></li>
+            {% if request.user.can_review %}
+                <li><a class="dropdown-item" href="{% url 'edit-reviewer-profile' %}"><i
+                        class="bi bi-sliders icon-fw"></i>&nbsp;Reviewer Expertise</a></li>
+            {% endif %}
             <li>
-                <a href="#logout-action"><i class="bi-power icon-fw"></i>&nbsp;Logout</a>
+                <hr class="dropdown-divider">
             </li>
+            <li><a class="dropdown-item" href="{% url 'change-password' %}"><i class="bi bi-lock icon-fw"></i>&nbsp;Change
+                Password</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="#logout-action"><i class="bi bi-power icon-fw"></i>&nbsp;Logout</a></li>
         </ul>
     </li>
-    {% with request.user.notifications.web.all as notifications %}
-    <li class="dropdown pull-right">
-        <a href="#0" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"  title="Notifications">
-            <span class="icon-stack">
-                <i class="icon-stack-2x bi-bell icon-fw"></i>
-                <span class="icon-stack-1x superscript">
-                    {% if notifications.pending.count %}
-                    <span class="badge progress-bar-info"><div>{{notifications.pending.count}}</div></span>
-                    {% endif %}
-                </span>
-            </span>
-        </a>
-        {% include "notifier/notifications.html" %}
-    </li>
-    {% endwith %}
 </ul>
-     
-   

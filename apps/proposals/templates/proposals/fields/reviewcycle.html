@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="col-sm-3">
-                <select name="{{field.name}}" id="{{field.name}}" class="chosen select form-control">
+                <select name="{{field.name}}" id="{{field.name}}" class="select form-control">
                     {% for value, cycle, selected in cycles %}
                     <option value="{{value}}" {% if selected %}selected="selected" {% endif %}>{{cycle}}</option>
                     {% endfor %}
@@ -21,16 +21,6 @@
     </div>
 </div>
 <script>
-    $(function(){
-        window.setTimeout(function(){
-            $("#{{field.name}}-controls .chosen").chosen({
-                placeholder_text_single: "{{field.label}}",
-                disable_search_threshold: 5,
-                search_contains: true,
-            });
-        }, 0);
-    });
-
     $(document).on('change', '#{{field.name}}', function(){
 		var cycle_id = $(this).val();
     	var info_url = "{% url 'cycle-info' %}" + cycle_id + "/";

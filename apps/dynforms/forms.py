@@ -3,6 +3,7 @@ from base64 import b64encode
 from datetime import datetime
 
 from Crypto.Cipher import AES
+from crisp_modals.forms import ModalModelForm, Row, FullWidth
 from crispy_forms.bootstrap import PrependedText, InlineCheckboxes
 from crispy_forms.bootstrap import StrictButton, FormActions
 from crispy_forms.helper import FormHelper
@@ -75,7 +76,7 @@ FIELD_SETTINGS = {
     'label': (forms.CharField, {'label': _("Label"), 'required': True}),
     'name': (forms.CharField, {'label': _("Field Name"), 'required': True}),
     'instructions': (
-        forms.CharField, {'label': _("Instructions"), 'widget': forms.Textarea(attrs={'rows': 8, 'cols': 40})}),
+        forms.CharField, {'label': _("Instructions"), 'widget': forms.Textarea(attrs={'rows': 5})}),
     'tags': (forms.CharField, {'label': _("Style tags")}),
     'size': (forms.ChoiceField, {'label': _("Size")}),
     'width': (forms.ChoiceField, {'label': _("Width")}),
@@ -89,39 +90,7 @@ FIELD_SETTINGS = {
     'default_choices': (RepeatableCharField, {'label': _("Default")}),
 }
 
-CHOICES_TEMPLATE = """
-<div class="form-group" id="div_id_choices">
-<label class="control-label ">Choices</label>
-{% for choice in form.initial.choices_info %}
-<div class="controls choices-repeatable">
-    <div class="input-group">
-        <span class="input-group-addon">
-            <input type="{{form.initial.choices_type}}" 
-                value="{{forloop.counter}}" 
-                name="default_choices"
-                {% if forloop.counter in form.initial.default_choices %}checked="checked"{% endif %}
-                class="repeat-value-index radio">
-        </span>
-        <input type="text" value="{{choice.label}}" placeholder="choice label"
-            name="choices"
-            class="form-control" style="width: 60%;">
-
-
-        <input type="text" value="{{choice.value}}" placeholder="choice value"
-            name="values"
-            class="form-control" style="width: 40%;">
-
-        <span class="input-group-btn">
-            <button type="button" class="btn btn-danger remove-repeat"><i class="bi-dash-lg"></i></button>
-        </span>
-    </div>
-</div>
-{% endfor %}
-<button type="button" name="add" title="Add choices" 
-        class="btn btn-success btn-xs"  
-        data-repeat-add=".choices-repeatable"><i class="bi-plus-lg"></i></button>
-</div>
-"""
+CHOICES_TEMPLATE = "{% include 'dynforms/field-choices.html' %}"
 
 
 class FieldSettingsForm(forms.Form):
@@ -133,14 +102,17 @@ class FieldSettingsForm(forms.Form):
         self.helper.form_class = 'df-menu-form'
         self.helper.form_action = action_url
         if field_type is not None:
-            _fieldset = self._create_layout(field_type)
+            self.helper.layout = Layout(
+                self.create_layout(field_type)
+            )
         else:
-            _fieldset = HTML("""<div class="no-field panel panel-warning">
+            self.helper.layout = Layout(
+                HTML("""<div class="no-field panel panel-warning">
                 <div class="panel-heading"><strong>No Field Selected</strong></div>
                 <div class="panel-body">Please select a field on the form 
                 preview to edit its settings.</div>
                 </div>""")
-        self.helper.layout = Layout(_fieldset)
+            )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -156,52 +128,52 @@ class FieldSettingsForm(forms.Form):
             kwargs['required'] = False
         self.fields[name] = ft(**kwargs)
 
-    def _create_layout(self, field_type):
+    def create_layout(self, field_type):
         for nm in ['name', 'tags', 'label', 'instructions']:
             self.add_custom_field(nm)
-        form_title = f"{field_type.name} - {_('Settings')}"
-        _fieldset = Fieldset(form_title,
-                             'label',
-                             Field('instructions', rows=10))
 
-        if 'size' in field_type.settings:
-            self.add_custom_field('size', choices=field_type.size_choices())
-        if 'width' in field_type.settings:
-            self.add_custom_field('width', choices=field_type.width_choices())
-        if 'size' in field_type.settings and 'width' in field_type.settings:
-            _fieldset.append(
-                Div(Field('size', css_class='chosen select col-xs-6'),
-                    Field('width', css_class='chosen select col-xs-6'), css_class="row"),
-            )
-        elif 'size' in field_type.settings:
-            _fieldset.append(Field('size', css_class="chosen select"), )
-        elif 'width' in field_type.settings:
-            _fieldset.append(Field('width', css_class="chosen select"), )
+        _fieldset = Fieldset(
+            f"{field_type.name} - {_('Settings')}",
+            'label',
+            Field('instructions', rows=5)
+        )
+
+        for field_name in ['size', 'width', 'options']:
+            if field_name in field_type.settings:
+                self.add_custom_field(field_name, choices=field_type.get_choices(field_name))
+
+        row = Div(css_class="row")
+        for field_name in ['size', 'width']:
+            if field_name in field_type.settings:
+                row.append(Field(field_name, css_class='select col'))
+        _fieldset.append(row)
 
         if 'options' in field_type.settings:
-            self.add_custom_field('options', choices=field_type.option_choices())
             _fieldset.append(Div(Div(InlineCheckboxes('options'), css_class='col-xs-12'), css_class="row"))
 
         if 'minimum' in field_type.settings or 'maximum' in field_type.settings or 'units' in field_type.settings:
             self.add_custom_field('minimum')
             self.add_custom_field('maximum')
-            self.add_custom_field('units', choices=field_type.units_choices())
-            _fieldset.append(Div(Div('minimum', css_class='col-xs-3'),
-                                 Div('maximum', css_class='col-xs-3'),
-                                 Div('units', css_class='col-xs-6'),
-                                 css_class="row"))
+            self.add_custom_field('units', choices=field_type.get_choices('units'))
+            _fieldset.append(
+                Div(
+                    Div('minimum', css_class='col-xs-3'),
+                    Div('maximum', css_class='col-xs-3'),
+                    Div('units', css_class='col-xs-6'),
+                    css_class="row"
+                )
+            )
 
         if 'choices' in field_type.settings:
             self.add_custom_field('default_choices')
             self.add_custom_field('choices')
             self.add_custom_field('values')
 
-            # choices = map(None, self.initial['choices'], self.initial.get('values', self.initial['choices']))
             choices = list(zip(self.initial['choices'], self.initial.get('values', self.initial['choices'])))
             self.initial['choices_info'] = [{
-                'label': l,
+                'label': i,
                 'value': '' if v is None else v
-            } for l, v in choices]
+            } for i, v in choices]
 
             self.initial['choices_type'] = field_type.choices_type
             _fieldset.append(HTML(CHOICES_TEMPLATE))
@@ -238,56 +210,15 @@ class FieldSettingsForm(forms.Form):
         _fieldset.append(FormActions(
             HTML('<hr class="hr-xs"/>'),
             StrictButton('Apply', name='apply-field', value="apply-field", css_class="btn btn-sm btn-primary"),
-            StrictButton(RULE_HTML, name="edit-rules", value="edit-rules", css_class="btn btn-sm btn-default"),
+            StrictButton(RULE_HTML, name="edit-rules", value="edit-rules", css_class="btn btn-sm btn-secondary"),
             StrictButton('Delete', name='delete-field', value="delete-field",
                          css_class="btn btn-sm btn-danger pull-right"),
         ))
         return _fieldset
 
 
-PAGES_TEMPLATE = """
-<div class="form-group" id="div_id_page_names">
-<label class="control-label  requiredField">Pages<span class="asteriskField">*</span></label>
-{% for page_name in form.initial.page_names %}
-<div class="controls pages_repeatable" id="page_names_{{forloop.counter}}">
-    <div class="input-group">
-        <span class="input-group-addon"><span class="repeat-html-index">{{forloop.counter}}</span></span>
-        <input type="text" value="{{page_name}}"
-            placeholder="page title" name="page_names" 
-            class="repeat form-control">
-        <span class="input-group-btn">
-        <button data-page-number="{{forloop.counter}}" type="button" class="btn btn-danger"><i class="bi-dash-lg"></i></button>
-        </span>
-    </div>
-</div>
-{% endfor %}
-<button data-repeat-add=".pages_repeatable" class="btn btn-success btn-sm" title="Add Page"
-     name="add" type="button"><i class="bi-plus-lg"></i></button>
-</div>
-"""
-
-ACTIONS_TEMPLATE = """
-<div class="form-group" id="div_id_actions">
-<label class="control-label  requiredField">Form Actions</label>
-{% for name, label in form_spec.actions %}
-<div class="controls actions_repeatable" id="actions_{{forloop.counter}}">
-    <div class="input-group">
-        <input type="text" value="{{name}}" style="width: 50%;"
-            placeholder="Name" name="action_names" 
-            class="repeat form-control"> 
-        <input type="text" value="{{label}}" style="width: 50%;"
-            placeholder="Label" name="action_labels"
-            class="repeat form-control"> 
-        <span class="input-group-btn">
-        <button type="button" class="btn btn-danger remove-repeat"><i class="bi-dash-lg"></i></button>
-        </span>
-    </div>
-</div>
-{% endfor %}
-<button data-repeat-add=".actions_repeatable" class="btn btn-success btn-sm" title="Add Page"
-     name="add" type="button"><i class="bi-plus-lg"></i></button>
-</div>
-"""
+PAGES_TEMPLATE = "{% include 'dynforms/form-pages.html' %}"
+ACTIONS_TEMPLATE = "{% include 'dynforms/form-actions.html' %}"
 
 
 class FormSettingsForm(forms.ModelForm):
@@ -464,7 +395,7 @@ class DynForm(DynFormMixin, forms.ModelForm):
         self.field_specs = self.form_type.field_specs()
 
 
-class FormTypeForm(forms.ModelForm):
+class FormTypeForm(ModalModelForm):
     class Meta:
         model = models.FormType
         fields = ('code', 'name', 'description')
@@ -480,46 +411,18 @@ class FormTypeForm(forms.ModelForm):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
-        if kwargs.get('instance'):
-            self.helper.title = 'Edit Form Type'
-            self.helper.form_action = self.request.get_full_path()
-            delete_url = f"{reverse_lazy('dynforms-del-form', kwargs={'pk': self.instance.pk})}"
-
-            buttons = FormActions(
-                HTML("<hr/>"), StrictButton(
-                    'Delete', id="delete-object", css_class="btn btn-danger", data_url=delete_url
-                ), Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default"),
-                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                    css_class='pull-right'
-                ),
-            )
-
+        if self.instance.pk:
+            self.body.form_action = self.request.get_full_path()
         else:
-            self.helper.title = 'Create Form Type'
-            self.helper.form_action = self.request.get_full_path()
-            buttons = FormActions(
-                HTML("<hr/>"), Div(
-                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
-                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                    css_class='pull-right'
-                ), )
+            self.body.form_action = self.request.get_full_path()
 
-        self.helper.layout = Layout(
-            Div(
-                Div('code', css_class='col-xs-12'),
-                css_class="row narrow-gutter"
+        self.body.append(
+            Row(
+                FullWidth('code'),
+
             ),
-            Div(
-                Div("name", css_class='col-xs-12'),
-                Div("description", css_class='col-xs-12'),
-                css_class="row narrow-gutter"
+            Row(
+                FullWidth("name"),
+                FullWidth("description"),
             ),
-            Div(
-                Div(
-                    buttons, css_class="col-xs-12"
-                ),
-                css_class="row"
-            )
         )

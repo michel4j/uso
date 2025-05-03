@@ -3,7 +3,7 @@
 {% with results as substances %}
 <h4>Search results, “{{search_string}}” ... </h4>
 <div class="tinytron bg-info" style="display: flex; flex-direction: row; align-items: center;">
-    <div class="bi-info-circle icon-2x icon-fw pull-left" style="margin: 0.5em; margin-left: 0;"></div>
+    <div class="bi-info-circle icon-md icon-fw pull-left" style="margin: 0.5em; margin-left: 0;"></div>
     <div style="flex: 2;">
         Select a substance to import the information and then edit/amend as appropriate.
         NOTE! Hazard information will be overwritten with database values.
@@ -43,7 +43,7 @@
 <div class="row">
     <hr/>
     <div class="col-xs-12 text-right">
-        <button id="cancel-search" type="button" class="btn btn-default"><i class="bi-arrow-left-circle icon-fw"></i>&ensp;
+        <button id="cancel-search" type="button" class="btn btn-secondary"><i class="bi-arrow-left-circle icon-fw"></i>&ensp;
             Back
         </button>
     </div>
@@ -63,13 +63,13 @@ $('#cancel-search').click(function(){
 });
 
 // Enable popovers
-$("#search-results [data-toggle='popover']").popover({
+$("#search-results [data-bs-toggle='popover']").popover({
     container: 'body'
     //placement: 'bottom'
 });
 
 // enable tooltips
-$("#search-results [title]").not("[data-toggle='popover']").tooltip({
+$("#search-results [title]").not("[data-bs-toggle='popover']").tooltip({
         container: 'body',
         viewport: {selector: 'body', padding: 5},
         placement: 'auto'

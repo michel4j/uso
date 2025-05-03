@@ -185,3 +185,12 @@ class FieldType(object, metaclass=FieldTypeMeta):
 
     def units_choices(self):
         return _build_choices(self.units)
+
+    def get_choices(self, field_name):
+        return {
+            'options': _build_choices(self.options),
+            'size': _build_choices(self.sizes),
+            'width': _build_choices(self.widths),
+            'units': _build_choices(self.units)
+
+        }.get(field_name, [])

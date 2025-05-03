@@ -36,7 +36,7 @@
 
  	  <!-- Page Title Area -->
       <div class="page-head pull-left">
-          <h2 class="title">{% block page_heading %}&nbsp;{% endblock %}</h2>
+          <h2 class="title">{% block page-title %}&nbsp;{% endblock %}</h2>
           {% if breadcrumbs %}
               {% include "breadcrumbs.html" with breadcrumbs=breadcrumbs%}
           {% endif %}
@@ -53,8 +53,8 @@
     </nav>
 
     <main id="main-content" class="content">
-    	<div class="pad-wrapper">
-    	{% block full %}{% endblock %}
+    	<div class="container-fluid">
+    	{% block content %}{% endblock %}
     	</div>
     </main>
 
@@ -91,7 +91,7 @@ function serverHeartBeat() {
 $(document).ready(function(){
 	// enable tooltips
 
-	$("[title]").not("[data-toggle='popover']").tooltip({
+	$("[title]").not("[data-bs-toggle='popover']").tooltip({
     		container: 'body',
     		viewport: {selector: 'body', padding: 5}
     		//placement: 'auto'
@@ -99,7 +99,7 @@ $(document).ready(function(){
 
 
 	// Enable popovers
-	$("[data-toggle='popover']").popover({
+	$("[data-bs-toggle='popover']").popover({
 			container: 'body'
 	   	//placement: 'bottom'
 	});

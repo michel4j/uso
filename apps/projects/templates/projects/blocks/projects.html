@@ -2,7 +2,7 @@
 {% block panel_title %}Projects{% endblock %}
 {% block panel_tools %}
 <a href="{% url 'user-project-list' %}" class="btn btn-xs btn-white pull-right" title="View all my projects">
-    <i class="bi-list-ol icon-1x icon-fw"></i>
+    <i class="bi-list-ol icon-fw"></i>
 </a>
 {% endblock %}
 {% block panel_content %}
@@ -21,11 +21,11 @@
         {% for project in user.projects.active %}
         <li class="text-condensed" style="line-height: 1.7;">
             <a class="pull-right" href='{% url "project-detail" pk=project.pk %}'
-                data-toggle="tooltip" title="View Project">
+                data-bs-toggle="tooltip" title="View Project">
                 {% if project.clarifications.pending.count %}
                 <i class="bi-chat-left-text-alt text-danger"></i>
                 {% else %}
-                <i class="bi-eye"></i>
+                <i class="bi-eye icon-md"></i>
                 {% endif %}
             </a>
             <span class="overflow ellipsis" title="Modified {{proposal.modified|timesince}} ago">{{project.title}}</span>

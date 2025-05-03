@@ -1,4 +1,4 @@
-{% extends "projects/base.html" %}
+{% extends "base.html" %}
 
 {% load static %}
 {% load dynforms_tags %}
@@ -15,9 +15,9 @@
     <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
 {% endblock %}
 
-{% block page_heading %}Materials Amendment{% endblock %}
-{% block full %}
-    <div id="proposal-form" class="pagelet col-xs-12">
+{% block page-title %}Materials Amendment{% endblock %}
+{% block content %}
+    <div id="proposal-form" class="page col-xs-12">
         <div class="row">
             {% include "dynforms/form.html" %}
         </div>

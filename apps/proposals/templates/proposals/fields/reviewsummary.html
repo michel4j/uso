@@ -32,7 +32,7 @@
                 {% if rev.review.state < rev.review.STATES.submitted and rev.review.type.is_safety %}
                     <a href="#0" title="Delete Review" data-review-prefix="{{ field.name }}-{{ rev.review.pk }}"
                        class="pull-right delete-review-command">
-                        <i class="bi-x-lg text-danger icon-1x icon-fw"></i>
+                        <i class="bi-x-lg text-danger icon-sm icon-fw"></i>
                     </a>
                 {% endif %}
                 <span class="pull-right text-right text-condensed" style="line-height: 24px;">

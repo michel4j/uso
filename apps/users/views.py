@@ -2,6 +2,7 @@ import datetime
 import math
 
 import requests
+from crisp_modals.views import ModalUpdateView, ModalCreateView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -84,7 +85,7 @@ class InstitutionList(RolePermsViewMixin, ItemListView):
     list_search = ['name', 'location', 'sector', 'state', 'domains']
     ordering = ['-created']
     link_url = 'edit-institution'
-    link_attr = 'data-url'
+    link_attr = 'data-modal-url'
     link_field = 'name'
     list_styles = {'num_users': 'text-center', 'name': 'col-xs-4'}
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
@@ -153,9 +154,8 @@ class InstitutionEdit(RolePermsViewMixin, UpdateView):
         return JsonResponse({'url': ""})
 
 
-class InstitutionContact(RolePermsViewMixin, UpdateView):
+class InstitutionContact(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.InstitutionContactForm
-    template_name = "forms/modal.html"
     queryset = models.Institution.objects.filter(state=models.Institution.STATES.new)
     allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES + USO_USER_ROLES
 
@@ -182,19 +182,10 @@ class InstitutionContact(RolePermsViewMixin, UpdateView):
         return JsonResponse({'url': ""})
 
 
-class UsersAdmin(RolePermsViewMixin, UpdateView):
+class UsersAdmin(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.UserAdminForm
-    template_name = "users/forms/user-admin.html"
     model = models.User
     allowed_roles = USO_ADMIN_ROLES
-
-    def get_initial(self):
-        initial = super().get_initial()
-        user = self.get_object()
-        user.fetch_profile()
-        initial['username'] = user.username
-        initial['extra_roles'] = user.roles
-        return initial
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -207,11 +198,12 @@ class UsersAdmin(RolePermsViewMixin, UpdateView):
         return obj
 
     def form_valid(self, form):
+        response = super().form_valid(form)
         from proposals.models import Reviewer
         if form.has_changed():
             data = form.cleaned_data
 
-            if has_any_items(USO_REVIEWER_ROLES, data['extra_roles']):
+            if has_any_items(USO_REVIEWER_ROLES, data['roles']):
                 reviewer, created = Reviewer.objects.get_or_create(user=self.object)
                 if created:
                     messages.info(self.request, "Reviewer Profile created")
@@ -231,9 +223,8 @@ class UsersAdmin(RolePermsViewMixin, UpdateView):
         return JsonResponse({'url': ""})
 
 
-class InstitutionCreate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
+class InstitutionCreate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
     form_class = forms.InstitutionForm
-    template_name = "forms/modal.html"
     model = models.Institution
     success_url = reverse_lazy('institution-list')
     success_message = "Institution '%(name)s' has been created."
@@ -272,8 +263,7 @@ class UserList(RolePermsViewMixin, ItemListView):
     list_transforms = {'roles': lambda x, y: ", ".join(x)}
     order_by = ['-created']
     link_url = 'users-admin'
-    link_attr = "data-url"
-    detail_target = "#modal-form"
+    link_attr = 'data-modal-url'
     ordering_proxies = {'get_full_name': 'last_name'}
     allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
 

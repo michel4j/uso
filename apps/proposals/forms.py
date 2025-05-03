@@ -4,6 +4,7 @@ import operator
 import time
 from itertools import chain
 
+from crisp_modals.forms import ModalModelForm, FullWidth, Row
 from crispy_forms.bootstrap import StrictButton, AppendedText, InlineCheckboxes, FormActions, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
@@ -184,7 +185,7 @@ class ReviewerForm(forms.Form):
                     css_class="col-xs-12"
                 ),
 
-                Div(Field('areas', css_class="chosen"), css_class="col-sm-12"),
+                Div(Field('areas', css_class="selectize"), css_class="col-sm-12"),
                 Div(
                     InlineCheckboxes('sub_areas', template="proposals/fields/%s/groupedcheckboxes.html"),
                     css_class="col-sm-12"
@@ -197,7 +198,7 @@ class ReviewerForm(forms.Form):
                 HTML("<hr/>"),
                 extra_btns,
                 Div(
-                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
                     StrictButton('Save', type='submit', name="submit", value='save', css_class='btn btn-primary'),
                     css_class='pull-right'
                 ),
@@ -261,7 +262,7 @@ class OptOutForm(forms.ModelForm):
         )
 
 
-class FacilityConfigForm(forms.ModelForm):
+class FacilityConfigForm(ModalModelForm):
     settings = forms.Field(required=False)
     accept = forms.TypedChoiceField(
         label="Accepting Proposals?",
@@ -286,13 +287,12 @@ class FacilityConfigForm(forms.ModelForm):
             if self.instance.cycle.open_date <= today:
                 self.fields['cycle'].disabled = True
 
-        self.helper = FormHelper()
-        self.helper.title = 'Configure Technique Availability'
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
+        self.body.title = 'Configure Technique Availability'
+        self.body.form_action = self.request.get_full_path()
+        self.body.append(
             Div(
                 Div(
-                    Field('cycle', css_class='chosen'),
+                    Field('cycle', css_class="selectize"),
                     css_class="col-sm-6"
                 ),
                 Div(
@@ -303,21 +303,10 @@ class FacilityConfigForm(forms.ModelForm):
             ),
             'facility',
             Div(
-                Field('settings', template="proposals/fields/%s/facilityconfig.html"),
+                Field('settings', template="proposals/fields/facilityconfig.html"),
                 style="margin-top: 0.5em;"
             ),
             'comments',
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
-            )
         )
 
     def clean(self):
@@ -329,7 +318,7 @@ class FacilityConfigForm(forms.ModelForm):
         return data
 
 
-class ReviewCycleForm(forms.ModelForm):
+class ReviewCycleForm(ModalModelForm):
     class Meta:
         model = models.ReviewCycle
         fields = ('start_date', 'open_date', 'close_date', 'end_date', 'due_date', 'alloc_date')
@@ -337,12 +326,10 @@ class ReviewCycleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = "review-cycle-form"
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.title = "Configure Review Cycle"
+        self.body.form_action = self.request.get_full_path()
+        self.body.title = "Configure Review Cycle"
 
-        self.helper.layout = Layout(
+        self.body.append(
             Div(
                 Div(DateField("start_date"), css_class="col-sm-6"),
                 Div(DateField("end_date"), css_class="col-sm-6"),
@@ -351,22 +338,11 @@ class ReviewCycleForm(forms.ModelForm):
                 Div(DateField("due_date"), css_class="col-sm-6"),
                 Div(DateField("alloc_date"), css_class="col-sm-6"),
                 css_class="row narrow-gutter"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
         )
 
 
-class ReviewTrackForm(forms.ModelForm):
+class ReviewTrackForm(ModalModelForm):
     committee = forms.ModelMultipleChoiceField(queryset=models.Reviewer.objects.all(), required=False)
 
     class Meta:
@@ -384,33 +360,20 @@ class ReviewTrackForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = "review-track-form"
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.title = "Edit Review Track Information"
+        self.body.form_class = "review-track-form"
+        self.body.form_action = self.request.get_full_path()
+        self.body.title = "Edit Review Track Information"
 
-        self.helper.layout = Layout(
+        self.body.append(
             Div(
                 Div("name", css_class="col-sm-8"),
                 Div("acronym", css_class="col-sm-4"),
                 Div("description", css_class="col-sm-12"),
                 Div("min_reviewers", css_class="col-sm-6"),
                 Div("max_workload", css_class="col-sm-6"),
-                Div(Field("committee", css_class="chosen"), css_class="col-sm-12"),
+                Div(Field("committee", css_class="selectize"), css_class="col-sm-12"),
                 css_class="row narrow-gutter"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
-
         )
 
 
@@ -436,7 +399,7 @@ class ReviewCyclePoolForm(forms.ModelForm):
             Div(
                 Div(
                     Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
                         StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
                         css_class='pull-right'
                     ),
@@ -493,13 +456,13 @@ class ReviewerAssignmentForm(forms.ModelForm):
                 css_class=""
             ),
             Div(
-                Div(Field('reviewers', css_class="chosen"), css_class='col-sm-12'),
+                Div(Field('reviewers', css_class="selectize"), css_class='col-sm-12'),
                 css_class="row narrow-gutter"
             ),
             Div(
                 Div(
                     Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
                         StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
                         css_class='pull-right'
                     ),
@@ -543,7 +506,7 @@ class AdjustmentForm(forms.ModelForm):
         self.helper.form_action = self.request.get_full_path()
         self.helper.layout = Layout(
             Div(
-                Div(Field('value', css_class="chosen"), css_class="col-sm-12"),
+                Div(Field('value', css_class="selectize"), css_class="col-sm-12"),
                 Div("reason", css_class="col-sm-12"),
                 css_class="row narrow-gutter"
             ),
@@ -552,7 +515,7 @@ class AdjustmentForm(forms.ModelForm):
                     StrictButton('Delete', id="delete-object", css_class="btn btn-danger pull-left",
                                  data_url=delete_url),
                     StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-right"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-right"),
 
                     css_class="col-xs-12"
                 ),
@@ -587,7 +550,7 @@ class ReviewCommentsForm(forms.ModelForm):
             Div(
                 Div(
                     Div(
-                        StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default"),
+                        StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary"),
                         StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
                         css_class='pull-right'
                     ),
@@ -598,45 +561,29 @@ class ReviewCommentsForm(forms.ModelForm):
         )
 
 
-class ReviewStageForm(forms.ModelForm):
+class ReviewStageForm(ModalModelForm):
     class Meta:
         model = models.ReviewStage
         fields = ['track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score']
-        widgets ={
+        widgets = {
             'track': forms.HiddenInput(),
-            'kind': forms.Select(attrs={'class': 'chosen'}),
-            'blocks': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'chosen'},),
+            'kind': forms.Select(attrs={'class': 'select'}),
+            'blocks': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'},),
         }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
         if self.instance and self.instance.pk:
-            track = self.instance.track
-            self.helper.title = "Edit Review Stage Information"
-            delete_url = reverse(
-                "delete-review-stage", kwargs={'pk': self.instance.pk, 'track': track.acronym}
-            )
-            buttons = Div(
-                StrictButton('Delete', id="delete-object", css_class="btn btn-danger pull-left", data_url=delete_url),
-                StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-right"),
-                css_class="col-xs-12"
-            )
+            self.body.title = "Edit Review Stage Information"
         else:
             track = self.initial['track']
             self.fields['kind'].queryset = models.ReviewType.objects.exclude(stages__track=track)
-            self.helper.title = "Add Review Stage"
-            buttons = Div(
-                StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-right"),
-                css_class="col-xs-12"
-            )
+            self.body.title = "Add Review Stage"
 
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
+        self.body.form_action = self.request.get_full_path()
+        self.body.append(
             Div(
                 Div("kind", css_class="col-sm-6"),
                 Div("position", css_class="col-sm-6"),
@@ -644,10 +591,5 @@ class ReviewStageForm(forms.ModelForm):
                 Div("pass_score", css_class="col-sm-4"),
                 Div("blocks", css_class="col-sm-4"),
                 css_class="row narrow-gutter"
-            ),
-            Div(
-                'track',
-                buttons,
-                css_class="modal-footer row"
-            ),
+            )
         )

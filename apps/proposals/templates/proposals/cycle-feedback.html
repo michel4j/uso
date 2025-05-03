@@ -2,27 +2,27 @@
 {% load static %}
 {% load cycle_tags %}
 
-{% block page_heading %}<span class="hidden-xs">Cycle Feedback &mdash; </span><span class="text-muted">{{ object.start_date|date:"M" }}-{{ object.end_date|date:"M" }} {{ object.start_date|date:"Y" }}</span>{% endblock %}
+{% block page-title %}<span class="hidden-xs">Cycle Feedback &mdash; </span><span class="text-muted">{{ object.start_date|date:"M" }}-{{ object.end_date|date:"M" }} {{ object.start_date|date:"Y" }}</span>{% endblock %}
 
-{% block full %}
+{% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.css" integrity="sha512-5HktH3p+qBNLzxpOLnpICH2uwArYE/Fi7fdKCQee15piDqN3X3Q1iqo8D43oc8DJgYP4xxA7sdEjNCfmeLLYeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" integrity="sha512-oJp0DdQuQQrRsKVly+Ww6fAN1GwJN7d1bi8UubpEbzDUh84WrJ2CFPBnT4LqBCcfqTcHR5OGXFFhaPe3g1/bzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="{% static 'js/d3-timeline.min.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.js" integrity="sha512-ldXL88WIgBA+vAsJu2PepKp3VUvwuyqmXKEbcf8rKeAI56K8GZMb2jfKSm1a36m5AfUzyDp3TIY0iVKY8ciqSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 {% if specs|length > 1 %}
-	<div class="pagelet">
-		<div class="pagelet-body">
+	<div class="page">
+		<div class="page-body">
 			{% for spec in specs %}
-				<a class="btn btn-default" href="#survey-{{spec.spec}}">User Feedback Form {{ forloop.counter }} ({{ spec.responses }} responses)</a>
+				<a class="btn btn-secondary" href="#survey-{{spec.spec}}">User Feedback Form {{ forloop.counter }} ({{ spec.responses }} responses)</a>
 			{% endfor %}
 		</div>
 	</div>
 {% endif %}
 
 {% for spec in specs %}
-	<div class="pagelet" id="survey-{{spec.spec}}">
-		<div class="pagelet-body">
+	<div class="page" id="survey-{{spec.spec}}">
+		<div class="page-body">
 		    {% for page, fields in spec.pages.items %}{% if 'Advisory Committee' not in page %}
 				<div class="section new-page">
 				<h3>{{ page }}</h3>

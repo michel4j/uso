@@ -2,8 +2,8 @@
 {% load static %}
 
 
-{% block folio-content %}
-    <div class="pad-wrapper">
+{% block page-content %}
+    <div class="container-fluid">
         <div class="row">
             <div class="list-tools">
                 <span>
@@ -20,27 +20,27 @@
                             {% if object.committee %}
                                 <span title="PRC Member({{ object.committee }})"
                                       style="margin-right: 0.25em;">
-                                <i class="bi-award icon-1x text-warning" style="line-height: 1;"></i>
+                                <i class="bi-award icon-sm text-warning" style="line-height: 1;"></i>
                             </span>
                             {% endif %}
                         </h5>
                         <hr class="hr-sm dotted"/>
                         {% for technique in object.techniques.all %}
-                            <span class="label label-primary"
+                            <span class="badge bg-primary"
                                   title="{{ technique.name }}">{{ technique.acronym|default:technique.name }}</span>
                         {% endfor %}
                         {% for area in object.areas.all %}
-                            <span class="label label-success" title="Area">{{ area.name }}</span>
+                            <span class="badge bg-success" title="Area">{{ area.name }}</span>
                         {% endfor %}
 
                         <div style="position: absolute; right: 1em; top: 1em;">
                             {% if object.pk not in cycle_reviewers %}
-                                <a data-toggle="tooltip" title="Add to Cycle!"
+                                <a data-bs-toggle="tooltip" title="Add to Cycle!"
                                    href="{% url 'add-cycle-reviewer' cycle=cycle.pk pk=object.pk %}"
-                                   class="btn btn-xs btn-success"><i class="bi-plus-lg icon-1x icon-fw"></i>
+                                   class="btn btn-xs btn-success"><i class="bi-plus-lg icon-sm icon-fw"></i>
                                 </a>
                             {% else %}
-                                <a data-toggle="tooltip" title="Remove from Cycle!"
+                                <a data-bs-toggle="tooltip" title="Remove from Cycle!"
                                    href="{% url 'del-cycle-reviewer' cycle=cycle.pk pk=object.pk %}"
                                    class="btn btn-xs btn-danger"><i class="bi-dash-lg icon-fw"></i>
                                 </a>

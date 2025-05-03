@@ -1,4 +1,4 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 
 {% load beamline_tags %}
 {% load proposal_tags %}
@@ -11,36 +11,35 @@
 
 
 
-{% block page_heading %}
-    <span class="hidden-xs">Material &mdash; </span>
-    <span class="text-muted text-narrow">{{ object }}</span>
+{% block page-pretitle %}
+    <span class="hidden-xs">Material</span>
 {% endblock %}
 
-{% block folio-title %}{{ material.project }} &mdash; {{ material.created|date:"Y/m/d" }}{% endblock %}
-{% block folio-subtitle %}
+{% block page-title %}{{ material.project }} &mdash; {{ material.created|date:"Y/m/d" }}{% endblock %}
+{% block page-subtitle %}
     {{ material.project.title }}
 {% endblock %}
 
-{% block folio-tools %}
+{% block page-tools %}
     {% if owner or admin %}
         {% if project.state != 'inactive' %}
             <a href='{% url "edit-materials" pk=material.project.pk %}' title="Amend Materials" class="pull-right">
-                <i class="bi-pencil icon-2 icon-fw"></i><br/>
+                <i class="bi-pencil icon-md icon-fw"></i><br/>
                 <span class="tool-label">Amend</span>
             </a>
         {% endif %}
     {% endif %}
     <a href='{% url 'project-detail' material.project.pk %}' class="pull-right">
-        <i class="bi-briefcase icon-2 icon-fw"></i><br/>
+        <i class="bi-briefcase icon-md icon-fw"></i><br/>
         <span class="tool-label">Project</span>
     </a>
 {% endblock %}
 
-{% block folio-statusbar-style %}{% folio_status object.state success='approved' draft='pending' danger='rejected' %}{% endblock %}
-{% block folio-statusbar %}
+{% block page-status-style %}{% folio_status object.state success='approved' draft='pending' danger='rejected' %}{% endblock %}
+{% block page-status-bar %}
 
     <h3 class="no-vmargin"><span
-            class="label label-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
+            class="badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
     </h3>
     <div>
         <span class="stats-number pull-left">{{ material.project_samples.approved.count }}/{{ material.project_samples.count }}</span>
@@ -49,7 +48,7 @@
     <div>
         <small class="text-muted">Beamlines:</small><br/>
         {% for fac in object.project.beamlines.all.distinct %}
-            <span class="label label-info">{{ fac.acronym }}</span>&nbsp;
+            <span class="badge bg-info">{{ fac.acronym }}</span>&nbsp;
         {% endfor %}
     </div>
     <div>
@@ -67,7 +66,7 @@
     </div>
 {% endblock %}
 
-{% block folio-content %}
+{% block page-content %}
     <div class="row">
         {% for sample in samples %}
             {% if sample.0.hazards.count %}
@@ -77,7 +76,7 @@
             {% endif %}
         {% endfor %}
     </div>
-    <div class="pagelet-body">
+    <div class="page-body">
         {% if material.controls.count %}
             <div class="row text-wide">
                 <div class="col-xs-12">
@@ -116,7 +115,7 @@
                             <h3>Ancillary Requirements:</h3>
                             <hr class="hr-xs">
                             <h4>{% for anc in  ancillaries.selected %}
-                                <span class="label label-default">{{ anc }}</span>{% endfor %}</h4>
+                                <span class="badge bg-default">{{ anc }}</span>{% endfor %}</h4>
                         {% endif %}
                     </div>
                 </div>

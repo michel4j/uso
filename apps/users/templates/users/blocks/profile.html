@@ -2,15 +2,15 @@
 {% load roleperms %}
 {% block panel_title %}My Profile{% endblock %}
 {% block panel_tools %}
-<a href="{% url 'view-my-profile' %}" class="btn btn-xs btn-white pull-right" title="View My Profile">
-    <i class="bi-eye icon-1x icon-fw"></i>
+<a href="{% url 'view-my-profile' %}" class="pull-right" title="View My Profile">
+    <i class="bi-eye icon-md icon-fw"></i>
 </a>
-    <a href="{% url 'edit-my-profile' %}" class="btn btn-xs btn-white pull-right" title="Edit Profile">
-    <i class="bi-pencil icon-1x icon-fw"></i>
+    <a href="{% url 'edit-my-profile' %}" class="pull-right" title="Edit Profile">
+    <i class="bi-pencil icon-md icon-fw"></i>
 </a>
 {% endblock %}
 {% block panel_content %}
-<h3 style="margin: 0.15em 0;">{{user}}</h3>
+<h3 class="m-0">{{user}}</h3>
 <table class="profile table table-condensed" style="font-size: 95%;">
     <tbody>
     <tr>
@@ -41,13 +41,13 @@
             {% if object.roles %}
             <tr>
                 <td class="item text-left col-xs-1"><i class="bi-person-vcard icon-fw"></i></td>
-                <td class="col-xs-10">{% for r in object.roles %}<span title="Role: {{ r }}" class="label label-info">{{r|role_label}}</span> {% endfor %}</td>
+                <td class="col-xs-10">{% for r in object.roles %}<span title="Role: {{ r }}" class="badge bg-info">{{r|role_label}}</span> {% endfor %}</td>
             </tr>
             {% endif %}
             {% if object.permissions %}
             <tr>
                 <td class="item text-left"><i class="bi-key icon-fw"></i></td>
-                <td>{% for p in object.permissions %}<span class="label label-success">{{p}}</span> {% endfor %}</td>
+                <td>{% for p in object.permissions %}<span class="badge bg-success">{{p}}</span> {% endfor %}</td>
             </tr>
             {% endif %}
         {% endif %}

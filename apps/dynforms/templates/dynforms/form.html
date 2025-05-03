@@ -13,14 +13,14 @@
 				<div class="tab-pane {% if not active_page and forloop.counter == 1%}active{% else %}{% if forloop.counter0 == active_page %}active{% endif %}{% endif %}" id="page{{forloop.counter}}">
 					{% with validation|page_errors:forloop.counter0 as errors %}
                         {% if errors or form.errors %}<div class="alert {% if form.errors %} alert-danger{% else %}alert-warning{% endif %} alert-dismissible">
-						<a class="close pull-right" data-dismiss="alert" aria-label="Close"><i class="bi-x-lg icon-1x icon-fw"></i></a>
+						<a class="close pull-right" data-dismiss="alert" aria-label="Close"><i class="bi-x-lg icon-sm icon-fw"></i></a>
                         {% include 'dynforms/form-errors.html' %}
 					</div>
 
 					{% endif %}
 
 					{% for field in page.fields %}
-					<div class="container df-field-runtime no-space {% check_error field.name errors %} {% if field.field_type == 'newsection' %}no-hover{% endif %}">
+					<div class="container-fluid df-field-runtime no-space {% check_error field.name errors %} {% if field.field_type == 'newsection' %}no-hover{% endif %}">
 						{% include "dynforms/field.html" %}
 					</div>
 					{% endfor %}
@@ -83,7 +83,7 @@ $(document).ready(function(){
     {% endfor %}
 {% endfor %}
     var myform = $('#myform');
-	myform.find("a[data-toggle='tab']").click(function(e){
+	myform.find("a[data-bs-toggle='tab']").click(function(e){
 		myform.find(":input[name='active_page']").val($(this).parent().index());
 	});
 	$("a[data-tab-proxy]").click(function(e){

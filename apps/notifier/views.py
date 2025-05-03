@@ -1,3 +1,4 @@
+from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
@@ -45,11 +46,18 @@ class UserNotificationDetail(RolePermsViewMixin, ConfirmDetailView):
         return JsonResponse({"url": self.get_success_url()})
 
 
-class NotificationDetail(RolePermsViewMixin, ConfirmDetailView):
+class NotificationDetail(RolePermsViewMixin, ModalUpdateView):
     template_name = "notifier/admin-note-detail.html"
     model = models.Notification
+    form_class = forms.UpdateNotificationForm
 
-    def confirmed(self, *args, **kwargs):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def form_valid(self, *args, **kwargs):
+        response = super().form_valid(*args, **kwargs)
         obj = self.get_object()
         obj.state = obj.STATES.queued
         obj.deliver()
@@ -63,7 +71,7 @@ class UserNotificationList(RolePermsViewMixin, ItemListView):
     list_columns = ['kind', 'level', 'state', 'created', 'modified']
     list_filters = ['created', 'modified', 'level', 'state']
     link_url = "notification-detail"
-    link_attr = 'data-url'
+    link_attr = 'data-modal-url'
     list_search = ['kind', 'data']
     order_by = ['-created']
 
@@ -79,7 +87,7 @@ class NotificationList(RolePermsViewMixin, ItemListView):
     list_columns = ['to', 'kind', 'created', 'modified']
     list_filters = ['created', 'modified', 'level', 'kind', 'state']
     link_url = "notification-admin-detail"
-    link_attr = 'data-url'
+    link_attr = 'data-modal-url'
     list_search = ['kind', 'data', 'user__first_name', 'user__last_name', 'emails']
     ordering = ['-created']
     allowed_roles = USO_ADMIN_ROLES
@@ -92,15 +100,14 @@ class MessageTemplateList(RolePermsViewMixin, ItemListView):
     list_columns = ['name', 'description', 'active', 'created', 'modified']
     list_filters = ['created', 'modified', 'kind', 'active']
     link_url = "edit-template-modal"
-    link_attr = 'data-url'
+    link_attr = 'data-modal-url'
     list_search = ['name', 'description']
     ordering = ['-modified']
     allowed_roles = USO_ADMIN_ROLES
 
 
-class CreateTemplate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
+class CreateTemplate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
     form_class = forms.MessageTemplateForm
-    template_name = "forms/modal.html"
     model = models.MessageTemplate
     success_url = reverse_lazy('template-list')
     success_message = "Message Template '%(name)s' has been created."
@@ -127,9 +134,8 @@ class CreateTemplate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
             return response
 
 
-class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
+class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
     form_class = forms.MessageTemplateForm
-    template_name = "forms/modal.html"
     model = models.MessageTemplate
     success_url = reverse_lazy('template-list')
     success_message = "Message Template '%(name)s' has been updated."
@@ -138,6 +144,7 @@ class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update(request=self.request)
+        kwargs['delete_url'] = reverse_lazy('delete-template-modal', kwargs={'pk': self.object.pk})
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -156,23 +163,5 @@ class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
             return response
 
 
-class DeleteTemplate(RolePermsViewMixin, ConfirmDetailView):
+class DeleteTemplate(RolePermsViewMixin, ModalDeleteView):
     model = models.MessageTemplate
-    template_name = "forms/delete.html"
-
-    def get_success_url(self):
-        return reverse('template-list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)  # database name
-        collector.collect([context['object']])  # list of objects. single one won't do
-        context['related'] = collector.nested(lambda x: '{}: {}'.format(capfirst(x._meta.verbose_name), x))
-        return context
-
-    def confirmed(self, *args, **kwargs):
-        obj = self.get_object()
-        msg = f'Message Template "{obj}" deleted'
-        obj.delete()
-        messages.success(self.request, msg)
-        return JsonResponse({"url": self.get_success_url()})

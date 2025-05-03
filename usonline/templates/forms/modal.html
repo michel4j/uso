@@ -53,13 +53,6 @@
             let myForm = $('#modalForm');
             let form_container = $('#modal-form');
 
-            myForm.find(".chosen").chosen({
-                placeholder_text_single: "Select an option",
-                search_contains: true,
-                allow_single_deselect: true,
-                disable_search_threshold: 8
-            });
-            myForm.find(".chosen").trigger("change");
             myForm.modal('show');
             myForm.find(':submit').click(function (e) {
                 e.preventDefault();
@@ -112,13 +105,8 @@
                 return false;
             });
 
-            // Enable popovers
-            myForm.find("[data-toggle='popover']").popover({
-                container: 'body'
-            });
-
             // enable tooltips
-            myForm.find("[title]:not([data-toggle='popover'])").tooltip({
+            myForm.find("[title]:not([data-bs-toggle='popover'])").tooltip({
                 container: 'body',
                 viewport: {selector: 'body', padding: 5}
             });
@@ -152,7 +140,7 @@
         function showResponse(response, statusText, xhr, $form) {
             var newForm = $(response).find('.modal-content'); // Body of new form
             var myform = $("#modalForm");
-            myform.find("[title]:not([data-toggle='popover'])").tooltip('destroy');
+            myform.find("[title]:not([data-bs-toggle='popover'])").tooltip('destroy');
             if (newForm.length) {
                 myform.find(".modal-content").html(newForm.first().html());  // replace only content
                 initModal();

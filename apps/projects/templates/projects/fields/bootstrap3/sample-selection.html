@@ -7,7 +7,7 @@
 <div class="controls row {{ field_class }} {% if form_show_errors%}{% if field.errors %} has-error{% endif %}{% endif %}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
 	<div class="col-xs-12">
 		<label class="control-label col-xs-12" style="margin-bottom: 0; padding-left: 0;">{{ field.field.label }}</label>
-		{% include 'bootstrap3/layout/help_text.html' %}
+		{% include 'bootstrap5/layout/help_text.html' %}
 	</div>
 	<div class="col-xs-12">
 		<table class="table table-condensed">
@@ -48,7 +48,7 @@
 				{% empty %}
 				<tr><td colspan="3">
 					<div class="text-warning text-wide" style="padding: 1em; margin: 0 auto; font-size: 90%;">
-						<div class="pull-left" style="margin-right: 0.5em;"><i class="bi-exclamation-triangle text-warning-light icon-2x"></i></div>
+						<div class="pull-left" style="margin-right: 0.5em;"><i class="bi-exclamation-triangle text-warning-light icon-md"></i></div>
 						<span class="text-left">
 						No approved materials could be found. If you intend to use samples, please cancel this Sign-On
 						and try again after the materials have been approved.
@@ -59,7 +59,7 @@
 				</tbody>
 			</table>
 		<hr class="hr-xs"/>
-        {% include 'bootstrap3/layout/field_errors_block.html' %}
+        {% include 'bootstrap5/layout/field_errors_block.html' %}
 	</div>
 
 </div>

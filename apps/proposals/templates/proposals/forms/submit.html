@@ -1,17 +1,19 @@
-{% extends "forms/modal.html" %}
+{% extends "crisp_modals/modal.html" %}
 {% load timeish %}
 {% load proposal_tags %}
 {% load cycle_tags %}
-{% block form_title %}Submit Proposal?{% endblock %}
-{% block form_body %}
-<div class="tinytron bg-info" style="margin-bottom: 0 !important;">
+{% block modal_title %}Submit Proposal?{% endblock %}
+{% block pre_content %}<form action="{% url 'submit-proposal' pk=object.pk %}" method="post">{% csrf_token %}{% endblock %}
+{% block post_content %}</form>{% endblock %}
+{% block modal_body %}
+<div class="alert bg-info-subtle" style="margin-bottom: 0 !important;">
     <h4 style="margin-top: 0.25em;"><strong>{{object.title}}</strong></h4>
 	{% for member in object.get_full_team %}
 	{{member.last_name}}, {{member.first_name}} <span class="text-info">{{member.roles|team_roles}}</span> 
 	{% if not forloop.last %}&middot;{% endif %}
 	{% endfor %}
 </div>
-<form action="{% url 'submit-proposal' pk=object.pk %}" method="post">{% csrf_token %}
+
 	<div class="row narrow-gutter">
 		<div class="col-sm-8">
 			<h3>Cycle <strong>{{cycle}}</strong></h3>
@@ -51,12 +53,12 @@
 				<label for="project_type5"><input id="project_type5"  name="project_type" type="radio" value="user" checked>General User Access</label>
 			</div>
             {% else %}
-			<h4 class="tinytron bg-success text-center">General User Access</h4>
+			<h4 class="tinytron bg-success-subtle text-center">General User Access</h4>
 			<input name="project_type" type="hidden" value="user">
             {% endif %}
 		</div>
 		<div class="col-xs-12">
-			<h3><span class="label label-info">{{ requests.keys|length }}</span>&nbsp;Submission{{ requests.keys|length|pluralize:",s" }}</h3>
+			<h3><span class="badge bg-info">{{ requests.keys|length }}</span>&nbsp;Submission{{ requests.keys|length|pluralize:",s" }}</h3>
 			<hr class="hr-xs"/>
 			<div class="row">
 				{% for track, items in requests.items %}
@@ -65,7 +67,7 @@
                             <h4>{{track}} Track</h4>
                             <hr class="hr-xs"/>
                             {% for item in items %}
-                            <span class="label label-success" >{{item.technique}} &mdash; {{ item.config.facility.acronym }}</span>
+                            <span class="badge bg-success" >{{item.technique}} &mdash; {{ item.config.facility.acronym }}</span>
                             {% endfor %}
                         </div>
                     </div>
@@ -73,14 +75,11 @@
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="modal-footer">
-			<input type="hidden" name="post" value="yes" />
-			<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
-			<button type="submit" value="Submit" class="btn btn-info">Yes, I'm sure</button>
-		</div>
-	</div>
-</form>
+{% endblock %}
+{% block modal_footer %}
+    <input type="hidden" name="post" value="yes" />
+    <button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">Cancel</button>
+    <button type="submit" value="Submit" class="btn btn-info">Yes, I'm sure</button>
 {% endblock %}
 
 

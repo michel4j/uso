@@ -1,9 +1,9 @@
 {% extends "error-base.html" %}
 
-{% block error-title %}<i class="icon-3 danger bi-bug"></i> Oops<i>!</i>{% endblock %}
+{% block error-title %}<i class="icon-lg danger bi-bug"></i> Oops<i>!</i>{% endblock %}
 {% block error-content %}
 <hr/>
-<div class="pagelet-body">
+<div class="page-body">
 	Something unexpected happened! We have been automatically notified but, but feel free to contact us if it persists. Try refreshing, or go <a href="{% url 'user-dashboard' %}">home</a>.
 </div>
 {% endblock %}

@@ -7,12 +7,12 @@
         {{field.label}}{% if "required" in field.options %}&nbsp;<span class="text-danger">&#x2217;</span>&nbsp;{% endif %}
     </label>
     {% if field.instructions and field.field_type != 'newsection' %}
-    <i class="df-info bi-info-circle-fill text-primary" data-toggle="popover" data-placement="bottom"	data-trigger="hover"
+    <i class="df-info bi-info-circle-fill text-primary" data-bs-toggle="popover" data-placement="bottom"	data-trigger="hover"
        title="{{field.label}}"	data-content="{{field.instructions}}"></i>
     {% endif %}
     <span class="control-instructions hidden-xs text-narrow">
         <div style="display: flex; flex-direction: row; font-size: 105%; line-height: 1; align-items: center;">
-            <i class="bi-info-circle-fill icon-2x text-primary"></i>
+            <i class="bi-info-circle-fill icon-md text-primary"></i>
             <div style="flex: 1; padding-left: 0.5em;">{{field.label}}</div>
         </div>
         <hr class="hr-xs"/>

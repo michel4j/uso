@@ -41,7 +41,7 @@
         {% endwith %}
 		<span class="pull-right">
 		{% for fac in material.project.beamlines.all.distinct %}
-			<span class="label label-info">{{fac.acronym}}</span>&nbsp;
+			<span class="badge bg-info">{{fac.acronym}}</span>&nbsp;
 			{% endfor %}
 		</span>
 	</div>
@@ -69,7 +69,7 @@
 			{% if proposal.details.ancillaries %}
 			{% get_ancillaries data=proposal.details.ancillaries as ancillaries %}
 			<h3>Ancillary Requirements:</h3>
-			<h4>{% for anc in  ancillaries.selected %} <span class="label label-default">{{anc}}</span>{% endfor %}</h4>
+			<h4>{% for anc in  ancillaries.selected %} <span class="badge">{{anc}}</span>{% endfor %}</h4>
 			{% endif %}
 		</div>
 	</div>

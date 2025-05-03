@@ -6,13 +6,13 @@
 <div class="techniques">
     {% if submission.techniques.exists %}
     {% for item in submission.techniques.all %}
-        <span class="label label-primary" title="{{ item.technique }}">{{item.technique }} | {{item.config.facility.acronym}}
+        <span class="badge bg-primary" title="{{ item.technique }}">{{item.technique }} | {{item.config.facility.acronym}}
         </span>
     {% endfor %}
 
     {% endif %}
     {% for area in submission.proposal.areas.all %}
-        <span class="label label-success" title="Area">{{ area.name }}</span>
+        <span class="badge bg-success" title="Area">{{ area.name }}</span>
     {% endfor %}
     <hr class="hr-xxs"/>
     <p class="text-muted">{{ submission.proposal.details.abstract|truncatechars:400 }}</p>

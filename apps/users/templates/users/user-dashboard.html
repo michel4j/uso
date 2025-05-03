@@ -4,30 +4,29 @@
 {% load dashboard %}
 {% load cycle_tags %}
 {% load static %}
-{% block page_heading %}User Services Online{% endblock %}
+{% block page-title %}User Services Online{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css" integrity="sha512-r/Gan7PMSRovDus++vDS2Ayutc/cSdl268u047n4z+k7GYuR7Hiw71FsT3QQxdKJBVHYttOJ6IGLnlM9IoMToQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons-wind.css" integrity="sha512-QPCcT7eBXAXIp4UlGpEufK/WBNWILV0s+VnwK1DQnVvEJzWbUljkYZ7YFgeZko2tEvdoSX9oZs2HRKs8x9A5hQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css"
+          integrity="sha512-r/Gan7PMSRovDus++vDS2Ayutc/cSdl268u047n4z+k7GYuR7Hiw71FsT3QQxdKJBVHYttOJ6IGLnlM9IoMToQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons-wind.css"
+          integrity="sha512-QPCcT7eBXAXIp4UlGpEufK/WBNWILV0s+VnwK1DQnVvEJzWbUljkYZ7YFgeZko2tEvdoSX9oZs2HRKs8x9A5hQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
 {% endblock %}
 
-{% block full %}
-{% show_dashboard %}
+{% block content %}
+    {% show_dashboard %}
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/3.3.2/masonry.pkgd.min.js" integrity="sha512-3PoK3vu4v0ucsggtmLRS2u+uURNzFQA6q9AhgF+FdfzOjM8Nt4p6oKNcbEhdUpw3ud6AO7xaFRpneg5+QBLFXQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" integrity="sha512-oJp0DdQuQQrRsKVly+Ww6fAN1GwJN7d1bi8UubpEbzDUh84WrJ2CFPBnT4LqBCcfqTcHR5OGXFFhaPe3g1/bzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.7/d3.layout.cloud.min.js" integrity="sha512-hStpcyoo0rWEs2cG9t9yrzAXWstzZOjOvufYbBCIMvX4YG8kw7pU6/yUIrLup1COQQalrxels1cbJ/+X7GdYEA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script>
-    $(document).ready(function(){
-	$(".dashboard").masonry({
-		itemSelector: '.dashboard > div',
-		columnWidth: '.dashboard > div',
-        gutter: 15,
-		transitionDuration  : 0,
-		percentPosition: true
-	});
-});
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"
+            integrity="sha384-GNFwBvfVxBkLMJpYMOABq3c+d3KnQxudP/mGPkzpZSTYykLBNsZEnG2D9G/X/+7D" crossorigin="anonymous"
+            async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"
+            integrity="sha512-oJp0DdQuQQrRsKVly+Ww6fAN1GwJN7d1bi8UubpEbzDUh84WrJ2CFPBnT4LqBCcfqTcHR5OGXFFhaPe3g1/bzQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.7/d3.layout.cloud.min.js"
+            integrity="sha512-hStpcyoo0rWEs2cG9t9yrzAXWstzZOjOvufYbBCIMvX4YG8kw7pU6/yUIrLup1COQQalrxels1cbJ/+X7GdYEA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %}

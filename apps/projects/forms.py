@@ -1,6 +1,7 @@
 
 from datetime import timedelta, date, time, datetime
 
+from crisp_modals.forms import ModalModelForm, Row, FullWidth
 from crispy_forms.bootstrap import StrictButton, PrependedText, AppendedText, InlineCheckboxes, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
@@ -87,7 +88,7 @@ class ExtensionForm(forms.ModelForm):
             Div(css_class="modal-body"),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
                     StrictButton('Extend', type='submit', value='Save', css_class='btn btn-primary pull-right'),
                     css_class="col-xs-12"
                 ),
@@ -168,14 +169,14 @@ class HandOverForm(forms.ModelForm):
             Div(
                 Div(DateField('start_date'), css_class='col-sm-6'),
                 Div(DateField('end_date'), css_class='col-sm-6'),
-                Div(Field('start_time', css_class="chosen"), css_class='col-sm-6'),
-                Div(Field('end_time', css_class="chosen"), css_class='col-sm-6'),
-                Div(Field("kind", css_class="chosen"), css_class="col-xs-12"),
+                Div(Field('start_time', css_class="selectize"), css_class='col-sm-6'),
+                Div(Field('end_time', css_class="selectize"), css_class='col-sm-6'),
+                Div(Field("kind", css_class="selectize"), css_class="col-xs-12"),
                 css_class="row"
             ),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
                     StrictButton('Hand-Over', type='submit', value='Save', css_class='btn btn-primary pull-right'),
                     css_class="col-xs-12"
                 ),
@@ -265,7 +266,7 @@ class LabSessionForm(forms.ModelForm):
                 css_class="row modal-body"
             ),
             Div(
-                Div(Field("lab", css_class="chosen"), css_class="col-sm-5"),
+                Div(Field("lab", css_class="selectize"), css_class="col-sm-5"),
                 Div(
                     Div(
                         Div('start', css_class='col-sm-6'),
@@ -274,7 +275,7 @@ class LabSessionForm(forms.ModelForm):
                     ),
                     css_class="col-sm-7"
                 ),
-                Div(Field("equipment", css_class="chosen"), css_class="col-sm-12"),
+                Div(Field("equipment", css_class="selectize"), css_class="col-sm-12"),
                 css_class="row narrow-gutter"
             ),
             Div(
@@ -287,7 +288,7 @@ class LabSessionForm(forms.ModelForm):
             ),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
                     StrictButton('Sign-On', type='submit', value='Save', css_class='btn btn-primary pull-right'),
                     css_class="col-xs-12"
                 ),
@@ -439,7 +440,7 @@ class SessionForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.title = "Beamtime Sign-On"
         self.helper.form_action = self.request.path
-        submit_class = "btn-default disabled" if not self.fields['team'].queryset.exists() else "btn-primary"
+        submit_class = "btn-secondary disabled" if not self.fields['team'].queryset.exists() else "btn-primary"
 
         self.helper.layout = Layout(
             Div(
@@ -453,7 +454,7 @@ class SessionForm(forms.ModelForm):
                         Div(InlineCheckboxes('samples', template="projects/fields/%s/sample-selection.html"),
                             css_class="col-sm-12 sample-list"),
                         Div(InlineCheckboxes("team"), css_class="col-sm-12"),
-                        Div(Field("staff", css_class="chosen"), css_class="col-sm-12"),
+                        Div(Field("staff", css_class="selectize"), css_class="col-sm-12"),
                         css_class="row narrow-gutter"
                     ),
                     css_class="col-xs-12"
@@ -462,7 +463,7 @@ class SessionForm(forms.ModelForm):
             ),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
                     StrictButton('Sign-On', type='submit', value='Save',
                                  css_class='btn pull-right {}'.format(submit_class)),
                     css_class="col-xs-12"
@@ -633,7 +634,7 @@ class AllocationForm(forms.ModelForm):
                     'cycle', 'beamline', 'project',
                     Div('shifts', css_class="col-sm-12"),
                     Div('comments', css_class="col-xs-12"),
-                    Div(Field('last_cycle', css_class="chosen"), css_class="col-sm-12"),
+                    Div(Field('last_cycle', css_class="selectize"), css_class="col-sm-12"),
                     css_class="col-xs-12 narrow-gutter"
                 ),
                 css_class="row"
@@ -724,7 +725,7 @@ class ShiftRequestForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div('shift_request', css_class="col-sm-6"),
-                Div(Field('tags', css_class="chosen"), css_class="col-sm-6"),
+                Div(Field('tags', css_class="selectize"), css_class="col-sm-6"),
                 Div('justification', css_class="col-xs-12"),
                 Div('comments', css_class="col-xs-12"),
                 Div(
@@ -751,7 +752,7 @@ class ShiftRequestForm(forms.ModelForm):
                 Div(
                     Div(
                         StrictButton('Save', name="form_action", type='submit', value='save',
-                                     css_class='btn btn-default'),
+                                     css_class='btn btn-secondary'),
                         StrictButton('Submit', name="form_action", type='submit', value='submit',
                                      css_class='btn btn-primary'),
                         css_class='pull-right'
@@ -781,12 +782,12 @@ class RequestAdminForm(forms.ModelForm):
         self.helper.form_action = self.request.path
         self.helper.layout = Layout(
             Div(
-                Div(Field('state', css_class='chosen'), css_class="col-xs-12"),
+                Div(Field('state', css_class="selectize"), css_class="col-xs-12"),
                 css_class="row narrow"
             ),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
                     StrictButton(
                         'Save', type='submit', value='decline',
                         css_class='btn btn-primary pull-right'
@@ -844,7 +845,7 @@ class DeclineForm(forms.ModelForm):
             Div(css_class="modal-body"),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
                     StrictButton('Yes, Decline', type='submit', value='decline',
                                  css_class='btn btn-primary pull-right'),
                     css_class="col-xs-12"
@@ -854,7 +855,7 @@ class DeclineForm(forms.ModelForm):
         )
 
 
-class TerminationForm(forms.ModelForm):
+class TerminationForm(ModalModelForm):
     reason = forms.CharField(
         label="Please explain why you are terminating the session",
         widget=forms.Textarea(attrs={'rows': 3, }),
@@ -868,12 +869,12 @@ class TerminationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.title = "Terminate Session?"
-        self.helper.form_action = self.request.path
-        self.helper.layout = Layout(
-            Div(
-                Div(
+
+        self.body.title = "Terminate Session?"
+        self.body.form_action = self.request.path
+        self.body.append(
+            Row(
+                FullWidth(
                     HTML(
                         "<div class='minitron bg-danger text-default'>"
                         "<h3>Are you sure you want to terminate the session:</h3>"
@@ -884,19 +885,15 @@ class TerminationForm(forms.ModelForm):
                         "and should not be used to sign-off users from an active session. "
                         "(2) Beamline Staff will be notified of all terminations. </p>"
                         "</div>"
-                    ),
+                    )
                 ),
-                Field("reason", css_class="col-sm-12"),
-                css_class="row modal-body"
-            ),
-            Div(css_class="modal-body"),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
-                    StrictButton('Yes, Terminate', type='submit', value='decline',
-                                 css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
+                FullWidth("reason"),
             )
+        )
+        self.footer.append(
+            Row(
+                StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
+                StrictButton('Yes, Terminate', type='submit', value='decline', css_class='btn btn-primary pull-right'),
+            )
+
         )

@@ -4,14 +4,14 @@
     <table class="table table-condensed">
         {% for alloc in allocations %}
         <tr id="{{alloc.project.code}}" {% if schedule.state != 'draft' %}class="event-src"{% endif %}
-            data-toggle="popover" data-trigger="hover"
+            data-bs-toggle="popover" data-trigger="hover"
             data-content="{{ alloc.project.title }}" data-placement="bottom"
             data-kind='{{alloc.pk}}' data-key='project' data-allocation='{{alloc.shifts}}'
             data-extra-events-url="{% url 'schedule-request-api' pk=alloc.project.pk fac=alloc.beamline.acronym %}"
             data-event='{"project":"{{alloc.project.pk}}", "tags": [{% for tag in alloc.tags %}{{tag.pk}}{%if not forloop.last %}, {% endif %}{% endfor %}] }'>
-            <td style="vertical-align: middle;"><div class="label label-default" title="Allocated Shifts">{{alloc.shifts}}</div></td>
+            <td style="vertical-align: middle;"><div class="badge bg-light" title="Allocated Shifts">{{alloc.shifts}}</div></td>
             <td style="vertical-align: middle;" class="">{{alloc.project}}</td>
-            <td><span  id="stats-{{alloc.project.pk}}" title="Scheduled Shifts" class="stats badge progress-bar-success"></span></td>
+            <td><span  id="stats-{{alloc.project.pk}}" title="Scheduled Shifts" class="stats badge bg-success"></span></td>
         </tr>
         {% endfor %}
     </table>

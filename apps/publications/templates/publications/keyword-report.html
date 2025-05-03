@@ -2,12 +2,12 @@
 {% load static %}
 {% load jsonify %}
 
-{% block page_heading %}<span class="hidden-xs">Publication </span>Keywords{% endblock %}
+{% block page-title %}<span class="hidden-xs">Publication </span>Keywords{% endblock %}
 
-{% block folio-header %}{% endblock %}
-{% block folio-no-header %}{% endblock %}
-{% block folio-content %}
-    <div class="pagelet-body">
+{% block page-header %}{% endblock %}
+{% block page-no-header %}{% endblock %}
+{% block page-content %}
+    <div class="page-body">
         <div class="row">
             <div class="col-xs-12">
                 <div class="page-tools pull-left" style="max-width: 40%;">
@@ -15,18 +15,18 @@
                         <div class="input-group input-group-sm">
                             <input name="q" type="text" class="form-control" placeholder="Search publications">
                             <span class="input-group-btn input-group-sm">
-								<button class="btn btn-default" type="submit"><i class="bi-search icon-fw"></i></button>
+								<button class="btn btn-secondary" type="submit"><i class="bi-search icon-fw"></i></button>
 							  </span>
                         </div>
                     </form>
                 </div>
                 <div class="box-tools pull-right">
-                    <a data-url="{% url 'add-publication' %}" class="pull-right">
-                        <i class="bi-plus-lg icon-2 icon-fw"></i><br>
+                    <a data-modal-url="{% url 'add-publication' %}" class="pull-right">
+                        <i class="bi-plus-lg icon-md icon-fw"></i><br>
                         <span class="tool-label">Add Entry</span>
                     </a>
                     <a href="{% url 'publication-list' %}" class="pull-right">
-                        <i class="bi-list-ol icon-2 icon-fw"></i><br>
+                        <i class="bi-list-ol icon-md icon-fw"></i><br>
                         <span class="tool-label">Show List</span>
                     </a>
 
@@ -41,7 +41,7 @@
             &nbsp;
             <hr class="hr-xs"/>
             <div class="col-xs-12">
-                <div class="pad-wrapper">
+                <div class="container-fluid">
                     <h5><i class="bi-hand-index icon-fw"></i> Click on a keyword to search ...</h5>
                 </div>
             </div>

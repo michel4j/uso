@@ -1,0 +1,16 @@
+<div class="form-group" id="div_id_page_names">
+<label class="control-label  requiredField">Pages<span class="asteriskField">*</span></label>
+{% for page_name in form.initial.page_names %}
+<div class="controls pages_repeatable" id="page_names_{{forloop.counter}}">
+    <div class="input-group">
+        <span class="input-group-text"><span class="repeat-html-index">{{forloop.counter}}</span></span>
+        <input type="text" value="{{page_name}}"
+            placeholder="page title" name="page_names"
+            class="repeat form-control">
+        <button data-page-number="{{forloop.counter}}" type="button" class="btn btn-danger"><i class="bi-dash-lg"></i></button>
+    </div>
+</div>
+{% endfor %}
+<button data-repeat-add=".pages_repeatable" class="btn btn-success btn-sm" title="Add Page"
+     name="add" type="button"><i class="bi-plus-lg"></i></button>
+</div>

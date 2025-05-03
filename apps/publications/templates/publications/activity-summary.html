@@ -1,20 +1,20 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
 {% load pubstats %}
 {% load plots %}
 
-{% block page_heading %}Publication Activity Summary{% endblock %}
+{% block page-pretitle %}Activity Summary{% endblock %}
 
-{% block folio-title %}
+{% block page-title %}
 {% if beamline %}{{beamline.name}}{% else %}All Publications{% endif %}
 {% endblock %}
 
-{% block folio-subtitle %}
+{% block page-subtitle %}
 Publication Activity Summary
 {% endblock %}
 
 
-{% block folio-tools %}
+{% block page-tools %}
 <a
     {% if beamline %}
     href="{% url 'publication-list' beamline.acronym %}"
@@ -23,14 +23,14 @@ Publication Activity Summary
     {% endif %}
     class="pull-right"
 >
-	<i class="bi-list-ol icon-2 icon-fw"></i><br/>
+	<i class="bi-list-ol icon-md icon-fw"></i><br/>
 	<span class="tool-label">Publications</span>
 </a>
 {% endblock %}
 
-{% block folio-content %}
+{% block page-content %}
 {% get_activity_tables as tables %}
-<div class="pagelet-body">
+<div class="page-body">
 	{% for tbl in tables %}
 		<div class="row data-reports">
 			<div class="col-xs-12">

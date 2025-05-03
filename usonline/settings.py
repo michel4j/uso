@@ -51,6 +51,10 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'formtools',
     "itemlist",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "crisp_modals",
+
     'dynforms',
     'users',
     'roleperms',
@@ -62,8 +66,6 @@ INSTALLED_APPS = [
     'django_cas_ng',
     'proxy',
     'rest_framework',
-    'crispy_forms',
-    'crispy_bootstrap3',
 
     'beamlines',
     'samples',
@@ -177,7 +179,8 @@ CAS_LOGOUT_COMPLETELY = True
 CAS_SINGLE_SIGN_OUT = True
 CAS_VERSION = 3
 CAS_CREATE_USER = False
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 from django.core.serializers import register_serializer

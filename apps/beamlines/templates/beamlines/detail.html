@@ -1,112 +1,128 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load beamline_tags %}
+{% load folio %}
 {% load cycle_tags %}
 
-
-{% block page_heading %}<span class="hidden-xs">Facility &mdash; </span>
-    <span class="text-muted">{{ object }}</span>{% endblock %}
-
-{% block folio-title %}
-    <strong>{{ object.acronym }}</strong> &mdash; {{ object.get_kind_display }}
+{% block page-title %}
+    <span class="d-none d-xs-inline">Facility &mdash; </span>
+    <span class="text-muted">{{ object }}</span>
 {% endblock %}
 
-{% block folio-subtitle %}
+{% block page-pretitle %}
+{{ object.get_kind_display }}
+{% endblock %}
+
+{% block page-subtitle %}
     {% for fac in object.utrace reversed %}
         {% if not forloop.last %}
-            <a href="{% url 'facility-detail' pk=fac.pk %}" title="{{ fac.name }}">{{ fac.acronym }}</a> &nbsp;/&nbsp;
+            <a href="{% url 'facility-detail' pk=fac.pk %}" title="{{ fac.name }}">{{ fac.acronym }}</a>
+            &nbsp;/&nbsp;
         {% else %}
             {{ fac.name }}
         {% endif %}
     {% endfor %}
 {% endblock %}
 
-{% block folio-tools %}
+{% block page-tools %}
     {% if owner or admin %}
-        <a href='{% url "edit-beamline" pk=object.pk %}' class="pull-right">
-            <i class="bi-pencil icon-2 icon-fw"></i><br/>
+        <a href='{% url "edit-beamline" pk=object.pk %}' class="float-end">
+            <i class="bi-pencil icon-md icon-fw"></i>
+            <br/>
             <span class="tool-label">Edit</span>
         </a>
     {% endif %}
     {% if object.kind != 'village' %}
+    {% endif %}
+    {% if "employee" in user.roles %}
+    {% endif %}
+    {% if admin or user|is_staff:object %}
+        <a href="{% url "beamline-projects" fac=object.acronym %}" class="float-end">
+            <i class="bi-briefcase icon-md icon-fw"></i>
+            <br/>
+            <span class="tool-label">Projects</span>
+        </a>
+        <a href="{% url 'beamline-quality' object.acronym %}" class="float-end">
+            <i class="bi-journals icon-md icon-fw"></i>
+            <br/>
+            <span class="tool-label">Publications</span>
+        </a>
 
         {% if owner or admin %}
-            <a href='{% url "facility-config-detail" pk=object.pk %}' class="pull-right">
-                <i class="bi-sliders2-vertical icon-2 icon-fw"></i><br/>
+            <a href='{% url "facility-config-detail" pk=object.pk %}' class="float-end">
+                <i class="bi-sliders2-vertical icon-md icon-fw"></i>
+                <br/>
                 <span class="tool-label">Techniques</span>
             </a>
         {% endif %}
-        <a href="{% url 'beamline-schedule' object.acronym %}" class="pull-right">
-            <i class="bi-calendar2-range icon-2 icon-fw"></i><br/>
+        <a href="{% url 'beamline-schedule' object.acronym %}" class="float-end">
+            <i class="bi-calendar2-range icon-md icon-fw"></i>
+            <br/>
             <span class="tool-label">Calendar</span>
         </a>
-    {% endif %}
-    {% if "employee" in user.roles %}
-        <a href="{% url 'beamline-quality' object.acronym %}" class="pull-right">
-            <i class="bi-journals icon-2 icon-fw"></i><br/>
-            <span class="tool-label">Publications</span>
-        </a>
-    {% endif %}
-    {% if admin or user|is_staff:object %}
-        <a href="{% url "beamline-projects" fac=object.acronym %}" class="pull-right">
-            <i class="bi-briefcase icon-2 icon-fw"></i><br/>
-            <span class="tool-label">Projects</span>
-        </a>
-        <a href="{% url "beamline-submissions" fac=object.acronym %}" class="pull-right">
-            <i class="bi-journal-check icon-2 icon-fw"></i><br/>
+        <a href="{% url "beamline-submissions" fac=object.acronym %}" class="float-end">
+            <i class="bi-journal-check icon-md icon-fw"></i>
+            <br/>
             <span class="tool-label">Submissions</span>
         </a>
-        <a href="{% url "beamline-proposals" fac=object.acronym %}" class="pull-right">
-            <i class="bi-journal-medical icon-2 icon-fw"></i><br/>
+        <a href="{% url "beamline-proposals" fac=object.acronym %}" class="float-end">
+            <i class="bi-journal-medical icon-md icon-fw"></i>
+            <br/>
             <span class="tool-label">Proposals</span>
         </a>
     {% endif %}
 {% endblock %}
 
-{% block folio-statusbar-style %}{% if object.kind != 'village' %}bg-{{ object.state }}{% endif %}{% endblock %}
-
-{% block folio-statusbar %}
-        {% if object.kind != 'village' %}
-            <h3 class="hidden-xs no-vmargin">
-                <span class="label label-info text-condensed">{{ object.get_state_display }}</span>
-            </h3>
-            <div>
-                {{ object.description }}
-            </div>
-        {% elif object.description.strip %}
-            <div>{{ object.description }}</div>
-        {% endif %}
+{% block page-status-style %}
+    {% if object.state == object.STATES.commissioning %}
+        bg-warning-subtle
+    {% else %}
+        bg-success-subtle
+    {% endif %}
 {% endblock %}
 
-{% block folio-content %}
-    <div class="minitron bg-transparent">
-        <div class="row narrow-gutter">
+{% block page-status-bar %}
+    {% if object.kind != 'village' %}
+        <h4>
+            <span class="badge bg-info text-condensed my-2">{{ object.get_state_display }}</span>
+        </h4>
+        <div class="my-2">
+            {{ object.description }}
+        </div>
+    {% elif object.description.strip %}
+        <div class="my-2">{{ object.description }}</div>
+    {% endif %}
+{% endblock %}
+
+{% block page-content %}
+    <div class="bg-transparent">
+        <div class="row g-2">
             {% if object.active_config.techniques.count or object.kind == 'beamline' or object.kind == 'equipment' %}
-                <div class="col-xs-12">
+                <div class="col-12">
                     {% include "beamlines/specs.html" with facility=object %}
                 </div>
             {% endif %}
         </div>
         {% if user|is_staff:object or admin %}
-            <div class="row narrow-gutter">
-                <div class="col-sm-12">
-                    {% include "projects/sessions-summary.html" with sessions=facility.sessions.relevant.with_shifts beamtimes=facility.beamtimes.relevant.with_shifts %}
-                </div>
-            </div>
-
-            <div class="row narrow-gutter">
-                {% for cycle in cycles %}
-                    <div class="col-xs-12 col-sm-6">
-                        {% include "projects/beamline-cycle.html" %}
-                    </div>
-                {% endfor %}
-            </div>
         {% endif %}
+        <div class="row g-2">
+            <div class="col-sm-12">
+                {% include "projects/sessions-summary.html" with sessions=facility.sessions.relevant.with_shifts beamtimes=facility.beamtimes.relevant.with_shifts %}
+            </div>
+        </div>
 
-        <div class="row narrow-gutter">
+        <div class="row g-2">
+            {% for cycle in cycles %}
+                <div class="col-xs-12 col-sm-6">
+                    {% include "projects/beamline-cycle.html" %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row g-2">
             {% if object.children.count %}
                 {% with object.children.count as num_children %}
                     {% for fac in object.children.all %}
-                        <div class="col-xs-12">
+                        <div class="col-12">
                             {% include "beamlines/specs.html" with facility=fac %}
                         </div>
                     {% endfor %}

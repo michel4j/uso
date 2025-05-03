@@ -2,7 +2,7 @@
     <span class="field-group-item col-xs-12">
     <label>Tags / Priority Areas</label>
     <select name="{{ field_name }}" multiple="multiple"
-            class="chosen select form-control" data-placeholder="Select all that apply">
+            class="select form-control" data-placeholder="Select all that apply">
         {% for tag, selected in choices %}
             <option value="{{ tag.pk }}"
                     {% if selected %}selected="selected" {% endif %}>{{ tag }}
@@ -11,14 +11,4 @@
     </select>
 
 </span>
-    <script>
-        $(function(){
-            window.setTimeout(function() {
-                $('[name="{{field_name}}"].chosen').chosen({
-                    placeholder_text_single: "Select all that apply",
-                    search_contains: true
-                });
-            }, 0);
-        });
-    </script>
 {% endif %}

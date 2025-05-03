@@ -1,3 +1,4 @@
+from crisp_modals.forms import ModalModelForm, FullWidth, Row, QuarterWidth, HalfWidth
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML, Field
@@ -17,7 +18,7 @@ class Fieldset(Div):
         )
 
 
-class ClarificationForm(forms.ModelForm):
+class ClarificationForm(ModalModelForm):
     class Meta:
         model = models.Clarification
         fields = ['requester', 'question', 'content_type', 'object_id']
@@ -35,30 +36,17 @@ class ClarificationForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.title = 'Request Clarification'
         self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    'requester', 'content_type', 'object_id',
-                    Div('question', css_class="col-xs-12"),
-                    css_class="col-xs-12 narrow-gutter"
-                ),
-                css_class="row"
+        self.body.append(
+            Row(
+                FullWidth('question'),
+                Field('requester'),
+                Field('content_type'),
+                Field('object_id'),
             ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Submit', type='submit', value='Save',
-                                     css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
-            )
         )
 
 
-class ResponseForm(forms.ModelForm):
+class ResponseForm(ModalModelForm):
     class Meta:
         model = models.Clarification
         fields = ['response', 'responder']
@@ -70,38 +58,22 @@ class ResponseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.title = 'Clarification Response'
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
-            Div(
+        self.body.form_action = self.request.get_full_path()
+        self.body.append(
+            Row(
                 Div(
-                    Div(HTML(
-                        '<h4>{0}</h4><hr/><span>{1}</span>'.format(self.instance.reference,
-                                                                    self.instance.question)),
-                        css_class="tinytron"),
-                    Div('response', css_class="col-xs-12"),
-                    css_class="col-xs-12 narrow-gutter"
-                ),
-                css_class="row"
-            ),
-            'responder',
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Submit', type='submit', value='Submit',
-                                     css_class='btn btn-primary'),
-                        css_class='pull-right'
+                    HTML(
+                        f'<h4>{self.instance.reference}</h4><hr/><span>{self.instance.question}</span>'
                     ),
-                    css_class="col-xs-12"
+                    css_class="tinytron"
                 ),
-                css_class="modal-footer row"
-            )
+                FullWidth('response'),
+            ),
+            Field('responder'),
         )
 
 
-class AttachmentForm(forms.ModelForm):
+class AttachmentForm(ModalModelForm):
     class Meta:
         model = models.Attachment
         fields = ('owner', 'content_type', 'object_id', 'file', 'description', 'kind')
@@ -114,17 +86,14 @@ class AttachmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.title = "Manage Attachments"
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    Div(Field('kind', css_class="chosen"), css_class="col-xs-2"),
-                    Div('description', css_class="col-xs-3"),
-                    Div(Field('file', template="%s/file_input.html"), css_class="col-xs-7"),
-                    Field('owner'), Field('object_id'), Field('content_type'),
-                    css_class="row narrow-gutter"
-                ),
-            )
+
+        self.body.form_action = self.request.get_full_path()
+        self.body.title = "Manage Attachments"
+        self.body.append(
+            Row(
+                HalfWidth('kind'),
+                HalfWidth('description'),
+                FullWidth(Field('file', template="%s/file_input.html")),
+                Field('owner'), Field('object_id'), Field('content_type'),
+            ),
         )

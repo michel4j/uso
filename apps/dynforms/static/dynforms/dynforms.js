@@ -54,8 +54,7 @@
     	$(ctl).click(function(e){
         	var rp_el = all_rp.last();
          	var field_cnt = $(ctl).closest(".df-field-runtime");
-        	// first destroy any chosen fields
-        	field_cnt.find(".chosen").chosen("destroy");
+
             var cloned = rp_el.clone(true);
             cloned.insertAfter(rp_el);
             if (options.clearNew) {
@@ -65,12 +64,11 @@
             }
         	updateRepeat(cloned);
         	// rebuild chosen fields
-        	cloned.find("select.chosen option").removeAttr('selected');
-        	cloned.find("select.chosen").each(function(){
+        	cloned.find("select.select option").removeAttr('selected');
+        	cloned.find("select.select").each(function(){
         		$(this).val('');
         		$(this).trigger('change')
         	});
-        	field_cnt.find(".chosen").chosen({allow_single_deselect: true, display_disabled_options: false, search_contains: true});
     	});
     	
     	all_rp_rm.each(function() {
@@ -130,7 +128,7 @@ function setupField(){
 	// Ajax Update form
 	var loadUrl = `${document.URL +	$('.df-container.active').index()}/put/${$(this).attr('data-fieldpos')}/`;
 	$("#field-settings").load(loadUrl, function(){
-		$('#field-settings .chosen').chosen({disable_search_threshold: 5, display_disabled_options: false, search_contains: true});
+		// $('#field-settings .chosen').chosen({disable_search_threshold: 5, display_disabled_options: false, search_contains: true});
 		setupMenuForm("#field-settings .df-menu-form");
 	});
 };
@@ -179,7 +177,7 @@ function setupMenuForm(form_id) {
 		$("#modal-holder").load(loadUrl);
 	});
 
-	$(form_id +' select.chosen').chosen({disable_search_threshold: 5, display_disabled_options: false, search_contains: true});
+	// $(form_id +' select.chosen').chosen({disable_search_threshold: 5, display_disabled_options: false, search_contains: true});
     $(form_id +" button[name='move-next']").click(function(e){
 		var cur_fld = $('div.df-field.selected');
 		var page_no = $('.df-container.active').index();

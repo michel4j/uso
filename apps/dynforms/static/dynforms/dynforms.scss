@@ -10,9 +10,7 @@ $background-color_1: #707070;
 $background-color_2: rgba(0, 0, 0, 0.08);
 
 
-.container {
-  max-width: none !important;
-}
+
 
 .uneditable-input {
   &:focus {
@@ -174,27 +172,8 @@ textarea {
   }
 }
 
-.form-control {
-  border-radius: 0 !important;
-  font-size: 1em !important;
-  display: block;
-}
-
-.input-lg {
-  border-radius: 0 !important;
-  font-size: 1em !important;
-  display: block;
-}
-
-.input-sm {
-  border-radius: 0 !important;
-  font-size: 1em !important;
-  display: block;
-}
 
 .input-xs {
-  border-radius: 0 !important;
-  font-size: 1em !important;
   display: block;
   font-size: 11px;
   height: 24px;
@@ -252,7 +231,7 @@ textarea {
   }
 }
 
-.btn-default.disabled {
+.btn-secondary.disabled {
   color: $color_1;
 }
 
@@ -264,43 +243,6 @@ textarea {
     left: 1px;
     position: relative;
     top: 1px;
-  }
-}
-
-.input-group {
-  box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.05) inset;
-
-  input[type="text"] {
-    + {
-      input[type="text"] {
-        border-left: 0px;
-      }
-    }
-  }
-}
-
-.input-group-addon {
-  box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.05) inset;
-  background: #f6f6f6;
-  padding: 4px 6px;
-  min-width: 2em;
-
-  &:first-child {
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-  }
-
-  &:last-child {
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-  }
-
-  .radio {
-    min-height: 1em;
-  }
-
-  .checkbox {
-    min-height: 1em;
   }
 }
 
@@ -399,18 +341,6 @@ legend {
   }
 }
 
-.input-group-btn {
-  &:first-child {
-    border-top-left-radius: 2px;
-    border-bottom-left-radius: 2px;
-  }
-
-  &:last-child {
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-  }
-}
-
 div.form-group {
   + {
     button {
@@ -447,17 +377,6 @@ label.select {
   }
 }
 
-ul.nav-tabs {
-  li {
-    > a {
-      padding: 0.35em 0.75em;
-      padding: 0.35em 0.75em;
-    }
-  }
-
-  padding-left: 1em;
-}
-
 .nopadding {
   padding: 0 !important;
   margin: 0 !important;
@@ -465,7 +384,6 @@ ul.nav-tabs {
 
 .df-field-runtime {
   padding: 0;
-  border-radius: 2px;
   width: 100%;
   margin: 0;
   border: 1px solid transparent;
@@ -658,7 +576,6 @@ div {
       > a {
         margin-right: 2px;
         line-height: 1.3;
-        border-radius: 2px 2px 0 0;
         font-weight: 600;
       }
     }
@@ -875,8 +792,10 @@ ul.nav-tabs.small-tabs {
   margin-bottom: 0.25em;
   .score-pill {
     display: inline-block;
-    //min-width: 120px;
-    line-height: 1.1;
+    vertical-align: middle;
+    min-width: 120px;
+    font-size: 0.95em;
+    //line-height: 1.1;
 
     span {
       padding: 0 0.5em;

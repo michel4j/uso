@@ -21,7 +21,7 @@
 	<div class="row no-space">
 	    <span class="field-group-item col-xs-11">
 		   {% if samples.all %}
-		   <select id="{{field.name}}-search" class="chosen select form-control"
+		   <select id="{{field.name}}-search" class="select form-control"
 				   data-placeholder="Select a pre-defined sample to add">
 			   <option value=""></option>
 			   {% for sample, disabled in samples.all %}
@@ -33,7 +33,7 @@
 	    <span class="field-group-item col-xs-1">
 		 	<div class="btn-group pull-right">
 				<button title="Define New Sample to Add" class="btn btn-success" type="button"
-						id="{{field.name}}-new"><i class="bi-plus-lg icon-1x icon-fw"></i></button>
+						id="{{field.name}}-new"><i class="bi-plus-lg icon-sm icon-fw"></i></button>
 			</div>
 	    </span>
 	</div>
@@ -168,7 +168,6 @@ $('#{{field.name}}-controls').on('click', 'a.sample-edit-command', function(){
 });
 $(function(){
     window.setTimeout(function(){
-        $("#{{field.name}}-search").chosen({search_contains: true});
         update_{{field.name}}();
     }, 0);
 });

@@ -3,11 +3,16 @@
 {% if form.form_type.pages|length > 1 %}
 <ul class="df-form-tabs nav nav-tabs">
     {% for page in form.form_type.pages %}
-    <li  class="{% if not active_page and forloop.counter == 1%}active{% else %}{% if forloop.counter0 == active_page %}active{% endif %}{% endif %}">
-        <a id="tab{{forloop.counter}}" href="#page{{forloop.counter}}" data-toggle="tab">{{page.name}}
+    <li  class="nav-item">
+        <a id="tab{{forloop.counter}}"
+           class="nav-link {% if not active_page and forloop.counter == 1%}active{% elif forloop.counter0 == active_page %}active{% endif %}"
+           {% if forloop.counter == active_page %}aria-current="page"{% endif %}
+           href="#page{{forloop.counter}}"
+           data-bs-toggle="tab">{{page.name}}
             {% with validation|page_errors:forloop.counter0|length as count %}{% if count %}
-            <span class="label {% if form.errors %} label-danger{% else %}label-warning{% endif %}">{{ count }}</span>
-            {% endif %}{% endwith %}</a>
+            <span class="badge {% if form.errors %} bg-danger{% else %}bg-warning{% endif %}">{{ count }}</span>
+            {% endif %}{% endwith %}
+        </a>
     </li>
     {% endfor %}
 </ul>

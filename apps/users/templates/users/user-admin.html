@@ -1,0 +1,67 @@
+{% load roleperms %}
+
+<div class="row">
+	<div class="col-6">
+		<h3>{{user}}</h3>
+        <hr class="hr-xs"/>
+        <span class="pull-right">
+            <a href="#0" data-modal-url="{% url 'admin-request-reset' pk=user.pk %}" title="Reset Password" style="margin: 0 0.5em;">
+                <i class="bi-arrow-clockwise icon-sm icon-fw"></i>
+            </a>
+            <a href="{% url 'edit-user-profile' username=user.username %}" title="Edit Profile" style="margin: 0 0.5em;">
+                <i class="bi-pencil icon-sm icon-fw"></i>
+            </a>
+        </span>
+		<table class="profile table table-condensed">
+			<tbody>
+			<tr>
+				<td class="item"><i class="bi-briefcase icon-fw"></i></td>
+				<td>{{user.get_classification_display|default:""}}</td>
+			</tr>
+			<tr>
+				<td class="item"><i class="bi-telephone icon-fw"></i></td>
+				<td>{{user.address.phone|default:"<span class='text-muted'>(999)-999-9999</span>"}}</td>
+			</tr>
+			<tr>
+				<td class="item"><i class="bi-envelope-at icon-fw"></i></td>
+				<td>{{user.email}}</td>
+			</tr>
+			<tr>
+				<td class="item"><i class="bi-house icon-fw"></i></td>
+				<td>{{user.institution}}</td>
+			</tr>
+			<tr>
+				<td class="item"><i class="bi-geo-alt icon-fw"></i></td>
+				<td>{{user.address|default:""}}</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="col-6 text-center">
+		<img width="90%" src="{{user.get_photo}}" onerror="this.onerror=null;this.src='/static/img/blank-profile.png';" data-placement="bottom">
+	</div>
+</div>
+{% if object.roles or object.permissions %}
+<div class="row">
+    <div class="col-12">
+        <hr class="hr-xs"/>
+        <table class="profile table table-condensed">
+            <tbody>
+            {% if object.roles %}
+            <tr>
+                <td class="item text-left col-1"><i class="bi-person-vcard icon-fw"></i></td>
+                <td class="col-10">{% for r in object.roles %}<span title="Role: {{ r }}" class="badge bg-info">{{r|role_label}}</span> {% endfor %}</td>
+            </tr>
+            {% endif %}
+            {% if object.permissions %}
+            <tr>
+                <td class="item text-left"><i class="bi-key icon-fw"></i></td>
+                <td>{% for p in object.permissions %}<span class="badge bg-success">{{p}}</span> {% endfor %}</td>
+            </tr>
+            {% endif %}
+        </table>
+        <hr class="hr-xs"/>
+    </div>
+</div>
+{% endif %}
+

@@ -6,21 +6,14 @@
 		<link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet" />
 {% endblock %}
 {% block extra_js %}
-		<script type="text/javascript">
-		$(".chosen").chosen({
-			placeholder_text_single: "Type or select an option",
-			search_contains: true,
-			allow_single_deselect: true,
-		});
-	</script>
 {% endblock %}
 
-{% block page_heading %}{{ form.helper.title }}{% endblock %}
+{% block page-title %}{{ form.helper.title }}{% endblock %}
 
 
-{% block full %}
-<div class="pagelet">
-	<div class="pagelet-body">
+{% block content %}
+<div class="page">
+	<div class="page-body">
 		{% crispy form form.helper %}
 	</div>
 </div>

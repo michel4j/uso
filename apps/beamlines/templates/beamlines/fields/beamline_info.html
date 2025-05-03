@@ -1,4 +1,4 @@
-<div class="pad-wrapper bg-darken">
+<div class="container-fluid bg-darken">
 <div id="beamline-info-box" class="row">
     <div class="{% if hide_description %}col-sm-12{% else %}col-sm-6{% endif %}">
         <table class="table table-condensed">
@@ -27,7 +27,7 @@
                     <th>Facility Contacts</th>
                     <td>
                         {% for contact in contacts %}
-                            <a href="#0" data-toggle="popover" title="{{ contact }}" data-placement="bottom"
+                            <a href="#0" data-bs-toggle="popover" title="{{ contact }}" data-placement="bottom"
                                data-content="{{ contact.email }} {{ contact.address.phone }}" data-trigger="hover">
                                 {{ contact }}
                             </a> {% if not forloop.last %}, {% endif %}
@@ -51,8 +51,3 @@
 
 </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $('#beamline-info-box [data-toggle="popover"]').popover();
-    });
-</script>
