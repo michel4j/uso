@@ -5,7 +5,6 @@ from datetime import timedelta
 
 import phonenumbers
 from crisp_modals.forms import ModalModelForm, Row, FullWidth, HalfWidth
-from crisp_modals.views import ModalDeleteView
 from crispy_forms.bootstrap import PrependedText, AccordionGroup, Accordion, StrictButton, FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field, HTML
