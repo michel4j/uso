@@ -103,13 +103,13 @@
 
 {% block page-content %}
     <div class="page-body">
-        <div class="row narrow-gutter">
+        <div class="row">
             <div class="col-sm-12">
                 <h4>Summary</h4>
                 {{ object.proposal.details.abstract|markdown }}
             </div>
         </div>
-        <div class="row narrow-gutter">
+        <div class="row">
             <div class="col-xs-12 col-sm-6">
                 <h4>Shifts Requested</h4>
                 {% for bl in object.proposal.details.beamline_reqs %}
@@ -139,10 +139,10 @@
             </div>
         </div>
         {% if object.state == object.STATES.complete or object.state == object.STATES.reviewed and admin %}
-            <div class="row narrow-gutter">
+            <div class="row">
                 <div class="col-xs-12">
                     <div class="tinytron border-3d">
-                        <div class="row narrow-gutter">
+                        <div class="row">
 
                             <div class="col-sm-6 col-xs-12">
                                 <h4>Score Summary</h4>

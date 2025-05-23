@@ -1,95 +1,35 @@
-{% extends "forms/modal.html" %}
+{% extends "crisp_modals/form.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
-{% block form_assets %}
+{% block modal_assets %}
+    {{ block.super }}
     <link rel="stylesheet" href="{% static 'samples/sample.min.css' %}" type="text/css" media="screen"/>
 {% endblock %}
 
-{% block form_body %}
+{% block modal_body %}
     <div id="flip-toggle">
         <div id="sample-form">
-            {% crispy form form.helper %}
+            {% crispy form form.body %}
         </div>
-        <div id="search-results" class="hidden">
+        <div id="search-results" class="d-none">
         </div>
     </div>
-
 {% endblock %}
 
-{% block form_init %}
+{% block modal_scripts %}
     <script type="text/javascript" defer>
-        function initForm() {
-            $('#search-compound').click(function (e) {
-                var loadUrl = "{% url 'compound-search' %}" + "?q=" + encodeURIComponent($('#modalForm input[name="name"]').val());
-                if (jQuery.trim($('#modalForm input[name="name"]').val()) != '') {
-                    $(this).html('<i class="bi-arrow-repeat icon-spin"></i>');
-                    $('#search-results').load(loadUrl, function (e) {
-                        $("#search-compound").html('<i class="bi-search"></i>');
-                        $("#flip-toggle > div").toggleClass("hidden");
-                    });
-                }
-            });
-            $('#modalForm input[name="name"]').change(function () {
-                if (jQuery.trim($('#modalForm input[name="name"]').val()) != '') {
-                    $("#search-compound").removeClass('btn-white');
-                    $("#search-compound").addClass('btn-primary');
-                } else {
-                    $("#search-compound").addClass('btn-white');
-                    $("#search-compound").removeClass('btn-primary');
-                }
-            });
-
-
-            $('#sample-form label.checkbox').click(function () {
-                $(this).find('input[name="hazard_types"]').click();
-            });
-
-            // clear hazards if "not hazardous" selected, and vice-versa
-            var fld_sel = '#sample-form form input[name="hazard_types"]';
-            var hz_ctrls = ':not([value="15"])';
-            var non_hz_ctrls = '[value="15"]';
-
-            var extra_help = {
-                "10": ["Isotope", "Specific activity"],
-                "5": ["Cylinder-Volume", "Pressure", "Flow-rate"]
-            }
-
-            $(fld_sel).filter(hz_ctrls).change(function () {
-                if (this.checked) {
-                    $(fld_sel).filter(non_hz_ctrls).each(function () {
-                        if (this.checked) {
-                            $(this).removeAttr('checked');
-                            $(this).prop('checked', false);
-                            $(this).change();
-                        }
-                    });
-                }
-            });
-            $(fld_sel).filter(non_hz_ctrls).change(function () {
-                if (this.checked) {
-                    $(fld_sel).filter(hz_ctrls).each(function () {
-                        if (this.checked) {
-                            $(this).removeAttr('checked');
-                            $(this).prop('checked', false);
-                            $(this).change();
-                        }
-                    });
-                    $('#sample-form input[name="hazards"]').val('[]')
-                }
-            });
-
-            $('#sample-form form input[name="hazard_types"], :input[name="kind"], :input[name="state"]').change(function (event) {
-                event.preventDefault();
-                var types = [];
-                $("input[name='hazard_types']:checked").each(function () {
-                    types.push($(this).val());
+        $('#search-compound').click(function (e) {
+            e.preventDefault();
+            const name = jQuery.trim($('#id_name').val());
+            if (name !== '') {
+                $('#search-compound').html('<i class="bi-arrow-repeat icon-spin"></i>');
+                const loadUrl = "{% url 'compound-search' %}" + "?q=" + encodeURIComponent($('#modal form input[name="name"]').val());
+                $('#search-results').load(loadUrl, function (e) {
+                    $("#search-compound").html('<i class="bi-search"></i>');
+                    $("#flip-toggle > div").toggleClass("d-none");
                 });
-                var url = "{% url 'sample-help' %}?kind=" + $(":input[name='kind']").val() + '&state=' + $(":input[name='state']").val() + "&pictograms=" + types.join();
-                $('#div_id_description').find('.help-block').load(url);
-            });
-
-            $(fld_sel).filter(':input[name="kind"]').change();
-        }
+            }
+        });
     </script>
 {% endblock %}

@@ -1,6 +1,7 @@
 import json
 import re
 
+from crisp_modals.forms import ModalModelForm
 from crispy_forms.bootstrap import FieldWithButtons, StrictButton, FormActions, InlineCheckboxes
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
@@ -11,7 +12,7 @@ from . import models
 from .widgets import HazardSelectMultiple
 
 
-class SampleForm(forms.ModelForm):
+class SampleForm(ModalModelForm):
     hazards = forms.CharField(required=False)
 
     class Meta:
@@ -33,77 +34,34 @@ class SampleForm(forms.ModelForm):
         self.fields['description'].help_text = 'Please provide more details.'
         self.fields['description'].required = True
 
-        self.helper = FormHelper()
         if kwargs.get('instance'):
-            self.helper.title = 'Edit Sample'
-            self.helper.form_action = self.request.get_full_path()
+            self.body.form_action = self.request.get_full_path()
             delete_url = f"{reverse_lazy('sample-delete', kwargs={'pk': self.instance.pk})}"
-            if self.instance.is_editable:
-                btns = FormActions(
-                    HTML("<hr/>"),
-                    StrictButton('Delete', id="delete-object",
-                                 css_class="btn btn-danger",
-                                 data_url=delete_url),
-                    Div(
-                        StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                )
-            else:
-                btns = FormActions(
-                    Div(
-                        HTML('<hr/>'),
-                        HTML('<i class="bi-lock icon-md text-muted pull-right"></i>'),
-                        css_class="col-xs-12"
-                    ),
-                    css_class="row"
-                )
-        else:
-            self.helper.title = 'Create Sample'
-            self.helper.form_action = self.request.get_full_path()
-            btns = FormActions(
-                HTML("<hr/>"),
-                Div(
-                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
-                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                    css_class='pull-right'
-                ),
-            )
 
-        self.helper.layout = Layout(
-
+        self.body.append(
             Div(
                 Div(
                     FieldWithButtons(
                         Field('name', required=True, css_class='form-control'),
                         StrictButton(
                             '<i class="bi-search"></i>', name='search', value='', id="search-compound",
-                            css_class="btn-white", title="Search in hazardous substances database ..."
+                            css_class="btn-light border", title="Search in hazardous substances database ..."
                         ),
                     ),
                     css_class='col-sm-6'
                 ),
                 Div('source', css_class='col-sm-6'),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(Field('kind', css_class="selectize"), css_class='col-sm-6'),
                 Div(Field('state', css_class="selectize"), css_class='col-sm-6'),
                 Div(InlineCheckboxes('hazard_types'), css_class='col-xs-12 field-w3'),
                 Div('description', css_class='col-sm-12'),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Field('owner', type="hidden"),
             Field('hazards', type="hidden"),
-            Div(
-                Div(
-                    btns,
-                    css_class="col-xs-12"
-                ),
-                css_class="row"
-            )
-
         )
 
     def clean(self):

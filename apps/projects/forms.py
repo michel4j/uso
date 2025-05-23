@@ -271,12 +271,12 @@ class LabSessionForm(forms.ModelForm):
                     Div(
                         Div('start', css_class='col-sm-6'),
                         Div('end', css_class='col-sm-6'),
-                        css_class="row narrow-gutter"
+                        css_class="row"
                     ),
                     css_class="col-sm-7"
                 ),
                 Div(Field("equipment", css_class="selectize"), css_class="col-sm-12"),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(InlineCheckboxes("workspaces"), css_class="col-xs-12"),
@@ -455,7 +455,7 @@ class SessionForm(forms.ModelForm):
                             css_class="col-sm-12 sample-list"),
                         Div(InlineCheckboxes("team"), css_class="col-sm-12"),
                         Div(Field("staff", css_class="selectize"), css_class="col-sm-12"),
-                        css_class="row narrow-gutter"
+                        css_class="row"
                     ),
                     css_class="col-xs-12"
                 ),
@@ -635,7 +635,7 @@ class AllocationForm(forms.ModelForm):
                     Div('shifts', css_class="col-sm-12"),
                     Div('comments', css_class="col-xs-12"),
                     Div(Field('last_cycle', css_class="selectize"), css_class="col-sm-12"),
-                    css_class="col-xs-12 narrow-gutter"
+                    css_class="col-xs-12 gap-2"
                 ),
                 css_class="row"
             ),
@@ -672,7 +672,7 @@ class ReservationForm(forms.ModelForm):
                 Div(
                     Div('shifts', css_class="col-sm-12"),
                     Div('comments', css_class="col-xs-12"),
-                    css_class="col-xs-12 narrow-gutter"
+                    css_class="col-xs-12 gap-2"
                 ),
                 css_class="row"
             ),
@@ -746,7 +746,7 @@ class ShiftRequestForm(forms.ModelForm):
                     ),
                     css_class="col-sm-6"
                 ),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(

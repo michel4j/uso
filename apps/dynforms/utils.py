@@ -24,17 +24,34 @@ def _toInt(val, default=None):
 
 
 def dict_list(d):
+    """
+    Recursively convert a dictionary with integer-like string keys into a list,
+    sorting by the integer value of the keys. If the dictionary does not have
+    all integer-like keys, recursively process its values.
+
+    Args:
+        d (dict or any): The dictionary (or value) to process.
+
+    Returns:
+        list, dict, or any: A list if all keys are integer-like, otherwise a dict,
+        or the value itself if not a dict.
+    """
     if not isinstance(d, dict):
         return d
+
+    # Try to convert all keys to integers (or None if not possible)
+    int_keys = {k: _toInt(k) for k in d.keys()}
+
+    # If all keys are integers, return a list sorted by key
+    if all(isinstance(v, int) for v in int_keys.values()):
+        sorted_items = sorted(
+            ((int_keys[k], dict_list(d[k])) for k in d.keys()),
+            key=lambda pair: pair[0]
+        )
+        return [item for _, item in sorted_items]
     else:
-        keys = {k: _toInt(k) for k in list(d.keys())}
-        if all([isinstance(v, int) for k, v in list(keys.items())]):
-            return [
-                dict_list(pair[1])
-                for pair in sorted([(keys[k], d[k]) for k in list(d.keys())])
-            ]
-        else:
-            return {k: dict_list(v) for k, v in list(d.items())}
+        # Otherwise, recursively process values
+        return {k: dict_list(v) for k, v in d.items()}
 
 
 class DotExpandedDict(dict):
@@ -63,7 +80,7 @@ class DotExpandedDict(dict):
         super().__init__()
         for k, v in list(key_to_list_mapping.items()):
             current = self
-            bits = k.split('.')
+            bits = k.split('.') if '.' in k else k.split('__')
             for bit in bits[:-1]:
                 current = current.setdefault(bit, {})
             # Now assign value to current position
@@ -78,7 +95,7 @@ class DotExpandedDict(dict):
 
 def build_Q(rules):
     """
-    Build and requrn a Q object for a list of rule dictionaries
+    Build and return a Q object for a list of rule dictionaries
     """
     q_list = []
     for rule in rules:
@@ -122,7 +139,13 @@ def get_nested_list(obj, field_names, required=True):
     return [get_nested(obj, field_name, required) for field_name in field_names]
 
 
-def flatten_dict(d, parent_key=''):
+def flatten_dict(d: dict, parent_key='') -> dict:
+    """
+    Flatten a nested dictionary by replacing the keys with a dots or double-underscore
+    :param d: Dictionary to flatten
+    :param parent_key: optional parent key to prepend to the keys
+    :return: flattened dictionary
+    """
     items = []
     for k, v in list(d.items()):
         k = k.replace('-', '_')
@@ -132,6 +155,16 @@ def flatten_dict(d, parent_key=''):
         else:
             items.append((new_key, v))
     return dict(items)
+
+
+def expand_dict(d: dict) -> dict:
+    """
+    Expand a flattened dictionary into a nested dictionary. Key levels are separated by dots or double underscores
+    :param d: Dictionary to expand
+    :return: nested dictionary
+    """
+    items = DotExpandedDict(d)
+    return dict_list(items)
 
 
 FIELD_OPERATOR_CHOICES = [
@@ -273,3 +306,95 @@ class Crypt:
                 raise ValueError('Decryption Error: Encryption key must be either 16, 24, or 32 characters long')
             else:
                 raise ValueError(value_error)
+
+
+class FormField:
+    def __init__(self, name=None, field_type=None, label='', instructions='', options=None, index=0, **attrs):
+        from .fields import FieldType
+        self.name = name
+        self.index = index
+        self.field_type = field_type
+        self.type = FieldType.get_type(field_type)
+        self.label = label
+        self.instructions = instructions
+        self.attrs = attrs
+        self.options = options or []
+
+    def specs(self):
+        return {
+            'name': self.name,
+            'index': self.index,
+            'field_type': self.field_type,
+            'label': self.label,
+            'instructions': self.instructions,
+            'type': self.type,
+            'options': self.options,
+            **self.attrs,
+        }
+
+    def width_styles(self):
+        width = self.attrs.get('width', 'full')
+        return {
+            'full': 'col-12',
+            'half': 'col-6',
+            'third': 'col-4',
+            'quarter': 'col-3',
+            'two_thirds': 'col-8',
+            'three_quarters': 'col-9',
+            'auto': 'col-auto',
+        }.get(width, 'col-12')
+
+    def hide_styles(self):
+        return 'df-hide' if 'hide' in self.options else ''
+
+    def extra_styles(self):
+        return self.attrs.get("tags", "")
+
+    def is_required(self) -> bool:
+        return 'required' in self.options
+
+    def is_inline(self) -> bool:
+        return 'inline' in self.options
+
+    def is_repeatable(self) -> bool:
+        return 'repeat' in self.options
+
+    def get_choices(self):
+        return self.attrs.get('choices', [])
+
+    def get_options(self):
+        return self.options
+
+    def set_attr(self, name, value):
+        self.attrs[name] = value
+
+    def get_data(self, context):
+        default = self.attrs.get('default', None)
+        form = context.get('form')
+
+        if not form:
+            return default
+
+        if form.is_bound:
+            data = form.cleaned_data.get('details', {})
+            value = data.get(self.name)
+            if value is not None:
+                return value
+
+        if getattr(form, 'instance', None) and hasattr(form.instance, 'get_field_value') and form.instance.pk:
+            value = form.instance.get_field_value(self.name)
+            if value is not None:
+                return value
+
+        value = form.initial.get(self.name, default)
+        return '' if value is None else value
+
+
+class FormPage:
+    def __init__(self, name='', fields=None, number=1):
+        self.number = number
+        self.name = name
+        fields = fields or []
+        self.fields = [
+            FormField(**field, index=i) for i, field in enumerate(fields) if isinstance(field, dict)
+        ]

@@ -3,7 +3,7 @@
 
 {% block panel_title %}My Map{% endblock %}
 {% block panel_tools %}
-<a href="{% url 'edit-my-profile' %}" class="btn btn-xs btn-white pull-right"><span class="sr-only">Edit Profile</span><i class="bi-pencil icon-sm icon-fw"></i></a>
+<a href="{% url 'edit-my-profile' %}" class="btn btn-xs btn-light border pull-right"><span class="sr-only">Edit Profile</span><i class="bi-pencil icon-sm icon-fw"></i></a>
 {% endblock %}
 {% block panel_content %}
     {% if user.address.api_format|api_coords %}

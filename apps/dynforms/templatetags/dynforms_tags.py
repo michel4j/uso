@@ -64,6 +64,39 @@ def show_field(context, field, repeatable=False):
     return mark_safe(rendered)
 
 
+@register.simple_tag(takes_context=True)
+def show_builder_field(context, field, repeatable=False):
+    all_data = field.get_data(context)
+
+    t = template.loader.get_template(field.type.templates[0])
+    if field.type.multi_valued:
+        all_data = [] if all_data == '' else all_data
+
+    if not (repeatable and isinstance(all_data, list)):
+        all_data = [all_data]
+
+    if repeatable and all_data == []:
+        all_data = ['']
+
+    ctx = {} if not repeatable else {'repeatable': f"{field.name}-repeatable"}
+    ctx.update(context.flatten())
+
+    rendered = ""
+    choices = field.get_choices()
+    options = field.get_options()
+    for i, data in enumerate(all_data):
+        if choices and "other" in options and isinstance(data, list):
+            oc_set = set(data) - set(choices)
+            if oc_set:
+                field.set_attr('other_choice', next(iter(oc_set)))
+        repeat_index = i if repeatable else ""
+
+        ctx.update({'field': field.specs(), 'data': data, 'repeat_index': repeat_index})
+        rendered += t.render(ctx)
+
+    return mark_safe(rendered)
+
+
 @register.filter
 def group_choices(field, defaults):
     if not defaults:

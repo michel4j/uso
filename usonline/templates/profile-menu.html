@@ -1,4 +1,5 @@
-<ul class="navbar-nav ms-auto profile-menu d-flex flex-row align-items-center me-3">
+<div class="profile-menu ms-auto me-3">
+<ul class="navbar-nav d-flex flex-row align-items-center">
     {% with request.user.notifications.web.all as notifications %}
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle"
@@ -44,3 +45,4 @@
         </ul>
     </li>
 </ul>
+</div>

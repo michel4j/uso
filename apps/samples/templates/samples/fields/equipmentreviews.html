@@ -6,7 +6,7 @@
         <div id="{{field.name}}-list">
             {% for item in equipment %}
             <div id="{{field.name}}-{{forloop.counter0}}-equipment-container" class="tinytron bg-white {% if 'rejected' in item.decision %}bg-danger{% endif %}">
-                <div class="row narrow-gutter">
+                <div class="row">
                     <div class="col-xs-12">
                         <h5 class="no-vmargin text-condensed"><strong>{{ item.name }}</strong></h5>
                         Manufacturer: <em class="text-muted">{{ item.manufacturer|default:"N/C" }}</em>&emsp;
@@ -19,7 +19,7 @@
                         <hr class="hr-xs"/>
                     </div>
                 </div>
-                <div class="row narrow-gutter text-condensed" id="{{ field.name }}-{{ forloop.counter0 }}-review">
+                <div class="row text-condensed" id="{{ field.name }}-{{ forloop.counter0 }}-review">
                     <div class="checkbox checkbox-inline">
                        <label for="{{field.name}}-safe-{{ forloop.counter0 }}"><input name="{{field.name}}.{{forloop.counter0 }}.decision" id="{{field.name}}-safe-{{ forloop.counter0 }}"  class="rejection-cmd"
                         value="safe" {% if 'safe' in item.decision %}checked="checked"{% endif %}

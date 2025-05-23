@@ -1,6 +1,3 @@
-
-from collections import OrderedDict
-
 from django.forms import ValidationError
 from django.utils.text import slugify
 from django.utils.translation import gettext as _

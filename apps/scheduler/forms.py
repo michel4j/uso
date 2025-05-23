@@ -23,7 +23,7 @@ class ScheduleForm(forms.ModelForm):
                 Div(Field('config', css_class="selectize"), css_class="col-xs-6"),
                 Div(Field('start_date', readonly=True), css_class="col-xs-6"),
                 Div(Field('end_date', readonly=True), css_class="col-xs-6"),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(

@@ -47,7 +47,7 @@ class FacilityForm(forms.ModelForm):
                 Div(Field('kind', css_class="selectize"), css_class="col-sm-3"),
                 Div(Field('url', placeholder="http:// ..."), css_class='col-sm-6'),
                 Div('description', css_class='col-sm-12'),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Fieldset(
                 "Parameters",
@@ -67,13 +67,13 @@ class FacilityForm(forms.ModelForm):
                 Div('time_beamteam', css_class="col-sm-2"),
                 Div('time_purchased', css_class="col-sm-3"),
                 Div('time_user', css_class="col-sm-2"),
-                css_class="combine row narrow-gutter"
+                css_class="combine row"
             ),
             Div(
                 Div(Field('flex_schedule', css_class="selectize"), css_class="col-sm-4"),
                 Div(Field('shift_size', css_class="selectize"), css_class="col-sm-4"),
                 Div(Field('public_support', css_class="selectize"), css_class="col-sm-4"),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             HTML("<hr class='hr-xs'/>"),
             Div(

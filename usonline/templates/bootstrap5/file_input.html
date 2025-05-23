@@ -8,34 +8,12 @@
     {% endif %}
 
     <div class="controls {{ field_class }}">
-		<div class="input-group">
-            <span class="input-group-btn">
-                <span class="btn btn-white btn-file">
-                    Browse&hellip; <input type="file" name="{{field.name}}">
-                </span>
-            </span>
-            <input id="{{field.name}}-selected" name="{{field.name}}_placeholder" type="text" class="form-control" required readonly>
-            <span class="input-group-btn">
- 				<button type="submit" class="btn btn-primary" value="upload">
- 					<i class="bi-upload"></i> <span class="text-condensed">Upload</span>
- 				</button>
-            </span>
+        <div class="input-group">
+          <input name="{{field.name}}" id="{{field.name}}" type="file" class="form-control" aria-describedby="{{field.name}}" aria-label="Upload">
+          <button class="btn btn-primary" type="submit" value="upload">
+              <i class="bi-upload"></i> <span class="text-condensed">Upload</span>
+          </button>
         </div>
         {% include 'bootstrap5/layout/help_text_and_errors.html' %}
     </div>
 </div>
-<script type="text/javascript">
-$(".btn-file :file[name='{{field.name}}']").change(function(e){
-    var files = e.originalEvent.target.files;
-    var max_size = {{field.field.max_size}};
-    var file_types = {{field.field.file_types|jsonify}};
-    if (files.length > 0) {
-    	if ((files[0].size <= max_size) && (files[0].type in file_types)) {
-    	    var label = $(this).val().replace(/\\/g, '/').replace(/.*\//, '');
-    		$("#{{field.name}}-selected").val(label);
-    	} else {
-    		console.log('File too big or wrong type', (files[0].type in file_types), files[0].size);
-    	}
-    }
-});
-</script>

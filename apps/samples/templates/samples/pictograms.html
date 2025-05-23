@@ -1,5 +1,7 @@
 {% load samples_tags %}
+<div class="d-flex flex-row justify-content-start align-items-center">
 {% for pic in pictograms %}
-<img class="media-object pull-left" width="{{size}}" height="{{size}}" src="{% pictogram_url pic %}" title="{{pic.name}}" data-sample-hazard="{{pic.pk}}">
+<img class="media-object" width="{{size}}" height="{{size}}" src="{% pictogram_url pic %}" title="{{pic.name}}" data-sample-hazard="{{pic.pk}}">
 {% endfor %}
-&nbsp;<span class="pull-right text-{{signal}}" style="line-height: {{size}}px;">{{signal.upper}}</span>
+<span class="ms-auto text-{{signal}}" style="line-height: {{size}}px;">{{signal.upper}}</span>
+</div>

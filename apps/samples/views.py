@@ -1,5 +1,6 @@
 import json
 
+from crisp_modals.views import ModalUpdateView, ModalCreateView, ModalDeleteView
 from django import http
 from django.conf import settings
 from django.contrib import messages
@@ -143,7 +144,7 @@ class UserSampleListView(SampleListView):
         return super().get_queryset()
 
 
-class SampleCreate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
+class SampleCreate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
     form_class = forms.SampleForm
     template_name = "samples/forms/modal.html"
     model = models.Sample
@@ -176,7 +177,7 @@ class SampleCreate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
             return response
 
 
-class EditSample(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
+class EditSample(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
     form_class = forms.SampleForm
     template_name = "samples/forms/modal.html"
     model = models.Sample
@@ -213,9 +214,8 @@ class EditSample(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
             return response
 
 
-class SampleDelete(RolePermsViewMixin, ConfirmDetailView):
+class SampleDelete(RolePermsViewMixin, ModalDeleteView):
     model = models.Sample
-    template_name = "samples/forms/delete.html"
 
     def get_success_url(self):
         return reverse('user-sample-list')
@@ -223,20 +223,6 @@ class SampleDelete(RolePermsViewMixin, ConfirmDetailView):
     def get_queryset(self, *args, **kwargs):
         self.queryset = self.model.objects.filter(owner=self.request.user, is_editable=True)
         return super().get_queryset()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)  # database name
-        collector.collect([context['object']])  # list of objects. single one won't do
-        context['related'] = collector.nested(lambda x: '{}: {}'.format(capfirst(x._meta.verbose_name), x))
-        return context
-
-    def confirmed(self, *args, **kwargs):
-        obj = self.get_object()
-        msg = f'Sample "{obj}" deleted'
-        obj.delete()
-        messages.success(self.request, msg)
-        return http.JsonResponse({"url": self.get_success_url()})
 
 
 class SampleHazards(RolePermsViewMixin, detail.DetailView):

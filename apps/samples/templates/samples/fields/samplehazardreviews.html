@@ -11,7 +11,7 @@
                 <div id="{{ field.name }}-{{ sample.pk }}-hazards-container"
                      data-saved-hazards="{{ hazard_ids|join:',' }}"
                      class="tinytron sample-row {% if rejected %}rejected-sample{%  endif %} {% if not sample.is_editable %}reviewed-sample{% else %}pending-sample{% endif %}">
-                    <div class="row narrow-gutter">
+                    <div class="row">
                         <div class="col-xs-12">
 						    <span class="pull-right text-right">
 							{% show_pictograms sample_hazards sample.hazard_types size=28 %}
@@ -27,7 +27,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="row narrow-gutter">
+                    <div class="row">
                         <div class="col-xs-12" id="{{ field.name }}-{{ sample.pk }}-hazards">
                             <hr class="hr-xs"/>
                             <span class="pull-left text-right" style="margin-right: 2em; line-height: 24px;">
@@ -85,7 +85,7 @@
                         <span class="removed"></span>
                     </div>
 
-                    <div class="row narrow-gutter">
+                    <div class="row">
 
                         <!-- Precautions Section -->
                         <div class="col-xs-12 collapse" id="{{ field.name }}-precautions-{{ sample.pk }}">

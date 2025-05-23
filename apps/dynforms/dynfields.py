@@ -245,10 +245,34 @@ class WebsiteURL(FieldType, FancyMixin):
 #     icon = "bi-table"
 #     settings = ['label', 'options',]
 #  
-# class LikertField(FieldType, FancyMixin):
-#     name = _("Likert")
-#     icon = "bi-ui-radios-grid"
-#     settings = ['label', 'options',]
+class Likert(FieldType, FancyMixin):
+    name = _("Likert")
+    icon = "bi-ui-radios-grid"
+    options = ['required', 'hide']
+    settings = ['label', 'options', 'choices']
+
+    def clean(self, val, multi=False, validate=True):
+        val = super().clean(val, multi=multi, validate=validate)
+        invalid_fields = set()
+        if isinstance(val, list):
+            entries = OrderedDict()
+            for entry in val:
+                key = "{}{}{}".format(
+                    entry.get('first_name', '').strip(),
+                    entry.get('last_name', '').strip(),
+                    entry.get('email', '').strip()
+                )
+                entries[key.lower()] = entry
+                invalid_fields |= {k for k, v in list(self.check_entry(entry).items()) if not v}
+            val = list(entries.values())
+        else:
+            invalid_fields |= {k for k, v in list(self.check_entry(val).items()) if not v}
+
+        if validate and invalid_fields:
+            raise ValidationError("Must provide {} for all entries".format(', '.join(invalid_fields)))
+
+        return val
+
 
 class File(FieldType, FancyMixin):
     name = _("File")

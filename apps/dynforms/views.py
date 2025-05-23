@@ -27,7 +27,7 @@ load('dynfields')
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 
 
-class DynFormViewMixin(object):
+class DynFormViewMixin:
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         if 'object' in context:

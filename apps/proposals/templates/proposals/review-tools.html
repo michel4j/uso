@@ -1,41 +1,40 @@
 {% load dynforms_tags %}
 
-<ul class="review-toolbar">
+<ul class="review-toolbar d-flex flex-row align-items-center">
     <li>
         <a class="expand-command" data-expand-name="clarifications" href="#0"
-        {% if review.reference.proposal %}
-           {% define target=review.reference.proposal %}
+                {% if review.reference.proposal %}
+                    {% define target=review.reference.proposal %}
            data-extra-url="{% url 'show-proposal-clarifications' pk=target.pk %}"
-        {% elif review.reference.project %}
-           {% define target=review.reference.project %}
+                {% elif review.reference.project %}
+                    {% define target=review.reference.project %}
            data-extra-url="{% url 'show-project-clarifications' pk=target.pk %}"
-        {% endif %}
+                {% endif %}
            title="Clarifications" data-placement="right">
             <span class="icon-stack">
                 <i class="icon-md bi-chat-left-text"></i>
-                <span class="icon-stack-1x icon-stack-text superscript">
+                <span class="superscript">
                     {% if target.clarifications.count %}
-                    <i class="bi-circle-fill icon-sm text-info-light"></i>
+                        <i class="bi-circle-fill icon-sm text-info-light"></i>
                     {% endif %}
                 </span>
             </span><br/>
             <span class="tool-label">Responses</span>
-
         </a>
     </li>
     <li>
         <a class="expand-command" data-expand-name="attachments" href="#0"
-        {% if review.reference.proposal %}
+                {% if review.reference.proposal %}
            data-extra-url="{% url 'show-proposal-attachments' pk=review.reference.proposal.pk %}"
-        {% elif review.reference.project %}
+                {% elif review.reference.project %}
            data-extra-url="{% url 'show-project-attachments' pk=review.reference.project.pk %}"
-        {% endif %}
+                {% endif %}
            title="Attachments" data-placement="right">
             <span class="icon-stack">
                 <i class="icon-md bi-paperclip icon-fw"></i>
                 <span class="icon-stack-text superscript">
                     {% if target.attachments.count %}
-                    <i class="bi-circle-fill icon-sm text-info-light"></i>
+                        <i class="bi-circle-fill icon-sm text-info-light"></i>
                     {% endif %}
                 </span>
             </span><br/>
@@ -43,28 +42,23 @@
         </a>
     </li>
     <li>
-        <a class="" href="{% url 'print-review' pk=object.pk %}" title="Print Document" target="_blank" data-placement="right">
+        <a class="" href="{% url 'print-review' pk=object.pk %}" title="Print Document" target="_blank"
+           data-placement="right">
             <i class="bi-printer icon-md icon-fw"></i><br/>
             <span class="tool-label">Print</span>
         </a>
     </li>
-    <li>
-        <a class="enlarge-text" href="#0" title="Text Size" data-placement="right">
-            <i class="bi-textarea-t icon-md text-muted"></i><br/>
-            <span class="tool-label">Text Size</span>
-        </a>
-    </li>
-    <li class="pull-right">
+    <li class="ms-auto">
         <a href="#0"
-        {% if review.reference.proposal %}
+                {% if review.reference.proposal %}
            data-modal-url="{% url 'request-proposal-clarification' pk=target.pk %}"
-        {% elif review.reference.project %}
+                {% elif review.reference.project %}
            data-modal-url="{% url 'request-project-clarification' pk=target.pk %}"
-        {% endif %}
+                {% endif %}
            title="Request Clarification" data-placement="right">
             <span class="icon-stack">
                 <i class="bi-chat icon-md text-success-light"></i>
-                <strong class="icon-stack-1x icon-stack-text"><i class="bi-plus-lg"></i></strong>
+                <i class="bi-plus-sm"></i>
             </span><br/>
             <span class="tool-label">Clarification</span>
         </a>

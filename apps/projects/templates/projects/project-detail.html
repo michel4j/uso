@@ -106,7 +106,7 @@
 
     <div class="minitron bg-transparent">
         {% with object.beamline_allocations as allocations %}
-            <div class="row narrow-gutter">
+            <div class="row">
                 {% for falloc in allocations %}
                     <div class="col-xs-12 {% if allocations|length > 1 %}col-sm-6 {% elif allocations|length > 3 %} col-md-4{% endif %}">
                         {% include "projects/allocation.html" %}
@@ -115,18 +115,18 @@
             </div>
         {% endwith %}
 
-        <div class="row narrow-gutter">
+        <div class="row">
             <div class="col-sm-12">
                 {% include "projects/sessions-summary.html" with sessions=project.sessions.relevant.with_shifts beamtimes=project.beamtimes.relevant.with_shifts lab_sessions=project.lab_sessions.relevant.with_hours %}
             </div>
         </div>
 
-        <div class="row narrow-gutter">
+        <div class="row">
             <div class="col-sm-12">
                 {% include "projects/project-team.html" with beamlines=object.beamlines.distinct permissions=object.permissions %}
             </div>
         </div>
-        <div class="row narrow-gutter">
+        <div class="row">
             <div class="col-sm-12">
                 {% include "projects/project-materials.html" with material=object.current_material %}
             </div>

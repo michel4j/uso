@@ -100,20 +100,6 @@ $font-family_1: bootstrap-icons;
 		vertical-align: middle;
 		cursor: pointer;
 	}
-	.result-row {
-		.select-result {
-			i {
-				visibility: hidden;
-			}
-		}
-		&:hover {
-			.select-result {
-				i {
-					visibility: visible;
-				}
-			}
-		}
-	}
 }
 .sample-list {
 	margin-bottom: 0.5em;

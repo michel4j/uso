@@ -75,7 +75,7 @@ class InstitutionForm(forms.ModelForm):
                 Div(Field('sector', css_class="selectize"), css_class='col-sm-6'), Div(Field('state', css_class="selectize"), css_class='col-sm-6'),
                 Div(Field('parent', css_class="selectize"), css_class='col-sm-12'), Div("domains", css_class='col-sm-12'),
                 Div("contact_person", css_class='col-sm-12'), Div("contact_email", css_class='col-sm-6'), Div("contact_phone", css_class='col-sm-6'),
-                css_class="row narrow-gutter"
+                css_class="row"
             ), btns, )
 
 
@@ -136,7 +136,7 @@ class InstitutionDeleteForm(ModalModelForm):
                 "Last Modified {{object.modified|timesince}} ago</small>"
                 "</div>"
             ),
-            Div(Field('transfer', css_class="selectize"), css_class='col-sm-12'), css_class="row narrow-gutter"
+            Div(Field('transfer', css_class="selectize"), css_class='col-sm-12'), css_class="row"
         )
 
 
@@ -353,21 +353,21 @@ class UserProfileForm(forms.ModelForm):
                     Div(Field('title', css_class="selectize"), css_class='col-sm-2'), Div('first_name', css_class='col-sm-3'),
                     Div('last_name', css_class='col-sm-4'), Div('preferred_name', css_class='col-sm-3'), Div('email', css_class='col-sm-6'),
                     Div('alt_email', css_class='col-sm-6'), Div('phone', css_class='col-sm-6'), Div('emergency_phone', css_class='col-sm-6'),
-                    css_class="row narrow-gutter"
+                    css_class="row"
                 ), Div(
-                    Div('emergency_contact', css_class='col-sm-12'), css_class="row narrow-gutter"
+                    Div('emergency_contact', css_class='col-sm-12'), css_class="row"
                 ), Div(
                     Div(Field('research_field', css_class="selectize"), css_class='col-sm-12'), Div(
                         Field(
                             'institution_name', css_class='institution-input', placeholder="Type full name or select from existing entries"
                         ), css_class='col-sm-8'
-                    ), Div(Field('classification', css_class="selectize"), css_class='col-sm-4'), css_class='row narrow-gutter'
+                    ), Div(Field('classification', css_class="selectize"), css_class='col-sm-4'), css_class='row'
                 ), ), Fieldset(
                 "Work Address", Div(
                     Div('address_1', css_class='col-sm-12'), Div('address_2', css_class='col-sm-12'), Div('city', css_class='col-sm-6'),
                     Div('country', placeholder="Type your country", css_class='col-sm-6'),
                     Div('region', placeholder="Type your province/state/territory", css_class='col-sm-6'), Div('postal_code', css_class='col-sm-6'),
-                    css_class="address row narrow-gutter"
+                    css_class="address row"
                 ), ), FormActions(
                 HTML('<hr class"hr-xs"/>'), Div(
                     StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
@@ -457,22 +457,22 @@ class ProfileForm(forms.Form):
                         Div(Field('title', css_class="selectize"), css_class='col-sm-2'), Div('first_name', css_class='col-sm-3'),
                         Div('last_name', css_class='col-sm-4'), Div('other_names', css_class='col-sm-3'), Div('email', css_class='col-sm-6'),
                         Div('alt_email', css_class='col-sm-6'), Div('phone', css_class='col-sm-6'), Div('emergency_phone', css_class='col-sm-6'),
-                        css_class="row narrow-gutter"
+                        css_class="row"
                     ), Div(
-                        Div('emergency_contact', css_class='col-sm-12'), css_class="row narrow-gutter"
+                        Div('emergency_contact', css_class='col-sm-12'), css_class="row"
                     ), Div(
                         Div(Field('research_field', css_class="selectize"), css_class='col-sm-12'),
                         Div(Field('classification', css_class="selectize"), css_class='col-sm-6'), Div(
                             Field(
                                 'institution', css_class='institution-input', placeholder="Type full name or select from existing entries"
                             ), css_class='col-sm-6'
-                        ), css_class='row narrow-gutter'
+                        ), css_class='row'
                     ), Fieldset(
                         "Work Address", Div(
                             Div('address_1', css_class='col-sm-12'), Div('address_2', css_class='col-sm-12'),
                             Div('country', placeholder="Type your country", css_class='col-sm-6'), Div(
                                 'region', placeholder="Type your province/state/territory", css_class='col-sm-6'
-                            ), Div('city', css_class='col-sm-6'), Div('postal_code', css_class='col-sm-6'), css_class="address row narrow-gutter"
+                            ), Div('city', css_class='col-sm-6'), Div('postal_code', css_class='col-sm-6'), css_class="address row"
                         ), ), FormActions(
                         Submit('form', 'Save', css_class='button white')
                     ), active=True

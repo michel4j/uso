@@ -53,11 +53,11 @@
             </div>
             <footer class="register-actions" style="margin: 0 -15px;">
                 {% if forloop.counter < form.form_type.pages|length %}
-                <a class="btn btn-white btn-sm next-btn pull-right" href="#{{forloop.counter|add:1}}-form"
+                <a class="btn btn-light border btn-sm next-btn pull-right" href="#{{forloop.counter|add:1}}-form"
                    data-bs-toggle="tab">Continue&nbsp;<i class="bi-skip-forward icon-fw"></i></a>
                 {% endif %}
                 {% if forloop.counter > 1 %}
-                <a class="btn btn-white btn-sm back-btn pull-right" href="#{{forloop.counter|add:-1}}-form"
+                <a class="btn btn-light border btn-sm back-btn pull-right" href="#{{forloop.counter|add:-1}}-form"
                    data-bs-toggle="tab"><i class="bi-skip-backward icon-fw"></i>&nbsp;Back</a>
                 {% endif %}
                 <p>

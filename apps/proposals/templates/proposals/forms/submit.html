@@ -6,7 +6,7 @@
 {% block pre_content %}<form action="{% url 'submit-proposal' pk=object.pk %}" method="post">{% csrf_token %}{% endblock %}
 {% block post_content %}</form>{% endblock %}
 {% block modal_body %}
-<div class="alert bg-info-subtle" style="margin-bottom: 0 !important;">
+<div class="alert alert-info" style="margin-bottom: 0 !important;">
     <h4 style="margin-top: 0.25em;"><strong>{{object.title}}</strong></h4>
 	{% for member in object.get_full_team %}
 	{{member.last_name}}, {{member.first_name}} <span class="text-info">{{member.roles|team_roles}}</span> 
@@ -14,7 +14,7 @@
 	{% endfor %}
 </div>
 
-	<div class="row narrow-gutter">
+	<div class="row">
 		<div class="col-sm-8">
 			<h3>Cycle <strong>{{cycle}}</strong></h3>
 			<hr class="hr-xs"/>

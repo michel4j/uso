@@ -1,21 +1,17 @@
-{% extends 'base.html' %}
+{% extends 'page.html' %}
 {% load crispy_forms_tags %}
 {% load static %}
 {% load markup %}
 
-{% block extra_css %}
-    <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
-{% endblock %}
-
 {% block page-title %}{{ agreement.name }}{% endblock %}
 {% block page-content %}
     <div class="page">
-        <div class="page-body" style="padding: 5em;">
-            <div class="minitron bg-transparent">
+        <div class="page-body" style="padding: 3em;">
+            <div>
                 {{ agreement.content | markdown }}
             </div>
             <hr class="hr-xs"/>
-            <div class="minitron bg-transparent">
+            <div>
             {% crispy form form.helper %}
             </div>
         </div>

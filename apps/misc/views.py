@@ -7,6 +7,8 @@ from django.conf import settings
 from . import forms
 from . import models
 from roleperms.views import RolePermsViewMixin
+from .utils import is_ajax
+from django.shortcuts import render
 
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 
@@ -63,7 +65,10 @@ class ManageAttachments(RolePermsViewMixin, ModalCreateView):
         return initial
 
     def form_valid(self, form):
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        context = self.get_context_data()
+        context['form'] = form
+        return render(self.request, self.template_name, context)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

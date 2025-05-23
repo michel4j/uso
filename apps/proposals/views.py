@@ -441,9 +441,8 @@ class ProposalDetail(RolePermsViewMixin, detail.DetailView):
         return context
 
 
-class DeleteProposal(RolePermsViewMixin, edit.DeleteView):
+class DeleteProposal(RolePermsViewMixin, ModalDeleteView):
     success_url = reverse_lazy('user-proposals')
-    template_name = "proposals/forms/delete.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def check_owner(self, obj):
@@ -460,30 +459,6 @@ class DeleteProposal(RolePermsViewMixin, edit.DeleteView):
             )
         )
         return super().get_queryset()
-
-    def _delete_formater(self, obj):
-        opts = obj._meta
-        return f'{capfirst(opts.verbose_name)}: {force_str(obj)}'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)  # database name
-        collector.collect([context['object']])  # list of objects. single one won't do
-        context['related'] = collector.nested(self._delete_formater)
-        return context
-
-    def delete(self, request, *args, **kwargs):
-        obj = self.get_object()
-        messages.success(self.request, 'Draft proposal has been deleted')
-        ActivityLog.objects.log(
-            self.request, obj, kind=ActivityLog.TYPES.delete, description='Proposal deleted'
-        )
-        super().delete(request, *args, **kwargs)
-        return JsonResponse(
-            {
-                "url": self.success_url
-            }
-        )
 
 
 class EditReviewerProfile(RolePermsViewMixin, edit.FormView):

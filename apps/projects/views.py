@@ -1482,7 +1482,7 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
         return (super().check_allowed() or self.check_owner(self.project))
 
     def check_owner(self, obj):
-        return obj.project.is_owned_by(self.request.user)
+        return self.project.is_owned_by(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1543,7 +1543,7 @@ class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
         return (super().check_allowed() or self.check_owner(self.allocation.project))
 
     def check_owner(self, obj):
-        return obj.project.is_owned_by(self.request.user)
+        return obj.is_owned_by(self.request.user)
 
     def get_initial(self):
         initial = super().get_initial()

@@ -44,11 +44,11 @@ $color_43: #ddd;
 $color_44: rgba(0, 0, 0, 0.5);
 $color_45: rgba(255, 255, 255, 0.25);
 $color_46: #333;
-$font-family_1: "Fira Sans", sans-serif;
-$font-family_2: "Fira Code", monospace;
-$font-family-condensed: "Fira Sans Condensed", sans-serif;
-$font-family_4: bootstrap-icons;
-$font-family_5: inherit;
+$body-font-family: "Fira Sans", sans-serif;
+$monospace-font-family: "Fira Code", monospace;
+$condensed-font-family: "Fira Sans Condensed", sans-serif;
+$icon-font-family: bootstrap-icons;
+$default-font-family: inherit;
 $background-color_1: #eee;
 $background-color_2: #75507b;
 $background-color_3: rgba(127, 100, 181, 0.1);
@@ -176,25 +176,17 @@ html {
 }
 
 body {
-  font-family: $font-family_1 !important;
-  font-size: 14px;
   padding: 0;
   min-height: 100vh;
   height: 100vh;
   background-color: $background-color_1;
 }
 
-.tooltip {
-  font-family: $font-family_1 !important;
-}
-
 .popover {
-  font-family: $font-family_1 !important;
   font-size: 95%;
 }
 
 pre {
-  font-family: $font-family_2;
   background: inherit;
   color: inherit;
 }
@@ -403,7 +395,7 @@ nav.sidebar {
   justify-content: space-between;
 
   .brand {
-    font-family: $font-family_1;
+    font-family: $body-font-family;
     text-align: center;
     font-size: 30px;
     font-weight: 300;
@@ -440,7 +432,7 @@ nav.sidebar {
         border-left: 3px solid transparent;
 
         span {
-          font-family: $font-family-condensed;
+          font-family: $condensed-font-family;
           display: block;
           font-size: 95%;
           font-weight: 200;
@@ -769,7 +761,7 @@ i.toolbar-icon {
     margin-top: 3px;
   }
 
-  .dropdown-toggle.btn-white {
+  .dropdown-toggle.btn-light border {
     border: 1px solid #d2d2d2;
     color: $color_7;
     background-image: none;
@@ -844,10 +836,6 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 300 !important;
 }
 
-legend {
-  font-weight: 300 !important;
-}
-
 .section-heading {
   font-weight: 300 !important;
 }
@@ -858,7 +846,7 @@ legend {
 
 .page-title {
   font-weight: 300 !important;
-  font-family: $font-family-condensed;
+  font-family: $condensed-font-family;
 }
 .page-subtitle {
   color: var(--bs-secondary);
@@ -940,7 +928,6 @@ legend {
 .page-header {
   min-height: 37px;
   position: relative;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 
   .row.my-2 {
     padding: 15px 0;
@@ -1462,29 +1449,29 @@ input {
   }
 }
 
-.form-control {
-  font-size: 0.95rem !important;
-
-  &::-webkit-input-placeholder {
-    font-style: oblique;
-    color: $color_6;
-  }
-
-  &:-moz-placeholder {
-    font-style: oblique;
-    color: $color_6;
-  }
-
-  &::-moz-placeholder {
-    font-style: oblique;
-    color: $color_6;
-  }
-
-  &:-ms-input-placeholder {
-    font-style: oblique;
-    color: $color_6;
-  }
-}
+//.form-control {
+//  font-size: 0.95rem !important;
+//
+//  &::-webkit-input-placeholder {
+//    font-style: oblique;
+//    color: $color_6;
+//  }
+//
+//  &:-moz-placeholder {
+//    font-style: oblique;
+//    color: $color_6;
+//  }
+//
+//  &::-moz-placeholder {
+//    font-style: oblique;
+//    color: $color_6;
+//  }
+//
+//  &:-ms-input-placeholder {
+//    font-style: oblique;
+//    color: $color_6;
+//  }
+//}
 
 .right-inner-addon {
   position: relative;
@@ -1547,7 +1534,7 @@ input {
 //		font-size: 111%;
 //	}
 //}
-//.btn-white {
+//.btn-light border {
 //	background: none repeat scroll 0 0 white;
 //	border: 1px solid #ccc;
 //	color: $color_10;
@@ -1565,7 +1552,7 @@ input {
 //		background-image: none;
 //	}
 //}
-//.btn-white.active {
+//.btn-light border.active {
 //	border: 1px solid #d2d2d2;
 //	color: $color_7;
 //	background-image: none;
@@ -1573,7 +1560,7 @@ input {
 //.btn.active {
 //	box-shadow: 0 2px 5px rgba(0,0,0,0.15) inset;
 //}
-//.btn-white.disabled {
+//.btn-light border.disabled {
 //	color: $color_11;
 //	&:hover {
 //		color: $color_11;
@@ -1585,10 +1572,10 @@ input {
 //		color: $color_11;
 //	}
 //}
-//.btn-white.disabled.active {
+//.btn-light border.disabled.active {
 //	color: $color_11;
 //}
-//.btn-white[disabled] {
+//.btn-light border[disabled] {
 //	color: $color_11;
 //	&:hover {
 //		color: $color_11;
@@ -1600,11 +1587,11 @@ input {
 //		color: $color_11;
 //	}
 //}
-//.btn-white.active[disabled] {
+//.btn-light border.active[disabled] {
 //	color: $color_11;
 //}
 //fieldset[disabled] {
-//	.btn-white {
+//	.btn-light border {
 //		color: $color_11;
 //		&:hover {
 //			color: $color_11;
@@ -1616,7 +1603,7 @@ input {
 //			color: $color_11;
 //		}
 //	}
-//	.btn-white.active {
+//	.btn-light border.active {
 //		color: $color_11;
 //	}
 //}
@@ -1972,7 +1959,7 @@ hr.hr-xxs {
   }
 
   .label {
-    font-family: $font-family-condensed;
+    font-family: $condensed-font-family;
     display: inline-block;
     margin: 0.15em;
     font-size: 85%;
@@ -2002,7 +1989,7 @@ hr.hr-xxs {
 
 #word-cloud {
   margin: 1em 0;
-  min-height: 400px;
+  //min-height: 400px;
 }
 
 form {
@@ -2106,7 +2093,7 @@ form {
 .list-remove-command {
   &:hover {
     &:after {
-      font-family: $font-family_4;
+      font-family: $icon-font-family;
       content: "\f146";
       cursor: pointer;
       color: $color_25;
@@ -2122,7 +2109,7 @@ ul.activity-log {
     line-height: 1;
 
     &::before {
-      font-family: $font-family_4;
+      font-family: $icon-font-family;
       padding-right: 0.5em;
     }
 
@@ -2175,7 +2162,7 @@ li.create-log {
     &::before {
       color: $color_1;
       float: left;
-      font-family: $font-family_4;
+      font-family: $icon-font-family;
       font-size: 28px;
       padding: 15px;
       background-color: $background-color_31;
@@ -2333,7 +2320,7 @@ a {
 .watermark {
   text-transform: uppercase;
   font-weight: 700;
-  font-family: $font-family_1;
+  font-family: $body-font-family;
   font-size: 150%;
 }
 
@@ -2384,39 +2371,16 @@ a {
 
 .subscript {
   position: absolute;
-  bottom: 50%;
-  transform: translate(50%, -100%);
-  font-size: 75%;
-  padding: 0;
-
-  .badge {
-    padding: 2px;
-    top: 0;
-
-    div {
-      min-width: 1em;
-      height: 1em;
-      padding: 0;
-    }
-  }
+  bottom: 0;
+  right: 0;
+  transform: translate(-100%);
 }
 
 .superscript {
   position: absolute;
-  top: 50%;
-  transform: translate(50%, -100%);
-  font-size: 75%;
-  padding: 0;
-
-  .badge {
-    padding: 2px;
-
-    div {
-      min-width: 1em;
-      height: 1em;
-      padding: 0;
-    }
-  }
+  top: 0;
+  right: 0;
+  transform: translateX(-100%);
 }
 
 .bubble {
@@ -2485,7 +2449,7 @@ a {
 
 svg {
   .subject-label {
-    font-family: $font-family-condensed;
+    font-family: $condensed-font-family;
     font-weight: 400;
   }
 }
@@ -2722,7 +2686,7 @@ div {
 }
 
 .rbc-label-start {
-  font-family: $font-family_4;
+  font-family: $icon-font-family;
 }
 
 .ibox-content {
@@ -2784,15 +2748,15 @@ input[checked=checked] {
 }
 
 .text-condensed {
-  font-family: $font-family-condensed;
+  font-family: $condensed-font-family;
 }
 
 .text-narrow {
-  font-family: $font-family-condensed;
+  font-family: $condensed-font-family;
 }
 
 .text-wide {
-  font-family: $font-family_1;
+  font-family: $body-font-family;
 }
 
 .callout {
@@ -3010,15 +2974,16 @@ table.fixed-header {
 }
 
 .box-tools, .page-tools {
-  padding: 0.5em 0.5em;
-  padding-right: 0.25em !important;
+  padding: 0.5em 0;
+  //padding-right: 0.25em !important;
   line-height: 1;
   text-align: center;
 
   a {
     position: relative;
     text-align: center;
-    padding: 0 0.75em;
+    padding: 0 0.5em;
+    min-width: 4em;
 
     &:last-child {
       padding-left: 1.5em;
@@ -3107,23 +3072,23 @@ span.twitter-typeahead {
   font-size: 80%;
 }
 
-.label-risk0 {
+.bg-risk0 {
   background-color: $background-color_46;
 }
 
-.label-risk1 {
+.bg-risk1 {
   background-color: $background-color_47;
 }
 
-.label-risk2 {
+.bg-risk2 {
   background-color: $background-color_19;
 }
 
-.label-risk4 {
+.bg-risk4 {
   background-color: $background-color_48;
 }
 
-.label-risk3 {
+.bg-risk3 {
   background-color: $background-color_48;
 }
 
@@ -3168,18 +3133,18 @@ span.stats-number {
 
   td {
     &:not(:first-child) {
-      font-family: $font-family_2;
+      font-family: $monospace-font-family;
     }
 
     &:first-child {
-      font-family: $font-family_5;
+      font-family: $default-font-family;
       font-weight: 600;
       text-align: left;
     }
   }
 
   th {
-    font-family: $font-family_2;
+    font-family: $monospace-font-family;
     font-weight: 600 !important;
     color: $color_12;
     text-align: right;
@@ -3197,18 +3162,18 @@ span.stats-number {
 
   td {
     &:not(:first-child) {
-      font-family: $font-family_2;
+      font-family: $monospace-font-family;
     }
 
     &:first-child {
-      font-family: $font-family_5;
+      font-family: $default-font-family;
       font-weight: 600;
       text-align: left;
     }
   }
 
   th {
-    font-family: $font-family_2;
+    font-family: $monospace-font-family;
     font-weight: 600 !important;
     color: $color_12;
   }
@@ -3366,7 +3331,7 @@ dl {
 
 .reject-sample-command {
   &:before {
-    font-family: $font-family_4;
+    font-family: $icon-font-family;
   }
 }
 
@@ -3562,25 +3527,17 @@ table {
   position: relative;
   display: inline-block;
   width: 2em;
-  height: 2em;
-  line-height: 2em;
   vertical-align: middle;
-}
-
-.icon-stack-1x {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  line-height: inherit;
-}
-
-.icon-stack-2x {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  font-size: 2em;
+  > *:not(:first-child) {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    text-align: center;
+    line-height: inherit;
+    transform: translateX(-50%) translateY(-50%);
+  }
 }
 
 .icon-inverse {
@@ -3621,7 +3578,7 @@ label.pictogram {
 }
 
 .datepicker {
-  font-family: $font-family_5 !important;
+  font-family: $default-font-family !important;
 }
 
 .ui-autocomplete {
@@ -3995,12 +3952,9 @@ span.allocation-score {
   padding-right: 1em;
 }
 
-.folio-status {
-  padding: 0.25em 1em;
-  display: flex;
-  flex-direction: row;
+.page-status {
+  padding: 1em;
   gap: 1em;
-  justify-content: space-between;
 
   > * {
     height: 100%;
@@ -4009,7 +3963,15 @@ span.allocation-score {
   > h3:first-of-type, div.h3:first-of-type {
     align-self: center;
   }
+
+  &:empty {
+    padding: 0 !important;
+    margin: 0 !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
+  }
 }
+
+
 
 .bottom-border {
   border-bottom: solid 1px $background-color_31;

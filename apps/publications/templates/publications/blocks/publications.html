@@ -13,7 +13,7 @@
     <a href="{% url 'claim-publication-list' %}" title="Claim Publications" class="pull-right">
         <span class="icon-stack">
             <i class="bi-link icon-md icon-fw"></i>
-            <span class="icon-stack-1x superscript">
+            <span class="superscript">
                 <span class="badge rounded-circle">{{matches}}</span>
             </span>
         </span>
@@ -27,9 +27,9 @@
 <script>
 const cloudData = {{words|jsonify}};
 function make_word_cloud(data, element) {
-    var fill = d3.scale.category20();
-    var w = Math.min($(element).width()*0.95, 1000),  h = 1.25*w;
-    var fscale = w < 600 ? 0.85 : 1;
+    const fill = d3.scale.category20();
+    const w = Math.min($(element).width() * 0.98, 1000), h = w;
+    const fscale = w < 600 ? 0.85 : 1;
 
     d3.layout.cloud().size([w, h])
         .words({{words|jsonify}})

@@ -146,6 +146,18 @@ document.addEventListener('DOMContentLoaded', function () {
             plugins: ["remove_button"]
         });
     });
+
+    // Initialize scroll boxes
+    $(".scroll-box").niceScroll({
+        cursorborder: "1px solid transparent",
+        cursorwidth: "9px",
+        autohidemode: "leave",
+        cursorborderradius: "2px",
+        cursoropacitymax: 0.5
+    });
+    $(".scroll-box").scroll(function(){
+        $(this).getNiceScroll().resize();
+    });
 });
 </script>
 </body>

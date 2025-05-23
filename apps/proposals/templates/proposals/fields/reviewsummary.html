@@ -6,7 +6,7 @@
 {% all_reviews_completed as all_complete %}
 {% for rev in approval_reviews %}
     <div class="tinytron">
-        <div class="row narrow-gutter">
+        <div class="row">
             <div class="col-xs-8" id="{{ field.name }}-{{ rev.review.pk }}-description">
                 <h5 class="no-vmargin">
                     {% if rev.review.reviewer %}

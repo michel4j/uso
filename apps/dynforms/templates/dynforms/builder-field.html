@@ -1,0 +1,43 @@
+{% load dynforms_tags %}
+{% load markup %}
+<div id="{{ field.name }}-group"
+     class="form-group {{ field.hide_styles }} {{ field.width_styles }} {{ field.extra_styles }}">
+    {% if field.field_type != 'newsection' %}
+        {% if 'nolabel' not in field.options %}
+            <label class="control-label"
+                   {% if field.choices or field.field_type == 'address' %}{% else %}for="{{ field.name }}"{% endif %}>
+                {{ field.label }}{% if field.is_required %}&nbsp;<span class="text-danger">&#x2217;</span>
+                    &nbsp;{% endif %}
+            </label>
+            {% if field.instructions and field.field_type != 'newsection' %}
+                <i class="df-info bi-info-circle-fill text-primary" data-bs-toggle="popover" data-placement="bottom"
+                   data-trigger="hover"
+                   title="{{ field.label }}" data-content="{{ field.instructions }}"></i>
+            {% endif %}
+            <span class="control-instructions hidden-xs text-narrow">
+        <div style="display: flex; flex-direction: row; font-size: 105%; line-height: 1; align-items: center;">
+            <i class="bi-info-circle-fill icon-md text-primary"></i>
+            <div style="flex: 1; padding-left: 0.5em;">{{ field.label }}</div>
+        </div>
+        <hr class="hr-xs"/>
+        <span class="fg-help">
+            {{ field.instructions|markdown }}
+        </span>
+    </span>
+        {% endif %}
+    {% endif %}
+    {% if field.is_repeatable %}
+        {% show_builder_field field repeatable=True %}
+        <button data-repeat-add=".{{ field.name }}-repeatable"
+                class="btn btn-success btn-sm pull-right" title="Add {{ field.label }}"
+                name="add" type="button"><i class="bi-plus-lg"></i>
+        </button>
+    {% else %}
+        {% show_builder_field field %}
+    {% endif %}
+</div>
+{% if "repeat" in field.options %}
+    <script>
+        $('#{{field.name}}-group button[data-repeat-add]').repeatable();
+    </script>
+{% endif %}

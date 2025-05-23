@@ -127,7 +127,7 @@ class ReviewerForm(forms.Form):
                 ),
                 css_class="col-xs-12"
             ),
-            css_class="row narrow-gutter"
+            css_class="row"
         )
 
         for tech, count in sorted(list(techs.items()), key=lambda v: v[1], reverse=True):
@@ -190,7 +190,7 @@ class ReviewerForm(forms.Form):
                     InlineCheckboxes('sub_areas', template="proposals/fields/%s/groupedcheckboxes.html"),
                     css_class="col-sm-12"
                 ),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
 
             tech_fields,
@@ -245,7 +245,7 @@ class OptOutForm(forms.ModelForm):
                         css_class="col-xs-12"
                     ),
                     Div('comments', css_class="col-xs-12"),
-                    css_class="col-xs-12 narrow-gutter"
+                    css_class="col-xs-12 gap-2"
                 ),
                 css_class="row"
             ),
@@ -299,7 +299,7 @@ class FacilityConfigForm(ModalModelForm):
                     InlineRadios('accept'),
                     css_class="col-sm-6"
                 ),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             'facility',
             Div(
@@ -337,7 +337,7 @@ class ReviewCycleForm(ModalModelForm):
                 Div(DateField("close_date"), css_class="col-sm-6"),
                 Div(DateField("due_date"), css_class="col-sm-6"),
                 Div(DateField("alloc_date"), css_class="col-sm-6"),
-                css_class="row narrow-gutter"
+                css_class="row"
             )
         )
 
@@ -372,7 +372,7 @@ class ReviewTrackForm(ModalModelForm):
                 Div("min_reviewers", css_class="col-sm-6"),
                 Div("max_workload", css_class="col-sm-6"),
                 Div(Field("committee", css_class="selectize"), css_class="col-sm-12"),
-                css_class="row narrow-gutter"
+                css_class="row"
             )
         )
 
@@ -394,7 +394,7 @@ class ReviewCyclePoolForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(InlineCheckboxes('reviewers'), css_class="col-sm-12"),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(
@@ -457,7 +457,7 @@ class ReviewerAssignmentForm(forms.ModelForm):
             ),
             Div(
                 Div(Field('reviewers', css_class="selectize"), css_class='col-sm-12'),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(
@@ -508,7 +508,7 @@ class AdjustmentForm(forms.ModelForm):
             Div(
                 Div(Field('value', css_class="selectize"), css_class="col-sm-12"),
                 Div("reason", css_class="col-sm-12"),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(
@@ -545,7 +545,7 @@ class ReviewCommentsForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div("comments", css_class="col-sm-12"),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(
@@ -590,6 +590,6 @@ class ReviewStageForm(ModalModelForm):
                 Div("min_reviews", css_class="col-sm-4"),
                 Div("pass_score", css_class="col-sm-4"),
                 Div("blocks", css_class="col-sm-4"),
-                css_class="row narrow-gutter"
+                css_class="row"
             )
         )

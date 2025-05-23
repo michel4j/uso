@@ -32,11 +32,8 @@ div.comment-body {
 .review-col {
   max-height: calc(100vh - 95px);
   height: calc(100vh - 95px);
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-direction: column;
   flex-direction: column;
-  -ms-flex: 2;
   flex: 2;
 }
 #review-form {
@@ -49,24 +46,15 @@ div.comment-body {
 #form-area > div > form > .df-form,
 #form-area > div > form > .df-form
 {
-  -ms-flex: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.df-form > .df-form-footer {
-  max-height: 75px;
-  transition: min-height 500ms ease 0s;
-}
-
 #extras-area {
-  -ms-flex: 2;
   flex: 2;
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-direction: column;
   flex-direction: column;
   max-height: 65px;
   min-height: 65px;
@@ -74,6 +62,10 @@ div.comment-body {
   padding: 0!important;
 }
 
+.df-form > .df-form-footer {
+  max-height: 75px;
+  transition: min-height 500ms ease 0s;
+}
 .df-form-tabs {
 }
 .df-form .df-form-body {
@@ -94,11 +86,13 @@ div.comment-body {
 	padding-bottom: 0;
 }
 .review-toolbar {
-    padding: 7.5px;
+    padding: 0.25em;
     height: 65px;
 	width: 100%;
-	margin: 0 0 5px 0!important;
-	border-top: 1px solid transparent;
+	border-bottom: 1px solid transparent;
+}
+.review-toolbar .tool-label {
+    padding-top: 0 !important;
 }
 
 #extras-area .pagelet-content {
@@ -115,7 +109,7 @@ div.comment-body {
    max-height: calc(30vh + 85px);
 }
 .show-comments .review-toolbar {
-    border-top: 1px solid rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 #extra-review-content {
     height: 30vh;

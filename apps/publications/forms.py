@@ -149,9 +149,11 @@ REFERENCE_FETCH = {'doi': utils.get_pub, 'isbn': utils.get_book, 'patent': utils
 
 class PubWizardForm1(ModalForm):
     REFERENCES = [("doi", "DOI"), ("isbn", "ISBN"), ("patent", "Patent Number"), ("url", "Thesis")]
-    reference = forms.ChoiceField(choices=REFERENCES, required=False,
+    reference = forms.ChoiceField(
+        choices=REFERENCES, required=False,
         label="What kind of reference do you have for the publication?",
-        help_text="peer-reviewed article or conference proceedings")
+        help_text="peer-reviewed article or conference proceedings"
+    )
     code = forms.CharField(required=False, label=" ")
     details = forms.CharField(required=False, widget=forms.HiddenInput)
 

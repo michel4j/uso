@@ -43,7 +43,7 @@
         </div>
     </div>
     <hr class="hr-xs">
-    <div class="row narrow-gutter">
+    <div class="row">
         {% for member in object.team.all|dictsort:"first_name" %}
         <div class="col-xs-6 col-sm-4 col-md-3">
             <div class="tinytron {% if user.email.lower == member.email.lower %}thick-border{% endif %} border-3d">

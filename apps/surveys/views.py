@@ -12,13 +12,14 @@ from dynforms.views import DynCreateView
 from projects.models import Project
 from proposals.models import ReviewCycle
 from roleperms.views import RolePermsViewMixin
+from .models import Feedback
 
 USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ["admin:uso"])
 
 
 class UserFeedback(DynCreateView):
     form_class = forms.FeedbackForm
-    model = Project
+    model = Feedback
     template_name = "projects/forms/project_form.html"
 
     def get_initial(self):
@@ -35,6 +36,10 @@ class UserFeedback(DynCreateView):
         return success_url
 
     def form_valid(self, form):
+        data = form.cleaned_data
+        print(data)
+        obj = self.model(**data)
+        obj.save()
         return HttpResponseRedirect(self.get_success_url())
 
 

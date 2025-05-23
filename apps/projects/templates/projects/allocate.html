@@ -44,7 +44,7 @@
 
             {% for kind, pool in pools.items %}{% if kind != 'user' %}
                 <div class="tinytron">
-                    <div class="row narrow-gutter">
+                    <div class="row">
                         <div class="col-xs-12">
                             <div class="pull-left">
                                 <h4 class="text-condensed" style="margin: 0.25em 0;">
@@ -55,7 +55,7 @@
                                     Shifts</small>
                             </div>
 
-                            <div class="narrow-gutter text-condensed">
+                            <div class="gap-2 text-condensed">
                         <span class="box-tools pull-right" style="padding: 0.2em 0.5em;">
                             <h4 style="margin-top: -0.4em;">
                                 <div class="pull-left">
@@ -91,7 +91,7 @@
                             </h4>
                         </span>
                             </div>
-                            <div class="narrow-gutter text-condensed">
+                            <div class="gap-2 text-condensed">
                     <span class="box-tools pull-right" style="margin-right: 1em; text-align: left; border: none;">
                         <span class="stats-number pull-left">
                             {{ pool.projects.count }}
@@ -112,7 +112,7 @@
                 </div>
             {% endif %}{% endfor %}
             <div class="tinytron bg-info">
-                <div class="row narrow-gutter">
+                <div class="row">
                     <div class="col-xs-12">
                     <span class="pull-left">
                         <h4 style="margin: 0.25em 0;"><strong>Discretionary Shifts</strong></h4>
@@ -150,7 +150,7 @@
             <div class="tinytron bg-white">
                 {% with pool=pools.user %}
 
-                    <div class="row narrow-gutter">
+                    <div class="row">
                         <div class="col-xs-12">
                     <span class="pull-left">
                     <h4 class="text-condensed" style="margin: 0.25em 0;">
@@ -160,7 +160,7 @@
                             class="text-success">{{ available_shifts|floatformat }}</strong> Available Shifts</small>
                     </span>
 
-                            <div class="narrow-gutter text-condensed">
+                            <div class="gap-2 text-condensed">
                     <span class="box-tools pull-right" style="padding: 0.2em 0.5em;">
                             <h4 style="margin-top: -0.4em;">
                                 <div class="pull-left">
@@ -183,7 +183,7 @@
                                 </div>
                             </h4>
                             </div>
-                            <div class="narrow-gutter text-condensed">
+                            <div class="gap-2 text-condensed">
                     <span class="box-tools pull-right" style="margin-right: 1em; text-align: left; border: none;">
                         <span class="stats-number pull-left">
                             {{ pool.projects.count }}

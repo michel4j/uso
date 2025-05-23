@@ -1,10 +1,10 @@
 {% extends "misc/blocks/panel.html" %}
 {% block panel_title %}Proposals{% endblock %}
 {% block panel_tools %}
-    <a href="{% url 'user-proposals' %}" class="pull-right" title="View my proposals">
+    <a href="{% url 'user-proposals' %}" title="View my proposals">
         <i class="bi-list-ol icon-md icon-fw"></i>
     </a>
-    <a href="{% url 'create-proposal' %}" class="pull-right" title="Create New Proposal">
+    <a href="{% url 'create-proposal' %}" title="Create New Proposal">
         <i class="bi-plus-lg icon-md icon-fw"></i>
     </a>
 {% endblock %}
@@ -27,7 +27,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="alert alert-light text-muted text-center">
+        <div class="alert alert-light text-center">
             There are currently no open calls for proposals.
         </div>
     {% endif %}
@@ -42,20 +42,21 @@
             </div>
         </div>
         <hr class="hr-xs"/>
-        <div class="row scroll-box" style="max-height: 200px">
-            <ul class="col-xs-12 list-unstyled list-ruled">
-                {% for proposal in drafts %}
-                    <li class="text-condensed">
-                        <a class="pull-right" href='{% url "edit-proposal" pk=proposal.pk %}'
-                           data-bs-toggle="tooltip" title="Edit proposal"><i class="bi-pencil-square"></i>
-                        </a>
-                        <span class="overflow ellipsis"
-                              title="Modified {{ proposal.modified|timesince }} ago">{{ proposal.title }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
+        <div class="row" >
+            <div class="scroll-box col-xs-12" style="max-height: 200px">
+                <ul class="list-unstyled list-ruled">
+                    {% for proposal in drafts %}
+                        <li class="text-condensed">
+                            <a class="pull-right" href='{% url "edit-proposal" pk=proposal.pk %}'
+                               data-bs-toggle="tooltip" title="Edit proposal"><i class="bi-pencil-square"></i>
+                            </a>
+                            <span class="overflow ellipsis"
+                                  title="Modified {{ proposal.modified|timesince }} ago">{{ proposal.title }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-
     {% endif %}
     {% if submitted.count %}
         <div class="row">
@@ -66,8 +67,9 @@
             </div>
         </div>
         <hr class="hr-xs"/>
-        <div class="scroll-box row" style="max-height: 200px;">
-            <ul class="col-xs-12 list-unstyled list-ruled">
+        <div class="row">
+            <div class="scroll-box col-xs-12"  style="max-height: 200px;">
+            <ul class="list-unstyled list-ruled">
                 {% for proposal in submitted %}
                     <li class="text-condensed">
                         <a class="pull-right" href='{% url "proposal-detail" pk=proposal.pk %}'
@@ -79,6 +81,7 @@
                     </li>
                 {% endfor %}
             </ul>
+            </div>
         </div>
     {% endif %}
 {% endblock %}

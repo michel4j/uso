@@ -56,6 +56,7 @@ jQuery.fn.serializeObject = function () {
     };
 
     jQuery.fn.deserialize = function(data, options = {}) {
+        console.log("deserialize", data, options);
         let current, element, elements, elementsForName, i, j, k, key, len, length, name, nameIndex, optionsAndInputs,
             property, type, value,
             change = jQuery.noop,

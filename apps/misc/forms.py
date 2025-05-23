@@ -10,7 +10,7 @@ from . import models
 class Fieldset(Div):
     def __init__(self, title, *args, **kwargs):
         if 'css_class' not in kwargs:
-            kwargs['css_class'] = "row narrow-gutter"
+            kwargs['css_class'] = "row"
         super().__init__(
             Div(HTML("<h3>{}</h3><hr class='hr-xs'/>".format(title)), css_class="col-xs-12"),
             *args,
@@ -96,4 +96,7 @@ class AttachmentForm(ModalModelForm):
                 FullWidth(Field('file', template="%s/file_input.html")),
                 Field('owner'), Field('object_id'), Field('content_type'),
             ),
+        )
+        self.footer.layout = Layout(
+            StrictButton('Close', css_class='btn btn-light border', data_bs_dismiss="modal", aria_label="Close")
         )

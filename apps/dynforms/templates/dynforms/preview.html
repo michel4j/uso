@@ -1,12 +1,12 @@
 {% load dynforms_tags %}
 <div id="df-form-preview" class="page">
-
+{% with form_spec.get_pages as form_pages %}
     <!-- Nav tabs -->
     <ul class="nav nav-tabs">
-        {% for page in form_spec.pages %}
+        {% for page in form_pages %}
             <li class="nav-item">
-                <a href="#page{{ forloop.counter }}"
-                   class="nav-link {% if forloop.counter == active_page %}active{% endif %}"
+                <a href="#page{{ page.number }}"
+                   class="nav-link {% if page.number == active_page %}active{% endif %}"
                    data-bs-toggle="tab">{{ page.name }}
                 </a>
             </li>
@@ -15,19 +15,21 @@
 
     <!-- Tab panes -->
     <div class="tab-content page-body">
-        {% for page in form_spec.pages %}
-            <div class="tab-pane {% if forloop.counter == active_page %}active{% endif %} df-container sortable grid"
-                 id="page{{ forloop.counter }}" data-page-number="{forloop.counter0}}">
+        {% for page in form_pages %}
+            <div class="tab-pane {% if page.number == active_page %}active{% endif %} df-container sortable grid"
+                 id="page{{ page.number }}" data-page-number="{page.number}}">
                 {% for field in page.fields %}
                     <div class="df-field" data-fieldtype="{{ field.field_type }}"
-                         data-fieldpos="{{ forloop.counter0 }}">
-                        {% include "dynforms/field.html" %}
+                         data-fieldpos="{{ field.index }}">
+                        {% include "dynforms/builder-field.html" %}
                     </div>
                 {% endfor %}
             </div>
         {% endfor %}
     </div>
+{% endwith %}
 </div>
+
 <!-- Footer -->
 <div id="df-footer">
     <div id="df-footer-content">

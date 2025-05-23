@@ -23,10 +23,10 @@
 		$('input[name="name"]').change(function(){
 		    var search = $("#search-compound");
 			if (jQuery.trim($(this).val()) != '') {
-				search.removeClass('btn-white');
+				search.removeClass('btn-light border');
 				search.addClass('btn-primary');
 			} else {
-				search.addClass('btn-white');
+				search.addClass('btn-light border');
 				search.removeClass('btn-primary');
 			}
 		});

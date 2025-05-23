@@ -1,18 +1,14 @@
-import pprint
-from base64 import b64encode
 from datetime import datetime
 
-from Crypto.Cipher import AES
+import yaml
 from crisp_modals.forms import ModalModelForm, Row, FullWidth
 from crispy_forms.bootstrap import PrependedText, InlineCheckboxes
 from crispy_forms.bootstrap import StrictButton, FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field, HTML
 from django import forms
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
-from django.urls import reverse_lazy
 from django.utils.datastructures import MultiValueDict
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -33,6 +29,10 @@ LAYOUTS = Choices(
     ('full', _('Full')),
     ('half', _('Half')),
     ('third', _('Third')),
+    ('quarter', _('Quarter')),
+    ('two_thirds', _('Two Thirds')),
+    ('three_quarters', _('Three Quarters')),
+    ('auto', _('Auto')),
 )
 UNITS = Choices(
     ('chars', _('Characters')),
@@ -75,8 +75,7 @@ class RepeatableCharField(forms.MultipleChoiceField):
 FIELD_SETTINGS = {
     'label': (forms.CharField, {'label': _("Label"), 'required': True}),
     'name': (forms.CharField, {'label': _("Field Name"), 'required': True}),
-    'instructions': (
-        forms.CharField, {'label': _("Instructions"), 'widget': forms.Textarea(attrs={'rows': 5})}),
+    'instructions': (forms.CharField, {'label': _("Instructions"), 'widget': forms.Textarea(attrs={'rows': 2})}),
     'tags': (forms.CharField, {'label': _("Style tags")}),
     'size': (forms.ChoiceField, {'label': _("Size")}),
     'width': (forms.ChoiceField, {'label': _("Width")}),
@@ -124,8 +123,7 @@ class FieldSettingsForm(forms.Form):
     def add_custom_field(self, name, **kwargs):
         ft, kw = FIELD_SETTINGS[name]
         kwargs.update(kw)
-        if not 'required' in kwargs:
-            kwargs['required'] = False
+        kwargs['required'] = kwargs.get('required', False)
         self.fields[name] = ft(**kwargs)
 
     def create_layout(self, field_type):
@@ -135,7 +133,7 @@ class FieldSettingsForm(forms.Form):
         _fieldset = Fieldset(
             f"{field_type.name} - {_('Settings')}",
             'label',
-            Field('instructions', rows=5)
+            Field('instructions', rows=2)
         )
 
         for field_name in ['size', 'width', 'options']:
@@ -169,7 +167,9 @@ class FieldSettingsForm(forms.Form):
             self.add_custom_field('choices')
             self.add_custom_field('values')
 
-            choices = list(zip(self.initial['choices'], self.initial.get('values', self.initial['choices'])))
+            choices = list(
+                zip(self.initial.get('choices', []), self.initial.get('values', self.initial.get('choices', [])))
+            )
             self.initial['choices_info'] = [{
                 'label': i,
                 'value': '' if v is None else v
@@ -200,10 +200,10 @@ class FieldSettingsForm(forms.Form):
                     HTML('<hr class="hr-xs"/>'),
                     StrictButton('<i class="bi-box-arrow-in-left icon-fw"></i> Move to Prev Page', name='move-prev',
                                  value="move-prev",
-                                 title="Move to Prev Page", css_class="btn btn-sm btn-white pull-left"),
+                                 title="Move to Prev Page", css_class="btn btn-sm btn-light border pull-left"),
                     StrictButton('Move to Next Page <i class="bi-box-arrow-in-right icon-fw"></i>', name='move-next',
                                  value="move-next",
-                                 title="Move to Next Page", css_class="btn btn-sm btn-white pull-right"),
+                                 title="Move to Next Page", css_class="btn btn-sm btn-light border pull-right"),
                     css_class="col-xs-12 text-condensed"),
                 css_class="row")
         )
@@ -228,7 +228,7 @@ class FormSettingsForm(forms.ModelForm):
 
     class Meta:
         model = models.FormType
-        fields = ('code', 'name', 'description', 'page_names', 'actions', 'pages',  'action_names', 'action_labels')
+        fields = ('code', 'name', 'description', 'page_names', 'actions', 'pages', 'action_names', 'action_labels')
         widgets = {
             'code': forms.TextInput(attrs={'placeholder': 'Unique slug, e.g. "feedback-form"'}),
             'name': forms.TextInput(attrs={'placeholder': 'Human friendly name'}),
@@ -249,12 +249,12 @@ class FormSettingsForm(forms.ModelForm):
                 _("Form Settings"),
                 Div(
                     Div('code', css_class='col-xs-12'),
-                    css_class="row narrow-gutter"
+                    css_class="row"
                 ),
                 Div(
                     Div("name", css_class='col-xs-12'),
                     Div("description", css_class='col-xs-12'),
-                    css_class="row narrow-gutter"
+                    css_class="row"
                 ),
                 HTML(PAGES_TEMPLATE),
                 HTML(ACTIONS_TEMPLATE),
@@ -283,6 +283,7 @@ class FormSettingsForm(forms.ModelForm):
         if len(pages) > len(titles) and len(pages[-1]['fields']) == 0:
             pages.pop()
         cleaned_data['pages'] = pages
+
         return cleaned_data
 
 
@@ -298,7 +299,7 @@ class RulesForm(forms.Form):
         return cleaned_data
 
 
-class DynFormMixin(object):
+class DynFormMixin:
     type_code = None
     field_specs: dict
     instance: models.DynEntry

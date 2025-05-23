@@ -4,8 +4,9 @@
 {% block panel_title %}My Facilities{% endblock %}
 {% block panel_content %}
     {% if facilities.exists %}
-        <div class="row scroll-box" style="max-height: 200px;">
-            <ul class="list-unstyled list-ruled col-xs-12">
+        <div class="row">
+        <div class="scroll-box col-xs-12" style="max-height: 200px;">
+            <ul class="list-unstyled list-ruled">
                 {% for fac in facilities %}
                     <li class="text-condensed" >
                         <span class="pull-right">
@@ -21,6 +22,7 @@
                     </li>
                 {% endfor %}
             </ul>
+        </div>
         </div>
     {% endif %}
 {% endblock %}

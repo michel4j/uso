@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block page-subtitle %}
-    {{ object.acronym }}
+    {{ object.description }}
 {% endblock %}
 
 {% block page-tools %}
@@ -19,10 +19,10 @@
     </a>
 {% endblock %}
 
-{% block page-status-style %}{% if object.available %}bg-success{% else %}bg-darken{% endif %}{% endblock %}
+{% block page-status-style %}{% if object.available %}bg-success-subtle{% else %}bg-tertiary{% endif %}{% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="no-vmargin"><span class="badge bg-info text-condensed">{% if object.available %}Available{% else %}Not
+    <h3 class="my-0"><span class="badge bg-info text-condensed">{% if object.available %}Available{% else %}Not
         Available{% endif %}</span>
     </h3>
     <div>
@@ -31,39 +31,37 @@
     </div>
     <div>
         <small class="text-wide text-muted">Required Permissions:</small>
-        <br/>{% for perm in lab.permissions.all %}{{ perm.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        <br/>
+        {% for perm in lab.permissions.all %}
+            {{ perm.code }}{% if not forloop.last %}, {% endif %}
+        {% empty %}
+            &nbsp;
+        {% endfor %}
     </div>
 
 {% endblock %}
 
 {% block page-content %}
-    <div class="minitron bg-transparent">
-        <div class="row narrow-gutter">
-            <div class="col-xs-12">
-                {{ object.description }}
-                <hr class="hr-xs"/>
-            </div>
-        </div>
-        <div class="row narrow-gutter">
-            {% for workspace in lab.workspaces.all %}
-                <div class="col-xs-6 col-sm-4">
-                    <div class="tinytron border-3d {% if not workspace.available %}bg-danger{% endif %}"
-                         style="min-height: 200px;">
-                        <h5 class="no-vmargin">{{ workspace.name }}</h5>
-                        <div class="text-condensed" style="font-size: 90%;">{{ workspace.description }}</div>
-                        <hr class="hr-xs"/>
-                        {% with workspace.sessions.active.all as sessions %}
-                            {% if not sessions.exists %}
-                                <div class="empty">
-                                    Workspace not in use
-                                </div>
-                            {% else %}
-                                {% include 'projects/lab_permit-summary.html' with session=sessions.first %}
-                            {% endif %}
-                        {% endwith %}
+    <div class="row">
+        {% for workspace in lab.workspaces.all %}
+            <div class="col-xs-6 col-sm-4">
+                <div class="card {% if not workspace.available %}bg-danger{% endif %}" style="min-height: 200px;">
+                    <div class="card-header">
+                        <h5 class="m-0">{{ workspace.name }}</h5>
+                        <small>{{ workspace.description }}</small>
                     </div>
+
+                    {% with workspace.sessions.active.all as sessions %}
+                        {% if not sessions.exists %}
+                            <div class="empty">
+                                Workspace not in use
+                            </div>
+                        {% else %}
+                            {% include 'projects/lab_permit-summary.html' with session=sessions.first %}
+                        {% endif %}
+                    {% endwith %}
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}

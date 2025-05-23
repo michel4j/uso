@@ -33,26 +33,24 @@
 		<!-- Footer -->
 		<div class="df-form-footer">
 			<div id="df-footer-content">
-                <span class="footer-progress">
-                    <div class="row">
-						<div class="col-xs-12" style="line-height: 1; font-size: 95%;">
+                <div class="footer-progress">
+                    <div class="d-flex flex-column align-items-stretch justify-content-center">
+						<div style="font-size: 95%;">
 							{{validation.progress|default:0}}% complete &mdash; {{object}}
 						</div>
-						<div class="col-xs-12">
-							<div class="progress-xs progress">
-								<div class="progress-bar {% if validation.progress < 99.5 %}progress-bar-warning{% else %}progress-bar-success{% endif %} progress-bar-striped" role="progressbar"
+						<div>
+							<div class="progress" style="height: 0.75em;">
+								<div class="progress-bar {% if validation.progress < 99.5 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar"
 									 aria-valuenow="{{validation.progress}}"
 									 aria-valuemin="0" aria-valuemax="100"
-									 style="width: {{validation.progress}}%">
-									{{validation.progress}}%
-								</div>
+									 style="width: {{validation.progress}}%"></div>
 							</div>
 						</div>
 					</div>
-                </span>
+                </div>
                 <span class="footer-buttons">
 					{% for name, label in form.form_type.actions reversed %}
-					<input type="submit" id="{{name}}-action" class="btn {% if forloop.last %}btn-primary{% else %}btn-white{% endif%}" value="{{label}}" name="{{name}}">
+					<input type="submit" id="{{name}}-action" class="btn {% if forloop.last %}btn-primary{% else %}btn-light border{% endif%}" value="{{label}}" name="{{name}}">
 					{% endfor %}
                 </span>
 			</div>

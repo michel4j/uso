@@ -1,3 +1,4 @@
+import pprint
 from collections import defaultdict
 from datetime import timedelta
 
@@ -6,7 +7,7 @@ from django.utils.safestring import mark_safe
 from model_utils.models import TimeStampedModel
 
 from .fields import FieldType, ValidationError
-from .utils import Queryable, build_Q
+from .utils import Queryable, build_Q, FormPage
 
 
 def default_pages():
@@ -111,6 +112,10 @@ class FormType(TimeStampedModel):
         if missing:
             warnings.extend([f'Missing field `{f}`' for f in missing])
         return warnings
+
+    def get_pages(self):
+        pprint.pprint(self.pages)
+        return [FormPage(**page, number=(i+1)) for i, page in enumerate(self.pages)]
 
     def __str__(self):
         return self.name

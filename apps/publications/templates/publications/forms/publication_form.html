@@ -1,8 +1,8 @@
 {% extends "crisp_modals/form.html" %}
 {% load crispy_forms_tags %}
 
-{% block pre-content %}
-    <form id="wizard" action="{{ form.helper.form_action }}" method="post">
+{% block pre_content %}
+    <form id="wizard" action="{{ form.body.form_action }}" method="post">
 {% endblock %}
 {% block modal_body %}
     <div class="progress" role="progressbar" aria-label="Basic example"
@@ -28,7 +28,6 @@
             {{ form.errors }}
         </div>
     {% endif %}
-
     {{ wizard.management_form }}
     {% crispy wizard.form wizard.form.body %}
 {% endblock %}
@@ -36,46 +35,46 @@
 {% block modal_scripts %}
     <script type="text/javascript">
         function initForm() {
-            var FORMATS = {
+            const FORMATS = {
                 'doi': "eg. 10.10.1038/nphys1170",
                 'isbn': "eg. 978-3-16-148410-0",
                 'patent': "eg. CA2458971",
                 'url': "https://... URL to the thesis",
-            }
-            var HELP_TEXT = {
+            };
+            const HELP_TEXT = {
                 'doi': "Digital Object Identifier for articles or conference proceedings",
                 'isbn': "International Standard Book Number for books, chapters, or theses",
                 'patent': "Patent Number",
                 'url': "Thesis"
-            }
-            var FIELDS = {
+            };
+            const FIELDS = {
                 'chapter': ['main_title', 'editor', 'date'],
                 'patent': ['title', 'authors', 'date'],
                 'msc_thesis': ['title', 'authors', 'publisher', 'date', 'address'],
                 'phd_thesis': ['title', 'authors', 'publisher', 'date', 'address'],
-            }
+            };
             $('#hint_id_0-reference').text(HELP_TEXT[$('select[name="0-reference"]').val()]);
             $('input[name="0-code"]').attr('placeholder', FORMATS[$('select[name="0-reference"]').val()]);
-            $('input[name="0-code"]').attr('required', true);
+            //$('input[name="0-code"]').attr('required', true);
             $(".modal-update").change(function (e) {
                 $('#hint_id_0-reference').text(HELP_TEXT[$('select[name="0-reference"]').val()]);
                 $('input[name="0-code"]').attr('placeholder', FORMATS[$('select[name="0-reference"]').val()]);
                 if ($('select[name="0-reference"]').val() != 'none') {
-                    $('input[name="0-code"]').attr('required', true);
+                    //$('input[name="0-code"]').attr('required', true);
                     $('input[name="0-code"]').attr('readonly', false);
                 } else {
                     $('input[name="0-code"]').removeAttr('required');
                     $('input[name="0-code"]').attr('readonly', true);
                 }
             });
-            var kind = $('input[name="1-kind"]').val() || $('select[name="1-kind"]').val();
+            const kind = $('input[name="1-kind"]').val() || $('select[name="1-kind"]').val();
             if (kind && kind in FIELDS) {
                 for (var i = 0, f; f = FIELDS[kind][i]; i++) {
-                    $('input[name="1-' + f + '"]').attr('required', true);
+                    //$('input[name="1-' + f + '"]').attr('required', true);
                 }
             }
         }
-
         initForm();
     </script>
 {% endblock %}
+{% block post_content %}</form>{% endblock %}

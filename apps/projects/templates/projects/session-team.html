@@ -19,7 +19,7 @@
             {% if object.is_current or object.state == 'live' or object.state == 'pending' or object.state == 'ready' %}
             <div class="col-xs-12">
                 <hr class="hr-xs"/>
-                <div class="row narrow-gutter">
+                <div class="row">
                 {% for perm_code in permissions.all %}
                     {% if member|has_perm:perm_code %}
                     <small class="col-xs-6">
