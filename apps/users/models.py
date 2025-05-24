@@ -146,7 +146,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     username = models.SlugField(unique=True)
     institution = models.ForeignKey(
         'Institution', null=True, blank=True, related_name='users',
-        on_delete=models.SET_NULL
+        on_delete=models.PROTECT
     )
     address = models.OneToOneField(Address, null=True, blank=True, on_delete=models.SET_NULL)
     research_field = models.ManyToManyField("publications.SubjectArea", blank=True)

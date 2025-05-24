@@ -2,7 +2,7 @@ import datetime
 import math
 
 import requests
-from crisp_modals.views import ModalUpdateView, ModalCreateView
+from crisp_modals.views import ModalUpdateView, ModalCreateView, ModalConfirmView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -140,18 +140,17 @@ class InstitutionNames(JSONResponseMixin, View):
         return self.render_to_response(context)
 
 
-class InstitutionEdit(RolePermsViewMixin, UpdateView):
+class EditInstitution(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.InstitutionForm
-    template_name = "forms/modal.html"
     model = models.Institution
     success_url = reverse_lazy('institution-list')
     success_message = "Institution '%(name)s' has been updated."
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
 
-    def form_valid(self, form):
-        super().form_valid(form)
-        messages.success(self.request, f"Institution '{self.object}' has been updated.")
-        return JsonResponse({'url': ""})
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update(delete_url=reverse_lazy('delete-institution', kwargs={'pk': self.object.pk}))
+        return kwargs
 
 
 class InstitutionContact(RolePermsViewMixin, ModalUpdateView):
@@ -591,8 +590,11 @@ class ChangePassword(RolePermsViewMixin, View):
         notify.send(recipients, 'password-reset', context=data)
         messages.success(
             self.request,
-            ("A request to reset {}'s password has been received. "
-             "Please check your email for further instructions.").format(user))
+            (
+                f"A request to reset {user}'s password has been received. "
+                "Please check your email for further instructions."
+            )
+        )
 
         return HttpResponseRedirect(reverse_lazy('user-dashboard'))
 
@@ -614,18 +616,17 @@ class EmailTestView(RolePermsViewMixin, View):
         return HttpResponseRedirect(url)
 
 
-class AdminResetPassword(RolePermsViewMixin, ConfirmDetailView):
+class AdminResetPassword(RolePermsViewMixin, ModalConfirmView):
     model = models.User
     template_name = "users/forms/admin-reset.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def confirmed(self, *args, **kwargs):
-        self.object = self.get_object()
         ActivityLog.objects.log(
             self.request, self.object, kind=ActivityLog.TYPES.modify,
             description='Users Password Reset'
         )
         utils.send_reset(self.object)
-        return JsonResponse({"url": ""})
+        return JsonResponse({"url": "" , "message": "Password reset email sent."})
 
 

@@ -25,7 +25,7 @@ urlpatterns = [
 
     path('institutions/', views.InstitutionList.as_view(), name="institution-list"),
     path('institutions/new/', views.InstitutionCreate.as_view(), name="add-institution"),
-    path('institutions/<int:pk>/edit/', views.InstitutionEdit.as_view(), name="edit-institution"),
+    path('institutions/<int:pk>/edit/', views.EditInstitution.as_view(), name="edit-institution"),
     path('institutions/<int:pk>/delete/', views.InstitutionDelete.as_view(), name="delete-institution"),
     path('institutions/<int:pk>/contact/', views.InstitutionContact.as_view(), name="request-institution-contact"),
 

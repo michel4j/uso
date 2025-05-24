@@ -26,7 +26,7 @@ from .models import User, Institution, SecureLink, Registration
 blank_choice = ((None, '------'),)
 
 
-class InstitutionForm(forms.ModelForm):
+class InstitutionForm(ModalModelForm):
     class Meta:
         model = Institution
         fields = ('name', 'location', 'sector', 'state', 'domains', 'parent', 'contact_person', 'contact_email', 'contact_phone')
@@ -39,44 +39,17 @@ class InstitutionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-
-        if kwargs.get('instance'):
-            self.helper.title = "Edit Institution"
-            self.helper.form_action = reverse_lazy('edit-institution', kwargs={'pk': self.instance.pk})
-            btns = Div(
-                Div(
-                    HTML('<hr/>'), Div(
-                        StrictButton(
-                            'Delete', id="delete-object", css_class="btn btn-danger",
-                            data_url=f"{reverse_lazy('delete-institution', kwargs={'pk': self.instance.pk})}"
-                        ), css_class="text-left col-xs-6"
-                    ), Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'), css_class='text-right col-xs-6'
-                    ), css_class="row"
-                )
+        self.body.append(
+            Row(
+                FullWidth('name'),
+                FullWidth(Field('location', placeholder='City, Region, Country')),
+                HalfWidth(Field('sector', css_class="selectize")),  HalfWidth(Field('state', css_class="selectize")),
+                FullWidth(Field('parent', css_class="selectize")),
+                FullWidth("domains"),
+                FullWidth("contact_person"),
+                HalfWidth("contact_email"), HalfWidth("contact_phone"),
             )
-        else:
-            self.helper.title = "Add Institution"
-            self.helper.form_action = reverse_lazy('add-institution')
-            btns = Div(
-                Div(
-                    HTML('<hr/>'), Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'), css_class='text-right col-xs-12'
-                    ), css_class="row"
-                )
-            )
-
-        self.helper.layout = Layout(
-            Div(
-                Div('name', css_class='col-sm-12'), Div(Field('location', placeholder='City, Region, Country'), css_class='col-sm-12'),
-                Div(Field('sector', css_class="selectize"), css_class='col-sm-6'), Div(Field('state', css_class="selectize"), css_class='col-sm-6'),
-                Div(Field('parent', css_class="selectize"), css_class='col-sm-12'), Div("domains", css_class='col-sm-12'),
-                Div("contact_person", css_class='col-sm-12'), Div("contact_email", css_class='col-sm-6'), Div("contact_phone", css_class='col-sm-6'),
-                css_class="row"
-            ), btns, )
+        )
 
 
 class InstitutionContactForm(ModalModelForm):
@@ -136,7 +109,7 @@ class InstitutionDeleteForm(ModalModelForm):
                 "Last Modified {{object.modified|timesince}} ago</small>"
                 "</div>"
             ),
-            Div(Field('transfer', css_class="selectize"), css_class='col-sm-12'), css_class="row"
+            Div(Field('transfer', css_class="selectize"), css_class='col-sm-12'),
         )
 
 
@@ -313,8 +286,8 @@ class UserAdminForm(ModalModelForm):
         self.body.append(
             HTML("{% include 'users/user-admin.html' %}"),
             Row(
-                HalfWidth(Field('extra_roles', css_class="selectize"),),
-                HalfWidth(Field('photo', template='%s/file_field.html'))
+                FullWidth(Field('extra_roles', css_class="selectize"),),
+                FullWidth(Field('photo', template='%s/file_field.html'))
             )
         )
 
