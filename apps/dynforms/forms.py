@@ -9,6 +9,7 @@ from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field, HTML
 from django import forms
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
+from django.urls import reverse_lazy
 from django.utils.datastructures import MultiValueDict
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -243,8 +244,8 @@ class FormSettingsForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'df-menu-form'
+        delete_url = reverse_lazy('dynforms-delete-type', kwargs={'pk': self.instance.pk})
         self.helper.layout = Layout(
-
             Fieldset(
                 _("Form Settings"),
                 Div(
@@ -259,8 +260,15 @@ class FormSettingsForm(forms.ModelForm):
                 HTML(PAGES_TEMPLATE),
                 HTML(ACTIONS_TEMPLATE),
                 FormActions(
-                    HTML('<hr class="hr-xs"/>'),
-                    Submit('apply-form', 'Apply', css_class="btn-sm")
+                    HTML('<hr class="hr-xs mt-5"/>'),
+                    Div(
+                        Submit('apply-form', 'Apply', css_class="btn-sm"),
+                        HTML(
+                            f'<a class="btn btn-sm btn-danger ms-auto" title="Delete Form" '
+                            f'data-modal-url="{delete_url}"><i class="bi-trash"></i> Delete</a>'
+                        ),
+                        css_class="d-flex flex-row"
+                    )
                 ),
             )
         )
@@ -412,17 +420,10 @@ class FormTypeForm(ModalModelForm):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
-        if self.instance.pk:
-            self.body.form_action = self.request.get_full_path()
-        else:
-            self.body.form_action = self.request.get_full_path()
-
+        self.body.form_action = self.request.get_full_path()
         self.body.append(
             Row(
                 FullWidth('code'),
-
-            ),
-            Row(
                 FullWidth("name"),
                 FullWidth("description"),
             ),

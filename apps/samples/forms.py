@@ -45,7 +45,7 @@ class SampleForm(ModalModelForm):
                         Field('name', required=True, css_class='form-control'),
                         StrictButton(
                             '<i class="bi-search"></i>', name='search', value='', id="search-compound",
-                            css_class="btn-light border", title="Search in hazardous substances database ..."
+                            css_class="btn-outline", title="Search in hazardous substances database ..."
                         ),
                     ),
                     css_class='col-sm-6'

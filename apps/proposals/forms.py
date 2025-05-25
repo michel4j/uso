@@ -220,7 +220,7 @@ class ReviewerForm(forms.Form):
         return cleaned_data
 
 
-class OptOutForm(forms.ModelForm):
+class OptOutForm(ModalModelForm):
 
     class Meta:
         model = models.Reviewer
@@ -232,12 +232,10 @@ class OptOutForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.title = "We're sorry to miss you this time around!"
-        self.helper.form_class = "call-form"
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
+        self.body.title = "We're sorry to miss you this time around!"
+        self.body.form_class = "call-form"
+        self.body.form_action = self.request.get_full_path()
+        self.body.append(
             Div(
                 Div(
                     Div(
@@ -248,16 +246,6 @@ class OptOutForm(forms.ModelForm):
                     css_class="col-xs-12 gap-2"
                 ),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Opt Out', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
         )
 
@@ -410,7 +398,7 @@ class ReviewCyclePoolForm(forms.ModelForm):
         )
 
 
-class ReviewerAssignmentForm(forms.ModelForm):
+class ReviewerAssignmentForm(ModalModelForm):
     reviewers = forms.ModelMultipleChoiceField(
         label="Add Reviewer", queryset=models.Reviewer.objects.none(),
         help_text="Select Reviewers to add to the above proposal. "
@@ -426,8 +414,8 @@ class ReviewerAssignmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
 
-        self.helper.title = "Edit Reviewer Assignment"
-        self.helper.form_action = self.request.get_full_path()
+        self.body.title = "Edit Reviewer Assignment"
+        self.body.form_action = self.request.get_full_path()
 
         cycle = self.instance.cycle
         track = self.instance.track
@@ -449,8 +437,8 @@ class ReviewerAssignmentForm(forms.ModelForm):
         )).order_by('committee')
 
         self.fields['reviewers'].queryset = available
-        self.helper.title = 'Add Reviewers'
-        self.helper.layout = Layout(
+        self.body.title = 'Add Reviewers'
+        self.body.append(
             Div(
                 HTML("{% include 'proposals/submission-snippet.html' with submission=form.instance %}"),
                 css_class=""
@@ -458,17 +446,6 @@ class ReviewerAssignmentForm(forms.ModelForm):
             Div(
                 Div(Field('reviewers', css_class="selectize"), css_class='col-sm-12'),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
         )
 

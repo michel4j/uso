@@ -38,11 +38,10 @@
             &nbsp;
         {% endfor %}
     </div>
-
 {% endblock %}
 
 {% block page-content %}
-    <div class="row">
+    <div class="row my-3">
         {% for workspace in lab.workspaces.all %}
             <div class="col-xs-6 col-sm-4">
                 <div class="card {% if not workspace.available %}bg-danger{% endif %}" style="min-height: 200px;">

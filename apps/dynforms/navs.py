@@ -23,10 +23,18 @@ class Forms(BaseNav):
         from dynforms import models
         submenu = super().sub_menu(request)
 
-        for form_type in models.FormType.objects.all():
+        for i, form_type in enumerate(models.FormType.objects.all()):
             submenu.append(RawNav(
                 label="{} Form".format(form_type.name),
+                separator=(i == 0),
                 roles=self.roles,
                 url=reverse('dynforms-builder', kwargs={'pk': form_type.pk}),
             ))
         return submenu
+
+
+class FormTypes(BaseNav):
+    parent = Forms
+    label = 'Form Types'
+    roles = USO_ADMIN_ROLES
+    url = reverse('dynforms-list')

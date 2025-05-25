@@ -2,7 +2,7 @@ import datetime
 import math
 
 import requests
-from crisp_modals.views import ModalUpdateView, ModalCreateView, ModalConfirmView
+from crisp_modals.views import ModalUpdateView, ModalCreateView, ModalConfirmView, ModalDeleteView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -230,23 +230,11 @@ class InstitutionCreate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView
     allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
 
 
-class InstitutionDelete(RolePermsViewMixin, UpdateView):
+class InstitutionDelete(RolePermsViewMixin, ModalDeleteView):
     model = models.Institution
-    form_class = forms.InstitutionDeleteForm
-    template_name = "forms/modal.html"
     success_url = reverse_lazy('institution-list')
     success_message = "Institution '%(name)s' has been deleted."
     allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
-
-    def form_valid(self, form):
-        data = form.cleaned_data
-        if data['transfer']:
-            data['transfer'].domains += self.object.domains
-            self.object.users.all().update(institution=data['transfer'])
-            data['transfer'].save()
-        messages.success(self.request, f"Institution '{self.object.name}' has been deleted.")
-        self.object.delete()
-        return JsonResponse({'url': ""})
 
 
 class UserList(RolePermsViewMixin, ItemListView):

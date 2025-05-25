@@ -12,16 +12,14 @@
             <div class="col-xs-12">
                 <div class="page-tools pull-left" style="max-width: 40%;">
                     <form role="search" action='{% url "publication-list" %}' method="get">
-                        <div class="input-group input-group-sm">
-                            <input name="q" type="text" class="form-control" placeholder="Search publications">
-                            <span class="input-group-btn input-group-sm">
-								<button class="btn btn-secondary" type="submit"><i class="bi-search icon-fw"></i></button>
-							  </span>
+                        <div class="input-group">
+                            <input name="q"  type="text" class="form-control" placeholder="Search publications" aria-label="Search publications" aria-describedby="search-button">
+                            <button class="btn btn-outline" type="submit" id="search-button"><i class="bi-search icon-fw"></i></button>
                         </div>
                     </form>
                 </div>
                 <div class="box-tools pull-right">
-                    <a data-modal-url="{% url 'add-publication' %}" class="pull-right">
+                    <a href="#0" data-modal-url="{% url 'add-publication' %}" class="pull-right">
                         <i class="bi-plus-lg icon-md icon-fw"></i><br>
                         <span class="tool-label">Add Entry</span>
                     </a>

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import timedelta
 
-from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView
+from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView, ModalConfirmView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
@@ -1397,7 +1397,7 @@ class ReviewerList(RolePermsViewMixin, ItemListView):
     allowed_roles = USO_ADMIN_ROLES
 
 
-class AddReviewCycles(RolePermsViewMixin, ConfirmDetailView):
+class AddReviewCycles(RolePermsViewMixin, ModalConfirmView):
     template_name = "proposals/forms/create-cycle.html"
     model = models.ReviewCycle
     allowed_roles = USO_ADMIN_ROLES
@@ -1418,7 +1418,7 @@ class AddReviewCycles(RolePermsViewMixin, ConfirmDetailView):
         return JsonResponse({"url": self.success_url})
 
 
-class AssignReviewers(RolePermsViewMixin, ConfirmDetailView):
+class AssignReviewers(RolePermsViewMixin, ModalConfirmView):
     template_name = "proposals/forms/assign.html"
     model = models.ReviewCycle
     allowed_roles = USO_ADMIN_ROLES
@@ -1588,10 +1588,9 @@ class PRCAssignments(RolePermsViewMixin, ItemListView):
         return super().get_queryset(*args, **kwargs)
 
 
-class ReviewerOptOut(RolePermsViewMixin, edit.UpdateView):
+class ReviewerOptOut(RolePermsViewMixin, ModalUpdateView):
     model = models.Reviewer
     form_class = forms.OptOutForm
-    template_name = "forms/modal.html"
     success_url = reverse_lazy("user-dashboard")
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1619,10 +1618,9 @@ class ReviewerOptOut(RolePermsViewMixin, edit.UpdateView):
         return JsonResponse({"url": self.get_success_url()})
 
 
-class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
+class AddReviewAssignment(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.ReviewerAssignmentForm
     model = models.Submission
-    template_name = "forms/modal.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
@@ -1665,34 +1663,25 @@ class AddReviewAssignment(RolePermsViewMixin, edit.UpdateView):
         return JsonResponse({"url": ""})
 
 
-class DeleteReview(RolePermsViewMixin, ConfirmDetailView):
+class DeleteReview(RolePermsViewMixin, ModalDeleteView):
     model = models.Review
-    template_name = "proposals/forms/delete-review.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         allowed = super().check_allowed()
+        review = self.get_object()
         if not allowed:
-            review = self.get_object()
             if hasattr(self.request.user, 'reviewer'):
                 reviewer = self.request.user.reviewer
                 allowed = (
                         reviewer and reviewer.active and reviewer.committee == review.reference.track
                         and review.reference.reviews.filter(reviewer=reviewer.user).scientific().exists()
                 )
-        return allowed
+        return allowed and review.reviewer != self.request.user
 
     def get_queryset(self, *args, **kwargs):
         self.queryset = self.model.objects.filter(state=self.model.STATES.pending)
         return super().get_queryset(*args, **kwargs)
-
-    def confirmed(self, *args, **kwargs):
-        obj = self.get_object()
-        if obj.reviewer != self.request.user:
-            obj.delete()
-        else:
-            messages.warning(self.request, "You can't remove your own review")
-        return JsonResponse({"url": ""})
 
 
 class ShowClarifications(RolePermsViewMixin, detail.DetailView):

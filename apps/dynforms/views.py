@@ -1,4 +1,4 @@
-from crisp_modals.views import ModalUpdateView
+from crisp_modals.views import ModalUpdateView, ModalDeleteView, ModalCreateView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
@@ -256,6 +256,7 @@ class FormTypeList(RolePermsViewMixin, ItemListView):
     allowed_roles = USO_ADMIN_ROLES
     queryset = FormType.objects.all()
     template_name = "item-list.html"
+    tool_template = "dynforms/formtype-tools.html"
     paginate_by = 10
     link_url = 'dynforms-builder'
     list_columns = ['name', 'code', 'description']
@@ -263,6 +264,26 @@ class FormTypeList(RolePermsViewMixin, ItemListView):
     list_styles = {'description': 'col-xs-6'}
     list_search = ['name', 'url_slug', 'description']
     order_by = ['-created']
+
+
+class CreateFormType(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
+    form_class = forms.FormTypeForm
+    model = FormType
+    success_url = reverse_lazy('dynforms-list')
+    success_message = "FormType '%(name)s' has been created."
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update(request=self.request)
+        return kwargs
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        return JsonResponse({
+            'pk': self.object.pk,
+            'name': str(self.object),
+        })
 
 
 class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
@@ -294,26 +315,12 @@ class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
             return response
 
 
-class DeleteFormType(RolePermsViewMixin, ConfirmDetailView):
+class DeleteFormType(RolePermsViewMixin, ModalDeleteView):
     model = FormType
-    template_name = "forms/delete.html"
+    allowed_roles = USO_ADMIN_ROLES
 
     def get_success_url(self):
         return reverse('dynforms-list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)  # database name
-        collector.collect([context['object']])  # list of objects. single one won't do
-        context['related'] = collector.nested(lambda x: f'{capfirst(x._meta.verbose_name)}: {x}')
-        return context
-
-    def confirmed(self, *args, **kwargs):
-        obj = self.get_object()
-        msg = f'FormType "{obj}" deleted'
-        obj.delete()
-        messages.success(self.request, msg)
-        return JsonResponse({"url": self.get_success_url()})
 
 
 class CheckFormAPI(RolePermsViewMixin, detail.DetailView):
