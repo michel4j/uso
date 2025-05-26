@@ -22,12 +22,12 @@
 <script>
     $(function(){
         window.setTimeout(function(){
-            $("#{{field.name}}-controls .chosen").chosen({
-                placeholder_text_single: "select subject areas",
-                disable_search_threshold: 5,
-                search_contains: true,
-                allow_single_deselect: true,
-            });
+            {#$("#{{field.name}}-controls .chosen").chosen({#}
+            {#    placeholder_text_single: "select subject areas",#}
+            {#    disable_search_threshold: 5,#}
+            {#    search_contains: true,#}
+            {#    allow_single_deselect: true,#}
+            {#});#}
         }, 0);
     });
 </script>

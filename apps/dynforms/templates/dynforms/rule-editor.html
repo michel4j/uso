@@ -1,53 +1,32 @@
-<!-- Modal -->
-<div class="modal fade" id="rulesModal" tabindex="-1" role="dialog"
-	aria-labelledby="rulesTitle" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"
-					aria-hidden="true"><i class="bi-x-lg"></i></button>
-				<h4 class="modal-title" id="rulesTitle">Field Rules Editor
-					&mdash; {{page.name}}:{{field.label}}</h4>
-			</div>
-			<div class="modal-body">
-
-				<form role="form" id="rules-form" action="{{action_url}}">
-					{% csrf_token %}
-					{% for rule in field.rules %}
-					{% include "dynforms/one-rule.html" %}
-					{% empty %}
-					{% include "dynforms/one-rule.html" %}
-					{% endfor %}
-					<button type="button" name="add" title="Add Rule"
-						class="btn btn-success btn-sm"
-						data-repeat-add=".rules-repeatable">
-						<i class="bi-plus-lg icon-fw"></i>
-					</button>
-				</form>
-
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				<button id="submit-rules" type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
-			</div>
-		</div>
-	</div>
-</div>
+{% extends "crisp_modals/modal.html" %}
+{% block modal_title %}Field Rules Editor{% endblock %}
+{% block modal_styles %}modal-lg{% endblock %}
+{% block pre_content %}<form role="form" id="rules-form" action="{{action_url}}">{% endblock %}
+{% block modal_body %}
+    <p class="lead">
+        <strong>Page:</strong> {{page.name}}<br/>
+        <strong>Field:</strong> {{field.label}} ({{field.name}})
+    </p>
+    <hr/>
+    {% csrf_token %}
+    {% for rule in field.rules %}
+    {% include "dynforms/one-rule.html"  with index=forloop.counter0 %}
+    {% empty %}
+    {% include "dynforms/one-rule.html" with index=0 %}
+    {% endfor %}
+    <button type="button" name="add" title="Add Rule" class="btn btn-success btn-sm"
+            data-repeat-add=".rules-repeatable">
+        <i class="bi-plus-lg icon-fw"></i>
+    </button>
+{% endblock %}
+{% block modal_footer %}
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button id="submit-rules" type="submit" class="btn btn-primary" value="submit">Save</button>
+{% endblock %}
+{% block post_content %}</form>{% endblock %}
+{% block modal_scripts %}
 <script>
-$("#rulesModal").modal('show');
 $('#rules-form button[data-repeat-add]').repeatable();
-$('#submit-rules').click(function(){	
-	$("#rules-form").ajaxSubmit({
-		type: 'post',
-		success: function(result) {
-			// Ajax Update Field Form
-			var loadUrl = document.URL + 
-				$('.df-container.active').index() + "/put/" + $('div.df-field.selected').index();
-			$("#field-settings").load(loadUrl, function(){
-				setupMenuForm("#field-settings .df-menu-form");
-			});	
-		}
-	});
-});
-$("select.reselect").reSelect();
+//$("select.select").selectize();
 </script>
+{% endblock %}

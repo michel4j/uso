@@ -1,4 +1,4 @@
-from crisp_modals.views import ModalUpdateView, ModalDeleteView, ModalCreateView
+from crisp_modals.views import ModalUpdateView, ModalDeleteView, ModalCreateView, AjaxFormMixin
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.utils import NestedObjects
@@ -131,10 +131,25 @@ RULE_ACTIONS = [
 ]
 
 
-class FieldRulesView(RolePermsViewMixin, FormView):
+class ModalFormView(AjaxFormMixin, FormView):
+    """
+    A FormView that returns a JsonResponse if the request is AJAX.
+    """
+    template_name = 'crisp_modals/form.html'
+
+
+class FieldRulesView(RolePermsViewMixin, ModalFormView):
     allowed_roles = USO_ADMIN_ROLES
-    template_name = 'dynforms/rule-editor.html'
     form_class = RulesForm
+    template_name = "dynforms/rule-editor.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        form = FormType.objects.get(pk=self.kwargs.get('pk'))
+        page = int(self.kwargs.get('page'))
+        pos = int(self.kwargs.get('pos'))
+        kwargs['form_action'] = reverse_lazy("dynforms-field-rules", kwargs={"pk": form.pk, "page": page, "pos": pos})
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

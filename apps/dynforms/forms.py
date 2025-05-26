@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import yaml
-from crisp_modals.forms import ModalModelForm, Row, FullWidth
+from crisp_modals.forms import ModalModelForm, Row, FullWidth, ModalForm
 from crispy_forms.bootstrap import PrependedText, InlineCheckboxes
 from crispy_forms.bootstrap import StrictButton, FormActions
 from crispy_forms.helper import FormHelper
@@ -191,7 +191,7 @@ class FieldSettingsForm(forms.Form):
         ))
 
         if self.initial.get('rules', []):
-            RULE_HTML = "Rules <span class='badge'>%d</span>" % (len(self.initial['rules']))
+            RULE_HTML = "Rules <span class='badge bg-info'>%d</span>" % (len(self.initial['rules']))
         else:
             RULE_HTML = "Rules"
 
@@ -199,21 +199,29 @@ class FieldSettingsForm(forms.Form):
             FormActions(
                 Div(
                     HTML('<hr class="hr-xs"/>'),
-                    StrictButton('<i class="bi-box-arrow-in-left icon-fw"></i> Move to Prev Page', name='move-prev',
-                                 value="move-prev",
-                                 title="Move to Prev Page", css_class="btn btn-sm btn-light border pull-left"),
-                    StrictButton('Move to Next Page <i class="bi-box-arrow-in-right icon-fw"></i>', name='move-next',
-                                 value="move-next",
-                                 title="Move to Next Page", css_class="btn btn-sm btn-light border pull-right"),
+                    StrictButton(
+                        '<i class="bi-box-arrow-in-left icon-fw"></i> Move to Prev Page', name='move-prev',
+                        value="move-prev", id='move-prev', title="Move to Prev Page",
+                        css_class="btn btn-sm btn-light border pull-left"
+                    ),
+                    StrictButton(
+                        'Move to Next Page <i class="bi-box-arrow-in-right icon-fw"></i>',
+                        name='move-next', id='move-next', value="move-next",
+                        title="Move to Next Page", css_class="btn btn-sm btn-light border pull-right"
+                    ),
                     css_class="col-xs-12 text-condensed"),
                 css_class="row")
         )
         _fieldset.append(FormActions(
             HTML('<hr class="hr-xs"/>'),
-            StrictButton('Apply', name='apply-field', value="apply-field", css_class="btn btn-sm btn-primary"),
-            StrictButton(RULE_HTML, name="edit-rules", value="edit-rules", css_class="btn btn-sm btn-secondary"),
-            StrictButton('Delete', name='delete-field', value="delete-field",
-                         css_class="btn btn-sm btn-danger pull-right"),
+            StrictButton(
+                'Apply', name='apply-field', id='apply-field', value="apply-field", css_class="btn btn-sm btn-primary"
+            ),
+            StrictButton(RULE_HTML, css_class='btn btn-sm btn-light border', id='edit-rules', value="edit-rules"),
+            StrictButton(
+                'Delete', name='delete-field', value="delete-field", id="delete-field",
+                css_class="btn btn-sm btn-danger pull-right"
+            ),
         ))
         return _fieldset
 
@@ -295,7 +303,7 @@ class FormSettingsForm(forms.ModelForm):
         return cleaned_data
 
 
-class RulesForm(forms.Form):
+class RulesForm(ModalForm):
     def clean(self):
         cleaned_data = super().clean()
         cleaned_data['rules'] = []

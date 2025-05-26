@@ -71,7 +71,6 @@
 <form class="d-none" id="logout-form" action="{% url 'portal-logout' %}" method="post">{% csrf_token %}</form>
 
 {% block post_js %}{% endblock %}
-{% block extra_js %}{% endblock %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-form@4.3.0/dist/jquery.form.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/jquery.nicescroll.min.js"></script>
@@ -79,6 +78,7 @@
         integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="{% static 'crisp_modals/modals.min.js' %}"></script>
+{% block extra_js %}{% endblock %}
 <script>
     $(document).ready(function() {
         $('#modal-target').initModal({
