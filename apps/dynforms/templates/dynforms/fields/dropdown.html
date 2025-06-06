@@ -1,8 +1,0 @@
-{% load dynforms_tags %}
-<div class="controls {{repeatable}}" id="{{field.name}}-controls">
-   <select name="{{field.name}}" id="{{field.name}}" class="chosen select form-control" {% if 'multiple' in field.options %}multiple="multiple"{% endif %}>
-	{% for choice in field|group_choices:data|randomize_choices:field %}
-       <option value="{{choice.value}}" {% if choice.selected %}selected="selected"{% endif %} >{{choice.label}}</option>
-       {% endfor %}
-   </select>
-</div>

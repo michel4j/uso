@@ -180,6 +180,7 @@ class CreateProposal(RolePermsViewMixin, DynCreateView):
 
 
 class EditProposal(RolePermsViewMixin, DynUpdateView):
+    template_name = 'proposals/proposal-form.html'
     model = models.Proposal
     form_class = forms.ProposalForm
     admin_roles = USO_ADMIN_ROLES
@@ -189,6 +190,11 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
             delegate_username=self.request.user.username
         )
         self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft).filter(qchain)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_page'] = max(1, context['object'].details.get('active_page', 1))
+        return context
 
     def get_success_url(self):
         if self._form_action == 'save_continue':
@@ -243,7 +249,7 @@ class CloneProposal(RolePermsViewMixin, ConfirmDetailView):
         self.object.title = "[COPY] {0}".format(self.object.title)
         self.object.created = timezone.now()
         self.object.modified = timezone.now()
-        self.object.details['active_page'] = 0
+        self.object.details['active_page'] = 1
         self.object.save()
         success_url = reverse('edit-proposal', kwargs={'pk': self.object.pk})
         ActivityLog.objects.log(

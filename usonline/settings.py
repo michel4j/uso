@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap5",
     "crisp_modals",
-
     'dynforms',
     'users',
     'roleperms',

@@ -16,7 +16,7 @@ from django.utils.translation import gettext as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
-from dynforms.models import DynEntryMixin
+from dynforms.models import BaseFormModel
 from misc.fields import StringListField
 from misc.models import DateSpanMixin
 from roleperms.models import RolePermsUserMixin
@@ -305,7 +305,7 @@ class Institution(DateSpanMixin, TimeStampedModel):
         return self.name
 
 
-class Registration(DynEntryMixin):
+class Registration(BaseFormModel):
     hash = models.CharField(max_length=50, unique=True)
     email = models.CharField(max_length=250)
 

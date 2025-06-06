@@ -24,7 +24,7 @@ urlpatterns = [
     path('', include('scheduler.urls')),
     path('', include('projects.urls')),
     path('', include('samples.urls')),
-    path('', include('dynforms.urls')),
+    path('dynforms/', include('dynforms.urls')),
     path('', include('weather.urls')),
     path('', include('surveys.urls')),
 

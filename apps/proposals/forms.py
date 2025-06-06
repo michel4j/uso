@@ -8,7 +8,6 @@ from crisp_modals.forms import ModalModelForm, FullWidth, Row
 from crispy_forms.bootstrap import StrictButton, AppendedText, InlineCheckboxes, FormActions, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
-from crispy_forms.templatetags.crispy_forms_field import css_class
 from django import forms
 from django.urls import reverse
 from django.db.models import Case, When, Q, IntegerField, Sum, Value, Count
@@ -18,7 +17,7 @@ from django.utils.translation import gettext as _
 
 from . import models
 from . import utils
-from dynforms.forms import DynFormMixin
+from dynforms.forms import DynFormMixin, DynModelForm
 from dynforms.utils import DotExpandedDict
 from .models import get_user_model
 
@@ -28,7 +27,7 @@ class DateField(AppendedText):
         super().__init__(field_name, mark_safe('<i class="bi-calendar"></i>'), *args, **kwargs)
 
 
-class ProposalForm(DynFormMixin, forms.ModelForm):
+class ProposalForm(DynModelForm):
     type_code = 'proposal'
 
     class Meta:

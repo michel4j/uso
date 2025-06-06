@@ -17,7 +17,7 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from beamlines.models import Facility
-from dynforms.models import DynEntryMixin, FormType
+from dynforms.models import BaseFormModel, FormType
 from misc.fields import StringListField
 from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment, Clarification, GenericContentMixin, \
     GenericContentQueryset
@@ -33,7 +33,7 @@ def _proposal_filename(instance, filename):
     return os.path.join('proposals', str(instance.proposal.pk), instance.slug + ext)
 
 
-class Proposal(DynEntryMixin):
+class Proposal(BaseFormModel):
     STATES = Choices(
         (0, 'draft', 'Not Submitted'),
         (1, 'submitted', 'Submitted')
@@ -748,7 +748,7 @@ class ReviewStage(TimeStampedModel):
         ordering = ('track', 'position')
 
 
-class Review(DynEntryMixin, GenericContentMixin):
+class Review(BaseFormModel, GenericContentMixin):
     STATES = Choices(
         (0, 'pending', 'Pending'),
         (1, 'open', 'Open'),

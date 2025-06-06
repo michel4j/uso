@@ -1,177 +1,181 @@
-{% load dynforms_tags %}
+{% load dynforms %}
 {% load jsonify %}
 {% load proposal_tags %}
 {% get_options data=data as options %}
-<div class="controls {{repeatable}}" id="{{field.name}}-controls{{repeat_index}}" data-field-name="{{field.name}}" data-repeat-index="{{repeat_index}}">
+<div class="controls {{ repeatable }}" id="{{ field.name }}-controls{{ repeat_index }}"
+     data-field-name="{{ field.name }}" data-repeat-index="{{ repeat_index }}">
     <div class="row no-space">
 	    <span class="field-group-item col-xs-7">
-		   <label for="{{field.name}}-techniques{{repeat_index}}">Techniques:<span class="text-danger">∗</span></label>
-		   <select name="{{field.name}}.techniques" id="{{field.name}}-techniques{{repeat_index}}" multiple="multiple"
-                   class="select form-control" data-placeholder="Select techniques">
+		   <label for="{{ field.name }}-techniques{{ repeat_index }}">Techniques:<span
+                   class="text-danger">∗</span></label>
+		   <select name="{{ field.name }}.techniques" id="{{ field.name }}-techniques{{ repeat_index }}"
+                   multiple="multiple"
+                   class="selectize form-select" data-placeholder="Select techniques">
                {% for tech_id, tech, selected, tech_facs in options.techniques %}
-               <option value="{{tech_id}}" data-related="{{tech_facs|jsonify}}" class="option-technique-{{tech_id}}"
-                       {% if selected %}selected="selected" {% endif %}>{{tech}}
+                   <option value="{{ tech_id }}" data-related="{{ tech_facs|jsonify }}"
+                           class="option-technique-{{ tech_id }}"
+                           {% if selected %}selected="selected" {% endif %}>{{ tech }}
                </option>
                {% endfor %}
            </select>
 	    </span>
         <span class="field-group-item col-xs-3">
-			<label for="{{field.name}}-facility{{repeat_index}}">Facility:<span class="text-danger">∗</span></label>
-            <select name="{{field.name}}.facility" id="{{field.name}}-facility{{repeat_index}}"
-                    class="chosen select form-control" data-placeholder="Select facility">
+			<label for="{{ field.name }}-facility{{ repeat_index }}">Facility:<span class="text-danger">∗</span></label>
+            <select name="{{ field.name }}.facility" id="{{ field.name }}-facility{{ repeat_index }}"
+                    class="form-select" data-placeholder="Select facility">
                 <option value=""></option>
                 {% for bl_id, bl, selected, bl_techs in options.facilities %}
-                <option value="{{bl_id}}" data-related="{{bl_techs|jsonify}}" class="option-facility-{{bl_id}}"
-                        {% if selected %}selected="selected" {% endif %}
-                >{{bl}}
+                    <option value="{{ bl_id }}" data-related="{{ bl_techs|jsonify }}"
+                            class="option-facility-{{ bl_id }}"
+                            {% if selected %}selected="selected" {% endif %}
+                    >{{ bl }}
                 </option>
                 {% endfor %}
             </select>
         </span>
         <span class="field-group-item col-xs-2">
-			<label for="{{field.name}}-shifts{{repeat_index}}">Shifts:
+			<label for="{{ field.name }}-shifts{{ repeat_index }}">Shifts:
                 <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
                    data-trigger="hover"
                    data-content="Specify the number of shifts you are requesting for the first cycle."></i>
             </label>
             {% if "repeat" in field.options %}
-            <div class="input-group">
-                <input id="{{field.name}}-shifts" name="{{field.name}}.shifts" class="form-control" min="0"
-                       value="{{data.shifts}}">
-                <span class="input-group-btn"><button type="button" title="Delete facility, techniques, justification and procedure from {{field.label}}"
-                                                  class="btn btn-light border remove-repeat"><i class="bi-dash-lg text-danger"></i>
+                <div class="input-group">
+                <input id="{{ field.name }}-shifts" name="{{ field.name }}.shifts" class="form-control" min="0"
+                       value="{{ data.shifts }}">
+                <span class="input-group-btn"><button type="button"
+                                                      title="Delete facility, techniques, justification and procedure from {{ field.label }}"
+                                                      class="btn btn-light border remove-repeat"><i
+                        class="bi-dash-lg text-danger"></i>
                 </button></span>
             </div>
             {% else %}
-            <input id="{{field.name}}-shifts{{repeat_index}}" name="{{field.name}}.shifts" class="form-control" type="number"
-                       value="{{data.shifts}}" placeholder="No. of shifts">
+                <input id="{{ field.name }}-shifts{{ repeat_index }}" name="{{ field.name }}.shifts"
+                       class="form-control" type="number"
+                       value="{{ data.shifts }}" placeholder="No. of shifts">
             {% endif %}
         </span>
     </div>
     <div class="row no-space">
-	    <div class="field-group-item col-xs-12 beamline-info"></div>
+        <div class="field-group-item col-xs-12 beamline-info"></div>
     </div>
     <div class="row no-space">
 	    <span class="field-group-item col-xs-12">
-			<label for="{{field.name}}-procedure">Experimental Procedure:<span class="text-danger">∗</span>
+			<label for="{{ field.name }}-procedure">Experimental Procedure:<span class="text-danger">∗</span>
                <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
                   data-trigger="hover"
                   data-content="Describe the experimental procedure for this beamline."></i>
 			</label>
-			<textarea cols="40" name="{{field.name}}.procedure" id="{{field.name}}-procedure"
-                      rows="5"  class="textarea form-control">{{data.procedure}}</textarea>
+			<textarea cols="40" name="{{ field.name }}.procedure" id="{{ field.name }}-procedure"
+                      rows="5" class="textarea form-control">{{ data.procedure }}</textarea>
 	    </span>
     </div>
 
     {% if "justification" in field.options %}
-   <div class="row no-space">
+        <div class="row no-space">
        <span class="field-group-item col-xs-12">
-		   <label for="{{field.name}}-justification">Justification of Suitability:<span class="text-danger">∗</span>
+		   <label for="{{ field.name }}-justification">Justification of Suitability:<span class="text-danger">∗</span>
                <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
                   data-trigger="hover"
                   data-content="Please justify the suitability of this beamline and the corresponding number of shifts requested."></i>
 		   </label>
-	       <textarea cols="40" name="{{field.name}}.justification" id="{{field.name}}-justification"
-                     rows="5" class="textarea form-control">{{data.justification}}</textarea>
+	       <textarea cols="40" name="{{ field.name }}.justification" id="{{ field.name }}-justification"
+                     rows="5" class="textarea form-control">{{ data.justification }}</textarea>
 
 	   </span>
-    </div>
+        </div>
     {% endif %}
     {% if "tags" in field.options %}
-    <div class="row no-space" id="{{field.name}}-tags-selector">
-    </div>
+        <div class="row no-space" id="{{ field.name }}-tags-selector">
+        </div>
     {% endif %}
 </div>
 <hr/>
 <script>
-    $(function(){
-        window.setTimeout(function(){
-            $('[data-field-name="{{field.name}}"] .chosen').chosen({
-                allow_single_deselect: true,display_disabled_options: false, search_contains: true
-            });
-        }, 0);
-    });
-
-
-    $('#{{field.name}}-techniques{{repeat_index}}, #{{field.name}}-facility{{repeat_index}}').change(function(){
-    	var tech_field = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
-    	var facs_field = tech_field.closest('.controls').find('[name^="{{field.name}}.facility"]');
-    	var cycle_field = $('#first_cycle');
-    	var tech_url = "{% url 'techniques-beamlines' %}?";
-        var tags_field = facs_field.closest('.controls').find('[name^="{{field.name}}.tags"]');
-        var tags_container = facs_field.closest('.controls').find("#{{field.name}}-tags-selector");
-        var tags_url = "{% url 'facility-tags' %}";
-        if (cycle_field.val()) {
-			tech_url += "&cycle=" + cycle_field.val();
-		}
-        $.get(tech_url, function(data) {
-            $.each(data.techniques, function(i, row){
-                var option = tech_field.find("[value='"+ row[0]+"']");
-                option.data('related', row[3]);
-            });
-            $.each(data.facilities, function(i, row){
-                var option = facs_field.find("[value='"+ row[0]+"']");
-                option.data('related', row[3]);
+    $(document).ready(function () {
+        $(function () {
+            $('[name="{{ field.name }}.techniques"]').selectize({
+                plugins: ['remove_button'],
             });
         });
-        var good_techs = [];
-        var good_facs = [];
 
-        facs_field.find('option').removeAttr('disabled');
-        tech_field.find('option').removeAttr('disabled');
-        if (tech_field.val()) {
-            var sel_techs = [];
-            $.each(tech_field.val(), function(i, val){
-                sel_techs.push('option[value='+val+']');
-            });
-            tech_field.find(sel_techs.join()).each(function(){
-                $.each($(this).data('related'), function(i, val){
-                    good_facs.push('[value='+val+']');
+        $('#{{field.name}}-techniques{{repeat_index}}, #{{field.name}}-facility{{repeat_index}}').change(function () {
+            var tech_field = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
+            var facs_field = tech_field.closest('.controls').find('[name^="{{field.name}}.facility"]');
+            var cycle_field = $('#first_cycle');
+            var tech_url = "{% url 'techniques-beamlines' %}?";
+            var tags_field = facs_field.closest('.controls').find('[name^="{{field.name}}.tags"]');
+            var tags_container = facs_field.closest('.controls').find("#{{field.name}}-tags-selector");
+            var tags_url = "{% url 'facility-tags' %}";
+            if (cycle_field.val()) {
+                tech_url += "&cycle=" + cycle_field.val();
+            }
+            $.get(tech_url, function (data) {
+                $.each(data.techniques, function (i, row) {
+                    var option = tech_field.find("[value='" + row[0] + "']");
+                    option.data('related', row[3]);
+                });
+                $.each(data.facilities, function (i, row) {
+                    var option = facs_field.find("[value='" + row[0] + "']");
+                    option.data('related', row[3]);
                 });
             });
+            var good_techs = [];
+            var good_facs = [];
 
-            facs_field.find('option').not(good_facs.join()).attr('disabled', 'disabled');
-        }
-        if (facs_field.val()) {
+            facs_field.find('option').removeAttr('disabled');
+            tech_field.find('option').removeAttr('disabled');
+            if (tech_field.val()) {
+                var sel_techs = [];
+                $.each(tech_field.val(), function (i, val) {
+                    sel_techs.push('option[value=' + val + ']');
+                });
+                tech_field.find(sel_techs.join()).each(function () {
+                    $.each($(this).data('related'), function (i, val) {
+                        good_facs.push('[value=' + val + ']');
+                    });
+                });
 
-            $.each(facs_field.find('option[value='+facs_field.val()+']').data('related'), function(i, val){
-                good_techs.push('[value='+val+']');
-            });
-            tech_field.find('option').not(good_techs.join()).attr('disabled', 'disabled');
-
-            // tags field
-            var tags = [];
-            var repeat_index = facs_field.closest('.controls').attr('data-repeat-index');
-            tags_url += facs_field.val() + '/{{field.name}}.tags__' + repeat_index + '/?';
-            tags_field.find('option').filter(function(){return this.value ? true: false;}).each(function(){
-                    tags.push($(this).attr('value'));
-            });
-            if (tags) {
-                tags_url += '&tags=' + "{{data.tags|join:','}}";
+                facs_field.find('option').not(good_facs.join()).attr('disabled', 'disabled');
             }
-            tags_container.load(tags_url);
+            if (facs_field.val()) {
+
+                $.each(facs_field.find('option[value=' + facs_field.val() + ']').data('related'), function (i, val) {
+                    good_techs.push('[value=' + val + ']');
+                });
+                tech_field.find('option').not(good_techs.join()).attr('disabled', 'disabled');
+
+                // tags field
+                var tags = [];
+                var repeat_index = facs_field.closest('.controls').attr('data-repeat-index');
+                tags_url += facs_field.val() + '/{{field.name}}.tags__' + repeat_index + '/?';
+                tags_field.find('option').filter(function () {
+                    return this.value ? true : false;
+                }).each(function () {
+                    tags.push($(this).attr('value'));
+                });
+                if (tags) {
+                    tags_url += '&tags=' + "{{data.tags|join:','}}";
+                }
+                tags_container.load(tags_url);
 
 
+            } else {
+                tags_container.empty();
+            }
+            // beamline information
+            var bl_url = "{% url 'beamline-info' %}";
+            var fac_info = facs_field.closest('.controls').find('div.beamline-info');
+            var fac_val = facs_field.val() || '';
+            fac_info.load(bl_url + fac_val);
 
+        });
 
-        } else {
-            tags_container.empty();
-        }
-        // beamline information
-        var bl_url = "{% url 'beamline-info' %}";
-        var fac_info = facs_field.closest('.controls').find('div.beamline-info');
-        var fac_val = facs_field.val() || '';
-        fac_info.load(bl_url + fac_val);
+        $('#first_cycle').change(function () {
+            $('#{{field.name}}-facility{{repeat_index}}').trigger('change');
+        });
 
-        tech_field.trigger("chosen:updated");
-        facs_field.trigger("chosen:updated");
-    });
-
-    $('#first_cycle').change(function(){
-    	$('#{{field.name}}-facility{{repeat_index}}').trigger('change');
-    });
-    $(document).ready(function(){
-    	$('#{{field.name}}-facility{{repeat_index}}').trigger('change');
+        $('#{{field.name}}-facility{{repeat_index}}').trigger('change');
     });
 
 </script>

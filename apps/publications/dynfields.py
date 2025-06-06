@@ -4,10 +4,8 @@ from django.utils.translation import gettext as _
 
 class SubjectArea(FieldType):
     name = _("Subject Area")
-    icon = "bi-briefcase"
     options = ['required', 'hide', 'multiple', 'keywords']
-    settings = ['label', 'options', ]
-    template_theme = "publications/fields"
+    template_name = "publications/fields/subjectarea.html"
 
     def coerce(self, val):
         if isinstance(val.get('keywords'), list):
@@ -18,10 +16,8 @@ class SubjectArea(FieldType):
 
 class ResearchArea(FieldType):
     name = _("Research Area")
-    icon = "bi-briefcase"
     options = ['required', 'hide', 'inline']
-    settings = ['label', 'options', ]
-    template_theme = "publications/fields"
+    template_name = "publications/fields/researcharea.html"
 
     def clean(self, val, multi=False, validate=True):
         if isinstance(val, list):
