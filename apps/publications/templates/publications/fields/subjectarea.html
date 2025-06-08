@@ -25,7 +25,9 @@
    </div>
 </div>
 <script>
-    $('#{{ field.name }}-areas').selectize({
-        plugins: ["remove_button"]
+    $(document).ready(function(){
+        $('#{{ field.name }}-areas').selectize({
+            plugins: ["remove_button"]
+        });
     });
 </script>

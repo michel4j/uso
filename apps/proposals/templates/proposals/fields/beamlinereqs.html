@@ -10,7 +10,7 @@
                    class="text-danger">∗</span></label>
 		   <select name="{{ field.name }}.techniques" id="{{ field.name }}-techniques{{ repeat_index }}"
                    multiple="multiple"
-                   class="selectize form-select" data-placeholder="Select techniques">
+                   class="form-select selectize" data-placeholder="Select techniques">
                {% for tech_id, tech, selected, tech_facs in options.techniques %}
                    <option value="{{ tech_id }}" data-related="{{ tech_facs|jsonify }}"
                            class="option-technique-{{ tech_id }}"
@@ -93,11 +93,11 @@
 <hr/>
 <script>
     $(document).ready(function () {
-        $(function () {
-            $('[name="{{ field.name }}.techniques"]').selectize({
-                plugins: ['remove_button'],
-            });
+        console.log("Beamline requirements loaded for {{ field.name }}-controls{{ repeat_index }}");
+        $('[name="{{ field.name }}.techniques"]').selectize({
+            plugins: ['remove_button'],
         });
+
 
         $('#{{field.name}}-techniques{{repeat_index}}, #{{field.name}}-facility{{repeat_index}}').change(function () {
             var tech_field = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');

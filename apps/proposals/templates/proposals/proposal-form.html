@@ -1,32 +1,33 @@
 {% extends "proposals/base.html" %}
 {% load static %}
-{% load dynforms %}
 {% block extra_css %}
-    <link href="{% static 'css/datetimepicker.css' %}" rel="stylesheet"/>
     <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
-    {% endblock %}
+    <link href="{% static 'proposals/reviews.css' %}" rel="stylesheet"/>
+{% endblock %}
 
 {% block pre_js %}
         <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
 {% endblock %}
 
 {% block page-title %}Edit Proposal{% endblock %}
-{% block body_class %}extended-help proposal-form{% endblock %}
+{% block body_class %}extended-help{% endblock %}
 {% block content %}
-    <div id="proposal-form" class="page col-xs-12 col-sm-9">
-        <div class="row">
-            {% include "dynforms/form.html" %}
+    <div id="review-form" class="row gap-0">
+        <div class="col-sm-9 col-md-7 review-col gap-0">
+            <div id="form-area" class="page col-12">
+                <div class="row">
+                    {% include "dynforms/form.html" %}
+                </div>
+            </div>
+        </div>
+        <div class="col-3 hidden-xs">
         </div>
     </div>
-    <div class="col-3 hidden-xs">
-    </div>
+
 {% endblock %}
 
 {% block extra_js %}
-    <script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
-    <script src="{% static 'js/bootstrap-datepicker.min.js' %}" rel="stylesheet"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
     <script>
         $(window).bind('beforeunload', function () {
             if ($("[data-dynform-dirty]").length) {

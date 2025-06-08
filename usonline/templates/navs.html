@@ -5,18 +5,18 @@
 <script>
 
 // Nav sidebar menu aim
-$("nav.sidebar .menu > li").click(function(){
+$("#uso-sidebar .menu > li").click(function(){
 	$(this).find('.sub-menu').toggleClass('visible');
 });
 
-$("body:not(.narrow-sidebar) nav.sidebar .menu").menuAim({
+$("body:not(.narrow-sidebar) #uso-sidebar .menu").menuAim({
     deactivate: function(row){
         $(row).find('.sub-menu').removeClass('visible');
     },
     exitMenu: function() {return true}
 });
 
-$("body.narrow-sidebar nav.sidebar .menu").menuAim({
+$("body.narrow-sidebar #uso-sidebar .menu").menuAim({
     deactivate: function(row){
         $(row).find('.sub-menu').removeClass('visible');
     },

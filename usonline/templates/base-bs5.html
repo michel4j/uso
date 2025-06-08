@@ -34,47 +34,42 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/jquery.nicescroll.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
-        integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{% static 'js/uso-jquery-plugins.min.js' %}"></script>
     {% block pre_js %}{% endblock %}
 </head>
 <body class="{% if not request.user.is_authenticated %}no-sidebar{% endif %} {% block body_class %}{% endblock %}">
-<div class="uso-wrapper">
-    {% block body %}
-        <header class="bg-light fixed-top d-flex flex-row align-items-center">
-            <!-- Page Title Area -->
-            <div class="heading">
-                <!--h2 class="title">{% block heading-title %}&nbsp;{% endblock %}</h2-->
-                {% if breadcrumbs %}
-                    {% include "breadcrumbs.html" with breadcrumbs=breadcrumbs %}
-                {% endif %}
-            </div>
-            <!-- User Profile Menu -->
-            {% if request.user.is_authenticated %}
-                {% include "profile-menu.html" %}
+<div id="uso-wrapper">
+    <header id="uso-header" class="bg-light d-flex flex-row align-items-center">
+        <!-- Page Title Area -->
+        <div class="heading">
+            <!--h2 class="title">{% block heading-title %}&nbsp;{% endblock %}</h2-->
+            {% if breadcrumbs %}
+                {% include "breadcrumbs.html" with breadcrumbs=breadcrumbs %}
             {% endif %}
-        </header>
+        </div>
+        <!-- User Profile Menu -->
+        {% if request.user.is_authenticated %}
+            {% include "profile-menu.html" %}
+        {% endif %}
+    </header>
+    <div id="uso-branding">USO</div>
+    <nav id="uso-sidebar">
+        {% block menu %}
+            {% include "navs.html" %}
+        {% endblock %}
+        <section class="version text-muted">
+            <span title="{% version %}" class="overflow ellipsis">{% version %}</span>
+        </section>
+    </nav>
 
-        <nav class="sidebar">
-            <div class="brand">USO</div>
-            {% block menu %}
-                {% include "navs.html" %}
-            {% endblock %}
-            <section class="version text-muted">
-                <span title="{% version %}" class="overflow ellipsis">{% version %}</span>
-            </section>
-        </nav>
-
-        <main id="main-content" class="content">
-            <div class="container-fluid">
-                {% block content %}{% endblock %}
-            </div>
-        </main>
-
-        <div id="page-spinner"></div>
-        <div id="help-content" class="main-content removed"></div>
-    {% endblock %}
+    <main id="uso-content" class="content">
+        <div class="container-fluid h-100 p-0">
+            {% block body %}{% block content %}{% endblock %}{% endblock %}
+        </div>
+    </main>
+    <div id="page-spinner"></div>
 </div>
 {% include "messages.html" %}
 <div id="modal-target"></div>
@@ -89,7 +84,7 @@
 {% block page-scripts %}{% endblock %}
 
 <script>
-    $(document).on('click', 'a[href="#logout-action"]', function(event) {
+    $(document).on('click', 'a[href="#logout-action"]', function (event) {
         event.preventDefault();
         $('#logout-form').submit();
     });

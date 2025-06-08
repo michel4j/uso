@@ -66,7 +66,7 @@ class ProposalForm(DynModelForm):
         return data
 
 
-class ReviewForm(DynFormMixin, forms.ModelForm):
+class ReviewForm(DynModelForm):
     class Meta:
         model = models.Review
         fields = []
