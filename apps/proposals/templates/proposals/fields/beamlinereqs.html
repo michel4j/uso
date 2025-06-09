@@ -4,23 +4,23 @@
 {% get_options data=data as options %}
 <div class="controls {{ repeatable }}" id="{{ field.name }}-controls{{ repeat_index }}"
      data-field-name="{{ field.name }}" data-repeat-index="{{ repeat_index }}">
-    <div class="row no-space">
-	    <span class="field-group-item col-xs-7">
-		   <label for="{{ field.name }}-techniques{{ repeat_index }}">Techniques:<span
-                   class="text-danger">∗</span></label>
-		   <select name="{{ field.name }}.techniques" id="{{ field.name }}-techniques{{ repeat_index }}"
-                   multiple="multiple"
-                   class="form-select selectize" data-placeholder="Select techniques">
-               {% for tech_id, tech, selected, tech_facs in options.techniques %}
-                   <option value="{{ tech_id }}" data-related="{{ tech_facs|jsonify }}"
-                           class="option-technique-{{ tech_id }}"
-                           {% if selected %}selected="selected" {% endif %}>{{ tech }}
-               </option>
-               {% endfor %}
-           </select>
-	    </span>
-        <span class="field-group-item col-xs-3">
-			<label for="{{ field.name }}-facility{{ repeat_index }}">Facility:<span class="text-danger">∗</span></label>
+    <div class="row">
+        <div class="field-group-item col-7">
+            <label for="{{ field.name }}-techniques{{ repeat_index }}">Techniques:<span
+                    class="text-danger">∗</span></label>
+            <select name="{{ field.name }}.techniques" id="{{ field.name }}-techniques{{ repeat_index }}"
+                    multiple="multiple"
+                    class="form-select selectize" data-placeholder="Select techniques">
+                {% for tech_id, tech, selected, tech_facs in options.techniques %}
+                    <option value="{{ tech_id }}" data-related="{{ tech_facs|jsonify }}"
+                            class="option-technique-{{ tech_id }}"
+                            {% if selected %}selected="selected" {% endif %}>{{ tech }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field-group-item col-3">
+            <label for="{{ field.name }}-facility{{ repeat_index }}">Facility:<span class="text-danger">∗</span></label>
             <select name="{{ field.name }}.facility" id="{{ field.name }}-facility{{ repeat_index }}"
                     class="form-select" data-placeholder="Select facility">
                 <option value=""></option>
@@ -29,64 +29,66 @@
                             class="option-facility-{{ bl_id }}"
                             {% if selected %}selected="selected" {% endif %}
                     >{{ bl }}
-                </option>
+                    </option>
                 {% endfor %}
             </select>
-        </span>
-        <span class="field-group-item col-xs-2">
-			<label for="{{ field.name }}-shifts{{ repeat_index }}">Shifts:
+        </div>
+        <div class="field-group-item col-2">
+            <label for="{{ field.name }}-shifts{{ repeat_index }}">Shifts:
                 <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
                    data-trigger="hover"
                    data-content="Specify the number of shifts you are requesting for the first cycle."></i>
             </label>
             {% if "repeat" in field.options %}
                 <div class="input-group">
-                <input id="{{ field.name }}-shifts" name="{{ field.name }}.shifts" class="form-control" min="0"
-                       value="{{ data.shifts }}">
-                <span class="input-group-btn"><button type="button"
-                                                      title="Delete facility, techniques, justification and procedure from {{ field.label }}"
-                                                      class="btn btn-light border remove-repeat"><i
-                        class="bi-dash-lg text-danger"></i>
-                </button></span>
-            </div>
+                    <input id="{{ field.name }}-shifts" name="{{ field.name }}.shifts" class="form-control" min="0"
+                           value="{{ data.shifts }}" aria-label="{{ field.label }} shifts">
+                    <button type="button"
+                            title="Delete facility, techniques, justification and procedure from {{ field.label }}"
+                            class="btn btn-danger remove-repeat">
+                        <i class="bi-dash-lg "></i>
+                    </button>
+
+                </div>
             {% else %}
                 <input id="{{ field.name }}-shifts{{ repeat_index }}" name="{{ field.name }}.shifts"
                        class="form-control" type="number"
                        value="{{ data.shifts }}" placeholder="No. of shifts">
             {% endif %}
-        </span>
+        </div>
     </div>
-    <div class="row no-space">
-        <div class="field-group-item col-xs-12 beamline-info"></div>
+    <div class="row">
+        <div class="field-group-item col-12 beamline-info"></div>
     </div>
-    <div class="row no-space">
-	    <span class="field-group-item col-xs-12">
-			<label for="{{ field.name }}-procedure">Experimental Procedure:<span class="text-danger">∗</span>
-               <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
-                  data-trigger="hover"
-                  data-content="Describe the experimental procedure for this beamline."></i>
-			</label>
-			<textarea cols="40" name="{{ field.name }}.procedure" id="{{ field.name }}-procedure"
-                      rows="5" class="textarea form-control">{{ data.procedure }}</textarea>
-	    </span>
+    <div class="row">
+        <div class="field-group-item col-12">
+            <label for="{{ field.name }}-procedure">Experimental Procedure:<span class="text-danger">∗</span>
+                <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
+                   data-trigger="hover"
+                   data-content="Describe the experimental procedure for this beamline."></i>
+            </label>
+            <textarea cols="40" name="{{ field.name }}.procedure" id="{{ field.name }}-procedure"
+                      rows="3" class="textarea form-control">{{ data.procedure }}</textarea>
+        </div>
     </div>
 
     {% if "justification" in field.options %}
-        <div class="row no-space">
-       <span class="field-group-item col-xs-12">
-		   <label for="{{ field.name }}-justification">Justification of Suitability:<span class="text-danger">∗</span>
-               <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
-                  data-trigger="hover"
-                  data-content="Please justify the suitability of this beamline and the corresponding number of shifts requested."></i>
-		   </label>
-	       <textarea cols="40" name="{{ field.name }}.justification" id="{{ field.name }}-justification"
-                     rows="5" class="textarea form-control">{{ data.justification }}</textarea>
+        <div class="row">
+            <div class="field-group-item col-12">
+                <label for="{{ field.name }}-justification">Justification of Suitability:<span
+                        class="text-danger">∗</span>
+                    <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
+                       data-trigger="hover"
+                       data-content="Please justify the suitability of this beamline and the corresponding number of shifts requested."></i>
+                </label>
+                <textarea cols="40" name="{{ field.name }}.justification" id="{{ field.name }}-justification"
+                          rows="5" class="textarea form-control">{{ data.justification }}</textarea>
 
-	   </span>
+            </div>
         </div>
     {% endif %}
     {% if "tags" in field.options %}
-        <div class="row no-space" id="{{ field.name }}-tags-selector">
+        <div class="row" id="{{ field.name }}-tags-selector">
         </div>
     {% endif %}
 </div>
@@ -146,11 +148,11 @@
                 tech_field.find('option').not(good_techs.join()).attr('disabled', 'disabled');
 
                 // tags field
-                var tags = [];
-                var repeat_index = facs_field.closest('.controls').attr('data-repeat-index');
+                const tags = [];
+                const repeat_index = facs_field.closest('.controls').attr('data-repeat-index');
                 tags_url += facs_field.val() + '/{{field.name}}.tags__' + repeat_index + '/?';
                 tags_field.find('option').filter(function () {
-                    return this.value ? true : false;
+                    return !!this.value;
                 }).each(function () {
                     tags.push($(this).attr('value'));
                 });
@@ -164,9 +166,9 @@
                 tags_container.empty();
             }
             // beamline information
-            var bl_url = "{% url 'beamline-info' %}";
-            var fac_info = facs_field.closest('.controls').find('div.beamline-info');
-            var fac_val = facs_field.val() || '';
+            const bl_url = "{% url 'beamline-info' %}";
+            const fac_info = facs_field.closest('.controls').find('div.beamline-info');
+            const fac_val = facs_field.val() || '';
             fac_info.load(bl_url + fac_val);
 
         });

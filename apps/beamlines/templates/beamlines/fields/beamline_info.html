@@ -1,53 +1,52 @@
-<div class="container-fluid bg-darken">
-<div id="beamline-info-box" class="row">
-    <div class="{% if hide_description %}col-sm-12{% else %}col-sm-6{% endif %}">
-        <table class="table table-condensed">
-            <tr>
-                <th>Source</th>
-                <td>{{ object.source }}</td>
-            </tr>
-            <tr>
-                <th>Spectral Range</th>
-                <td>{{ object.range }}</td>
-            </tr>
-            <tr>
-                <th>Resolution</th>
-                <td>{{ object.resolution }}</td>
-            </tr>
-            <tr>
-                <th>Spot Sizes</th>
-                <td>{{ object.spot_size }}</td>
-            </tr>
-            <tr>
-                <th>Photon Flux</th>
-                <td>{{ object.flux }}</td>
-            </tr>
-            {% if contacts %}
+<div class="container-fluid">
+    <div id="beamline-info-box" class="row">
+        <div class="{% if hide_description %}col-12{% else %}col-6{% endif %}">
+            <table class="table table-condensed">
                 <tr>
-                    <th>Facility Contacts</th>
-                    <td>
-                        {% for contact in contacts %}
-                            <a href="#0" data-bs-toggle="popover" title="{{ contact }}" data-placement="bottom"
-                               data-content="{{ contact.email }} {{ contact.address.phone }}" data-trigger="hover">
-                                {{ contact }}
-                            </a> {% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
+                    <th>Source</th>
+                    <td>{{ object.source }}</td>
                 </tr>
-            {% endif %}
-        </table>
-    </div>
-    {% if not hide_description %}
-        <div class="col-sm-6">
-            <h5 class="text-condensed">{{ object.acronym }}</h5>
-            <hr class="hr-xs"/>
-            <p>{{ object.description }}</p>
-            {% if config and config.comments %}
-                <div class="tinytron bg-warning text-warning"><span
-                        class="text-muted">NOTE</span>: {{ config.comments }}</div>
-            {% endif %}
+                <tr>
+                    <th>Spectral Range</th>
+                    <td>{{ object.range }}</td>
+                </tr>
+                <tr>
+                    <th>Resolution</th>
+                    <td>{{ object.resolution }}</td>
+                </tr>
+                <tr>
+                    <th>Spot Sizes</th>
+                    <td>{{ object.spot_size }}</td>
+                </tr>
+                <tr>
+                    <th>Photon Flux</th>
+                    <td>{{ object.flux }}</td>
+                </tr>
+                {% if contacts %}
+                    <tr>
+                        <th>Facility Contacts</th>
+                        <td>
+                            {% for contact in contacts %}
+                                <a href="#0" data-bs-toggle="popover" title="{{ contact }}" data-placement="bottom"
+                                   data-content="{{ contact.email }} {{ contact.address.phone }}" data-trigger="hover">
+                                    {{ contact }}
+                                </a> {% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endif %}
+            </table>
         </div>
-    {% endif %}
-
-</div>
+        {% if not hide_description %}
+            <div class="col-sm-6">
+                <h5 class="text-condensed">{{ object.acronym }}</h5>
+                <hr class="hr-xs"/>
+                <p>{{ object.description }}</p>
+                {% if config and config.comments %}
+                    <div class="alert alert-warning"><span
+                            class="text-muted">NOTE</span>: {{ config.comments }}</div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
 </div>

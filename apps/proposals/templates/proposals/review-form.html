@@ -4,52 +4,35 @@
 {% load markup %}
 {% block extra_css %}
     <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
-    <link href="{% static 'proposals/reviews.css' %}" rel="stylesheet"/>
+    <link href="{% static 'proposals/reviews.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
 {% endblock %}
 {% block pre_js %}
     <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
 {% endblock %}
-{% block page-title %}{{ object }}{% endblock %}
+{% block page-title %}{{ object }}{% endblock %}1
 {% block body_class %}{% endblock %}
 
 {% block content %}
-    <div id="review-form" class="row gap-0">
-        <div class="col-sm-6 col-md-7 review-col gap-0">
-            <div id="proposal-area" class="page scroll-parent">
-                <div class="scroll-box" style="height: 100%; padding: 0.75em;">
-                    <div class="page-body">
-                        {% if review.type.is_safety or review.type.is_approval %}
-                            {% include "projects/safety-detail.html" with material=reference %}
-                        {% else %}
-                            {% include "proposals/proposal-content.html" with proposal=reference.proposal %}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div id="extras-area" class="page bg-notes-warning">
-                {% include "proposals/review-tools.html" %}
-                <div class="page-content">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <i class="close-command bi-x-lg pull-right" style="padding: 0.75em;"></i>
-                        </div>
-                    </div>
-                    <div id="extra-review-content" class="scroll-box"></div>
-                </div>
-                <div style="flex: 1;">
-                </div>
-            </div>
+    <div id="review-grid" class="bg-secondary-subtle">
+        <div id="review-proposal" class="page">
+                {% if review.type.is_safety or review.type.is_approval %}
+                    {% include "projects/safety-detail.html" with material=reference %}
+                {% else %}
+                    {% include "proposals/proposal-content.html" with proposal=reference.proposal %}
+                {% endif %}
         </div>
-        <div class="col-sm-6 col-md-5 review-col">
-            <div id="form-area" class="page col-xs-12">
-                <div class="row">
-                    {% if object.is_claimable and object.reviewer != user %}
-                        {% include "proposals/review-roles.html" %}
-                    {% else %}
-                        {% include "dynforms/form.html" %}
-                    {% endif %}
-                </div>
+        <div id="review-extras" class="page bg-notes-warning">
+                {% include "proposals/review-tools.html" %}
+                <div id="extra-review-content" class="scroll-box"></div>
+        </div>
+        <div id="review-form" class="page">
+            <div class="">
+                {% if object.is_claimable and object.reviewer != user %}
+                    {% include "proposals/review-roles.html" %}
+                {% else %}
+                    {% include "dynforms/form.html" %}
+                {% endif %}
             </div>
         </div>
     </div>
@@ -68,11 +51,13 @@
         });
         $('.expand-command').click(function () {
             const next = $(this).data('expand-name');
+            const $extras = $("#review-extras");
+            console.log(next, $extras);
             $('#extra-review-content').load($(this).attr('data-extra-url'), function () {
-                if (next == $(this).data('contains')) {
-                    $(this).closest('.review-col').toggleClass('show-comments');
+                if (next === $(this).data('contains')) {
+                    $extras.toggleClass('show-comments');
                 } else {
-                    $(this).closest('.review-col').addClass('show-comments');
+                    $extras.addClass('show-comments');
                 }
                 $(this).data('contains', next);
             });

@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import timedelta
+from pprint import pprint
 
 from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView, ModalConfirmView
 from django.conf import settings
@@ -193,6 +194,7 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        pprint(context)
         context['active_page'] = max(1, context['object'].details.get('active_page', 1))
         return context
 
@@ -246,7 +248,7 @@ class CloneProposal(RolePermsViewMixin, ConfirmDetailView):
         self.object = super().get_object()
         self.object.pk = None
         self.object.state = self.object.STATES.draft
-        self.object.title = "[COPY] {0}".format(self.object.title)
+        self.object.title = f"[COPY] {self.object.title}"
         self.object.created = timezone.now()
         self.object.modified = timezone.now()
         self.object.details['active_page'] = 1

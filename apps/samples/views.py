@@ -4,22 +4,17 @@ from crisp_modals.views import ModalUpdateView, ModalCreateView, ModalDeleteView
 from django import http
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.admin.utils import NestedObjects
 from django.contrib.messages.views import SuccessMessageMixin
-from django.urls import reverse, reverse_lazy
-from django.db import DEFAULT_DB_ALIAS
 from django.db.models import When, Case, Value, BooleanField, Q
-from django.utils.text import capfirst
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, View, detail
-from django.views.generic.edit import CreateView, UpdateView
+from itemlist.views import ItemListView
 
+from misc.utils import is_ajax
+from misc.views import JSONResponseMixin
+from roleperms.views import RolePermsViewMixin
 from . import forms
 from . import models
-from misc.utils import is_ajax
-from misc.views import ConfirmDetailView
-from misc.views import JSONResponseMixin
-from itemlist.views import ItemListView
-from roleperms.views import RolePermsViewMixin
 
 MAX_RESULTS = 30
 
@@ -37,7 +32,6 @@ class HSDBSearch(RolePermsViewMixin, TemplateView):
         search_string = self.request.GET.get('q')
         choices = {h.pk: h.name for h in models.HazardousSubstance.objects.all()}
         if search_string:
-            # results = models.HazardousSubstance.objects.filter(Q(name__icontains=search_string)|Q(description__icontains=search_string))[:15]
             results = models.HazardousSubstance.objects.filter(Q(name__icontains=search_string))[:MAX_RESULTS]
             """
             # fuzzy search
@@ -151,30 +145,23 @@ class SampleCreate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
     success_url = reverse_lazy('sample-list')
     success_message = "Sample '%(name)s' has been created."
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['submit_url'] = reverse_lazy('add-sample-modal')
-        return context
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update(form_action=self.request.get_full_path())
+        return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
         initial['owner'] = self.request.user.pk
         return initial
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update(request=self.request)
-        return kwargs
-
     def form_valid(self, form):
-        response = super().form_valid(form)
-        if is_ajax(self.request):
-            return http.JsonResponse({
-                'pk': self.object.pk,
-                'name': str(self.object),
-            })
-        else:
-            return response
+        super().form_valid(form)
+        return http.JsonResponse({
+            'pk': self.object.pk,
+            'name': str(self.object),
+            'event': 'uso:sample-created'
+        })
 
 
 class EditSample(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
@@ -190,19 +177,17 @@ class EditSample(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update(request=self.request)
+        kwargs.update(
+            form_action=self.request.get_full_path(),
+            delete_url=reverse('sample-delete', kwargs={'pk': self.object.pk})
+        )
         return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['submit_url'] = reverse_lazy('sample-edit-modal', kwargs={'pk': self.object.pk})
-        return context
 
     def form_valid(self, form):
         if self.object.is_editable:
             response = super().form_valid(form)
         else:
-            messages.error(self.request, "The sample '{}' is no longer editable!".format(self.object.name))
+            messages.error(self.request, f"The sample '{self.object.name}' is no longer editable!")
             response = http.HttpResponseRedirect(self.request.get_full_path())
 
         if is_ajax(self.request):

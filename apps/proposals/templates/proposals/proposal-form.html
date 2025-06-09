@@ -1,9 +1,10 @@
 {% extends "proposals/base.html" %}
 {% load static %}
+{% load dynforms %}
 {% block extra_css %}
     <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
-    <link href="{% static 'proposals/reviews.css' %}" rel="stylesheet"/>
+    <link href="{% static 'proposals/proposals.min.css' %}" rel="stylesheet"/>
 {% endblock %}
 
 {% block pre_js %}
@@ -13,18 +14,13 @@
 {% block page-title %}Edit Proposal{% endblock %}
 {% block body_class %}extended-help{% endblock %}
 {% block content %}
-    <div id="review-form" class="row gap-0">
-        <div class="col-sm-9 col-md-7 review-col gap-0">
-            <div id="form-area" class="page col-12">
-                <div class="row">
-                    {% include "dynforms/form.html" %}
-                </div>
-            </div>
+    <div id="proposal-grid" class="bg-secondary-subtle">
+        <div id="proposal-form" class="page">
+            {% include "dynforms/form.html" %}
         </div>
-        <div class="col-3 hidden-xs">
+        <div id="proposal-help">
         </div>
     </div>
-
 {% endblock %}
 
 {% block extra_js %}

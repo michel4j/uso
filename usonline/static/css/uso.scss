@@ -1864,7 +1864,7 @@ hr {
 }
 
 .fg-help {
-  color: $color_23;
+  color: var(--bs-secondary);
 }
 
 [class$="tron"] {
@@ -2313,30 +2313,8 @@ a {
   font-size: 150%;
 }
 
-#proposal-form {
-  .df-form-body {
-    padding-bottom: 80px;
-  }
-
-  select.shorten + .chosen-with-drop {
-    .chosen-drop {
-      max-height: 140px;
-      z-index: 1040;
-
-      ul {
-        max-height: 140px;
-        z-index: 1040;
-      }
-    }
-  }
-}
 
 .narrow-sidebar {
-  #proposal-form {
-    .df-form-footer {
-      padding-left: 50px;
-    }
-  }
 }
 
 .progress-xs {

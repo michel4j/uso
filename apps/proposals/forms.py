@@ -53,7 +53,7 @@ class ProposalForm(DynModelForm):
                 user_email = m.get('email', 'xxx')
                 user = User.objects.filter(Q(email__iexact=user_email) | Q(alt_email__iexact=user_email)).first()
                 if user:
-                    data["{}_username".format(k)] = user.username
+                    data[f"{k}_username"] = user.username
                 existing_emails.append(user_email)
                 team_members.append(m)
 
