@@ -168,7 +168,7 @@ class Clarification(GenericContentMixin, TimeStampedModel):
 
 def attachment_file(instance, filename):
     ext = os.path.splitext(filename)[-1]
-    return os.path.join('attachments', str(instance.content_type), str(instance.object_id), instance.slug + ext)
+    return os.path.join('attachments', instance.content_type.model, str(instance.object_id), instance.slug + ext)
 
 
 class AttachmentQuerySet(QuerySet):
@@ -231,6 +231,7 @@ class Attachment(GenericContentMixin, TimeStampedModel):
         mime_type = self.mime_type()
         if mime_type:
             return 'image' in mime_type
+        return False
 
     def exists(self):
         return self.file.storage.exists(self.file.path)
