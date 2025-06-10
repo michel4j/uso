@@ -20,11 +20,14 @@
 {% block content %}
     <div class="page">
         <div class="page-body">
-            <div class="tinytron bg-white">
-                <h4 style="margin: 0.25em 0;"><strong>Available shifts</strong>
-                    <div class="pull-right" style="margin-top: -0.25em;">
+            <div class="card p-3 mb-3">
+
+                <div class="d-flex flex-row">
+                    <h4>Available shifts</h4>
+                    <div class="fs-5 ms-auto">
                         <span class="badge bg-success calc"
-                              title="Total from Facility Schedule">{{ total_shifts|floatformat }}</span>
+                              title="Total from Facility Schedule">{{ total_shifts|floatformat }}
+                        </span>
                         -
                         <a href="#0" class="badge bg-danger calc" title="Unavailable for {{ facility.acronym }}"
                            data-modal-url="{% url 'edit-reservation' cycle=cycle.pk  fac=facility.acronym %}">
@@ -33,9 +36,11 @@
                         </a>
                         =
                         <span class="badge bg-success calc"
-                              title="Available for {{ facility.acronym }}">{{ available_shifts|default:0|floatformat }}</span>
+                              title="Available for {{ facility.acronym }}">{{ available_shifts|default:0|floatformat }}
+                        </span>
                     </div>
-                </h4>
+                </div>
+
                 <small>Distribution of available shifts is based on the set percentages allotted to each pool for
                     <strong>{{ facility.acronym }}</strong>. For each pool, the number of available shifts is rounded
                     down. Any shifts unaccounted for after the rounding are left as discretionary shifts.
@@ -43,7 +48,7 @@
             </div>
 
             {% for kind, pool in pools.items %}{% if kind != 'user' %}
-                <div class="tinytron">
+                <div class="alert alert-secondary">
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="pull-left">
@@ -73,10 +78,10 @@
                                 <div class="pull-left"><br/>&nbsp;-&nbsp;</div>
                                 <div class="pull-left">
                                     <span class="stats-title"><small>Reserved</small></span><br/>
-                                    <span class="badge bg-default calc" title="Edit Reserved"
+                                    <span class="badge bg-danger calc" title="Edit Reserved"
                                           style="padding-left: 0px; padding-right: 0px;">
                                         <a href="#0" style="color: #fff;"
-                                           data-modal-url="{% url 'edit-reservation' cycle=cycle.pk  fac=facility.acronym pool=pool.key %}">
+                                           data-modal-url="{% url 'edit-pool-reservation' cycle=cycle.pk  fac=facility.acronym pool=pool.key %}">
                                             {{ pool.reserved.total|default:0 }}
                                             <i class="icon-fw bi-pencil"></i>
                                         </a>
@@ -111,7 +116,7 @@
                     </div>
                 </div>
             {% endif %}{% endfor %}
-            <div class="tinytron bg-info">
+            <div class="alert alert-info">
                 <div class="row">
                     <div class="col-xs-12">
                     <span class="pull-left">
@@ -147,7 +152,7 @@
                     </div>
                 </div>
             </div>
-            <div class="tinytron bg-white">
+            <div class="card p-3">
                 {% with pool=pools.user %}
 
                     <div class="row">

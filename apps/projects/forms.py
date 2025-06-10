@@ -605,7 +605,7 @@ class TeamForm(DynFormMixin, forms.ModelForm):
         return super()._custom_clean(data)
 
 
-class AllocationForm(forms.ModelForm):
+class AllocationForm(ModalModelForm):
     last_cycle = forms.ModelChoiceField(label="Expiry Cycle", queryset=ReviewCycle.objects.all(), required=False,
                                         help_text="Change this to limit the project duration")
 
@@ -620,15 +620,12 @@ class AllocationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
         self.fields['last_cycle'].queryset = ReviewCycle.objects.filter(pk__gte=self.initial['cycle'])
 
-        self.helper = FormHelper()
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.title = 'Allocate Beamtime'
-        self.helper.layout = Layout(
+        self.body.title = 'Allocate Beamtime'
+        self.body.append(
             Div(
                 Div(
                     'cycle', 'beamline', 'project',
@@ -638,21 +635,11 @@ class AllocationForm(forms.ModelForm):
                     css_class="col-xs-12 gap-2"
                 ),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Submit', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
         )
 
 
-class ReservationForm(forms.ModelForm):
+class ReservationForm(ModalModelForm):
     class Meta:
         model = models.Reservation
         fields = ['shifts', 'comments']
@@ -661,13 +648,10 @@ class ReservationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.title = 'Reserve Beamtime'
-        self.helper.layout = Layout(
+        self.body.title = 'Reserve Beamtime'
+        self.body.append(
             Div(
                 Div(
                     Div('shifts', css_class="col-sm-12"),
@@ -675,16 +659,6 @@ class ReservationForm(forms.ModelForm):
                     css_class="col-xs-12 gap-2"
                 ),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Submit', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
         )
 

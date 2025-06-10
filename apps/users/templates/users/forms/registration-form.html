@@ -14,62 +14,8 @@
 {% block main-title %}Registration{% endblock %}
 
 {% block main-form %}
-{% with form.instance.validate as validation %}
-<form id="registration-form" class="df-form" method="post">
-    {% csrf_token %}
-    <div class="form-page tab-content row-fluid">
-        {% for page in form.form_type.pages %}
-        <div id="{{forloop.counter}}-form" class="tab-pane {% if forloop.counter == 1 %}active{% endif %}">
-            <div class="tab-main {% if forloop.counter == active_page %}active{% endif %}" id="page{{forloop.counter}}">
-                <div class="main-text">
-                    <span>{{ page.name }}</span>
-                </div>
-                {% if form.errors %}
-                <div class="alert {% if form.errors %} alert-danger{% else %}alert-warning{% endif %} alert-dismissible" style="line-height: 1;">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><i class="bi-x-lg icon-sm icon-fw"></i></button>
-                    <strong>Errors:
-                    {{ form.errors }}
-                    </strong>
-                </div>
-                {% endif %}
-                {% for field in page.fields %}
-                <div class="container-fluid df-field-runtime {% check_error field.name form.errors %} no-space">
-                    {% include "dynforms/field.html" %}
-                </div>
-                {% endfor %}
-                {% if forloop.last %}
-                <div class="row">
-                    <div class="col-xs-12" style="margin: 1em 0;">
-                        {% for name, label in form.form_type.actions %}
-                        <button type="submit" name="submit" value="Submit"
-                                class="btn bg-primary col-xs-6 col-sm-3 pull-right"><i
-                                class="bi-arrow-right-circle"></i>&emsp;Submit
-                        </button>
-                        <br>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-            <footer class="register-actions" style="margin: 0 -15px;">
-                {% if forloop.counter < form.form_type.pages|length %}
-                <a class="btn btn-light border btn-sm next-btn pull-right" href="#{{forloop.counter|add:1}}-form"
-                   data-bs-toggle="tab">Continue&nbsp;<i class="bi-skip-forward icon-fw"></i></a>
-                {% endif %}
-                {% if forloop.counter > 1 %}
-                <a class="btn btn-light border btn-sm back-btn pull-right" href="#{{forloop.counter|add:-1}}-form"
-                   data-bs-toggle="tab"><i class="bi-skip-backward icon-fw"></i>&nbsp;Back</a>
-                {% endif %}
-                <p>
-                    Already registered? <a href="{% url 'user-dashboard' %}">Login</a><br/>
-                    NOTE: This site uses cookies, JavaScript and requires a modern web browser.
-                </p>
-            </footer>
-        </div>
-        {% endfor %}
-    </div>
-</form>
-{% endwith %}
+<div class="form-page tab-content">
+    {% include "dynforms/form.html"  %}
 {% endblock %}
 
 {% block extra_js %}

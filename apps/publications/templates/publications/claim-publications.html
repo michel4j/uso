@@ -3,40 +3,35 @@
 
 
 {% block page-content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="list-tools">
-                <span>
-                {% include "itemlist/filters.html" %}
-                </span>
+    {% include "itemlist/filters.html" %}
+    <div class="row">
+        <div class="col-12">
+            <hr/>
+        </div>
+        {% for object in object_list %}
+            <div class="grid-cell col-12">
+                {% if request.user not in object.users.all %}
+                    <div class="claim-grid">
+                        <div>{{ object.cite|safe }}.</div>
+                        <div style="position: absolute; right: 2em; top: 25%;">
+                            <a data-bs-toggle="tooltip" title="Add to my list!"
+                               href="{% url 'claim-publication' pk=object.pk %}" class="btn btn-xs btn-success"><i
+                                    class="bi-plus-lg icon-fw"></i></a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="claim-grid">
+                        <div>{{ object.cite|safe }}.</div>
+                        <div style="position: absolute; right: 2em; top: 25%;">
+                            <a data-bs-toggle="tooltip" title="Remove from list!"
+                               href="{% url 'unclaim-publication' pk=object.pk %}"
+                               class="btn btn-xs btn-danger"><i class="bi-dash-lg icon-fw"></i></a>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-        </div>
-        <div class="row">
-            {% for object in object_list %}
-                <div class="grid-cell col-xs-12">
-                    {% if request.user not in object.users.all %}
-                        <div class="claim-grid">
-                            <div>{{ object.cite|safe }}.</div>
-                            <div style="position: absolute; right: 2em; top: 25%;">
-                                <a data-bs-toggle="tooltip" title="Add to my list!"
-                                   href="{% url 'claim-publication' pk=object.pk %}" class="btn btn-xs btn-success"><i
-                                        class="bi-plus-lg icon-fw"></i></a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="claim-grid">
-                            <div>{{ object.cite|safe }}.</div>
-                            <div style="position: absolute; right: 2em; top: 25%;">
-                                <a data-bs-toggle="tooltip" title="Remove from list!"
-                                   href="{% url 'unclaim-publication' pk=object.pk %}"
-                                   class="btn btn-xs btn-danger"><i class="bi-dash-lg icon-fw"></i></a>
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-            {% include "itemlist/pagination.html" %}
-        </div>
+        {% endfor %}
+        {% include "itemlist/pagination.html" %}
     </div>
 {% endblock %}
 

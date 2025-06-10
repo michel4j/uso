@@ -1118,7 +1118,7 @@ class EditAllocation(RolePermsViewMixin, ModalUpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
+        kwargs['form_action'] = self.request.get_full_path()
         return kwargs
 
     def get_initial(self):
@@ -1161,7 +1161,7 @@ class EditReservation(RolePermsViewMixin, ModalCreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
+        kwargs['form_action'] = self.request.get_full_path()
         return kwargs
 
     def get_initial(self):

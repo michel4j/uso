@@ -1,7 +1,7 @@
 <li class="{{active}} {{ nav.styles }}">
     {% if nav.children %}
     <a href="#0"><i class="{{nav.icon}} icon-fw"></i>
-    <span>{{nav.label}}</span></a>
+    <div class="nav-label">{{nav.label}}</div></a>
     <ul class="list-unstyled sub-menu" style="overflow-y: auto;">
         <li class="title">{{nav.label}}</li>
         {% for sub_nav in submenu %}
@@ -13,6 +13,6 @@
     </ul>
     {% else %}
     <a href="{{nav.get_url}}"><i class="{{nav.icon}} icon-fw"></i>
-    <span>{{nav.label}}</span></a>
+    <div class="nav-label">{{nav.label}}</div></a>
    {% endif %}
 </li>
