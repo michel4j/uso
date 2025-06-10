@@ -2,7 +2,7 @@
 {% load static %}
 {% load jsonify %}
 {% block panel_title %}Publication Keywords{% endblock %}
-{% block panel_tools %}
+{% block bottom_tools %}
     <a href="{% url 'user-publication-list' %}" class="pull-right" title="View All My Publications">
         <i class="bi-list-ol icon-md icon-fw"></i>
     </a>
@@ -21,9 +21,12 @@
     {% endif %}
 
 {% endblock %}
+{% block panel_cap %}
+    <div id="word-cloud" class="row-fluid text-center image-cap border-bottom bg-light p-2"></div>
+{% endblock %}
 {% block panel_content %}
     {% if words %}
-        <div id="word-cloud" class="row-fluid text-center"></div>
+
         <script src="{% static 'publications/word-clouds.js' %}"></script>
         <script>
             $(document).ready(function () {

@@ -1,13 +1,16 @@
-<div id="{{block.code}}" class="col-sm-12 col-md-6 col-lg-4 ">
-    <div class="card mb-3 {% block panel_classes %}{% endblock %}">
+<div id="{{block.code}}" class="col-sm-12 col-md-6 col-lg-4 py-2">
+    <div class="card {% block panel_classes %}{% endblock %}">
+        {% block panel_cap %}
         <div class="card-header d-flex flex-row align-items-center justify-content-between">
             <h5 class="card-title m-0">{% block panel_title%}{% endblock %}</h5>
             <div class="toolbox">
             {% block panel_tools %}{% endblock %}
             </div>
         </div>
+        {% endblock %}
         <div class="card-body">
         {% block panel_content %}{% endblock %}
+        {% block bottom_tools %}{% endblock %}
         </div>
     </div>
 </div>

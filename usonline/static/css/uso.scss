@@ -518,8 +518,9 @@ header {
 
         .nav-label {
           font-family: $condensed-font-family;
-          font-size: 95%;
-          font-weight: 200;
+          font-size: 85%;
+          opacity: 0.75;
+          //font-weight: 200;
         }
       }
 
@@ -1957,11 +1958,6 @@ hr.hr-xxs {
   padding: 0.75em;
 }
 
-#word-cloud {
-  margin: 1em 0;
-  //min-height: 400px;
-}
-
 form {
   .jumbotron {
     padding-bottom: 1em;
@@ -3350,7 +3346,7 @@ ul.list-ruled {
 
 .version {
   font-size: 80%;
-  color: $color_45;
+  opacity: 0.15;
   text-align: center;
   line-height: 4em;
 }

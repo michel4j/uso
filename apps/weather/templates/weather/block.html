@@ -1,7 +1,10 @@
 {% extends "misc/blocks/panel.html" %}
-{% block panel_title %}{{location.city_name}}{% endblock %}
+{% block panel_content %}{{location.city_name}}{% endblock %}
 {% block panel_tools %}{% endblock %}
-{% block panel_content %}
-{% include "weather/snippet.html" %}
+{% block panel_cap %}
+    <div class="border-bottom bg-secondary-subtle p-3">
+        {% include "weather/snippet.html" %}
+    </div>
 {% endblock %}
+
 

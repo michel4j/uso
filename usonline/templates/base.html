@@ -55,11 +55,11 @@
         {% endif %}
     </header>
     <div id="uso-branding">USO</div>
-    <nav id="uso-sidebar">
+    <nav id="uso-sidebar" class="scroll-box">
         {% block menu %}
             {% include "navs.html" %}
         {% endblock %}
-        <section class="version text-muted">
+        <section class="version text-white">
             <span title="{% version %}" class="overflow ellipsis">{% version %}</span>
         </section>
     </nav>
@@ -152,8 +152,9 @@
         $(".scroll-box").niceScroll({
             cursorborder: "1px solid transparent",
             cursorwidth: "9px",
+            cursorcolor: "var(--bs-secondary)",
             autohidemode: "leave",
-            cursorborderradius: "2px",
+            cursorborderradius: "0",
             cursoropacitymax: 0.5
         });
         $(".scroll-box").scroll(function () {

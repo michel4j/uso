@@ -1,57 +1,62 @@
 {% load weather %}
 {% load humanize %}
-<style scoped="scoped">
-    .current {
+<style>
+    .current-weather {
         line-height: 1;
-        padding-right: 0!important;
+        padding-right: 0 !important;
     }
-    .current i {
+
+    .current-weather i {
         font-size: 60px;
     }
-    .current span {
+
+    .current-weather span {
         font-size: 35px;
     }
-    .forecast, .description {
+
+    .weather-forecast, .weather-description {
     }
-    .forecast i {
+
+    .weather-forecast i {
         font-size: 30px;
         line-height: 40px;
     }
-    .forecast + .forecast {
-        border-left: 1px solid rgba(0,0,0,0.15);
+
+    .weather-forecast + .weather-forecast {
+        border-left: 1px solid var(--bs-border-color-translucent);
     }
-    .temperatures {
+
+    .weather-temperatures {
         padding: 0.25em 0;
     }
-    .time {
+
+    .weather-time {
         line-height: 1;
         padding-bottom: 0.5em;
     }
-    .description {
+
+    .weather-description {
         padding-top: 0.5em;
     }
 </style>
-<div class="row no-space" style="margin-top: -5px;">
-    <div title="{{weather.description.title}}" class="col-xs-4 col-sm-3 current">
-        <i class="wi {{weather.icon}} pull-left"></i>
-        <span class="pull-right">{{weather.temp|floatformat:"0"}}°</span>
+<div class="d-flex flex-row justify-content-between align-items-center">
+    <div title="{{ weather.description.title }}" class="d-flex flex-grow-1 flex-column current-weather">
+        <i class="wi {{ weather.icon }}"></i>
+        <span>{{ weather.temp|floatformat:"0" }}°</span>
     </div>
     {% for cond in weather.forecast %}
-    <div class="col-xs-4 col-sm-3 text-center forecast {% if forloop.last %}hidden-xs{% endif %}">
-        <div class="row"><div class="time col-xs-12">{{cond.time|time}}<br/>{{cond.time|naturalday|title}}</div></div>
-        <div class="row"><i title="{{cond.description.title}}" class="wi {{cond.icon}} col-xs-12 text-muted"></i></div>
-        <div class="row"><div class="temperatures col-xs-12">
-            <strong>{{cond.temp|floatformat:"0"}}°</strong>&nbsp;|&nbsp;{{cond.windchill|floatformat:"0"}}°
-        </div></div>
-        <!--div class="row"><div class="col-xs-12">{{cond.description.title}}</div></div-->
-    </div>
+        <div class="d-flex flex-grow-1 flex-column text-center weather-forecast {% if forloop.last %}hidden-xs{% endif %}">
+            <div class="weather-time">{{ cond.time|time }}<br/>{{ cond.time|naturalday|title }}</div>
+            <i title="{{ cond.description.title }}" class="wi {{ cond.icon }} text-muted"></i>
+            <div class="weather-temperatures">
+                <strong>{{ cond.temp|floatformat:"0" }}°</strong>&nbsp;|&nbsp;{{ cond.windchill|floatformat:"0" }}°
+            </div>
+        </div>
     {% endfor %}
 </div>
-<div class="row hidden-xs description">
+<div class="hidden-xs weather-description">
     <div class="col-xs-12">
-        <span class="text-muted">RIGHT NOW &mdash;</span> {{weather.description.title}} · Feels&nbsp;like&nbsp;{{weather.windchill|floatformat:"0"}}°
+        <span>Right now &mdash;</span> {{ weather.description.title }} ·
+        Feels&nbsp;like&nbsp;{{ weather.windchill|floatformat:"0" }}°
     </div>
 </div>
-
-
-

@@ -24,7 +24,7 @@ def version():
 def show_block(context, block):
     request = context['request']
     if block.check_allowed(request):
-        content =  block.render(context)
+        content = block.render(context)
         return mark_safe(content) if content else ""
     else:
         return ""
