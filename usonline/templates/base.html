@@ -1,1 +1,166 @@
-{% extends "base-bs5.html" %}
+{% load static %}
+{% load misc %}
+{% load icons %}
+<!DOCTYPE html>
+<html lang="en" class="{% block html_class %}{% endblock %}">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="version" content="{% version %}">
+    <title>{% block page_title %}User Services Online{% endblock %}</title>
+
+    <!-- Styles -->
+    <link href="{% static 'img/logo.ico' %}" rel="SHORTCUT ICON">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Fira+Sans+Condensed:ital,wght@0,300;0,400;0,600;0,900;1,300;1,400;1,600;1,900&family=Fira+Sans:ital,wght@0,300;0,400;0,600;0,800;1,300;1,400;1,600;1,800&display=swap"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    {% block site_css %}
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.bootstrap5.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css"
+              integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ=="
+              crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" href="{% static 'css/uso.min.css' %}" type="text/css"/>
+    {% endblock %}
+
+    {% block page-styles %}{% endblock %}
+    {% block extra_css %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/jquery.nicescroll.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
+            integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'js/uso-jquery-plugins.min.js' %}"></script>
+    {% block pre_js %}{% endblock %}
+</head>
+<body class="{% if not request.user.is_authenticated %}no-sidebar{% endif %} {% block body_class %}{% endblock %}">
+<div id="uso-wrapper">
+    <header id="uso-header" class="bg-light d-flex flex-row align-items-center">
+        <!-- Page Title Area -->
+        <div class="heading">
+            <!--h2 class="title">{% block heading-title %}&nbsp;{% endblock %}</h2-->
+            {% if breadcrumbs %}
+                {% include "breadcrumbs.html" with breadcrumbs=breadcrumbs %}
+            {% endif %}
+        </div>
+        <!-- User Profile Menu -->
+        {% if request.user.is_authenticated %}
+            {% include "profile-menu.html" %}
+        {% endif %}
+    </header>
+    <div id="uso-branding">USO</div>
+    <nav id="uso-sidebar">
+        {% block menu %}
+            {% include "navs.html" %}
+        {% endblock %}
+        <section class="version text-muted">
+            <span title="{% version %}" class="overflow ellipsis">{% version %}</span>
+        </section>
+    </nav>
+
+    <main id="uso-content" class="content">
+        <div class="container-fluid h-100 p-0">
+            {% block body %}{% block content %}{% endblock %}{% endblock %}
+        </div>
+    </main>
+    <div id="page-spinner"></div>
+</div>
+{% include "messages.html" %}
+<div id="modal-target"></div>
+<form class="d-none" id="logout-form" action="{% url 'portal-logout' %}" method="post">{% csrf_token %}</form>
+{% block page-sprites %}{% svg_sprites %}{% endblock %}
+{% block post_js %}{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-form@4.3.0/dist/jquery.form.min.js"></script>
+<script src="{% static 'crisp_modals/modals.min.js' %}"></script>
+{% block page-scripts %}{% endblock %}
+{% block extra_js %}{% endblock %}
+<script>
+    $(document).on('click', 'a[href="#logout-action"]', function (event) {
+        event.preventDefault();
+        $('#logout-form').submit();
+    });
+
+    $(document).ready(function () {
+        $('#modal-target').initModal({
+            setup: function (element) {
+                $('.selectmultiple, .selectize').selectize({
+                    plugins: ["remove_button"]
+                });
+            }
+        });
+
+        // Enable tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Enable popovers
+        const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+        popoverTriggerList.forEach(function (popoverTriggerEl) {
+            new bootstrap.Popover(popoverTriggerEl);
+        });
+
+        // Handle data-url and data-href
+        document.querySelectorAll('[data-href]').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                const sel = window.getSelection().toString();
+                if (!sel) {
+                    window.location.href = el.getAttribute('data-href');
+                }
+                e.preventDefault();
+            });
+        });
+
+        document.querySelectorAll('[data-url]').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                const sel = window.getSelection().toString();
+                if (!sel) {
+                    fetch(el.getAttribute('data-url'))
+                        .then(response => response.text())
+                        .then(html => {
+                            document.querySelector('#modal-form').innerHTML = html;
+                        });
+                }
+                e.preventDefault();
+            });
+        });
+
+        // Remove modal content after it is hidden
+        document.querySelectorAll('.modal').forEach(function (modal) {
+            modal.addEventListener('hidden.bs.modal', function () {
+                modal.remove();
+            });
+        });
+
+        // Initialize selects
+        $('.selectmultiple, .selectize').selectize({
+            plugins: ["remove_button"]
+        });
+
+
+        // Initialize scroll boxes
+        $(".scroll-box").niceScroll({
+            cursorborder: "1px solid transparent",
+            cursorwidth: "9px",
+            autohidemode: "leave",
+            cursorborderradius: "2px",
+            cursoropacitymax: 0.5
+        });
+        $(".scroll-box").scroll(function () {
+            $(this).getNiceScroll().resize();
+        });
+    });
+</script>
+
+</body>
+</html>

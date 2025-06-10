@@ -816,6 +816,9 @@ h1, h2, h3, h4, h5, h6 {
 .page-title {
   font-weight: 300 !important;
   font-family: $condensed-font-family;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .page-subtitle {
@@ -2899,8 +2902,9 @@ table.fixed-header {
 
 .tool-label {
   display: inline-block;
-  font-size: 90%;
-  color: $color_7;
+  font-size: 85%;
+  color: var(--bs-body-color);
+  opacity: 0.75;
   line-height: 0.75;
   padding-top: 0.5em;
 }

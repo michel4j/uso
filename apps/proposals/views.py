@@ -106,6 +106,7 @@ class ProposalList(RolePermsViewMixin, ItemListView):
     add_url = "create-proposal"
     list_search = ['title', 'areas__name', 'keywords']
     order_by = ['state', 'created']
+    paginate_by = 15
 
     def get_queryset(self, *args, **kwargs):
         self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft)
