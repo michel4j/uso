@@ -59,7 +59,7 @@
     <script>
         $(document).ready(function () {
             const data = {{words|jsonify}};
-            make_word_cloud(data, '#word-cloud', {
+            wordCloud(data, '#word-cloud', {
                 searchURL: '{% url "user-publication-list" %}',
                 searchParam: 'search',
             });

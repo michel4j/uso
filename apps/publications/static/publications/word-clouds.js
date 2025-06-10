@@ -1,4 +1,4 @@
-function make_word_cloud(data, element, params) {
+function wordCloud(data, element, params) {
     if (!data || !data.length) {
         return;
     }
