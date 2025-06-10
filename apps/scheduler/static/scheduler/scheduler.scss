@@ -289,7 +289,7 @@ $border-color_2: #ccc;
   &::after {
     font-family: $font-family_1 !important;
     content: "\f138";
-    font-size: 11px;
+    font-size: 1em;
   }
 }
 
@@ -297,23 +297,23 @@ $border-color_2: #ccc;
   &::after {
     font-family: $font-family_1 !important;
     content: "\f12F";
-    font-size: 11px;
+    font-size: 1em;
   }
 }
 
 .fc-icon-left-double-arrow {
   &:after {
     font-family: $font-family_1 !important;
-    content: "\e662";
-    font-size: 11px;
+    content: "\F564";
+    font-size: 1em;
   }
 }
 
 .fc-icon-right-double-arrow {
   &:after {
     font-family: $font-family_1 !important;
-    content: "\e661";
-    font-size: 11px;
+    content: "\F558";
+    font-size: 1em;
   }
 }
 

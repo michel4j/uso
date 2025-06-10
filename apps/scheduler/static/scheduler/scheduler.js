@@ -1,28 +1,7 @@
 function init_fc_extras(sel, view) {
-    var toolbar = $(".fc-toolbar");
-    toolbar.find('.date-input').remove();
-    var datepicker = '<button class="fc-button fc-state-default date-input"><input type="hidden"><i class="bi-calendar icon-fw"></i></button>';
-    $('.fc-toolbar .fc-prev-button').after(datepicker);
-    var date_tool = $('.date-input');
-    var min_view = {
-        'monthshift': 'months',
-        'yearshift': 'years',
-        'cycleshift': 'months',
-        'weekshift': 'days'
-    };
-    var calendar = $(sel);
-    date_tool.datepicker({
-        format: "yyyy-mm-dd",
-        autoclose: true,
-        container: "#calendar-container",
-        orientation: "auto",
-        minViewMode: min_view[view.name]
-    });
-    date_tool.on('changeDate', function (event) {
-        calendar.fullCalendar('gotoDate', moment(event.date));
-    });
-    if (view.name == 'yearshift') {
-        //calendar.find(".fc-prev-button, .fc-next-button").addClass('hidden');
+
+    let calendar = $(sel);
+    if (view.name === 'yearshift') {
         calendar.find(".fc-nextYear-button, .fc-prevYear-button").removeClass('hidden');
     } else {
         calendar.find(".fc-prev-button, .fc-next-button").removeClass('hidden');
@@ -33,16 +12,16 @@ function init_fc_extras(sel, view) {
     $(".fc-toolbar .fc-center, .fc-toolbar .fc-left, .fc-toolbar .fc-right");
 }
 
-var FC = $.fullCalendar; // a reference to FullCalendar's root namespace
-var View = FC.BasicView;      // the class that all views must inherit from
-var yearShiftView, monthShiftView, cycleShiftView;
+let FC = $.fullCalendar; // a reference to FullCalendar's root namespace
+let View = FC.BasicView;      // the class that all views must inherit from
+let yearShiftView, monthShiftView, cycleShiftView;
 
 yearShiftView = View.extend({
     duration: {months: 12},
     templateUrl: "",
     render: function () {
-        var date = this.calendar.getDate();
-        var params = '?date=' + date.format('YYYY-MM-DD');
+        let date = this.calendar.getDate();
+        let params = '?date=' + date.format('YYYY-MM-DD');
         this.url = this.opt('templateUrl') + params;
         this.updateTitle(date.year());
     },
@@ -60,8 +39,8 @@ monthShiftView = View.extend({
         return ""
     },
     render: function () {
-        var date = this.calendar.getDate();
-        var params = '?date=' + date.format('YYYY-MM-DD');
+        let date = this.calendar.getDate();
+        let params = '?date=' + date.format('YYYY-MM-DD');
         if (this.opt('sectionHeaders')) {
             params += '&sections=' + this.opt('sectionHeaders');
         }
@@ -84,8 +63,8 @@ cycleShiftView = View.extend({
     duration: {months: 6},
     titleFormat: 'YYYY',
     render: function () {
-        var date = this.calendar.getDate();
-        var params = '?date=' + date.format('YYYY-MM-DD');
+        let date = this.calendar.getDate();
+        let params = '?date=' + date.format('YYYY-MM-DD');
         if (this.opt('rangeStart')) {
             params += '&start=' + this.opt('rangeStart');
         }
@@ -100,7 +79,7 @@ cycleShiftView = View.extend({
         return ""
     },
     computeRange: function (date) {
-        var cur_date = moment({
+        let cur_date = moment({
             year: date.year(),
             month: date.month() < 6 ? 0 : 6,
             date: 1
@@ -148,7 +127,7 @@ function setupAjax(spinner_sel, csrf_token) {
 		},
         error : function(jqXHR, textStatus, errorThrown) {
             //alert("Error: " + textStatus + ": " + errorThrown);
-            var msg = "Operation Failed: " + errorThrown
+            let msg = "Operation Failed: " + errorThrown
             toastr.options = {
                 "closeButton": true,
                 "debug": true,
@@ -173,7 +152,7 @@ function setupAjax(spinner_sel, csrf_token) {
 	});
 }
 function setupCalendar(sel, options) {
-    var defaults = {
+    let defaults = {
         editorType: 'event',
         editor: false,
         showLinks: true,
@@ -230,21 +209,20 @@ function setupCalendar(sel, options) {
 
 		viewRender: function(view, element) {
 			init_fc_extras(sel, view);
-			$('.date-input').datepicker('update', view.start.toDate());
             view.el.load(view.url, function(){
                $(sel).fullCalendar( 'refetchEvents' );
             });
 		},
 		eventRender: function(event, element, view) {
-			var duration = moment.duration({hours: options.shiftDuration});
-            var cur_shift = event.start.clone();
-            var section_prefix = "";
-            var shift, shift_sel;
+			let duration = moment.duration({hours: options.shiftDuration});
+            let cur_shift = event.start.clone();
+            let section_prefix = "";
+            let shift, shift_sel;
             if ((view.name == 'weekshift') && (event.section)) {
                section_prefix = ".cal-section-" + event.section + " > ";
             }
 
-            var first_shift = $('.shift-' + cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH'));
+            let first_shift = $('.shift-' + cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH'));
             while (cur_shift < event.end) {
                 shift_sel = '.shift-' + cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH');
                 cur_shift.add(duration);
@@ -264,8 +242,8 @@ function setupCalendar(sel, options) {
                 } else if (event.rendering == 'preferences') {
                     $('#' + event.start.format('YYYY-MM-DD')).addClass('prefs-' + event.type);
                 } else if ((event.rendering == 'beamtime') || ((event.rendering == 'staff') && ((view.name == 'weekshift') || options.editor)) ){
-                    var tag_html = "";
-                    var tag_titles = [];
+                    let tag_html = "";
+                    let tag_titles = [];
                     shift.attr('title', event.description);
                     $.each(event.tags, function (i, tag) {
                         tag_titles.push($('#tag-' + tag).data('tag'));
@@ -302,19 +280,19 @@ function setupCalendar(sel, options) {
 }
 
 function setupEditor(sel, options) {
-    var defaults = {
+    let defaults = {
         editorType: 'event'
     };
     options = $.extend({}, defaults, options || {});
-    var rangeStart = moment(options.rangeStart, "YYYY-MM-DD");
-    var rangeEnd = moment(options.rangeStart, "YYYY-MM-DD");
+    let rangeStart = moment(options.rangeStart, "YYYY-MM-DD");
+    let rangeEnd = moment(options.rangeStart, "YYYY-MM-DD");
 
     // prepare click events for event source
-    var calendar = $(sel);
+    let calendar = $(sel);
     calendar.addClass('idle');
     function clearEvents() {
         $('.cal-day .cal-shift').each(function(){
-            var shift = $(this);
+            let shift = $(this);
             shift.attr('class', shift.attr('data-default-class'));
             shift.html("");
         });
@@ -332,7 +310,7 @@ function setupEditor(sel, options) {
                 $('#tag-' + id).addClass('active');
             });
         } else {
-            var class_name = "selected-" + $('.event-src.active-src').attr('data-key');
+            let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
             $('.event-src').removeClass('active-src');
             calendar.removeClass('ending starting').addClass('idle');
             $(".cal-shift." + class_name).removeClass(class_name);
@@ -346,12 +324,12 @@ function setupEditor(sel, options) {
     });
     // ending shift selected
     $(document).on('click', '.ending .fc-view .cal-day .cal-shift', function (event) {
-        var t1 = moment(calendar.attr('data-range-start'), 'YYYY-MM-DDTHH');
-        var t2 = moment($(this).attr('data-shift-id'), 'YYYY-MM-DDTHH');
-        var start_time = moment(moment.min(t1, t2));
-        var end_time = moment(moment.max(t1, t2));
+        let t1 = moment(calendar.attr('data-range-start'), 'YYYY-MM-DDTHH');
+        let t2 = moment($(this).attr('data-shift-id'), 'YYYY-MM-DDTHH');
+        let start_time = moment(moment.min(t1, t2));
+        let end_time = moment(moment.max(t1, t2));
         end_time.add(moment.duration({hours: options.shiftDuration}));
-        var post_data = $.extend(true, {}, $('.event-src.active-src').data('event'));
+        let post_data = $.extend(true, {}, $('.event-src.active-src').data('event'));
         post_data['start'] = start_time.toISOString();
         post_data['end'] = end_time.toISOString();
         post_data['tags'] = $('.tag.active').map(function () {
@@ -373,14 +351,14 @@ function setupEditor(sel, options) {
 
     //highlihght range while editing
     $(document).on('mouseenter', '.ending .fc-view .cal-shift', function (event) {
-        var selected = [];
-        var t1 = moment(calendar.attr('data-range-start'), 'YYYY-MM-DDTHH');
-        var t2 = moment($(this).attr('data-shift-id'), 'YYYY-MM-DDTHH');
-        var class_name = "selected-" + $('.event-src.active-src').attr('data-key');
-        var start_time = moment(moment.min(t1, t2));
-        var end_time = moment(moment.max(t1, t2));
+        let selected = [];
+        let t1 = moment(calendar.attr('data-range-start'), 'YYYY-MM-DDTHH');
+        let t2 = moment($(this).attr('data-shift-id'), 'YYYY-MM-DDTHH');
+        let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
+        let start_time = moment(moment.min(t1, t2));
+        let end_time = moment(moment.max(t1, t2));
         end_time = end_time.add(moment.duration({hours: options.shiftDuration}));
-        var cur_shift = moment(start_time);
+        let cur_shift = moment(start_time);
         while (cur_shift < end_time) {
             selected.push('.shift-' + cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH'));
             cur_shift = cur_shift.add(moment.duration({hours: options.shiftDuration}));
@@ -393,7 +371,7 @@ function setupEditor(sel, options) {
     $(document).keyup(function(e) {
         if (e.keyCode == 27) {
             calendar.fullCalendar('removeEventSource', $('.active-src').attr('data-extra-events-url'));
-            var class_name = "selected-" + $('.event-src.active-src').attr('data-key');
+            let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
             $('.event-src').removeClass('active-src');
             calendar.removeClass('ending starting').addClass('idle');
             $(".cal-shift." + class_name).removeClass(class_name);
@@ -403,13 +381,13 @@ function setupEditor(sel, options) {
 
     // Shift on weekday clicked
     $(document).on('click', '.starting .cal-day-header .cal-shift', function () {
-        var shifts = $(this).closest('.cal-row').find('.shift-' + $(this).attr('data-shift-time'));
-        var post_data = [];
+        let shifts = $(this).closest('.cal-row').find('.shift-' + $(this).attr('data-shift-time'));
+        let post_data = [];
         shifts.each(function () {
-            var t1 = moment($(this).attr('data-shift-id'), 'YYYY-MM-DDTHH');
-            var t2 = moment(t1);
+            let t1 = moment($(this).attr('data-shift-id'), 'YYYY-MM-DDTHH');
+            let t2 = moment(t1);
             t2.add(moment.duration({hours: options.shiftDuration}));
-            var entry = $.extend(true, {}, $('.event-src.active-src').data('event'));
+            let entry = $.extend(true, {}, $('.event-src.active-src').data('event'));
             entry['start'] = t1.toISOString();
             entry['end'] = t2.toISOString();
             entry['tags'] = $('.tag.active').map(function () {
@@ -431,9 +409,9 @@ function setupEditor(sel, options) {
 
     // Handle display of event tools
     $(document).on('mouseenter', '.idle .cal-shift .event-tools.active', function() {
-        var control = $(this);
-        var event = control.data("event");
-        var comments = event.comments ? event.comments : ""
+        let control = $(this);
+        let event = control.data("event");
+        let comments = event.comments ? event.comments : ""
         control.popover({
             html: true,
             trigger: 'hover',
@@ -459,9 +437,9 @@ function setupEditor(sel, options) {
 
     // Handle editing actions from event tools
     $(document).on('click', '.cal-shift .event-tools.active .popover a[data-action]', function() {
-        var tools = $(this).closest('.event-tools');
-        var event = tools.data('event');
-        var action = $(this).attr('data-action');
+        let tools = $(this).closest('.event-tools');
+        let event = tools.data('event');
+        let action = $(this).attr('data-action');
         if (action == 'comments') {
             event['comments'] = tools.find('textarea').val()
         } else {
@@ -480,13 +458,13 @@ function setupEditor(sel, options) {
     });
 
     $(document).on('mouseenter', '.starting .cal-day-header .cal-shift', function (event) {
-        var class_name = "selected-" + $('.event-src.active-src').attr('data-key');
+        let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
         $(".cal-shift." + class_name).removeClass(class_name);
         $(".cal-shift.shift-day-" + $(this).attr('data-shift-day') + ".shift-time-" + $(this).attr('data-shift-time')).addClass(class_name);
     });
 
     $(document).on('mouseleave', '.fc-view', function (event) {
-        var class_name = "selected-" + $('.event-src.active-src').attr('data-key');
+        let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
         $(".cal-day .cal-shift." + class_name).removeClass(class_name);
     });
 
