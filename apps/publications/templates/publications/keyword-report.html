@@ -55,56 +55,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.7/d3.layout.cloud.min.js"
             integrity="sha512-hStpcyoo0rWEs2cG9t9yrzAXWstzZOjOvufYbBCIMvX4YG8kw7pU6/yUIrLup1COQQalrxels1cbJ/+X7GdYEA=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'publications/word-clouds.js' %}"></script>
     <script>
-        const cloudData = {{words|jsonify}};
-        function make_word_cloud(data, element) {
-            var fill = d3.scale.category20();
-            var w = Math.min($(element).width() * 0.95, 1000), h = 0.45 * w;
-            var fscale = w < 600 ? 0.85 : 1;
-
-            d3.layout.cloud().size([w, h])
-                .words({{words|jsonify}})
-                .rotate(function () {
-                    return ~~(Math.random() * 2) * 90;
-                })
-                .fontSize(function (d) {
-                    return d.size * fscale;
-                })
-                .on("end", draw)
-                .start();
-
-            function draw(words) {
-                d3.select(element).append("svg")
-                    .attr("width", w)
-                    .attr("height", h)
-                    .append("g")
-                    .attr("transform", "translate(" + [w >> 1, h >> 1] + ")")
-                    .selectAll("text")
-                    .data(words)
-                    .enter().append("text")
-                    .style("font-size", function (d) {
-                        return d.size * fscale + "px";
-                    })
-                    .on("click", function (d) {
-                        window.location.href = '{% url "publication-list" %}?search=' + d.text;
-                    })
-                    .style("cursor", "pointer")
-                    .style("text-transform", "lowercase")
-                    .style("fill", function (d, i) {
-                        return fill(i);
-                    })
-                    .attr("text-anchor", "middle")
-                    .attr("transform", function (d) {
-                        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-                    })
-                    .text(function (d) {
-                        return d.text;
-                    });
-            }
-        }
-
         $(document).ready(function () {
-            make_word_cloud(cloudData, '#word-cloud');
+            const data = {{words|jsonify}};
+            make_word_cloud(data, '#word-cloud', {
+                searchURL: '{% url "user-publication-list" %}',
+                searchParam: 'search',
+            });
         });
     </script>
 {% endblock %}
