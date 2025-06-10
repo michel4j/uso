@@ -26,8 +26,8 @@ function wordCloud(data, element, params) {
 
     function draw(words) {
         d3.select(element).append("svg")
-            .attr("width", w)
-            .attr("height", h)
+            .attr("viewBox", "0 0 " + w + " " + h)
+            .attr("width", '100%')
             .append("g")
             .attr("transform", "translate(" + [w >> 1, h >> 1] + ")")
             .selectAll("text")
