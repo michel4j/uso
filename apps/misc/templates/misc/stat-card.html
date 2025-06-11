@@ -1,11 +1,15 @@
 <div class="stat-card {{ style }}">
-   <div class="header">{{ header }}</div>
-   <div class="info">
-      <p>{{ description }}</p>
+   {% if header %}<div class="stat-header">{{ header }}</div>{% endif %}
+   <div class="stat-body d-flex flex-column justify-content-center align-items-center">
+      <div class="info">{{ description }}</div>
        {% if url %}
-        <a href="{{ url }}" class="value">{{ value }}<span class="unit">{{ units }}</span></a>
+        <a href="{{ url }}">
+            <span class="value">{{ value }}</span><span class="unit">{{ units }}</span>
+        </a>
        {% else %}
-        <p class="value">{{ value }}<span class="unit">{{ units }}</span></p>
+           <div>
+               <span class="value">{{ value }}</span><span class="unit">{{ units }}</span>
+           </div>
        {% endif %}
    </div>
 </div>

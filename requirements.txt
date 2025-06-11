@@ -22,7 +22,7 @@ ortools
 numpy
 scipy
 phonenumbers~=8.13.49
-pycryptodome==3.21.0
+pycryptodome>=3.21.0
 python-dateutil~=2.9.0.post0
 python-Levenshtein
 psycopg2-binary

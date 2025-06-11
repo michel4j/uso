@@ -1,5 +1,6 @@
 {% extends "misc/blocks/panel.html" %}
 {% load static %}
+{% load misc %}
 {% load jsonify %}
 {% block panel_title %}Publication Keywords{% endblock %}
 {% block bottom_tools %}
@@ -25,8 +26,12 @@
     <div id="word-cloud" class="row-fluid text-center image-cap border-bottom bg-light p-2"></div>
 {% endblock %}
 {% block panel_content %}
+    <div>
+    {% for name, count in stats.items %}
+        {% stat_card description=name value=count style="stat-card-xs" %}
+    {% endfor %}
+    </div>
     {% if words %}
-
         <script src="{% static 'publications/word-clouds.js' %}"></script>
         <script>
             $(document).ready(function () {

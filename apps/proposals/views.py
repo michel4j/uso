@@ -10,12 +10,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.text import capfirst
 from django.views.generic import detail, edit, TemplateView, View
+from dynforms.models import FormType
 from itemlist.views import ItemListView
 from scipy import stats as scipy_stats
 
@@ -157,8 +158,15 @@ class PRCList(RolePermsViewMixin, ItemListView):
 
 
 class CreateProposal(RolePermsViewMixin, DynCreateView):
+    template_name = 'proposals/proposal-form.html'
     model = models.Proposal
     form_class = forms.ProposalForm
+
+    def get_form_type(self) -> FormType:
+        form_type = FormType.objects.filter(code='proposal').first()
+        if not form_type:
+            raise Http404("Proposal form type not found.")
+        return form_type
 
     def get_success_url(self):
         if self._form_action == 'save_continue':
@@ -195,7 +203,6 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pprint(context)
         context['active_page'] = max(1, context['object'].details.get('active_page', 1))
         return context
 

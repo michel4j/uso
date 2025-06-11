@@ -188,7 +188,7 @@ $border-left-color_4: #a94442;
       }
     }
   }
-    .breadcrumb {
+  .breadcrumb {
     line-height: 50px;
     position: absolute;
     right: 1em;
@@ -641,9 +641,11 @@ body.no-sidebar {
   #uso-branding {
     display: none;
   }
+
   #uso-header {
     display: none;
   }
+
   #uso-sidebar {
     display: none;
   }
@@ -809,7 +811,14 @@ h1, h2, h3, h4, h5, h6 {
 .section-heading {
   font-weight: 300 !important;
 }
-
+.section-content {
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 1em;
+  }
+  h4 {
+    font-weight: 600 !important;
+  }
+}
 .panel-title {
   font-weight: 300 !important;
 }
@@ -3919,23 +3928,68 @@ span.allocation-score {
 .stat-card {
   display: inline-block;
 
-  .info {
-    padding: 1em 0.5em;
-    color: #9E9E9E;
+  .stat-header {
+    padding: 1em;
+  }
+
+  .stat-body {
+    padding: 1em;
+
+    .info {
+      opacity: 0.5;
+    }
 
     .value {
-      margin-top: 0.1em;
-      color: #212121;
-      font-size: 250%;
+      font-size: 2.5em;
       font-weight: 300;
-      line-height: 1em;
+    }
 
-      .unit {
-        font-size: 40%;
-      }
+    .unit {
+      font-size: 0.8em;
     }
   }
 }
+
+$stat-sizes: (
+  'xl': 2em,
+  'lg': 1.5em,
+  'md': 1.1em,
+  'sm': 0.95em,
+  'xs': 0.8em,
+);
+
+@each $name, $size in $stat-sizes {
+  .stat-card-#{$name} {
+    font-size: $size;
+  }
+}
+
+$border-colors: (
+  '0': #4e79a7,
+  '1': #f28e2c,
+  '2': #e15759,
+  '3': #76b7b2,
+  '4': #59a14f,
+  '5': #edc949,
+  '6': #af7aa1,
+  '7': #ff9da7,
+  '8': #9c755f,
+  '9': #bab0ab,
+);
+
+@each $key, $color in $border-colors {
+  .border-color-#{$key} {
+    border-color: $color !important;
+  }
+  .bg-color-#{$key} {
+    background-color: $color !important;
+  }
+  .text-color-#{$key} {
+      color: $color !important;
+  }
+}
+
+
 
 @media screen and (max-width: 576px) {
   .track-stage-body {
@@ -3954,6 +4008,7 @@ span.allocation-score {
 
 .modal-header {
   color: white;
+
   .btn-close {
     filter: invert(1) grayscale(100%) brightness(200%);;
   }

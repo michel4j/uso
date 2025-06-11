@@ -2,9 +2,6 @@
 {% load roleperms %}
 {% block panel_title %}My Profile{% endblock %}
 {% block panel_tools %}
-<a href="{% url 'view-my-profile' %}" class="pull-right" title="View My Profile">
-    <i class="bi-eye icon-md icon-fw"></i>
-</a>
     <a href="{% url 'edit-my-profile' %}" class="pull-right" title="Edit Profile">
     <i class="bi-pencil icon-md icon-fw"></i>
 </a>

@@ -1,11 +1,13 @@
 {% load static %}
 {% load dynforms %}
 {% load samples_tags %}
+<link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
+
 <div class="controls " id="{{field.name}}-controls" data-field-name="{{field.name}}">
 	<div class="row no-space hazard-controls" id="sample-hazard-controls">
 		{% get_pictograms as pictograms %}
 			{% for pic in pictograms %}
-		    <label class="checkbox pictogram pull-left col-xs-6 col-sm-3 col-lg-2">
+		    <label class="checkbox pictogram pull-left col-sm-6 col-md-4 col-lg-3">
 		    	<input name="{{field.name}}"
 		       	id="{{field.name}}_{{forloop.counter}}"
 		       	value="{{pic.pk}}"

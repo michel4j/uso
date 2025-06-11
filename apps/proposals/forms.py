@@ -39,7 +39,7 @@ class ProposalForm(DynModelForm):
         self.init_fields()
 
     def clean(self):
-        User = get_user_model()
+        user_model = get_user_model()
         data = super().clean()
         data['title'] = data['details'].get('title')
         if not data['title']:
@@ -51,7 +51,7 @@ class ProposalForm(DynModelForm):
             if k in data['details']:
                 m = data['details'][k]
                 user_email = m.get('email', 'xxx')
-                user = User.objects.filter(Q(email__iexact=user_email) | Q(alt_email__iexact=user_email)).first()
+                user = user_model.objects.filter(Q(email__iexact=user_email) | Q(alt_email__iexact=user_email)).first()
                 if user:
                     data[f"{k}_username"] = user.username
                 existing_emails.append(user_email)

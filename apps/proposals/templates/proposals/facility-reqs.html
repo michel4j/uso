@@ -1,11 +1,12 @@
 {% load markup %}
 {% for ctx in facilities %}
+    <div class="callout p-3 border-color-{{ forloop.counter0 }}">
     <div class="row">
-        <div class="col-xs-12">
-            <h3 class="no-vmargin text-condensed">
+        <div class="col-12">
+            <h3 class="my-0 py-3 border-bottom border-color-{{ forloop.counter0 }} text-condensed">
                 <strong>{{ ctx.facility.acronym }}</strong> &mdash; {{ ctx.facility.name }}
                 {% if ctx.facility.flex_schedule %}
-                    <span class="badge bg-info pull-right">
+                    <span class="badge bg-color-{{ forloop.counter0 }} pull-right">
                 <strong data-bs-toggle="popover"
                         data-trigger="hover"
                         data-content="Number of Shifts will be assigned as required based on availability"
@@ -14,28 +15,27 @@
                 </strong>
             </span>
                 {% else %}
-                    <span class="badge bg-info pull-right">
+                    <span class="badge bg-color-{{ forloop.counter0 }} pull-right">
                 <strong>{{ ctx.shifts|default:"0" }} Shift{{ ctx.shifts|pluralize:",s" }}</strong>
             </span>
                 {% endif %}
             </h3>
-            <hr class="hr-xs"/>
         </div>
-        <div class="col-xs-12 col-sm-6">
+        <div class="col-12">
             <h4>Suitability and Justification:</h4>
             <p>{{ ctx.justification }}</p>
         </div>
-        <div class="beamline-info col-xs-12 col-sm-6">
+        <div class="beamline-info col-12">
             {% include "beamlines/fields/beamline_info.html" with object=ctx.facility config=ctx.config %}
         </div>
 
-    </div>
-
-    <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
+            {% with forloop.counter0 as facility_counter %}
             <h4>Experimental Procedure:&nbsp;{% for tech in ctx.techniques %}
-                <span class="badge bg-light" title="{{ tech }}">{{ tech.acronym }}</span>{% endfor %}</h4>
+                <span class="badge bg-color-{{ facility_counter }}" title="{{ tech }}">{{ tech.acronym }}</span>{% endfor %}</h4>
             <p>{{ ctx.procedure }}</p>
+        {% endwith %}
         </div>
+    </div>
     </div>
 {% endfor %}

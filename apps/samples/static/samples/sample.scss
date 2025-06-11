@@ -11,15 +11,13 @@ $font-family_1: bootstrap-icons;
 	border: 1px solid transparent;
 	border-radius: 2px;
 	img {
-		opacity: 0.3;
-		height: 24px;
+		opacity: 0.2;
+		height: 2em;
 	}
 	.media-body {
-		color: $color_1;
 		display: table-cell;
 		line-height: 1;
-		height: 24px;
-		font-size: 12px;
+		height: 2em;
 		vertical-align: middle;
 	}
 	.media-heading {

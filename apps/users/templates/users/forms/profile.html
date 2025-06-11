@@ -10,8 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" integrity="sha512-qOBWNAMfkz+vXXgbh0Wz7qYSLZp6c14R0bZeVX2TdQxWpuKr6yHjBIM69fcF8Ve4GUX6B6AKRQJqiiAmwvmUmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="{% static 'js/countries.min.js' %}" charset="UTF-8"></script>
 <script type="text/javascript">
-
-
 var $country = $('#id_country');
 var $region = $('#id_region');
 
@@ -104,7 +102,7 @@ $('.institution-input').typeahead(null, {
 {% block page-title %}{{form.helper.title}}{% endblock %}
 
 {% block content %}
-<div class="page">
+<div class="page p-3">
 	<div class="page-body">
         {% crispy form form.helper %}
     </div>

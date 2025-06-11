@@ -26,6 +26,10 @@ class UserFeedback(DynCreateView):
         initial = super().get_initial()
         return initial
 
+    def get_form_type(self) -> FormType:
+        form_type = FormType.objects.get(name="feedback")
+        return form_type
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_title'] = "User Feedback"
@@ -37,7 +41,6 @@ class UserFeedback(DynCreateView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        print(data)
         obj = self.model(**data)
         obj.save()
         return HttpResponseRedirect(self.get_success_url())
