@@ -27,12 +27,12 @@ class UserFeedback(DynCreateView):
         return initial
 
     def get_form_type(self) -> FormType:
-        form_type = FormType.objects.get(name="feedback")
-        return form_type
+        return FormType.objects.filter(code="feedback").first()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_title'] = "User Feedback"
+        print(context)
         return context
 
     def get_success_url(self):
