@@ -1,3 +1,4 @@
+{% load folio %}
 {% load static %}
 {% load samples_tags %}
 {% load project_tags %}
@@ -5,7 +6,7 @@
 {% load markup %}
 
 {% if material %}
-    <div class="cycle-box tinytron bg-white">
+    <div class="cycle-box p-3 bg-white">
         <div class="row">
             <div class="col-xs-12">
                 {% if owner or admin %}
@@ -24,8 +25,8 @@
                 </span>
                 {% endif %}
                 <i class="{{ material|material_state_icon }} pull-left icon-md" style="padding: 0.25em;"></i>
-                <h3 class="no-vmargin">
-                    <span class="hidden-xs">Samples &amp; Materials &mdash; </span>{{ material }}
+                <h3 class="my-0">
+                    <span class="d-none d-sm-block">Samples &amp; Materials</span>
                 </h3>
                 {% if material.siblings.pending.count %}
                     <small class="text-warning"><strong>Amended materials have not been approved!</strong></small>
@@ -38,39 +39,28 @@
                 {% endif %}
             </div>
         </div>
-        <hr class="hr-xs"/>
-
-        <div class="row">
-            <div class="col-xs-2">
-                <h3 class="no-vmargin"><span
-                        class="badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
-                </h3>
+        <div class="d-flex flex-row gap-3 justify-items-between align-items-center callout {% folio_status material.state success='approved' draft='pending' danger='rejected' %}">
+            <h3 class="my-0">
+                <span class="badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
+            </h3>
+            <div>
+                <span class="stats-number pull-left">{{ material.project_samples.approved.count }}/{{ material.project_samples.count }}</span>
+                <span class="stats-title pull-left">Samples<br/>Approved</span>
             </div>
-            <div class="col-xs-6">
-                <div class="row">
-                    <div class="col-xs-6">
-                        <span class="stats-number pull-left">{{ material.project_samples.approved.count }}/{{ material.project_samples.count }}</span>
-                        <span class="stats-title pull-left">Samples<br/>Approved</span>
-                    </div>
-                    {% if material.siblings.pending.exists %}
-                    <div class="col-xs-6">
-                        Pending Amendment {% for mat in material.siblings.pending %}
-			<a href="{% url "material-detail" pk=mat.pk %}">{{mat}} [{{ mat.get_state_display }}]</a>&nbsp;
-        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="col-xs-4 text-right">
-                {% for hz in material.pictograms %}
-                    {% with 'samples/pictograms/'|add:hz.code|add:'.svg' as pictogram_svg %}
-                    <img width="32" src="{%  static pictogram_svg %}" title="{{ hz.name }}">
-                    {% endwith %}
+            <div>
+                <small class="text-muted">Related Materials</small><br/>
+                {% for mat in material.siblings.all %}
+                    <a href="{% url "material-detail" pk=mat.pk %}">{{ mat }} [{{ mat.get_state_display }}]</a>&nbsp;
                 {% endfor %}
             </div>
+            <div class="ms-auto">
+                <div class="pictogram-box">
+                    {% for hz in material.pictograms %}
+                        <img src="{% pictogram_url hz %}" title="{{ hz.name }}">
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-
-        <hr class="hr-xs"/>
 
         {% with material.warnings as warnings %}
             {% if warnings %}
@@ -78,9 +68,9 @@
                     <div class="col-xs-12">
                         <div class="alert alert-danger">
                             <ul class="list-ruled">
-                            {% for warning in warnings %}
-                                <li>{{ warning|markdown }}</li>
-                            {% endfor %}
+                                {% for warning in warnings %}
+                                    <li>{{ warning|markdown }}</li>
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>

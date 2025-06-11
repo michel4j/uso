@@ -19,7 +19,7 @@
     </a>
 {% endblock %}
 
-{% block page-status-style %}{% if object.available %}bg-success-subtle{% else %}bg-tertiary{% endif %}{% endblock %}
+{% block page-status-style %}callout {% if object.available %}callout-success{% endif %}{% endblock %}
 
 {% block page-status-bar %}
     <h3 class="my-0"><span class="badge bg-info text-condensed">{% if object.available %}Available{% else %}Not

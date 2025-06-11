@@ -2,7 +2,7 @@
 {% load static %}
 {% load cycle_tags %}
 
-{% block page-title %}<span class="hidden-xs">Cycle Feedback &mdash; </span><span class="text-muted">{{ object.start_date|date:"M" }}-{{ object.end_date|date:"M" }} {{ object.start_date|date:"Y" }}</span>{% endblock %}
+{% block page-title %}<span class="d-none d-sm-inline">Cycle Feedback &mdash; </span><span class="text-muted">{{ object.start_date|date:"M" }}-{{ object.end_date|date:"M" }} {{ object.start_date|date:"Y" }}</span>{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.css" integrity="sha512-5HktH3p+qBNLzxpOLnpICH2uwArYE/Fi7fdKCQee15piDqN3X3Q1iqo8D43oc8DJgYP4xxA7sdEjNCfmeLLYeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />

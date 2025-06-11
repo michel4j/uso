@@ -5,7 +5,7 @@
         <tr>
             <th class="col-xs-3">Project</th>
             <th>Scores</th>
-            <th class="hidden-xs">Past Beamtime</th>
+            <th class="d-none d-md-table-cell">Past Beamtime</th>
             <th class="text-right" title="Requested Shifts">Request</th>
             <th class="text-right" title="Allocated Shifts">Award</th>
             <th>
@@ -32,7 +32,7 @@
                         <span class="allocation-score" title="{{ name|title }}">{{ score|floatformat:2 }}</span>
                     {% endfor %}
                 </td>
-                <td class="hidden-xs">
+                <td class="d-none d-md-table-cell">
                     <div class="col-xs-12">{% for a in p.previous %}
                         <div class="col-xs-3" title="{{ a.cycle }}">
                             {% if a %}{{ a.shifts|default:0 }}{% else %}{% endif %}

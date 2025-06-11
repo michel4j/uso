@@ -23,4 +23,4 @@ class List(BaseNav):
     label = 'List of Schedules'
     roles = USO_ADMIN_ROLES
     url = reverse('schedule-list')
-    styles = "hidden-xs"
+    styles = "d-none d-sm-inline"

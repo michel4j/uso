@@ -4,7 +4,7 @@
 {% block modal_title %}Reviewer Compatibility{% endblock %}
 {% block modal_styles %}modal-lg{% endblock %}
 {% block modal_body %}
-<div class="tinytron techniques {% if conflict %} bg-danger-subtle {% else %} bg-success-subtle {% endif %}">
+<div class="p-3 techniques {% if conflict %} bg-danger-subtle {% else %} bg-success-subtle {% endif %}">
     <h5 style="margin:0;">
         {%  if admin %}
             <strong><a class="next-url" href="{% url 'edit-reviewer-profile' pk=reviewer.pk %}">{{reviewer}}</a></strong>
@@ -30,7 +30,7 @@
     <span class="badge {% if area in compat_areas %}bg-success{% else %}bg-secondary{% endif %}">{{area}}</span>
     {% endfor %}
 </div>
-<div class="tinytron bg-white">
+<div class="p-3 bg-white">
     {% include "proposals/submission-snippet.html" %}
 </div>
 {% endblock %}

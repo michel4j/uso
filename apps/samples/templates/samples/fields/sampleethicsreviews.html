@@ -7,12 +7,12 @@
 	<div class="sample-list">
 		<div id="{{field.name}}-list">
 			{% for sample, decision, expiry in samples %}
-			<div id="{{field.name}}-{{sample.pk}}-ethics-container" class="tinytron bg-white {% if decision == 'rejected' %}bg-danger{% endif %}">
+			<div id="{{field.name}}-{{sample.pk}}-ethics-container" class="p-3 mb-3 bg-white {% if decision == 'rejected' %}bg-danger{% endif %}">
 				<div class="row">
 					<div class="col-xs-12">
 						<i class="bi-{% if sample.is_editable %}unlock{% else %}lock{% endif %} pull-left icon-md" style="padding: 0.75em 0.35em; color: rgba(0,0,0,0.35)"></i>
 
-						<h5 class="no-vmargin text-condensed"><strong>{{ sample.name }}</strong></h5>
+						<h5 class="my-0 text-condensed"><strong>{{ sample.name }}</strong></h5>
 						Quantity: <em class="text-muted">{{ quantity }}</em>&emsp;
                         Type: <em class="text-muted">{{ sample.get_kind_display }}</em>&emsp;
                         State: <em class="text-muted">{{ sample.get_state_display }}</em>&emsp;

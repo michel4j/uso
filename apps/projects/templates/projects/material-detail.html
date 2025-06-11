@@ -33,10 +33,10 @@
     </a>
 {% endblock %}
 
-{% block page-status-style %}{% folio_status object.state success='approved' draft='pending' danger='rejected' %}{% endblock %}
+{% block page-status-style %}callout {% folio_status object.state success='approved' draft='pending' danger='rejected' %}{% endblock %}
 {% block page-status-bar %}
 
-    <h3 class="no-vmargin"><span
+    <h3 class="my-0"><span
             class="badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
     </h3>
     <div>

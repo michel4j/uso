@@ -102,7 +102,7 @@ class InstitutionDeleteForm(ModalModelForm):
         self.body.append(
             HTML(
                 "<h5>Are you sure you want to delete the following Institution?</h5>"
-                "<div class='minitron bg-danger text-danger'>"
+                "<div class='alert alert-danger text-danger'>"
                 "<h4><strong>{{object}}</strong><br/>{{object.location}}</h4>"
                 "<hr class='hr-xs'/>"
                 "<small>Created {{object.created|date}}, &emsp;"

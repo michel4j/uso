@@ -47,10 +47,10 @@
     {% endif %}
 {% endblock %}
 
-{% block page-status-style %}{% folio_status object.state draft=object.STATES.pending info=object.STATES.started warn=object.STATES.reviewed default='bg-success' %}{% endblock %}
+{% block page-status-style %}callout {% folio_status object.state draft=object.STATES.pending info=object.STATES.started warn=object.STATES.reviewed default='bg-success' %}{% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="no-vmargin"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
+    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
     <div>
         <small class="text-wide text-muted">First Cycle:</small>
         <br/>
@@ -141,7 +141,7 @@
         {% if object.state == object.STATES.complete or object.state == object.STATES.reviewed and admin %}
             <div class="row">
                 <div class="col-xs-12">
-                    <div class="tinytron border-3d">
+                    <div class="p-3 mb-3 border-3d">
                         <div class="row">
 
                             <div class="col-sm-6 col-xs-12">
@@ -151,7 +151,7 @@
                                     {% for review_type, info in ranks.items %}
                                         <div class="col-xs-3">
                                             <small class="text-wide text-muted">{{ review_type }}</small><br/>
-                                            <h2 class="no-vmargin text-center"
+                                            <h2 class="my-0 text-center"
                                                 style="color: {{ info.score |color_scale }}">
                                                 <strong>{{ info.score | floatformat:-1 }}</strong></h2>
                                         </div>

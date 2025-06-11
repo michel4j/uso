@@ -77,12 +77,10 @@
 {% endblock %}
 
 
-{% block page-status-style %}
-    {% folio_status proposal.state draft=proposal.STATES.draft success=proposal.STATES.submitted %}
-{% endblock %}
+{% block page-status-style %}callout {% folio_status proposal.state draft=proposal.STATES.draft success=proposal.STATES.submitted %}{% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="no-vmargin"><span class="badge bg-info text-condensed">{{ proposal.get_state_display }}</span>
+    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ proposal.get_state_display }}</span>
     </h3>
     <div>
         <small class="text-wide text-muted">Spokesperson:</small><br/>{{ proposal.spokesperson|default:"&hellip;" }}<br/>
@@ -117,7 +115,7 @@
 
 {% block page-content %}
     {% if proposal.state == proposal.STATES.draft and validation.pages %}
-        <div class="minitron bg-warning-subtle">
+        <div class="alert alert-warning-subtle">
         <div class="row">
             <i class="bi-exclamation-triangle icon-4 col-xs-1 text-warning"></i>
             <div class="col-xs-11">Please edit and fix the following issues before submitting:<br/>
@@ -140,8 +138,8 @@
         <div class="row collapse {% if proposal.clarifications.pending.count %}in{% endif %}"
              id="proposal-clarifications">
             <div class="col-xs-12">
-                <div class="tinytron bg-notes-warning">
-                    <h4 class="no-vmargin">Clarification Requests</h4>
+                <div class="p-3 bg-notes-warning">
+                    <h4 class="my-0">Clarification Requests</h4>
                     <hr class="hr-xs"/>
                     {% include "proposals/clarifications.html" with response_url_name='proposal-clarification-response' %}
                 </div>

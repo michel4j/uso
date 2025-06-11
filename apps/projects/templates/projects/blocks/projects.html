@@ -6,10 +6,10 @@
 </a>
 {% endblock %}
 {% block panel_content %}
-<div class="tinytron bg-transparent">
+<div class="p-3 bg-transparent">
     <div class="row">
         <div class="col-xs-12">
-            <h4 class="no-vmargin">
+            <h4 class="my-0">
                 Active Project{{user.projects.active.count|pluralize:",s"}}
                 <span class="badge progress-bar-info pull-right">{{user.projects.active.count}}</span>&nbsp;
             </h4>

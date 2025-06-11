@@ -53,7 +53,7 @@
 				<label for="project_type5"><input id="project_type5"  name="project_type" type="radio" value="user" checked>General User Access</label>
 			</div>
             {% else %}
-			<h4 class="tinytron bg-success-subtle text-center">General User Access</h4>
+			<h4 class="p-3 bg-success-subtle text-center">General User Access</h4>
 			<input name="project_type" type="hidden" value="user">
             {% endif %}
 		</div>
@@ -63,7 +63,7 @@
 			<div class="row">
 				{% for track, items in requests.items %}
                     <div class="col-sm-{{ requests.keys|length|pluralize:'12,6' }}">
-                        <div class="tinytron bg-darken">
+                        <div class="p-3 bg-darken">
                             <h4>{{track}} Track</h4>
                             <hr class="hr-xs"/>
                             {% for item in items %}

@@ -1,14 +1,17 @@
 {% extends "misc/blocks/panel.html" %}
 {% block panel_title %}Recent Activity{% endblock %}
-{% block panel_classes %}bg-notes-warning{% endblock %}
+{% block panel_classes %}bg-warning-subtle{% endblock %}
 {% block panel_content %}
 <div class="row">
-    <div class="scroll-box col-xs-12" style="max-height: 300px">
+    <div class="scroll-box col-12" style="max-height: 300px">
         <ul class="activity-log list-unstyled text-condensed">
             {% for log in logs %}
-                <li class="{{ log.kind }}-log" title="{{ log.description }}">
-                    {{ log.description }}: &nbsp; {% if log.reference %}{{ log.reference }}{% endif %}<br/>
-                    <small class="text-muted">by {{ log.user_name }}, {{ log.created|timesince }} ago</small>
+                <li class=" d-flex flex-row align-items-center  {{ log.kind }}-log" title="{{ log.description }}">
+                    <div>
+                        <span>{{ log.description }} &mdash; </span>
+                        <span class="text-body-secondary">by {{ log.user_name }}, {{ log.created|timesince }} ago</span>
+                        {% if log.reference %}<div>{{ log.reference }}</div>{% endif %}
+                    </div>
                 </li>
             {% endfor %}
         </ul>

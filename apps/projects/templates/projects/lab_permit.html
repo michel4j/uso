@@ -6,7 +6,7 @@
 {% load project_tags %}
 
 {% block page-pretitle %}
-    <span class="hidden-xs">Session Permit</span>
+    <span class="d-none d-sm-inline">Session Permit</span>
 {% endblock %}
 
 {% block page-title %}
@@ -17,7 +17,7 @@
     {{ object.lab.acronym }} {{ session.get_kind_display }} Lab Permit
 {% endblock %}
 
-{% block page-status-style %}{% if object.state == 'active' %}bg-success{% else %}bg-darken{% endif %}{% endblock %}
+{% block page-status-style %}callout {% if object.state == 'active' %}callout-success{% endif %}{% endblock %}
 
 {% block page-tools %}
     {% if owner or admin %}
@@ -43,8 +43,8 @@
 
 
 {% block page-status-bar %}
-    <h3 class="no-vmargin"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
-    <div class="hidden-xs">
+    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
+    <div class="d-none d-sm-block">
         <small class="text-wide text-muted">Lab:</small><br/>{{ object.lab.name }}
     </div>
     <div>
@@ -52,7 +52,7 @@
         {% for eqmt in object.equipment.all %}{{ eqmt }}{% if not forloop.last %}
             , {% endif %}{% empty %}&hellip;{% endfor %}
     </div>
-    <div class="hidden-xs">
+    <div class="d-none d-sm-block">
         <small class="text-wide text-muted">Representative:</small><br/>{{ object.spokesperson|default:"&hellip;" }}
     </div>
     <div>

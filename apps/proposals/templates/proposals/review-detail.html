@@ -13,25 +13,25 @@
             {% if object.kind == 'scientific' %}
             <div class="col-xs-4">
                 <small class="text-wide text-muted">Merit</small><br/>
-                <h2 class="no-vmargin text-center" style="color: {{ object.score|color_scale }}"><strong>{{ object.score | floatformat:-1 }}</strong></h2>
+                <h2 class="my-0 text-center" style="color: {{ object.score|color_scale }}"><strong>{{ object.score | floatformat:-1 }}</strong></h2>
             </div>
             <div class="col-xs-4">
                 <small class="text-wide text-muted">Suitability</small><br/>
-                <h2 class="no-vmargin text-center" style="color: {{ object.score_1|floatformat|color_scale }}">{{ object.score_1 | floatformat }}</h2>
+                <h2 class="my-0 text-center" style="color: {{ object.score_1|floatformat|color_scale }}">{{ object.score_1 | floatformat }}</h2>
             </div>
             <div class="col-xs-4">
                 <small class="text-wide text-muted">Capability</small><br/>
-                <h2 class="no-vmargin text-center" style="color: {{ object.score_2|color_scale }}">{{ object.score_2 | floatformat }}</h2>
+                <h2 class="my-0 text-center" style="color: {{ object.score_2|color_scale }}">{{ object.score_2 | floatformat }}</h2>
             </div>
             {% elif object.kind == 'technical' %}
             <div class="col-xs-4">
                 <small class="text-wide text-muted">Suitability</small><br/>
-                <h2 class="no-vmargin text-center" style="color: {{ object.score|color_scale }}">{{ object.score | floatformat }}</h2>
+                <h2 class="my-0 text-center" style="color: {{ object.score|color_scale }}">{{ object.score | floatformat }}</h2>
             </div>
             {% elif object.kind == 'safety' %}
             <div class="col-xs-4">
                 <small class="text-wide text-muted">Risk Level</small><br/>
-                <h2 class="no-vmargin text-center" style="color: {{ object.score|color_scale }}">{{ object.score | floatformat }}</h2>
+                <h2 class="my-0 text-center" style="color: {{ object.score|color_scale }}">{{ object.score | floatformat }}</h2>
             </div>
             {% endif %}
         </div>
@@ -59,7 +59,7 @@
                 </tr>{% endif %}
                 <tr>
                     <td colspan=2>
-                        <div class="tinytron bg-warning" style="padding: 0.5em;">
+                        <div class="p-3 bg-warning" style="padding: 0.5em;">
                             <strong>Comments:</strong>{{ object.comments|default:"&hellip;"|markdown }}
                         </div>
                     </td>

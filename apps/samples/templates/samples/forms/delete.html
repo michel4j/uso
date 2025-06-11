@@ -4,7 +4,7 @@
 {% block form_body %}
 <h5>Are you sure you want to delete the following {{object|verbose_name}}?</h5>
 <div class="minitron">
-	<h4 class="no-vmargin"><strong>{{object.name}}</strong></h4>
+	<h4 class="my-0"><strong>{{object.name}}</strong></h4>
 	{{object.description}}<br/>
     <span class="badge bg-primary">{{object.get_kind_display}}</span>
     <span class="badge">{{object.get_state_display}}</span>

@@ -35,7 +35,7 @@
     {% if reviews.pending.count %}
             <div class="row">
                 <div class="col-xs-12">
-                    <h5 class="no-vmargin">
+                    <h5 class="my-0">
                         Review{{ reviews.pending.count|pluralize:",s" }} Needing Attention
                         <span class="badge bg-info pull-right">{{ reviews.pending.count }} of <span
                                 title="{{ all_reviews.pending.count }} reviews assigned to you, or still unclaimed">{{ all_reviews.pending.count }}</span> </span>

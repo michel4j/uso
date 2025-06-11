@@ -4,76 +4,48 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="{% static 'js/d3-timeline.min.js' %}"></script>
 <script>
-    var endDate = {{ object.end_date|date:'U' }}000;
-    var cycleData = [
-        {
-            times: [{
-                "starting_time": {{ object.alloc_date|date:'U' }}000,
-                "ending_time": {{ object.alloc_date|date:'U' }}000,
-                "display": "circle"
-            }],
-            hover: "Allocation after {{ object.alloc_date|date:'D, M j' }}"
-        },
-        {
-            times: [{
-                "label": "Call Open",
-                "starting_time": {{ object.open_date|date:'U' }}000,
-                "ending_time": {{ object.close_date|date:'U' }}000
-            }],
-            hover: "Call Open {{ object.open_date|date:'D, M j' }} - {{ object.close_date|date:'D, M j' }}"
-        },
-        {
-            times: [{
-                "label": "Schedule Period",
-                "starting_time": {{ object.start_date|date:'U' }}000,
-                "ending_time": endDate,
-                "color": "#98df8a"
-            }],
-            hover: "Cycle starts {{ object.start_date|date:'D, M j' }} ends {{ object.end_date|date:'D, M j' }}"
-        },
-        {% if object.due_date %}
+    $(document).ready(function () {
+        // Initialize the timeline with the cycle data
+        const endDate = {{ object.end_date|date:'U' }}000;
+        const cycleData = [
             {
                 times: [{
-                    "starting_time": {{ object.due_date|date:'U' }}000,
-                    "display": "circle",
-                    "color": "rgb(31,119,180)"
+                    "starting_time": {{ object.alloc_date|date:'U' }}000,
+                    "ending_time": {{ object.alloc_date|date:'U' }}000,
+                    "display": "circle"
                 }],
-                hover: "Reviews Due {{ object.due_date|date:'D, M j' }}"
+                hover: "Allocation after {{ object.alloc_date|date:'D, M j' }}"
             },
-        {% endif %}
-    ]
+            {
+                times: [{
+                    "label": "Call Open",
+                    "starting_time": {{ object.open_date|date:'U' }}000,
+                    "ending_time": {{ object.close_date|date:'U' }}000,
+                    "class": "call-open"
 
-
-    function cycleTimeline() {
-        var chart = d3.timeline()
-            .margin({left: 0, right: 0, top: 15, bottom: 15})
-            .itemHeight(24)
-            .tickFormat({
-                format: d3.time.format("%d %b %Y"),
-                tickTime: d3.time.months,
-                tickInterval: 2,
-                tickSize: 5
-            })
-            .showToday()
-            .showTodayFormat({width: 2, marginTop: 2, marginBottom: 0, color: "rgba(254,128,40,0.5)"})
-            .hover(function (d, i, datum) {
-                $('#timeline').attr("title", datum.hover);
-            });
-        var width = $("#timeline").width();
-        var svg = d3.select("#timeline")
-            .append("svg")
-            .attr("viewBox", `0 0 ${width}  70`)
-            .attr("preserveAspectRatio", "xMidYMid meet")
-            .attr("width", width)
-            .datum(cycleData).call(chart);
-
-        function resize(e) {
-            var width = $('#timeline').width();
-            svg.attr("width", width);
-        }
-
-        $(window).on('resize', resize);
-    }
-
-    cycleTimeline();
+                }],
+                hover: "Call Open {{ object.open_date|date:'D, M j' }} - {{ object.close_date|date:'D, M j' }}"
+            },
+            {
+                times: [{
+                    "label": "Schedule Period",
+                    "starting_time": {{ object.start_date|date:'U' }}000,
+                    "ending_time": endDate,
+                    "class": "schedule-period"
+                }],
+                hover: "Cycle starts {{ object.start_date|date:'D, M j' }} ends {{ object.end_date|date:'D, M j' }}"
+            },
+            {% if object.due_date %}
+                {
+                    times: [{
+                        "starting_time": {{ object.due_date|date:'U' }}000,
+                        "display": "circle",
+                        "class": "due-date"
+                    }],
+                    hover: "Reviews Due {{ object.due_date|date:'D, M j' }}"
+                },
+            {% endif %}
+        ];
+        showTimeline("#timeline", cycleData);
+    });
 </script>

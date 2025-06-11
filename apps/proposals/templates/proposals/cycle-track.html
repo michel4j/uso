@@ -25,7 +25,7 @@
                 </div>
             {% endif %}
             <h3 style="margin: 0.35em 0; padding: 0;">
-                <span class="hidden-xs"><strong>{{ track.acronym }}</strong> &mdash; </span>{{ track.name }}
+                <span class="d-none d-sm-inline"><strong>{{ track.acronym }}</strong> &mdash; </span>{{ track.name }}
             </h3>
             {% if track.require_call %}
                 <span class="text-muted">Available only while calls are open</span>
@@ -47,7 +47,7 @@
                             <a href="#/" data-modal-url="{% url 'edit-review-stage' track=track.acronym pk=stage.pk %}"
                                title="{{ stage.kind }}">
                                 <i class="bi-{{ stage.position }}-square icon-md"></i>
-                                <span class="hidden-xs">&nbsp;{{ stage.kind }}</span>
+                                <span class="d-none d-sm-inline">&nbsp;{{ stage.kind }}</span>
                             </a>
                             <a href='{% url "stage-review-list" cycle=cycle.pk stage=stage.pk %}'
                                title="Reviews">
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                 {% endfor %}
-                <div class="track-stage hidden-xs">
+                <div class="track-stage d-none d-sm-block">
                     <div class="track-stage-body">
                         <a href="#/" data-modal-url="{% url 'add-review-stage' track=track.acronym %}"
                            title="Add Review Stage"><i class="bi-plus-lg icon-md icon-fw"></i> Add Review Stage

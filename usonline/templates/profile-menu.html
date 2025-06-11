@@ -1,48 +1,91 @@
 <div class="profile-menu ms-auto me-3">
-<ul class="navbar-nav d-flex flex-row align-items-center">
-    {% with request.user.notifications.web.all as notifications %}
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle"
-               href="#0" id="navbarDropdownNotifications" role="button"
-               data-bs-toggle="dropdown"
-               aria-expanded="false" title="Notifications">
-                <i class="bi bi-bell icon-fw icon-md"></i>
-                {% if notifications.pending.count %}
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info">
+    <ul class="navbar-nav d-flex flex-row align-items-center">
+        {% with request.user.notifications.web.all as notifications %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle"
+                   href="#0" id="navbarDropdownNotifications" role="button"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false" title="Notifications">
+                    <i class="bi bi-bell icon-fw icon-md"></i>
+                    {% if notifications.pending.count %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info">
                     {{ notifications.pending.count }}
                     </span>
-                {% endif %}
+                    {% endif %}
+                </a>
+                {% include "notifier/notifications.html" %}
+            </li>
+        {% endwith %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle"
+               href="#0" id="navbarDropdown" role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false" title="Profile Menu">
+                <img src="{{ request.user.get_photo }}" onerror="this.src='/static/img/blank-profile.png';"
+                     title="{{ request.user }}" data-bs-placement="bottom" class="rounded-circle"
+                     style="width: 30px; height: 30px;" alt="{{ request.user }}"
+                />
             </a>
-            {% include "notifier/notifications.html" %}
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li>
+                    <a class="dropdown-item d-flex align-items-center"
+                       href="{% url 'edit-my-profile' %}">
+                        <i class="bi bi-person-gear icon-xs icon-fw me-2"></i>
+                        Edit profile
+                    </a>
+                </li>
+                {% if request.user.can_review %}
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="{% url 'edit-reviewer-profile' %}">
+                            <i class="bi bi-sliders icon-xs icon-fw me-2"></i>
+                            Reviewer Expertise
+                        </a>
+                    </li>
+                {% endif %}
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" href="{% url 'change-password' %}">
+                        <i class="bi bi-lock icon-xs icon-fw me-2"></i>
+                        Change Password
+                    </a>
+                </li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center"
+                            data-bs-theme-value="light" aria-pressed="true">
+                        <i class="bi bi-brightness-high icon-xs icon-fw me-2"></i>
+                        Light Theme<i class="bi bi-check ms-auto d-none"></i>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center"
+                            data-bs-theme-value="dark" aria-pressed="false">
+                        <i class="bi bi-moon-stars-fill icon-xs icon-fw me-2"></i>
+                        Dark Theme<i class="bi bi-check ms-auto d-none"></i>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center"
+                            data-bs-theme-value="auto" aria-pressed="false">
+                        <i class="bi bi-circle-half icon-xs icon-fw me-2"></i>
+                        Auto Theme<i class="bi bi-check ms-auto d-none"></i>
+                    </button>
+                </li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center"
+                            id="logout-action">
+                        <i class="bi bi-power icon-xs icon-fw me-2"></i>
+                        Logout
+                    </button>
+                </li>
+            </ul>
         </li>
-    {% endwith %}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" 
-           href="#0" id="navbarDropdown" role="button"
-           data-bs-toggle="dropdown"
-           aria-expanded="false" title="Profile Menu">
-            <img src="{{ request.user.get_photo }}" onerror="this.src='/static/img/blank-profile.png';"
-                 title="{{ request.user }}" data-bs-placement="bottom" class="rounded-circle"
-                 style="width: 30px; height: 30px;"  alt="{{ request.user }}"
-            />
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="{% url 'edit-my-profile' %}"><i class="bi bi-person-gear icon-fw"></i>&nbsp;Edit
-                profile</a></li>
-            {% if request.user.can_review %}
-                <li><a class="dropdown-item" href="{% url 'edit-reviewer-profile' %}"><i
-                        class="bi bi-sliders icon-fw"></i>&nbsp;Reviewer Expertise</a></li>
-            {% endif %}
-            <li>
-                <hr class="dropdown-divider">
-            </li>
-            <li><a class="dropdown-item" href="{% url 'change-password' %}"><i class="bi bi-lock icon-fw"></i>&nbsp;Change
-                Password</a></li>
-            <li>
-                <hr class="dropdown-divider">
-            </li>
-            <li><a class="dropdown-item" href="#logout-action"><i class="bi bi-power icon-fw"></i>&nbsp;Logout</a></li>
-        </ul>
-    </li>
-</ul>
+    </ul>
 </div>

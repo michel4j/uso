@@ -5,10 +5,10 @@
 <div class="controls " id="{{field.name}}-controls" data-field-name="{{field.name}}">
         <div id="{{field.name}}-list">
             {% for item in equipment %}
-            <div id="{{field.name}}-{{forloop.counter0}}-equipment-container" class="tinytron bg-white {% if 'rejected' in item.decision %}bg-danger{% endif %}">
+            <div id="{{field.name}}-{{forloop.counter0}}-equipment-container" class="p-3 mb-3 bg-white {% if 'rejected' in item.decision %}bg-danger{% endif %}">
                 <div class="row">
                     <div class="col-xs-12">
-                        <h5 class="no-vmargin text-condensed"><strong>{{ item.name }}</strong></h5>
+                        <h5 class="my-0 text-condensed"><strong>{{ item.name }}</strong></h5>
                         Manufacturer: <em class="text-muted">{{ item.manufacturer|default:"N/C" }}</em>&emsp;
                         Model: <em class="text-muted">{{ item.model|default:"N/C" }}</em>&emsp;
                         Type: <em class="text-muted">{{ item.type|default:"N/C" }}</em>&emsp;

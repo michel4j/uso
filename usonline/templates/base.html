@@ -2,7 +2,7 @@
 {% load misc %}
 {% load icons %}
 <!DOCTYPE html>
-<html lang="en" class="{% block html_class %}{% endblock %}">
+<html lang="en" class="{% block html_class %}{% endblock %}" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -37,11 +37,12 @@
             integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{% static 'js/uso-jquery-plugins.min.js' %}"></script>
+    <script src="{% static 'js/theme-chooser.min.js' %}"></script>
     {% block pre_js %}{% endblock %}
 </head>
 <body class="{% if not request.user.is_authenticated %}no-sidebar{% endif %} {% block body_class %}{% endblock %}">
 <div id="uso-wrapper">
-    <header id="uso-header" class="bg-light d-flex flex-row align-items-center">
+    <header id="uso-header" class="d-flex bg-secondary-subtle bg-tertiary flex-row align-items-center">
         <!-- Page Title Area -->
         <div class="heading">
             <!--h2 class="title">{% block heading-title %}&nbsp;{% endblock %}</h2-->
@@ -84,7 +85,7 @@
 {% block page-scripts %}{% endblock %}
 {% block extra_js %}{% endblock %}
 <script>
-    $(document).on('click', 'a[href="#logout-action"]', function (event) {
+    $(document).on('click', "#logout-action", function (event) {
         event.preventDefault();
         $('#logout-form').submit();
     });

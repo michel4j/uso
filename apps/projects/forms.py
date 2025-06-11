@@ -148,7 +148,7 @@ class HandOverForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 HTML(
-                    "<div class='tinytron'>\n"
+                    "<div class='p-3'>\n"
                     "    <h4 class='overflow ellipsis'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></h4>\n"
                     "    <h4>Facility: {{facility.acronym}}&mdash;<strong class='text-condensed'>{{facility.name}}</strong></h4>\n"
                     "	{% if tags %}\n"
@@ -156,7 +156,7 @@ class HandOverForm(forms.ModelForm):
                     "		<div class='col-sm-12 text-right' style='line-height: 1.6;'>\n"
                     "		{% for tag in facility.tags.all %}\n"
                     "			{% if tag in tags %}\n"
-                    "			<span id='tag-{{tag.pk}}' class='label bg-cat-{{forloop.counter}}'>{{tag}}</span>\n"
+                    "			<span id='tag-{{tag.pk}}' class='badge bg-color-{{forloop.counter0}}'>{{tag}}</span>\n"
                     "			{% endif %}\n"
                     "		{% endfor %}\n"
                     "		</div>\n"
@@ -259,7 +259,7 @@ class LabSessionForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 HTML(
-                    "<div class='tinytron'>\n"
+                    "<div class='p-3'>\n"
                     "    <h4 class='overflow ellipsis'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></h4>\n"
                     "</div>\n"
                 ),
@@ -801,7 +801,7 @@ class DeclineForm(forms.ModelForm):
             Div(
                 Div(
                     HTML(
-                        "<div class='minitron bg-danger text-default'>"
+                        "<div class='alert alert-danger text-default'>"
                         "<h3>Are you sure?</h3>"
                         "<p>By declining this allocation, you are declaring you do not intend to use any of "
                         "your remaining allocated shifts for project <strong>{{allocation.project.code}}</strong> on "
@@ -850,7 +850,7 @@ class TerminationForm(ModalModelForm):
             Row(
                 FullWidth(
                     HTML(
-                        "<div class='minitron bg-danger text-default'>"
+                        "<div class='alert alert-danger text-default'>"
                         "<h3>Are you sure you want to terminate the session:</h3>"
                         "<h5><strong>{{session}}</strong>: {{session.start}} &mdash; {{session.end}}</h5>"
                         "<p>By terminating the session, you are declaring that the users are no longer "

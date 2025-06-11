@@ -66,10 +66,10 @@
 {% endblock %}
 
 {% block page-status-style %}
-    {% folio_status object.state draft='pending' success='active' danger='inactive' %}{% endblock %}
+    callout {% folio_status object.state draft='pending' success='active' danger='inactive' %}{% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="no-vmargin"><span class="badge bg-info text-condensed">{{ project.state.title }}</span></h3>
+    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ project.state.title }}</span></h3>
     <div>
         <small class="text-wide text-muted">Project Leader:</small><br/>
         {{ project.get_leader|default:"&hellip;" }}<br/>
@@ -95,8 +95,8 @@
         <div class="row collapse {% if project.clarifications.pending.exists %}in{% endif %}"
              id="project-clarifications">
             <div class="col-xs-12">
-                <div class="tinytron bg-notes-warning">
-                    <h4 class="no-vmargin">Clarification Requests</h4>
+                <div class="p-3 bg-notes-warning">
+                    <h4 class="my-0">Clarification Requests</h4>
                     <hr class="hr-xs"/>
                     {% include "proposals/clarifications.html" with response_url_name='project-clarification-response' %}
                 </div>
@@ -104,7 +104,7 @@
         </div>
     {% endif %}
 
-    <div class="minitron bg-transparent">
+    <div class="mt-3">
         {% with object.beamline_allocations as allocations %}
             <div class="row">
                 {% for falloc in allocations %}

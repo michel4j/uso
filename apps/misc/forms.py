@@ -65,7 +65,7 @@ class ResponseForm(ModalModelForm):
                     HTML(
                         f'<h4>{self.instance.reference}</h4><hr/><span>{self.instance.question}</span>'
                     ),
-                    css_class="tinytron"
+                    css_class="p-3"
                 ),
                 FullWidth('response'),
             ),

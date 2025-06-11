@@ -126,7 +126,7 @@
                     </ul>
                 {% endif %}
 
-                <div class="tinytron tab-content">
+                <div class="p-3 mb-3 tab-content">
                     {% if post_form %}
                         <div class="tab-pane" id="post-object-form">
                             {% with form=post_form %}
@@ -177,7 +177,7 @@
                     </ul>
                 {% endif %}
 
-                <div class="tinytron tab-content">
+                <div class="p-3 mb-3 tab-content">
                     {% if put_form %}
                         <div class="tab-pane" id="put-object-form">
                             <form action="{{ request.get_full_path }}" data-method="PUT" enctype="multipart/form-data"

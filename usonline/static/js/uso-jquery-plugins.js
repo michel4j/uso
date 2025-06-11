@@ -154,3 +154,30 @@ jQuery.fn.serializeObject = function () {
     };
 
 });
+
+// USO Timeline
+function showTimeline(selector, data) {
+    const $element = $(selector);
+    const chart = d3.timeline()
+        .margin({left: 0, right: 0, top: 15, bottom: 15})
+        .width($element.width())
+        .height(70)
+        .itemHeight(24)
+        .tickFormat({
+            format: d3.time.format("%d %b %Y"),
+            tickTime: d3.time.months,
+            tickInterval: 2,
+            tickSize: 5
+        })
+        .showToday()
+        .showTodayFormat({width: 2, marginTop: 2, marginBottom: 0, color: "rgba(254,128,40,0.5)"})
+        .hover(function (d, i, datum) {
+            $element.attr("title", datum.hover);
+        });
+    const width = $element.width();
+    const svg = d3.select("#timeline")
+        .append("svg")
+        .attr("viewBox", `0 0 ${width}  70`)
+        .attr("width", "100%")
+        .datum(data).call(chart);
+}

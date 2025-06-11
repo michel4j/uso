@@ -34,24 +34,22 @@
 
     {% if drafts.count %}
         <div class="row">
-            <div class="col-xs-12">
-                <h5>
+            <div class="col-12">
+                <h5 class="mt-3">
                     Draft Proposal{{ drafts.count|pluralize:",s" }}
-                    <span class="badge rounded-circle bg-info pull-right">{{ drafts.count }}</span>
+                    <span class="badge rounded-circle bg-primary pull-right">{{ drafts.count }}</span>
                 </h5>
             </div>
         </div>
-        <hr class="hr-xs"/>
         <div class="row" >
-            <div class="scroll-box col-xs-12" style="max-height: 200px">
+            <div class="scroll-box col-12" style="max-height: 200px">
                 <ul class="list-unstyled list-ruled">
                     {% for proposal in drafts %}
-                        <li class="text-condensed">
-                            <a class="pull-right" href='{% url "edit-proposal" pk=proposal.pk %}'
-                               data-bs-toggle="tooltip" title="Edit proposal"><i class="bi-pencil-square"></i>
+                        <li class="text-condensed py-1">
+                            <a class="overflow ellipsis" href='{% url "edit-proposal" pk=proposal.pk %}'
+                               data-bs-toggle="tooltip" title="Edit proposal">
+                                <i class="bi-pencil-square"></i>&emsp;{{ proposal.title }}
                             </a>
-                            <span class="overflow ellipsis"
-                                  title="Modified {{ proposal.modified|timesince }} ago">{{ proposal.title }}</span>
                         </li>
                     {% endfor %}
                 </ul>
@@ -60,24 +58,21 @@
     {% endif %}
     {% if submitted.count %}
         <div class="row">
-            <div class="col-xs-12">
-                <h5>Proposal{{ submitted.count|pluralize:",s" }} Being Reviewed
-                    <span class="badge rounded-circle bg-info pull-right">{{ submitted.count }}</span>
+            <div class="col-12">
+                <h5 class="mt-3">Proposal{{ submitted.count|pluralize:",s" }} Being Reviewed
+                    <span class="badge rounded-circle bg-primary pull-right">{{ submitted.count }}</span>
                 </h5>
             </div>
         </div>
-        <hr class="hr-xs"/>
         <div class="row">
-            <div class="scroll-box col-xs-12"  style="max-height: 200px;">
+            <div class="scroll-box col-12"  style="max-height: 200px;">
             <ul class="list-unstyled list-ruled">
                 {% for proposal in submitted %}
-                    <li class="text-condensed">
-                        <a class="pull-right" href='{% url "proposal-detail" pk=proposal.pk %}'
+                    <li class="text-condensed py-1">
+                        <a class="overflow ellipsis" href='{% url "proposal-detail" pk=proposal.pk %}'
                            data-bs-toggle="tooltip" title="View proposal">{% if proposal.clarifications.pending.count %}
-                            <i class="bi-chat-right-text text-danger"></i>{% else %}<i class="bi-eye"></i>{% endif %}
+                            <i class="bi-chat-right-text text-danger"></i>{% else %}<i class="bi-eye"></i>{% endif %}&emsp;{{ proposal.title }}
                         </a>
-                        <span class="overflow ellipsis"
-                              title="Modified {{ proposal.modified|timesince }} ago">{{ proposal.title }}</span>
                     </li>
                 {% endfor %}
             </ul>

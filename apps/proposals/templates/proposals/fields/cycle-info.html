@@ -1,0 +1,9 @@
+{% load cycle_tags %}
+
+<div class="w-100">
+{{object|cycle_comments}}
+</div>
+<div class="row">
+    <div class="timeline w-100" id="timeline"></div>
+</div>
+{% include "proposals/cycle-timeline.html" %}

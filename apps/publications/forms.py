@@ -49,7 +49,7 @@ class PublicationReviewForm(forms.ModelForm):
         self.fields['funders'].queryset = models.FundingSource.objects.filter(location__icontains='Canada')
         self.fields['beamlines'].help_text = ""
         self.helper.layout = Layout(Fieldset(_("Review Publication Details"),
-                                             Div(Div(Div(HTML("""{{object.cite|safe}}"""), css_class="tinytron"),
+                                             Div(Div(Div(HTML("""{{object.cite|safe}}"""), css_class="p-3 mb-3"),
                                                  css_class="col-sm-12"), css_class="row"),
 
                                              Accordion(AccordionGroup("Details",

@@ -5,10 +5,10 @@
 {% get_approval_reviews as approval_reviews %}
 {% all_reviews_completed as all_complete %}
 {% for rev in approval_reviews %}
-    <div class="tinytron">
+    <div class="p-3">
         <div class="row">
             <div class="col-xs-8" id="{{ field.name }}-{{ rev.review.pk }}-description">
-                <h5 class="no-vmargin">
+                <h5 class="my-0">
                     {% if rev.review.reviewer %}
                         <i class="text-muted bi-person-square icon-lg" title="{{ rev.review.reviewer }}"></i>
                     {% else %}

@@ -119,7 +119,7 @@
         <div class="row section">
             <div class="col-sm-12 section-content">
                 <h3>Appendix: Attachments</h3>
-                <div class="minitron bg-transparent text-center">
+                <div class="alert alert-transparent text-center">
                     {% for attachment in proposal.attachments.all %}
                         {% if attachment.is_image %}
                             <img src="{{ attachment.file.url }}" width="70%"/>
@@ -143,7 +143,7 @@
         <div class="row section">
             <div class="col-12 section-content">
                 <h3>Appendix: Scientific Attachments</h3>
-                <div class="minitron bg-transparent text-center">
+                <div class="alert alert-transparent text-center">
                     {% for attachment in proposal.attachments.scientific.all %}
                         {% if attachment.is_image %}
                             <img src="{{ attachment.file.url }}" width="70%"/>

@@ -3,33 +3,29 @@
 {% load misc %}
 {% load jsonify %}
 {% block panel_title %}Publication Keywords{% endblock %}
-{% block bottom_tools %}
-    <a href="{% url 'user-publication-list' %}" class="pull-right" title="View All My Publications">
-        <i class="bi-list-ol icon-md icon-fw"></i>
-    </a>
-    <a href="#0" title="Submit Publication" class="pull-right" data-modal-url="{% url 'add-publication' %}">
-        <i class="bi-plus-lg icon-md icon-fw"></i>
-    </a>
-    {% if matches %}
-        <a href="{% url 'claim-publication-list' %}" title="Claim Publications" class="pull-right">
-        <span class="icon-stack">
-            <i class="bi-link icon-md icon-fw"></i>
-            <span class="superscript">
-                <span class="badge rounded-circle">{{ matches }}</span>
-            </span>
-        </span>
-        </a>
-    {% endif %}
 
-{% endblock %}
 {% block panel_cap %}
-    <div id="word-cloud" class="row-fluid text-center image-cap border-bottom bg-light p-2"></div>
+    <div id="word-cloud" class="row-fluid text-center image-cap border-bottom bg-darken p-2"></div>
 {% endblock %}
 {% block panel_content %}
-    <div>
-    {% for name, count in stats.items %}
-        {% stat_card description=name value=count style="stat-card-xs" %}
-    {% endfor %}
+    <div class="d-flex flex-row align-items-center justify-content-start">
+        {% for name, count in stats.items %}
+            {% stat_card description=name value=count style="stat-card-xs" %}
+        {% endfor %}
+        <div class="ms-auto">
+            <a href="{% url 'user-publication-list' %}" class="pull-right" title="View All My Publications">
+                <i class="bi-list-ol icon-md icon-fw"></i>
+            </a>
+            <a href="#0" title="Submit Publication" class="pull-right" data-modal-url="{% url 'add-publication' %}">
+                <i class="bi-plus-lg icon-md icon-fw"></i>
+            </a>
+            {% if matches %}
+                <a href="{% url 'claim-publication-list' %}" title="Claim Publications" class="pull-right">
+                    <i class="bi-link icon-md icon-fw"></i>
+                </a>
+            {% endif %}
+        </div>
+
     </div>
     {% if words %}
         <script src="{% static 'publications/word-clouds.js' %}"></script>

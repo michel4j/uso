@@ -17,7 +17,7 @@ Session Permit
  {{object.beamline.acronym}} {{ session.get_kind_display }} Permit
 {% endblock %}
 
-{% block page-status-style %}{% folio_status object.state success='live' info='ready' danger='terminated' draft='complete' default='bg-darken' %}{% endblock %}
+{% block page-status-style %}callout {% folio_status object.state success='live' info='ready' danger='terminated' draft='complete' default='bg-darken' %}{% endblock %}
 
 {% block page-tools %}
     {% if owner or admin %}
@@ -69,7 +69,7 @@ Session Permit
 {% endblock %}
 
 {% block page-status-bar %}
-     <h3 class="no-vmargin"><span class="badge bg-info text-condensed">{{object.get_state_display}}</span></h3>
+     <h3 class="my-0"><span class="badge bg-info text-condensed">{{object.get_state_display}}</span></h3>
      <div>
          <small class="text-wide text-muted">Beamline:</small><br/>{{object.beamline.acronym}}
      </div>
@@ -88,8 +88,8 @@ Session Permit
 {% block page-content %}
     <div class="col-xs-12 collapse" id="session-log">
         <div class="row">
-        <div class="minitron bg-warning col-xs-12">
-             <h4 class="no-vmargin">Activity Log</h4>
+        <div class="alert alert-warning col-xs-12">
+             <h4 class="my-0">Activity Log</h4>
              <hr class="hr-xs"/>
              <ul>
                 {% for log in session.details.history %}

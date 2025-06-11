@@ -3,10 +3,10 @@
 {% block box_class %}{% if facility != object %}bg-darken{% else %} bg-transparent {% endif %}{% endblock %}
 {% block box_header %}
     {% if facility != object %}
-        <h4 class="no-vmargin"><a href="{% url 'facility-detail' pk=facility.pk %}">{{ facility.acronym }}</a> Spec<span
-                class="hidden-xs">ification</span>s &amp; Techniques</h4>
+        <h4 class="my-0"><a href="{% url 'facility-detail' pk=facility.pk %}">{{ facility.acronym }}</a> Spec<span
+                class="d-none d-sm-inline">ification</span>s &amp; Techniques</h4>
     {% else %}
-        <h4 class="no-vmargin">Spec<span class="hidden-xs">ification</span>s &amp; Techniques</h4>
+        <h4 class="my-0">Spec<span class="d-none d-sm-inline">ification</span>s &amp; Techniques</h4>
     {% endif %}
 {% endblock %}
 

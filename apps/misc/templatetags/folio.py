@@ -4,16 +4,16 @@ register = template.Library()
 
 
 @register.simple_tag()
-def folio_status(state, draft='X0', warn='X1', info='X2', success='X3', danger='X4', default='bg-darken'):
+def folio_status(state, draft='X0', warn='X1', info='X2', success='X3', danger='X4', default=''):
     if state == warn:
-        return 'bg-warning-subtle'
+        return 'callout-warning'
     elif state == draft:
-        return 'bg-darken'
+        return 'callout-secondary'
     elif state == info:
-        return 'bg-info-subtle'
+        return 'callout-info'
     elif state == success:
-        return 'bg-success-subtle'
+        return 'callout-success'
     elif state == danger:
-        return 'bg-danger-subtle'
+        return 'callout-danger'
     else:
         return default

@@ -64,9 +64,9 @@
     {% endif %}
 {% endblock %}
 
-{% block page-status-style %}bg-darken{% endblock %}
+{% block page-status-style %}callout{% endblock %}
 {% block page-status-bar %}
-    <h3 class="no-vmargin"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
+    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
     <div>
         <small class="text-wide text-muted">Call Open:</small><br/>{{ object.open_date }}
     </div>
@@ -82,7 +82,7 @@
 {% endblock %}
 
 {% block page-content %}
-    <div class="folio-status bg-darken">
+    <div class="callout pt-0">
         <div style="width: 100%; padding: 0.5em 0;" id="timeline" data-bs-toggle="tooltip" title="Cycle Timeline"></div>
     </div>
     <div class="row">
@@ -95,7 +95,7 @@
                             class="nav-link bg-track-{{ forloop.counter }} {% if forloop.first %}active{% endif %}"
                            {% if forloop.first %}aria-expanded="true"{% endif %}
                         >
-                            <strong>{{ track.acronym }}</strong><span class="hidden-xs">&nbsp;&ndash;&nbsp;{{ track.name }}</span>
+                            <strong>{{ track.acronym }}</strong><span class="d-none d-sm-inline">&nbsp;&ndash;&nbsp;{{ track.name }}</span>
                         </a>
                     </li>
                 {% endfor %}

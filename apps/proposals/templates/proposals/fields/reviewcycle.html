@@ -3,33 +3,25 @@
 {% get_cycle_options as cycles %}
 
 <div class="controls {{repeatable}} row" id="{{field.name}}-controls">
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="col-sm-3">
-                <select name="{{field.name}}" id="{{field.name}}" class="select form-control">
-                    {% for value, cycle, selected in cycles %}
-                    <option value="{{value}}" {% if selected %}selected="selected" {% endif %}>{{cycle}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-           <span id="{{field.name}}-extras">
-                 {% with selected_cycle as object %}
-                    {% include "proposals/fields/cycleinfo.html" %}
-                 {% endwith %}
-           </span>
-        </div>
+    <div class="col-md-4">
+        <select name="{{field.name}}" id="{{field.name}}" class="form-select" aria-label="{{ field.label }}">
+            {% for value, cycle, selected in cycles %}
+            <option value="{{value}}" data-url="{% url 'cycle-info' pk=value %}"
+                    {% if selected %}selected="selected" {% endif %}>{{cycle}}</option>
+            {% endfor %}
+        </select>
     </div>
+   <div class="col-md-8" id="{{field.name}}-extras">
+         {% with selected_cycle as object %}
+            {% include "proposals/fields/cycle-info.html" %}
+         {% endwith %}
+   </div>
 </div>
 <script>
     $(document).on('change', '#{{field.name}}', function(){
-		var cycle_id = $(this).val();
-    	var info_url = "{% url 'cycle-info' %}" + cycle_id + "/";
-    	$("#{{field.name}}-extras").load(info_url, function(){
-    		$("[data-cycle-update]").each(function(){
-    			$(this).val(cycle_id);
-    			$(this).trigger('change');
-    		});
-    	});
+        const cycle_id = $(this).val();
+        const info_url = $(this).find('option:selected').data('url');
+        $("#{{field.name}}-extras").load(info_url);
     });
 
     $("#{{field.name}}").trigger('change');

@@ -45,7 +45,7 @@
         <span>{{ weather.temp|floatformat:"0" }}°</span>
     </div>
     {% for cond in weather.forecast %}
-        <div class="d-flex flex-grow-1 flex-column text-center weather-forecast {% if forloop.last %}hidden-xs{% endif %}">
+        <div class="d-flex flex-grow-1 flex-column text-center weather-forecast {% if forloop.last %}d-none d-sm-block{% endif %}">
             <div class="weather-time">{{ cond.time|time }}<br/>{{ cond.time|naturalday|title }}</div>
             <i title="{{ cond.description.title }}" class="wi {{ cond.icon }} text-muted"></i>
             <div class="weather-temperatures">
@@ -54,7 +54,7 @@
         </div>
     {% endfor %}
 </div>
-<div class="hidden-xs weather-description">
+<div class="d-none d-sm-block weather-description">
     <div class="col-xs-12">
         <span>Right now &mdash;</span> {{ weather.description.title }} ·
         Feels&nbsp;like&nbsp;{{ weather.windchill|floatformat:"0" }}°

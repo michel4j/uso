@@ -89,30 +89,30 @@ def display_state(review):
     if review.is_submitted():
         params = {
             'title': 'Complete',
-            'style': 'bg-cat-1',
+            'style': 'bg-color-0',
         }
         progress = 100
     elif review.is_complete:
         params = {
             'title': 'Complete',
-            'style': 'bg-cat-3 striped',
+            'style': 'bg-color-4 striped',
         }
         progress = max(5, min(100, review.validate().get('progress', 0.0)))
     else:
         params = {
             'title': 'Incomplete',
-            'style': 'bg-cat-2 striped',
+            'style': 'bg-color-9 striped',
         }
         progress = max(5, min(100, review.validate().get('progress', 0.0)))
     if review.state == review.STATES.closed:
-        params['style'] = 'bg-cat-8'
+        params['style'] = 'bg-color-3'
     elif review.state == review.STATES.pending:
-        params['style'] = 'bg-cat-6'
+        params['style'] = 'bg-color-6'
         progress = 0
     params['state_display'] = review.get_state_display()
     params['state'] = 'disabled' if review.state == review.STATES.closed else ''
 
-    params['size'] = "{}%".format(progress)
+    params['size'] = f"{progress}%"
 
     state = ('<span class="inline-progress {state}" title="{title}: {state_display}">'
              '<div class="{style}" style="width: {size};"></div></span>').format(**params)

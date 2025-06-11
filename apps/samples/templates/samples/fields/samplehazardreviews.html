@@ -10,13 +10,13 @@
                 {% get_precautions hazards=review_hazards as precautions %}
                 <div id="{{ field.name }}-{{ sample.pk }}-hazards-container"
                      data-saved-hazards="{{ hazard_ids|join:',' }}"
-                     class="tinytron sample-row {% if rejected %}rejected-sample{%  endif %} {% if not sample.is_editable %}reviewed-sample{% else %}pending-sample{% endif %}">
+                     class="p-3 mb-3 sample-row {% if rejected %}rejected-sample{%  endif %} {% if not sample.is_editable %}reviewed-sample{% else %}pending-sample{% endif %}">
                     <div class="row">
                         <div class="col-xs-12">
 						    <span class="pull-right text-right">
 							{% show_pictograms sample_hazards sample.hazard_types size=28 %}
 						    </span>
-                            <h5 class="no-vmargin text-condensed"><strong>{{ sample.name }}</strong></h5>
+                            <h5 class="my-0 text-condensed"><strong>{{ sample.name }}</strong></h5>
                             Quantity: <em class="text-muted">{{ quantity }}</em>&emsp;
                             Type: <em class="text-muted">{{ sample.get_kind_display }}</em>&emsp;
                             State: <em class="text-muted">{{ sample.get_state_display }}</em>&emsp;
@@ -79,7 +79,7 @@
                         </div>
                     </div>
 
-                    <div id="{{ field.name }}-{{ sample.pk }}-changes" class="tinytron bg-warning hidden changes-notes">
+                    <div id="{{ field.name }}-{{ sample.pk }}-changes" class="p-3 mb-3 bg-warning hidden changes-notes">
                         <i class="bi-floppy icon-fw" title="Changes have not been saved"></i>&ensp;
                         <span class="added"></span>&ensp;
                         <span class="removed"></span>

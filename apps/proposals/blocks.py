@@ -94,5 +94,6 @@ class ReviewsBlock(BaseBlock):
             })
         if show:
             return super().render(ctx)
+        return ""
 
 

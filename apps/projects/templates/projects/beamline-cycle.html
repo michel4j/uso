@@ -5,7 +5,7 @@
     bg-info-subtle{% else %}bg-danger-subtle insensitive{% endif %}{% endblock %}
 {% block box_header %}
     <h4 class="text-condensed" style="margin-bottom: 0;">{{ cycle }}</h4>
-    <small class="hidden-xs text-muted">{{ cycle.get_state_display }}</small>
+    <small class="d-none d-sm-inline text-muted">{{ cycle.get_state_display }}</small>
 {% endblock %}
 {% block box_tools_style %}{% endblock %}
 {% block box_subheader %}{% endblock %}

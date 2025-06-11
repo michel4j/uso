@@ -17,7 +17,7 @@
                             {% endif %}
                         </span>
                         <a href='{% url "facility-detail" fac=fac.acronym %}' data-bs-toggle="tooltip">
-                            <strong title="{{ fac.name }}">{{ fac.acronym }}</strong><span class="hidden-xs">&nbsp;&ndash;&nbsp;{{ fac.name }}</span>
+                            <strong title="{{ fac.name }}">{{ fac.acronym }}</strong><span class="d-none d-sm-inline">&nbsp;&ndash;&nbsp;{{ fac.name }}</span>
                         </a>
                     </li>
                 {% endfor %}

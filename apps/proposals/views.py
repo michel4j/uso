@@ -1043,7 +1043,7 @@ class FacilityOptions(RolePermsViewMixin, View):
 
 
 class CycleInfo(RolePermsViewMixin, detail.DetailView):
-    template_name = 'proposals/fields/cycleinfo.html'
+    template_name = 'proposals/fields/cycle-info.html'
     model = models.ReviewCycle
 
     def get_context_data(self, **kwargs):
