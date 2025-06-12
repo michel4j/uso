@@ -55,12 +55,6 @@
                 <span class="tool-label">Invoicing</span>
             </a>
         {% endif %}
-        {% if object.feedback.exists %}
-            <a href='{% url "review-cycle-feedback" pk=object.pk %}' class="pull-right">
-                <i class="bi-chat-right-text icon-fw icon-md"></i><br/>
-                <span class="tool-label">Feedback</span>
-            </a>
-        {% endif %}
     {% endif %}
 {% endblock %}
 

@@ -52,7 +52,7 @@ def _fmt_beamlines(bls, obj=None):
 
 def _fmt_project_state(state, obj=None):
     if state == 'active':
-        return '<i title="Active" class="bi-check2-square text-success-light icon-fw"></i> Active'
+        return '<i title="Active" class="bi-check2-squaretext-success-emphasis icon-fw"></i> Active'
     elif state == 'pending':
         return '<i title="Pending" class="bi-hourglass text-info icon-fw"></i> Pending'
     else:

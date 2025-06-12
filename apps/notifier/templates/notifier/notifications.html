@@ -10,7 +10,7 @@
     {% for note in notifications.relevant.prioritize %}
         <li>
             <a class="dropdown-item d-flex align-items-center" href="#0"
-               data-modal-url="{% url 'notification-detail' pk=note.pk %}">
+               data-modal-url="{% url 'user-notification-detail' pk=note.pk %}">
                 <div class="overflow ellipsis">
                     {{ note.title }}&nbsp;<span class="text-body-secondary">{{ note.modified|naturaltime }}</span>
                 </div>
@@ -25,7 +25,7 @@
         <hr class="dropdown-divider">
     </li>
     <li>
-        <a class="dropdown-item d-flex align-items-center" href="{% url 'notification-list' %}">View all
+        <a class="dropdown-item d-flex align-items-center" href="{% url 'user-notification-list' %}">View all
             ({{ notifications.count }})</a>
     </li>
 </ul>

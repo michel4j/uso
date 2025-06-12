@@ -42,7 +42,7 @@
 </head>
 <body class="{% if not request.user.is_authenticated %}no-sidebar{% endif %} {% block body_class %}{% endblock %}">
 <div id="uso-wrapper">
-    <header id="uso-header" class="d-flex bg-secondary-subtle bg-tertiary flex-row align-items-center">
+    <header id="uso-header" class="bg-secondary-subtle bg-tertiary">
         <!-- Page Title Area -->
         <div class="heading">
             <!--h2 class="title">{% block heading-title %}&nbsp;{% endblock %}</h2-->
@@ -55,10 +55,10 @@
             {% include "profile-menu.html" %}
         {% endif %}
     </header>
-    <div id="uso-branding">USO</div>
+    <div id="uso-branding"><div>USO</div></div>
     <nav id="uso-sidebar" class="scroll-box">
         {% block menu %}
-            {% include "navs.html" %}
+            {% include "menu.html" %}
         {% endblock %}
         <section class="version text-white">
             <span title="{% version %}" class="overflow ellipsis">{% version %}</span>

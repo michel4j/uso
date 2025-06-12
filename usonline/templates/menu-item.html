@@ -1,0 +1,34 @@
+<li class="nav-item {{ active }} {{ nav.styles }}"
+    data-bs-toggle="tooltip"
+    data-bs-custom-class="d-sm-block d-md-none"
+    data-bs-trigger="hover"
+    data-bs-title="{{ nav.label }}"
+>
+    {% if nav.children %}
+        <a class="nav-link" href="#0" data-bs-toggle="menu-popover" aria-expanded="false"
+           data-bs-title="{{ nav.label }}" data-bs-placement="right" title="{{ nav.label }}">
+            <span class="nav-link-icon"><i class="{{ nav.icon }} icon-md icon-fw"></i></span>
+            <span class="d-none d-md-inline nav-label"> {{ nav.label }} </span>
+        </a>
+        <div class="sub-menu-content d-none">
+            <ul class="nav flex-column mb-auto">
+                {% for sub_nav in submenu %}
+                    {% if sub_nav.separator %}
+                        <li role="separator" class="divider {{ sub_nav.styles }}"></li>
+                    {% endif %}
+                    <li class="nav-item {{ sub_nav.styles }}">
+                        <a class="nav-link" href="{{ sub_nav.get_url }}">{{ sub_nav.label }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    {% else %}
+        <a class="nav-link" href="{{ nav.get_url }}">
+      <span class="nav-link-icon">
+        <i class="{{ nav.icon }} icon-fw"></i>
+      </span>
+            <span class="nav-label"> {{ nav.label }} </span>
+        </a>
+    {% endif %}
+</li>

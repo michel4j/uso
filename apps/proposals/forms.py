@@ -28,15 +28,12 @@ class DateField(AppendedText):
 
 
 class ProposalForm(DynModelForm):
-    type_code = 'proposal'
-
     class Meta:
         model = models.Proposal
         fields = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.init_fields()
 
     def clean(self):
         user_model = get_user_model()
@@ -70,16 +67,6 @@ class ReviewForm(DynModelForm):
     class Meta:
         model = models.Review
         fields = []
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-        if self.instance:
-            self.form_type = self.instance.form_type
-        self.init_fields()
-
-    def clean(self):
-        return DynFormMixin.clean(self)
 
 
 class ReviewerForm(forms.Form):

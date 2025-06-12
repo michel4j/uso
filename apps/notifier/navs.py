@@ -10,7 +10,7 @@ class Notifications(BaseNav):
     label = 'Notifications'
     parent = 'users.Home'
     styles = "visible-xs"
-    url = reverse('notification-list')
+    url = reverse('user-notification-list')
 
 
 class AllNotifications(BaseNav):
@@ -18,7 +18,7 @@ class AllNotifications(BaseNav):
     label = 'Notifications'
     roles = USO_ADMIN_ROLES
     separator = True
-    url = reverse('admin-notification-list')
+    url = reverse('notification-list')
 
 
 class MessageTypes(BaseNav):

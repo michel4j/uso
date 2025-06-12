@@ -16,7 +16,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.contrib.auth.forms import AuthenticationForm, UsernameField
 
-from dynforms.forms import DynFormMixin
+from dynforms.forms import DynFormMixin, DynModelForm
 from misc.countries import COUNTRY_CODES
 from publications.models import SubjectArea
 from . import models
@@ -138,16 +138,10 @@ class PasswordResetForm(forms.Form):
             ), )
 
 
-class RegistrationForm(DynFormMixin, forms.ModelForm):
-    type_code = 'registration'
-
+class RegistrationForm(DynModelForm):
     class Meta:
         model = Registration
         fields = []
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.init_fields()
 
     def clean(self):
         cleaned_data = super().clean()

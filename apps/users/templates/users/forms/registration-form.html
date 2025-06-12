@@ -4,87 +4,44 @@
 {% load static %}
 {% load dynforms %}
 {% load jsonify %}
-{% block page_title %}CLS - Registration{% endblock %}
-
-{% block extra_css %}
-{{ block.super }}
-<link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
-{% endblock %}
+{% block page_title %}Registration{% endblock %}
 
 {% block main-title %}Registration{% endblock %}
 
 {% block main-form %}
-<div class="form-page tab-content">
-    {% include "dynforms/form.html"  %}
+    {% include "dynforms/form.html" %}
+{% endblock %}
+
+{% block pre_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"
+            integrity="sha512-BI1itUvyiWbbZ446/8IOccwMPB/xobCTyQTS0r1+k8Pq1VPT3uIJKNCoMH12rKk18J9sH33xQNve7srB0IGYlg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
+    <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'dynforms/dynforms.min.css' %}" type="text/css"/>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js" integrity="sha512-yDlE7vpGDP7o2eftkCiPZ+yuUyEcaBwoJoIhdXv71KZWugFqEphIS3PU60lEkFaz8RxaVsMpSvQxMBaKVwA5xg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
-<script src="{% static 'dynforms/dynforms.min.js' %}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" integrity="sha512-qOBWNAMfkz+vXXgbh0Wz7qYSLZp6c14R0bZeVX2TdQxWpuKr6yHjBIM69fcF8Ve4GUX6B6AKRQJqiiAmwvmUmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script>
-$(document).ready(function(){
-    // Register events for monitoring rule change triggers
-    {% for fn, ft in form.form_type.field_specs.items %}
-        {% for rl in ft.rules %}
-        $("#{{rl.field}}-group").on('dynrules:update', function(event) {
-            var tgt = $("#{{fn}}-group");
-            var value = valuesOnly($("#registration-form :input[name='{{rl.field}}{{rl.subfield}}']").serializeArray());
-            {% if rl.action == 'show' %}
-            tgt.toggleClass("df-hide", !testRule(value, "{{rl.operator}}", "{{rl.value}}"));
-            {% elif rl.action == 'hide' %}
-            tgt.toggleClass("df-hide", testRule(value, "{{rl.operator}}", "{{rl.value}}"));
-            {% endif %}
-        });
-        $("#registration-form :input[name='{{rl.field}}{{rl.subfield}}']").change(function(event){
-            $("#{{rl.field}}-group").trigger('dynrules:update');
-        });
-        $("#registration-form :input[name='{{rl.field}}{{rl.subfield}}']").change();
-        {% endfor %}
-    {% endfor %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" integrity="sha512-qOBWNAMfkz+vXXgbh0Wz7qYSLZp6c14R0bZeVX2TdQxWpuKr6yHjBIM69fcF8Ve4GUX6B6AKRQJqiiAmwvmUmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        $(document).ready(function () {
+            let institutions = new Bloodhound({
+                datumTokenizer: function (d) {
+                    return Bloodhound.tokenizers.whitespace(d.key);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    url: '{% url "institution-search" %}?q=%QUERY',
+                    wildcard: '%QUERY'
+                }
+            });
 
-    // Auto Populate Address on institution select
-    $("form").attr('autocomplete', 'off');
-    $("#institution").attr('autocomplete', 'off');
-    $("#institution").bind('typeahead:selected', function(obj, value, name){
-        jQuery.getJSON('{% url "institution-detail" %}?name=' + value, function(data){
-            var old_data = $('form').serializeObject();
-            if ((old_data['address.street']) || (old_data['address.place'])) {
-                // do not overwrite filled data
-            } else {
-                $("#registration-form").deserialize(data);
-            }
+            $('#institution').typeahead(null, {
+                name: 'institutions',
+                source: institutions,
+                limit: 10
+            });
         });
-    });
-    // Auto Populate Address if email changes
-    $("#registration-form :input[name='contact.email']").change(function(event){
-        if(this.value==this.oldvalue) return; this.oldvalue=this.value; //fix double trigger
-        jQuery.getJSON('{% url "institution-detail" %}?email=' + $(this).val(), function(data){
-            var old_data = $('form').serializeObject();
-            if ((old_data['address.street']) || (old_data['address.place']) || (old_data['institution']) ) {
-                // do not overwrite filled data
-            } else {
-                $("#registration-form").deserialize(data);
-            }
-        });
-    });
 
-     var institutions = new Bloodhound({
-      datumTokenizer: function(d) { return Bloodhound.tokenizers.whitespace(d.key);},
-      queryTokenizer: Bloodhound.tokenizers.whitespace,
-      remote: {
-        url: '{% url "institution-search" %}?q=%QUERY',
-        wildcard: '%QUERY'
-      }
-    });
-
-    $('#institution').typeahead(null, {
-        name: 'institutions',
-        source: institutions,
-        limit: 10
-    });
-});
-</script>
+    </script>
 {% endblock %}

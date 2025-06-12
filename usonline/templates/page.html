@@ -1,25 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="page">
-        <div class="pad-wrapper">
-            {% block page-no-header %}
-                <div class="page-header">
-                    <div class="d-flex flex-row align-items-center">
-                        <div style="min-width: 0;">
-                            <div class="page-pretitle">{% block page-pretitle %}{% endblock %}</div>
-                            <h3 class="page-title mb-3">{% block page-title %}{% endblock %}</h3>
-                            <div class="page-subtitle d-none d-md-block">{% block page-subtitle %}{% endblock %}</div>
-                        </div>
-                        <div class="page-tools col-auto ms-auto d-flex flex-row-reverse mb-2 align-items-center">
-                            {% block page-tools %}{% endblock %}
-                        </div>
+    <div class="page p-4">
+        {% block page-no-header %}
+            <div class="page-header">
+                <div class="d-flex flex-row align-items-center">
+                    <div style="min-width: 0;">
+                        <div class="page-pre-title">{% block page-pretitle %}{% endblock %}</div>
+                        <h3 class="page-title mb-3">{% block page-title %}{% endblock %}</h3>
+                        <div class="page-subtitle d-none d-md-block">{% block page-subtitle %}{% endblock %}</div>
+                    </div>
+                    <div class="page-tools col-auto ms-auto d-flex flex-row-reverse mb-2 align-items-center">
+                        {% block page-tools %}{% endblock %}
                     </div>
                 </div>
-                <div class="page-status rounded-0 d-flex flex-row justify-content-between align-items-center {% block page-status-style %}border-top{% endblock %}"
-                >{% block page-status-bar %}{% endblock %}</div>
-            {% endblock %}
-            {% block page-content %}{% endblock %}
-        </div>
+            </div>
+            <div class="page-status rounded-0 d-flex flex-row justify-content-between align-items-center {% block page-status-style %}border-top{% endblock %}"
+            >{% block page-status-bar %}{% endblock %}</div>
+        {% endblock %}
+        {% block page-content %}{% endblock %}
     </div>
 {% endblock %}

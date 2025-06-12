@@ -7,12 +7,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import DetailView, TemplateView, View
 from django.views.generic.edit import FormView, UpdateView, CreateView
+from dynforms.models import FormType
 from itemlist.views import ItemListView
 from proxy.views import proxy_view
 
@@ -260,6 +261,12 @@ class RegistrationView(DynCreateView):
     success_url = reverse_lazy("user-profile")
     form_class = forms.RegistrationForm
     model = models.Registration()
+
+    def get_form_type(self) -> FormType:
+        form_type = FormType.objects.filter(code='registration').first()
+        if not form_type:
+            raise Http404("Proposal form type not found.")
+        return form_type
 
     def form_valid(self, form):
         reg = models.Registration.objects.create(**form.cleaned_data)

@@ -16,7 +16,7 @@ admin.site.site_header = "User Services Online"
 urlpatterns = [
     path('', RedirectView.as_view(url=reverse_lazy('user-dashboard'), permanent=False)),
     path('', include('users.urls')),
-    path('', include('notifier.urls')),
+
     path('', include('proposals.urls')),
     path('', include('agreements.urls')),
     path('', include('publications.urls')),
@@ -24,7 +24,8 @@ urlpatterns = [
     path('', include('scheduler.urls')),
     path('', include('projects.urls')),
     path('', include('samples.urls')),
-    path('dynforms/', include('dynforms.urls')),
+    path('forms/', include('dynforms.urls')),
+    path('messages/', include('notifier.urls')),
     path('', include('weather.urls')),
     path('', include('surveys.urls')),
 

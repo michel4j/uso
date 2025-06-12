@@ -70,7 +70,7 @@ class UserNotificationList(RolePermsViewMixin, ItemListView):
     paginate_by = 20
     list_columns = ['kind', 'level', 'state', 'created', 'modified']
     list_filters = ['created', 'modified', 'level', 'state']
-    link_url = "notification-detail"
+    link_url = "user-notification-detail"
     link_attr = 'data-modal-url'
     list_search = ['kind', 'data']
     order_by = ['-created']
@@ -86,7 +86,7 @@ class NotificationList(RolePermsViewMixin, ItemListView):
     paginate_by = 20
     list_columns = ['to', 'kind', 'created', 'modified']
     list_filters = ['created', 'modified', 'level', 'kind', 'state']
-    link_url = "notification-admin-detail"
+    link_url = "notification-detail"
     link_attr = 'data-modal-url'
     list_search = ['kind', 'data', 'user__first_name', 'user__last_name', 'emails']
     ordering = ['-created']

@@ -17,7 +17,7 @@ register = template.Library()
 from proposals.models import ReviewCycle
 
 CYCLE_STATE_STYLES = {
-    ReviewCycle.STATES.pending: 'text-info-light',
+    ReviewCycle.STATES.pending: 'text-info-emphasis',
     ReviewCycle.STATES.open: 'text-info',
     ReviewCycle.STATES.review: 'text-warning',
     ReviewCycle.STATES.schedule: 'text-primary',
