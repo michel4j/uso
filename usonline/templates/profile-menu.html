@@ -28,33 +28,6 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li>
-                    <a class="dropdown-item d-flex align-items-center"
-                       href="{% url 'edit-my-profile' %}">
-                        <i class="bi bi-person-gear icon-xs icon-fw me-2"></i>
-                        Edit profile
-                    </a>
-                </li>
-                {% if request.user.can_review %}
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="{% url 'edit-reviewer-profile' %}">
-                            <i class="bi bi-sliders icon-xs icon-fw me-2"></i>
-                            Reviewer Expertise
-                        </a>
-                    </li>
-                {% endif %}
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" href="{% url 'change-password' %}">
-                        <i class="bi bi-lock icon-xs icon-fw me-2"></i>
-                        Change Password
-                    </a>
-                </li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li>
                     <button type="button" class="dropdown-item d-flex align-items-center"
                             data-bs-theme-value="light" aria-pressed="true">
                         <i class="bi bi-brightness-high icon-xs icon-fw me-2"></i>
@@ -74,6 +47,30 @@
                         <i class="bi bi-circle-half icon-xs icon-fw me-2"></i>
                         Auto Theme<i class="bi bi-check ms-auto d-none"></i>
                     </button>
+                </li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center"
+                       href="{% url 'edit-my-profile' %}">
+                        <i class="bi bi-person-gear icon-xs icon-fw me-2"></i>
+                        Edit profile
+                    </a>
+                </li>
+                {% if request.user.can_review %}
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="{% url 'edit-reviewer-profile' %}">
+                            <i class="bi bi-sliders icon-xs icon-fw me-2"></i>
+                            Reviewer Expertise
+                        </a>
+                    </li>
+                {% endif %}
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" href="{% url 'change-password' %}">
+                        <i class="bi bi-lock icon-xs icon-fw me-2"></i>
+                        Change Password
+                    </a>
                 </li>
                 <li>
                     <hr class="dropdown-divider">

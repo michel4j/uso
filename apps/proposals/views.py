@@ -23,7 +23,7 @@ from scipy import stats as scipy_stats
 from dynforms.views import DynUpdateView, DynCreateView
 from misc import filters
 from misc.models import ActivityLog
-from misc.views import ConfirmDetailView, ClarificationResponse, RequestClarification
+from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from roleperms.views import RolePermsViewMixin
 from users.models import User
@@ -240,7 +240,7 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class CloneProposal(RolePermsViewMixin, ConfirmDetailView):
+class CloneProposal(RolePermsViewMixin, ModalConfirmView):
     template_name = 'proposals/forms/clone.html'
     success_url = reverse_lazy('user-proposals')
 
@@ -272,7 +272,7 @@ class CloneProposal(RolePermsViewMixin, ConfirmDetailView):
         )
 
 
-class SubmitProposal(RolePermsViewMixin, ConfirmDetailView):
+class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
     model = models.Proposal
     template_name = "proposals/forms/submit.html"
     success_url = reverse_lazy('user-proposals')
@@ -587,7 +587,7 @@ class UserReviewList(ReviewList):
         return super().get_queryset(*args, **kwargs)
 
 
-class ClaimReview(RolePermsViewMixin, ConfirmDetailView):
+class ClaimReview(RolePermsViewMixin, ModalConfirmView):
     model = models.Review
     template_name = "proposals/forms/claim.html"
     allowed_roles = USO_ADMIN_ROLES
@@ -1786,7 +1786,7 @@ class ReviewerOptions(RolePermsViewMixin, TemplateView):
         return context
 
 
-class StartReviews(RolePermsViewMixin, ConfirmDetailView):
+class StartReviews(RolePermsViewMixin, ModalConfirmView):
     queryset = models.ReviewCycle.objects.filter(state=models.ReviewCycle.STATES.assign)
     template_name = "proposals/forms/reviews.html"
     model = models.ReviewCycle
@@ -1859,7 +1859,7 @@ class AddScoreAdjustment(RolePermsViewMixin, edit.CreateView):
         return JsonResponse({"url": ""})
 
 
-class DeleteAdjustment(RolePermsViewMixin, ConfirmDetailView):
+class DeleteAdjustment(RolePermsViewMixin, ModalConfirmView):
     model = models.ScoreAdjustment
     template_name = "forms/delete.html"
     allowed_roles = USO_ADMIN_ROLES

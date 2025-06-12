@@ -20,7 +20,7 @@ USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ["admin:uso"])
 class UserFeedback(DynCreateView):
     form_class = forms.FeedbackForm
     model = Feedback
-    template_name = "projects/forms/project_form.html"
+    template_name = "surveys/survey-form.html"
 
     def get_initial(self):
         initial = super().get_initial()

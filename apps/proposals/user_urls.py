@@ -20,7 +20,6 @@ urlpatterns = [
 
     path('reviews/', views.UserReviewList.as_view(), name="user-reviews"),
     path('reviews/committee/', views.PRCAssignments.as_view(), name="personal-prc-reviews"),
-    #path('reviews/<int:pk>/', views.ReviewDetail.as_view(), name='review-detail'),
     path('reviews/<int:pk>/delete/', views.DeleteReview.as_view(), name='delete-review'),
     path('reviews/<int:pk>/', views.EditReview.as_view(), name='edit-review'),
     path('reviews/<int:pk>/claim/', views.ClaimReview.as_view(), name='claim-review'),
