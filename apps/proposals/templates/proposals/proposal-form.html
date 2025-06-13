@@ -30,13 +30,5 @@
                 return 'Form contains unsaved changes.';
             }
         });
-        $(document).ready(function () {
-            // Initialize the dynform
-            $('#proposal-form form').formProgress({
-                update: function(percent) {
-                    console.log(`Form progress: ${percent}%`);
-                },
-            });
-        });
     </script>
 {% endblock %}
