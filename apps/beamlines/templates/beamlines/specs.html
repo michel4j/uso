@@ -26,9 +26,9 @@
                     {% if item.config.facility != facility %}
                         <i class="bi-circle-fill" style="color: #ddd;"></i>
                     {% elif item.track.special %}
-                        <i class="bi-circle-filltext-warning-emphasis"></i>
+                        <i class="bi-circle-fill text-warning"></i>
                     {% else %}
-                        <i class="bi-circle-filltext-success-emphasis"></i>
+                        <i class="bi-circle-fill text-success"></i>
                     {% endif %}
                     &ensp;
                     {{ item.technique }} {% if item.config.facility != facility %} &mdash;
@@ -37,8 +37,8 @@
                 {% if forloop.last %}
                     <hr class="hr-xs"/>
                     <span>
-                        <i class="bi-circle-filltext-success-emphasis"></i>&nbsp;Available &emsp;
-                        <i class="bi-circle-filltext-warning-emphasis"></i>&nbsp;Special Request &emsp;
+                        <i class="bi-circle-fill text-success"></i>&nbsp;Available &emsp;
+                        <i class="bi-circle-fill text-warning"></i>&nbsp;Special Request &emsp;
                         <i class="bi-circle-fill" style="color: #ddd;"></i>&nbsp;Not Accepting
                     </span>
                 {% endif %}

@@ -1,0 +1,14 @@
+
+{% extends "crisp_modals/confirm.html" %}
+{% block modal_title %}Leave project?{% endblock %}
+{% load proposal_tags %}
+{% block modal_body %}
+    <p class="lead">Are you sure you want to leave the project team?</p>
+    <p>Once removed from a project, you can only be added again by the Principal Investigator, spokesperson, or delegate.</p>
+<div class="alert alert-info">
+    <h4><strong>{{object.title}}</strong></h4>
+</div>
+{% endblock %}
+
+
+

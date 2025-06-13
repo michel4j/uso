@@ -66,25 +66,25 @@
                     <span style="font-size: 90%;">
                         {% for perm_code in permissions.all %}
                             {% if member|has_perm:perm_code %}
-                                <i class="bi-check-circle-filltext-success-emphasis" title="{{ perm_code }}"></i>
+                                <i class="bi-check-circle-fill text-success" title="{{ perm_code }}"></i>
                             {% else %}
-                                <i class="bi-x-circle-filltext-danger-emphasis" title="{{ perm_code }}"></i>
+                                <i class="bi-x-circle-fill text-danger" title="{{ perm_code }}"></i>
                             {% endif %}
                         {% endfor %}
                         {% for perm_code in permissions.any %}
                             {% if member|has_perm:perm_code %}
-                                <i class="bi-check-circle-filltext-success-emphasis" title="{{ perm_code }}"></i>
+                                <i class="bi-check-circle-fill text-success" title="{{ perm_code }}"></i>
                             {% else %}
-                                <i class="bi-x-circle-filltext-warning-emphasis" title="{{ perm_code }}"></i>
+                                <i class="bi-x-circle-fill text-warning" title="{{ perm_code }}"></i>
                             {% endif %}
                         {% endfor %}
                         {% for beamline in object.beamlines.distinct|no_equipment %}
                             {% if member|is_user:beamline %}
-                                <i class="bi-check-circle-filltext-success-emphasis" title="{{beamline.acronym}}-USER"></i>
+                                <i class="bi-check-circle-fill text-success" title="{{beamline.acronym}}-USER"></i>
                             {% elif member|is_remote_user:beamline %}
-                                <i class="bi-check-circle-filltext-success-emphasis" title="{{beamline.acronym}}-REMOTE-USER"></i>
+                                <i class="bi-check-circle-fill text-success" title="{{beamline.acronym}}-REMOTE-USER"></i>
                             {% else %}
-                                <i class="bi-x-circle-filltext-danger-emphasis" title="{{beamline.acronym}}-USER"></i>
+                                <i class="bi-x-circle-fill text-danger" title="{{beamline.acronym}}-USER"></i>
                             {% endif %}
                         {% endfor %}
                     </span>
@@ -103,7 +103,7 @@
                 <hr class="hr-xs"/>
                 <div>
                     <span style="font-size: 90%;">
-                        <i class="bi-x-circle-filltext-danger-emphasis" title="Registered"></i>
+                        <i class="bi-x-circle-fill text-danger" title="Registered"></i>
                     </span>
                 </div>
             </div>
@@ -116,9 +116,9 @@
                     <i class="bi-info-circle text-primary icon-lg icon-fw pull-left"></i>To avoid delays, please ensure all participating team members have the appropriate permissions before your
                     scheduled beam time. Required permissions are indicated for each team member above. Please contact beamline staff once your project has been scheduled.
                     <hr class="hr-lg"/>
-                    <i class="bi-check-circle-filltext-success-emphasis icon-fw"></i>Qualified&emsp;
-                    <i class="bi-x-circle-filltext-danger-emphasis icon-fw"></i>Required&emsp;
-                    <i class="bi-x-circle-filltext-warning-emphasis icon-fw"></i>Recommended&emsp;
+                    <i class="bi-check-circle-fill text-success icon-fw"></i>Qualified&emsp;
+                    <i class="bi-x-circle-fill text-danger icon-fw"></i>Required&emsp;
+                    <i class="bi-x-circle-fill text-warning icon-fw"></i>Recommended&emsp;
             </div>
         </div>
     </div>

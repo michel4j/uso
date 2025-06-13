@@ -13,7 +13,7 @@ from django.utils.safestring import mark_safe
 
 from . import models
 from beamlines.models import FacilityTag, Lab, LabWorkSpace
-from dynforms.forms import DynFormMixin
+from dynforms.forms import DynFormMixin, DynForm
 from misc.utils import Joiner
 from proposals.models import ReviewCycle
 from scheduler.utils import round_time
@@ -588,21 +588,8 @@ class SessionForm(forms.ModelForm):
         return data
 
 
-class TeamForm(DynFormMixin, forms.ModelForm):
-    type_code = 'team'
-    details = forms.Field(required=False)
-
-    class Meta:
-        model = models.Project
-        fields = []
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.init_fields()
-
-    def _custom_clean(self, data):
-        data['active_page'] = '1'
-        return super()._custom_clean(data)
+class TeamForm(DynForm):
+    pass
 
 
 class AllocationForm(ModalModelForm):

@@ -17,23 +17,26 @@
 {% block body_class %}extended-help{% endblock %}
 {% block content %}
     <div id="proposal-form" class="page col-xs-12 col-sm-9">
-        <div class="row">
-            {% include "dynforms/form.html" %}
-        </div>
+        {% include "dynforms/form.html" %}
     </div>
     <div class="col-sm-3 d-none d-sm-block">
     </div>
 {% endblock %}
 
 {% block extra_js %}
-    <script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
-    <script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
     <script>
         $(window).bind('beforeunload', function () {
             if ($("[data-dynform-dirty]").length) {
                 return 'Form contains unsaved changes.';
             }
+        });
+        $(document).ready(function () {
+            // Initialize the dynform
+            $('#proposal-form form').formProgress({
+                update: function(percent) {
+                    console.log(`Form progress: ${percent}%`);
+                },
+            });
         });
     </script>
 {% endblock %}

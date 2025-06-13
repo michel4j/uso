@@ -3,7 +3,7 @@ import functools
 import itertools
 from datetime import timedelta
 
-from crisp_modals.views import ModalCreateView, ModalUpdateView
+from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalConfirmView
 from dateutil import parser
 from django.conf import settings
 from django.contrib import messages
@@ -15,6 +15,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.generic import detail, edit, View, TemplateView
+from dynforms.views import DynFormView
 from itemlist.views import ItemListView
 from rest_framework import generics, permissions
 from rest_framework.parsers import JSONParser
@@ -52,7 +53,7 @@ def _fmt_beamlines(bls, obj=None):
 
 def _fmt_project_state(state, obj=None):
     if state == 'active':
-        return '<i title="Active" class="bi-check2-squaretext-success-emphasis icon-fw"></i> Active'
+        return '<i title="Active" class="bi-check2-square text-success icon-fw"></i> Active'
     elif state == 'pending':
         return '<i title="Pending" class="bi-hourglass text-info icon-fw"></i> Pending'
     else:
@@ -345,7 +346,7 @@ class MaterialDetail(RolePermsViewMixin, detail.DetailView):
 class CreateProject(RolePermsViewMixin, edit.CreateView):
     form_class = forms.ProjectForm
     model = models.Project
-    template_name = "projects/forms/project_form.html"
+    template_name = "projects/forms/project-form.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def get_initial(self):
@@ -860,7 +861,7 @@ class UpdateMaterial(RolePermsViewMixin, edit.FormView):
     form_class = forms.MaterialForm
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
-    template_name = "projects/forms/project_form.html"
+    template_name = "projects/forms/project-form.html"
 
     def get_object(self):
         self.project = models.Project.objects.get(pk=self.kwargs['pk'])
@@ -943,16 +944,24 @@ class UpdateMaterial(RolePermsViewMixin, edit.FormView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class UpdateTeam(RolePermsViewMixin, edit.UpdateView):
+class UpdateTeam(RolePermsViewMixin, DynFormView):
     form_class = forms.TeamForm
-    model = models.Project
-    template_name = "projects/forms/project_form.html"
+    template_name = "proposals/proposal-form.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
+    object: models.Project
+
+    def get_form_type(self) -> FormType:
+        return FormType.objects.filter(code='team').first()
+
+    def get_object(self):
+        self.object = models.Project.objects.get(pk=self.kwargs['pk'])
+        return self.object
+
     def check_allowed(self):
-        self.project = self.get_object()
-        return super().check_allowed() or self.check_owner(self.project)
+        project = self.get_object()
+        return super().check_allowed() or self.check_owner(project)
 
     def check_owner(self, obj):
         return obj.is_owned_by(self.request.user)
@@ -961,9 +970,9 @@ class UpdateTeam(RolePermsViewMixin, edit.UpdateView):
         initial = super().get_initial()
         initial.update(
             {
-                'team_members': self.project.team_members(), 'leader': self.project.get_leader(),
-                'delegate': self.project.delegate,
-                'invoice_address': self.project.invoice_address(), 'invoice_email': self.project.invoice_email()
+                'team_members': self.object.team_members(), 'leader': self.object.get_leader(),
+                'delegate': self.object.delegate,
+                'invoice_address': self.object.invoice_address(), 'invoice_email': self.object.invoice_email()
             }
         )
         return initial
@@ -975,6 +984,7 @@ class UpdateTeam(RolePermsViewMixin, edit.UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_title'] = "Update Research Team Members"
+        context['project'] = self.object
         return context
 
     def form_valid(self, form):
@@ -1432,9 +1442,9 @@ class DeleteSession(RolePermsViewMixin, ConfirmDetailView):
         )
 
 
-class TeamMemberDelete(RolePermsViewMixin, ConfirmDetailView):
+class TeamMemberDelete(RolePermsViewMixin, ModalConfirmView):
     model = models.Project
-    template_name = "projects/forms/remove_team.html"
+    template_name = "projects/forms/leave-team.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 

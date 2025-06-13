@@ -273,10 +273,6 @@ html, body {
   color: var(--uso-accent-text-0, #fff);
 }
 
-.popover {
-  font-size: 95%;
-}
-
 pre {
   background: inherit;
   color: inherit;
@@ -308,6 +304,10 @@ body.modal-open {
   .nav-link {
     color: inherit;
     --bs-nav-link-padding-x: 1em;
+    &:hover {
+      color: var(--uso-accent-text-0, #fff);
+      background-color: var(--uso-accent-color-2, #484747);
+    }
   }
 
   li.divider {
@@ -2776,3 +2776,6 @@ $border-colors: (
   border-radius: var(--bs-dropdown-border-radius);
 }
 
+.df-form-tabs:empty {
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
