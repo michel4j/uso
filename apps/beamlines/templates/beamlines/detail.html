@@ -76,6 +76,8 @@
     callout
     {% if object.state == object.STATES.commissioning %}
         callout-warning
+    {% elif object.state == object.STATES.decommissioned %}
+        callout-secondary
     {% else %}
         callout-success
     {% endif %}

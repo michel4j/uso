@@ -1,21 +1,5 @@
 @use 'sass:list';
 
-$color_1: #fff;
-$color_2: #555;
-$color_3: #8a8a8a;
-$color_4: #e1e1e1;
-$color_5: #b3b3b3;
-$color_6: #999;
-$color_7: inherit;
-$color_8: rgba(0, 0, 0, 0.35);
-$color_9: #aaa;
-$color_10: #666;
-$color_11: #cacaca;
-$color_12: #777;
-$color_13: #1f77b4;
-$color_14: #ff7f0e;
-$color_15: #2ca02c;
-$color_16: #d62728;
 $color_17: #9467bd;
 $color_18: #8c564b;
 $color_19: #e377c2;
@@ -35,7 +19,8 @@ $color_32: #f6d65a;
 $color_33: #d9534f;
 $color_34: #6baed6;
 $color_36: #d65c4f;
-$color_37: rgba(0, 0, 0, 0.45);
+
+$color_16: #d62728;
 $color_38: rgba(117, 80, 123, 0.6);
 $color_39: #9edae5;
 $color_40: #c5b0d5;
@@ -46,6 +31,8 @@ $color_44: rgba(0, 0, 0, 0.5);
 $color_45: rgba(255, 255, 255, 0.25);
 $color_46: #333;
 
+
+$color_37: rgba(0, 0, 0, 0.45);
 
 $body-font-family: "Fira Sans", sans-serif;
 $monospace-font-family: "Fira Code", monospace;
@@ -114,6 +101,19 @@ $border-left-color_2: #3c763d;
 $border-left-color_3: #8a6d3b;
 $border-left-color_4: #a94442;
 
+$category-colors: (
+                (0, 211, 36%, 48%),
+                (1, 30, 88%, 56%),
+                (2, 359, 70%, 61%),
+                (3, 175, 31%, 59%),
+                (4, 113, 34%, 47%),
+                (5, 47, 82%, 61%),
+                (6, 316, 25%, 58%),
+                (7, 354, 100%, 81%),
+                (8, 22, 24%, 49%),
+                (9, 20, 10%, 70%),
+);
+$state-names: (info, primary, success, secondary, warning, danger);
 
 :root {
   // USO specific variables
@@ -304,6 +304,7 @@ body.modal-open {
   .nav-link {
     color: inherit;
     --bs-nav-link-padding-x: 1em;
+
     &:hover {
       color: var(--uso-accent-text-0, #fff);
       background-color: var(--uso-accent-color-2, #484747);
@@ -366,29 +367,7 @@ body.modal-open {
   }
 }
 
-@media only screen and (max-width: 768px) {
-  .item-list {
-    th:not(:first-child) {
-      display: none;
-    }
-
-    td:not(:first-child) {
-      display: none;
-    }
-  }
-  .list-tools {
-    flex-direction: column;
-    flex-wrap: wrap;
-
-    > * {
-      min-width: 100%;
-    }
-  }
-  @include narrow-branding();
-  @include narrow-sidebar();
-}
-
-body.narrow-sidebar, body:has(#df-builder) {
+body.narrow-sidebar, body[data-df-builder] {
   @include narrow-branding();
   @include narrow-sidebar();
 }
@@ -1024,12 +1003,13 @@ ul.activity-log {
 
 $activity-icons: ('\F280', '\F5DE', '\F4CB', '\F64D');
 $activity-colors: ('task', 'delete', 'modify', 'create');
+$activity-states: ('info', 'danger', 'warning', 'success');
 
-@each $icon, $color in zip($activity-icons, $activity-colors) {
+@each $icon, $color, $state in zip($activity-icons, $activity-colors, $activity-states) {
   li.#{$color}-log {
     &::before {
       content: $icon;
-      color: var(--bs-#{$color}-text-emphasis);
+      color: var(--bs-#{$state});
     }
   }
 }
@@ -1045,6 +1025,8 @@ $toast-icons: (
   width: 300px;
 
   > .toast {
+    display: flex;
+    flex-direction: row;
     background-image: none !important;
 
     &::before {
@@ -1078,42 +1060,38 @@ $toast-icons: (
       opacity: 1;
     }
   }
+
+  .toast-top-full-width {
+    margin-top: 20px;
+  }
+
+  .toast-bottom-full-width {
+    margin-bottom: 20px;
+  }
+
+  .toast-progress {
+    height: 2px;
+  }
+
+  .toast-message {
+    padding: 1em;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+  }
+
+  .toast-close-button {
+    position: absolute;
+    right: 0.5em;
+    top: 0;
+    font-size: 20px;
+    opacity: 0.8;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
+    filter: alpha(opacity=80);
+  }
 }
 
-.toast {
-  display: flex;
-  flex-direction: row;
-}
-
-.toast-top-full-width {
-  margin-top: 20px;
-}
-
-.toast-bottom-full-width {
-  margin-bottom: 20px;
-}
-
-.toast-progress {
-  height: 2px;
-}
-
-.toast-message {
-  padding: 1em;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  flex-direction: column;
-}
-
-.toast-close-button {
-  position: absolute;
-  right: 0.5em;
-  top: 0;
-  font-size: 20px;
-  opacity: 0.8;
-  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
-  filter: alpha(opacity=80);
-}
 
 a {
   text-decoration: none;
@@ -1151,10 +1129,6 @@ a {
   font-weight: 700;
   font-family: $body-font-family;
   font-size: 150%;
-}
-
-
-.narrow-sidebar {
 }
 
 .subscript {
@@ -1487,40 +1461,45 @@ input[checked=checked] {
   padding: 1.25rem;
   color: var(--uso-callout-color, inherit);
   background-color: var(--uso-callout-bg, rgba(var(--bs-emphasis-color-rgb), 0.05));
-  border-left: .25rem solid var(--uso-callout-border, rgba(var(--bs-emphasis-color-rgb), 0.25))
-}
+  border-left: .25rem solid var(--uso-callout-border, rgba(var(--bs-emphasis-color-rgb), 0.25));
 
-$callout-states: (
-        info,
-        primary,
-        success,
-        secondary,
-        warning,
-        danger
-);
-
-@each $state in $callout-states {
-  .callout-#{$state} {
-    --uso-callout-color: var(--bs-#{$state}-text-emphasis);
-    --uso-callout-bg: var(--bs-#{$state}-bg-subtle);
-    --uso-callout-border: var(--bs-#{$state}-border-subtle)
+  &.callout-sm {
+    border-left-width: 0.125rem;
   }
-}
 
-.callout h4 {
-  margin-bottom: .25rem
-}
+  &.callout-lg {
+    border-left-width: 0.375rem;
+  }
 
-.callout > :last-child {
-  margin-bottom: 0
-}
+  &.callout-xl {
+    border-left-width: 0.5rem;
+  }
 
-.callout + .uso-callout {
-  margin-top: -.25rem
-}
+  &.callout-xxl {
+    border-left-width: 0.75rem;
+  }
 
-.callout .highlight {
-  background-color: #0000000d
+  @each $state in $state-names {
+    &.callout-#{$state} {
+      --uso-callout-color: var(--bs-#{$state}-text-emphasis);
+      --uso-callout-bg: var(--bs-#{$state}-bg-subtle);
+      --uso-callout-border: var(--bs-#{$state}-border-subtle)
+    }
+  }
+
+  @each $key, $hue, $saturation, $lightness in $category-colors {
+    &.callout-#{$key} {
+      --uso-callout-color: hsla(#{$hue}, #{$saturation}, #{$lightness}, 1);
+      --uso-callout-bg: hsla(#{$hue}, #{$saturation}, #{$lightness}, 0.05);
+      --uso-callout-border: hsla(#{$hue}, #{$saturation}, #{$lightness}, 0.25);
+    }
+  }
+  h4 {
+    margin-bottom: 0.25rem;
+  }
+  > :last-child {
+    margin-bottom: 0;
+  }
 }
 
 .cycle-box {
@@ -1556,54 +1535,6 @@ $callout-states: (
 
 .thick-border {
   border-image-source: linear-gradient(to bottom right, rgba(18, 130, 255, 0.05) 0%, rgba(18, 130, 255, 0.65) 100%);
-}
-
-.state-design {
-  color: $color_39;
-}
-
-.state-construction {
-  color: $color_40;
-}
-
-.state-commissioning {
-  color: $color_41;
-}
-
-.state-operating {
-  color: $color_42;
-}
-
-.state-decommissioned {
-  color: $color_16;
-}
-
-.state-abstaining {
-  color: $color_43;
-}
-
-.bg-construction {
-  background-color: $background-color_40;
-}
-
-.bg-commissioning {
-  background-color: $background-color_41;
-}
-
-.bg-operating {
-  background-color: $background-color_42;
-}
-
-.bg-decommissioned {
-  background-color: $background-color_43;
-}
-
-.bg-abstaining {
-  background-color: $background-color_44;
-}
-
-.bg-paper {
-  background-color: $background-color_9;
 }
 
 #hazard-editor {
@@ -2099,7 +2030,7 @@ dl {
 
   .reject-sample-command {
     &:before {
-      color: $color_7;
+      color: inherit;
       content: "\F6B6";
     }
   }
@@ -2394,12 +2325,7 @@ body.registration {
 }
 
 
-@media only screen and (min-width: 1170px) {
-  .auto-large {
-    font-size: 160%;
-  }
-}
-
+// >= md
 @media (min-width: 768px) {
   .dashboard {
     .block-sizer {
@@ -2415,7 +2341,8 @@ body.registration {
   }
 }
 
-@media (max-width: 480px) {
+// <= sm
+@media (max-width: 576px) {
   .dashboard {
     .block-sizer {
       width: 100%;
@@ -2427,6 +2354,7 @@ body.registration {
   }
 }
 
+// <= md
 @media (max-width: 768px) {
   .btn-label {
     display: none;
@@ -2434,6 +2362,25 @@ body.registration {
   .tool-label {
     display: none;
   }
+ .item-list {
+    th:not(:first-child) {
+      display: none;
+    }
+
+    td:not(:first-child) {
+      display: none;
+    }
+  }
+  .list-tools {
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    > * {
+      min-width: 100%;
+    }
+  }
+  @include narrow-branding();
+  @include narrow-sidebar();
 }
 
 
@@ -2684,28 +2631,18 @@ $stat-sizes: (
   }
 }
 
-$border-colors: (
-        '0': #4e79a7,
-        '1': #f28e2c,
-        '2': #e15759,
-        '3': #76b7b2,
-        '4': #59a14f,
-        '5': #edc949,
-        '6': #af7aa1,
-        '7': #ff9da7,
-        '8': #9c755f,
-        '9': #bab0ab,
-);
-
-@each $key, $color in $border-colors {
+@each $key, $hue, $saturation, $lightness in $category-colors {
   .border-color-#{$key} {
-    border-color: $color !important;
+    border-color: hsla($hue, $saturation, $lightness, 1.0) !important;
   }
   .bg-color-#{$key} {
-    background-color: $color !important;
+    background-color: hsla($hue, $saturation, $lightness, 0.5) !important;
   }
   .text-color-#{$key} {
-    color: $color !important;
+    color: hsla($hue, $saturation, $lightness, 1) !important;
+  }
+  .badge-#{$key} {
+    background-color: hsla($hue, $saturation, $lightness, 1.0) !important;
   }
 }
 

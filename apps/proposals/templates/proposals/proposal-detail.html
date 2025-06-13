@@ -90,7 +90,7 @@
         <small class="text-wide text-muted">Address:</small><br/>
         {% if proposal.spokesperson.address %}
             {% with proposal.spokesperson.address as address %}
-                <p class="text-muted text-condensed">
+                <p class="text-condensed">
                     {{ address.address_1 }},<br/> {{ address.address_2 }}, {{ address.city }},<br/>
                     {{ address.region }}, {{ address.postal_code }}, {{ address.country }}
                 </p>

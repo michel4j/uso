@@ -5,10 +5,10 @@
     data-bs-title="{{ nav.label }}"
 >
     {% if nav.children %}
-        <a class="nav-link" href="#0" data-bs-toggle="menu-popover" aria-expanded="false"
+        <a tabindex="0" class="nav-link" href="#0" data-bs-toggle="menu-popover" aria-expanded="false"
            data-bs-title="{{ nav.label }}" data-bs-placement="right" title="{{ nav.label }}">
             <span class="nav-link-icon"><i class="{{ nav.icon }} icon-md icon-fw"></i></span>
-            <span class="d-none d-md-inline nav-label"> {{ nav.label }} </span>
+            <span class="nav-label"> {{ nav.label }} </span>
         </a>
         <div class="sub-menu-content d-none">
             <ul class="nav flex-column mb-auto">
