@@ -12,11 +12,11 @@
         <div class="text-condensed text-muted"><strong>{{ reference }}</strong></div>
         <h2 class="border-bottom">{{ proposal.title }}</h2>
         <strong>
-        {% for member in proposal.get_full_team %}
-            <span title="{{ member.email|get_institution }}">{{ member.last_name }}, {{ member.first_name }}</span>
-            <span class="text-info">{{ member.roles|team_roles }}</span>
-            {% if not forloop.last %}&middot;{% endif %}
-        {% endfor %}
+            {% for member in proposal.get_full_team %}
+                <span title="{{ member.email|get_institution }}">{{ member.last_name }}, {{ member.first_name }}</span>
+                <span class="text-info">{{ member.roles|team_roles }}</span>
+                {% if not forloop.last %}&middot;{% endif %}
+            {% endfor %}
         </strong>
 
         {% if proposal.details.subject.keywords %}
@@ -60,13 +60,13 @@
     {% get_selected_ancillaries data=proposal.details.ancillaries as ancillary %}
     {% if ancillary.labs.exists or ancillary.equipment.exists %}
         <div class="col-12 section-content">
-        <h3>Ancillary Requirements:</h3>
-        {% if ancillary.labs.exists %}
-            <p><strong>Labs:</strong>&nbsp; {{ ancillary.labs|join:", " }}</p>
-        {% endif %}
-        {% if ancillary.equipment.exists %}
-            <p><strong>Equipment:</strong>&nbsp; {{ ancillary.equipment|join:", " }}</p>
-        {% endif %}
+            <h3>Ancillary Requirements:</h3>
+            {% if ancillary.labs.exists %}
+                <p><strong>Labs:</strong>&nbsp; {{ ancillary.labs|join:", " }}</p>
+            {% endif %}
+            {% if ancillary.equipment.exists %}
+                <p><strong>Equipment:</strong>&nbsp; {{ ancillary.equipment|join:", " }}</p>
+            {% endif %}
         </div>
     {% endif %}
 </div>
@@ -141,23 +141,12 @@
 {% else %}
     {% if proposal.attachments.scientific.exists %}
         <div class="row section">
-            <div class="col-12 section-content">
-                <h3>Appendix: Scientific Attachments</h3>
-                <div class="alert alert-transparent text-center">
-                    {% for attachment in proposal.attachments.scientific.all %}
-                        {% if attachment.is_image %}
-                            <img src="{{ attachment.file.url }}" width="70%"/>
-                            <p>{{ attachment.description }} [{{ attachment.get_kind_display }}]</p>
-                        {% else %}
-                            <a href="{{ attachment.file.url }}" target="_blank">{{ attachment.description }}
-                                [{{ attachment.get_kind_display }}]</a>
-                        {% endif %}
-                        {% if not forloop.last %}
-                            <hr class="hr-lg"/>
-                        {% endif %}
-                    {% endfor %}
+            {% if proposal.attachments.scientific.count %}
+                <div class="col-12 section-content">
+                    <h3>Appendix: Attachments</h3>
+                    {% include "proposals/attachments.html" with object=proposal %}
                 </div>
-            </div>
+            {% endif %}
         </div>
     {% endif %}
 {% endif %}

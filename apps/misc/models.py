@@ -198,7 +198,7 @@ class Attachment(GenericContentMixin, TimeStampedModel):
         ('other', _('Other')),
     )
     owner = models.ForeignKey(User, related_name='attachments', on_delete=models.CASCADE)
-    description = models.CharField(max_length=100, verbose_name="name")
+    description = models.CharField(max_length=100, verbose_name="Description")
     file = RestrictedFileField(
         upload_to=attachment_file, max_size=2097152,
         file_types=['application/pdf', 'image/png', 'image/jpeg'], verbose_name="Attachment"

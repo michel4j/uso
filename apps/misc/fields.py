@@ -25,7 +25,7 @@ class RestrictedFileField(FileField):
     """
     Same as FileField, but you can specify:
         * content_types - list containing allowed content_types. Example: ["application/pdf", "image/jpeg"]
-        * max_upload_size - a number indicating the maximum file size allowed for upload.
+        * max_size - a number indicating the maximum file size allowed for upload.
             2.5MB - 2621440
             5MB - 5242880
             10MB - 10485760
@@ -49,18 +49,18 @@ class RestrictedFileField(FileField):
 
     def clean(self, *args, **kwargs):
         data = super().clean(*args, **kwargs)
-        _file = data.file
-        try:
-            content_type = _file.content_type
-            if content_type in self.file_types:
-                if _file._size > self.max_size:
-                    raise forms.ValidationError(
-                        _("{1} file exceeds maximum of {0}.").format(filesizeformat(self.max_size),
-                                                                     filesizeformat(_file._size)))
-            else:
+
+        if data.file is not None:
+            file = data.file
+            if file.content_type not in self.file_types:
                 raise forms.ValidationError(_("File type not supported."))
-        except AttributeError:
-            pass
+            if file.size > self.max_size:
+                raise forms.ValidationError(
+                    _("{1} file exceeds maximum of {0}.").format(
+                        filesizeformat(self.max_size),
+                        filesizeformat(file.size)
+                    )
+                )
 
         return data
 

@@ -74,6 +74,9 @@
 </div>
 {% include "messages.html" %}
 <div id="modal-target"></div>
+<div class="position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
+
+
 <form class="d-none" id="logout-form" action="{% url 'portal-logout' %}" method="post">{% csrf_token %}</form>
 {% block page-sprites %}{% svg_sprites %}{% endblock %}
 {% block post_js %}{% endblock %}
@@ -82,6 +85,8 @@
         crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-form@4.3.0/dist/jquery.form.min.js"></script>
 <script src="{% static 'crisp_modals/modals.min.js' %}"></script>
+<script src="{% static 'dynforms/df-toasts.min.js' %}"></script>
+
 {% block page-scripts %}{% endblock %}
 {% block extra_js %}{% endblock %}
 <script>

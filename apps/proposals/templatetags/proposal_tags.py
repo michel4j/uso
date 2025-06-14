@@ -1,18 +1,16 @@
 import functools
 import operator
-import urllib.parse
 from mimetypes import MimeTypes
 
 from django import template
+from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from proposals import models
 from proposals.utils import scale_color, get_techniques_matrix
-from django.conf import settings
 from users.models import User
 from ..models import Proposal, Review
-
 
 USO_SAFETY_REVIEWS = getattr(settings, 'USO_SAFETY_REVIEWS', ['safety', 'ethics'])
 USO_TECHNICAL_REVIEWS = getattr(settings, 'USO_TECHNICAL_REVIEWS', ['technical'])
@@ -205,6 +203,70 @@ def file_icon(file):
     mime = MimeTypes()
     mt = mime.guess_type(file.path)[0]
     return FILE_TYPES.get(mt, 'bi-file-earmark')
+
+
+MIME_TYPES = {
+    'application/pdf': (
+        '<svg'
+        '  xmlns="http://www.w3.org/2000/svg"'
+        '  width="100%"'
+        '  viewBox="0 0 24 24"'
+        '  fill="none"'
+        '  stroke="currentColor"'
+        '  stroke-width="0.5"'
+        '  stroke-linecap="round"'
+        '  stroke-linejoin="round"'
+        '>'
+        '  <path d="M14 3v4a1 1 0 0 0 1 1h4" />'
+        '  <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />'
+        '  <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />'
+        '  <path d="M17 18h2" />'
+        '  <path d="M20 15h-3v6" />'
+        '  <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" />'
+        '</svg>'
+    ),
+    'image/png': (
+        '    <svg'
+        '  xmlns="http://www.w3.org/2000/svg"'
+        '  width="100%"'
+        '  viewBox="0 0 24 24"'
+        '  fill="none"'
+        '  stroke="currentColor"'
+        '  stroke-width="0.5"'
+        '  stroke-linecap="round"'
+        '  stroke-linejoin="round"'
+        '>'
+        '  <path d="M14 3v4a1 1 0 0 0 1 1h4" />'
+        '  <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />'
+        '  <path d="M20 15h-1a2 2 0 0 0 -2 2v2a2 2 0 0 0 2 2h1v-3" />'
+        '  <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />'
+        '  <path d="M11 21v-6l3 6v-6" />'
+        '</svg>'
+    ),
+    'image/jpg': (
+        '<svg'
+        '  xmlns="http://www.w3.org/2000/svg"'
+        '  width="100%"'
+        '  viewBox="0 0 24 24"'
+        '  fill="none"'
+        '  stroke="currentColor"'
+        '  stroke-width="0.5"'
+        '  stroke-linecap="round"'
+        '  stroke-linejoin="round"'
+        '>'
+        '  <path d="M14 3v4a1 1 0 0 0 1 1h4" />'
+        '  <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />'
+        '  <path d="M11 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />'
+        '  <path d="M20 15h-1a2 2 0 0 0 -2 2v2a2 2 0 0 0 2 2h1v-3" />'
+        '  <path d="M5 15h3v4.5a1.5 1.5 0 0 1 -3 0" />'
+        '</svg>'
+    )
+}
+
+
+@register.filter
+def mime_icon(attachment):
+    return mark_safe(MIME_TYPES.get(attachment.mime_type()))
 
 
 @register.filter(name='state_icon')

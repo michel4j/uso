@@ -19,10 +19,10 @@
         </thead>
         <tbody>
         {% for att in reference.attachments.all %}
-            <tr>
+            <tr >
                 {% if att.exists %}
-                    <td><i class="bi-filetype-pdf icon-fw"></i>&nbsp;<a href="{{ att.file.url }}"
-                                                                        download>{{ att.description }}</a></td>
+                    <td><i class="bi-filetype-pdf icon-fw"></i>&nbsp;
+                        <a href="{{ att.file.url }}" download>{{ att.description }}</a></td>
                     <td>{{ att.get_kind_display }}</td>
                     <td>{{ att.file.size|filesizeformat }}</td>
                 {% else %}
@@ -31,10 +31,10 @@
                     <td class="text-center">&hellip;</td>
                 {% endif %}
                 <td>{{ att.created }}</td>
-                <td width="5%"
-                        {% if att.is_editable or admin %}
+                <td {% if att.is_editable or admin %}
                     class="hidden-delete text-right"
                     title="Delete Attachment"
+                    id="{{ att.slug }}"
                     data-command-url="{% url 'del-attachment' slug=att.slug %}?next={{ form.helper.form_action }}"
                         {% else %}
                     title="Deleting attachments is not permitted at this stage"
@@ -53,32 +53,56 @@
 
 {% block modal_scripts %}
     <script type="text/javascript">
+    function manageDeleteButtons(selector) {
+        $(selector).on('click', '.hidden-delete', function () {
+            const el = $(this);
+            const commandID = el.attr('id');
 
-        $("#modal form").on('click', '.hidden-delete:not(.active)', function () {
-            var el = $(this);
-            el.addClass('active');
-            el.popover({
-                title: 'Are you sure?',
-                placement: 'bottom',
-                content: "Click again while icon is active to delete."
-            });
-            el.popover('show');
-            setTimeout(function () {
-                el.removeClass('active');
-                el.popover('hide');
-            }, 3000);
-        });
-        $("#modal form").on('click', '.hidden-delete.active', function () {
-            var csrftoken = $.cookie('csrftoken');
-            $.ajax({
-                type: 'POST',
-                url: $(this).attr('data-command-url'),
-                beforeSend: function (xhr, settings) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                },
-                success: showResponse
-            });
-        });
+            const popover = new bootstrap.Popover(this, {
+                trigger: 'manual',
+                html: true,
+                placement: 'right',
+                sanitize: false,
+                title: "Remove Attachment?",
+                content: `<div class="w-100 d-flex flex-row">
+                            <button class="btn btn-xs btn-secondary" role="button">Cancel</button>
+                            <button data-confirmed class="btn btn-xs btn-danger ms-auto" role="button">Delete</button>
+                          </div>`,
 
+            });
+            popover.show();
+            $(document).one('click', '.popover button', function () {
+                if ($(this).is('[data-confirmed]')) {
+                    const confirmedUrl = el.attr('data-command-url');
+                    $.ajax({
+                        type: 'POST',
+                        url: confirmedUrl,
+                        beforeSend: function (xhr, settings) {
+                            const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        },
+                        success: function (response) {
+                            el.closest('tr').remove();
+                            dfToasts.success({
+                                message: "Attachment deleted!",
+                                title: "Success",
+                            });
+                        },
+                        error: function (xhr, status, error, data) {
+                            let response = xhr.responseJSON || {};
+                            dfToasts.error({
+                                message: `${response.error || 'Unknown error'}`,
+                                title: "Error",
+                            });
+                        }
+                    });
+                }
+                popover.dispose();
+
+
+            });
+        });
+    }
+    manageDeleteButtons('#modal .table');
     </script>
 {% endblock %}

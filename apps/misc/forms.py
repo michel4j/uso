@@ -1,4 +1,4 @@
-from crisp_modals.forms import ModalModelForm, FullWidth, Row, QuarterWidth, HalfWidth
+from crisp_modals.forms import ModalModelForm, FullWidth, Row, QuarterWidth, HalfWidth, ThirdWidth, TwoThirdWidth
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML, Field
@@ -30,12 +30,7 @@ class ClarificationForm(ModalModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.title = 'Request Clarification'
-        self.helper.form_action = self.request.get_full_path()
         self.body.append(
             Row(
                 FullWidth('question'),
@@ -56,9 +51,7 @@ class ResponseForm(ModalModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.body.form_action = self.request.get_full_path()
         self.body.append(
             Row(
                 Div(
@@ -84,19 +77,16 @@ class AttachmentForm(ModalModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
-
-        self.body.form_action = self.request.get_full_path()
         self.body.title = "Manage Attachments"
         self.body.append(
             Row(
-                HalfWidth('kind'),
-                HalfWidth('description'),
+                ThirdWidth('kind'),
+                TwoThirdWidth('description'),
                 FullWidth(Field('file', template="%s/file_input.html")),
                 Field('owner'), Field('object_id'), Field('content_type'),
             ),
         )
         self.footer.layout = Layout(
-            StrictButton('Close', css_class='btn btn-light border', data_bs_dismiss="modal", aria_label="Close")
+            StrictButton('Close', css_class='btn btn-secondary', data_bs_dismiss="modal", aria_label="Close")
         )

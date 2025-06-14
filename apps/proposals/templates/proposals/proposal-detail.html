@@ -20,6 +20,11 @@
     {% if not owner and not admin %}hidden{% endif %}
 {% endblock %}
 
+{% block extra_css %}
+    <link href="{% static 'proposals/proposals.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'proposals/reviews.min.css' %}" rel="stylesheet"/>
+{% endblock %}
+
 {% block page-tools %}
     {% if owner %}
         {% if proposal.state == proposal.STATES.draft %}
@@ -149,7 +154,6 @@
     <div class="p-5">
         {% include "proposals/proposal-content.html" %}
     </div>
-
 {% endblock %}
 
 

@@ -112,6 +112,7 @@ div.comment-body {
 
   &.show-comments {
     max-height: 30vh;
+
     #extra-review-content {
       display: block;
       overflow: hidden;
@@ -182,23 +183,16 @@ i.close-command {
 }
 
 .review-attachments {
-  padding: 0 1em;
-
-  li {
-    position: relative;
-    display: inline-block;
-    margin: 0.5em;
-
-    a {
-      text-decoration: inherit;
-      color: $color_1;
-    }
+  a {
+    text-decoration: inherit;
+    color: inherit;
   }
 
+
   .attachment-header {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--bs-border-color-translucent);
     font-weight: 600;
-    color: $color_4;
+    color: inherit;
   }
 
   .attachment-body {
@@ -225,13 +219,13 @@ i.close-command {
   height: 10em;
   max-height: 10em;
   overflow: hidden;
-  background: #FFF;
+  background: var(--bs-tertiary-bg);
   padding: 1em;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 0, 0, 0.1) inset;
+  box-shadow: 0 1px 2px rgba(var(--bs-emphasis-color-rgb), 0.3), 0 0 20px rgba(var(--bs-emphasis-color-rgb), 0.1) inset;
   transition: box-shadow 300ms ease 0s;
 
   &:hover {
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.05) inset;
+    box-shadow: 0 1px 4px rgba(var(--bs-emphasis-color-rgb), 0.5), 0 0 10px rgba(var(--bs-emphasis-color-rgb), 0.05) inset;
   }
 }
 
