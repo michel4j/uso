@@ -65,6 +65,5 @@ class SampleForm(ModalModelForm):
                 data['hazards'] |= pict.hazards.all()
         if data.get('state') == 'sealed':
             data['hazards'] |= models.Hazard
-        print(data)
         return data
 

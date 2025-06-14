@@ -150,6 +150,7 @@ class EditInstitution(RolePermsViewMixin, ModalUpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
+        kwargs.update(form_action=self.request.get_full_path())
         kwargs.update(delete_url=reverse_lazy('delete-institution', kwargs={'pk': self.object.pk}))
         return kwargs
 

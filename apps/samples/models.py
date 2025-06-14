@@ -150,7 +150,7 @@ class Sample(TimeStampedModel):
     kind = models.CharField("Type", max_length=100, choices=TYPES, default=None)
     state = models.CharField(max_length=100, choices=STATES, default=None)
     hazard_types = models.ManyToManyField(Pictogram, verbose_name="Hazard Types", related_name='samples')
-    hazards = models.ManyToManyField(Hazard, verbose_name="Hazards", related_name='samples')
+    hazards = models.ManyToManyField(Hazard, verbose_name="Hazards", related_name='samples', blank=True)
     description = models.TextField(null=True, blank=True)
     is_editable = models.BooleanField(default=True)
 

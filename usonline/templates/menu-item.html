@@ -5,7 +5,7 @@
     data-bs-title="{{ nav.label }}"
 >
     {% if nav.children %}
-        <a tabindex="0" class="nav-link" href="#0" data-bs-toggle="menu-popover" aria-expanded="false"
+        <a tabindex="0" class="nav-link" href="#0" role="button" data-bs-toggle="menu-popover" aria-expanded="false"
            data-bs-title="{{ nav.label }}" data-bs-placement="right" title="{{ nav.label }}">
             <span class="nav-link-icon"><i class="{{ nav.icon }} icon-md icon-fw"></i></span>
             <span class="nav-label"> {{ nav.label }} </span>
