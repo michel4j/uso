@@ -140,7 +140,7 @@ class UserSampleListView(SampleListView):
 
 class SampleCreate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
     form_class = forms.SampleForm
-    template_name = "samples/forms/modal.html"
+    template_name = "samples/sample-forml.html"
     model = models.Sample
     success_url = reverse_lazy('sample-list')
     success_message = "Sample '%(name)s' has been created."
@@ -166,7 +166,7 @@ class SampleCreate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
 
 class EditSample(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
     form_class = forms.SampleForm
-    template_name = "samples/forms/modal.html"
+    template_name = "samples/sample-forml.html"
     model = models.Sample
     success_url = reverse_lazy('sample-list')
     success_message = "Sample '%(name)s' has been updated."

@@ -49,11 +49,11 @@
                                     <i class="icon-fw"></i>
                                 </a>
                                 <a title="Hazards" href='#0' class="edit-hazard-command command-icon pull-right {% if hazard_ids %}highlighted{% endif %}"
-                                   data-target="{% url 'sample-hazards'  pk=sample.pk field_name=field.name%}">
+                                   data-modal-url="{% url 'sample-hazards'  pk=sample.pk field_name=field.name%}">
                                     <i class="bi-activity icon-fw"></i>
                                 </a>
                                 <a title="Permissions" href='#0' class="edit-permission-command command-icon  pull-right {% if permissions %}highlighted{% endif %}"
-                                   data-target="{% url 'sample-permissions'  pk=sample.pk field_name=field.name %}">
+                                   data-modal-url="{% url 'sample-permissions'  pk=sample.pk field_name=field.name %}">
                                     <i class="bi-key icon-fw"></i>
                                 </a>
                             {% else %}

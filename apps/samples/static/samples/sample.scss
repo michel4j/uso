@@ -113,3 +113,9 @@ $font-family_1: bootstrap-icons;
 	flex-direction: row;
 	align-items: center;
 }
+
+.hazards-editor {
+	.modal-body {
+		padding: 0 !important;
+	}
+}
