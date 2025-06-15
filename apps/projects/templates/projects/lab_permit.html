@@ -45,22 +45,22 @@
 {% block page-status-bar %}
     <h3 class="my-0"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
     <div class="d-none d-sm-block">
-        <small class="text-wide text-muted">Lab:</small><br/>{{ object.lab.name }}
+        <small class="text-wide text-body-secondary">Lab:</small><br/>{{ object.lab.name }}
     </div>
     <div>
-        <small class="text-wide text-muted">Equipment:</small><br/>
+        <small class="text-wide text-body-secondary">Equipment:</small><br/>
         {% for eqmt in object.equipment.all %}{{ eqmt }}{% if not forloop.last %}
             , {% endif %}{% empty %}&hellip;{% endfor %}
     </div>
     <div class="d-none d-sm-block">
-        <small class="text-wide text-muted">Representative:</small><br/>{{ object.spokesperson|default:"&hellip;" }}
+        <small class="text-wide text-body-secondary">Representative:</small><br/>{{ object.spokesperson|default:"&hellip;" }}
     </div>
     <div>
-        <small class="text-wide text-muted">Start:</small><br/>
+        <small class="text-wide text-body-secondary">Start:</small><br/>
         {{ object.start|date:"M jS/Y H:i" }}
     </div>
     <div>
-        <small class="text-wide text-muted">End:</small><br/>
+        <small class="text-wide text-body-secondary">End:</small><br/>
         {{ object.end|date:"M jS/Y H:i" }}
     </div>
 {% endblock %}

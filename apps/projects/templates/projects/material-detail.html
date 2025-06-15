@@ -44,13 +44,13 @@
         <span class="stats-title pull-left">Samples<br/>Approved</span>
     </div>
     <div>
-        <small class="text-muted">Beamlines:</small><br/>
+        <small class="text-body-secondary">Beamlines:</small><br/>
         {% for fac in object.project.beamlines.all.distinct %}
             <span class="badge bg-info">{{ fac.acronym }}</span>&nbsp;
         {% endfor %}
     </div>
     <div>
-        <small class="text-muted">Related Materials</small><br/>
+        <small class="text-body-secondary">Related Materials</small><br/>
         {% for mat in object.siblings.all %}
             <a href="{% url "material-detail" pk=mat.pk %}">{{ mat }} [{{ mat.get_state_display }}]</a>&nbsp;
         {% endfor %}

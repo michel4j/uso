@@ -4,9 +4,9 @@
 {% block modal_body %}
     <div class="alert alert-info">
         <h5 class="my-0 text-condensed"><strong>{{ sample.name }}</strong></h5>
-        Type: <em class="text-muted">{{ sample.get_kind_display }}</em>&emsp;
-        State: <em class="text-muted">{{ sample.get_state_display }}</em>&emsp;
-        Source: <em class="text-muted">{{ sample.source|default:"N/C" }}</em>&emsp;
+        Type: <em class="text-body-secondary">{{ sample.get_kind_display }}</em>&emsp;
+        State: <em class="text-body-secondary">{{ sample.get_state_display }}</em>&emsp;
+        Source: <em class="text-body-secondary">{{ sample.source|default:"N/C" }}</em>&emsp;
         {% if sample.description or sample.source or sample.extra %}
             <hr class="hr-xs"/>
             {% if sample.description %}{{ sample.description|default:"" }}<br/>{% endif %}

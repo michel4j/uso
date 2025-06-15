@@ -56,18 +56,14 @@ def pictogram_url(pictogram):
     return staticfiles_storage.url(f'samples/pictograms/{pictogram.code}.svg')
 
 
-@register.inclusion_tag('samples/pictograms.html', takes_context=True)
-def show_pictograms(context, hazards, extras=None, size=20):
-    extras = [] if not extras else extras
-    signals = hazards.values_list('signal', flat=True).distinct()
-    if 'danger' in signals:
-        signal = 'danger'
-    elif 'warning' in signals:
-        signal = 'warning'
-    else:
-        signal = ""
-    picts = utils.summarize_pictograms(hazards, extras)
-    return {'pictograms': picts.all(), 'signal': signal, 'size': size}
+@register.inclusion_tag('samples/pictograms.html')
+def show_pictograms(hazards, extras=None, types=None):
+    print('show_pictograms called with hazards:', pprint.pformat(hazards))
+    print('show_pictograms called with extras:', pprint.pformat(extras))
+    print('show_pictograms called with types:', pprint.pformat(types))
+
+    pictograms = utils.summarize_pictograms(hazards, extras=extras, types=types)
+    return {'pictograms': pictograms.all()}
 
 
 @register.simple_tag(takes_context=True)
@@ -84,16 +80,6 @@ def get_precautions(context, hazards):
 @register.simple_tag(takes_context=True)
 def precaution_text(context, precaution):
     return precaution.text
-    sample = context['sample']
-    data = context['data']
-    sample_info = {d['sample']: d for d in data}
-    sample_keywords = sample_info[sample.pk].get('keywords', {})
-    keyword = sample_keywords.get(precaution.code, '')
-    num_blanks = precaution.text.count('{}')
-    values = re.split(r'\s*[;,|]\s*', keyword.get(precaution.code, ''))
-    full_values = values + ['***'] * (num_blanks - len(values))
-    formatted_text = re.sub(r'(\{\})', r'<strong class="text-primary">\1</strong>', precaution.text)
-    return mark_safe(formatted_text.format(*full_values))
 
 
 @register.simple_tag(takes_context=True)

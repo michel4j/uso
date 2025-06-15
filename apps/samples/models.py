@@ -167,7 +167,7 @@ class Sample(TimeStampedModel):
 
     def pictograms(self):
         if self.is_editable:
-            return utils.summarize_pictograms(self.hazards, self.hazard_types)
+            return utils.summarize_pictograms(self.hazards, types=self.hazard_types)
         else:
             return utils.summarize_pictograms(self.hazards)
 

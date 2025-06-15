@@ -216,29 +216,29 @@ class SampleHazards(RolePermsViewMixin, detail.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        hazard_pks = json.loads(self.request.GET.get('hazards', '[]')) or [0]
         context['field_name'] = self.kwargs['field_name']
 
         selected_types = (
-                set(self.object.hazard_types.all().values_list('code', flat=True)) |
-                set(self.object.hazards.values_list('pictograms__code', flat=True))
+            set(self.object.hazard_types.all().values_list('code', flat=True)) |
+            set(self.object.hazards.values_list('pictograms__code', flat=True))
         )
         active_type = 'GHS03' if not selected_types else list(selected_types)[0]
 
         groups = []
         for p in models.Pictogram.objects.exclude(code__in=['RG1', 'RG2', 'RG3', 'RG4', '000']):
-            if p.code == 'GHS09':
-                hazards = models.Hazard.objects.filter(hazard__code__startswith='H4')
-            elif p.code == 'GHS08':
-                hazards = p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H36')
-            elif p.code == 'GHS01':
-                hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H20'))
-            elif p.code == 'GHS02':
-                hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H22'))
-            elif p.code == 'GHS04':
-                hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H28'))
-            else:
-                hazards = p.hazards
+            # if p.code == 'GHS09':
+            #     hazards = models.Hazard.objects.filter(hazard__code__startswith='H4')
+            # elif p.code == 'GHS08':
+            #     hazards = p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H36')
+            # elif p.code == 'GHS01':
+            #     hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H20'))
+            # elif p.code == 'GHS02':
+            #     hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H22'))
+            # elif p.code == 'GHS04':
+            #     hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H28'))
+            # else:
+
+            hazards = p.hazards
 
             groups.append({
                 'name': p.name,

@@ -3,7 +3,7 @@
     <tr>
         <td>
             {{ com.question|safe }}<br/>
-            <small class="text-muted">asked by Reviewer &ndash; {{com.created|date}} {{com.created|time}}</small>
+            <small class="text-body-secondary">asked by Reviewer &ndash; {{com.created|date}} {{com.created|time}}</small>
         </td>
     </tr>
     <tr class="merge-up">
@@ -11,7 +11,7 @@
             <div class="p-3 bg-darken">
                 {% if com.response %}
                 {{ com.response|safe }}<br/>
-                <small class="text-muted">answered by {{com.responder}} &ndash; {{com.modified|date}} {{com.modified|time}}</small>
+                <small class="text-body-secondary">answered by {{com.responder}} &ndash; {{com.modified|date}} {{com.modified|time}}</small>
                 {% else %}
                     {% if owner or admin %}
                     <a href="#0" data-modal-url="{% url response_url_name ref=object.pk pk=com.pk %}"

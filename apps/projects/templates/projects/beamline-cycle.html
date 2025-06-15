@@ -5,7 +5,7 @@
     bg-info-subtle{% else %}bg-danger-subtle insensitive{% endif %}{% endblock %}
 {% block box_header %}
     <h4 class="text-condensed" style="margin-bottom: 0;">{{ cycle }}</h4>
-    <small class="d-none d-sm-inline text-muted">{{ cycle.get_state_display }}</small>
+    <small class="d-none d-sm-inline text-body-secondary">{{ cycle.get_state_display }}</small>
 {% endblock %}
 {% block box_tools_style %}{% endblock %}
 {% block box_subheader %}{% endblock %}
@@ -67,19 +67,19 @@
         <table class="table table-ruled table-transparent">
             <tbody>
             <tr>
-                <th class="text-muted">Projects</th>
+                <th class="text-body-secondary">Projects</th>
                 <td class="text-right">{{ stats.active.total|default:"0" }} Total / {{ stats.new.total|default:"0" }}
                     New
                 </td>
             </tr>
             <tr>
-                <th class="text-muted">Shifts</th>
+                <th class="text-body-secondary">Shifts</th>
                 <td class="text-right">{{ stats.active.shifts|default:"0" }} Allocated
                     / {{ stats.available_shifts|floatformat:"0" }} Available
                 </td>
             </tr>
             <tr>
-                <th class="text-muted">Average Shifts</th>
+                <th class="text-body-secondary">Average Shifts</th>
                 <td class="text-right">{{ stats.active.avg_shifts|floatformat|default:"0" }} Per Project</td>
             </tr>
             </tbody>

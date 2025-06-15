@@ -71,22 +71,22 @@
 {% block page-status-bar %}
     <h3 class="my-0"><span class="badge bg-info text-condensed">{{ project.state.title }}</span></h3>
     <div>
-        <small class="text-wide text-muted">Project Leader:</small><br/>
+        <small class="text-wide text-body-secondary">Project Leader:</small><br/>
         {{ project.get_leader|default:"&hellip;" }}<br/>
         {{ project.get_leader.institution|default:"" }}
     </div>
     <div>
-        <small class="text-wide text-muted">Spokesperson:</small><br/>
+        <small class="text-wide text-body-secondary">Spokesperson:</small><br/>
         {{ project.spokesperson|default:"&hellip;" }}<br/>
         {{ project.spokesperson.institution|default:"&hellip;" }}
     </div>
     <div>
-        <small class="text-wide text-muted">Delegate:</small><br/>
+        <small class="text-wide text-body-secondary">Delegate:</small><br/>
         {{ project.delegate|default:"&hellip;" }}<br/>
         {{ project.delegate.institution|default:"&hellip;" }}
     </div>
     <div>
-        <small class="text-wide text-muted">Validity:</small><br/>{{ project.start_date|date:"" }}
+        <small class="text-wide text-body-secondary">Validity:</small><br/>{{ project.start_date|date:"" }}
         &ndash; {{ project.end_date|default:"Never Expires" }}
     </div>
 {% endblock %}

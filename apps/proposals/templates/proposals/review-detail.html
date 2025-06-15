@@ -12,25 +12,25 @@
         <div class="row">
             {% if object.kind == 'scientific' %}
             <div class="col-xs-4">
-                <small class="text-wide text-muted">Merit</small><br/>
+                <small class="text-wide text-body-secondary">Merit</small><br/>
                 <h2 class="my-0 text-center" style="color: {{ object.score|color_scale }}"><strong>{{ object.score | floatformat:-1 }}</strong></h2>
             </div>
             <div class="col-xs-4">
-                <small class="text-wide text-muted">Suitability</small><br/>
+                <small class="text-wide text-body-secondary">Suitability</small><br/>
                 <h2 class="my-0 text-center" style="color: {{ object.score_1|floatformat|color_scale }}">{{ object.score_1 | floatformat }}</h2>
             </div>
             <div class="col-xs-4">
-                <small class="text-wide text-muted">Capability</small><br/>
+                <small class="text-wide text-body-secondary">Capability</small><br/>
                 <h2 class="my-0 text-center" style="color: {{ object.score_2|color_scale }}">{{ object.score_2 | floatformat }}</h2>
             </div>
             {% elif object.kind == 'technical' %}
             <div class="col-xs-4">
-                <small class="text-wide text-muted">Suitability</small><br/>
+                <small class="text-wide text-body-secondary">Suitability</small><br/>
                 <h2 class="my-0 text-center" style="color: {{ object.score|color_scale }}">{{ object.score | floatformat }}</h2>
             </div>
             {% elif object.kind == 'safety' %}
             <div class="col-xs-4">
-                <small class="text-wide text-muted">Risk Level</small><br/>
+                <small class="text-wide text-body-secondary">Risk Level</small><br/>
                 <h2 class="my-0 text-center" style="color: {{ object.score|color_scale }}">{{ object.score | floatformat }}</h2>
             </div>
             {% endif %}

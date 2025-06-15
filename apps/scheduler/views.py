@@ -28,7 +28,7 @@ USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ["admin:uso"])
 
 def _fmt_states(state, obj=None):
     return {
-        STATES.draft: mark_safe(f'<span class="text-muted"><i class="bi-calendar-week icon-fw"></i> {STATES[state]}</span>'),
+        STATES.draft: mark_safe(f'<span class="text-body-secondary"><i class="bi-calendar-week icon-fw"></i> {STATES[state]}</span>'),
         STATES.tentative: mark_safe(f'<span class="text-info"><i class="bi-calendar-check icon-fw"></i> {STATES[state]}</span>'),
         STATES.live: mark_safe(f'<span class="text-success"><i class="bi-calendar-heart icon-fw"></i> {STATES[state]}</span>'),
     }.get(state, state)

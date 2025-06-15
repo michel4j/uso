@@ -17,7 +17,7 @@
                             {{review.assigned_to}}
                         {% endif %}
                     </a>
-                    <span class="text-muted">
+                    <span class="text-body-secondary">
                         {{review.reviewer|review_compat:submission}}
                     </span>
                 {% else %}
@@ -28,7 +28,7 @@
                            class="pull-right text-danger"><i class="bi-x-lg"></i>
                         </a>
                     {% else %}
-                        <a href="#/"><i class="bi-lock text-muted icon-fw pull-right"></i></a>
+                        <a href="#/"><i class="bi-lock text-body-secondary icon-fw pull-right"></i></a>
                     {% endif %}
                 </div>
                 {% endfor %}

@@ -23,7 +23,7 @@
                 <strong>{{ object.team.count }}</strong> Team Member{{object.team.count|pluralize:",s"}}</h3>
                 {% if object.details.invoice_address %}
                     {% with object.details.invoice_address as address %}
-                        <small class="text-muted">
+                        <small class="text-body-secondary">
                             {{address.place}}{% if address.place %} &middot;{% endif %}
                             {{address.street}}{% if address.street %} &middot;{% endif %}
                             {{address.city}}, {{address.region}} &middot;
@@ -32,7 +32,7 @@
                     {% endwith %}
                 {% else %}
                     {% with object.get_leader.address as address %}
-                        <small class="text-muted">
+                        <small class="text-body-secondary">
                             {{address.address_1}}{% if address.address_1 %} &middot;{% endif %}
                             {{address.address_2}}{% if address.address_2 %} &middot;{% endif %}
                             {{address.city}}, {{address.region}} &middot;
@@ -94,7 +94,7 @@
         {% endfor %}
         {% for email, member in object.extra_team.items %}
         <div class="col-xs-6 col-sm-4 col-md-3">
-            <div class="p-3 mb-2  bg-danger text-muted">
+            <div class="p-3 mb-2  bg-danger text-body-secondary">
                 <img class="pull-left team-img" src="{% static 'img/blank-profile.png' %}" title="Not a Registered User">
                 <div class="overflow ellipsis" style="line-height: 1;">
                     {{ member.first_name }} {{ member.last_name }}<br/>

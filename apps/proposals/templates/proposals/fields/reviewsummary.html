@@ -10,13 +10,13 @@
             <div class="col-xs-8" id="{{ field.name }}-{{ rev.review.pk }}-description">
                 <h5 class="my-0">
                     {% if rev.review.reviewer %}
-                        <i class="text-muted bi-person-square icon-lg" title="{{ rev.review.reviewer }}"></i>
+                        <i class="text-body-secondary bi-person-square icon-lg" title="{{ rev.review.reviewer }}"></i>
                     {% else %}
-                        <i class="text-muted bi-person-bounding-box icon-lg"
+                        <i class="text-body-secondary bi-person-bounding-box icon-lg"
                            title="{{ rev.review.role|human_role }}"></i>
                     {% endif %}
                     {{ rev.review.type }}
-                    <span class="text-muted">
+                    <span class="text-body-secondary">
                         |
                         {% if rev.review.state > rev.review.STATES.open %}
                             {{ rev.review.get_state_display }}
@@ -58,10 +58,10 @@
 
             <div class="col-xs-12">
                 {% if rev.recommendation %}
-                    <div class="text-muted"><strong>Recommendation:</strong>&emsp;{{ rev.recommendation }}
+                    <div class="text-body-secondary"><strong>Recommendation:</strong>&emsp;{{ rev.recommendation }}
                     </div>{% endif %}
                 {% if rev.permissions %}
-                    <div class="text-muted safety-permissions">
+                    <div class="text-body-secondary safety-permissions">
                         <strong>Permissions:</strong>&emsp;
                         {{ rev.permissions }}
                     </div>
@@ -69,7 +69,7 @@
             </div>
             <div class="col-xs-12">
                 {% if rev.comments %}
-                    <div class="text-muted"><strong>Comments:</strong></div>
+                    <div class="text-body-secondary"><strong>Comments:</strong></div>
                     <ul class="review-comments list-unstyled">
                         {{ rev.comments }}
                     </ul>

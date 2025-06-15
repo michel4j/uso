@@ -33,8 +33,8 @@
                 </td>
             {% endif %}
             <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.modified|date }}{% elif rev.due_date %}Due {{ rev.due_date|date }}{% else %}&hellip;{% endif %}</td>
-            <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.score|floatformat:1 }}{% else %}<em class="text-muted">incomplete</em>{%  endif %}</td>
-            <td>{% if rev.state >= rev.STATES.submitted %}{{ rev|display_scores }}{% else %}<em class="text-muted">incomplete</em>{%  endif %}</td>
+            <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.score|floatformat:1 }}{% else %}<em class="text-body-secondary">incomplete</em>{%  endif %}</td>
+            <td>{% if rev.state >= rev.STATES.submitted %}{{ rev|display_scores }}{% else %}<em class="text-body-secondary">incomplete</em>{%  endif %}</td>
             <td>
                 {% if rev.state >= rev.STATES.submitted and rev.comments %}
                 <a title="Show/Hide Comments" href='#comments-{{rev.pk}}'
@@ -48,7 +48,7 @@
             {% if admin %}
             <td>
                 {% if rev.state >= rev.STATES.submitted %}
-                <i class="bi-lock icon-fw text-muted"></i>
+                <i class="bi-lock icon-fw text-body-secondary"></i>
                 {% else %}
                 <a href="{% url 'edit-review' pk=rev.pk %}"><i class="bi-pencil icon-fw"></i></a>
                 {% endif %}

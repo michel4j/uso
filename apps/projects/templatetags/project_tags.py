@@ -47,7 +47,7 @@ def sample_state_display(sample):
     if full_state == sample.STATES.approved:
         return f"<i class='bi-check-circle-fill icon-fw text-success'></i> {full_display}"
     elif full_state == sample.STATES.pending:
-        return f"<i class='bi-hourglass  icon-fw text-muted'></i> {full_display}"
+        return f"<i class='bi-hourglass  icon-fw text-body-secondary'></i> {full_display}"
     elif full_state == sample.STATES.rejected:
         return f"<i class='bi-ban  icon-fw text-danger'></i> {full_display}"
     elif full_state == sample.STATES.expired:
@@ -86,7 +86,7 @@ def get_time_class(start, end):
         return "text-success"
     elif now < start:
         return "text-info"
-    return "text-muted"
+    return "text-body-secondary"
 
 
 @register.simple_tag(takes_context=True)
@@ -135,7 +135,7 @@ def no_equipment(beamlines):
 @register.filter
 def risk_background(material):
     return {
-        0: 'bg-white text-muted',
+        0: 'bg-white text-body-secondary',
         1: 'bg-success',
         2: 'bg-info',
         3: 'bg-warning',

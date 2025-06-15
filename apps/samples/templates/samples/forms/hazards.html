@@ -30,17 +30,18 @@
                         <h4><strong>{{ group.name }}</strong>&mdash;{{ group.description }}</h4>
                         <hr class="hr-xs"/>
                         <ul class="list-group list-group-flush">
+                            {% with forloop.counter as group_number %}
                             {% for hz in group.hazards %}
                                 <li class="list-group-item">
                                     <div class="form-check">
                                             <input name="hazard_list" class="form-check-input"
-                                                   id="hazards-{{ hz.pk }}"
+                                                   id="hazards-{{ group_number }}-{{ hz.pk }}"
                                                    value="{{ hz.pk }}"
                                                    {% if hz.selected %}checked="checked"{% endif %}
                                                    data-hazard-code="{{ hz.hazard.code }}"
                                                    type="checkbox"
                                                    >
-                                            <label for="hazards-{{ hz.pk }}" class="form-check-label d-flex">
+                                            <label for="hazards-{{ group_number }}-{{ hz.pk }}" class="form-check-label d-flex">
                                                 {{ hz.hazard.code }}&nbsp;{% if hz.signal %}
                                                 <strong>{{ hz.signal.title }}:</strong>&ensp;{% endif %}
                                                 {{ hz.hazard.text }}
@@ -55,6 +56,7 @@
                                         </div>
                                 </li>
                             {% endfor %}
+                            {% endwith %}
                         </ul>
                     </div>
                 {% endfor %}
@@ -95,6 +97,12 @@
 
             updateHazardCounts();   // Initial count update
             $form.on('click', 'input', function () {
+                const $input = $(this);
+                // Some hazards appear on multiple tabs, so we need to ensure that when one is clicked,
+                // all inputs with the same hazard code are checked or unchecked accordingly.
+                $form.find(`input[data-hazard-code="${$input.data('hazard-code')}"]`).each(function () {
+                    $(this).prop('checked', $input.is(':checked'));
+                });
                 updateHazardCounts();
             });
             $("#apply-decision").click(function () {
@@ -105,6 +113,7 @@
                 const previousCodes = new Set();
                 const $hazardsInput = $("#saved-hazards-{{ sample.pk }}");
                 const previous = new Set($hazardsInput.data("saved-hazards"));  // initialize with previously saved values
+
 
                 $form.find("input[name='hazard_list']").each(function () {
                     let $input = $(this);   // current checkbox input
@@ -119,6 +128,7 @@
                         previousCodes.add($input.data('hazard-code'));
                     }
                 });
+
                 const removedCodes = previousCodes.difference(selectedCodes);
                 const addedCodes = selectedCodes.difference(previousCodes);
                 $hazardsInput.val(JSON.stringify([...selected]));
@@ -133,10 +143,10 @@
                     $removed.html("");
                     $added.html("");
                     if (removedCodes.size) {
-                        $removed.html(`Added: ${[...removedCodes].join(', ')}`);
+                        $removed.html(`Removed: ${[...removedCodes].join(', ')}`);
                     }
                     if (addedCodes.size) {
-                        $added.html(`Removed: ${[...addedCodes].join(', ')}`);
+                        $added.html(`Added: ${[...addedCodes].join(', ')}`);
                     }
                 } else {
                     $notification.addClass("d-none");
@@ -149,10 +159,6 @@
                 $("#modal").modal('hide');
             });
         });
-
-
-
-
     </script>
 {% endblock %}
 

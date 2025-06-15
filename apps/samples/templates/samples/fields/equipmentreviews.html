@@ -9,9 +9,9 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <h5 class="my-0 text-condensed"><strong>{{ item.name }}</strong></h5>
-                        Manufacturer: <em class="text-muted">{{ item.manufacturer|default:"N/C" }}</em>&emsp;
-                        Model: <em class="text-muted">{{ item.model|default:"N/C" }}</em>&emsp;
-                        Type: <em class="text-muted">{{ item.type|default:"N/C" }}</em>&emsp;
+                        Manufacturer: <em class="text-body-secondary">{{ item.manufacturer|default:"N/C" }}</em>&emsp;
+                        Model: <em class="text-body-secondary">{{ item.model|default:"N/C" }}</em>&emsp;
+                        Type: <em class="text-body-secondary">{{ item.type|default:"N/C" }}</em>&emsp;
                         {% if item.description %}
                             <hr class="hr-xs"/>
                             {% if item.description %}<strong>Description:</strong> {{item.description}}{% endif %}

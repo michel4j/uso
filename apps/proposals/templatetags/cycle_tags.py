@@ -22,7 +22,7 @@ CYCLE_STATE_STYLES = {
     ReviewCycle.STATES.review: 'text-warning',
     ReviewCycle.STATES.schedule: 'text-primary',
     ReviewCycle.STATES.active: "text-success",
-    ReviewCycle.STATES.archive: "text-muted",
+    ReviewCycle.STATES.archive: "text-body-secondary",
 }
 
 
@@ -305,7 +305,7 @@ def cycle_comments(cycle):
         )
     else:
         txt = (
-            "<span class='text-muted'>The call for proposals to be scheduled during the selected period "
+            "<span class='text-body-secondary'>The call for proposals to be scheduled during the selected period "
             "will open in {open_duration} on <em>{open_date}</em>. The list of available techniques and beamlines "
             "may change before that date. Note that the earliest beam time for the selected scheduling period is "
             "in {start_duration}.</span>"

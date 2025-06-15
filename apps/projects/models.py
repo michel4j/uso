@@ -359,7 +359,7 @@ class Material(TimeStampedModel):
         hazards = Hazard.objects.filter(pk__in=self.samples.values_list('hazards__pk', flat=True))
         hazard_types = Pictogram.objects.filter(
             pk__in=self.samples.filter(is_editable=True).values_list('hazard_types__pk', flat=True))
-        return utils.summarize_pictograms(hazards, hazard_types)
+        return utils.summarize_pictograms(hazards, types=hazard_types)
 
     def title(self):
         return self.project.title

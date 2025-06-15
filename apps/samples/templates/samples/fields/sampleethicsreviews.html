@@ -13,10 +13,10 @@
 						<i class="bi-{% if sample.is_editable %}unlock{% else %}lock{% endif %} pull-left icon-md" style="padding: 0.75em 0.35em; color: rgba(0,0,0,0.35)"></i>
 
 						<h5 class="my-0 text-condensed"><strong>{{ sample.name }}</strong></h5>
-						Quantity: <em class="text-muted">{{ quantity }}</em>&emsp;
-                        Type: <em class="text-muted">{{ sample.get_kind_display }}</em>&emsp;
-                        State: <em class="text-muted">{{ sample.get_state_display }}</em>&emsp;
-                        Source: <em class="text-muted">{{ sample.source|default:"N/C" }}</em>&emsp;
+						Quantity: <em class="text-body-secondary">{{ quantity }}</em>&emsp;
+                        Type: <em class="text-body-secondary">{{ sample.get_kind_display }}</em>&emsp;
+                        State: <em class="text-body-secondary">{{ sample.get_state_display }}</em>&emsp;
+                        Source: <em class="text-body-secondary">{{ sample.source|default:"N/C" }}</em>&emsp;
                         {% if sample.description or sample.source or sample.extra %}
                             <hr class="hr-xs"/>
                             <em>{% if sample.description %}{{ sample.description|default:"" }}</em>{% endif %}

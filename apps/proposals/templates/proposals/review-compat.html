@@ -16,7 +16,7 @@
         </span>
         {% if conflict %}<span class="pull-right badge bg-danger">Conflict</span>{% endif %}
     </h5>
-    <small class="text-muted">{{reviewer.user.institution}}</small>
+    <small class="text-body-secondary">{{reviewer.user.institution}}</small>
     {% for tech in reviewer.techniques.all %}
     {% if forloop.first %}
     <hr class="hr-xs"/>

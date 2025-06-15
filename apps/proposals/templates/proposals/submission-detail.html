@@ -52,32 +52,32 @@
 {% block page-status-bar %}
     <h3 class="my-0"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
     <div>
-        <small class="text-wide text-muted">First Cycle:</small>
+        <small class="text-wide text-body-secondary">First Cycle:</small>
         <br/>
         {{ object.cycle }}
     </div>
     <div>
-        <small class="text-wide text-muted">Review Track:</small>
+        <small class="text-wide text-body-secondary">Review Track:</small>
         <br/>
         {{ object.track }}
     </div>
     {% if object.siblings.exists %}
         <div>
-            <small class="text-wide text-muted">Related:</small><br/>
+            <small class="text-wide text-body-secondary">Related:</small><br/>
             {% for submission in object.siblings.all %}
                 <a href='{% url "submission-detail" pk=submission.pk %}'>{{ submission }}</a>
                 {% if not forloop.last %},  {% endif %}{% endfor %}
         </div>
     {% endif %}
     <div>
-        <small class="text-wide text-muted">Type:</small>
+        <small class="text-wide text-body-secondary">Type:</small>
         <br/>
         {{ object.get_kind_display }}
     </div>
 
     <!--div>
         {% if not object.track.require_call %}
-            <small class="text-wide text-muted">Final Decision:</small><br/>
+            <small class="text-wide text-body-secondary">Final Decision:</small><br/>
             {% if object.state != object.STATES.closed %}
                 <em>Incomplete</em>
             {% else %}
@@ -88,7 +88,7 @@
                 {% endif %}
             {% endif %}
         {% else %}
-            <small class="text-wide text-muted">Final Score:</small><br/>
+            <small class="text-wide text-body-secondary">Final Score:</small><br/>
             {% if object.state != object.STATES.complete %}
                 <em>Incomplete</em>
             {% else %}
@@ -150,7 +150,7 @@
                                 <div class="row">
                                     {% for review_type, info in ranks.items %}
                                         <div class="col-xs-3">
-                                            <small class="text-wide text-muted">{{ review_type }}</small><br/>
+                                            <small class="text-wide text-body-secondary">{{ review_type }}</small><br/>
                                             <h2 class="my-0 text-center"
                                                 style="color: {{ info.score |color_scale }}">
                                                 <strong>{{ info.score | floatformat:-1 }}</strong></h2>

@@ -71,13 +71,13 @@ Session Permit
 {% block page-status-bar %}
      <h3 class="my-0"><span class="badge bg-info text-condensed">{{object.get_state_display}}</span></h3>
      <div>
-         <small class="text-wide text-muted">Beamline:</small><br/>{{object.beamline.acronym}}
+         <small class="text-wide text-body-secondary">Beamline:</small><br/>{{object.beamline.acronym}}
      </div>
      <div>
-         <small class="text-wide text-muted">Staff:</small><br/>{{object.staff}}
+         <small class="text-wide text-body-secondary">Staff:</small><br/>{{object.staff}}
      </div>
      <div>
-         <small class="text-wide text-muted">Representative:</small><br/>{{object.spokesperson|default:"&hellip;"}}
+         <small class="text-wide text-body-secondary">Representative:</small><br/>{{object.spokesperson|default:"&hellip;"}}
      </div>
      <div>
          {{object.start|date:"F jS/Y H:i"}} &ndash; <br/>

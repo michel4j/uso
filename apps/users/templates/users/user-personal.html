@@ -29,7 +29,7 @@
                 </tr>
                 <tr>
                     <td class="item"><i class="bi-telephone icon-fw"></i></td>
-                    <td>{{user.address.phone|default:"<span class='text-muted'>(999)-999-9999</span>"}}</td>
+                    <td>{{user.address.phone|default:"<span class='text-body-secondary'>(999)-999-9999</span>"}}</td>
                 </tr>
                 <tr>
                     <td class="item"><i class="bi-envelope-at icon-fw"></i></td>
@@ -122,7 +122,7 @@
                        aria-expanded="false" aria-controls="full-agreement"><i class="bi-three-dots icon-fw"></i></a>
                 </span>
             </h4>
-                <small><span class="text-muted">Accepted {{ acceptance.modified|date }}
+                <small><span class="text-body-secondary">Accepted {{ acceptance.modified|date }}
                     <i class="bi-check2 icon-fw"></i></span></small>
             <p>{{ acceptance.agreement.description }}</p>
             <div class="row">

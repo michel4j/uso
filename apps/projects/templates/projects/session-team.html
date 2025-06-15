@@ -12,7 +12,7 @@
                     <h4 class="my-0"><strong>{{member}}</strong> {% show_project_roles object.project  member %}</h4>
                     <span style="font-size: 110%;">
                         <span class="overflow ellipsis">{{ member.email.lower }}</span>
-                        <span class="text-muted overflow ellipsis">{{ member.get_classification_display }}, {{member.institution|default:"No Institution Specified"}}</span>
+                        <span class="text-body-secondary overflow ellipsis">{{ member.get_classification_display }}, {{member.institution|default:"No Institution Specified"}}</span>
                     </span>
                 </div>
             </div>

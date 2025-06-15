@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div class="pull-left">
-                    <span class="text-condensed text-muted"><strong>
+                    <span class="text-condensed text-body-secondary"><strong>
                         <a href="{{ material.get_absolute_url }}">{{material.code}}</a>
                     </strong></span>
                 </div>
@@ -32,7 +32,7 @@
             </span>
 			{% if not forloop.last %}&middot;{% endif %}
 		{% endfor %}
-		<span class="text-muted">
+		<span class="text-body-secondary">
         {% for member in material.project.extra_team %}
 		{{member.first_name}} {{member.last_name}}
 		{% if not forloop.last %}&middot;{% endif %}

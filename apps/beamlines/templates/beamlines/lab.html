@@ -2,7 +2,7 @@
 {% load beamline_tags %}
 
 
-{% block page-title %}<span class="text-muted">{{ object.acronym }}</span>{% endblock %}
+{% block page-title %}<span class="text-body-secondary">{{ object.acronym }}</span>{% endblock %}
 
 {% block page-pretitle %}
     Laboratory
@@ -26,11 +26,11 @@
         Available{% endif %}</span>
     </h3>
     <div>
-        <small class="text-wide text-muted">Workspaces:</small>
+        <small class="text-wide text-body-secondary">Workspaces:</small>
         <br/>{% for ws in lab.workspaces.all %}{{ ws.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
     </div>
     <div>
-        <small class="text-wide text-muted">Required Permissions:</small>
+        <small class="text-wide text-body-secondary">Required Permissions:</small>
         <br/>
         {% for perm in lab.permissions.all %}
             {{ perm.code }}{% if not forloop.last %}, {% endif %}

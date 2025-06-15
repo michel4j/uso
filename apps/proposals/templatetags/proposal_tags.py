@@ -18,12 +18,12 @@ USO_TECHNICAL_REVIEWS = getattr(settings, 'USO_TECHNICAL_REVIEWS', ['technical']
 register = template.Library()
 
 STATE_ICON_CLASSES = {
-    Proposal.STATES.draft: "bi-file-earmark-richtext icon-sm icon-fw text-muted",
+    Proposal.STATES.draft: "bi-file-earmark-richtext icon-sm icon-fw text-body-secondary",
     Proposal.STATES.submitted: "bi-receipt icon-sm icon-fw text-primary",
 }
 
 STATE_CLASSES = {
-    Proposal.STATES.draft: "text-muted",
+    Proposal.STATES.draft: "text-body-secondary",
     Proposal.STATES.submitted: "text-info",
     Review.STATES.closed: "text-info",
     Review.STATES.pending: "text-warning",

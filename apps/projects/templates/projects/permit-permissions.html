@@ -2,7 +2,7 @@
         <div class="alert alert-info col-xs-12">
             <div class="row">
                 <div class="col-xs-12">
-                    <small class="text-wide text-muted">Required Permissions:</small><br/>
+                    <small class="text-wide text-body-secondary">Required Permissions:</small><br/>
                     {% for perm_code in object.permissions.all %}
                         <span class="badge bg-info">{{ perm_code }} (all)</span>&ensp;
                     {% endfor %}

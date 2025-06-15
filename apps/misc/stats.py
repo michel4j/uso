@@ -96,7 +96,7 @@ class DataTable(object):
             html = x.get_html_string(attributes=attrs, format=False)
             full_html += f"{html}\n"
         if self.heading:
-            _sub = f"<span class='text-muted'>{self.sub_heading}</span><hr class='hr-xs'/>" if self.sub_heading else ""
+            _sub = f"<span class='text-body-secondary'>{self.sub_heading}</span><hr class='hr-xs'/>" if self.sub_heading else ""
             full_html = f"<h4 class='no-bmargin'><strong>{self.heading}</strong></h4>{_sub}\n{full_html}"
 
         return mark_safe(full_html)

@@ -1,6 +1,6 @@
 {% load proposal_tags %}
 <div class="grid-cell col-sm-6 col-md-4 col-lg-3">
-    <div class="{% block grid-cell-class %}p-3 bg-warning text-muted{% endblock %}" style="margin-bottom: 0;">
+    <div class="{% block grid-cell-class %}p-3 bg-warning text-body-secondary{% endblock %}" style="margin-bottom: 0;">
         <div class="row-fluid">
             {% with object as reviewer %}
                 {% reviewer_workload as workload %}
@@ -19,7 +19,7 @@
                 >
                 <h5 class="text-condensed" style="margin: 0;"><strong><a
                         href="{% url 'edit-reviewer-profile' pk=reviewer.pk %}">{{ reviewer.user }}</a></strong></h5>
-                <small class="text-muted overflow ellipsis">{{ reviewer.user.institution }}</small>
+                <small class="text-body-secondary overflow ellipsis">{{ reviewer.user.institution }}</small>
             </span>
                 <hr class="hr-xs"/>
                 <span class="badge {% if reviewer.techniques.count %}progress-bar-info{% else %}progress-bar-warning{% endif %}"
