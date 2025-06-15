@@ -174,7 +174,15 @@ def get_permissions(context, data=None):
     if not isinstance(data, dict):
         data = {}
     perms = [(p, data.get(p.code)) for p in models.SafetyPermission.objects.filter(review=True)]
-    return perms
+    return {
+        'permissions': perms,
+        'requirements': {
+            'any': 'Require any',
+            'all': 'Require all',
+            'optional': 'Recommend',
+            'none': 'Not Required',
+        }
+    }
 
 
 @register.filter

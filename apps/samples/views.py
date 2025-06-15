@@ -224,10 +224,6 @@ class SampleHazards(RolePermsViewMixin, detail.DetailView):
                 set(self.object.hazards.values_list('pictograms__code', flat=True))
         )
         active_type = 'GHS03' if not selected_types else list(selected_types)[0]
-        annotation = {
-            'selected': Case(When(pk__in=hazard_pks, then=Value(True)), default=Value(False),
-                             output_field=BooleanField())
-        }
 
         groups = []
         for p in models.Pictogram.objects.exclude(code__in=['RG1', 'RG2', 'RG3', 'RG4', '000']):
@@ -248,8 +244,8 @@ class SampleHazards(RolePermsViewMixin, detail.DetailView):
                 'name': p.name,
                 'active': p.code == active_type,
                 'description': p.description,
-                'hazards': hazards.annotate(**annotation).order_by('hazard__code'),
-                'image': "/static/samples/pictograms/{}.svg".format(p.code),
+                'hazards': hazards.order_by('hazard__code'),
+                'image': f"/static/samples/pictograms/{p.code}.svg",
             })
         groups.append({
             'name': "Biohazardous infectious materials",
@@ -258,8 +254,7 @@ class SampleHazards(RolePermsViewMixin, detail.DetailView):
                 "Materials which are or may contain microorganisms, nucleic acids or proteins that "
                 "cause or are a probable cause of infection, with or without toxicity, in humans or animals."
             ),
-            'hazards': models.Hazard.objects.filter(hazard__code__startswith='RG').annotate(**annotation).order_by(
-                'hazard__code'),
+            'hazards': models.Hazard.objects.filter(hazard__code__startswith='RG').order_by('hazard__code'),
             'image': "/static/samples/pictograms/RG.svg",
         })
 

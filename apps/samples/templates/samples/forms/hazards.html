@@ -65,91 +65,93 @@
 {% endblock %}
 {% block modal_footer %}
     <button class="btn btn-secondary pull-left" data-bs-dismiss="modal" type="button">Cancel</button>
-    <button type="button" data-command="approve" class="sample-decision btn btn-primary">Apply</button>
+    <button id="apply-decision" type="button" data-command="approve" class="btn btn-primary">Apply</button>
 {% endblock %}
 {% block modal_scripts %}
     <script>
-
         function updateHazardCounts() {
             // Update the hazard counts in the tab headers
             $("#hazard-editor .nav-tabs .nav-link").each(function () {
-                let tabId = $(this).find('a').attr('href');
-                let numSelected = $(`${tabId} input`).length;
-                console.log($(tabId), numSelected);
-                $(this).find('.category-count').html(numSelected ? `<div class='text-muted'>${numSelected}</div>` : "");
-
+                let tabId = $(this).attr('href');
+                let numSelected = $(`${tabId} input:checked`).length;
+                $(this).find('.category-count').html(numSelected ? `${numSelected}` : "");
             });
         }
 
         $(document).ready(function () {
             const $form = $("#hazards-form");
+            const hazards = JSON.parse($("#saved-hazards-{{ sample.pk }}").val() || "[]");  // Get saved hazards from the input field
+
+            // Initialize the checkboxes based on saved hazards
+            $form.find("input[name='hazard_list']").each(function () {
+                let $input = $(this);   // current checkbox input
+                let hazardId = Number($input.val());
+                if (hazards.includes(hazardId)) {
+                    $input.prop('checked', true);
+                } else {
+                    $input.prop('checked', false);
+                }
+            });
+
+            updateHazardCounts();   // Initial count update
             $form.on('click', 'input', function () {
                 updateHazardCounts();
             });
+            $("#apply-decision").click(function () {
+                // Collect selected hazards and their codes and apply them to the input fields within
+                // the main form from which this modal was opened.
+                const selected = new Set();
+                const selectedCodes = new Set();
+                const previousCodes = new Set();
+                const $hazardsInput = $("#saved-hazards-{{ sample.pk }}");
+                const previous = new Set($hazardsInput.data("saved-hazards"));  // initialize with previously saved values
 
-        });
-        /*
-            Array.prototype.diff = function (a) {
-                return this.filter(function (i) {
-                    return a.indexOf(i) < 0;
+                $form.find("input[name='hazard_list']").each(function () {
+                    let $input = $(this);   // current checkbox input
+
+                    // Get the value and code from the input if checked
+                    if ($input.is(':checked')) {
+                        selected.add(Number($input.val()));
+                        selectedCodes.add($input.data('hazard-code'));
+                    }
+                    // save codes for previously selected hazards
+                    if (previous.has(Number($input.val()))) {
+                        previousCodes.add($input.data('hazard-code'));
+                    }
                 });
-            };
+                const removedCodes = previousCodes.difference(selectedCodes);
+                const addedCodes = selectedCodes.difference(previousCodes);
+                $hazardsInput.val(JSON.stringify([...selected]));
+                $hazardsInput.change();
 
-            $("button.sample-decision").click(function () {
-                var hazards = {};
-                var selected = [];
-                var sel_codes = [];
-                var prev_codes = [];
-                var hazards_input = $("#{{ field_name }}-{{ sample.pk }}-hazards-container input.hazards-field");
-            var previous = hazards_input.data("saved-hazards");  //previously saved values only
-            var cmd = $("#{{ field_name }}-{{ sample.pk }}-hazards-container a.edit-hazards-command");
+                const $notification = $("#hazard-changes-{{ sample.pk }}");
+                const $added = $notification.find(".added");
+                const $removed = $notification.find(".removed");
 
-            $('#hazard-editor').find("input[name='hazard_list']").each(function () {
-                var val = $(this).val();
-                var code = $(this).attr('data-hazard-code');
-                if ($.inArray(val, previous) > -1) {
-                    prev_codes.push(code);
+                if ((removedCodes.size) || (addedCodes.size)) {
+                    $notification.removeClass("d-none");
+                    $removed.html("");
+                    $added.html("");
+                    if (removedCodes.size) {
+                        $removed.html(`Added: ${[...removedCodes].join(', ')}`);
+                    }
+                    if (addedCodes.size) {
+                        $added.html(`Removed: ${[...addedCodes].join(', ')}`);
+                    }
+                } else {
+                    $notification.addClass("d-none");
                 }
-                if ($(this).is(':checked')) {
-                    selected.push(val);
-                    sel_codes.push(code);
+                if (selected.size) {
+                    $("#hazard-command-{{ sample.pk }}").addClass('highlighted');
+                } else {
+                    $("#hazard-command-{{ sample.pk }}").removeClass('highlighted');
                 }
+                $("#modal").modal('hide');
             });
-            var removed_codes = prev_codes.diff(sel_codes);
-            var added_codes = sel_codes.diff(prev_codes);
-
-            hazards_input.val(JSON.stringify(selected));
-            hazards_input.change();
-            if (selected.length) {
-                cmd.addClass('highlighted');
-            } else {
-                cmd.removeClass('highlighted');
-            }
-
-            var notification = $("#{{ field_name }}-{{ sample.pk }}-changes");
-            var added = notification.find(".added");
-            var removed = notification.find(".removed");
-
-            if ((removed_codes.length) || (added_codes.length)) {
-                if (removed_codes.length) {
-                    removed.html("<i class='bi-dash-lg-circle text-danger icon-fw' title='Removed'></i>" + removed_codes.join(', '));
-                    notification.removeClass("hidden");
-                } else {
-                    removed.html("");
-                }
-                if (added_codes.length) {
-                    added.html("<i class='bi-plus-circle text-success icon-fw' title='Added'></i>" + added_codes.join(', '));
-                    notification.removeClass("hidden");
-                } else {
-                    added.html("");
-                }
-            } else {
-                notification.addClass("hidden");
-            }
-            $("#modal").modal('hide');
-
         });
-        */
+
+
+
 
     </script>
 {% endblock %}

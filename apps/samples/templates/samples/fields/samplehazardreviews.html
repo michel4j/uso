@@ -48,16 +48,19 @@
                                 <a title="Toggle Reject" href='#0' class="reject-sample-command command-icon pull-right">
                                     <i class="icon-fw"></i>
                                 </a>
-                                <a title="Hazards" href='#0' class="edit-hazard-command command-icon pull-right {% if hazard_ids %}highlighted{% endif %}"
-                                   data-modal-url="{% url 'sample-hazards'  pk=sample.pk field_name=field.name%}">
+                                <a title="Hazards" href='#0' class="command-icon pull-right {% if hazard_ids %}highlighted{% endif %}"
+                                   id="hazard-command-{{ sample.pk }}"
+                                   data-modal-url="{% url 'sample-hazards'  pk=sample.pk field_name=field.name %}?hazards={{ hazard_ids}}"
+                                >
                                     <i class="bi-activity icon-fw"></i>
                                 </a>
-                                <a title="Permissions" href='#0' class="edit-permission-command command-icon  pull-right {% if permissions %}highlighted{% endif %}"
+                                <a title="Permissions" href='#0' class="command-icon  pull-right {% if permissions %}highlighted{% endif %}"
+                                      id="permission-command-{{ sample.pk }}"
                                    data-modal-url="{% url 'sample-permissions'  pk=sample.pk field_name=field.name %}">
                                     <i class="bi-key icon-fw"></i>
                                 </a>
                             {% else %}
-                                <span title="Sample Locked! Already Reviewed." class="edit-hazard-command command-icon  pull-right">
+                                <span title="Sample Locked! Already Reviewed." class="command-icon  pull-right">
                                     <i class="bi-lock icon-fw text-muted"></i>
                                 </span>
                             {% endif %}
@@ -72,14 +75,15 @@
                             <input type="hidden" class="hazards-field" name="{{ field.name }}.hazards.{{ sample.pk }}"
                                    data-saved-hazards='{{ hazard_ids|jsonify}}'
                                    value='{{ hazard_ids|jsonify}}'
+                                   id="saved-hazards-{{ sample.pk }}"
                             >
-                            <input type="hidden" class="permissions-field" name="{{ field.name }}.permissions.{{ sample.pk }}"  value='{{ permissions|jsonify }}'>
-                            <input type="hidden" class="rejection-field" name="{{ field.name }}.rejected.{{ sample.pk }}" {% if rejected %}value=1{% endif %}>
-                            <input type="hidden" class="keywords-field" name="{{ field.name }}.keywords.{{ sample.pk }}." value="">
+                            <input id="permissions-{{ sample.pk }}" type="hidden" class="permissions-field" name="{{ field.name }}.permissions.{{ sample.pk }}"  value='{{ permissions|jsonify }}'>
+                            <input id="rejected-{{ sample.pk }}" type="hidden" class="rejection-field" name="{{ field.name }}.rejected.{{ sample.pk }}" {% if rejected %}value=1{% endif %}>
+                            <input id="keywords-{{ sample.pk }}" type="hidden" class="keywords-field" name="{{ field.name }}.keywords.{{ sample.pk }}." value="">
                         </div>
                     </div>
 
-                    <div id="{{ field.name }}-{{ sample.pk }}-changes" class="p-3 mb-3 bg-warning hidden changes-notes">
+                    <div id="hazard-changes-{{ sample.pk }}" class="p-3 mb-3 bg-warning d-none changes-notes">
                         <i class="bi-floppy icon-fw" title="Changes have not been saved"></i>&ensp;
                         <span class="added"></span>&ensp;
                         <span class="removed"></span>
@@ -88,7 +92,7 @@
                     <div class="row">
 
                         <!-- Precautions Section -->
-                        <div class="col-xs-12 collapse" id="{{ field.name }}-precautions-{{ sample.pk }}">
+                        <div class="col-xs-12 collapse" id="hazard-precautions-{{ sample.pk }}">
                             <table class="table table-hover" style="font-size: 85%;">
                                 <tr>
                                     <th colspan="2">Precaution Statement</th>
@@ -124,55 +128,18 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-
-        $(document).on('click', '.edit-hazard-command', function () {
-            var hazards_input = $(this).siblings("input.hazards-field");
-            var hazards_json = hazards_input.val(); // apply current set, not previously saved ones in data-saved-hazards
-            var url = $(this).data('target');
-            if (hazards_json) {
-                url = url + "?hazards=" + hazards_json;
-            }
-            $('#modal-form').load(encodeURI(url), function () {
-                // Check selected hazards
-                if (hazards_json) {
-                    var selected = $.map(JSON.parse(hazards_json), function (pk, i) {
-                        return '#hazards-' + pk;
-                    }).join();
-                    $(selected).attr("checked", "checked");
-                }
-            });
-        });
-
-        $(document).on('click', '.edit-permission-command', function () {
-            var perm_input = $(this).siblings("input.permissions-field");
-            var perm_json = perm_input.val();
-            var permissions = {};
-
-            if (perm_json) {
-                permissions = JSON.parse(perm_json)
-            }
-            var url = $(this).data('target');
-            $('#modal-form').load(url, function () {
-                if (permissions) {
-                    $.each(permissions, function (key, value) {
-                        var row = $('#modalForm').find('.permission-row.perm-' + key);
-                        row.find('input[value="' + value + '"]').attr('checked', 'checked');
-                    });
-                }
-            });
-        });
-
         $(document).on('click', '.reject-sample-command', function () {
-            var reject_input = $(this).siblings("input.rejection-field");
-            var container = reject_input.closest(".sample-row");
-            var val = reject_input.val();
+            // Toggle the rejection state of the sample
+            const $rejectInput = $(this).siblings("input.rejection-field");
+            const container = $rejectInput.closest(".sample-row");
+            const val = $rejectInput.val();
 
             if (val) {
-                reject_input.val("");
+                $rejectInput.val("");
                 container.removeClass("rejected-sample");
             } else {
-                reject_input.val(1);
-                reject_input.change();
+                $rejectInput.val(1);
+                $rejectInput.change();
                 container.addClass("rejected-sample");
             }
         });

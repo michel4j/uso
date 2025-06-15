@@ -186,19 +186,35 @@ class SampleEthicsReviews(FieldType):
         return val
 
 
+def _get_value(val):
+    """
+    Extracts the value from the input, which can be a string or a list.
+    :param val: The input value.
+    :return: The cleaned value.
+    """
+    if isinstance(val, str):
+        return val
+    elif isinstance(val, list) and len(val):
+        return val[0]
+    return None
+
+
 class Permissions(FieldType):
     name = _("Permissions")
     icon = "bi-key"
     options = ['required']
     settings = ['label', 'options', ]
     template_theme = "samples/fields"
-    multi_valued = True
+    multi_valued = False
 
-    def clean(self, val, multi=True, validate=True):
-        if isinstance(val, list):
-            val = super().clean(val, multi=multi, validate=validate)
-            val = {v['code']: v.get('kind') for v in val if not v.get('kind') in ['', 'none', None]}
-        return val
+    def clean(self, val, multi=False, validate=True):
+        values = {
+            key: _get_value(value) for key, value in val.items()
+        }
+        print(values)
+        return {
+            k: v for k, v in values.items() if v is not None
+        }
 
 
 class EquipmentReviews(FieldType):
