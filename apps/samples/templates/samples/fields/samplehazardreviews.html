@@ -5,18 +5,18 @@
 {% get_material_samples data=data material=reference as samples %}
 <div class="controls " id="{{ field.name }}-controls" data-field-name="{{ field.name }}">
     <div class="sample-list">
-        <div id="{{ field.name }}-list">
+        <ul id="{{ field.name }}-list" class="list-group list-group-flush">
             {% for sample, quantity, hazard_ids, sample_hazards, review_hazards, rejected, permissions in samples %}
                 {% get_precautions hazards=review_hazards as precautions %}
-                <div id="{{ field.name }}-{{ sample.pk }}-hazards-container"
+                <li id="{{ field.name }}-{{ sample.pk }}-hazards-container"
                      data-saved-hazards="{{ hazard_ids|join:',' }}"
-                     class="p-3 mb-3 sample-row {% if rejected %}rejected-sample{%  endif %} {% if not sample.is_editable %}reviewed-sample{% else %}pending-sample{% endif %}">
+                     class="p-5 sample-row list-group-item {% if rejected %}rejected-sample{%  endif %} {% if not sample.is_editable %}reviewed-sample{% else %}pending-sample{% endif %}">
                     <div class="row">
                         <div class="col-xs-12">
 						    <span class="pull-right text-right">
 							{% show_pictograms sample_hazards sample.hazard_types size=28 %}
 						    </span>
-                            <h5 class="my-0 text-condensed"><strong>{{ sample.name }}</strong></h5>
+                            <p class="lead text-condensed"><strong>{{ sample.name }}</strong></p>
                             Quantity: <em class="text-muted">{{ quantity }}</em>&emsp;
                             Type: <em class="text-muted">{{ sample.get_kind_display }}</em>&emsp;
                             State: <em class="text-muted">{{ sample.get_state_display }}</em>&emsp;
@@ -46,29 +46,29 @@
 
                             {% if sample.is_editable %}
                                 <a title="Toggle Reject" href='#0' class="reject-sample-command command-icon pull-right">
-                                    <i class="icon-fw"></i>
+                                    <i class="icon-fw icon-md"></i>
                                 </a>
                                 <a title="Hazards" href='#0' class="command-icon pull-right {% if hazard_ids %}highlighted{% endif %}"
                                    id="hazard-command-{{ sample.pk }}"
                                    data-modal-url="{% url 'sample-hazards'  pk=sample.pk field_name=field.name %}?hazards={{ hazard_ids}}"
                                 >
-                                    <i class="bi-activity icon-fw"></i>
+                                    <i class="bi-activity icon-md icon-fw"></i>
                                 </a>
                                 <a title="Permissions" href='#0' class="command-icon  pull-right {% if permissions %}highlighted{% endif %}"
                                       id="permission-command-{{ sample.pk }}"
                                    data-modal-url="{% url 'sample-permissions'  pk=sample.pk field_name=field.name %}">
-                                    <i class="bi-key icon-fw"></i>
+                                    <i class="bi-key icon-md icon-fw"></i>
                                 </a>
                             {% else %}
                                 <span title="Sample Locked! Already Reviewed." class="command-icon  pull-right">
-                                    <i class="bi-lock icon-fw text-muted"></i>
+                                    <i class="bi-lock icon-md icon-fw text-muted"></i>
                                 </span>
                             {% endif %}
                             {% if precautions %}
                                 <a title="Precautions" class="command-icon pull-right {% if precautions.count %}highlighted{% endif %}" role="button" data-bs-toggle="collapse"
-                                   aria-expanded="false" aria-controls="{{ field.name }}-precautions-{{ sample.pk }}"
-                                   href='#{{ field.name }}-precautions-{{ sample.pk }}'>
-                                    <i class="bi-list-ol icon-fw"></i>
+                                   aria-expanded="false" aria-controls="hazard-precautions-{{ sample.pk }}"
+                                   href='#hazard-precautions-{{ sample.pk }}'>
+                                    <i class="bi-list-ol icon-md icon-fw"></i>
                                 </a>
                             {% endif %}
                             <input type="hidden" class="pk-field" name="{{ field.name }}.sample.{{ sample.pk }}" value="{{ sample.pk }}">
@@ -115,14 +115,14 @@
                             </table>
                         </div>
                     </div>
-                </div>
+                </li>
             {% empty %}
                 <div class="empty">
                     <i class="bi-exclamation-triangle text-warning icon-md"></i><br/>
                     This project will not use any samples.
                 </div>
             {% endfor %}
-        </div>
+        </ul>
     </div>
 </div>
 

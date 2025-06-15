@@ -2054,15 +2054,13 @@ dl {
     position: absolute;
     top: 0;
     left: 0;
-    height: 12px;
-    width: 12px;
-    background: var(--bs-warning-bg-subtle);
-    border: 3px solid var(--bs-border-color-translucent);
+    height: 1em;
+    width: 1em;
+    background: var(--bs-danger);
     line-height: 12px;
     font-size: 8px;
     border-radius: 20px;
     text-align: center;
-    opacity: 0.8;
     content: "";
   }
 }
