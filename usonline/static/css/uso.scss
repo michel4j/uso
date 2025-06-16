@@ -273,6 +273,7 @@ html, body {
   color: var(--uso-accent-text-0, #fff);
 }
 
+
 pre {
   background: inherit;
   color: inherit;
@@ -1671,7 +1672,7 @@ table.fixed-header {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: flex-end;
   line-height: 1;
   gap: 0.5em;
   text-align: center;

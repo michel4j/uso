@@ -15,16 +15,18 @@
 
 {% block content %}
     <div id="review-grid" class="bg-secondary-subtle">
-        <div id="review-proposal" class="page">
+        <div id="review-content" class="page">
+             <div id="review-proposal">
                 {% if review.type.is_safety or review.type.is_approval %}
                     {% include "projects/safety-detail.html" with material=reference %}
                 {% else %}
                     {% include "proposals/proposal-content.html" with proposal=reference.proposal %}
                 {% endif %}
-        </div>
-        <div id="review-extras" class="page bg-notes-warning">
+             </div>
+            <div id="review-extras" class="bg-notes-warning">
                 {% include "proposals/review-tools.html" %}
                 <div id="extra-review-content" class="p-4 scroll-box"></div>
+            </div>
         </div>
         <div id="review-form" class="page">
             <div class="">

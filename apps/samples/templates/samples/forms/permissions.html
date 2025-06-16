@@ -36,7 +36,6 @@
                 let $input = $(this);   // current radio input
                 let permissionName = $input.attr('name').split('__').at(-1); // Extract permission name
                 let permissionValue = permissions[permissionName] || null; // Get saved value
-                console.log(permissions, permissionName, permissionValue);
 
                 if (permissionValue) {
                     $input.filter(`[value="${permissionValue}"]`).prop('checked', true);
@@ -55,9 +54,6 @@
                         newPermissions[permissionName] = value; // Store the permission value
                     }
                 }
-
-
-                console.log("New Permissions:", newPermissions);
                 $permsInput.val(JSON.stringify(newPermissions));
                 if (Object.keys(newPermissions).length) {
                     cmd.addClass('highlighted');

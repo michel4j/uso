@@ -7,139 +7,26 @@
 <link rel="stylesheet" href="{% static 'samples/sample.min.css' %}">
 <div class="controls " id="{{ field.name }}-controls" data-field-name="{{ field.name }}">
     <div class="sample-list">
-        <ul id="{{ field.name }}-list" class="list-group list-group-flush">
+
+        <div id="{{ field.name }}-list" class="list-group list-group-flush">
             {% for sample, quantity, hazard_ids, sample_hazards, review_hazards, rejected, permissions in samples %}
                 {% get_precautions hazards=review_hazards as precautions %}
-                <li id="{{ field.name }}-{{ sample.pk }}-hazards-container"
-                    data-saved-hazards="{{ hazard_ids|join:',' }}"
-                    class="py-5 list-group-item sample-row {% if rejected %}rejected-sample{% endif %}{% if not sample.is_editable %}reviewed-sample{% else %}pending-sample{% endif %}">
-                    <div class="d-flex flex-row justify-content-between align-items-center">
-                        <div class="lead">{{ sample.name }}</div>
-                        {% show_pictograms sample_hazards extras=review_hazards types=sample.hazard_types %}
-                    </div>
-                    <div>
-                        <em>{% if sample.description %}{{ sample.description|default:"" }}</em>{% endif %}
-                    </div>
-                    <div class="sample-properties">
-                        <div class="sample-property">
-                            <div class="text-body-secondary small">Quantity:</div>
-                            <div>{{ quantity }}</div>
-                        </div>
-                        <div class="sample-property">
-                            <div class="text-body-secondary small">Type:</div>
-                            <div>{{ sample.get_kind_display }}</div>
-                        </div>
-                        <div class="sample-property">
-                            <div class="text-body-secondary small">State:</div>
-                            <div>{{ sample.get_state_display }}</div>
-                        </div>
-                        <div class="sample-property">
-                            <div class="text-body-secondary small">Source:</div>
-                            <div>{{ sample.source|default:"N/C" }}</div>
-                        </div>
-                    </div>
-                    <div class="sample-review-commands">
-                        {% if not sample.is_editable %}
-                            <div class="text-primary-emphasis">Reviewed</div>
-                        {% elif rejected %}
-                            <div class="text-danger-emphasis">Rejected</div>
-                        {% else %}
-                            <div class="text-info-emphasis">In Progress</div>
-                        {% endif %}
-                        <div class="sample-review-toolbar">
-                            {% if sample.is_editable %}
-                                <a title="Toggle Reject" href="#0" data-bs-toggle="tooltip"
-                                   class="command-icon reject-sample-command">
-                                    <i class="bi"></i>
-                                </a>
-                                <a title="Review Hazards" href="#0"
-                                   data-bs-toggle="tooltip"
-                                   class="command-icon {% if hazard_ids %}highlighted{% endif %}"
-                                   id="hazard-command-{{ sample.pk }}"
-                                   data-modal-url="{% url 'sample-hazards'  pk=sample.pk field_name=field.name %}"
-                                >
-                                    <i class="bi-activity icon-fw"></i>
-                                </a>
-                                <a title="Edit Permissions" href="#0"
-                                   data-bs-toggle="tooltip"
-                                   class="command-icon {% if permissions %}highlighted{% endif %}"
-                                   id="permission-command-{{ sample.pk }}"
-                                   data-modal-url="{% url 'sample-permissions' pk=sample.pk field_name=field.name %}"
-                                >
-                                    <i class="bi-key icon-fw"></i>
-                                </a>
-                            {% else %}
-                                <span title="Sample Locked! Already Reviewed." data-bs-toggle="tooltip">
-                                    <i class="bi-lock icon-fw text-body-secondary"></i>
-                                </span>
-                            {% endif %}
-                            {% if precautions %}
-                                <a title="Edit Precautions"
-                                   class="command-icon {% if precautions.count %}highlighted{% endif %}"
-                                   role="button" data-bs-toggle="collapse"
-                                   aria-expanded="false" aria-controls="hazard-precautions-{{ sample.pk }}"
-                                   href='#hazard-precautions-{{ sample.pk }}'>
-                                    <i class="bi-list-ol icon-fw" ></i>
-                                </a>
-                            {% endif %}
-                            <input type="hidden" class="pk-field" name="{{ field.name }}.sample.{{ sample.pk }}"
-                                   value="{{ sample.pk }}">
-                            <input type="hidden" class="hazards-field" name="{{ field.name }}.hazards.{{ sample.pk }}"
-                                   data-saved-hazards="{{ hazard_ids|jsonify }}" value="{{ hazard_ids|jsonify }}"
-                                   id="saved-hazards-{{ sample.pk }}">
-                            <input id="permissions-{{ sample.pk }}" type="hidden" class="permissions-field"
-                                   name="{{ field.name }}.permissions.{{ sample.pk }}"
-                                   value="{{ permissions|jsonify }}">
-                            <input id="rejected-{{ sample.pk }}" type="hidden" class="rejection-field"
-                                   name="{{ field.name }}.rejected.{{ sample.pk }}" {% if rejected %}value="1"{% endif %}>
-                            <input id="keywords-{{ sample.pk }}" type="hidden" class="keywords-field"
-                                   name="{{ field.name }}.keywords.{{ sample.pk }}" value="">
-                        </div>
-                    </div>
-
-                    <div id="hazard-changes-{{ sample.pk }}" class="alert alert-warning d-none changes-notes">
-                        <i class="bi-floppy icon-fw" title="Changes have not been saved"></i>&ensp;
-                        <span class="added"></span>&ensp;
-                        <span class="removed"></span>
-                    </div>
-
-                    <!-- Precautions Section -->
-                    <div class="collapse" id="hazard-precautions-{{ sample.pk }}">
-                        <table class="table table-hover" style="font-size: 85%;">
-                            <tr>
-                                <th colspan="2">Precaution Statement</th>
-                                <th>Keyword</th>
-                            </tr>
-                            {% for p in precautions %}
-                                <tr>
-                                    <td class="text-body-secondary">{{ p.code }}</td>
-                                    <td>{% precaution_text p %}</td>
-                                    <td>
-                                        {% if "{}" in p.text %}
-                                            <input width="auto" placeholder="keyword" type="text"
-                                                   aria-label="Precaution Keywords"
-                                                   name="{{ field.name }}.keywords.{{ sample.pk }}.{{ p.code }}"
-                                                   value="{% precaution_keyword p %}"
-                                            >
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-
-                </li>
+                <div class="sample-row py-5 list-group-item {% if rejected %}rejected-sample {% endif %}{% if not sample.is_editable %}reviewed-sample{% else %}pending-sample{% endif %}"
+                     id="{{ field.name }}-{{ sample.pk }}-hazards-container"
+                >
+                    {% include "samples/fields/sample-review.html" %}
+                </div>
             {% empty %}
                 <div class="empty">
                     <i class="bi-exclamation-triangle text-warning icon-md"></i><br/>
                     This project will not use any samples.
                 </div>
             {% endfor %}
-        </ul>
+        </div>
     </div>
 </div>
 
-<script type="text/javascript">
+<script >
     $(document).ready(function () {
         $(document).on('click', '.reject-sample-command', function () {
             // Toggle the rejection state of the sample

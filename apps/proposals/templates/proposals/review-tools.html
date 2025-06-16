@@ -1,35 +1,32 @@
 {% load dynforms %}
 
-<ul class="review-toolbar d-flex flex-row align-items-center">
-    <li>
-        <a class="expand-command" data-expand-name="clarifications" href="#0"
-                {% if review.reference.proposal %}
-                    {% define target=review.reference.proposal %}
-           data-extra-url="{% url 'show-proposal-clarifications' pk=target.pk %}"
-                {% elif review.reference.project %}
-                    {% define target=review.reference.project %}
-           data-extra-url="{% url 'show-project-clarifications' pk=target.pk %}"
+<div class="review-toolbar my-1">
+    <a class="expand-command" data-expand-name="clarifications" href="#0"
+            {% if review.reference.proposal %}
+                {% define target=review.reference.proposal %}
+       data-extra-url="{% url 'show-proposal-clarifications' pk=target.pk %}"
+            {% elif review.reference.project %}
+                {% define target=review.reference.project %}
+       data-extra-url="{% url 'show-project-clarifications' pk=target.pk %}"
+            {% endif %}
+       title="Clarifications" data-placement="right">
+        <span class="icon-stack">
+            <i class="icon-md bi-chat-left-text"></i>
+            <span class="superscript">
+                {% if target.clarifications.count %}
+                    <i class="bi-circle-fill icon-sm text-info-emphasis"></i>
                 {% endif %}
-           title="Clarifications" data-placement="right">
-            <span class="icon-stack">
-                <i class="icon-md bi-chat-left-text"></i>
-                <span class="superscript">
-                    {% if target.clarifications.count %}
-                        <i class="bi-circle-fill icon-sm text-info-emphasis"></i>
-                    {% endif %}
-                </span>
-            </span><br/>
-            <span class="tool-label">Responses</span>
-        </a>
-    </li>
-    <li>
-        <a class="expand-command" data-expand-name="attachments" href="#0"
-                {% if review.reference.proposal %}
-           data-extra-url="{% url 'show-proposal-attachments' pk=review.reference.proposal.pk %}"
-                {% elif review.reference.project %}
-           data-extra-url="{% url 'show-project-attachments' pk=review.reference.project.pk %}"
-                {% endif %}
-           title="Attachments" data-placement="right">
+            </span>
+        </span>
+        <span class="tool-label">Responses</span>
+    </a>
+    <a class="expand-command" data-expand-name="attachments" href="#0"
+            {% if review.reference.proposal %}
+       data-extra-url="{% url 'show-proposal-attachments' pk=review.reference.proposal.pk %}"
+            {% elif review.reference.project %}
+       data-extra-url="{% url 'show-project-attachments' pk=review.reference.project.pk %}"
+            {% endif %}
+       title="Attachments" data-placement="right">
             <span class="icon-stack">
                 <i class="icon-md bi-paperclip icon-fw"></i>
                 <span class="icon-stack-text superscript">
@@ -37,30 +34,25 @@
                         <i class="bi-circle-fill icon-sm text-info-emphasis"></i>
                     {% endif %}
                 </span>
-            </span><br/>
-            <span class="tool-label">Attachments</span>
-        </a>
-    </li>
-    <li>
-        <a class="" href="{% url 'print-review' pk=object.pk %}" title="Print Document" target="_blank"
-           data-placement="right">
-            <i class="bi-printer icon-md icon-fw"></i><br/>
-            <span class="tool-label">Print</span>
-        </a>
-    </li>
-    <li class="ms-auto">
-        <a href="#0"
-                {% if review.reference.proposal %}
-           data-modal-url="{% url 'request-proposal-clarification' pk=target.pk %}"
-                {% elif review.reference.project %}
-           data-modal-url="{% url 'request-project-clarification' pk=target.pk %}"
-                {% endif %}
-           title="Request Clarification" data-placement="right">
+            </span>
+        <span class="tool-label">Attachments</span>
+    </a>
+    <a class="" href="{% url 'print-review' pk=object.pk %}" title="Print Document" target="_blank"
+       data-placement="right">
+        <i class="bi-printer icon-md icon-fw"></i>
+        <span class="tool-label">Print</span>
+    </a>
+    <a href="#0" class="ms-auto"
+            {% if review.reference.proposal %}
+       data-modal-url="{% url 'request-proposal-clarification' pk=target.pk %}"
+            {% elif review.reference.project %}
+       data-modal-url="{% url 'request-project-clarification' pk=target.pk %}"
+            {% endif %}
+       title="Request Clarification" data-placement="right">
             <span class="icon-stack">
                 <i class="bi-chat icon-md text-success"></i>
                 <i class="bi-plus-sm"></i>
-            </span><br/>
-            <span class="tool-label">Clarification</span>
-        </a>
-    </li>
-</ul>
+            </span>
+        <span class="tool-label">Clarification</span>
+    </a>
+</div>
