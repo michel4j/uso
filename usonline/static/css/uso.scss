@@ -1495,9 +1495,11 @@ input[checked=checked] {
       --uso-callout-border: hsla(#{$hue}, #{$saturation}, #{$lightness}, 0.25);
     }
   }
+
   h4 {
     margin-bottom: 0.25rem;
   }
+
   > :last-child {
     margin-bottom: 0;
   }
@@ -2237,7 +2239,7 @@ body.registration {
   .tool-label {
     display: none;
   }
- .item-list {
+  .item-list {
     th:not(:first-child) {
       display: none;
     }
@@ -2590,4 +2592,32 @@ $stat-sizes: (
 
 .df-form-tabs:empty {
   border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+.scroll-box {
+  overflow-y: auto;
+  padding-right: 0.5em;
+}
+
+::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-right: 1px solid var(--bs-border-color-translucent);
+
+  &:hover {
+    background: var(--bs-secondary-bg-subtle);
+    border-right: 1px solid var(--bs-secondary-bg-subtle);
+  }
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bs-border-color-translucent);
+
+  &:hover {
+
+    background: var(--bs-primary);
+  }
 }
