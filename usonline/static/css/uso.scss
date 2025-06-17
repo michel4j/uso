@@ -1024,6 +1024,7 @@ $toast-icons: (
 
 #toast-container {
   width: 300px;
+  bottom: 70px;
 
   > .toast {
     display: flex;
@@ -2608,7 +2609,7 @@ $stat-sizes: (
   border-right: 1px solid var(--bs-border-color-translucent);
 
   &:hover {
-    background: var(--bs-secondary-bg-subtle);
+    background: var(--bs-border-color-translucent);
     border-right: 1px solid var(--bs-secondary-bg-subtle);
   }
 }
@@ -2617,7 +2618,8 @@ $stat-sizes: (
   background: var(--bs-border-color-translucent);
 
   &:hover {
-
+    border-top-left-radius: 0.25em;
+    border-bottom-left-radius: 0.25em;
     background: var(--bs-primary);
   }
 }

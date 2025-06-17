@@ -174,10 +174,9 @@ function showTimeline(selector, data) {
         .hover(function (d, i, datum) {
             $element.attr("title", datum.hover);
         });
-    const width = $element.width();
     const svg = d3.select("#timeline")
         .append("svg")
-        .attr("viewBox", `0 0 ${width}  70`)
+        .attr("viewBox", `0 0 ${$element.width()}  70`)
         .attr("width", "100%")
         .datum(data).call(chart);
 }
