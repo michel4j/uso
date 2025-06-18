@@ -21,10 +21,7 @@ class MessageTemplateForm(ModalModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-
-        self.body.form_action = self.request.get_full_path()
         self.body.append(
             Row(
                 FullWidth('name'),
@@ -36,12 +33,9 @@ class MessageTemplateForm(ModalModelForm):
             ),
         )
 
+
 class UpdateNotificationForm(ModalModelForm):
     class Meta:
         model = models.Notification
         fields = ()
 
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
-        super().__init__(*args, **kwargs)
-        self.body.form_action = self.request.get_full_path()

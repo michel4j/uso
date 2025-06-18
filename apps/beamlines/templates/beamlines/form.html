@@ -35,11 +35,10 @@
         });
     </script>
 {% endblock %}
+{% block page-classes %}p-5{% endblock %}
+{% block page-pretitle %}Beamline Form{% endblock %}
 {% block page-title %}{{ form.helper.title }}{% endblock %}
-{% block page-no-header %}{% endblock %}
 {% block page-content %}
-    <div class="page-body">
-        {% crispy form form.helper %}
-    </div>
+    {% crispy form form.helper %}
 {% endblock %}
 

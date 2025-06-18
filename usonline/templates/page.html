@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="page p-4">
+    <div class="page {% block page-classes %}p-4{% endblock %}">
         {% block page-no-header %}
             <div class="page-header">
                 <div class="d-flex flex-row align-items-center">

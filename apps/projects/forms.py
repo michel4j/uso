@@ -1,8 +1,7 @@
-
-from datetime import timedelta, date, time, datetime
+from datetime import datetime
 
 from crisp_modals.forms import ModalModelForm, Row, FullWidth
-from crispy_forms.bootstrap import StrictButton, PrependedText, AppendedText, InlineCheckboxes, InlineRadios
+from crispy_forms.bootstrap import StrictButton, PrependedText, AppendedText, InlineCheckboxes
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
 from django import forms
@@ -10,13 +9,12 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q, TextChoices
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-
-from . import models
-from beamlines.models import FacilityTag, Lab, LabWorkSpace
 from dynforms.forms import DynFormMixin, DynForm
+
+from beamlines.models import FacilityTag, Lab, LabWorkSpace
 from misc.utils import Joiner
 from proposals.models import ReviewCycle
-from scheduler.utils import round_time
+from . import models
 
 
 class DateField(AppendedText):
@@ -25,7 +23,6 @@ class DateField(AppendedText):
 
 
 class ProjectForm(DynFormMixin, forms.ModelForm):
-    type_code = 'project'
 
     class Meta:
         model = models.Project
@@ -45,13 +42,8 @@ class ProjectForm(DynFormMixin, forms.ModelForm):
         return data
 
 
-class MaterialForm(DynFormMixin, forms.Form):
-    type_code = 'amendment'
-
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance', None)
-        super().__init__(*args, **kwargs)
-        self.init_fields()
+class MaterialForm(DynForm):
+    pass
 
 
 class ExtensionForm(forms.ModelForm):
@@ -88,7 +80,8 @@ class ExtensionForm(forms.ModelForm):
             Div(css_class="modal-body"),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal',
+                                 css_class="btn btn-secondary pull-left"),
                     StrictButton('Extend', type='submit', value='Save', css_class='btn btn-primary pull-right'),
                     css_class="col-xs-12"
                 ),
@@ -176,7 +169,8 @@ class HandOverForm(forms.ModelForm):
             ),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal',
+                                 css_class="btn btn-secondary pull-left"),
                     StrictButton('Hand-Over', type='submit', value='Save', css_class='btn btn-primary pull-right'),
                     css_class="col-xs-12"
                 ),
@@ -214,7 +208,7 @@ class HandOverForm(forms.ModelForm):
         return cleaned_data
 
 
-class LabSessionForm(forms.ModelForm):
+class LabSessionForm(ModalModelForm):
     class Meta:
         model = models.LabSession
         fields = ['lab', 'workspaces', 'equipment', 'start', 'end', 'team']
@@ -229,9 +223,8 @@ class LabSessionForm(forms.ModelForm):
         self.request = kwargs.pop('request', None)
         self.project = kwargs.pop('project')
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.title = "Lab Sign-On"
-        self.helper.form_action = self.request.path
+        self.body.title = "Lab Sign-On"
+
         self.fields['team'].queryset = self.project.team.filter()
         self.fields['team'].help_text = (
             "Select all team members who will be using the lab during this session. "
@@ -256,14 +249,15 @@ class LabSessionForm(forms.ModelForm):
 
         self.fields['team'].required = True
 
-        self.helper.layout = Layout(
-            Div(
+        self.body.append(
+            Div(Div(
                 HTML(
-                    "<div class='p-3'>\n"
-                    "    <h4 class='overflow ellipsis'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></h4>\n"
+                    "<div class='alert alert-info'>\n"
+                    "    <p class='lead'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></p>\n"
                     "</div>\n"
                 ),
-                css_class="row modal-body"
+                css_class="row"),
+                css_class="col-12"
             ),
             Div(
                 Div(Field("lab", css_class="selectize"), css_class="col-sm-5"),
@@ -285,15 +279,12 @@ class LabSessionForm(forms.ModelForm):
             Div(
                 Div(InlineCheckboxes("team"), css_class="col-xs-12"),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
-                    StrictButton('Sign-On', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
-                ),
-                css_class="row modal-footer"
             )
+        )
+
+        self.footer.layout = Layout(
+            StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Sign-On', type='submit', value='Save', css_class='btn btn-primary ms-auto'),
         )
 
     def clean(self):
@@ -463,7 +454,8 @@ class SessionForm(forms.ModelForm):
             ),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal',
+                                 css_class="btn btn-secondary pull-left"),
                     StrictButton('Sign-On', type='submit', value='Save',
                                  css_class='btn pull-right {}'.format(submit_class)),
                     css_class="col-xs-12"
@@ -526,9 +518,9 @@ class SessionForm(forms.ModelForm):
                 f'{member}'
                 for member in team
                 if (
-                    Agreement.objects.pending_for_user(member).exists()
-                    and member.institution
-                    and not member.institution.state == member.institution.STATES.exempt
+                        Agreement.objects.pending_for_user(member).exists()
+                        and member.institution
+                        and not member.institution.state == member.institution.STATES.exempt
                 )
             ]
 
@@ -748,7 +740,8 @@ class RequestAdminForm(forms.ModelForm):
             ),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal',
+                                 css_class="btn btn-secondary pull-left"),
                     StrictButton(
                         'Save', type='submit', value='decline',
                         css_class='btn btn-primary pull-right'
@@ -806,7 +799,8 @@ class DeclineForm(forms.ModelForm):
             Div(css_class="modal-body"),
             Div(
                 Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
+                    StrictButton('Cancel', type='button', data_dismiss='modal',
+                                 css_class="btn btn-secondary pull-left"),
                     StrictButton('Yes, Decline', type='submit', value='decline',
                                  css_class='btn btn-primary pull-right'),
                     css_class="col-xs-12"

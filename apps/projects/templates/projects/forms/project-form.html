@@ -13,13 +13,9 @@
         <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
 {% endblock %}
 
-{% block page-title %}{{ form_title }}{% endblock %}
-{% block body_class %}extended-help{% endblock %}
 {% block content %}
-    <div id="proposal-form" class="page col-xs-12 col-sm-9">
+    <div id="proposal-form" class="page col-12">
         {% include "dynforms/form.html" %}
-    </div>
-    <div class="col-sm-3 d-none d-sm-block">
     </div>
 {% endblock %}
 

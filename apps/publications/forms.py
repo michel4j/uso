@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, date
 
+from crisp_modals.forms import ModalForm
 from crispy_forms.bootstrap import AppendedText, AccordionGroup, Accordion
 from crispy_forms.bootstrap import StrictButton, FormActions
 from crispy_forms.helper import FormHelper
@@ -11,8 +12,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from model_utils import Choices
 
-from crisp_modals.forms import ModalForm
-
 from . import models
 from . import utils
 from .models import Publication, Facility, FundingSource
@@ -20,8 +19,8 @@ from .models import Publication, Facility, FundingSource
 PUBLICATION_FIELDS = ['title', 'authors', 'kind', 'tags', 'users', 'areas', 'date', 'funders', 'notes', 'keywords',
                       'beamlines', 'reviewed']
 PUBLICATION_WIDGETS = {'title': forms.Textarea(attrs={'rows': 2}), 'authors': forms.Textarea(attrs={'rows': 2}),
-    'editor': forms.TextInput(), 'notes': forms.Textarea(attrs={'rows': 1}),
-    'keywords': forms.Textarea(attrs={'rows': 2}), 'reviewed': forms.HiddenInput(), }
+                       'editor': forms.TextInput(), 'notes': forms.Textarea(attrs={'rows': 1}),
+                       'keywords': forms.Textarea(attrs={'rows': 2}), 'reviewed': forms.HiddenInput(), }
 
 
 def json_default(obj):
@@ -41,42 +40,73 @@ class PublicationReviewForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        # self.fields['funders'].queryset = models.FundingSource.objects.filter(Q(location__icontains='Canada'))
         self.fields['reviewed'].initial = True
         self.fields['users'].help_text = ""
         self.fields[
             'funders'].help_text = "Start typing names or acronyms of funding agencies acknowledged in this paper."
         self.fields['funders'].queryset = models.FundingSource.objects.filter(location__icontains='Canada')
         self.fields['beamlines'].help_text = ""
-        self.helper.layout = Layout(Fieldset(_("Review Publication Details"),
-                                             Div(Div(Div(HTML("""{{object.cite|safe}}"""), css_class="p-3 mb-3"),
-                                                 css_class="col-sm-12"), css_class="row"),
-
-                                             Accordion(AccordionGroup("Details",
-                                                                      Div(Div(Field('kind', css_class="selectize"),
-                                                                              css_class='col-sm-12'),
-                                                                          Div('title', css_class='col-sm-12'),
-                                                                          Div('authors', css_class='col-sm-12'),
-                                                                          Div(AppendedText("date", mark_safe(
-                                                                              '<i class="bi-calendar"></i>')),
-                                                                              css_class="col-sm-12"),
-                                                                          css_class="row", ), self._extra_fields(),
-                                                                      active=False)), Accordion(
-                AccordionGroup("Additional Information",
-                               Div(Div(Field('tags', css_class="selectize", placeholder="select all that apply"),
-                                       css_class='col-sm-6'),
-                                   Div(Field('areas', css_class="selectize", placeholder="select all that apply"),
-                                       css_class='col-sm-6'),
-                                   Div(Field('beamlines', css_class="selectize"), css_class='col-sm-6'),
-                                   Div(Field('users', css_class="selectize"), css_class='col-sm-6'),
-                                   Div(Field('funders', css_class="selectize", placeholder="select funding sources"),
-                                       css_class='col-sm-12'), Div('keywords', css_class='col-sm-12'),
-                                   Div('notes', css_class='col-sm-12'), css_class="row"), ), )), FormActions(
-            StrictButton('Delete', id="delete-object", css_class="btn btn-danger",
-                         data_url=f"{reverse_lazy('delete-publication', kwargs={'pk': self.instance.pk})}"),
-            Div(StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
+        self.helper.layout = Layout(
+            Fieldset(
+                _("Review Publication Details"),
+                Div(
+                    Div(
+                        Div(
+                            HTML("""{{object.cite|safe}}"""),
+                            css_class="alert alert-info p-3 mb-3"
+                        ),
+                        css_class="col-sm-12"
+                    ),
+                    css_class="row"),
+                Accordion(
+                    AccordionGroup(
+                        "Details",
+                        Div(
+                            Div(
+                                Field('kind', css_class="selectize"), css_class='col-sm-12'),
+                            Div('title', css_class='col-sm-12'),
+                            Div('authors', css_class='col-sm-12'),
+                            Div(
+                                AppendedText("date", mark_safe('<i class="bi-calendar"></i>')),
+                                css_class="col-sm-12"
+                            ),
+                            css_class="row"
+                        ),
+                        self._extra_fields(),
+                        active=False
+                    ),
+                    AccordionGroup(
+                        "Additional Information",
+                        Div(
+                            Div(
+                                Field('tags', css_class="selectize", placeholder="select all that apply"),
+                                css_class='col-sm-6'
+                            ),
+                            Div(
+                                Field('areas', css_class="selectize", placeholder="select all that apply"),
+                                css_class='col-sm-6'
+                            ),
+                            Div(Field('beamlines', css_class="selectize"), css_class='col-sm-6'),
+                            Div(Field('users', css_class="selectize"), css_class='col-sm-6'),
+                            Div(Field('funders', css_class="selectize", placeholder="select funding sources"),
+                                css_class='col-sm-12'), Div('keywords', css_class='col-sm-12'),
+                            Div('notes', css_class='col-sm-12'),
+                            css_class="row"
+                        ),
+                        active=True
+                    ),
+                )
+            ),
+            Div(
+                StrictButton(
+                    'Delete', id="delete-object", css_class="btn btn-danger",
+                    data_modal_url=f"{reverse_lazy('delete-publication', kwargs={'pk': self.instance.pk})}"
+                ),
+                StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary ms-auto"),
                 StrictButton('Reviewed', type='submit', value='Submit', css_class='btn btn-primary'),
-                css_class='pull-right'), ))
+                css_class='d-flex flex-row justify-content-between gap-3 my-4'
+            )
+        )
 
     def clean(self):
         data = super().clean()
@@ -121,12 +151,12 @@ class BookReviewForm(PublicationReviewForm):
             self.fields['address'].label = 'Location, Country'
 
             return Div(Div("code", css_class='col-sm-6'), Div('editor', css_class='col-sm-6'),
-                Div('publisher', css_class='col-sm-6'), Div('address', css_class='col-sm-6'), css_class="row")
+                       Div('publisher', css_class='col-sm-6'), Div('address', css_class='col-sm-6'), css_class="row")
         else:
             return Div(Div('main_title', css_class='col-sm-4'), Div('volume', css_class='col-sm-1'),
-                Div("edition", css_class='col-sm-2'), Div("pages", css_class='col-sm-2'),
-                Div("code", css_class='col-sm-3'), Div('editor', css_class='col-sm-4'),
-                Div('publisher', css_class='col-sm-4'), Div('address', css_class='col-sm-4'), css_class="row")
+                       Div("edition", css_class='col-sm-2'), Div("pages", css_class='col-sm-2'),
+                       Div("code", css_class='col-sm-3'), Div('editor', css_class='col-sm-4'),
+                       Div('publisher', css_class='col-sm-4'), Div('address', css_class='col-sm-4'), css_class="row")
 
 
 class PDBReviewForm(PublicationReviewForm):
@@ -141,7 +171,7 @@ class PDBReviewForm(PublicationReviewForm):
         self.fields['reference'].queryset = models.Article.objects.all()
         self.fields['reference'].required = False
         return Div(Div('code', css_class='col-sm-2'),
-            Div(Field('reference', css_class="selectize"), css_class='col-sm-10'), css_class="row")
+                   Div(Field('reference', css_class="selectize"), css_class='col-sm-10'), css_class="row")
 
 
 REFERENCE_FETCH = {'doi': utils.get_pub, 'isbn': utils.get_book, 'patent': utils.get_patent, 'url': utils.get_thesis, }
@@ -178,12 +208,12 @@ class PubWizardForm1(ModalForm):
         code = data.get("code")
         if not code:
             raise forms.ValidationError(_('Provide a reference for the publication'), code='reference-required',
-                params={'reference': reference})
+                                        params={'reference': reference})
         elif reference in ['doi', 'isbn', 'patent', 'url']:
             details = REFERENCE_FETCH[reference](code)
             if not details:
                 raise forms.ValidationError(_('Unable to find %(reference)s with that reference'), code='not-found',
-                    params={'reference': reference})
+                                            params={'reference': reference})
             else:
                 data['details'] = json.dumps(details, default=json_default)
         return data
@@ -246,14 +276,14 @@ class PubWizardForm2(ModalForm):
                 template_name = 'book'
                 code = "Reference Code"
                 extras = Div(Div('main_title', css_class="col-sm-12"), Div('editor', css_class="col-sm-12"),
-                    Div('publisher', css_class="col-sm-6"), Div('address', css_class="col-sm-6"),
-                    Div('title', css_class="col-sm-12"),
-                    Div('authors', css_class="col-sm-12", placeholder="Separate with a semicolon"),
-                    Div('edition', css_class="col-sm-4"), Div('volume', css_class="col-sm-4"),
-                    Div('pages', css_class="col-sm-4"),
-                    Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-12"),
-                    Div(Field('keywords', placeholder="Separate with a semicolon"), css_class="col-sm-12"),
-                    css_class="row")
+                             Div('publisher', css_class="col-sm-6"), Div('address', css_class="col-sm-6"),
+                             Div('title', css_class="col-sm-12"),
+                             Div('authors', css_class="col-sm-12", placeholder="Separate with a semicolon"),
+                             Div('edition', css_class="col-sm-4"), Div('volume', css_class="col-sm-4"),
+                             Div('pages', css_class="col-sm-4"),
+                             Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-12"),
+                             Div(Field('keywords', placeholder="Separate with a semicolon"), css_class="col-sm-12"),
+                             css_class="row")
                 for k in ['edition', 'volume', 'pages']:
                     if self.initial.get(k, None):
                         for k in ['edition', 'volume', 'pages']:
@@ -271,10 +301,10 @@ class PubWizardForm2(ModalForm):
                 template_name = name
                 code = "Patent Number"
                 extras = Div(Div("title", css_class="col-sm-12"),
-                    Div("authors", css_class="col-sm-12", placeholder="Separate with a semicolon"),
-                    Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-12"),
-                    Div(Field('keywords', placeholder="Separate with a semicolon"), css_class="col-sm-12"),
-                    css_class="row")
+                             Div("authors", css_class="col-sm-12", placeholder="Separate with a semicolon"),
+                             Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-12"),
+                             Div(Field('keywords', placeholder="Separate with a semicolon"), css_class="col-sm-12"),
+                             css_class="row")
             type_name = dict(Publication.TYPES)[name]
             self.body.title = "Is this the right {type_name}?".format(type_name=type_name)
             reference = Div(HTML("""<label class="control-label">{type_name}:</label>
@@ -283,13 +313,13 @@ class PubWizardForm2(ModalForm):
                         {{{{ "{template_name}"|get_citation:form.initial.details}}}}
                       {{% endautoescape %}}
                     </div>""".format(type_name=type_name.title(), template_name=template_name)),
-                HTML(details.get('code', None) and """<label class="control-label">{code_name}:</label>
+                            HTML(details.get('code', None) and """<label class="control-label">{code_name}:</label>
                     <div class="highlight">{code}</div>""".format(code_name=code, code=details.get('code', '')) or ""),
-                HTML(self.initial.get('keywords', None) and """<label class="control-label">Keywords:</label>
+                            HTML(self.initial.get('keywords', None) and """<label class="control-label">Keywords:</label>
                     <div class="highlight">{{ form.initial.keywords }}</div><br>""" or ""))
             self.body.append(
                 Accordion(AccordionGroup("Details", reference, active=True)),
-                extras, 'details',   'kind'
+                extras, 'details', 'kind'
             )
             self.footer.layout = self.autobuttons
         else:
@@ -297,27 +327,29 @@ class PubWizardForm2(ModalForm):
             self.fields["publisher"].label = _("University/Institution")
             self.fields["editor"].label = _("Supervisor(s)")
             self.fields["kind"].choices = Choices(('msc_thesis', _('Masters Thesis')),
-                ('phd_thesis', _('Doctoral Thesis')))
+                                                  ('phd_thesis', _('Doctoral Thesis')))
             self.body.title = "Tell us more about the thesis"
             self.body.append(Div(Div("title", css_class="col-sm-12"),
-                Div("authors", css_class="col-sm-6", placeholder="Separate with a semicolon"),
-                Div(Field('editor', placeholder="Last, First; Last, F.; etc ..."), css_class="col-sm-6"),
+                                 Div("authors", css_class="col-sm-6", placeholder="Separate with a semicolon"),
+                                 Div(Field('editor', placeholder="Last, First; Last, F.; etc ..."),
+                                     css_class="col-sm-6"),
 
-                Div("publisher", css_class="col-sm-6"), Div("address", css_class="col-sm-6"),
-                Div(Field("kind", css_class="selectize"), css_class="col-sm-6"),
-                Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-6"),
-                Div(Field("code", placeholder="Handle link or other link to thesis if available"),
-                    css_class="col-sm-12"),
-                Div(Field('keywords', placeholder="Separate with a semicolon"), css_class="col-sm-12"),
-                css_class="row"),
-            )
+                                 Div("publisher", css_class="col-sm-6"), Div("address", css_class="col-sm-6"),
+                                 Div(Field("kind", css_class="selectize"), css_class="col-sm-6"),
+                                 Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')),
+                                     css_class="col-sm-6"),
+                                 Div(Field("code", placeholder="Handle link or other link to thesis if available"),
+                                     css_class="col-sm-12"),
+                                 Div(Field('keywords', placeholder="Separate with a semicolon"), css_class="col-sm-12"),
+                                 css_class="row"),
+                             )
             self.footer.layout = self.buttons
 
 
 class PubWizardForm3(ModalForm):
     details = forms.CharField(required=False, widget=forms.HiddenInput, initial="{}")
     obj = forms.ModelChoiceField(queryset=Publication.objects.all().select_subclasses(), widget=forms.HiddenInput,
-        required=False)
+                                 required=False)
 
     beamlines = forms.ModelMultipleChoiceField(queryset=Facility.objects.all(), required=False)
     funders = forms.ModelMultipleChoiceField(queryset=FundingSource.objects.none(), required=False)
@@ -338,10 +370,13 @@ class PubWizardForm3(ModalForm):
             location__in=['Canada', 'United States']).order_by('location', 'name')
 
         self.cls_details = AccordionGroup("CLS and Funding Information",
-            Div(Div(Field('beamlines', placeholder="Start typing a beamline name", css_class="selectize"),
-                    css_class='col-sm-6'),
-                Div(Field('funders', placeholder="Start typing a funding source", css_class="selectize"),
-                    css_class='col-sm-6'), Div('author', css_class="col-sm-12"), css_class="row", ), active=True, )
+                                          Div(Div(Field('beamlines', placeholder="Start typing a beamline name",
+                                                        css_class="selectize"),
+                                                  css_class='col-sm-6'),
+                                              Div(Field('funders', placeholder="Start typing a funding source",
+                                                        css_class="selectize"),
+                                                  css_class='col-sm-6'), Div('author', css_class="col-sm-12"),
+                                              css_class="row", ), active=True, )
         self.extra_notes = AccordionGroup("Additional Notes", Field('notes'), active=False, )
 
     def update_helper(self):
@@ -383,9 +418,9 @@ class PubWizardForm3(ModalForm):
                     {{{{ "{template_name}"|get_citation:form.initial.details}}}}
                   {{% endautoescape %}}
                 </div>""".format(type_name=type_name, template_name=template_name)),
-            HTML(details.get('keywords', None) and """<label class="control-label">Keywords:</label>
+                        HTML(details.get('keywords', None) and """<label class="control-label">Keywords:</label>
                 <div class="highlight">{keywords}</div><br>""".format(keywords=details['keywords']) or ""), 'obj',
-            'details')
+                        'details')
 
         self.body.append(
             Div(Div(warning, css_class="col-xs-12"), css_class="row"),

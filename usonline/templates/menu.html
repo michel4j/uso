@@ -12,12 +12,18 @@
         popoverTriggerList.forEach(function (popoverTriggerEl) {
             new bootstrap.Popover(popoverTriggerEl, {
                 html: true,
+                container: 'body',
                 trigger: 'focus',
                 placement: 'right',
+                delay: {"hide": 100 },
                 customClass: 'sub-menu',
                 content: getSubMenu
             });
         });
+    });
+    $(document).on('click', '.sub-menu .nav-link', function (e) {
+        console.log('Sub-menu link clicked:', this);
+        //e.stopPropagation();
     });
 </script>
  

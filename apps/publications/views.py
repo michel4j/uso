@@ -4,6 +4,7 @@ import json
 import math
 import operator
 
+from crisp_modals.views import ModalDeleteView
 from django.contrib import messages
 from django.conf import settings
 from django.contrib.admin.utils import NestedObjects
@@ -272,7 +273,9 @@ class PublicationReview(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
         key = self.object.__class__.__name__
 
         return {
-            'Article': forms.ArticleReviewForm, 'Book': forms.BookReviewForm, 'PDBDeposition': forms.PDBReviewForm,
+            'Article': forms.ArticleReviewForm,
+            'Book': forms.BookReviewForm,
+            'PDBDeposition': forms.PDBReviewForm,
         }.get(key, forms.PublicationReviewForm)
 
     def form_valid(self, form):
@@ -282,32 +285,20 @@ class PublicationReview(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
         return super().form_valid(form)
 
 
-class PublicationDelete(RolePermsViewMixin, DeleteView):
+class PublicationDelete(RolePermsViewMixin, ModalDeleteView):
     admin_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
     allowed_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
     queryset = models.Publication.objects.select_subclasses()
     success_url = reverse_lazy('publication-review-list')
-    template_name = "publications/forms/confirm_delete.html"
 
-    def _delete_formater(self, obj):
-        opts = obj._meta
-        return f'{capfirst(opts.verbose_name)}: {force_str(obj)}'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)  # database name
-        collector.collect([context['object']])  # list of objects. single one won't do
-        context['related'] = collector.nested(self._delete_formater)
-        return context
-
-    def delete(self, request, *args, **kwargs):
+    def confirmed(self, request, *args, **kwargs):
         self.object = self.get_object()
         msg = 'Publication deleted'
         ActivityLog.objects.log(
             self.request, self.object, kind=ActivityLog.TYPES.delete, description=msg
         )
         messages.success(self.request, msg)
-        return super().delete(request, *args, **kwargs)
+        return super().confirmed(request, *args, **kwargs)
 
 
 MODELS = {

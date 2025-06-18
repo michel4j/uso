@@ -3,7 +3,7 @@ import functools
 import itertools
 from datetime import timedelta
 
-from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalConfirmView
+from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalConfirmView, ModalDeleteView
 from dateutil import parser
 from django.conf import settings
 from django.contrib import messages
@@ -834,34 +834,35 @@ class LabSignOff(RolePermsViewMixin, ConfirmDetailView):
         )
 
 
-class CancelLabSession(RolePermsViewMixin, ConfirmDetailView):
+class CancelLabSession(RolePermsViewMixin, ModalDeleteView):
     model = models.LabSession
-    template_name = "forms/delete.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         session = self.get_object()
-        return (session.state() == models.LabSession.STATES.pending and (
-                super().check_allowed() or session.team.filter(username=self.request.user.username).exists()))
-
-    def confirmed(self, *args, **kwargs):
-        obj = self.get_object()
-        project = obj.project
-        obj.delete()
-        messages.info(self.request, "Permit cancelled!")
-        return JsonResponse(
-            {
-                "url": reverse('project-detail', kwargs={'pk': project.pk})
-            }
+        return (
+            session.state() == models.LabSession.STATES.pending and (
+            super().check_allowed() or session.team.filter(username=self.request.user.username).exists())
         )
 
+    def get_success_url(self):
+        return reverse('project-detail', kwargs={'pk': self.object.project.pk})
 
-class UpdateMaterial(RolePermsViewMixin, edit.FormView):
+    def confirmed(self, *args, **kwargs):
+        response = super().confirmed(*args, **kwargs)
+        messages.info(self.request, "Permit cancelled!")
+        return response
+
+
+class UpdateMaterial(RolePermsViewMixin, DynFormView):
     form_class = forms.MaterialForm
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
     template_name = "projects/forms/project-form.html"
+
+    def get_form_type(self) -> FormType:
+        return FormType.objects.filter(code='amendment').first()
 
     def get_object(self):
         self.project = models.Project.objects.get(pk=self.kwargs['pk'])
@@ -1415,11 +1416,13 @@ class ShowAttachments(RolePermsViewMixin, detail.DetailView):
     template_name = 'proposals/attachments.html'
 
 
-class DeleteSession(RolePermsViewMixin, ConfirmDetailView):
+class DeleteSession(RolePermsViewMixin, ModalDeleteView):
     model = models.Session
-    template_name = "forms/delete.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('project-detail', kwargs={'pk': self.object.project.pk})
 
     def get_queryset(self):
         return super().get_queryset().filter(state=models.Session.STATES.ready)
@@ -1427,19 +1430,12 @@ class DeleteSession(RolePermsViewMixin, ConfirmDetailView):
     def check_allowed(self):
         session = self.get_object()
         facility = session.beamline
-
         return super().check_allowed() or facility.is_staff(self.request.user)
 
     def confirmed(self, *args, **kwargs):
-        obj = self.get_object()
-        project = obj.project
-        obj.delete()
+        response = super().confirmed(*args, **kwargs)
         messages.info(self.request, "Draft permit deleted!")
-        return JsonResponse(
-            {
-                "url": reverse('project-detail', kwargs={'pk': project.pk})
-            }
-        )
+        return response
 
 
 class TeamMemberDelete(RolePermsViewMixin, ModalConfirmView):

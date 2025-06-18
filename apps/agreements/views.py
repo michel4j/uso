@@ -16,7 +16,7 @@ USO_CONTRACTS_ROLES = getattr(settings, 'USO_CONTRACTS_ROLES', ["contracts-admin
 
 
 def dt_display(val, obj=None):
-    return '{} ago'.format(timesince.timesince(val))
+    return f'{timesince.timesince(val)} ago'
 
 
 class AgreementList(RolePermsViewMixin, ItemListView):

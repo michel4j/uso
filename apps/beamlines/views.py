@@ -153,8 +153,8 @@ class EditFacility(RolePermsViewMixin, edit.UpdateView):
     def check_allowed(self):
         self.facility = self.get_object()
         return (
-                super().check_allowed() or
-                self.facility.is_admin(self.request.user)
+            super().check_allowed() or
+            self.facility.is_admin(self.request.user)
         )
 
     def check_owner(self, obj):

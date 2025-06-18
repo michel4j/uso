@@ -2,6 +2,7 @@ import calendar
 import collections
 from datetime import timedelta, date
 
+from crisp_modals.views import ModalConfirmView
 from dateutil import parser
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -15,7 +16,6 @@ from rest_framework import generics, status, permissions
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from misc.views import ConfirmDetailView
 from roleperms.views import RolePermsViewMixin
 from . import forms
 from . import models
@@ -312,7 +312,7 @@ class CreateSchedule(RolePermsViewMixin, edit.CreateView):
         )
 
 
-class PromoteSchedule(RolePermsViewMixin, ConfirmDetailView):
+class PromoteSchedule(RolePermsViewMixin, ModalConfirmView):
     model = models.Schedule
     template_name = "scheduler/forms/switch.html"
     allowed_roles = USO_ADMIN_ROLES

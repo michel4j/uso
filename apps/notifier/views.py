@@ -1,28 +1,22 @@
-from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView
+from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView, ModalConfirmView
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.admin.utils import NestedObjects
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db import DEFAULT_DB_ALIAS
-from django.http import JsonResponse, HttpResponseRedirect
-from django.urls import reverse_lazy, reverse
+from django.http import JsonResponse
+from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.text import capfirst
-from django.views.generic import CreateView, UpdateView
+from itemlist.views import ItemListView
 
 from misc.utils import is_ajax
-from . import models, forms
-from misc.views import ConfirmDetailView
-from itemlist.views import ItemListView
 from roleperms.views import RolePermsViewMixin
-
+from . import models, forms
 
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 
 
-class UserNotificationDetail(RolePermsViewMixin, ConfirmDetailView):
+class UserNotificationDetail(RolePermsViewMixin, ModalConfirmView):
     template_name = "notifier/note-detail.html"
     model = models.Notification
+    success_url = "."
 
     def get_queryset(self, *args, **kwargs):
         self.queryset = self.request.user.notifications.all()
@@ -30,31 +24,25 @@ class UserNotificationDetail(RolePermsViewMixin, ConfirmDetailView):
 
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
+        # set the state to read if it is sent
         self.queryset.filter(pk=obj.pk, state=models.Notification.STATES.sent).update(
             state=models.Notification.STATES.read, modified=timezone.now()
         )
         return obj
 
-    def get_success_url(self):
-        return "."
-
     def confirmed(self, *args, **kwargs):
         obj = self.get_object()
+        # change the state to acknowledged if it is read
         self.model.objects.filter(pk=obj.pk, state=models.Notification.STATES.read).update(
             state=self.model.STATES.acknowledged, modified=timezone.now()
         )
-        return JsonResponse({"url": self.get_success_url()})
+        return super().confirmed(*args, **kwargs)
 
 
 class NotificationDetail(RolePermsViewMixin, ModalUpdateView):
     template_name = "notifier/admin-note-detail.html"
     model = models.Notification
     form_class = forms.UpdateNotificationForm
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
 
     def form_valid(self, *args, **kwargs):
         response = super().form_valid(*args, **kwargs)
@@ -113,16 +101,6 @@ class CreateTemplate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
     success_message = "Message Template '%(name)s' has been created."
     allowed_roles = USO_ADMIN_ROLES
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['submit_url'] = reverse_lazy('add-template-modal')
-        return context
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update(request=self.request)
-        return kwargs
-
     def form_valid(self, form):
         response = super().form_valid(form)
         if is_ajax(self.request):
@@ -141,16 +119,8 @@ class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
     success_message = "Message Template '%(name)s' has been updated."
     allowed_roles = USO_ADMIN_ROLES
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update(request=self.request)
-        kwargs['delete_url'] = reverse_lazy('delete-template-modal', kwargs={'pk': self.object.pk})
-        return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['submit_url'] = reverse_lazy('edit-template-modal', kwargs={'pk': self.object.pk})
-        return context
+    def get_delete_url(self):
+        return reverse_lazy('delete-template-modal', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
         response = super().form_valid(form)
