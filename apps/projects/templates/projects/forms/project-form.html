@@ -18,13 +18,3 @@
         {% include "dynforms/form.html" %}
     </div>
 {% endblock %}
-
-{% block extra_js %}
-    <script>
-        $(window).bind('beforeunload', function () {
-            if ($("[data-dynform-dirty]").length) {
-                return 'Form contains unsaved changes.';
-            }
-        });
-    </script>
-{% endblock %}
