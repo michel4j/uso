@@ -2,11 +2,11 @@
 
 {% get_ancillaries data=data as ancillaries %}
 
-<div class="controls row no-space{{ repeatable }}" id="{{ field.name }}-controls">
-    <div class="row no-space">
-        <div class="field-group-item col-xs-6">
-            <label for="{{ field.name }}-labs">Labs</label>
-            <select name="{{ field.name }}.labs" id="{{ field.name }}-labs" class="select form-control shorten"
+<div class="controls {{ repeatable }}" id="{{ field.name }}-controls">
+    <div class="row">
+        <div class="field-group-item col-sm-6 mb-2">
+
+            <select name="{{ field.name }}.labs" id="{{ field.name }}-labs" class="selectize form-control shorten"
                     {% if 'multiple' in field.options %}multiple="multiple"{% endif %}
                     data-placeholder="Select labs ...">
                 {% for item in ancillaries.labs %}
@@ -14,11 +14,12 @@
                             {% if item.selected %}selected="selected"{% endif %}>{{ item }}</option>
                 {% endfor %}
             </select>
+            <label for="{{ field.name }}-labs" class="sub-label">Labs</label>
         </div>
-        <div class="field-group-item col-xs-6">
-            <label for="{{ field.name }}-equipment">Equipment</label>
+        <div class="field-group-item col-sm-6 mb-2">
+
             <select name="{{ field.name }}.equipment" id="{{ field.name }}-equipment"
-                    class="select form-control shorten"
+                    class="selectize form-control shorten"
                     {% if 'multiple' in field.options %}multiple="multiple"{% endif %}
                     data-placeholder="Select equipment ...">
                 {% for item in ancillaries.equipment %}
@@ -26,6 +27,7 @@
                             {% if item.selected %}selected="selected"{% endif %}>{{ item }}</option>
                 {% endfor %}
             </select>
+            <label for="{{ field.name }}-equipment" class="sub-label">Equipment</label>
         </div>
     </div>
 </div>

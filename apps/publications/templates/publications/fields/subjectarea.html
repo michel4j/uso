@@ -14,13 +14,13 @@
 				<option value="{{value}}" {% if value in data.areas %}selected="selected"{% endif %} >{{choice}}</option>
 			{% endfor %}
 			</select>
-            <label for="{{field.name}}.areas">Subject Areas</label>
+            <label for="{{field.name}}-areas" class="sub-label">Subject Areas</label>
 		</div>
 	</div>
 	<div class="row">
 	    <div class="col-12 mb-2">
-		    <input id="{{field.name}}.keywords" name="{{field.name}}.keywords" class="form-control" type="text" value="{{data.keywords}}">
-            <label for="{{field.name}}.keywords">Keywords</label>
+		    <input id="{{field.name}}-keywords" name="{{field.name}}.keywords" class="form-control" type="text" value="{{data.keywords}}">
+            <label for="{{field.name}}-keywords" class="sub-label">Keywords</label>
 	    </div>			
    </div>
 </div>

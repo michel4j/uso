@@ -2622,3 +2622,19 @@ $stat-sizes: (
     background: var(--bs-primary);
   }
 }
+
+.trumbowyg-box, .trumbowyg-editor-box {
+  border-radius: var(--bs-border-radius);
+}
+
+.control-label, .form-label, .sub-label {
+  color: var(--bs-primary-text-emphasis);
+  opacity: 0.75;
+}
+.control-label, .form-label {
+    margin-top: 1em;
+}
+.sub-label {
+    font-size: 0.9em;
+}
+

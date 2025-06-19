@@ -5,7 +5,7 @@
 <div class="controls {{ repeatable }}" id="{{ field.name }}-controls-{{ repeat_index }}">
     <div class="row no-space">
         <div class="field-group-item col-xs-6">
-            <select name="{{ field.name }}.type" id="{{ field.name }}-type{{ repeat_index }}"
+            <select name="{{ field.name }}.type" id="{{ field.name }}-type{{ repeat_index }}" aria-label="{{ field.label }} Type"
                     class="select form-control" data-placeholder="Select Review Type">
                 <option value="" data-review-role=""></option>
                 {% for rev_type in review_types %}
@@ -15,7 +15,7 @@
         </div>
         <div class="field-group-item col-xs-6">
             <div class="input-group">
-                <select name="{{ field.name }}.reviewer" id="{{ field.name }}-reviewer{{ repeat_index }}"
+                <select name="{{ field.name }}.reviewer" id="{{ field.name }}-reviewer{{ repeat_index }}" aria-label="{{ field.label }} Reviewer"
                         class="select form-control"  data-placeholder="Select Reviewer/Role" data-selected-username="">
                 </select>
                 <span class="input-group-btn">
