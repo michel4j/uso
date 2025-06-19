@@ -274,44 +274,6 @@ class ModeListAPI(EventUpdateAPI):
         }
 
 
-class CreateSchedule(RolePermsViewMixin, edit.CreateView):
-    template_name = 'forms/modal.html'
-    form_class = forms.ScheduleForm
-    model = models.Schedule
-    reference_model = None
-
-    def get_success_url(self):
-        return self.request.get_full_path()
-
-    def get_reference(self, queryset=None):
-        if self.reference_model:
-            self.reference = self.reference_model.objects.get(pk=self.kwargs.get('pk'))
-            return self.reference
-        else:
-            raise ValueError('Reference Model Not Provided')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
-    def get_initial(self):
-        initial = super().get_initial()
-        reference = self.get_reference()
-        initial['content_type'] = ContentType.objects.get_for_model(reference)
-        initial['object_id'] = reference.pk
-        initial['config'] = models.ShiftConfig.objects.order_by('modified').last()
-        return initial
-
-    def form_valid(self, form):
-        super().form_valid(form)
-        return JsonResponse(
-            {
-                "url": ""
-            }
-        )
-
-
 class PromoteSchedule(RolePermsViewMixin, ModalConfirmView):
     model = models.Schedule
     template_name = "scheduler/forms/switch.html"
@@ -324,6 +286,7 @@ class PromoteSchedule(RolePermsViewMixin, ModalConfirmView):
         context['action'] = 'promote' if STATE_INDEX.get(self.object.state) < STATE_INDEX.get(
             self.kwargs.get('state')
         ) else 'demote'
+
         return context
 
     def confirmed(self, *args, **kwargs):

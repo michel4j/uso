@@ -64,7 +64,7 @@ class Schedule(TimeStampedModel, DateSpanMixin):
         return data.get('total', 0) or 0
 
     def __str__(self):
-        return "{} [{}]".format(self.description, self.state)
+        return f"{self.description} [{self.state}]"
 
 
 class EventQuerySet(models.QuerySet):

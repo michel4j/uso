@@ -873,27 +873,6 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         return initial
 
 
-class ReviewDetail(RolePermsViewMixin, detail.DetailView):
-    model = models.Review
-    template_name = "proposals/review-detail.html"
-    allowed_roles = USO_ADMIN_ROLES
-    admin_roles = USO_ADMIN_ROLES
-
-    def check_allowed(self):
-        allowed = super().check_allowed()
-        if not allowed:
-            obj = self.get_object()
-            allowed = (obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
-        return allowed
-
-
-def accumulate(iterator):
-    total = 0
-    for item in iterator:
-        total += item
-        yield total
-
-
 class ReviewCycleDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "proposals/cycle-detail.html"
     model = models.ReviewCycle
@@ -1822,22 +1801,20 @@ class Statistics(RolePermsViewMixin, TemplateView):
     template_name = "proposals/statistics.html"
 
 
-class AddScoreAdjustment(RolePermsViewMixin, edit.CreateView):
+class AddScoreAdjustment(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.AdjustmentForm
-    model = models.ScoreAdjustment
-    template_name = "forms/modal.html"
+    model = models.Submission
     allowed_roles = USO_ADMIN_ROLES
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        self.submission = models.Submission.objects.get(pk=self.kwargs['pk'])
-        kwargs['request'] = self.request
-        kwargs['submission'] = self.submission
-        return kwargs
+    def get_delete_url(self):
+        obj = self.get_object()
+        if hasattr(obj, 'adjustment'):
+            return reverse("remove-score-adjustment", kwargs={'pk': obj.pk})
+        return None
 
     def get_initial(self):
         initial = super().get_initial()
-        submission = models.Submission.objects.get(pk=self.kwargs['pk'])
+        submission = self.get_object()
         if hasattr(submission, 'adjustment'):
             initial['value'] = submission.adjustment.value
             initial['reason'] = submission.adjustment.reason
@@ -1845,23 +1822,19 @@ class AddScoreAdjustment(RolePermsViewMixin, edit.CreateView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-
-        if self.submission.state == self.submission.STATES.reviewed:
-            data['user'] = self.request.user
-            obj, created = self.model.objects.update_or_create(submission=self.submission, defaults=data)
-            ActivityLog.objects.log(
-                self.request, self.submission, kind=ActivityLog.TYPES.task,
-                description='Score Adjusted by {}'.format(data['value'])
-            )
-            messages.success(self.request, f'Score adjustment of {obj.value} applied to submission')
-        else:
-            messages.warning(self.request, 'Score adjustment not allowed for pending submissions')
+        data['user'] = self.request.user
+        submission = self.get_object()
+        obj, created = models.ScoreAdjustment.objects.update_or_create(submission=submission, defaults=data)
+        ActivityLog.objects.log(
+            self.request, submission, kind=ActivityLog.TYPES.task,
+            description=f'Score Adjusted by {data["value"]}'
+        )
+        messages.success(self.request, f'Score adjustment of {obj.value} applied to submission')
         return JsonResponse({"url": ""})
 
 
-class DeleteAdjustment(RolePermsViewMixin, ModalConfirmView):
+class DeleteAdjustment(RolePermsViewMixin, ModalDeleteView):
     model = models.ScoreAdjustment
-    template_name = "forms/delete.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def get_object(self, queryset=None):
@@ -1877,16 +1850,13 @@ class DeleteAdjustment(RolePermsViewMixin, ModalConfirmView):
         return JsonResponse({"url": ""})
 
 
-class UpdateReviewComments(RolePermsViewMixin, edit.UpdateView):
+class UpdateReviewComments(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.ReviewCommentsForm
-    queryset = models.Submission.objects.filter(state=models.Submission.STATES.reviewed)
-    template_name = "forms/modal.html"
+    model = models.Submission
     allowed_roles = USO_ADMIN_ROLES
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
+    def get_queryset(self):
+        return self.model.objects.filter(state=models.Submission.STATES.reviewed)
 
     def form_valid(self, form):
         data = form.cleaned_data

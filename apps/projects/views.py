@@ -13,8 +13,8 @@ from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.views.generic import detail, edit, View, TemplateView
+from dynforms.models import FormType
 from dynforms.views import DynFormView
 from itemlist.views import ItemListView
 from rest_framework import generics, permissions
@@ -22,11 +22,10 @@ from rest_framework.parsers import JSONParser
 
 from beamlines.filters import BeamlineFilterFactory
 from beamlines.models import Facility
-from dynforms.models import FormType
 from misc.filters import FutureDateListFilterFactory
 from misc.functions import Shifts
 from misc.models import ActivityLog
-from misc.views import ConfirmDetailView, ClarificationResponse, RequestClarification
+from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from proposals.filters import CycleFilterFactory
 from proposals.models import ReviewCycle, ReviewType
@@ -647,7 +646,7 @@ class SessionSignOn(RolePermsViewMixin, ModalUpdateView):
         )
 
 
-class SessionSignOff(RolePermsViewMixin, ConfirmDetailView):
+class SessionSignOff(RolePermsViewMixin, ModalConfirmView):
     model = models.Session
     template_name = "projects/forms/signoff.html"
     allowed_roles = USO_ADMIN_ROLES
@@ -799,33 +798,33 @@ class LabSignOn(RolePermsViewMixin, ModalCreateView):
         )
 
 
-class LabSignOff(RolePermsViewMixin, ConfirmDetailView):
+class LabSignOff(RolePermsViewMixin, ModalConfirmView):
     model = models.LabSession
     template_name = "projects/forms/signoff.html"
     allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
     def check_allowed(self):
-        self.session = self.get_object()
-        self.project = self.session.project
-        self.lab = self.session.lab
+        session = self.get_object()
         allowed = (
-                super().check_allowed() or self.check_owner(self.session) or self.session.team.filter(
+            super().check_allowed() or self.check_owner(session) or session.team.filter(
             username=self.request.user.username
         ).exists())
         return allowed
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['facility'] = self.lab
-        context['project'] = self.project
+        project = self.object.project
+        lab = self.object.lab
+        context['facility'] = lab
+        context['project'] = project
         return context
 
     def confirmed(self, *args, **kwargs):
-        log = self.session.details.get('history', [])
+        log = self.object.details.get('history', [])
         now = timezone.localtime(timezone.now())
         log.append('SignOff by {} on {}'.format(self.request.user, now.strftime('%c')))
-        self.session.details.update(history=log)
-        models.LabSession.objects.filter(pk=self.session.pk).update(details=self.session.details, end=now)
+        self.object.details.update(history=log)
+        models.LabSession.objects.filter(pk=self.object.pk).update(details=self.object.details, end=now)
         messages.success(self.request, 'Lab Sign-Off successful')
         return JsonResponse(
             {
@@ -1641,7 +1640,7 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
         return HttpResponseRedirect(success_url)
 
 
-class AdminShiftRequest(RolePermsViewMixin, edit.UpdateView):
+class AdminShiftRequest(RolePermsViewMixin, ModalUpdateView):
     model = models.ShiftRequest
     form_class = forms.RequestAdminForm
     template_name = "projects/forms/request-admin.html"
@@ -1649,11 +1648,6 @@ class AdminShiftRequest(RolePermsViewMixin, edit.UpdateView):
 
     def check_allowed(self):
         return super().check_allowed() or self.object.allocation.beamline.is_admin(self.request.user)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
 
     def get_success_url(self):
         cycle = self.object.allocation.cycle

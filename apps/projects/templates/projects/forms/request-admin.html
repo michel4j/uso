@@ -1,14 +1,10 @@
-{% extends "forms/modal.html" %}
+{% extends "crisp_modals/form.html" %}
 {% load crispy_forms_tags %}
 
-{% load timeish %}
-{% load roleperms %}
-{% load cycle_tags %}
-{% load misc %}
-{% block form_title %}Manage Shift Request{% endblock %}
-{% block form_body %}
+{% block modal_title %}Manage Shift Request{% endblock %}
+{% block modal_body %}
 <div class="row">
-	<div class="col-xs-12">
+	<div class="col-12">
 		<table class="profile table">
 			<tbody>
 			<tr>
@@ -39,6 +35,5 @@
 		</table>
 	</div>
 </div>
-
-{% crispy form form.helper %}
+{% crispy form form.body %}
 {% endblock %}

@@ -436,58 +436,37 @@ class ReviewerAssignmentForm(ModalModelForm):
         )
 
 
-class AdjustmentForm(forms.ModelForm):
+class AdjustmentForm(ModalModelForm):
     VALUE_TYPES = (
         (-1, '-1.0'),
         (-0.5, '-0.5'),
         (0.5, '+0.5'),
         (1, '+1.0'),
     )
-    value = forms.TypedChoiceField(
-        choices=VALUE_TYPES, empty_value=0, coerce=float)
+    value = forms.TypedChoiceField(choices=VALUE_TYPES, empty_value="0.0", coerce=float, label=_('Score Adjustment'))
 
     class Meta:
         model = models.ScoreAdjustment
         fields = ('value', 'reason')
 
         widgets = {
-            'reason': forms.Textarea(attrs={'rows': 4, }),
+            'reason': forms.Textarea(attrs={'rows': 3, }),
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
-        self.submission = kwargs.pop('submission')
         super().__init__(*args, **kwargs)
-
+        self.fields['value'].choices = self.VALUE_TYPES
         self.fields['reason'].help_text = 'Please provide an explanation justifying the score adjustment'
-
-        self.helper = FormHelper()
-        self.helper.title = "Adjust Score"
-
-        delete_url = reverse("remove-score-adjustment", kwargs={'pk': self.submission.pk})
-
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
+        self.body.append(
             Div(
                 Div(Field('value', css_class="selectize"), css_class="col-sm-12"),
                 Div("reason", css_class="col-sm-12"),
                 css_class="row"
             ),
-            Div(
-                Div(
-                    StrictButton('Delete', id="delete-object", css_class="btn btn-danger pull-left",
-                                 data_url=delete_url),
-                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-right"),
-
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
-            ),
         )
 
 
-class ReviewCommentsForm(forms.ModelForm):
+class ReviewCommentsForm(ModalModelForm):
     class Meta:
         model = models.Submission
         fields = ['comments']
@@ -497,29 +476,14 @@ class ReviewCommentsForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
         self.fields['comments'].help_text = 'Please update the comments which the applicants will see.'
-
-        self.helper = FormHelper()
-        self.helper.title = "Update Comments for Applicants"
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
+        self.body.title = "Update Comments for Applicants"
+        self.body.append(
             Div(
                 Div("comments", css_class="col-sm-12"),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             ),
         )
 

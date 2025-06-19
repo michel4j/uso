@@ -12,14 +12,14 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import DetailView, TemplateView, View
-from django.views.generic.edit import FormView, UpdateView, CreateView
+from django.views.generic.edit import FormView, UpdateView
 from dynforms.models import FormType
+from dynforms.views import DynCreateView
 from itemlist.views import ItemListView
 from proxy.views import proxy_view
 
-from dynforms.views import DynCreateView
 from misc.models import ActivityLog
-from misc.views import JSONResponseMixin, ConfirmDetailView
+from misc.views import JSONResponseMixin
 from notifier import notify
 from publications import stats
 from roleperms.utils import has_any_items

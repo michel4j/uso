@@ -19,21 +19,6 @@ class JSONResponseMixin(object):
         return JsonResponse(context, safe=False)
 
 
-class ConfirmDetailView(edit.DeleteView):
-    """derived from edit.DeleteView to re-use the same get-confirm-post-execute pattern
-    Sub-classes should implement 'confirmed' method
-    """
-
-    def form_valid(self, form):
-        return self.confirmed(self)
-
-    def delete(self, *args, **kwargs):
-        return self.confirmed(self, *args, **kwargs)
-
-    def confirmed(self, *args, **kwargs):
-        return HttpResponseRedirect(self.get_success_url())
-
-
 class ManageAttachments(RolePermsViewMixin, ModalCreateView):
     template_name = "misc/attachments.html"
     model = models.Attachment

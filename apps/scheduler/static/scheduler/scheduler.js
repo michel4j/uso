@@ -126,31 +126,14 @@ function setupAjax(spinner_sel, csrf_token) {
 			}
 		},
         error : function(jqXHR, textStatus, errorThrown) {
-            //alert("Error: " + textStatus + ": " + errorThrown);
-            let msg = "Operation Failed: " + errorThrown
-            toastr.options = {
-                "closeButton": true,
-                "debug": true,
-                "progressBar": true,
-                "preventDuplicates": false,
-                "positionClass": "toast-top-right",
-                "onclick": null,
-                "showDuration": "1200",
-                "hideDuration": "800",
-                "timeOut": "3000",
-                "extendedTimeOut": "3000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut"
-            };
-            toastr["error"](msg);
+            dfToasts.error({message: `Operation Failed: ${errorThrown}`});
         },
 		async: true,
 		dataType: "json",
 		contentType: "application/json; charset=utf-8"
 	});
 }
+
 function setupCalendar(sel, options) {
     let defaults = {
         editorType: 'event',
