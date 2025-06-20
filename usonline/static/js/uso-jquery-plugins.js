@@ -149,36 +149,63 @@ jQuery.fn.serializeObject = function () {
         }
 
         complete.call(this);
-
         return this;
     };
 
 });
 
+// Visibility
+function renderWhenVisible(selector, callback) {
+    const element = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  const options = {
+    root: document.documentElement,
+  };
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      callback(entry.intersectionRatio > 0);
+    });
+  }, options);
+
+  observer.observe(element);
+}
+
+
 // USO Timeline
 function showTimeline(selector, data) {
-    const $element = $(selector);
-    const chart = d3.timeline()
-        .margin({left: 0, right: 0, top: 15, bottom: 15})
-        .width($element.width())
-        .height(70)
-        .itemHeight(24)
-        .tickFormat({
-            format: d3.time.format("%d %b %Y"),
-            tickTime: d3.time.months,
-            tickInterval: 2,
-            tickSize: 5
-        })
-        .showToday()
-        .showTodayFormat({width: 2, marginTop: 2, marginBottom: 0, color: "rgba(254,128,40,0.5)"})
-        .hover(function (d, i, datum) {
-            $element.attr("title", datum.hover);
-        });
-    const svg = d3.select("#timeline")
-        .append("svg")
-        .attr("viewBox", `0 0 ${$element.width()}  70`)
-        .attr("width", "100%")
-        .datum(data).call(chart);
+    renderWhenVisible(selector, (visible) => {
+        if (!visible) {
+            return; // Do not render if the element is not visible
+        }
+        const $element = $(selector);
+        const width = Math.min(1200, Math.max($element.width(), 576));
+        const height = Math.max(60, width * 90/1000);
+        const fontSize = Math.min(1, Math.max(0.8, width/576)); // Scale font size based on width
+
+        $element.empty(); // Clear any existing content
+        const chart = d3.timeline()
+            .margin({left: 0, right: 0, top: height / 5, bottom: height / 5})
+            .width(width) // Default width if not set
+            .height(height)
+            .itemHeight(height / 3)
+            .tickFormat({
+                format: d3.time.format("%d %b %Y"),
+                tickTime: d3.time.months,
+                tickInterval: 2,
+                tickSize: height / 14
+            })
+            .showToday()
+            .showTodayFormat({width: 2, marginTop: 2, marginBottom: 0, color: "rgba(254,128,40,0.5)"})
+            .hover(function (d, i, datum) {
+                $element.attr("title", datum.hover);
+            });
+        const svg = d3.select(selector)
+            .append("svg")
+            .attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("width", "100%")
+            .attr('font-size', `${fontSize.toFixed(2)}em`)
+            .datum(data).call(chart);
+    });
 }
 
 

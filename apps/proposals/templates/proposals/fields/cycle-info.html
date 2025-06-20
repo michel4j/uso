@@ -1,9 +1,48 @@
 {% load cycle_tags %}
+<div class="w-100 small">{{object|cycle_comments}}</div>
+<script>
+    $(document).ready(function () {
+        // Initialize the timeline with the cycle data
+        const endDate = {{ object.end_date|date:'U' }}000;
+        const cycleData = [
+            {
+                times: [{
+                    "starting_time": {{ object.alloc_date|date:'U' }}000,
+                    "ending_time": {{ object.alloc_date|date:'U' }}000,
+                    "display": "circle"
+                }],
+                hover: "Allocation after {{ object.alloc_date|date:'D, M j' }}"
+            },
+            {
+                times: [{
+                    "label": "Call Open",
+                    "starting_time": {{ object.open_date|date:'U' }}000,
+                    "ending_time": {{ object.close_date|date:'U' }}000,
+                    "class": "call-open"
 
-<div class="w-100">
-{{object|cycle_comments}}
-</div>
-<div class="row">
-    <div class="timeline w-100" id="timeline"></div>
-</div>
-{% include "proposals/cycle-timeline.html" %}
+                }],
+                hover: "Call Open {{ object.open_date|date:'D, M j' }} - {{ object.close_date|date:'D, M j' }}"
+            },
+            {
+                times: [{
+                    "label": "Schedule Period",
+                    "starting_time": {{ object.start_date|date:'U' }}000,
+                    "ending_time": endDate,
+                    "class": "schedule-period"
+                }],
+                hover: "Cycle starts {{ object.start_date|date:'D, M j' }} ends {{ object.end_date|date:'D, M j' }}"
+            },
+            {% if object.due_date %}
+                {
+                    times: [{
+                        "starting_time": {{ object.due_date|date:'U' }}000,
+                        "display": "circle",
+                        "class": "due-date"
+                    }],
+                    hover: "Reviews Due {{ object.due_date|date:'D, M j' }}"
+                },
+            {% endif %}
+        ];
+        showTimeline("#cycle-timeline", cycleData);
+    });
+</script>

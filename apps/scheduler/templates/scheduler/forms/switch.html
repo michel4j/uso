@@ -1,6 +1,6 @@
-{% extends "forms/modal.html" %}
-{% block form_title %}{{ action|title }} Schedule?{% endblock %}
-{% block form_body %}
+{% extends "crisp_modals/modal.html" %}
+{% block modal_title %}{{ action|title }} Schedule?{% endblock %}
+{% block modal_body %}
 <h5>Switch Schedule State {{ action }} the following schedule from
     <span class="label {% if object.state == 'draft' %}label-warning{% elif object.state == 'tentative' %}label-info{% else %}label-success{% endif %}">{{object.state|title}}</span>
     <i class="bi-arrow-right icon-fw"></i>

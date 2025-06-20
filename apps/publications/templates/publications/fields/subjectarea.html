@@ -4,7 +4,7 @@
 
 <div class="controls {{repeatable}}" id="{{field.name}}-controls">
    <div class="row">
-		<div class="col-12 mb-2">
+		<div class="field-group-item col-12">
 			<select name="{{field.name}}.areas" id="{{field.name}}-areas"
                     class="form-select"
                     {% if 'multiple' in field.options %}multiple{% endif %}
@@ -18,7 +18,7 @@
 		</div>
 	</div>
 	<div class="row">
-	    <div class="col-12 mb-2">
+	    <div class="field-group-item col-12">
 		    <input id="{{field.name}}-keywords" name="{{field.name}}.keywords" class="form-control" type="text" value="{{data.keywords}}">
             <label for="{{field.name}}-keywords" class="sub-label">Keywords</label>
 	    </div>			
@@ -28,6 +28,17 @@
     $(document).ready(function(){
         $('#{{ field.name }}-areas').selectize({
             plugins: ["remove_button"]
+        });
+        $('#{{ field.name }}-keywords').selectize({
+            delimiter: ';',
+            maxItems: 8,
+            persist: false,
+            create: function(input) {
+                return {
+                    value: input,
+                    text: input
+                };
+            }
         });
     });
 </script>
