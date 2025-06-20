@@ -159,7 +159,7 @@ class EventQuerySet(models.QuerySet):
 class Event(TimeStampedModel, TimeFramedModel):
     cancelled = models.BooleanField(default=False)
     objects = EventQuerySet.as_manager()
-    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
+    schedule = models.ForeignKey(Schedule, related_name='%(class)ss', on_delete=models.CASCADE)
     comments = models.TextField(null=True, blank=True, default="")
 
     class Meta:
