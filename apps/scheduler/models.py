@@ -55,12 +55,12 @@ class Schedule(TimeStampedModel, DateSpanMixin):
 
     def mode_stats(self):
         stats = defaultdict(int)
-        for m in self.mode_set.all().with_shifts():
+        for m in self.modes.all().with_shifts():
             stats[m.kind] += m.shifts
         return stats
 
     def normal_shifts(self):
-        data = self.mode_set.filter(kind=Mode.TYPES.N).with_shifts().aggregate(total=Sum('shifts'))
+        data = self.modes.filter(kind=Mode.TYPES.N).with_shifts().aggregate(total=Sum('shifts'))
         return data.get('total', 0) or 0
 
     def __str__(self):

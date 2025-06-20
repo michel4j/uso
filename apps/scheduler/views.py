@@ -313,7 +313,7 @@ class YearTemplate(RolePermsViewMixin, TemplateView):
         shifts = config.shifts()
 
         context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
-        context['shift_duration'] = "{}".format(timedelta(hours=config.duration)).zfill(8)
+        context['shift_duration'] = f"{timedelta(hours=config.duration)}".zfill(8)
         context['shift_minutes'] = config.duration * 60
         context['shift_starts'] = [shift['time'] for shift in shifts]
         context['shifts'] = shifts

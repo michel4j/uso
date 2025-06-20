@@ -71,7 +71,7 @@ def create_event(schedule, queryset, data):
 
 
 def cancel_event(schedule, queryset, data):
-    # calculae schedule limits
+    # calculate schedule limits
     limits = {
         'start': timezone.make_aware(datetime.combine(schedule.start_date, datetime.min.time())),
         'end': timezone.make_aware(datetime.combine(schedule.end_date, datetime.min.time())),
