@@ -19,23 +19,19 @@
                 <div class="row">
                     <div class="col-xs-12 calendar-tools">
                         {% if admin and editor_type == 'mode' %}
-                            <div class="btn-group pull-right" data-bs-toggle="buttons">
-                                <label {% if schedule.state != 'draft' %}data-modal-url='{% url "switch-schedule" pk=schedule.pk state='draft' %}'{% endif %}
-                                        class="btn btn-sm {% if schedule.state == "draft" %}btn-warning active{% else %}btn-light border{% endif %}">
-                                    <input type="radio" name="options" id="opt-draft" autocomplete="off" checked>
+                            <div class="btn-group w-100">
+                                <a href="#0" data-modal-url='{% url "switch-schedule" pk=schedule.pk state='draft' %}'
+                                   class="btn btn-sm {% if schedule.state == "draft" %}btn-warning{% endif %} border">
                                     {{ schedule.STATES.draft }}
-                                </label>
-                                <label {% if schedule.state != 'tentative' %}data-modal-url='{% url "switch-schedule" pk=schedule.pk state='tentative'  %}'{% endif %}
-                                        class="btn btn-sm {% if schedule.state == "tentative" %}btn-info active{% else %}btn-light border{% endif %}">
-                                    <input type="radio" name="options" id="opt-tentative" autocomplete="off">
+                                </a>
+                                <a href="#0" data-modal-url='{% url "switch-schedule" pk=schedule.pk state='tentative'  %}'
+                                   class="btn btn-sm {% if schedule.state == "tentative" %}btn-info{% endif %} border">
                                     {{ schedule.STATES.tentative }}
-                                </label>
-                                <label {% if schedule.state != 'live' %}data-modal-url='{% url "switch-schedule" pk=schedule.pk state='live'  %}'{% endif %}
-                                        class="btn btn-sm {% if schedule.state == "live" %}btn-success active{% else %}btn-light border{% endif %}">
-                                    <input type="radio" name="options" id="opt-live" autocomplete="off">
+                                </a>
+                                <a href="#0" data-modal-url='{% url "switch-schedule" pk=schedule.pk state='live'  %}'
+                                   class="btn btn-sm {% if schedule.state == "live" %}btn-success active{% endif %} border">
                                     {{ schedule.STATES.live }}
-                                </label>
-
+                                </a>
                             </div>
                         {% endif %}
                     </div>

@@ -280,13 +280,12 @@ class PromoteSchedule(RolePermsViewMixin, ModalConfirmView):
     allowed_roles = USO_ADMIN_ROLES
 
     def get_context_data(self, **kwargs):
-        STATE_INDEX = {models.Schedule.STATES.draft: 0, models.Schedule.STATES.tentative: 1, self.model.STATES.live: 2}
+        state_index = {models.Schedule.STATES.draft: 0, models.Schedule.STATES.tentative: 1, self.model.STATES.live: 2}
         context = super().get_context_data(**kwargs)
         context['state'] = self.kwargs.get('state')
-        context['action'] = 'promote' if STATE_INDEX.get(self.object.state) < STATE_INDEX.get(
+        context['action'] = 'promote' if state_index.get(self.object.state) < state_index.get(
             self.kwargs.get('state')
         ) else 'demote'
-
         return context
 
     def confirmed(self, *args, **kwargs):
@@ -294,12 +293,7 @@ class PromoteSchedule(RolePermsViewMixin, ModalConfirmView):
         if self.kwargs.get('state') in models.Schedule.STATES:
             obj.state = self.kwargs.get('state')
             obj.save()
-
-        return JsonResponse(
-            {
-                "url": ""
-            }
-        )
+        return JsonResponse({"url": ""})
 
 
 class YearTemplate(RolePermsViewMixin, TemplateView):

@@ -1,32 +1,22 @@
-{% extends "crisp_modals/modal.html" %}
+{% extends "crisp_modals/confirm.html" %}
 {% block modal_title %}{{ action|title }} Schedule?{% endblock %}
 {% block modal_body %}
-<h5>Switch Schedule State {{ action }} the following schedule from
-    <span class="label {% if object.state == 'draft' %}label-warning{% elif object.state == 'tentative' %}label-info{% else %}label-success{% endif %}">{{object.state|title}}</span>
-    <i class="bi-arrow-right icon-fw"></i>
-    <span class="label {% if state == 'draft' %}label-warning{% elif state == 'tentative' %}label-info{% else %}label-success{% endif %}">{{state|title}}</span>
-</h5>
-</h5>
-<div class="minitron">		
-	<h4><strong>{{object}}</strong></h4>
-	<hr class="hr-xs"/>
-	Created, {{object.created|timesince}}<br/>
-	Last Modified, {{object.modified|timesince}}<br/>
-	<hr class="hr-xs"/>
-    <p>
-        Only Draft and Tentative Schedules can be edited. Only Live and Tentative Schedules will determine usable shifts for beamlines.
+    <p class="lead text-center">Switch Schedule State: {{ action|title }} the following schedule from
+        <span class="badge {% if object.state == 'draft' %}bg-warning{% elif object.state == 'tentative' %}bg-info{% else %}bg-success{% endif %}">{{ object.state|title }}</span>
+        <i class="bi-arrow-right icon-fw"></i>
+        <span class="badge {% if state == 'draft' %}bg-warning{% elif state == 'tentative' %}bg-info{% else %}bg-success{% endif %}">{{ state|title }}</span>
     </p>
-</div>
-<div class="row">
-	<div class="modal-footer">
-  			<form action="{{request.get_full_path}}" method="post">{% csrf_token %}
-   			<input type="hidden" name="post" value="yes" />
-			<button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">Cancel</button>
-			<button type="submit" value="Submit" class="btn btn-info">Yes, I'm sure</button>
-		</form>
-	</div>
-
-</div>
+    <div class="alert alert-info">
+        <h4><strong>{{ object }}</strong></h4>
+        <hr class="hr-xs"/>
+        Created, {{ object.created|timesince }}<br/>
+        Last Modified, {{ object.modified|timesince }}<br/>
+        <hr class="hr-xs"/>
+        <p>
+            Only Draft and Tentative Schedules can be edited. Only Live and Tentative Schedules will determine usable
+            shifts for beamlines.
+        </p>
+    </div>
 {% endblock %}
 
 

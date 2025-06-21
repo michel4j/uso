@@ -21,7 +21,7 @@ yearShiftView = View.extend({
     templateUrl: "",
     render: function () {
         let date = this.calendar.getDate();
-        let params = '?date=' + date.format('YYYY-MM-DD');
+        let params = `?date=${date.format('YYYY-MM-DD')}`;
         this.url = this.opt('templateUrl') + params;
         this.updateTitle(date.year());
     },
@@ -40,15 +40,15 @@ monthShiftView = View.extend({
     },
     render: function () {
         let date = this.calendar.getDate();
-        let params = '?date=' + date.format('YYYY-MM-DD');
+        let params = `?date=${date.format('YYYY-MM-DD')}`;
         if (this.opt('sectionHeaders')) {
-            params += '&sections=' + this.opt('sectionHeaders');
+            params += `&sections=${this.opt('sectionHeaders')}`;
         }
         if (this.opt('rangeStart')) {
-            params += '&start=' + this.opt('rangeStart');
+            params += `&start=${this.opt('rangeStart')}`;
         }
         if (this.opt('rangeEnd')) {
-            params += '&end=' + this.opt('rangeEnd');
+            params += `&end=${this.opt('rangeEnd')}`;
         }
         this.url = this.opt('templateUrl') + params;
         this.updateTitle(date.format('MMMM, YYYY'));
@@ -64,12 +64,12 @@ cycleShiftView = View.extend({
     titleFormat: 'YYYY',
     render: function () {
         let date = this.calendar.getDate();
-        let params = '?date=' + date.format('YYYY-MM-DD');
+        let params = `?date=${date.format('YYYY-MM-DD')}`;
         if (this.opt('rangeStart')) {
-            params += '&start=' + this.opt('rangeStart');
+            params += `&start=${this.opt('rangeStart')}`;
         }
         if (this.opt('rangeEnd')) {
-            params += '&end=' + this.opt('rangeEnd');
+            params += `&end=${this.opt('rangeEnd')}`;
         }
         this.url = this.opt('templateUrl') + params;
         this.intervalDuration = moment.duration({months: 6});
@@ -126,10 +126,11 @@ function setupAjax(spinner_sel, csrf_token) {
 			}
 		},
         error : function(jqXHR, textStatus, errorThrown) {
+            console.log(`Error: ${textStatus} - ${errorThrown}`);
             dfToasts.error({message: `Operation Failed: ${errorThrown}`});
         },
 		async: true,
-		dataType: "json",
+		//dataType: "json",
 		contentType: "application/json; charset=utf-8"
 	});
 }
@@ -201,44 +202,45 @@ function setupCalendar(sel, options) {
             let cur_shift = event.start.clone();
             let section_prefix = "";
             let shift, shift_sel;
-            if ((view.name == 'weekshift') && (event.section)) {
-               section_prefix = ".cal-section-" + event.section + " > ";
+            if ((view.name === 'weekshift') && (event.section)) {
+               section_prefix = `.cal-section-${event.section} > `;
             }
 
-            let first_shift = $('.shift-' + cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH'));
+            let first_shift = $(`.shift-${cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH')}`);
             while (cur_shift < event.end) {
-                shift_sel = '.shift-' + cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH');
+                shift_sel = `.shift-${cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH')}`;
                 cur_shift.add(duration);
                 shift = $(section_prefix + shift_sel);
-                if (event.rendering == 'mode') {
-                    shift.attr('class', shift.attr('data-default-class') + " " + event.name);
+                if (event.rendering === 'mode') {
+                    shift.attr('class', `${shift.attr('data-default-class')} ${event.name}`);
                     shift.attr('title', event.description);
                     if (event.tentative) shift.addClass("tentative");
                     if (event.cancelled) {
                         shift.addClass("Can");
-                        shift.attr('title', event.description + " [cancelled]");
+                        shift.attr('title', `${event.description} [cancelled]`);
                     }
-                    if ((view.name == 'monthshift') && (options.editorType == 'mode')) {
-                        shift.html("<div class='event-tools'></div><div class='text-condensed mode-label'>" + event.display + "</div>");
+                    if ((view.name === 'monthshift') && (options.editorType === 'mode')) {
+                        shift.html(`<div class='event-tools'></div><div class='text-condensed mode-label'>${event.display}</div>`);
                         first_shift.find('.event-tools').addClass('active').data('event', event);
                     }
-                } else if (event.rendering == 'preferences') {
-                    $('#' + event.start.format('YYYY-MM-DD')).addClass('prefs-' + event.type);
-                } else if ((event.rendering == 'beamtime') || ((event.rendering == 'staff') && ((view.name == 'weekshift') || options.editor)) ){
+                } else if (event.rendering === 'preferences') {
+                    $('#' + event.start.format('YYYY-MM-DD')).addClass(`prefs-${event.type}`);
+                } else if ((event.rendering === 'beamtime') || ((event.rendering === 'staff') && ((view.name === 'weekshift') || options.editor)) ){
                     let tag_html = "";
                     let tag_titles = [];
+                    const $tagElement = $(`#tag-${tag}`);
                     shift.attr('title', event.description);
                     $.each(event.tags, function (i, tag) {
-                        tag_titles.push($('#tag-' + tag).data('tag'));
-                        tag_html += "<i class='bi-tag cat-fg-" + $('#tag-' + tag).data('cat') + "'></i>";
+                        tag_titles.push($tagElement.data('tag'));
+                        tag_html += `<i class='bi-tag cat-fg-${$tagElement.data('cat')}'></i>`;
                     });
-                    tag_html = "<span title='"+ tag_titles.join('; ') +"'>" + tag_html + "</span>";
-                    if ((view.name == 'monthshift') || (view.name == 'weekshift')) {
+                    tag_html = `<span title='${tag_titles.join('; ')}'>${tag_html}</span>`;
+                    if ((view.name === 'monthshift') || (view.name === 'weekshift')) {
                         shift.addClass("fg-" + event.project_type);
-                        shift.html("<div class='event-tools'></div><div class='text-condensed overflow ellipsis event-label'>" +
-                            "<span class='hidden-sm'>" + event.display + "</span>" +
-                            "<span class='visible-sm' title='"+ event.display +"'>" + event.name + "</span>" +
-                            tag_html + "</div>"
+                        shift.html(
+                            `<div class='event-tools'></div>
+                            <div class='text-condensed overflow ellipsis event-label'><span class='hidden-sm'>${event.display}</span>
+                            <span class='visible-sm' title='${event.display}'>${event.name}</span>${tag_html}</div>`
                         );
                         if (options.editor) {
                             first_shift.find('.event-tools').addClass('active').data('event', event);
@@ -275,7 +277,7 @@ function setupEditor(sel, options) {
     calendar.addClass('idle');
     function clearEvents() {
         $('.cal-day .cal-shift').each(function(){
-            let shift = $(this);
+            const shift = $(this);
             shift.attr('class', shift.attr('data-default-class'));
             shift.html("");
         });
@@ -293,10 +295,10 @@ function setupEditor(sel, options) {
                 $('#tag-' + id).addClass('active');
             });
         } else {
-            let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
+            const class_name = `selected-${$('.event-src.active-src').attr('data-key')}`;
             $('.event-src').removeClass('active-src');
             calendar.removeClass('ending starting').addClass('idle');
-            $(".cal-shift." + class_name).removeClass(class_name);
+            $(`.cal-shift.${class_name}`).removeClass(class_name);
             $('.tag').removeClass('active');
         }
     });
@@ -343,7 +345,7 @@ function setupEditor(sel, options) {
         end_time = end_time.add(moment.duration({hours: options.shiftDuration}));
         let cur_shift = moment(start_time);
         while (cur_shift < end_time) {
-            selected.push('.shift-' + cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH'));
+            selected.push(`.shift-${cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH')}`);
             cur_shift = cur_shift.add(moment.duration({hours: options.shiftDuration}));
         }
         $(".cal-shift." + class_name).removeClass(class_name);
@@ -352,12 +354,12 @@ function setupEditor(sel, options) {
 
     // Escape pressed while editing
     $(document).keyup(function(e) {
-        if (e.keyCode == 27) {
+        if (e.keyCode === 27) {
             calendar.fullCalendar('removeEventSource', $('.active-src').attr('data-extra-events-url'));
-            let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
+            let class_name = `selected-${$('.event-src.active-src').attr('data-key')}`;
             $('.event-src').removeClass('active-src');
             calendar.removeClass('ending starting').addClass('idle');
-            $(".cal-shift." + class_name).removeClass(class_name);
+            $(`.cal-shift.${class_name}`).removeClass(class_name);
             $('.tag').removeClass('active');
         }
     });
@@ -402,17 +404,15 @@ function setupEditor(sel, options) {
             container: control,
             content: function() {
                 return (
-                    "<div class='row no-space'>"+
-                    "   <div class='col-xs-12'>" +
-                    "      <textarea class='formcontrol' name='comments' rows='4' cols='40' placeholder='Enter comments and save ...'>"+ comments +"</textarea>" +
-                    "   </div>" +
-                    "</div>" +
-                    "<div class='tools'>" +
-                    "   <a href='#0' data-action='comments'><i class='bi-floppy icon-sm'></i><br/>Save</a>" +
-                    "   <a href='#0' data-action='cancel'><i class='bi-ban icon-sm'></i><br/>Cancel</a>" +
-                    "   <a href='#0' data-action='reset'><i class='bi-arrow-clockwise icon-sm'></i><br/>Reset</a>" +
-                    "   <a href='#0' data-action='delete'><i class='bi-trash icon-sm'></i><br/>Delete</a>" +
-                    "</div>");
+                    `<div class='row no-space'>
+                    <div class='col-xs-12'>
+                    <textarea class='formcontrol' name='comments' rows='4' cols='40' placeholder='Enter comments and save ...'>${comments}</textarea>
+                    </div></div><div class='tools'><a href='#0' data-action='comments'>
+                    <i class='bi-floppy icon-sm'></i><br/>Save</a>
+                    <a href='#0' data-action='cancel'><i class='bi-ban icon-sm'></i><br/>Cancel</a>
+                    <a href='#0' data-action='reset'><i class='bi-arrow-clockwise icon-sm'></i><br/>Reset</a>
+                    <a href='#0' data-action='delete'><i class='bi-trash icon-sm'></i><br/>Delete</a></div>`
+                );
             }
         });
         control.popover("show");
@@ -441,14 +441,14 @@ function setupEditor(sel, options) {
     });
 
     $(document).on('mouseenter', '.starting .cal-day-header .cal-shift', function (event) {
-        let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
+        let class_name = `selected-${$('.event-src.active-src').attr('data-key')}`;
         $(".cal-shift." + class_name).removeClass(class_name);
-        $(".cal-shift.shift-day-" + $(this).attr('data-shift-day') + ".shift-time-" + $(this).attr('data-shift-time')).addClass(class_name);
+        $(`.cal-shift.shift-day-${$(this).attr('data-shift-day')}.shift-time-${$(this).attr('data-shift-time')}`).addClass(class_name);
     });
 
     $(document).on('mouseleave', '.fc-view', function (event) {
-        let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
-        $(".cal-day .cal-shift." + class_name).removeClass(class_name);
+        let class_name = `selected-${$('.event-src.active-src').attr('data-key')}`;
+        $(`.cal-day .cal-shift.${class_name}`).removeClass(class_name);
     });
 
     $(document).on('click', '.tag', function () {

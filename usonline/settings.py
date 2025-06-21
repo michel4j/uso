@@ -73,7 +73,7 @@ INSTALLED_APPS = [
     'weather',
     'surveys',
     'agreements',
-    'schema_graph',
+    #'schema_graph',
     'dynamic_breadcrumbs',
 ]
 

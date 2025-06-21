@@ -51,5 +51,5 @@ if settings.DEBUG:
         path('503/', TemplateView.as_view(template_name='503.html'), name='error-503'),
         path('404/', TemplateView.as_view(template_name='404.html'), name='error-404'),
         path('403/', TemplateView.as_view(template_name='403.html'), name='error-403'),
-        path('schema/', Schema.as_view(), name='database-schema'),
+        #path('schema/', Schema.as_view(), name='database-schema'),
     ]
