@@ -21,15 +21,15 @@
                         {% if admin and editor_type == 'mode' %}
                             <div class="btn-group w-100">
                                 <a href="#0" data-modal-url='{% url "switch-schedule" pk=schedule.pk state='draft' %}'
-                                   class="btn btn-sm {% if schedule.state == "draft" %}btn-warning{% endif %} border">
+                                   class="btn {% if schedule.state == "draft" %}btn-warning{% endif %} border">
                                     {{ schedule.STATES.draft }}
                                 </a>
                                 <a href="#0" data-modal-url='{% url "switch-schedule" pk=schedule.pk state='tentative'  %}'
-                                   class="btn btn-sm {% if schedule.state == "tentative" %}btn-info{% endif %} border">
+                                   class="btn {% if schedule.state == "tentative" %}btn-info{% endif %} border">
                                     {{ schedule.STATES.tentative }}
                                 </a>
                                 <a href="#0" data-modal-url='{% url "switch-schedule" pk=schedule.pk state='live'  %}'
-                                   class="btn btn-sm {% if schedule.state == "live" %}btn-success active{% endif %} border">
+                                   class="btn {% if schedule.state == "live" %}btn-success active{% endif %} border">
                                     {{ schedule.STATES.live }}
                                 </a>
                             </div>

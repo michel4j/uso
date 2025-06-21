@@ -9,7 +9,8 @@ function init_fc_extras(sel, view) {
     }
     //toolbar.addClass('row');
     $(".fc-clear").remove();
-    $(".fc-toolbar .fc-center, .fc-toolbar .fc-left, .fc-toolbar .fc-right");
+    $(".fc-toolbar .fc-button-group").addClass('btn-group');
+    $(".fc-button").addClass('btn border');
 }
 
 let FC = $.fullCalendar; // a reference to FullCalendar's root namespace
@@ -401,17 +402,20 @@ function setupEditor(sel, options) {
             html: true,
             trigger: 'hover',
             placement: 'bottom',
-            container: control,
+            container: 'body',
+            customClass: 'event-tools-popover',
+            sanitize: false,
             content: function() {
                 return (
-                    `<div class='row no-space'>
-                    <div class='col-xs-12'>
-                    <textarea class='formcontrol' name='comments' rows='4' cols='40' placeholder='Enter comments and save ...'>${comments}</textarea>
-                    </div></div><div class='tools'><a href='#0' data-action='comments'>
-                    <i class='bi-floppy icon-sm'></i><br/>Save</a>
-                    <a href='#0' data-action='cancel'><i class='bi-ban icon-sm'></i><br/>Cancel</a>
-                    <a href='#0' data-action='reset'><i class='bi-arrow-clockwise icon-sm'></i><br/>Reset</a>
-                    <a href='#0' data-action='delete'><i class='bi-trash icon-sm'></i><br/>Delete</a></div>`
+                    `
+                        <textarea class="form-control w-100 mb-2" type="text" rows="3" name="comments" placeholder="Comments ...">${comments}</textarea>
+                        <div class='toolbox mt-2'>
+                            <a href='#0' data-action='comments'><i class='bi-floppy icon-sm'></i><span class="tool-label">Save</span></a>
+                            <a href='#0' data-action='cancel'><i class='bi-ban icon-sm'></i><span class="tool-label">Cancel</span></a>
+                            <a href='#0' data-action='reset'><i class='bi-arrow-clockwise icon-sm'></i><span class="tool-label">Reset</span></a>
+                            <a href='#0' data-action='delete'><i class='bi-trash icon-sm'></i><span class="tool-label">Delete</span></a>
+                        </div>
+                    `
                 );
             }
         });
