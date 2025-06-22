@@ -110,23 +110,16 @@
 {% block extra_js %}
     {% include "proposals/cycle-timeline.html" %}
     <script>
-        $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-            let target = $(e.target).attr('href');
-            if (history.pushState) {
-                history.pushState(null, null, target);
-            } else {
-                location.hash = target;
-            }
+        $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {
+            const activeTab = $(e.target).attr('href');
+            localStorage.setItem('activeTrackTab', activeTab);
+        })
+
+        $(document).ready(function(){
+            const activeTab = localStorage.getItem('activeTrackTab') || '#nav-track-1';
+            $(`a[href="${activeTab}"]`).tab('show');
         });
 
-        let hash = window.location.hash;
-        hash = hash.replace('#', '');
-        if (hash) {
-            setTimeout(function() {
-                window.scrollTo(0, 0);
-            }, 0);
-            $(`a[href="#${hash}"]`).tab('show');
-        }
         function plot_reviewer_bars(plot_element, data, domain) {
             var margin = {
                     top: 0,
@@ -201,7 +194,7 @@
                 .attr("x2", x(0))
                 .attr("y2", height);
 
-            var text = svg.selectAll("text")
+            const text = svg.selectAll("text")
                 .data(data)
                 .enter()
                 .append("text")
