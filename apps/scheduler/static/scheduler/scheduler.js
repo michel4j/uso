@@ -113,13 +113,55 @@ function updateStats(url) {
     }
 }
 
-function setupAjax(spinner_sel, csrf_token) {
+
+function setupAjax(csrf_token) {
+    const $body = $("body");
+
     // Handle Spinner for all ajax calls
-	$(document).ajaxStart(function () {
-    	$(spinner_sel).addClass('spinner');
+	$(document).ajaxStart(function (xhr) {
+        $(document).data('xhrProgress', 0);
+        $(document).data('xhrCount', 0);
+        $(document).data('xhrPercent', 0);
+        $body.css({
+            '--uso-progress-percent': 0,
+            '--uso-progress-opacity': 1,
+        });
   	}).ajaxStop(function () {
-    	$(spinner_sel).removeClass('spinner');
+        setTimeout(function() {
+            $("body").css({
+                '--uso-progress-opacity': 0
+            });
+        }, 500);
   	});
+
+    // Handle XHR Progress
+    let origOpen = XMLHttpRequest.prototype.open;
+    $(document).data('xhrCount', $(document).data('xhrCount') || 0);
+    $(document).data('xhrProgress', $(document).data('xhrProgress') || 0);
+    $(document).data('xhrPercent', $(document).data('xhrPercent') || 0);
+
+    XMLHttpRequest.prototype.open = function() {
+        $(document).data('xhrCount', $(document).data('xhrCount') + 1);
+        this.addEventListener('load', function() {
+            $(document).data('xhrProgress', $(document).data('xhrProgress') + 1);
+            $(document).data('xhrCount', $(document).data('xhrCount') - 1);
+            if ($(document).data('xhrCount') === 0) {
+                $(document).data('xhrPercent', 100)
+                $("body").css({
+                    '--uso-progress-percent': $(document).data('xhrPercent'),
+                });
+            } else {
+                let percentComplete = 100 * $(document).data('xhrProgress') / $(document).data('xhrCount');
+                //$(document).data('xhrPercent', Math.max($(document).data('xhrPercent'), percentComplete));
+                $(document).data('xhrPercent', percentComplete);
+                $("body").css({
+                    '--uso-progress-percent': $(document).data('xhrPercent'),
+                });
+            }
+        });
+        origOpen.apply(this, arguments);
+    };
+
     $.ajaxSetup({
 		beforeSend: function(xhr, settings) {
 			if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
@@ -127,7 +169,6 @@ function setupAjax(spinner_sel, csrf_token) {
 			}
 		},
         error : function(jqXHR, textStatus, errorThrown) {
-            console.log(`Error: ${textStatus} - ${errorThrown}`);
             dfToasts.error({message: `Operation Failed: ${errorThrown}`});
         },
 		async: true,
@@ -427,7 +468,7 @@ function setupEditor(sel, options) {
         let tools = $(this).closest('.event-tools');
         let event = tools.data('event');
         let action = $(this).attr('data-action');
-        if (action == 'comments') {
+        if (action === 'comments') {
             event['comments'] = tools.find('textarea').val()
         } else {
             event[action] = true;

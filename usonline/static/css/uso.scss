@@ -1945,41 +1945,6 @@ dl {
   }
 }
 
-.spinner {
-  position: fixed;
-  left: 50%;
-  top: calc(50% - 30px);
-  height: 60px;
-  width: 60px;
-  margin: 0 auto;
-  -webkit-animation: rotation .6s infinite linear;
-  -moz-animation: rotation .6s infinite linear;
-  -o-animation: rotation .6s infinite linear;
-  animation: rotation .6s infinite linear;
-  border-left: 6px solid rgba(0, 174, 239, 0.15);
-  border-right: 6px solid rgba(0, 174, 239, 0.15);
-  border-bottom: 6px solid rgba(0, 174, 239, 0.15);
-  border-top: 6px solid rgba(0, 174, 239, 0.8);
-  border-radius: 100%;
-}
-
-#spinner {
-  display: none;
-}
-
-#page-spinner {
-  display: none;
-}
-
-#spinner.spinner {
-  display: block;
-}
-
-#page-spinner.spinner {
-  display: block;
-}
-
-
 ul.list-ruled {
   li + li {
     border-top: 1px solid var(--bs-border-color-translucent) !important;
@@ -2627,11 +2592,12 @@ $stat-sizes: (
 .trumbowyg-box, .trumbowyg-editor-box {
   border-radius: var(--bs-border-radius);
 }
+
 #df-form-instance .trumbowyg-button-pane {
-    background-color: var(--bs-tertiary-bg);
-    border-bottom-color: var(--bs-border-color-translucent);
-    border-top-right-radius: var(--bs-border-radius);
-    border-top-left-radius: var(--bs-border-radius);
+  background-color: var(--bs-tertiary-bg);
+  border-bottom-color: var(--bs-border-color-translucent);
+  border-top-right-radius: var(--bs-border-radius);
+  border-top-left-radius: var(--bs-border-radius);
 }
 
 //.control-label, .form-label, .sub-label {
@@ -2656,7 +2622,20 @@ $stat-sizes: (
 
 .df-form-tabs .badge {
   --bs-badge-font-weight: 400;
-    --bs-badge-font-size: 0.7em;
+  --bs-badge-font-size: 0.7em;
   --bs-badge-border-radius: 50%;
   vertical-align: middle;
+}
+
+body::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--uso-progress-percent, 0) * 1vw);
+  display: var(--uso-progress-display, block);
+  height: 2px;
+  content: "";
+  opacity: calc(var(--uso-progress-opacity, 1) * 0.75);
+  background: var(--bs-primary);
+  transition: width 0.3s ease-in, opacity 0.3s ease-out;
 }

@@ -19,6 +19,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{% static 'dynforms/jquery-bs-datepicker.min.css' %}" rel="stylesheet">
 
     {% block site_css %}
         <link rel="stylesheet"
@@ -71,7 +72,6 @@
             {% block body %}{% block content %}{% endblock %}{% endblock %}
         </div>
     </main>
-    <div id="page-spinner"></div>
 </div>
 
 <div id="modal-target"></div>
@@ -85,6 +85,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery-form@4.3.0/dist/jquery.form.min.js"></script>
 <script src="{% static 'crisp_modals/modals.min.js' %}"></script>
 <script src="{% static 'dynforms/df-toasts.min.js' %}"></script>
+<script src="{% static 'dynforms/jquery-bs-datepicker.min.js' %}"></script>
 
 {% block page-scripts %}{% endblock %}
 {% block extra_js %}{% endblock %}
@@ -98,6 +99,10 @@
             setup: function (element) {
                 $('.selectmultiple, .selectize').selectize({
                     plugins: ["remove_button"]
+                });
+                // Initialize date inputs
+                $('.dateinput').datePicker({
+                    dateFormat: "YYYY-MM-DD",
                 });
             }
         });

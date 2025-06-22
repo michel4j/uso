@@ -103,7 +103,7 @@ def shift_choices(name="Shifts", size=8, show_now=False):
     return TextChoices(name, choices)
 
 
-class HandOverForm(forms.ModelForm):
+class HandOverForm(ModalModelForm):
     start_date = forms.DateField(required=True)
     end_date = forms.DateField(required=True)
     start_time = forms.ChoiceField(required=True, choices=shift_choices(show_now=False))
@@ -122,9 +122,7 @@ class HandOverForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         self.facility = kwargs.pop('facility', None)
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.title = "Hand-over Beamtime"
-        self.helper.form_action = self.request.path
+        self.body.title = "Hand-over Beamtime"
         self.fields['kind'].help_text = (
             "<em>On-Site:</em>  Users will be physically present at the facility, <br/>"
             "<em>Remote:</em>  Users will perform the experiments by connecting through the internet,<br/>"
@@ -138,12 +136,12 @@ class HandOverForm(forms.ModelForm):
         self.fields['start_time'].choices = start_choices.choices
         self.fields['end_time'].choices = end_choices.choices
 
-        self.helper.layout = Layout(
+        self.body.append(
             Div(
                 HTML(
-                    "<div class='p-3'>\n"
-                    "    <h4 class='overflow ellipsis'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></h4>\n"
-                    "    <h4>Facility: {{facility.acronym}}&mdash;<strong class='text-condensed'>{{facility.name}}</strong></h4>\n"
+                    "<div class='callout callout-primary mb-3'>\n"
+                    "    <h5 class='overflow ellipsis'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></h5>\n"
+                    "    <p class='lead'>Facility: {{facility.acronym}}&mdash;<strong class='text-condensed'>{{facility.name}}</strong></p>\n"
                     "	{% if tags %}\n"
                     "	<div class=\"row\">\n"
                     "		<div class='col-sm-12 text-right' style='line-height: 1.6;'>\n"
@@ -157,7 +155,6 @@ class HandOverForm(forms.ModelForm):
                     "	{% endif %}\n"
                     "</div>\n"
                 ),
-                css_class="row modal-body"
             ),
             Div(
                 Div(DateField('start_date'), css_class='col-sm-6'),
@@ -166,16 +163,12 @@ class HandOverForm(forms.ModelForm):
                 Div(Field('end_time', css_class="selectize"), css_class='col-sm-6'),
                 Div(Field("kind", css_class="selectize"), css_class="col-xs-12"),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal',
-                                 css_class="btn btn-secondary pull-left"),
-                    StrictButton('Hand-Over', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
-                ),
-                css_class="row modal-footer"
             )
+        )
+        self.footer.clear()
+        self.footer.append(
+            StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Hand-Over', type='submit', value='Save', css_class='btn btn-primary ms-auto'),
         )
 
     def clean(self):

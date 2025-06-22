@@ -14,11 +14,10 @@
 	<div class="container-fluid">
         <div class="row">
 		<div id="calendar" class="col-sm-12 slot-{{ shift_duration }}-hrs">
-            <div id="spinner"></div>
         </div>
 		<div id="src-panel" class="col-sm-12">
 			<div class="row">
-				<div class="col-11">
+				<div class="col-12">
 					<ul class="row list-unstyled">
 						{% for m in mode_types %}
 						<li class="col-sm-3">
@@ -44,9 +43,6 @@
 						{% endif %}
 					</ul>
 				</div>
-				<div class="col-xs-1 spinner-container text-center">
-					<i id="spinner" class="icon-md icon-fw pull-right"></i>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -57,7 +53,7 @@
 {% block extra_js %}
 <script type="text/javascript">
 $(document).ready(function() {
-	setupAjax('#spinner', '{{ csrf_token }}');
+	setupAjax('{{ csrf_token }}');
     setupCalendar('#calendar', {
         multiView: {{ show_year | jsonify }},
 		defaultDate: '{{default_date}}',
