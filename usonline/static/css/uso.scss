@@ -137,7 +137,7 @@ $state-names: (info, primary, success, secondary, warning, danger);
   --bs-border-radius-pill: 50rem;
   --bs-font-sans-serif: "Fira Sans";
   --bs-font-monospace: "Fira Code";
-  --bs-body-font-size: 0.95rem;
+  --bs-body-font-size: 11pt;
   --bs-breadcrumb-font-size: 0.85rem;
 }
 
@@ -2571,7 +2571,7 @@ $stat-sizes: (
 }
 
 ::-webkit-scrollbar {
-  width: 0.5em;
+  width: 0.65em;
 }
 
 ::-webkit-scrollbar-track {
@@ -2588,8 +2588,6 @@ $stat-sizes: (
   background: var(--bs-border-color-translucent);
 
   &:hover {
-    border-top-left-radius: 0.25em;
-    border-bottom-left-radius: 0.25em;
     background: var(--bs-primary);
   }
 }

@@ -1,8 +1,6 @@
 import os
-from collections import OrderedDict
 from datetime import date, timedelta, datetime
 
-import numpy
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
@@ -561,7 +559,7 @@ class Reviewer(TimeStampedModel):
     objects = ReviewerQueryset.as_manager()
 
     def __str__(self):
-        return f"{self.user.last_name}, {self.user.first_name}{' *' if self.committee else ''}"
+        return f"{self.user.last_name}, {self.user.first_name}{' 🜲' if self.committee else ''}"
 
     def is_suspended(self, dt=None):
         dt = timezone.now() if not dt else datetime.combine(dt, datetime.min.time())

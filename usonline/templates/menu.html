@@ -15,15 +15,15 @@
                 container: 'body',
                 trigger: 'focus',
                 placement: 'right',
-                delay: {"hide": 100 },
+                delay: {"hide": 250 },
                 customClass: 'sub-menu',
                 content: getSubMenu
             });
         });
     });
     $(document).on('click', '.sub-menu .nav-link', function (e) {
-        console.log('Sub-menu link clicked:', this);
-        //e.stopPropagation();
+        {#console.log('Sub-menu link clicked:', this);#}
+        {#$(this).popover('hide');#}
     });
 </script>
  
