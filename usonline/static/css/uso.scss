@@ -1310,9 +1310,10 @@ div.dashboard {
 }
 
 .permit-img {
-  border-radius: 50%;
-  width: 5em;
-  height: 5em;
+  border-top-left-radius: var(--bs-border-radius);
+  border-bottom-left-radius: var(--bs-border-radius);
+  width: 10em;
+  height: 10em;
   background-size: contain;
   margin-right: 10px;
 }
@@ -2512,6 +2513,10 @@ $stat-sizes: (
   .btn-close {
     filter: invert(1) grayscale(100%) brightness(200%);;
   }
+}
+
+.modal-alert > .alert-message {
+  font-size: 0.9em;
 }
 
 .selectize-control.single .selectize-input.input-active, .selectize-input {

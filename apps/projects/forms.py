@@ -381,7 +381,7 @@ class LabSessionForm(ModalModelForm):
         return cleaned_data
 
 
-class SessionForm(forms.ModelForm):
+class SessionForm(ModalModelForm):
     class Meta:
         model = models.Session
         fields = ['samples', 'team', 'staff']
@@ -421,12 +421,10 @@ class SessionForm(forms.ModelForm):
         self.fields['staff'].help_text = (
             "Select the staff member who will be present during this session. "
         )
-        self.helper = FormHelper()
-        self.helper.title = "Beamtime Sign-On"
-        self.helper.form_action = self.request.path
+        self.body.title = "Beamtime Sign-On"
         submit_class = "btn-secondary disabled" if not self.fields['team'].queryset.exists() else "btn-primary"
 
-        self.helper.layout = Layout(
+        self.body.append(
             Div(
                 Div(
                     HTML(
@@ -444,17 +442,12 @@ class SessionForm(forms.ModelForm):
                     css_class="col-xs-12"
                 ),
                 css_class="row modal-scroll-body"
-            ),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal',
-                                 css_class="btn btn-secondary pull-left"),
-                    StrictButton('Sign-On', type='submit', value='Save',
-                                 css_class='btn pull-right {}'.format(submit_class)),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
+        )
+        self.footer.clear()
+        self.footer.append(
+            StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Sign-On', type='submit', value='Save', css_class='btn ms-auto {}'.format(submit_class)),
         )
 
     def clean(self):

@@ -6,18 +6,19 @@
 {% load project_tags %}
 
 {% block page-pretitle %}
-Session Permit
+    Session Permit
 {% endblock %}
 
 {% block page-title %}
-{{object.project.code}} &mdash; {{object.project.title}}
+    {{ object.project.code }} &mdash; {{ object.project.title }}
 {% endblock %}
 
 {% block page-subtitle %}
- {{object.beamline.acronym}} {{ session.get_kind_display }} Permit
+    {{ object.beamline.acronym }} {{ session.get_kind_display }} Permit
 {% endblock %}
 
-{% block page-status-style %}callout {% folio_status object.state success='live' info='ready' danger='terminated' draft='complete' default='bg-darken' %}{% endblock %}
+{% block page-status-style %}callout
+    {% folio_status object.state success='live' info='ready' danger='terminated' draft='complete' default='bg-darken' %}{% endblock %}
 
 {% block page-tools %}
     {% if owner or admin %}
@@ -27,7 +28,7 @@ Session Permit
             <span class="tool-label">View Log</span>
         </a>
         {% if object.state == object.STATES.ready %}
-             {% if admin  %}
+            {% if admin %}
                 <a href="#0" data-modal-url="{% url 'delete-session' pk=object.pk %}" class="text-danger pull-right">
                     <i class="ti icon-md bi-trash icon-fw"></i><br/>
                     <span class="tool-label">Delete</span>
@@ -39,16 +40,17 @@ Session Permit
             </a>
         {% elif object.state == object.STATES.live %}
             {% if object.is_live %}
-            <a href="#0" data-modal-url="{% url 'session-signoff' pk=object.pk %}" class="pull-left">
-                <i class="icon-md bi-power icon-fw"></i><br/>
-                <span class="tool-label">Sign-Off</span>
-            </a>
-            {% if can_terminate %}
-                <a href="#0" data-modal-url="{% url 'terminate-session' pk=object.pk %}" class="text-danger pull-right">
-                    <i class="icon-md bi-stop-circle icon-fw"></i><br/>
-                    <span class="tool-label">Terminate</span>
+                <a href="#0" data-modal-url="{% url 'session-signoff' pk=object.pk %}" class="pull-left">
+                    <i class="icon-md bi-power icon-fw"></i><br/>
+                    <span class="tool-label">Sign-Off</span>
                 </a>
-            {% endif %}
+                {% if can_terminate %}
+                    <a href="#0" data-modal-url="{% url 'terminate-session' pk=object.pk %}"
+                       class="text-danger pull-right">
+                        <i class="icon-md bi-stop-circle icon-fw"></i><br/>
+                        <span class="tool-label">Terminate</span>
+                    </a>
+                {% endif %}
             {% endif %}
             <a href="#0" data-modal-url="{% url 'session-signon' pk=object.pk %}" class="pull-left">
                 <i class="icon-md bi-pencil-square icon-fw"></i><br/>
@@ -69,70 +71,70 @@ Session Permit
 {% endblock %}
 
 {% block page-status-bar %}
-     <h3 class="my-0"><span class="badge bg-info text-condensed">{{object.get_state_display}}</span></h3>
-     <div>
-         <small class="text-wide text-body-secondary">Beamline:</small><br/>{{object.beamline.acronym}}
-     </div>
-     <div>
-         <small class="text-wide text-body-secondary">Staff:</small><br/>{{object.staff}}
-     </div>
-     <div>
-         <small class="text-wide text-body-secondary">Representative:</small><br/>{{object.spokesperson|default:"&hellip;"}}
-     </div>
-     <div>
-         {{object.start|date:"F jS/Y H:i"}} &ndash; <br/>
-         {{object.end|date:"F jS/Y H:i"}} ({{ object.start|get_time:object.end|naturaltime }})
-     </div>
+    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
+    <div>
+        <small class="text-wide text-body-secondary">Beamline:</small><br/>{{ object.beamline.acronym }}
+    </div>
+    <div>
+        <small class="text-wide text-body-secondary">Staff:</small><br/>{{ object.staff }}
+    </div>
+    <div>
+        <small class="text-wide text-body-secondary">Representative:</small><br/>{{ object.spokesperson|default:"&hellip;" }}
+    </div>
+    <div>
+        {{ object.start|date:"F jS/Y H:i" }} &ndash; <br/>
+        {{ object.end|date:"F jS/Y H:i" }} ({{ object.start|get_time:object.end|naturaltime }})
+    </div>
 {% endblock %}
 
 {% block page-content %}
-    <div class="col-xs-12 collapse" id="session-log">
-        <div class="row">
-        <div class="alert alert-warning col-xs-12">
-             <h4 class="my-0">Activity Log</h4>
-             <hr class="hr-xs"/>
-             <ul>
-                {% for log in session.details.history %}
-                <li>{{log|safe}}</li>
-                {% endfor %}
-             </ul>
-        </div>
-        </div>
+    <div class="callout callout-warning col-12 collapse" id="session-log">
+        <h4 class="my-0">Activity Log</h4>
+        <hr class="hr-xs"/>
+        <ul>
+            {% for log in session.details.history %}
+                <li>{{ log|safe }}</li>
+            {% endfor %}
+        </ul>
     </div>
-    {% include "projects/permit-permissions.html" %}
-    <div class="page-body">
-        <div class="row">
+    <div class="col-12 mt-2">
+        {% include "projects/permit-permissions.html" %}
+    </div>
+    <div class="col-12 my-4">
         {% include "projects/session-team.html" with project=object.project permissions=object.permissions %}
+    </div>
+    <div class="card my-2 col-12">
+        <div class="card-header">
+            <h4 class="card-title my-1">Samples On Site</h4>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                    <h3>Samples On Site</h3>
-                    <hr class="hr-xs">
-                    {% include "samples/sample_table.html" %}
-
-            </div>
-        </div>
-        <div class="row">
-        {% for sample in samples %}
-            {% if sample.0.hazards.count %}
-                <div class="col-sm-12 no-break">
-                    {% include "samples/label.html" with sample=sample.0 %}
-                </div>
-            {% endif %}
-        {% endfor %}
+        <div class="card-body">
+            {% include "samples/sample_table.html" %}
         </div>
     </div>
+
+    <div class="col-12">
+        <div class="row">
+            {% for sample in samples %}
+                {% if sample.0.hazards.count %}
+                    {% include "samples/label.html" with sample=sample.0 %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    </div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    function initScrollers(sel) {
-        $(sel).niceScroll({
-            cursoropacitymax: 0
+    <script>
+        function initScrollers(sel) {
+            $(sel).niceScroll({
+                cursoropacitymax: 0
+            });
+        }
+
+        $(document).ready(function () {
+            initScrollers(".scroll-child");
         });
-    }
-    $(document).ready(function(){
-        initScrollers(".scroll-child");
-    });
-</script>
+    </script>
 {% endblock %}
