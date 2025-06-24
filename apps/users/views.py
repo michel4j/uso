@@ -92,7 +92,7 @@ class InstitutionList(RolePermsViewMixin, ItemListView):
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
 
 
-class InstitutionDetail(JSONResponseMixin, DetailView):
+class InstitutionDetail(View):
     def get(self, request, *args, **kwargs):
         inst = None
         if 'name' in request.GET:
@@ -103,42 +103,39 @@ class InstitutionDetail(JSONResponseMixin, DetailView):
             for domain in domains:
                 query |= Q(domains__icontains=domain)
             inst = models.Institution.objects.filter(query).first()
-
+        address = {}
         if inst:
-            address = [v.strip() for v in inst.location.split(',')]
-            if len(address) == 3:
-                city, province, country = address
-            elif len(address) == 2:
-                (city, country), province = address, ''
-            elif len(address) == 1:
-                city, province, country = '', '', address[0]
-            else:
-                city = province = country = ''
-            context = {'institution': inst.name,
-                       'sector': inst.sector,
-                       'address.city': city,
-                       'address.country': country,
-                       'address.region': province,
-                       }
+            if hasattr(inst, 'address') and inst.address:
+                address['address.street'] = inst.address
+                address['address.city'] = inst.address.city
+                address['address.country'] = inst.address.country
+                address['address.province'] = inst.address.region
+                address['address.postal_code'] = inst.address.postal_code
+
+            context = {
+               'institution': inst.name,
+               'sector': inst.sector,
+               **address,
+            }
         else:
             context = {}
-        return self.render_to_response(context)
+        return JsonResponse(context)
 
 
-class InstitutionSearch(JSONResponseMixin, DetailView):
+class InstitutionSearch(View):
     def get(self, request, *args, **kwargs):
         found = models.Institution.objects.filter(name__icontains=request.GET['q']).order_by('name')
         if found.count():
             context = list(found.values_list('name', flat=True))
         else:
             context = []
-        return self.render_to_response(context)
+        return JsonResponse(context)
 
 
-class InstitutionNames(JSONResponseMixin, View):
+class InstitutionNames(View):
     def get(self, request, *args, **kwargs):
         context = list(models.Institution.objects.all().values_list('name', flat=True))
-        return self.render_to_response(context)
+        return JsonResponse(context)
 
 
 class EditInstitution(RolePermsViewMixin, ModalUpdateView):

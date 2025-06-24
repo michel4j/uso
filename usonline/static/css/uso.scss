@@ -2110,13 +2110,13 @@ label.pictogram {
 }
 
 body.registration {
-  background: var(--bs-seconder-bg);
+
 
   .aligner {
     width: 100%;
     height: 100%;
     position: relative;
-    background-color: var(--bs-seconder-bg);
+    background: var(--bs-secondary-bg);
   }
 
   .form-page {
@@ -2124,8 +2124,10 @@ body.registration {
   }
 
   .card {
+     max-width: 55em;
     .df-form-body {
       height: calc(60vh);
+
       overflow-y: auto;
     }
 

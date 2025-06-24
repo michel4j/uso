@@ -22,9 +22,12 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" integrity="sha512-qOBWNAMfkz+vXXgbh0Wz7qYSLZp6c14R0bZeVX2TdQxWpuKr6yHjBIM69fcF8Ve4GUX6B6AKRQJqiiAmwvmUmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"
+            integrity="sha512-qOBWNAMfkz+vXXgbh0Wz7qYSLZp6c14R0bZeVX2TdQxWpuKr6yHjBIM69fcF8Ve4GUX6B6AKRQJqiiAmwvmUmQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         $(document).ready(function () {
+            const $form = $("#df-form-instance");
             let institutions = new Bloodhound({
                 datumTokenizer: function (d) {
                     return Bloodhound.tokenizers.whitespace(d.key);
@@ -40,6 +43,24 @@
                 name: 'institutions',
                 source: institutions,
                 limit: 10
+            });
+
+            $("#contact-email").on("change", function () {
+                let email = $(this).val();
+                if (email) {
+                    $.ajax({
+                        url: `{% url 'institution-detail' %}?email=${encodeURIComponent(email)}`,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            console.log(data)
+                            $form.deserialize(data);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error fetching institution data:", error);
+                        }
+                    });
+                }
             });
         });
 
