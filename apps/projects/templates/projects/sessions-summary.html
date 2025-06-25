@@ -35,13 +35,15 @@
         {% endfor %}
 
         {% for event in sessions %}
-            <tr data-href="{% url 'session-detail' pk=event.pk %}">
+            <tr>
                 <td>{{ event.beamline }} {{ event.beamline.get_kind_display }}</td>
                 <td>{{ event.start | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.end | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.shifts|floatformat }} shift{{ event.shifts|pluralize:",s" }} </td>
-                <td class="text-center text-condensed">
-                    {{ event.get_state_display }}
+                <td class="text-center text-condensed" title="{{ event.get_state_display }}">
+                    <a href="{% url 'session-detail' pk=event.pk %}" title="Manage Session">
+                        <i class="bi-arrow-right-circle icon-md icon-fw"></i>
+                    </a>
                 </td>
             </tr>
         {% endfor %}
@@ -52,8 +54,10 @@
                 <td>{{ event.start | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.end | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.hours|floatformat }} Hr{{ event.hours|pluralize:",s" }}</td>
-                <td class="text-center text-condensed">
-                    {{ event.get_state_display }}
+                <td class="text-center text-condensed" title="{{ event.get_state_display }}">
+                   <a href="{{ event.get_absolute_url }}" title="Manage Session">
+                        <i class="bi-arrow-right-circle icon-md icon-fw"></i>
+                    </a>
                 </td>
             </tr>
         {% endfor %}

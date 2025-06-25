@@ -206,6 +206,7 @@ function setupCalendar(sel, options) {
                 shift_sel = `.shift-${cur_shift.tz(options.timezone).format('YYYY-MM-DD[T]HH')}`;
                 cur_shift.add(duration);
                 shift = $(section_prefix + shift_sel);
+
                 if (event.rendering === 'mode') {
                     shift.attr('class', `${shift.attr('data-default-class')} ${event.name}`);
                     shift.attr('title', event.description);
@@ -223,7 +224,7 @@ function setupCalendar(sel, options) {
                 } else if ((event.rendering === 'beamtime') || ((event.rendering === 'staff') && ((view.name === 'weekshift') || options.editor)) ){
                     let tag_html = "";
                     let tag_titles = [];
-                    const $tagElement = $(`#tag-${tag}`);
+                    const $tagElement = $(`[data-tag]`);
                     shift.attr('title', event.description);
                     $.each(event.tags, function (i, tag) {
                         tag_titles.push($tagElement.data('tag'));
@@ -235,7 +236,7 @@ function setupCalendar(sel, options) {
                         shift.html(
                             `<div class='event-tools'></div>
                             <div class='text-condensed overflow ellipsis event-label'><span class='hidden-sm'>${event.display}</span>
-                            <span class='visible-sm' title='${event.display}'>${event.name}</span>${tag_html}</div>`
+                            ` //<span class='visible-sm' title='${event.display}'> &mdash; ${event.name}</span>${tag_html}</div>
                         );
                         if (options.editor) {
                             first_shift.find('.event-tools').addClass('active').data('event', event);

@@ -673,7 +673,7 @@ class SessionSignOff(RolePermsViewMixin, ModalConfirmView):
     def confirmed(self, *args, **kwargs):
         log = self.session.details.get('history', [])
         now = timezone.localtime(timezone.now())
-        log.append('SignOff by {} on {}'.format(self.request.user, now.strftime('%c')))
+        log.append(f'SignOff by {self.request.user} on {now.strftime("%c")}')
         self.session.details.update(history=log)
         models.Session.objects.filter(pk=self.session.pk).update(
             state=self.session.STATES.complete, details=self.session.details
@@ -1478,7 +1478,7 @@ class TeamMemberDelete(RolePermsViewMixin, ModalConfirmView):
 class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
     model = models.AllocationRequest
     form_class = forms.AllocRequestForm
-    template_name = "projects/forms/request_form.html"
+    template_name = "projects/forms/request-form.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
@@ -1540,7 +1540,7 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
 class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
     model = models.ShiftRequest
     form_class = forms.ShiftRequestForm
-    template_name = "projects/forms/request_form.html"
+    template_name = "projects/forms/request-form.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
@@ -1593,7 +1593,7 @@ class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
 class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
     model = models.ShiftRequest
     form_class = forms.ShiftRequestForm
-    template_name = "projects/forms/request_form.html"
+    template_name = "projects/forms/request-form.html"
     edit_url = "edit-shift-request"
     allowed_roles = USO_ADMIN_ROLES
 

@@ -342,6 +342,9 @@ $border-color_2: #ccc;
   }
 }
 
+.cal-shift {
+  box-sizing: content-box;
+}
 .cal-shift.selected {
   background-color: $background-color_6 !important;
 }

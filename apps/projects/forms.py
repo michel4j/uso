@@ -46,7 +46,7 @@ class MaterialForm(DynForm):
     pass
 
 
-class ExtensionForm(forms.ModelForm):
+class ExtensionForm(ModalModelForm):
     shifts = forms.IntegerField(label="Additional Number of Shifts", required=True)
 
     class Meta:
@@ -62,11 +62,9 @@ class ExtensionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields['shifts'].initial = 1
-        self.helper = FormHelper()
-        self.helper.title = "Extend Session"
-        self.helper.form_action = self.request.path
-        self.helper.layout = Layout(
-            Div(
+        self.body.title = "Extend Session"
+        self.body.append(
+
                 Div(
                     HTML(
                         "<div class='alert alert-info'>"
@@ -75,18 +73,11 @@ class ExtensionForm(forms.ModelForm):
                     ),
                 ),
                 Field("shifts", css_class="col-sm-12"),
-                css_class="row modal-body"
-            ),
-            Div(css_class="modal-body"),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal',
-                                 css_class="btn btn-secondary pull-left"),
-                    StrictButton('Extend', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
-                ),
-                css_class="row modal-footer"
-            )
+        )
+        self.footer.clear()
+        self.footer.append(
+            StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Extend', type='submit', value='Save', css_class='btn btn-primary ms-auto'),
         )
 
 
@@ -690,13 +681,11 @@ class ShiftRequestForm(forms.ModelForm):
             Div(
                 Div(
                     Div(
-                        StrictButton('Save', name="form_action", type='submit', value='save',
-                                     css_class='btn btn-secondary'),
-                        StrictButton('Submit', name="form_action", type='submit', value='submit',
-                                     css_class='btn btn-primary'),
-                        css_class='pull-right'
+                        StrictButton('Save', name="form_action", type='submit', value='save',       css_class='btn btn-secondary'),
+                        StrictButton('Submit', name="form_action", type='submit', value='submit',   css_class='btn btn-primary'),
+                        css_class='ms-auto my-3'
                     ),
-                    css_class="col-xs-12"
+                    css_class="col-12 d-flex justify-content-end"
                 ),
                 css_class="modal-footer row"
             )
@@ -812,14 +801,12 @@ class TerminationForm(ModalModelForm):
         super().__init__(*args, **kwargs)
 
         self.body.title = "Terminate Session?"
-        self.body.form_action = self.request.path
         self.body.append(
             Row(
                 FullWidth(
                     HTML(
                         "<div class='alert alert-danger text-default'>"
-                        "<h3>Are you sure you want to terminate the session:</h3>"
-                        "<h5><strong>{{session}}</strong>: {{session.start}} &mdash; {{session.end}}</h5>"
+                        "<p class='lead'><strong>{{session}}</strong>: {{session.start}} &mdash; {{session.end}}</p>"
                         "<p>By terminating the session, you are declaring that the users are no longer "
                         "permitted to use the beamline and administrative steps have been or will be taken to enforce that. "
                         "<p><strong>NOTE:</strong> (1) Termination should only be done during extra-ordinary circumstances "
@@ -831,10 +818,8 @@ class TerminationForm(ModalModelForm):
                 FullWidth("reason"),
             )
         )
+        self.footer.clear()
         self.footer.append(
-            Row(
-                StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary pull-left"),
-                StrictButton('Yes, Terminate', type='submit', value='decline', css_class='btn btn-primary pull-right'),
-            )
-
+            StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Yes, Terminate', type='submit', value='decline', css_class='btn btn-danger ms-auto'),
         )

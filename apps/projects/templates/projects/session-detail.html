@@ -35,19 +35,19 @@
                 </a>
             {% endif %}
             <a href="#0" data-modal-url="{% url 'session-signon' pk=object.pk %}" class="pull-left">
-                <i class="icon-md bi-power icon-fw"></i><br/>
+                <i class="icon-md bi-play-circle icon-fw"></i><br/>
                 <span class="tool-label">Sign-On</span>
             </a>
         {% elif object.state == object.STATES.live %}
             {% if object.is_live %}
                 <a href="#0" data-modal-url="{% url 'session-signoff' pk=object.pk %}" class="pull-left">
-                    <i class="icon-md bi-power icon-fw"></i><br/>
+                    <i class="icon-md bi-stop-circle icon-fw"></i><br/>
                     <span class="tool-label">Sign-Off</span>
                 </a>
                 {% if can_terminate %}
                     <a href="#0" data-modal-url="{% url 'terminate-session' pk=object.pk %}"
                        class="text-danger pull-right">
-                        <i class="icon-md bi-stop-circle icon-fw"></i><br/>
+                        <i class="icon-md bi-sign-stop icon-fw"></i><br/>
                         <span class="tool-label">Terminate</span>
                     </a>
                 {% endif %}
@@ -58,7 +58,7 @@
             </a>
             {% if admin %}
                 <a href="#0" data-modal-url="{% url 'session-extend' pk=object.pk %}" class="pull-left">
-                    <i class="icon-md bi-indent icon-fw"></i><br/>
+                    <i class="icon-md bi-arrow-bar-right icon-fw"></i><br/>
                     <span class="tool-label">Extend</span><br/>
                 </a>
             {% endif %}

@@ -5,19 +5,17 @@ from datetime import timedelta, date
 from crisp_modals.views import ModalConfirmView
 from dateutil import parser
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.views.generic import detail, edit, TemplateView, View
+from django.views.generic import detail, TemplateView, View
 from itemlist.views import ItemListView
 from rest_framework import generics, status, permissions
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 from roleperms.views import RolePermsViewMixin
-from . import forms
 from . import models
 from . import serializers
 from . import utils
