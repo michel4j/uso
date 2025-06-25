@@ -9,14 +9,14 @@ from crispy_forms.bootstrap import PrependedText, AccordionGroup, Accordion, Str
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field, HTML
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm, UsernameField
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django.contrib.auth.forms import AuthenticationForm, UsernameField
+from dynforms.forms import DynModelForm
 
-from dynforms.forms import DynFormMixin, DynModelForm
 from misc.countries import COUNTRY_CODES
 from publications.models import SubjectArea
 from . import models
@@ -29,7 +29,8 @@ blank_choice = ((None, '------'),)
 class InstitutionForm(ModalModelForm):
     class Meta:
         model = Institution
-        fields = ('name', 'location', 'sector', 'state', 'domains', 'parent', 'contact_person', 'contact_email', 'contact_phone')
+        fields = ('name', 'location', 'sector', 'state', 'domains', 'parent', 'contact_person', 'contact_email',
+                  'contact_phone')
         widgets = {
             "domains": forms.TextInput(),
         }
@@ -43,7 +44,7 @@ class InstitutionForm(ModalModelForm):
             Row(
                 FullWidth('name'),
                 FullWidth(Field('location', placeholder='City, Region, Country')),
-                HalfWidth(Field('sector', css_class="selectize")),  HalfWidth(Field('state', css_class="selectize")),
+                HalfWidth(Field('sector', css_class="selectize")), HalfWidth(Field('state', css_class="selectize")),
                 FullWidth(Field('parent', css_class="selectize")),
                 FullWidth("domains"),
                 FullWidth("contact_person"),
@@ -133,7 +134,8 @@ class PasswordResetForm(forms.Form):
                 ), css_class="row"
             ), FormActions(
                 Div(
-                    Submit('submit', 'Request Reset', css_class='bg-primary col-xs-6 col-sm-4 pull-right'), css_class="col-xs-12"
+                    Submit('submit', 'Request Reset', css_class='bg-primary col-xs-6 col-sm-4 pull-right'),
+                    css_class="col-xs-12"
                 ), css_class="row"
             ), )
 
@@ -202,14 +204,17 @@ class PasswordForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field('password', placeholder="Password", css_class="form-control input-lg"), css_class="form-group left-inner-addon col-xs-12"
+                    Field('password', placeholder="Password", css_class="form-control input-lg"),
+                    css_class="form-group left-inner-addon col-xs-12"
                 ), Div(
                     Field('confirm', placeholder="Password again", css_class="form-control input-lg"),
                     css_class="form-group left-inner-addon col-xs-12"
-                ), css_class="row"
+                ),
+                css_class="row"
             ), FormActions(
                 Div(
-                    Submit('submit', 'Submit', css_class='bg-primary col-xs-6 col-sm-4 pull-right'), css_class="col-xs-12"
+                    Submit('submit', 'Set Password', css_class='btn-primary ms-auto'),
+                    css_class="col-12 d-flex"
                 ), Div(
                     HTML('&nbsp;'), css_class="col-xs-12"
                 ), css_class="row"
@@ -246,11 +251,13 @@ class PasswordChangeForm(forms.Form):
             Div(
                 Div(
                     PrependedText(
-                        'old_password', mark_safe("<i class='bi-shield-lock login-form-icon'></i>"), css_class="form-control"
+                        'old_password', mark_safe("<i class='bi-shield-lock login-form-icon'></i>"),
+                        css_class="form-control"
                     ), css_class="form-group left-inner-addon col-xs-12"
                 ), Div(
                     PrependedText(
-                        'new_password', mark_safe("<i class='bi-shield-lock login-form-icon'></i>"), css_class="form-control"
+                        'new_password', mark_safe("<i class='bi-shield-lock login-form-icon'></i>"),
+                        css_class="form-control"
                     ), css_class="form-group left-inner-addon col-xs-12"
                 ), Div(
                     PrependedText(
@@ -280,7 +287,7 @@ class UserAdminForm(ModalModelForm):
         self.body.append(
             HTML("{% include 'users/user-admin.html' %}"),
             Row(
-                FullWidth(Field('extra_roles', css_class="selectize"),),
+                FullWidth(Field('extra_roles', css_class="selectize"), ),
                 FullWidth(Field('photo', template='%s/file_field.html'))
             )
         )
@@ -306,8 +313,10 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = [
-            'research_field', 'classification', 'alt_email', 'title', 'first_name', 'last_name', 'preferred_name', 'email', 'emergency_contact',
-            'emergency_phone', 'institution_name', 'address_1', 'address_2', 'city', 'region', 'postal_code', 'country', 'phone'
+            'research_field', 'classification', 'alt_email', 'title', 'first_name', 'last_name', 'preferred_name',
+            'email', 'emergency_contact',
+            'emergency_phone', 'institution_name', 'address_1', 'address_2', 'city', 'region', 'postal_code', 'country',
+            'phone'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -317,28 +326,35 @@ class UserProfileForm(forms.ModelForm):
         self.helper.layout = Layout(
             Fieldset(
                 "Personal Information", Div(
-                    Div(Field('title', css_class="selectize"), css_class='col-sm-2'), Div('first_name', css_class='col-sm-3'),
-                    Div('last_name', css_class='col-sm-4'), Div('preferred_name', css_class='col-sm-3'), Div('email', css_class='col-sm-6'),
-                    Div('alt_email', css_class='col-sm-6'), Div('phone', css_class='col-sm-6'), Div('emergency_phone', css_class='col-sm-6'),
+                    Div(Field('title', css_class="selectize"), css_class='col-sm-2'),
+                    Div('first_name', css_class='col-sm-3'),
+                    Div('last_name', css_class='col-sm-4'), Div('preferred_name', css_class='col-sm-3'),
+                    Div('email', css_class='col-sm-6'),
+                    Div('alt_email', css_class='col-sm-6'), Div('phone', css_class='col-sm-6'),
+                    Div('emergency_phone', css_class='col-sm-6'),
                     css_class="row"
                 ), Div(
                     Div('emergency_contact', css_class='col-sm-12'), css_class="row"
                 ), Div(
                     Div(Field('research_field', css_class="selectize"), css_class='col-sm-12'), Div(
                         Field(
-                            'institution_name', css_class='institution-input', placeholder="Type full name or select from existing entries"
+                            'institution_name', css_class='institution-input',
+                            placeholder="Type full name or select from existing entries"
                         ), css_class='col-sm-8'
                     ), Div(Field('classification', css_class="selectize"), css_class='col-sm-4'), css_class='row'
                 ), ), Fieldset(
                 "Work Address", Div(
-                    Div('address_1', css_class='col-sm-12'), Div('address_2', css_class='col-sm-12'), Div('city', css_class='col-sm-6'),
+                    Div('address_1', css_class='col-sm-12'), Div('address_2', css_class='col-sm-12'),
+                    Div('city', css_class='col-sm-6'),
                     Div('country', placeholder="Type your country", css_class='col-sm-6'),
-                    Div('region', placeholder="Type your province/state/territory", css_class='col-sm-6'), Div('postal_code', css_class='col-sm-6'),
+                    Div('region', placeholder="Type your province/state/territory", css_class='col-sm-6'),
+                    Div('postal_code', css_class='col-sm-6'),
                     css_class="address row"
                 ), ), FormActions(
                 HTML('<hr class"hr-xs"/>'), Div(
                     StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
-                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'), css_class='text-right pull-right'
+                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
+                    css_class='text-right pull-right'
                 ), ), )
 
     def clean(self):
@@ -365,7 +381,9 @@ class UserProfileForm(forms.ModelForm):
             if not institution:
                 data['institution_info'] = {
                     'name': institution_name, 'location': ", ".join(
-                        [_f for _f in [data['address_info']['city'], data['address_info']['region'], data['address_info']['country']] if _f]
+                        [_f for _f in
+                         [data['address_info']['city'], data['address_info']['region'], data['address_info']['country']]
+                         if _f]
                     )
                 }
         else:
@@ -421,9 +439,12 @@ class ProfileForm(forms.Form):
             Accordion(
                 AccordionGroup(
                     _("Change Your Profile"), Div(
-                        Div(Field('title', css_class="selectize"), css_class='col-sm-2'), Div('first_name', css_class='col-sm-3'),
-                        Div('last_name', css_class='col-sm-4'), Div('other_names', css_class='col-sm-3'), Div('email', css_class='col-sm-6'),
-                        Div('alt_email', css_class='col-sm-6'), Div('phone', css_class='col-sm-6'), Div('emergency_phone', css_class='col-sm-6'),
+                        Div(Field('title', css_class="selectize"), css_class='col-sm-2'),
+                        Div('first_name', css_class='col-sm-3'),
+                        Div('last_name', css_class='col-sm-4'), Div('other_names', css_class='col-sm-3'),
+                        Div('email', css_class='col-sm-6'),
+                        Div('alt_email', css_class='col-sm-6'), Div('phone', css_class='col-sm-6'),
+                        Div('emergency_phone', css_class='col-sm-6'),
                         css_class="row"
                     ), Div(
                         Div('emergency_contact', css_class='col-sm-12'), css_class="row"
@@ -431,7 +452,8 @@ class ProfileForm(forms.Form):
                         Div(Field('research_field', css_class="selectize"), css_class='col-sm-12'),
                         Div(Field('classification', css_class="selectize"), css_class='col-sm-6'), Div(
                             Field(
-                                'institution', css_class='institution-input', placeholder="Type full name or select from existing entries"
+                                'institution', css_class='institution-input',
+                                placeholder="Type full name or select from existing entries"
                             ), css_class='col-sm-6'
                         ), css_class='row'
                     ), Fieldset(
@@ -439,7 +461,8 @@ class ProfileForm(forms.Form):
                             Div('address_1', css_class='col-sm-12'), Div('address_2', css_class='col-sm-12'),
                             Div('country', placeholder="Type your country", css_class='col-sm-6'), Div(
                                 'region', placeholder="Type your province/state/territory", css_class='col-sm-6'
-                            ), Div('city', css_class='col-sm-6'), Div('postal_code', css_class='col-sm-6'), css_class="address row"
+                            ), Div('city', css_class='col-sm-6'), Div('postal_code', css_class='col-sm-6'),
+                            css_class="address row"
                         ), ), FormActions(
                         Submit('form', 'Save', css_class='button white')
                     ), active=True
@@ -449,7 +472,7 @@ class ProfileForm(forms.Form):
 
 class LoginForm(AuthenticationForm):
     username = UsernameField(
-        label=_("Username"),     widget=forms.TextInput(attrs={'autofocus': True}),
+        label=_("Username"), widget=forms.TextInput(attrs={'autofocus': True}),
     )
     password = forms.CharField(
         label=_("Password"), strip=False, widget=forms.PasswordInput,
@@ -471,10 +494,9 @@ class LoginForm(AuthenticationForm):
                 css_class="row"
             ), FormActions(
                 Div(
-                    Submit('submit', 'Login', css_class='bg-primary'),
-                    css_class="col-xs-12"
+                    Submit('submit', 'Login', css_class='ms-auto btn-primary'),
+                    css_class="col-12 d-flex"
                 ),
                 css_class="row"
             )
         )
-

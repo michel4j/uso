@@ -54,7 +54,6 @@
             $("#modal form input[name='hazards']").each(function () {
                 $(this).attr('checked', false); //reset hazards before loading
             });
-            console.log(data);
             $("#modal form").deserialize(data);
             $("#flip-toggle > div").toggleClass("d-none");
         });

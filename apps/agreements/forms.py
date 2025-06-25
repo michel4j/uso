@@ -46,7 +46,9 @@ class AgreementForm(forms.ModelForm):
                     StrictButton("Delete", type="submit", name="submit", value="delete", css_class="btn btn-danger")
                 )
             right_buttons.append(
-                StrictButton("Save as New", type="submit", name="submit", value="save-new", css_class="btn btn-secondary")
+                StrictButton(
+                    "Save as New", type="submit", name="submit", value="save-new", css_class="btn btn-secondary"
+                )
             )
         right_buttons.append(
             StrictButton("Save ", type="submit", name="submit", value="save", css_class="btn btn-primary")
@@ -76,15 +78,20 @@ class AcceptanceForm(forms.ModelForm):
     )
 
     class Meta:
-        model = models.Agreement
+        model = models.Acceptance
         fields = ("agreed",)
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop("request")
+        self.agreement = kwargs.pop("agreement")
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.title = self.agreement.name
         self.helper.layout = Layout(
             Div(
+                Div(
+                    HTML("{% include 'agreements/detail.html' %}"),
+                    css_class="col-xs-12"
+                ),
                 Div(
                     Field("agreed"),
                     css_class="col-xs-12"
@@ -97,5 +104,5 @@ class AcceptanceForm(forms.ModelForm):
                     StrictButton("Submit", type="submit", value="Submit", css_class="btn btn-primary"),
                     css_class="pull-right"
                 ),
-            )
+            ),
         )

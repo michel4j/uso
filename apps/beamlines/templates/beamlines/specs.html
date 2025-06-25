@@ -1,5 +1,5 @@
 {% extends "proposals/track-box.html" %}
-{% load beamline_tags %}
+{% load beamlines %}
 {% block box_class %}{% if facility != object %}bg-darken{% else %} bg-transparent {% endif %}{% endblock %}
 {% block box_header %}
     {% if facility != object %}

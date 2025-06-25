@@ -63,7 +63,6 @@ $(document).on('change', 'input[name$=".decision"]', function () {
     if ($(this).is('.rejection-cmd:checked') || $(this).is('.clear-cmd:checked')) {
         siblings.prop('checked', false)
     }
-    console.log($(this), $(this).is('.decision-cmd:checked'));
     if ($(this).is('.decision-cmd:checked')) {
         siblings.filter('.rejection-cmd, .clear-cmd').prop('checked', false);
     }

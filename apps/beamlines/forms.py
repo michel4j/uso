@@ -37,14 +37,17 @@ class FacilityForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "facility-form"
-        self.helper.title = "Create/Edit Facility Information"
+        if self.instance.pk:
+            self.helper.title = "Edit Facility"
+        else:
+            self.helper.title = "Create Facility"
 
         self.helper.layout = Layout(
             Div(
                 Div('name', css_class="col-sm-8"),
-                Div(Field('parent', css_class="selectize"), css_class="col-sm-4"),
+                Div(Field('parent'), css_class="col-sm-4"),
                 Div('acronym', css_class="col-sm-3"),
-                Div(Field('kind', css_class="selectize"), css_class="col-sm-3"),
+                Div(Field('kind'), css_class="col-sm-3"),
                 Div(Field('url', placeholder="http:// ..."), css_class='col-sm-6'),
                 Div('description', css_class='col-sm-12'),
                 css_class="row"
@@ -53,7 +56,7 @@ class FacilityForm(forms.ModelForm):
                 "Parameters",
                 Div('source', required=True, css_class="col-sm-5"),
                 Div('port', css_class="col-sm-2"),
-                Div(Field('state', css_class="selectize"), css_class="col-sm-5"),
+                Div(Field('state'), css_class="col-sm-5"),
                 Div('range', required=True, css_class="col-sm-6"),
                 Div('flux', required=True, css_class="col-sm-6"),
                 Div('resolution', required=True, css_class="col-sm-6"),
@@ -70,17 +73,17 @@ class FacilityForm(forms.ModelForm):
                 css_class="combine row"
             ),
             Div(
-                Div(Field('flex_schedule', css_class="selectize"), css_class="col-sm-4"),
-                Div(Field('shift_size', css_class="selectize"), css_class="col-sm-4"),
-                Div(Field('public_support', css_class="selectize"), css_class="col-sm-4"),
+                Div(Field('flex_schedule'), css_class="col-sm-4"),
+                Div(Field('shift_size'), css_class="col-sm-4"),
+                Div(Field('public_support'), css_class="col-sm-4"),
                 css_class="row"
             ),
             HTML("<hr class='hr-xs'/>"),
             Div(
                 Div(
                     StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
-                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                    css_class="col-xs-12"
+                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary ms-auto'),
+                    css_class="col-12 d-flex"
                 ),
                 css_class="row"
             )

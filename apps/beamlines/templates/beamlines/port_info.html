@@ -1,4 +1,4 @@
-{% load beamline_tags %}
+{% load beamlines %}
 {% if object.kind != 'sector' %}
     <h2 style="margin-top: 15px;"><a title="Go to {{ object.acronym }}"
                                      href="{% url 'facility-detail' object.pk %}">{{ object.acronym }}</a></h2>

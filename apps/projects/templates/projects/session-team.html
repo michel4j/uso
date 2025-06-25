@@ -1,5 +1,5 @@
 {% load project_tags %}
-{% load beamline_tags %}
+{% load beamlines %}
 {% load roleperms %}
 
 {% for member in object.team.all|dictsort:"get_full_name" %}

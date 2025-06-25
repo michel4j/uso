@@ -90,10 +90,9 @@
 
     $('#{{field.name}}-search').change(function () {
         /* Add sample when select changes, then immediately reset select to "" */
-        var tgt_el = $(this);
+        const tgt_el = $(this);
         if (tgt_el.val() != "") {
-            var url = "{% url 'sample-field' %}" + tgt_el.val() + "/{{field.name}}/";
-            console.log(url);
+            const url = "{% url 'sample-field' %}" + tgt_el.val() + "/{{field.name}}/";
             $.ajax(url).done(function (html) {
                 $('#{{field.name}}-list').append(html).slideDown(600);
                 tgt_el.find("option:selected").attr('disabled', 'disabled');

@@ -131,7 +131,7 @@ class FacilityTags(RolePermsViewMixin, detail.DetailView):
 
 class CreateFacility(RolePermsViewMixin, edit.CreateView):
     form_class = forms.FacilityForm
-    template_name = "beamlines/form.html"
+    template_name = "form.html"
     model = models.Facility
     success_url = reverse_lazy('beamline-list')
     allowed_roles = USO_ADMIN_ROLES
@@ -145,7 +145,7 @@ class CreateFacility(RolePermsViewMixin, edit.CreateView):
 
 class EditFacility(RolePermsViewMixin, edit.UpdateView):
     form_class = forms.FacilityForm
-    template_name = "beamlines/form.html"
+    template_name = "form.html"
     model = models.Facility
     success_url = reverse_lazy('beamline-list')
     allowed_roles = USO_ADMIN_ROLES

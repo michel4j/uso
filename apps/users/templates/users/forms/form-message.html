@@ -2,22 +2,22 @@
 
 {% block page_title %}User Services Online{% endblock %}
 {% block login-title %}{{ login_title|default:"" }}{% endblock %}
-{% block body_class %}registration password{% endblock %}
+{% block body_class %}no-sidebar registration password{% endblock %}
 
 {% block article-and-footer %}
-	<article class="main">
-    	<div class="p-3 mb-3 bg-transparent" style="margin-top: 15px;">
+	<article class="main p-3">
+    	<div>
         {% if mode == "error" %}
-            <div class="text-center text-danger"><i class="bi-exclamation-diamond icon-6"></i></div>
+            <div class="text-center text-danger"><i class="bi-exclamation-diamond icon-xl"></i></div>
         {% elif mode == "success" %}
-            <div class="text-center text-success"><i class="bi-check2-circle icon-6"></i></div>
+            <div class="text-center text-success"><i class="bi-check2-circle icon-xl"></i></div>
         {% endif %}
 		    <h3 class="text-condensed text-center">{{ title }}</h3>
             <hr class="hr-xs"/>
             <h5 style="min-height: 150px;">{% autoescape off %}{{ msg }}{% endautoescape %}</h5>
 	    </div>
     </article>
-	<footer class="register-actions">
+	<footer class="small register-actions border-top bg-secondary-subtle p-4">
 		Already have an account? <a href="{% url 'user-dashboard' %}"> Login.</a><br/>
 		Didn't validate your account in time? <a href="{% url 'portal-register' %}"> Register again.</a>
 	</footer>

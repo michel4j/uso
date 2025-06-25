@@ -31,12 +31,14 @@
 
   const showActiveTheme = (theme) => {
     const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-      element.classList.remove('active')
-      element.setAttribute('aria-pressed', 'false')
-    })
-    btnToActive.classList.add('active')
-    btnToActive.setAttribute('aria-pressed', 'true')
+    if (btnToActive) {
+      document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+        element.classList.remove('active')
+        element.setAttribute('aria-pressed', 'false')
+      })
+      btnToActive.classList.add('active')
+      btnToActive.setAttribute('aria-pressed', 'true')
+    }
   }
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {

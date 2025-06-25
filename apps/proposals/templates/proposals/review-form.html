@@ -54,7 +54,6 @@
         $('.expand-command').click(function () {
             const next = $(this).data('expand-name');
             const $extras = $("#review-extras");
-            console.log(next, $extras);
             $('#extra-review-content').load($(this).attr('data-extra-url'), function () {
                 if (next === $(this).data('contains')) {
                     $extras.toggleClass('show-comments');

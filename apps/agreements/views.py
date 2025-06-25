@@ -21,7 +21,8 @@ def dt_display(val, obj=None):
 
 class AgreementList(RolePermsViewMixin, ItemListView):
     model = models.Agreement
-    template_name = "agreements/agreement-list.html"
+    template_name = "tooled-item-list.html"
+    tool_template = "agreements/agreement-tools.html"
     list_title = "Agreements"
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
     list_columns = ["name", "code", "state", "num_users"]
@@ -33,7 +34,7 @@ class AgreementList(RolePermsViewMixin, ItemListView):
 
 
 class AgreementFormMixin:
-    template_name = "agreements/form.html"
+    template_name = "form.html"
     form_class = forms.AgreementForm
     success_url = reverse_lazy("agreement-list")
 
@@ -78,13 +79,13 @@ class EditAgreement(RolePermsViewMixin, AgreementFormMixin, edit.UpdateView):
 
 class AcceptAgreement(RolePermsViewMixin, edit.CreateView):
     model = models.Acceptance
-    template_name = "agreements/acceptance.html"
+    template_name = "form.html"
     form_class = forms.AcceptanceForm
     success_url = reverse_lazy("user-dashboard")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
+        kwargs['agreement'] = models.Agreement.objects.filter(state="enabled").get(pk=self.kwargs['pk'])
         return kwargs
 
     def get_context_data(self, **kwargs):

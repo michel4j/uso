@@ -410,7 +410,7 @@ class VerifyView(PasswordChangeMixin, UpdateView):
             context['name'] = self.object.details['names']['first_name']
             context['title'] = 'Choose a password for your account'
             context[
-                'description'] = 'After submitting the form, you will receive another email with your CLS Account Name.'
+                'description'] = 'After submitting the form, you will receive another email with your Account Name.'
         return context
 
     def form_valid(self, form):

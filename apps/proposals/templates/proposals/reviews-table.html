@@ -2,7 +2,7 @@
 {% load proposal_tags %}
 
 {% if reviews.exists %}
-    <table class="table table-condensed">
+    <table class="table">
         <thead>
         <tr>
             <th colspan="2">Review</th>
@@ -19,7 +19,7 @@
         <tbody>
         {% for rev in reviews.by_completeness %}
         <tr>
-            <td width="10%">{{ rev | display_state }}</td>
+            <td style="width: 10%;">{{ rev | display_state }}</td>
             <td>{{ rev.type }}</td>
             {%  if admin or committee_member %}
                 <td>
@@ -41,6 +41,7 @@
                    role="button"
                    aria-expanded="false"
                    aria-controls="comments-{{rev.pk}}"
+                   data-bs-target="#comments-{{rev.pk}}"
                    data-bs-toggle="collapse"><i class="bi-chat-left-dots icon-fw"></i>
                 </a>
                 {% endif %}
@@ -52,15 +53,18 @@
                 {% else %}
                 <a href="{% url 'edit-review' pk=rev.pk %}"><i class="bi-pencil icon-fw"></i></a>
                 {% endif %}
-                </td>
+            </td>
             {% endif %}
         </tr>
         {% if rev.comments %}
-        <tr class="merge-up hidden-row">
-            <td colspan=6">
-                <ul id="comments-{{rev.pk}}" class="p-3 bg-info collapse list-unstyled" style="padding: 0.5em;">
-                    <strong>Comments:</strong>{{ rev.comments|default:"&hellip;"|markdown }}
-                </ul>
+        <tr>
+            <td colspan="{% if admin %}8{% elif committee_member %}7{% else %}6{% endif %}" class="p-0">
+                <div id="comments-{{rev.pk}}" class="collapse">
+                    <div class="bg-info-subtle p-2">
+                        <strong>Comments:</strong>
+                        {{ rev.comments|default:"&hellip;"|markdown }}
+                    </div>
+                </div>
             </td>
         </tr>
         {% endif %}

@@ -6,7 +6,7 @@
 
 {% block page_title %}User Services Online{% endblock %}
 {% block main-title %}USO Login{% endblock %}
-{% block body_class %}registration login{% endblock %}
+{% block body_class %}no-sidebar registration login{% endblock %}
 
 {% block article-and-footer %}
     <article class="main p-4">
@@ -14,11 +14,11 @@
         {% crispy form form.helper %}
     </article>
 
-    <footer class="register-actions border-top p-4 bg-secondary-subtle">
-        <small class="text-body-secondary">
+    <footer class="small register-actions border-top p-4 bg-secondary-subtle">
+        <div class="text-body-secondary">
         Don't have an account yet? <a href="{% url 'portal-register' %}">Register</a><br/>
         NOTE: This site uses cookies, JavaScript and requires a modern web browser.
-        </small>
+        </div>
         {{ description }}
     </footer>
     <div class="stars">

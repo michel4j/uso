@@ -2159,7 +2159,7 @@ body.registration {
 }
 
 .registration.password {
-  .page {
+  .page, .card {
     max-width: 550px;
   }
 }
@@ -2630,6 +2630,10 @@ $stat-sizes: (
   --bs-badge-font-size: 0.7em;
   --bs-badge-border-radius: 50%;
   vertical-align: middle;
+}
+.form-label {
+  margin-bottom: 0;
+  margin-top: 0.5em;
 }
 
 body::before {

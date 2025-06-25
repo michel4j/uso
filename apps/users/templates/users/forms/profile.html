@@ -48,7 +48,6 @@ $country.bind('typeahead:selected typeahead:autocompleted', function() {
             local: cntry_regions
         });
 
-        console.log(cntry_regions);
         $region.typeahead('destroy');
         $region.typeahead(null, {
             source: regions,
@@ -64,10 +63,9 @@ $country.bind('typeahead:selected typeahead:autocompleted', function() {
 $("#id_email, #id_alt_email ").change(function(event){
     if(this.value==this.oldvalue) return; this.oldvalue=this.value; //fix double trigger
     jQuery.getJSON('{% url "institution-detail" %}?email=' + $(this).val(), function(data){
-        var old_data = $('form').serializeObject();
+        const old_data = $('form').serializeObject();
         if ((old_data['address_1']) || (old_data['address_2']) || (old_data['institution_name']) ) {
             // do not overwrite filled data
-            console.log(data);
         } else {
             $("#id_institution_name").val(data['institution']);
             $("#id_city").val(data['address.city']);

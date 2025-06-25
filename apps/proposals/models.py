@@ -797,11 +797,11 @@ class Review(BaseFormModel, GenericContentMixin):
         committee_comments = self.details.get('comments_committee', '').strip()
         full_comments = ""
         if comments:
-            full_comments += f"<li class='text-info'>{comments}</li>"
+            full_comments += f"<li class='text-info-emphasis'>{comments}</li>"
         if committee_comments:
-            full_comments += f"<li class='text-danger'>{committee_comments}</li>"
+            full_comments += f"<li class='text-danger-emphasis'>{committee_comments}</li>"
 
-        return full_comments
+        return f'<ul>{full_comments}</ul>'
 
 
 # Aliases
