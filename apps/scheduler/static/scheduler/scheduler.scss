@@ -988,7 +988,7 @@ th.graph-weekday {
 }
 
 .fg-user {
-  color: $color_8;
+  color: var(--bs-body-color);
 }
 
 .fg-education {
@@ -1180,7 +1180,7 @@ th.graph-weekday {
   .cal-shift {
     + {
       .cal-shift {
-        border-top: 1px dotted #bfbfbf;
+        border-top: 1px dotted var(--bs-border-color-translucent);
       }
     }
   }
