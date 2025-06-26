@@ -15,7 +15,7 @@
     <script src="{% static 'dynforms/jquery-bs-datepicker.min.js' %}" async></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('.selectize').selectize({
+            $('select[mutliple]').selectize({
                 plugins: ['remove_button'],
             });
             $('.rich-text-input').trumbowyg({
@@ -57,7 +57,7 @@
 {% endblock %}
 {% block page-pretitle %}Form{% endblock %}
 {% block page-title %}{{ form.helper.title }}{% endblock %}
-{% block page-classes %}p-5{% endblock %}
+{% block page-classes %}p-4{% endblock %}
 {% block page-content %}
     {% crispy form form.helper %}
 {% endblock %}

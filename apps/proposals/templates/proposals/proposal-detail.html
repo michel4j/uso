@@ -120,10 +120,10 @@
 
 {% block page-content %}
     {% if proposal.state == proposal.STATES.draft and validation.pages %}
-        <div class="alert alert-warning-subtle">
-        <div class="row">
-            <i class="bi-exclamation-triangle icon-4 col-xs-1 text-warning"></i>
-            <div class="col-xs-11">Please edit and fix the following issues before submitting:<br/>
+        <div class="callout callout-warning">
+        <div class="d-flex flex-row align-items-center gap-3">
+            <i class="bi-exclamation-triangle icon-lg flex-shrink-0"></i>
+            <div class="flex-grow-1">Please edit and fix the following issues before submitting:<br/>
                 <ul class="list-unstyled">
                     {% for page in object.form_type.pages %}
                         {% with validation|page_errors:forloop.counter0 as errors %}{% if errors %}

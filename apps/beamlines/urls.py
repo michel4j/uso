@@ -15,8 +15,6 @@ urlpatterns = [
         views.BeamlineDetail.as_view(template_name="proposals/facility-config.html"),
         name='facility-config-detail'
     ),
-    path('facilities/port/<slug:port>/', views.PortDetails.as_view(), name='port-details'),
-
     path('labs/', views.LaboratoryList.as_view(), name='lab-list'),
     path('labs/<int:pk>/', views.LaboratoryDetail.as_view(), name='lab-detail'),
     path('labs/<int:pk>/history/', views.LaboratoryHistory.as_view(), name='lab-history'),

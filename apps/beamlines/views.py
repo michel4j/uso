@@ -26,7 +26,8 @@ USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ["staff"])
 
 class BeamlineList(RolePermsViewMixin, ItemListView):
     model = models.Facility
-    template_name = "beamlines/facility-list.html"
+    template_name = "tooled-item-list.html"
+    tool_template = "beamlines/list-tools.html"
     admin_roles = USO_ADMIN_ROLES
     list_title = 'Facilities'
     list_columns = ['name', 'acronym', 'kind', 'state']
@@ -175,21 +176,9 @@ class EditFacility(RolePermsViewMixin, edit.UpdateView):
         facility = self.get_object()
         beamtime = facility.details.get('beamtime', {})
         for f in ['staff', 'maintenance', 'purchased', 'beamteam', 'user']:
-            initial['time_{}'.format(f)] = beamtime.get(f, 0)
+            initial[f'time_{f}'] = beamtime.get(f, 0)
         initial['public_support'] = facility.details.get('public_support', False)
         return initial
-
-
-class PortDetails(TemplateView):
-    template_name = 'beamlines/port_info.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            context['object'] = models.Facility.objects.get(port=kwargs['port'])
-        except BaseException:
-            context['object'] = models.Facility.objects.filter(acronym=kwargs['port']).first()
-        return context
 
 
 class UserSupportAPI(EventUpdateAPI):

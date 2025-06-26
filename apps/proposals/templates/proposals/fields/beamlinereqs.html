@@ -99,80 +99,75 @@
 <script>
     $(document).ready(function () {
 
-        $('[name="{{ field.name }}.techniques"]').selectize({
-            plugins: ['remove_button'],
-        });
+        $(document).on('change', '#{{field.name}}-techniques{{repeat_index}}, #{{field.name}}-facility{{repeat_index}}', function () {
+            const $techniquesField = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
+            const $facilitiesField = $techniquesField.closest('.controls').find('[name^="{{field.name}}.facility"]');
+            const $cycleField = $('#first_cycle');
+            const $tagsField = $facilitiesField.closest('.controls').find('[name^="{{field.name}}.tags"]');
+            const $tagsContainer = $facilitiesField.closest('.controls').find("#{{field.name}}-tags-selector");
 
-
-        $('#{{field.name}}-techniques{{repeat_index}}, #{{field.name}}-facility{{repeat_index}}').change(function () {
-            const techniquesField = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
-            const facilitiesField = techniquesField.closest('.controls').find('[name^="{{field.name}}.facility"]');
-            const cycle_field = $('#first_cycle');
             let dataUrl = "{% url 'techniques-beamlines' %}?";
-            const tags_field = facilitiesField.closest('.controls').find('[name^="{{field.name}}.tags"]');
-            const tags_container = facilitiesField.closest('.controls').find("#{{field.name}}-tags-selector");
-            let tags_url = "{% url 'facility-tags' %}";
-            if (cycle_field.val()) {
-                dataUrl += "&cycle=" + cycle_field.val();
+            let tagsUrl = "{% url 'facility-tags' %}";
+
+            if ($cycleField.val()) {
+                dataUrl += `&cycle=${$cycleField.val()}`;
             }
             $.get(dataUrl, function (data) {
                 $.each(data.techniques, function (i, row) {
-                    let option = techniquesField.find("[value='" + row[0] + "']");
+                    let option = $techniquesField.find(`[value='${row[0]}']`);
                     option.data('related', row[3]);
                 });
                 $.each(data.facilities, function (i, row) {
-                    let option = facilitiesField.find("[value='" + row[0] + "']");
+                    let option = $facilitiesField.find(`[value='${row[0]}']`);
                     option.data('related', row[3]);
                 });
             });
-            const goodTechniques = [];
-            const goodFacilities = [];
+            const goodFacilities = new Set();
 
-            facilitiesField.find('option').removeAttr('disabled');
-            techniquesField.find('option').removeAttr('disabled');
-            if (techniquesField.val()) {
-                const sel_techs = [];
-                $.each(techniquesField.val(), function (i, val) {
-                    sel_techs.push('option[value=' + val + ']');
+            $facilitiesField.find('option').removeAttr('disabled');
+            $techniquesField.find('option').removeAttr('disabled');
+
+            // if techniques are selected, disable facilities that are not related to them
+            if ($techniquesField.val()) {
+                const selectedTechniques = new Set();
+                $.each($techniquesField.val(), function (i, val) {
+                    selectedTechniques.add('option[value=' + val + ']');
                 });
-                techniquesField.find(sel_techs.join()).each(function () {
+                console.log('Selected techniques: ', [...selectedTechniques].join());
+                $techniquesField.find([...selectedTechniques].join()).each(function () {
                     $.each($(this).data('related'), function (i, val) {
-                        goodFacilities.push('[value=' + val + ']');
+                        goodFacilities.add('[value=' + val + ']');
                     });
                 });
-
-                facilitiesField.find('option').not(goodFacilities.join()).attr('disabled', 'disabled');
+                console.log('Good facilities: ', [...goodFacilities].join());
+                $facilitiesField.find('option').not([...goodFacilities].join()).attr('disabled', 'disabled');
+            } else {
+                $facilitiesField.find('option').removeAttr('disabled');
             }
-            if (facilitiesField.val()) {
 
-                $.each(facilitiesField.find('option[value=' + facilitiesField.val() + ']').data('related'), function (i, val) {
-                    goodTechniques.push('[value=' + val + ']');
-                });
-                techniquesField.find('option').not(goodTechniques.join()).attr('disabled', 'disabled');
-
-                // tags field
+            if ($facilitiesField.val()) {
                 const tags = [];
-                const repeat_index = facilitiesField.closest('.controls').attr('data-repeat-index');
-                tags_url += facilitiesField.val() + '/{{field.name}}.tags__' + repeat_index + '/?';
-                tags_field.find('option').filter(function () {
+                const repeatIndex = $facilitiesField.closest('.controls').attr('data-repeat-index');
+                tagsUrl += $facilitiesField.val() + '/{{field.name}}.tags__' + repeatIndex + '/?';
+                $tagsField.find('option').filter(function () {
                     return !!this.value;
                 }).each(function () {
                     tags.push($(this).attr('value'));
                 });
                 if (tags) {
-                    tags_url += '&tags=' + "{{data.tags|join:','}}";
+                    tagsUrl += `&tags={{data.tags|join:','}}`;
                 }
-                tags_container.load(tags_url);
-
+                $tagsContainer.load(tagsUrl);
 
             } else {
-                tags_container.empty();
+                $tagsContainer.empty();
             }
+
             // beamline information
-            const bl_url = "{% url 'beamline-info' %}";
-            const fac_info = facilitiesField.closest('.controls').find('div.beamline-info');
-            const fac_val = facilitiesField.val() || '';
-            fac_info.load(bl_url + fac_val);
+            const infoUrl = "{% url 'beamline-info' %}";
+            const $facilityInfo = $facilitiesField.closest('.controls').find('div.beamline-info');
+            const facilityID = $facilitiesField.val() || '';
+            $facilityInfo.load(infoUrl + facilityID);
 
         });
 
