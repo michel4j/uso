@@ -32,7 +32,7 @@
             </div>
         {% endif %}
         <h3 class="text-condensed" style="margin-top:0.25em;">
-            <a href="{% url 'facility-detail' pk=falloc.facility.pk %}">{{ falloc.facility.acronym }}</a>
+            <a href="{% url 'facility-detail' acronym=falloc.facility.acronym %}">{{ falloc.facility.acronym }}</a>
             <span class="pull-right {% if falloc.allocation.cycle == cycle %}text-success{% else %}text-body-secondary{% endif %}">{{falloc.allocation.cycle}}&emsp;</span>
         </h3>
         <small>{{ falloc.techniques }}</small>

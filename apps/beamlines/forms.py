@@ -48,7 +48,7 @@ class FacilityForm(forms.ModelForm):
                 Div(Field('parent'), css_class="col-sm-4"),
                 Div('acronym', css_class="col-sm-3"),
                 Div(Field('kind'), css_class="col-sm-3"),
-                Div(Field('url', placeholder="http:// ..."), css_class='col-sm-6'),
+                Div(Field('url', placeholder="https:// ..."), css_class='col-sm-6'),
                 Div('description', css_class='col-sm-12'),
                 css_class="row"
             ),
@@ -93,7 +93,7 @@ class FacilityForm(forms.ModelForm):
         data = super().clean()
         data['details'] = {
             'beamtime': {
-                k: data.pop('time_{}'.format(k)) for k in ['staff', 'maintenance', 'purchased', 'beamteam', 'user']
+                k: data.pop(f'time_{k}') for k in ['staff', 'maintenance', 'purchased', 'beamteam', 'user']
             },
             'public_support': data.pop('public_support', False)
         }

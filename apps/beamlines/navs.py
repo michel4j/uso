@@ -21,7 +21,7 @@ class Beamlines(BaseNav):
                     label=bl.acronym,
                     roles=self.roles,
                     separator=separator,
-                    url=reverse('facility-detail', kwargs={'pk': bl.pk}),
+                    url=reverse('facility-detail', kwargs={'acronym': bl.acronym}),
                 )
             )
             separator = False

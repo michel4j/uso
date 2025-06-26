@@ -22,8 +22,12 @@
     </div>
 </div>
 <script src="{% static 'js/d3-timeline.min.js' %}"></script>
-<script defer>
+<script>
     $(document).on('change', '#{{field.name}}', function () {
+        const selected_cycle = $(this).val();
+        $.getJSON(`{% url "techniques-matrix" %}?cycle=${selected_cycle}`, function (data) {
+            $(document).trigger('cycle-changed', data);
+        });
         const info_url = $(this).find('option:selected').data('url');
         $("#{{field.name}}-extras").load(info_url);
     });

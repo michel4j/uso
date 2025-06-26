@@ -7,12 +7,11 @@
     <div class="row">
         <div class="field-group-item col-7">
             <select name="{{ field.name }}.techniques" id="{{ field.name }}-techniques{{ repeat_index }}"
-                    multiple="multiple"
-                    class="form-select selectize {{ required }}" data-placeholder="Select techniques">
-                {% for tech_id, tech, selected, tech_facs in options.techniques %}
-                    <option value="{{ tech_id }}" data-related="{{ tech_facs|jsonify }}"
-                            class="option-technique-{{ tech_id }}"
-                            {% if selected %}selected="selected" {% endif %}>{{ tech }}
+                    multiple class="form-select-multiple {{ required }}" data-placeholder="Select techniques">
+                {% for technique in options.techniques %}
+                    <option value="{{ technique.id }}" data-related="{{ technique.facilities|jsonify }}"
+                            class="option-technique-{{ technique.id }}"
+                            {% if technique.selected %}selected="selected" {% endif %}>{{ technique.name }}
                     </option>
                 {% endfor %}
             </select>
@@ -24,11 +23,11 @@
             <select name="{{ field.name }}.facility" id="{{ field.name }}-facility{{ repeat_index }}"
                     class="form-select {{ required }}" data-placeholder="Select facility">
                 <option value=""></option>
-                {% for bl_id, bl, selected, bl_techs in options.facilities %}
-                    <option value="{{ bl_id }}" data-related="{{ bl_techs|jsonify }}"
-                            class="option-facility-{{ bl_id }}"
-                            {% if selected %}selected="selected" {% endif %}
-                    >{{ bl }}
+                {% for facility in options.facilities %}
+                    <option value="{{ facility.id }}" data-related="{{ facility.techniques|jsonify }}"
+                            class="option-facility-{{ facility.id }}"
+                            {% if facility.selected %}selected="selected" {% endif %}
+                    >{{ facility.name }}
                     </option>
                 {% endfor %}
             </select>
@@ -53,11 +52,7 @@
                        class="form-control" type="number"
                        value="{{ data.shifts }}" placeholder="No. of shifts">
             {% endif %}
-            <label for="{{ field.name }}-shifts{{ repeat_index }}" class="sub-label">Shifts
-                <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
-                   data-trigger="hover"
-                   data-content="Specify the number of shifts you are requesting for the first cycle."></i>
-            </label>
+            <label for="{{ field.name }}-shifts{{ repeat_index }}" class="sub-label">Shifts</label>
         </div>
     </div>
     <div class="row">
@@ -69,9 +64,6 @@
                       rows="3" class="textarea form-control {{ required }}">{{ data.procedure }}</textarea>
             <label for="{{ field.name }}-procedure" class="sub-label">Experimental Procedure<span
                     class="text-danger">∗</span>
-                <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
-                   data-trigger="hover"
-                   data-content="Describe the experimental procedure for this beamline."></i>
             </label>
         </div>
     </div>
@@ -83,45 +75,56 @@
                           rows="5" class="textarea form-control {{ required }}">{{ data.justification }}</textarea>
                 <label for="{{ field.name }}-justification" class="sub-label ">Justification of Suitability<span
                         class="text-danger">∗</span>
-                    <i class="df-info bi-info-circle text-primary" data-bs-toggle="popover" data-placement="bottom"
-                       data-trigger="hover"
-                       data-content="Please justify the suitability of this beamline and the corresponding number of shifts requested."></i>
                 </label>
             </div>
-        </div>
-    {% endif %}
-    {% if "tags" in field.options %}
-        <div class="row" id="{{ field.name }}-tags-selector">
         </div>
     {% endif %}
 </div>
 <hr/>
 <script>
-    $(document).ready(function () {
+    function updateTechniques(techField, facField, data) {
+        const $techniquesField = $(techField);
+        const $facilitiesField = $(facField);
 
+        $.each(data.techniques, function (i, row) {
+            let option = $techniquesField.find(`option[value='${row[0]}']`);
+            option.data('related', row[3]);
+        });
+        $.each(data.facilities, function (i, row) {
+            let option = $facilitiesField.find(`option[value='${row[0]}']`);
+            option.data('related', row[3]);
+        });
+
+    }
+    $(document).ready(function () {
+        new SlimSelect({
+            select: "#{{ field.name }}-techniques{{ repeat_index }}",
+            placeholder: "Select techniques",
+            showSearch: true,
+            searchPlaceholder: "Search techniques",
+            allowDeselect: true,
+        });
+
+        $(document).on('cycle-changed', function (event, data) {
+            const $techniquesGroup = $('#{{ field.name }}-techniques{{repeat_index}}').parent();
+            localStorage.setItem('techniquesMatrix', JSON.stringify(data));
+            updateTechniques(
+                '#{{field.name}}-techniques{{repeat_index}}',
+                '#{{field.name}}-facility{{repeat_index}}',
+                data
+            );
+        });
         $(document).on('change', '#{{field.name}}-techniques{{repeat_index}}, #{{field.name}}-facility{{repeat_index}}', function () {
             const $techniquesField = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
             const $facilitiesField = $techniquesField.closest('.controls').find('[name^="{{field.name}}.facility"]');
-            const $cycleField = $('#first_cycle');
-            const $tagsField = $facilitiesField.closest('.controls').find('[name^="{{field.name}}.tags"]');
-            const $tagsContainer = $facilitiesField.closest('.controls').find("#{{field.name}}-tags-selector");
 
             let dataUrl = "{% url 'techniques-beamlines' %}?";
-            let tagsUrl = "{% url 'facility-tags' %}";
+            let data = JSON.parse(localStorage.getItem('techniquesMatrix')) || {};
+            let selectedTechniques = $techniquesField.val() || [];
 
-            if ($cycleField.val()) {
-                dataUrl += `&cycle=${$cycleField.val()}`;
-            }
-            $.get(dataUrl, function (data) {
-                $.each(data.techniques, function (i, row) {
-                    let option = $techniquesField.find(`[value='${row[0]}']`);
-                    option.data('related', row[3]);
-                });
-                $.each(data.facilities, function (i, row) {
-                    let option = $facilitiesField.find(`[value='${row[0]}']`);
-                    option.data('related', row[3]);
-                });
-            });
+            console.log('Selected techniques: ', selectedTechniques);
+
+
             const goodFacilities = new Set();
 
             $facilitiesField.find('option').removeAttr('disabled');
@@ -143,24 +146,6 @@
                 $facilitiesField.find('option').not([...goodFacilities].join()).attr('disabled', 'disabled');
             } else {
                 $facilitiesField.find('option').removeAttr('disabled');
-            }
-
-            if ($facilitiesField.val()) {
-                const tags = [];
-                const repeatIndex = $facilitiesField.closest('.controls').attr('data-repeat-index');
-                tagsUrl += $facilitiesField.val() + '/{{field.name}}.tags__' + repeatIndex + '/?';
-                $tagsField.find('option').filter(function () {
-                    return !!this.value;
-                }).each(function () {
-                    tags.push($(this).attr('value'));
-                });
-                if (tags) {
-                    tagsUrl += `&tags={{data.tags|join:','}}`;
-                }
-                $tagsContainer.load(tagsUrl);
-
-            } else {
-                $tagsContainer.empty();
             }
 
             // beamline information

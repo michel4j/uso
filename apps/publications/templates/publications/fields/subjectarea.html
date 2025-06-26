@@ -6,7 +6,7 @@
    <div class="row">
 		<div class="field-group-item col-12">
 			<select name="{{field.name}}.areas" id="{{field.name}}-areas"
-                    class="form-select"
+                    class="form-select-multiple"
                     {% if 'multiple' in field.options %}multiple{% endif %}
                     aria-label="{{ field.label }}"
             >
@@ -26,19 +26,12 @@
 </div>
 <script>
     $(document).ready(function(){
-        $('#{{ field.name }}-areas').selectize({
-            plugins: ["remove_button"]
-        });
-        $('#{{ field.name }}-keywords').selectize({
-            delimiter: ';',
-            maxItems: 8,
-            persist: false,
-            create: function(input) {
-                return {
-                    value: input,
-                    text: input
-                };
-            }
+        new SlimSelect({
+            select: '#{{ field.name }}-areas',
+            placeholder: 'Select subject areas',
+            showSearch: true,
+            searchText: 'Search subject areas...',
+            allowDeselect: true,
         });
     });
 </script>

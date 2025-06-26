@@ -5,7 +5,7 @@
 {% block panel_content %}
     {% if facilities.exists %}
         <div class="row">
-        <div class="scroll-box col-xs-12" style="max-height: 200px;">
+        <div class="scroll-box col-12" style="max-height: 200px;">
             <ul class="list-unstyled list-ruled">
                 {% for fac in facilities %}
                     <li class="text-condensed" >
@@ -16,7 +16,7 @@
                                 <span class="badge bg-success">Staff</span>
                             {% endif %}
                         </span>
-                        <a href='{% url "facility-detail" fac=fac.acronym %}' data-bs-toggle="tooltip">
+                        <a href='{% url "facility-detail" acronym=fac.acronym %}' data-bs-toggle="tooltip">
                             <strong title="{{ fac.name }}">{{ fac.acronym }}</strong><span class="d-none d-sm-inline">&nbsp;&ndash;&nbsp;{{ fac.name }}</span>
                         </a>
                     </li>

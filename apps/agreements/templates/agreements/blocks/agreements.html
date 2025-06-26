@@ -11,7 +11,7 @@
 
                         <h4 class="text-condensed"><strong>{{ agreement.name }}</strong></h4>
                         <div>{{ agreement.description }}</div>
-                        <a href="{% url "accept-agreement" pk=agreement.pk %}"
+                        <a href="{% url "accept-agreement" code=agreement.code %}"
                            class="btn btn-primary btn-sm pull-right">View</a>
 
                     </div>

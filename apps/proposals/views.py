@@ -1,33 +1,28 @@
 from collections import defaultdict
 from datetime import timedelta
-from pprint import pprint
 
 from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView, ModalConfirmView
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.admin.utils import NestedObjects
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.encoding import force_str
-from django.utils.text import capfirst
 from django.views.generic import detail, edit, TemplateView, View
 from dynforms.models import FormType
+from dynforms.views import DynUpdateView, DynCreateView
 from itemlist.views import ItemListView
 from scipy import stats as scipy_stats
 
-from dynforms.views import DynUpdateView, DynCreateView
+from beamlines.models import Facility
 from misc import filters
 from misc.models import ActivityLog
 from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from roleperms.views import RolePermsViewMixin
 from users.models import User
-from beamlines.models import Facility
 from . import forms
 from . import models
 from . import utils
@@ -1013,6 +1008,15 @@ class DeleteConfig(RolePermsViewMixin, ModalDeleteView):
 
 
 class FacilityOptions(RolePermsViewMixin, View):
+    def get(self, *args, **kwargs):
+        cycle = None
+        if self.request.GET.get('cycle'):
+            cycle = models.ReviewCycle.objects.filter(pk=self.request.GET.get('cycle')).first()
+        technique_matrix = utils.get_techniques_matrix(cycle)
+        return JsonResponse(technique_matrix)
+
+
+class TechniquesMatrix(RolePermsViewMixin, View):
     def get(self, *args, **kwargs):
         cycle = None
         if self.request.GET.get('cycle'):

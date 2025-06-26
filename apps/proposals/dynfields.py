@@ -20,7 +20,7 @@ def to_int(val, default=0):
 class BeamlineReqs(FieldType):
     name = _("Beamline")
     icon = "bi-sliders"
-    options = ['required', "repeat", "tags", "justification"]
+    options = ['required', "repeat", "justification"]
     settings = ['label', 'options', ]
     template_theme = "proposals/fields"
     required_subfields = ['techniques', 'facility', 'procedure', 'justification']

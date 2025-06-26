@@ -3,7 +3,7 @@
 {% block box_class %}{% if facility != object %}bg-darken{% else %} bg-transparent {% endif %}{% endblock %}
 {% block box_header %}
     {% if facility != object %}
-        <h4 class="my-0"><a href="{% url 'facility-detail' pk=facility.pk %}">{{ facility.acronym }}</a> Spec<span
+        <h4 class="my-0"><a href="{% url 'facility-detail' acronym=facility.acronym %}">{{ facility.acronym }}</a> Spec<span
                 class="d-none d-sm-inline">ification</span>s &amp; Techniques</h4>
     {% else %}
         <h4 class="my-0">Spec<span class="d-none d-sm-inline">ification</span>s &amp; Techniques</h4>

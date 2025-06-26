@@ -17,16 +17,3 @@ class Ancillary(FieldType):
     def clean(self, val, multi=True, validate=False):
         return val
 
-
-class TechnicalTags(FieldType):
-    name = _("Technical Tags")
-    icon = "bi-paint-bucket"
-    template_theme = "beamlines/fields"
-    options = ['required', 'hide', 'nolabel']
-    settings = ['label', 'options']
-
-    def clean(self, val, multi=False, validate=True):
-        val = super().clean(val, multi=multi, validate=validate)
-        if isinstance(val, str):
-            val = int(val.strip())
-        return val

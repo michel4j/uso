@@ -314,8 +314,8 @@ def verbose_name_plural(value):
 
 
 @register.simple_tag(takes_context=True)
-def get_options(context, data={}):
-    data = {} if not isinstance(data, dict) else data
+def get_options(context, data=None):
+    data = {} if not data else data
     sel_techs = [0] + data.get('techniques', [])
     sel_fac = 0 if not data.get('facility') else int(data.get('facility'))
     cycle = models.ReviewCycle.objects.next()
@@ -334,9 +334,10 @@ def get_cycle_options(context):
         selected_cycle = models.ReviewCycle.objects.filter(pk=data).first()
 
     context['selected_cycle'] = selected_cycle
+    context['techniques_matrix'] = get_techniques_matrix(selected_cycle)
     return [
         (c.pk, c, c == context.get('selected_cycle'))
-        for c in models.ReviewCycle.objects.filter(end_date__gt=today).order_by('end_date')[:2]
+        for c in models.ReviewCycle.objects.filter(end_date__gt=today).order_by('end_date')[:3]
     ]
 
 

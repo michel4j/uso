@@ -59,14 +59,16 @@ class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
     template_name = 'beamlines/detail.html'
     model = models.Facility
     admin_roles = USO_ADMIN_ROLES
+    slug_field = "acronym"
+    slug_url_kwarg = "acronym"
 
-    def get_object(self, *args, **kwargs):
-        if self.kwargs.get('fac'):
-            object = models.Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
-            if not object:
-                raise Http404
-            return object
-        return super().get_object(*args, **kwargs)
+    # def get_object(self, *args, **kwargs):
+    #     if self.kwargs.get('acronym'):
+    #         object = models.Facility.objects.filter(acronym__iexact=self.kwargs['acronym']).first()
+    #         if not object:
+    #             raise Http404
+    #         return object
+    #     return super().get_object(*args, **kwargs)
 
     def check_admin(self):
         facility = self.get_object()
@@ -114,22 +116,6 @@ class FacilityDetails(RolePermsViewMixin, TemplateView):
         return context
 
 
-class FacilityTags(RolePermsViewMixin, detail.DetailView):
-    template_name = 'beamlines/fields/facility_tags.html'
-    model = models.Facility
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.GET.get('tags'):
-            tag_pks = self.request.GET.get('tags').split(',')
-            selected = self.object.tags().filter(pk__in=tag_pks)
-        else:
-            selected = []
-        context['choices'] = [(tag, tag in selected) for tag in self.object.tags().all()]
-        context['field_name'] = self.kwargs.get('field_name')
-        return context
-
-
 class CreateFacility(RolePermsViewMixin, edit.CreateView):
     form_class = forms.FacilityForm
     template_name = "form.html"
@@ -162,7 +148,7 @@ class EditFacility(RolePermsViewMixin, edit.UpdateView):
         return obj.is_admin(self.request.user)
 
     def get_success_url(self):
-        success_url = reverse("facility-detail", kwargs={'pk': self.object.pk})
+        success_url = reverse("facility-detail", kwargs={'acronym': self.object.acronym})
         return success_url
 
     def form_valid(self, form):

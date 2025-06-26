@@ -1,5 +1,6 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse_lazy
 from django.utils import timesince
 from django.views.generic import edit
@@ -83,14 +84,22 @@ class AcceptAgreement(RolePermsViewMixin, edit.CreateView):
     form_class = forms.AcceptanceForm
     success_url = reverse_lazy("user-dashboard")
 
+    def get_agreement(self):
+        try:
+            agreement = models.Agreement.objects.filter(state="enabled").get(code=self.kwargs['code'])
+        except (models.Agreement.DoesNotExist, ValidationError):
+            messages.error(self.request, "Invalid Agreement!")
+            raise Http404("Agreement not found")
+        return agreement
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['agreement'] = models.Agreement.objects.filter(state="enabled").get(pk=self.kwargs['pk'])
+        kwargs['agreement'] = self.get_agreement()
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["agreement"] = models.Agreement.objects.filter(state="enabled").get(pk=self.kwargs['pk'])
+        context["agreement"] = self.get_agreement()
         return context
 
     def form_valid(self, form):
@@ -102,9 +111,10 @@ class AcceptAgreement(RolePermsViewMixin, edit.CreateView):
                     "Your acceptance was rejected because your computer could not be identified!"
                 )
             else:
+                agreement = self.get_agreement()
                 data = {
                     "user": self.request.user,
-                    "agreement_id": self.kwargs['pk'],
+                    "agreement_id": agreement.pk,
                     "host": ip_num
                 }
                 self.model.objects.create(**data)

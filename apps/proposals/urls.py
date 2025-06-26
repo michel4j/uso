@@ -11,6 +11,8 @@ urlpatterns = [
     path('proposals/inprogress/', views.ProposalList.as_view(), name="proposals-inprogress"),
     path('proposals/new/', views.CreateProposal.as_view(), name="create-proposal"),
 
+    path('techniques/matrix/', views.TechniquesMatrix.as_view(), name="techniques-matrix"),
+
     path('submissions/', views.SubmissionList.as_view(), name='submission-list'),
     path('submissions/cycle/<int:cycle>/', views.CycleSubmissionList.as_view(), name='cycle-submission-list'),
     path('submissions/cycle/<int:cycle>/<slug:track>/', views.TrackSubmissionList.as_view(), name='track-submission-list'),

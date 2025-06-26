@@ -22,8 +22,7 @@
     <link href="{% static 'dynforms/jquery-bs-datepicker.min.css' %}" rel="stylesheet">
 
     {% block site_css %}
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.bootstrap5.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/2.12.0/slimselect.min.css" integrity="sha512-SfzwlVvWZrs8vawuFIIhjeCF8opltVLg96Wzfgr+hVF4jBT1qaOf6I/gYl9P4ZbQgDxRLjJBwUpypQoaGCxuOg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="{% static 'css/uso.min.css' %}" type="text/css"/>
     {% endblock %}
 
@@ -31,9 +30,7 @@
     {% block extra_css %}{% endblock %}
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/jquery.nicescroll.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
-            integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/2.12.0/slimselect.min.js" integrity="sha512-sByHIkabhPJsGxRISbnt0bpNZw3NSAnshLhlu2AceSC+sDOyDT4NgtnDOznHulIjR07ua1SudQC25iLvFzkWTw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"
             integrity="sha512-oJp0DdQuQQrRsKVly+Ww6fAN1GwJN7d1bi8UubpEbzDUh84WrJ2CFPBnT4LqBCcfqTcHR5OGXFFhaPe3g1/bzQ=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -98,8 +95,10 @@
         setupAjaxProgress(); // Initialize AJAX Progress bar
         $('#modal-target').initModal({
             setup: function (element) {
-                $('.selectmultiple, .selectize').selectize({
-                    plugins: ["remove_button"]
+                $('select[multiple]').each(function (element){
+                    new SlimSelect({
+                        select: element
+                    })
                 });
                 // Initialize date inputs
                 $('.dateinput').datePicker({
@@ -153,8 +152,10 @@
         });
 
         // Initialize selects
-        $('.selectmultiple, .selectize').selectize({
-            plugins: ["remove_button"]
+        $('select[multiple]').each(function (element){
+            new SlimSelect({
+                select: element
+            })
         });
 
 

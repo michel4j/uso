@@ -4,7 +4,7 @@
 
 jQuery.fn.serializeObject = function () {
     const obj = {};
-    this.serializeArray().forEach(({ name, value }) => {
+    this.serializeArray().forEach(({name, value}) => {
         if (obj[name] === undefined) {
             obj[name] = value;
         } else if (Array.isArray(obj[name])) {
@@ -37,7 +37,7 @@ jQuery.fn.serializeObject = function () {
     const rvalue = /^(?:button|color|date|datetime|datetime-local|email|hidden|month|number|password|range|reset|search|submit|tel|text|textarea|time|url|week)$/i;
 
     const getElements = (elements, filter) => {
-        return elements.map(function() {
+        return elements.map(function () {
             return this.elements ? jQuery.makeArray(this.elements) : this;
         }).filter(filter || ":input:not(:disabled)").get();
     };
@@ -55,7 +55,7 @@ jQuery.fn.serializeObject = function () {
         return elementsByName;
     };
 
-    jQuery.fn.deserialize = function(data, options = {}) {
+    jQuery.fn.deserialize = function (data, options = {}) {
         let current, element, elements, elementsForName, i, j, k, key, len, length, name, nameIndex, optionsAndInputs,
             property, type, value,
             change = jQuery.noop,
@@ -81,9 +81,9 @@ jQuery.fn.serializeObject = function () {
         } else if (jQuery.isPlainObject(data)) {
             for (key in data) {
                 if (jQuery.isArray(data[key])) {
-                    push.apply(normalized, jQuery.map(data[key], (v) => ({ name: key, value: v })));
+                    push.apply(normalized, jQuery.map(data[key], (v) => ({name: key, value: v})));
                 } else {
-                    push.call(normalized, { name: key, value: data[key] });
+                    push.call(normalized, {name: key, value: data[key]});
                 }
             }
         } else if (typeof data === "string") {
@@ -157,17 +157,17 @@ jQuery.fn.serializeObject = function () {
 // Visibility
 function renderWhenVisible(selector, callback) {
     const element = typeof selector === 'string' ? document.querySelector(selector) : selector;
-  const options = {
-    root: document.documentElement,
-  };
+    const options = {
+        root: document.documentElement,
+    };
 
-  const observer = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      callback(entry.intersectionRatio > 0);
-    });
-  }, options);
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            callback(entry.intersectionRatio > 0);
+        });
+    }, options);
 
-  observer.observe(element);
+    observer.observe(element);
 }
 
 
@@ -176,7 +176,7 @@ function setupAjaxProgress() {
     const $body = $("body");
 
     // Handle Spinner for all ajax calls
-	$(document).ajaxStart(function (xhr) {
+    $(document).ajaxStart(function (xhr) {
         $(document).data('xhrProgress', 0);
         $(document).data('xhrCount', 0);
         $(document).data('xhrPercent', 0);
@@ -184,13 +184,13 @@ function setupAjaxProgress() {
             '--uso-progress-percent': 0,
             '--uso-progress-opacity': 1,
         });
-  	}).ajaxStop(function () {
-        setTimeout(function() {
+    }).ajaxStop(function () {
+        setTimeout(function () {
             $("body").css({
                 '--uso-progress-opacity': 0
             });
         }, 500);
-  	});
+    });
 
     // Handle XHR Progress
     let origOpen = XMLHttpRequest.prototype.open;
@@ -198,9 +198,9 @@ function setupAjaxProgress() {
     $(document).data('xhrProgress', $(document).data('xhrProgress') || 0);
     $(document).data('xhrPercent', $(document).data('xhrPercent') || 0);
 
-    XMLHttpRequest.prototype.open = function() {
+    XMLHttpRequest.prototype.open = function () {
         $(document).data('xhrCount', $(document).data('xhrCount') + 1);
-        this.addEventListener('load', function() {
+        this.addEventListener('load', function () {
             $(document).data('xhrProgress', $(document).data('xhrProgress') + 1);
             $(document).data('xhrCount', $(document).data('xhrCount') - 1);
             if ($(document).data('xhrCount') === 0) {
@@ -223,14 +223,14 @@ function setupAjaxProgress() {
 
 // USO Timeline
 function showTimeline(selector, data) {
-    renderWhenVisible(selector, (visible) => {
+    renderWhenVisible(selector, function(visible) {
         if (!visible) {
             return; // Do not render if the element is not visible
         }
         const $element = $(selector);
         const width = Math.min(1200, Math.max($element.width(), 576));
-        const height = Math.max(60, width * 90/1000);
-        const fontSize = Math.min(1, Math.max(0.8, width/576)); // Scale font size based on width
+        const height = Math.max(60, width * 90 / 1000);
+        const fontSize = Math.min(1, Math.max(0.8, width / 576)); // Scale font size based on width
 
         $element.empty(); // Clear any existing content
         const chart = d3.timeline()

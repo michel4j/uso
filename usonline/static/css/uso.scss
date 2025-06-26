@@ -127,7 +127,6 @@ $state-names: (info, primary, success, secondary, warning, danger);
   --uso-accent-text-3: #b3b3b3;
 
   // Bootstrap variables
-  --bs-primary: var(--uso-accent-color-0);
   --bs-border-radius: 0.2875rem;
   --bs-border-radius-sm: 0.225rem;
   --bs-border-radius-lg: 0.35rem;
@@ -1181,6 +1180,9 @@ a {
 }
 
 #cycle-timeline {
+  min-width: 576px;
+  min-height: 50px;
+
   text {
     fill: var(--bs-body-color)
   }
@@ -2124,7 +2126,8 @@ body.registration {
   }
 
   .card {
-     max-width: 55em;
+    max-width: 55em;
+
     .df-form-body {
       height: calc(60vh);
 
@@ -2521,47 +2524,26 @@ $stat-sizes: (
   font-size: 0.9em;
 }
 
-.selectize-control.single .selectize-input.input-active, .selectize-input {
-  background: var(--bs-body-bg) !important;
-  border-radius: var(--bs-border-radius) !important;
-  border: 1px solid var(--bs-border-color) !important;
-}
-
-.selectize-control.multi .selectize-input > div {
-  font-size: 0.85em;
-  background: var(--bs-secondary-bg-subtle) !important;
-  border-radius: var(--bs-border-radius-sm) !important;
-  border: 1px solid var(--bs-border-color) !important;
-  color: var(--bs-body-color) !important;
-}
-
-.selectize-control.plugin-remove_button .item .remove {
-  border-left: 1px solid var(--bs-border-color-translucent);
-  border-radius: 0 var(--bs-border-radius-sm) var(--bs-border-radius-sm) 0 !important;
-}
-
-.selectize-control.multi .selectize-input.has-items {
-  padding: calc(.375rem - 1px - 0px) .375em calc(.375rem - 1px - 3px - 0px);
-}
-
-.selectize-dropdown {
-  --bs-dropdown-min-width: 10rem;
-  --bs-dropdown-padding-x: 0;
-  --bs-dropdown-padding-y: 0.5rem;
-  --bs-dropdown-font-size: 1rem;
-  --bs-dropdown-color: var(--bs-body-color);
-  --bs-dropdown-bg: var(--bs-body-bg);
-  --bs-dropdown-border-radius: var(--bs-border-radius);
-
-  min-width: var(--bs-dropdown-min-width);
-  padding: var(--bs-dropdown-padding-y) var(--bs-dropdown-padding-x);
-  margin: 0;
-  font-size: var(--bs-dropdown-font-size);
-  color: var(--bs-dropdown-color);
-  background-color: var(--bs-dropdown-bg);
-  background-clip: padding-box;
-  border: none;
-  border-radius: var(--bs-dropdown-border-radius);
+.form-select-multiple {
+  --ss-primary-color: var(--bs-primary-bg);
+  --ss-bg-color: var(--bs-body-bg);
+  --ss-font-color: var(--bs-body-color);
+  --ss-font-placeholder-color: var(--bs-secondary-text);
+  --ss-disabled-color: var(--bs-secondary-text);
+  --ss-border-color: var(--bs-border-color);
+  --ss-highlight-color: var(--bs-warning-bg-subtle);
+  --ss-success-color: var(--bs-success);
+  --ss-error-color: var(--bs-danger);
+  --ss-focus-color: var(--bs-primary);
+  --ss-main-height: 2.4em;
+  --ss-content-height: 300px;
+  --ss-spacing-l: 7px;
+  --ss-spacing-m: 5px;
+  --ss-spacing-s: 3px;
+  --ss-animation-timing: 0.2s;
+  --ss-border-radius: var(--bs-border-radius);
+    font-size: 1rem;
+    font-weight: 400;
 }
 
 .df-form-tabs:empty {
@@ -2631,6 +2613,7 @@ $stat-sizes: (
   --bs-badge-border-radius: 50%;
   vertical-align: middle;
 }
+
 .form-label {
   margin-bottom: 0;
   margin-top: 0.5em;

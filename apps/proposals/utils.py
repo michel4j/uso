@@ -676,40 +676,50 @@ def get_techniques_matrix(cycle=None, sel_techs=(), sel_fac=None):
     the sel_techs or sel_fac.
     """
     from proposals import models
-    tech_facs = defaultdict(list)
-    fac_techs = defaultdict(list)
+    tech_facilities = defaultdict(list)
+    fac_techniques = defaultdict(list)
 
-    if not cycle:
-        return {'techniques': [], 'facilities': []}
+    start_date = cycle.start_date if cycle else date.today()
 
     if not sel_techs:
         sel_techs = [0]
 
-    for conf in models.FacilityConfig.objects.active(d=cycle.start_date).accepting():
+    for conf in models.FacilityConfig.objects.active(d=start_date).accepting():
         for t in conf.items.values_list('technique', flat=True):
-            tech_facs[t].append(conf.facility.pk)
-            fac_techs[conf.facility.pk].append(t)
+            tech_facilities[t].append(conf.facility.pk)
+            fac_techniques[conf.facility.pk].append(t)
 
-    techs = models.Technique.objects.filter(pk__in=list(tech_facs.keys())).annotate(
+    techs = models.Technique.objects.filter(pk__in=list(tech_facilities.keys())).annotate(
         selected=Case(
             When(pk__in=sel_techs, then=Value(1)),
             default=Value(0), output_field=BooleanField()
         )
     ).order_by('name')
 
-    facilities = models.Facility.objects.filter(pk__in=list(fac_techs.keys())).annotate(
+    facilities = models.Facility.objects.filter(pk__in=list(fac_techniques.keys())).annotate(
         selected=Case(
             When(pk=sel_fac, then=Value(1)),
             default=Value(0), output_field=BooleanField()
         )
     ).order_by('name')
     matrix = {
+        'cycle': cycle.pk if cycle else None,
         'techniques': [
-            (t.pk, str(t), t.selected, tech_facs[t.pk])
+            {
+                'id': t.pk,
+                'name': str(t),
+                'selected': t.selected,
+                'facilities': tech_facilities[t.pk]
+            }
             for t in techs
         ],
         'facilities': [
-            (f.pk, str(f), f.selected, fac_techs[f.pk])
+            {
+                'id': f.pk,
+                'name': str(f),
+                'selected': f.selected,
+                'techniques': fac_techniques[f.pk]
+            }
             for f in facilities
         ]
     }
