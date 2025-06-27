@@ -13,10 +13,20 @@
 {% endblock %}
 
 {% block page-tools %}
-    <a href="{% url 'lab-history' pk=object.pk %}" class="pull-right">
-        <i class="bi-clock icon-md icon-fw"></i><br/>
-        <span class="tool-label">History</span>
-    </a>
+    {% if admin or owner %}
+        <a href="#0" data-modal-url="{% url 'edit-lab' acronym=object.acronym %}">
+            <i class="bi-pencil icon-md icon-fw"></i><br/>
+            <span class="tool-label">Edit</span>
+        </a>
+        <a href="#0" data-modal-url="{% url 'add-workspace' acronym=object.acronym %}">
+            <i class="bi-plus-square icon-md icon-fw"></i><br/>
+            <span class="tool-label">Add Workspace</span>
+        </a>
+        <a href="{% url 'lab-history' acronym=object.acronym %}">
+            <i class="bi-clock icon-md icon-fw"></i><br/>
+            <span class="tool-label">History</span>
+        </a>
+    {% endif %}
 {% endblock %}
 
 {% block page-status-style %}callout {% if object.available %}callout-success{% endif %}{% endblock %}
@@ -43,22 +53,36 @@
 {% block page-content %}
     <div class="row my-3">
         {% for workspace in lab.workspaces.all %}
-            <div class="col-xs-6 col-sm-4">
-                <div class="card {% if not workspace.available %}bg-danger{% endif %}" style="min-height: 200px;">
-                    <div class="card-header">
-                        <h5 class="m-0">{{ workspace.name }}</h5>
-                        <small>{{ workspace.description }}</small>
-                    </div>
-
-                    {% with workspace.sessions.active.all as sessions %}
-                        {% if not sessions.exists %}
-                            <div class="empty">
-                                Workspace not in use
-                            </div>
-                        {% else %}
-                            {% include 'projects/lab_permit-summary.html' with session=sessions.first %}
+            <div class="col-sm-6 col-lg-4">
+                <div class="card h-100 {% if not workspace.available %}bg-danger-subtle{% endif %}"
+                     style="min-height: 200px;">
+                    <div class="card-header d-flex flex-row justify-content-start align-items-center">
+                        <i class="bi-beaker{% if workspace.available %}-fill text-success{% endif %} icon-md me-3"></i>
+                        <h5 class="m-0">{{ workspace.name }} {% if not workspace.available %}Not {% endif %}Available</h5>
+                        {% if admin or owner %}
+                        <div class="ms-auto">
+                            <a href="#0" data-modal-url='{% url "edit-workspace" pk=workspace.pk %}'
+                               title="Edit Workspace">
+                                <i class="bi-pencil icon-sm icon-fw"></i>
+                            </a>
+                        </div>
                         {% endif %}
-                    {% endwith %}
+                    </div>
+                    <div class="card-body border-bottom text-body-secondary">
+                        {{ workspace.description }}
+                    </div>
+                    <div class="card-body">
+
+                        {% with workspace.sessions.active.all as sessions %}
+                            {% if not sessions.exists %}
+                                <div class="empty">
+                                    Workspace not in use
+                                </div>
+                            {% else %}
+                                {% include 'projects/lab_permit-summary.html' with session=sessions.first %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
                 </div>
             </div>
         {% endfor %}

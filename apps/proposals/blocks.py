@@ -33,8 +33,31 @@ class ProposalsBlock(BaseBlock):
         open_cycles = models.ReviewCycle.objects.filter(state=models.Cycle.STATES.open)
         ctx.update({
             "drafts": drafts,
-            "submitted": submitted,
             "open_cycles": open_cycles
+        })
+        return super().render(ctx)
+
+
+class SubmissionsBlock(BaseBlock):
+    block_type = BLOCK_TYPES.dashboard
+    template_name = "proposals/blocks/submissions.html"
+    priority = 2
+
+    def check_allowed(self, request):
+        return request.user.is_authenticated
+
+    def render(self, context):
+        ctx = copy.copy(context)
+        from proposals import models
+        user = context['request'].user
+
+        filters = Q(proposal__leader_username=user.username) | Q(proposal__spokesperson=user) | Q(proposal__delegate_username=user.username)
+        submissions = models.Submission.objects.filter(filters).order_by('-created')
+        if not submissions.exists():
+            return ""
+
+        ctx.update({
+            "submissions": submissions[:10],  # Limit to 10 most recent submissions
         })
         return super().render(ctx)
 

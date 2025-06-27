@@ -16,6 +16,13 @@ urlpatterns = [
         name='facility-config-detail'
     ),
     path('labs/', views.LaboratoryList.as_view(), name='lab-list'),
-    path('labs/<int:pk>/', views.LaboratoryDetail.as_view(), name='lab-detail'),
-    path('labs/<int:pk>/history/', views.LaboratoryHistory.as_view(), name='lab-history'),
+    path('labs/new/', views.CreateLaboratory.as_view(), name='create-lab'),
+    path('labs/<slug:acronym>/', views.LaboratoryDetail.as_view(), name='lab-detail'),
+    path('labs/<slug:acronym>/edit/', views.EditLaboratory.as_view(), name='edit-lab'),
+    path('labs/<slug:acronym>/delete/', views.DeleteLaboratory.as_view(), name='delete-lab'),
+    path('labs/<slug:acronym>/history/', views.LaboratoryHistory.as_view(), name='lab-history'),
+
+    path('labs/<slug:acronym>/add', views.CreateWorkspace.as_view(), name='add-workspace'),
+    path('workspace/<int:pk>/edit', views.EditWorkspace.as_view(), name='edit-workspace'),
+    path('workspace/<int:pk>/delete', views.EditWorkspace.as_view(), name='delete-workspace'),
 ]

@@ -101,7 +101,7 @@ class StringListField(models.TextField):
 
     def get_prep_value(self, value):
         if isinstance(value, list):
-            return "".join(["<{}>".format(v.strip()) for v in value])
+            return "".join([f"<{v.strip()}>" for v in value])
         else:
             return ""
 
@@ -115,17 +115,18 @@ class StringListField(models.TextField):
         elif isinstance(value, str):
             return value.strip()
         else:
-            return "{}".format(value)
+            return f"{value}"
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': DelimitedTextFormField}
+        defaults = {
+            'form_class': DelimitedTextFormField,
+            'widget': forms.TextInput
+        }
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
 
 class DelimitedTextFormField(forms.CharField):
-    widget = forms.TextInput
-
     def to_python(self, value):
         value = super().to_python(value)
         return [_f for _f in [v.strip() for v in FORM_FIELD_SPLITTER.split(value)] if _f]

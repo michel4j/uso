@@ -18,12 +18,13 @@
           rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" integrity="sha256-pdY4ejLKO67E0CM2tbPtq1DJ3VGDVVdqAR6j3ZwdiE4=" crossorigin="anonymous">
     <link href="{% static 'dynforms/jquery-bs-datepicker.min.css' %}" rel="stylesheet">
 
     {% block site_css %}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/2.12.0/slimselect.min.css" integrity="sha512-SfzwlVvWZrs8vawuFIIhjeCF8opltVLg96Wzfgr+hVF4jBT1qaOf6I/gYl9P4ZbQgDxRLjJBwUpypQoaGCxuOg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="{% static 'css/uso.min.css' %}" type="text/css"/>
+        {% css_overrides %}
     {% endblock %}
 
     {% block page-styles %}{% endblock %}
@@ -95,9 +96,10 @@
         setupAjaxProgress(); // Initialize AJAX Progress bar
         $('#modal-target').initModal({
             setup: function (element) {
-                $('select[multiple]').each(function (element){
+                $('#modal-target').find('select[multiple]').each(function (){
+                    $(this).removeClass('form-select').addClass('form-select-multiple');
                     new SlimSelect({
-                        select: element
+                        select: this
                     })
                 });
                 // Initialize date inputs

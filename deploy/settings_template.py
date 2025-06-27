@@ -4,6 +4,7 @@
 # match your production environment.
 ####################################################################################################
 
+
 DEBUG = True                        # Set to False in production
 SITE_URL = "http://localhost:8080"  # The URL of the site
 ALLOWED_HOSTS = ["localhost", '*']  # The list of allowed hosts
@@ -12,7 +13,8 @@ ALLOWED_HOSTS = ["localhost", '*']  # The list of allowed hosts
 # SECURITY WARNING: Generate a new key and keep the secret key used in production secret!
 # ---
 SECRET_KEY = 'g`0wamAE>-n-mZ<Ukx-A(*No2DSJ%ov1"I+u77|T_="6%c|HhKOd]~+,,f;)[g3p'
-
+USO_OPEN_WEATHER_KEY = ""   # Please register at https://openweathermap.org/api to get your own API key for version 2.5
+USO_STYLE_OVERRIDES = []    # list of css files to override the default styles, place files in local/media/css/
 
 # Configure the cache settings
 # ---

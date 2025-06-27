@@ -33,35 +33,97 @@ ICON_MAP_NIGHT = {
     958: "wi-strong-wind", 959: "wi-strong-wind", 960: "wi-storm-showers", 961: "wi-storm-showers", 962: "wi-hurricane",
 }
 
+WEATHER_LOCATION = getattr(settings, 'USO_WEATHER_LOCATION', [52.14, -106.63])  # Default to CLSI
+API_KEY = getattr(settings, 'USO_OPEN_WEATHER_KEY', '')
 
-def get_conditions(city="6141256"):
+
+def get_conditions() -> dict:
     url = "https://api.openweathermap.org/data/2.5/weather"
-    url_forecast = "https://api.openweathermap.org/data/2.5/forecast"
+    lat, lon = WEATHER_LOCATION
     params = {
-        "APPID": settings.USO_OPEN_WEATHER_KEY, "id": city, "units": "metric"
+        "appid": API_KEY,
+        "lat": lat,
+        "lon": lon,
+        "units": "metric",
     }
-    rc = requests.get(url, params=params)
-    rf = requests.get(url_forecast, params=params)
-    if rc.status_code == requests.codes.ok and rf.status_code == requests.codes.ok:
-        forecast = rf.json().get('list')
-        if not forecast:
-            return
+    response = requests.get(url, params=params)
+    if response.status_code == requests.codes.ok:
+        info = response.json()
         conditions = {
-            'current': rc.json(), 'forecast': forecast,
+            "lat": info.get("coord", {}).get("lat"),
+            "lon": info.get("coord", {}).get("lon"),
+            "current": {
+                "dt": info.get("dt"),
+                "temp": info.get("main", {}).get("temp"),
+                "temp_min": info.get("main", {}).get("temp_min"),
+                "temp_max": info.get("main", {}).get("temp_max"),
+                "humidity": info.get("main", {}).get("humidity"),
+                "feels_like": info.get("main", {}).get("feels_like"),
+                "weather": info.get("weather", []),
+                "sunrise": info.get("sys", {}).get("sunrise"),
+                "sunset": info.get("sys", {}).get("sunset"),
+            },
+            'forecast': get_forecast(),
         }
-        c = conditions['current']
-        c['main']['windchill'] = windchill(c['main']['temp'], c['wind']['speed'])
-        for c in [_f for _f in conditions['forecast'] if _f]:
-            c['main']['windchill'] = windchill(c['main']['temp'], 0 if not c['wind'] else c['wind']['speed'])
         return conditions
-
-
-def windchill(t, v):
-    v = v * 60 * 60 / 1000.0  # convert to km/h
-    if t <= 0 and 0 > v < 5:
-        return int(round(t + v * (-1.59 + 0.1345 * t) / 5, 0))
     else:
-        return int(round(13.12 + 0.6215 * t - 11.37 * v ** 0.16 + 0.3965 * t * v ** 0.16, 0))
+        print(f"Error fetching weather data: {response.status_code} - {response.text}")
+    return {}
+
+
+def get_forecast() -> list[dict]:
+    """
+    Get the weather forecast for the next 5 days.
+    """
+    url = "https://api.openweathermap.org/data/2.5/forecast"
+    lat, lon = WEATHER_LOCATION
+    params = {
+        "appid": API_KEY,
+        "lat": lat,
+        "lon": lon,
+        "units": "metric",
+    }
+    response = requests.get(url, params=params)
+    conditions = []
+    if response.status_code == requests.codes.ok:
+        forecasts = response.json()
+        conditions = [
+            {
+                "dt": forecast.get("dt"),
+                "temp": forecast.get("main", {}).get("temp"),
+                "temp_min": forecast.get("main", {}).get("temp_min"),
+                "temp_max": forecast.get("main", {}).get("temp_max"),
+                "humidity": forecast.get("main", {}).get("humidity"),
+                "feels_like": forecast.get("main", {}).get("feels_like"),
+                "weather": forecast.get("weather", []),
+            }
+            for forecast in forecasts.get("list", [])
+        ]
+    else:
+        print(f"Error fetching weather forecast: {response.status_code} - {response.text}")
+    return conditions
+
+
+def get_location_info() -> dict:
+    """
+    Get the location information for the weather service.
+    """
+    url = "https://api.openweathermap.org/geo/1.0/reverse"
+    lat, lon = WEATHER_LOCATION
+    params = {
+        "appid": API_KEY,
+        "lat": lat,
+        "lon": lon,
+        "limit": 1,
+    }
+    response = requests.get(url, params=params)
+    if response.status_code == requests.codes.ok:
+        location_info = response.json()
+        if location_info:
+            return location_info[0]
+    else:
+        print(f"Error fetching location info: {response.status_code} - {response.text}")
+    return {}
 
 
 def run_async(f):

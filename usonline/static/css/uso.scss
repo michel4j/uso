@@ -1232,14 +1232,14 @@ svg {
   line-height: 4em;
   padding: 2em 0;
   width: 100%;
-  color: $color_37;
+  color: var(--bs-secondary-text-emphasis);
   letter-spacing: 1px;
 }
 
 .empty-row {
   padding: 1.5em !important;
   text-align: center;
-  color: $color_37;
+  color: var(--bs-secondary-text-emphasis);
   letter-spacing: 1px;
 }
 
@@ -2525,11 +2525,11 @@ $stat-sizes: (
 }
 
 .form-select-multiple {
-  --ss-primary-color: var(--bs-primary-bg);
+  --ss-primary-color: var(--bs-primary);
   --ss-bg-color: var(--bs-body-bg);
   --ss-font-color: var(--bs-body-color);
-  --ss-font-placeholder-color: var(--bs-secondary-text);
-  --ss-disabled-color: var(--bs-secondary-text);
+  --ss-font-placeholder-color: var(--bs-secondary);
+  --ss-disabled-color: var(--bs-secondary);
   --ss-border-color: var(--bs-border-color);
   --ss-highlight-color: var(--bs-warning-bg-subtle);
   --ss-success-color: var(--bs-success);
@@ -2628,7 +2628,7 @@ body::before {
   height: 2px;
   content: "";
   opacity: calc(var(--uso-progress-opacity, 1) * 0.75);
-  background: var(--bs-primary);
+  background: var(--uso-accent-color-0, --bs-primary);
   transition: width 0.3s ease-in, opacity 0.3s ease-out;
 }
 

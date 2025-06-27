@@ -4,6 +4,7 @@ from misc.views import ManageAttachments
 
 urlpatterns = [
     path('proposals/', views.UserProposalList.as_view(), name="user-proposals"),
+    path('submissions/', views.UserSubmissionList.as_view(), name="user-submissions"),
     path('proposals/<int:pk>/', views.ProposalDetail.as_view(), name='proposal-detail'),
     path('proposals/<int:pk>/edit/', views.EditProposal.as_view(), name='edit-proposal'),
     path('proposals/<int:pk>/clone/', views.CloneProposal.as_view(), name='clone-proposal'),

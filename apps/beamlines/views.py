@@ -1,5 +1,7 @@
 import calendar
 from datetime import timedelta
+
+from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
@@ -27,11 +29,12 @@ USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ["staff"])
 class BeamlineList(RolePermsViewMixin, ItemListView):
     model = models.Facility
     template_name = "tooled-item-list.html"
-    tool_template = "beamlines/list-tools.html"
+    tool_template = "beamlines/facility-list-tools.html"
     admin_roles = USO_ADMIN_ROLES
     list_title = 'Facilities'
     list_columns = ['name', 'acronym', 'kind', 'state']
     link_url = 'facility-detail'
+    link_kwarg = 'acronym'
     paginate_by = 20
     list_filters = {'state', 'kind', TechniqueFilterFactory.new()}
     list_search = ['acronym', 'name', 'port']
@@ -44,11 +47,13 @@ def _fmt_codes(bls, obj=None):
 
 class LaboratoryList(RolePermsViewMixin, ItemListView):
     model = models.Lab
-    template_name = "item-list.html"
+    template_name = "tooled-item-list.html"
+    tool_template = "beamlines/lab-list-tools.html"
     admin_roles = USO_ADMIN_ROLES
     list_title = 'Laboratories'
     list_columns = ['name', 'acronym', 'permission_names', 'num_workspaces', 'available']
     link_url = 'lab-detail'
+    link_kwarg = 'acronym'
     paginate_by = 20
     list_filters = {'created', 'modified', 'available', }
     list_search = ['acronym', 'name', 'description', 'permissions__code']
@@ -61,14 +66,6 @@ class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
     admin_roles = USO_ADMIN_ROLES
     slug_field = "acronym"
     slug_url_kwarg = "acronym"
-
-    # def get_object(self, *args, **kwargs):
-    #     if self.kwargs.get('acronym'):
-    #         object = models.Facility.objects.filter(acronym__iexact=self.kwargs['acronym']).first()
-    #         if not object:
-    #             raise Http404
-    #         return object
-    #     return super().get_object(*args, **kwargs)
 
     def check_admin(self):
         facility = self.get_object()
@@ -95,8 +92,12 @@ class BeamlineDetail(RolePermsViewMixin, detail.DetailView):
 class LaboratoryDetail(RolePermsViewMixin, detail.DetailView):
     template_name = 'beamlines/lab.html'
     model = models.Lab
+    slug_field = "acronym"
+    slug_url_kwarg = "acronym"
     admin_roles = USO_ADMIN_ROLES
-    allowed_roles = USO_STAFF_ROLES
+
+    def check_owner(self, obj):
+        return obj.is_admin(self.request.user)
 
 
 class FacilityDetails(RolePermsViewMixin, TemplateView):
@@ -128,6 +129,111 @@ class CreateFacility(RolePermsViewMixin, edit.CreateView):
         for f, v in [('staff', 10), ('maintenance', 10), ('purchased', 25), ('beamteam', 10), ('user', 45)]:
             initial['time_{}'.format(f)] = v
         return initial
+
+
+class CreateLaboratory(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.LabForm
+    model = models.Lab
+    success_url = reverse_lazy('lab-list')
+    allowed_roles = USO_ADMIN_ROLES
+
+
+class EditLaboratory(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.LabForm
+    model = models.Lab
+    slug_field = "acronym"
+    slug_url_kwarg = "acronym"
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def check_allowed(self):
+        obj = self.get_object()
+        return obj.is_admin(self.request.user) or super().check_allowed()
+
+    def get_delete_url(self):
+        if self.check_admin():
+            return reverse('delete-lab', kwargs={'acronym': self.object.acronym})
+        return None
+
+
+class DeleteLaboratory(RolePermsViewMixin, ModalDeleteView):
+    model = models.Lab
+    slug_field = "acronym"
+    slug_url_kwarg = "acronym"
+    success_url = reverse_lazy('lab-list')
+    allowed_roles = USO_ADMIN_ROLES
+
+
+class CreateWorkspace(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.WorkspaceForm
+    model = models.LabWorkSpace
+    success_url = reverse_lazy('lab-list')
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_initial(self):
+        initial = super().get_initial()
+        lab = models.Lab.objects.get(acronym=self.kwargs.get('acronym'))
+        initial['lab'] = lab
+        initial['name'] = f'WS{lab.workspaces.count() + 1}'
+        initial['available'] = True
+        return initial
+
+    def get_success_url(self):
+        return reverse("lab-detail", kwargs={'acronym': self.kwargs.get('acronym')})
+
+    def check_allowed(self):
+        lab = models.Lab.objects.get(acronym=self.kwargs.get('acronym'))
+        return (
+            super().check_allowed() or
+            lab.is_admin(self.request.user)
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['lab'] = models.Lab.objects.get(acronym=self.kwargs.get('acronym'))
+        return context
+
+
+class EditWorkspace(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.WorkspaceForm
+    model = models.LabWorkSpace
+    success_url = reverse_lazy('lab-list')
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        workspace = self.get_object()
+        return reverse("lab-detail", kwargs={'acronym': workspace.lab.acronym})
+
+    def check_allowed(self):
+        workspace = self.get_object()
+        return (
+            super().check_allowed() or
+            workspace.lab.is_admin(self.request.user)
+        )
+
+    def get_delete_url(self):
+        if self.check_admin() or self.object.lab.is_admin(self.request.user):
+            return reverse('delete-workspace', kwargs={'pk': self.object.pk})
+        return None
+
+
+class DeleteWorkspace(RolePermsViewMixin, ModalDeleteView):
+    model = models.LabWorkSpace
+    success_url = reverse_lazy('lab-list')
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        workspace = self.get_object()
+        return reverse("lab-detail", kwargs={'acronym': workspace.lab.acronym})
+
+    def check_allowed(self):
+        workspace = self.get_object()
+        return (
+            super().check_allowed() or
+            workspace.lab.is_admin(self.request.user)
+        )
 
 
 class EditFacility(RolePermsViewMixin, edit.UpdateView):
@@ -278,7 +384,7 @@ class LaboratoryHistory(RolePermsViewMixin, ItemListView):
     allowed_roles = USO_STAFF_ROLES
 
     def get_list_title(self):
-        return "{} Session History".format(self.lab)
+        return f"{self.lab} Sessions"
 
     def get_queryset(self):
         self.queryset = self.lab.lab_sessions.filter()
@@ -286,7 +392,7 @@ class LaboratoryHistory(RolePermsViewMixin, ItemListView):
 
     def check_allowed(self):
         from beamlines.models import Lab
-        self.lab = Lab.objects.get(pk=self.kwargs['pk'])
+        self.lab = Lab.objects.get(acronym=self.kwargs['acronym'])
         allowed = (
                 super().check_allowed() or
                 self.check_admin()

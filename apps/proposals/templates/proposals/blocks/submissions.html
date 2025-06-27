@@ -1,0 +1,45 @@
+{% extends "misc/blocks/panel.html" %}
+{% block panel_title %}Recent Submissions{% endblock %}
+{% block panel_tools %}
+    <a href="{% url 'user-submissions' %}" title="All submissions">
+        <i class="bi-list-ol icon-md icon-fw"></i>
+    </a>
+{% endblock %}
+{% block panel_content %}
+    <div class="row">
+        <div class="scroll-box col-12" style="max-height: 200px;">
+            <table class="table table-sm w-100">
+                <thead>
+                <tr>
+                    <th class="text-nowrap">Submission</th>
+                    <th class="text-nowrap">Track</th>
+                    <th class="text-nowrap">Cycle</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for submission in submissions %}
+                    <tr style="min-width: 0;">
+                        {% if submission.state == submission.STATES.pending %}
+                            <td class="text-truncate">
+                                <a href='{% url "proposal-detail" pk=submission.proposal.pk %}'
+                                   data-bs-toggle="tooltip" title="View Proposal">
+                                    {% if submission.proposal.clarifications.pending.count %}
+                                        <i class="bi-chat-right-text text-danger"></i>{% else %}<i class="bi-eye"></i>
+                                    {% endif %}
+                                    &nbsp;{{ submission.code }}
+                                </a>
+                            </td>
+                        {% else %}
+                            <td class="text-body-secondary"><i class="bi-patch-check text-secondary"></i>
+                                &nbsp; {{ submission.code }}</td>
+                        {% endif %}
+                        <td>{{ submission.track }}</td>
+                        <td>{{ submission.cycle }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+

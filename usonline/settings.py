@@ -204,10 +204,11 @@ USO_USER_ROLES = ["user"]
 USO_FACILITY_ADMIN_ROLE = 'admin:-'     # role templates '-' means propagate down subunits, '*' means don't propagate
 USO_FACILITY_STAFF_ROLE = 'staff:-'     # '+' means propagate up subunits
 
-
+USO_STYLE_OVERRIDES = []
 USO_THROTTLE_KEY = get_random_bytes(16)
 USO_ADMIN_PERMS = []
-USO_OPEN_WEATHER_KEY = "fc083799c6457d859764913163f6b584"
+USO_OPEN_WEATHER_KEY = ""
+USO_WEATHER_LOCATION = [52.14, -106.63]  # Default to CLSI
 USO_PROFILE_MANAGER = ExternalProfileManager
 USO_REVIEW_ASSIGNMENT = "MIP"    # or either "MIP" or  "CMACRA" or "BRUTE_FORCE"
 USO_PDB_FACILITIES = {

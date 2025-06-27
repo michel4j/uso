@@ -15,7 +15,7 @@
 {% block page-subtitle %}
     {% for fac in object.utrace reversed %}
         {% if not forloop.last %}
-            <a href="{% url 'facility-detail' pk=fac.pk %}" title="{{ fac.name }}">{{ fac.acronym }}</a>
+            <a href="{% url 'facility-detail' acronym=fac.acronym %}" title="{{ fac.name }}">{{ fac.acronym }}</a>
             &nbsp;/&nbsp;
         {% else %}
             {{ fac.name }}

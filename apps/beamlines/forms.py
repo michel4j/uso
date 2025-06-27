@@ -1,3 +1,4 @@
+from crisp_modals.forms import ModalModelForm
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
@@ -99,3 +100,51 @@ class FacilityForm(forms.ModelForm):
         }
         data['acronym'] = data.get('acronym', '').upper().replace('_', '-').replace(' ', '').strip()
         return data
+
+
+class LabForm(ModalModelForm):
+    class Meta:
+        model = models.Lab
+        fields = ('name', 'acronym', 'description', 'permissions', 'admin_roles', 'available')
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2, }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div('name', css_class="col-sm-8"),
+                Div('acronym', css_class="col-sm-4"),
+                Div('description', css_class="col-sm-12"),
+                css_class="row"
+            ),
+            Div(
+                Div(Field('permissions'), css_class="col-sm-12"),
+                Div(Field('admin_roles'), css_class="col-sm-12"),
+                Div(Field('available'), css_class="col-sm-12"),
+                css_class="row"
+            )
+        )
+
+
+class WorkspaceForm(ModalModelForm):
+    class Meta:
+        model = models.LabWorkSpace
+        fields = ('lab', 'name', 'description', 'available')
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2, }),
+            'lab': forms.HiddenInput
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div('name', css_class="col-sm-12"),
+                Div('description', css_class="col-sm-12"),
+                Div(Field('available'), css_class="col-sm-12"),
+                Field('lab'),
+                css_class="row"
+            )
+        )

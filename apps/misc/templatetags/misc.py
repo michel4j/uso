@@ -53,3 +53,14 @@ def define(context, **kwargs):
 @register.inclusion_tag('misc/stat-card.html')
 def stat_card(**kwargs):
     return kwargs
+
+
+@register.simple_tag(name='css_overrides')
+def css_overrides():
+    """
+    Returns the CSS overrides for the current theme.
+    """
+    styles = ""
+    for style in getattr(settings, "USO_STYLE_OVERRIDES", []):
+        styles += f"<link rel='stylesheet' href='{settings.MEDIA_URL}css/{style}'>\n"
+    return mark_safe(styles)

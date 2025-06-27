@@ -17,8 +17,20 @@
 {% if block.reload_freq > 0 and block.src_url %}
 <script>
 	setInterval( function(){
-        $("#{{block.code}} > .card-body").load('{% url block.src_url %}');
-		}, {{block.reload_freq}} * 6000
-    );
+        $.ajax({
+            type: 'GET',
+            url: "{{ block.src_url }}",
+            dataType: 'text',
+            success: function(data) {
+                const $object = $('<div/>').html(data).contents();
+                const $source = $object.find('.card');
+                const $target = $("#{{ block.code }} > .card");
+                if ($source.length) {
+                    console.log('Updating Weather ...');
+                    $target.html($source.html());
+                }
+            }
+        });
+    }, {{block.reload_freq}} * 1000);
 </script>
 {% endif %}

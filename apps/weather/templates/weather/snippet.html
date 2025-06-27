@@ -49,7 +49,7 @@
             <div class="weather-time">{{ cond.time|time }}<br/>{{ cond.time|naturalday|title }}</div>
             <i title="{{ cond.description.title }}" class="wi {{ cond.icon }} text-body-secondary"></i>
             <div class="weather-temperatures">
-                <strong>{{ cond.temp|floatformat:"0" }}°</strong>&nbsp;|&nbsp;{{ cond.windchill|floatformat:"0" }}°
+                {{ cond.temp_max|floatformat:"0" }}°&nbsp;|&nbsp;{{ cond.temp_min|floatformat:"0" }}°
             </div>
         </div>
     {% endfor %}
@@ -57,6 +57,6 @@
 <div class="d-none d-sm-block weather-description">
     <div class="col-xs-12">
         <span>Right now &mdash;</span> {{ weather.description.title }} ·
-        Feels&nbsp;like&nbsp;{{ weather.windchill|floatformat:"0" }}°
+        Feels&nbsp;like&nbsp;{{ weather.feels_like|floatformat:"0" }}°
     </div>
 </div>

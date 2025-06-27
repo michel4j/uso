@@ -4,19 +4,18 @@ import json
 import operator
 import os
 from datetime import timedelta
-from functools import lru_cache
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
-from django.db.models import Q, Count
+from django.db.models import Q
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from dynforms.models import BaseFormModel
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
-from dynforms.models import BaseFormModel
 from misc.fields import StringListField
 from misc.models import DateSpanMixin
 from roleperms.models import RolePermsUserMixin
@@ -179,7 +178,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
 
     def can_review(self):
         return (
-            self.classification in [self.STAFF.faculty, self.STAFF.professional]
+                self.classification in [self.STAFF.faculty, self.STAFF.professional]
         ) and not self.has_any_role(*USO_STAFF_ROLES)
 
     def is_reviewer(self):

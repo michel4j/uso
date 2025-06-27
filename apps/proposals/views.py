@@ -1172,6 +1172,30 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
             return None
 
 
+class UserSubmissionList(RolePermsViewMixin, ItemListView):
+    model = models.Submission
+    template_name = "item-list.html"
+    list_columns = ['title', 'code', 'spokesperson', 'cycle', 'kind', 'facilities', 'state']
+    list_filters = ['created', 'state', 'track', 'kind', 'cycle']
+    list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
+    link_url = "submission-detail"
+    order_by = ['-cycle_id']
+    list_title = 'My Submitted Proposals'
+    list_transforms = {
+        'facilities': _fmt_beamlines,
+        'title': utils.truncated_title
+    }
+    list_styles = {'title': 'col-xs-2'}
+    admin_roles = USO_ADMIN_ROLES
+    paginate_by = 25
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
+        flt = Q(proposal__leader_username=user.username) | Q(proposal__spokesperson=user) | Q(proposal__delegate_username=user.username)
+        return queryset.filter(flt).distinct()
+
+
 class CycleSubmissionList(SubmissionList):
     def get_queryset(self, *args, **kwargs):
         qset = super().get_queryset(*args, **kwargs)

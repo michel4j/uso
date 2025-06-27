@@ -130,8 +130,8 @@ class Facility(TimeStampedModel):
         return user.has_any_role(*_roles)
 
     def staff_list(self):
-        User = get_user_model()
-        return User.objects.all_with_roles(*self.expand_role(USO_FACILITY_STAFF_ROLE))
+        user_model = get_user_model()
+        return user_model.objects.all_with_roles(*self.expand_role(USO_FACILITY_STAFF_ROLE))
 
     def natural_key(self):
         return (self.acronym,)
@@ -146,10 +146,7 @@ class UserSupport(Event):
     tags = models.ManyToManyField('beamlines.FacilityTag', related_name='support', blank=True)
 
     def __str__(self):
-        return "{}/{} {}-{}".format(
-            self.staff.username, self.facility.acronym, self.start.isoformat(),
-            self.end.isoformat()
-        )
+        return f"{self.staff.username}/{self.facility.acronym} {self.start.isoformat()}-{self.end.isoformat()}"
 
     class Meta:
         unique_together = [('staff', 'facility', 'start')]
@@ -179,6 +176,25 @@ class Lab(TimeStampedModel):
     details = models.JSONField(default=dict, blank=True, editable=False)
     available = models.BooleanField(default=True)
 
+    def is_admin(self, user):
+        """
+        Check if the user has admin permissions for this lab.
+        """
+        _roles = []
+        for role_template in self.admin_roles or []:
+            if m := re.match(r'^(?P<role>[\w_-]+)(?::(?P<wildcard>[*]))?$', role_template):
+                role = m.group('role')
+                wildcard = m.group('wildcard')
+
+                if wildcard == '*':
+                    _roles.append(re.compile(rf"^{role.lower()}:[^:]+$"))
+                else:
+                    _roles.append(re.compile(rf"^{role_template.format(self.acronym.lower())}$"))
+        for role in user.roles:
+            if any(r.match(role) for r in _roles):
+                return True
+        return False
+
     def __str__(self):
         return self.name
 
@@ -201,7 +217,7 @@ class LabWorkSpace(TimeStampedModel):
     available = models.BooleanField(default=True)
 
     def __str__(self):
-        return '{}/{}'.format(self.name, self.description)
+        return f'{self.name}/{self.description}'
 
     def sessions(self):
         return self.lab.lab_sessions.filter(workspaces=self).distinct()
