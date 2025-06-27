@@ -82,7 +82,7 @@
 </div>
 <hr/>
 <script>
-    function updateTechniques(techField, facField, data) {
+    function updateMatrix(techField, facField, data) {
         const $techniquesField = $(techField);
         const $facilitiesField = $(facField);
 
@@ -94,8 +94,24 @@
             let option = $facilitiesField.find(`option[value='${row[0]}']`);
             option.data('related', row[3]);
         });
-
     }
+
+    function updateRelated(target, related) {
+        const $field = $(target);
+        const selected = new Set(related);
+        $field.find('option').removeAttr('disabled');
+        if (selected.size) {
+            $field.find('option').each(function () {
+                let related = new Set($(this).data('related') || []);
+                if (related.size === 0) {
+                    $(this).removeAttr('disabled');
+                } else if (selected.intersection(related).size === 0) {
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+        }
+    }
+
     $(document).ready(function () {
         new SlimSelect({
             select: "#{{ field.name }}-techniques{{ repeat_index }}",
@@ -106,58 +122,31 @@
         });
 
         $(document).on('cycle-changed', function (event, data) {
-            const $techniquesGroup = $('#{{ field.name }}-techniques{{repeat_index}}').parent();
             localStorage.setItem('techniquesMatrix', JSON.stringify(data));
-            updateTechniques(
+            updateMatrix(
                 '#{{field.name}}-techniques{{repeat_index}}',
                 '#{{field.name}}-facility{{repeat_index}}',
                 data
             );
         });
-        $(document).on('change', '#{{field.name}}-techniques{{repeat_index}}, #{{field.name}}-facility{{repeat_index}}', function () {
-            const $techniquesField = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
-            const $facilitiesField = $techniquesField.closest('.controls').find('[name^="{{field.name}}.facility"]');
-
-            let dataUrl = "{% url 'techniques-beamlines' %}?";
-            let data = JSON.parse(localStorage.getItem('techniquesMatrix')) || {};
-            let selectedTechniques = $techniquesField.val() || [];
-
-            console.log('Selected techniques: ', selectedTechniques);
-
-
-            const goodFacilities = new Set();
-
-            $facilitiesField.find('option').removeAttr('disabled');
-            $techniquesField.find('option').removeAttr('disabled');
-
-            // if techniques are selected, disable facilities that are not related to them
-            if ($techniquesField.val()) {
-                const selectedTechniques = new Set();
-                $.each($techniquesField.val(), function (i, val) {
-                    selectedTechniques.add('option[value=' + val + ']');
-                });
-                console.log('Selected techniques: ', [...selectedTechniques].join());
-                $techniquesField.find([...selectedTechniques].join()).each(function () {
-                    $.each($(this).data('related'), function (i, val) {
-                        goodFacilities.add('[value=' + val + ']');
-                    });
-                });
-                console.log('Good facilities: ', [...goodFacilities].join());
-                $facilitiesField.find('option').not([...goodFacilities].join()).attr('disabled', 'disabled');
-            } else {
-                $facilitiesField.find('option').removeAttr('disabled');
-            }
-
-            // beamline information
-            const infoUrl = "{% url 'beamline-info' %}";
-            const $facilityInfo = $facilitiesField.closest('.controls').find('div.beamline-info');
-            const facilityID = $facilitiesField.val() || '';
-            $facilityInfo.load(infoUrl + facilityID);
-
+        $(document).on('change', '#{{field.name}}-techniques{{repeat_index}}', function(){
+            const selected =  $(this).val() || [];
+            const $target = $(this).closest('.controls').find('[name^="{{field.name}}.facility"]');
+            updateRelated($target, selected.map(Number));
         });
 
-        $('#first_cycle').change(function () {
-            $('#{{field.name}}-facility{{repeat_index}}').trigger('change');
+        $(document).on('change', '#{{field.name}}-facility{{repeat_index}}', function(){
+            const facility = $(this).val() || '';
+            const selected =  facility ? [facility] : [];
+            const $target = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
+            updateRelated($target, selected.map(Number));
+
+            // beamline information
+            if (facility) {
+                const infoUrl = "{% url 'beamline-info' %}";
+                const $facilityInfo = $(this).closest('.controls').find('div.beamline-info');
+                $facilityInfo.load(infoUrl + facility);
+            }
         });
 
         $('#{{field.name}}-facility{{repeat_index}}').trigger('change');

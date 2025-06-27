@@ -5,9 +5,8 @@
 <div class="controls {{ repeatable }}" id="{{ field.name }}-controls">
     <div class="row">
         <div class="field-group-item col-sm-6 mb-2">
-
-            <select name="{{ field.name }}.labs" id="{{ field.name }}-labs" class="selectize form-control shorten"
-                    {% if 'multiple' in field.options %}multiple="multiple"{% endif %}
+            <select name="{{ field.name }}.labs" id="{{ field.name }}-labs" class="form-select-multiple"
+                    {% if 'multiple' in field.options %}multiple{% endif %}
                     data-placeholder="Select labs ...">
                 {% for item in ancillaries.labs %}
                     <option value="{{ item.pk }}"
@@ -17,10 +16,9 @@
             <label for="{{ field.name }}-labs" class="sub-label">Labs</label>
         </div>
         <div class="field-group-item col-sm-6 mb-2">
-
             <select name="{{ field.name }}.equipment" id="{{ field.name }}-equipment"
-                    class="selectize form-control shorten"
-                    {% if 'multiple' in field.options %}multiple="multiple"{% endif %}
+                    class="form-select-multiple"
+                    {% if 'multiple' in field.options %}multiple{% endif %}
                     data-placeholder="Select equipment ...">
                 {% for item in ancillaries.equipment %}
                     <option value="{{ item.pk }}"
@@ -31,3 +29,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $("#{{ field.name }}-labs, #{{ field.name }}-equipment").each(function () {
+            new SlimSelect({
+                select: this,
+                showSearch: true,
+                allowDeselect: true,
+            });
+        });
+    });
+</script>

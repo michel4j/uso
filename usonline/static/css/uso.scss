@@ -2631,3 +2631,10 @@ body::before {
   background: var(--bs-primary);
   transition: width 0.3s ease-in, opacity 0.3s ease-out;
 }
+
+.ss-content .ss-list .ss-option.ss-disabled {
+    cursor: not-allowed;
+    background-color: inherit;
+    color: var(--bs-secondary-text-emphasis);
+    opacity: 0.5;
+}
