@@ -57,6 +57,7 @@ class WeatherDetailView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         ctx = get_weather_context()
+
         if ctx:
             context.update(ctx)
         return context

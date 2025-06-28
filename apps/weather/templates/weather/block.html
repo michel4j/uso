@@ -1,5 +1,10 @@
 {% extends "misc/blocks/panel.html" %}
-{% block panel_content %}{{location.city_name}}{% endblock %}
+{% block panel_content %}
+    <div class="d-flex flex-row justify-content-start align-items-center">
+        <div>{{location.city_name}}</div>
+    </div>
+
+{% endblock %}
 {% block panel_tools %}{% endblock %}
 {% block panel_cap %}
     <div class="border-bottom bg-darken p-3">

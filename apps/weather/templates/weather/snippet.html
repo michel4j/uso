@@ -1,5 +1,6 @@
 {% load weather %}
 {% load humanize %}
+
 <style>
     .current-weather {
         line-height: 1;
@@ -56,7 +57,7 @@
 </div>
 <div class="d-none d-sm-block weather-description">
     <div class="col-xs-12">
-        <span>Right now &mdash;</span> {{ weather.description.title }} ·
+        <span>{{ location.modified|timesince }} ago &mdash;</span> {{ weather.description.title }} ·
         Feels&nbsp;like&nbsp;{{ weather.feels_like|floatformat:"0" }}°
     </div>
 </div>
