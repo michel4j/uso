@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from django.utils import timezone as django_timezone
 from django.views.generic import TemplateView
@@ -35,6 +35,8 @@ def get_weather_context():
         dt = datetime.fromtimestamp(forecast['dt'], tz=timezone.utc)
         icon_map = ICON_MAP_NIGHT if (dt.hour > sunset.hour or dt.hour < sunrise.hour) else ICON_MAP_DAY
         dt = django_timezone.localtime(dt)
+        if dt - now < timedelta(hours=3):
+            continue
         if dt.hour not in [6, 12, 18, 0]:
             continue
         ctx['weather']['forecast'].append({

@@ -6,16 +6,13 @@
         line-height: 1;
         padding-right: 0 !important;
     }
+    .current-weather, .weather-forecast {
+        flex: 1;
+        text-align: center;
+    }
 
     .current-weather i {
         font-size: 60px;
-    }
-
-    .current-weather span {
-        font-size: 35px;
-    }
-
-    .weather-forecast, .weather-description {
     }
 
     .weather-forecast i {
@@ -23,32 +20,20 @@
         line-height: 40px;
     }
 
-    .weather-forecast + .weather-forecast {
+    .weather-forecast {
         border-left: 1px solid var(--bs-border-color-translucent);
     }
 
-    .weather-temperatures {
-        padding: 0.25em 0;
-    }
-
-    .weather-time {
-        line-height: 1;
-        padding-bottom: 0.5em;
-    }
-
-    .weather-description {
-        padding-top: 0.5em;
-    }
 </style>
-<div class="d-flex flex-row justify-content-between align-items-center">
-    <div title="{{ weather.description.title }}" class="d-flex flex-grow-1 flex-column current-weather">
+<div class="d-flex flex-row justify-content-between align-items-stretch">
+    <div title="{{ weather.description.title }}" class="d-flex flex-grow-1 flex-column justify-content-between current-weather p-2">
         <i class="wi {{ weather.icon }}"></i>
-        <span>{{ weather.temp|floatformat:"0" }}°</span>
+        <span class="fs-1">{{ weather.temp|floatformat:"0" }}°</span>
     </div>
     {% for cond in weather.forecast %}
-        <div class="d-flex flex-grow-1 flex-column text-center weather-forecast {% if forloop.last %}d-none d-sm-block{% endif %}">
-            <div class="weather-time">{{ cond.time|time }}<br/>{{ cond.time|naturalday|title }}</div>
-            <i title="{{ cond.description.title }}" class="wi {{ cond.icon }} text-body-secondary"></i>
+        <div class="d-flex justify-content-between flex-column weather-forecast p-2 text-center {% if forloop.last %}d-none d-sm-block{% endif %}">
+            <div class="small weather-time" style="min-height: 3em;">{{ cond.time|timeofday }}</div>
+            <i title="{{ cond.description.title }}" class="wi {{ cond.icon }} my-2 text-body-secondary"></i>
             <div class="weather-temperatures">
                 {{ cond.temp_max|floatformat:"0" }}°&nbsp;|&nbsp;{{ cond.temp_min|floatformat:"0" }}°
             </div>
@@ -56,8 +41,6 @@
     {% endfor %}
 </div>
 <div class="d-none d-sm-block weather-description">
-    <div class="col-xs-12">
-        <span>{{ location.modified|timesince }} ago &mdash;</span> {{ weather.description.title }} ·
-        Feels&nbsp;like&nbsp;{{ weather.feels_like|floatformat:"0" }}°
-    </div>
+    <span>{{ location.modified|timesince }} ago &mdash;</span> {{ weather.description.title }} ·
+    Feels&nbsp;like&nbsp;{{ weather.feels_like|floatformat:"0" }}°
 </div>

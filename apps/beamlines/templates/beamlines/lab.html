@@ -54,7 +54,7 @@
     <div class="row my-3">
         {% for workspace in lab.workspaces.all %}
             <div class="col-sm-6 col-lg-4">
-                <div class="card h-100 {% if not workspace.available %}bg-danger-subtle{% endif %}"
+                <div class="card mb-3 {% if not workspace.available %}bg-danger-subtle{% endif %}"
                      style="min-height: 200px;">
                     <div class="card-header d-flex flex-row justify-content-start align-items-center">
                         <i class="bi-beaker{% if workspace.available %}-fill text-success{% endif %} icon-md me-3"></i>
