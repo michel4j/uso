@@ -33,8 +33,8 @@ def get_weather_context():
     }
     for forecast in conditions['forecast']:
         dt = datetime.fromtimestamp(forecast['dt'], tz=timezone.utc)
-        icon_map = ICON_MAP_NIGHT if (dt.hour > sunset.hour or dt.hour < sunrise.hour) else ICON_MAP_DAY
         dt = django_timezone.localtime(dt)
+        icon_map = ICON_MAP_NIGHT if (dt.hour > sunset.hour or dt.hour < sunrise.hour) else ICON_MAP_DAY
         if dt - now < timedelta(hours=3):
             continue
         if dt.hour not in [6, 12, 18, 0]:
