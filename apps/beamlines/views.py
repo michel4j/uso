@@ -101,7 +101,7 @@ class LaboratoryDetail(RolePermsViewMixin, detail.DetailView):
 
 
 class FacilityDetails(RolePermsViewMixin, TemplateView):
-    template_name = 'beamlines/proposal_specs.html'
+    template_name = 'beamlines/proposal-specs.html'
 
     def get_context_data(self, **kwargs):
         from users.models import User

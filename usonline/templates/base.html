@@ -60,6 +60,12 @@
         {% block menu %}
             {% include "menu.html" %}
         {% endblock %}
+        <section class="menu mt-auto">
+            <a id="layout-toggle" href="#0" class="nav-link text-center" title="Toggle Layout">
+                <i class="bi bi-layout-sidebar-inset-reverse icon-md"></i>
+                <i class="bi bi-layout-sidebar-inset icon-md"></i>
+            </a>
+        </section>
         <section class="version text-white">
             <span title="{% version %}" class="overflow ellipsis">{% version %}</span>
         </section>
@@ -91,6 +97,10 @@
     $(document).on('click', "#logout-action", function (event) {
         event.preventDefault();
         $('#logout-form').submit();
+    });
+    $(document).on('click', "#layout-toggle", function (event) {
+        event.preventDefault();
+        $('body').toggleClass('toggle-right');
     });
     $(document).ready(function () {
         setupAjaxProgress(); // Initialize AJAX Progress bar

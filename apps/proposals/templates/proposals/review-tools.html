@@ -1,7 +1,7 @@
 {% load dynforms %}
 
 <div class="review-toolbar my-1">
-    <a class="expand-command" data-expand-name="clarifications" href="#0"
+    <a class="expand-command position-relative" data-expand-name="clarifications" href="#0"
             {% if review.reference.proposal %}
                 {% define target=review.reference.proposal %}
        data-extra-url="{% url 'show-proposal-clarifications' pk=target.pk %}"
@@ -10,14 +10,13 @@
        data-extra-url="{% url 'show-project-clarifications' pk=target.pk %}"
             {% endif %}
        title="Clarifications" data-placement="right">
-        <span class="icon-stack">
-            <i class="icon-md bi-chat-left-text"></i>
-            <span class="superscript">
+            <i class="icon-md bi-chat-left-text position-relative">
                 {% if target.clarifications.count %}
-                    <i class="bi-circle-fill icon-sm text-info-emphasis"></i>
+                <span class="position-absolute p-1 top-0 start-100 translate-middle bg-danger border-light rounded-circle">
+                    <span class="visually-hidden">New Clarifications</span>
+                </span>
                 {% endif %}
-            </span>
-        </span>
+            </i>
         <span class="tool-label">Responses</span>
     </a>
     <a class="expand-command" data-expand-name="attachments" href="#0"
@@ -27,14 +26,13 @@
        data-extra-url="{% url 'show-project-attachments' pk=review.reference.project.pk %}"
             {% endif %}
        title="Attachments" data-placement="right">
-            <span class="icon-stack">
-                <i class="icon-md bi-paperclip icon-fw"></i>
-                <span class="icon-stack-text superscript">
-                    {% if target.attachments.count %}
-                        <i class="bi-circle-fill icon-sm text-info-emphasis"></i>
-                    {% endif %}
-                </span>
+        <i class="icon-md bi-paperclip position-relative icon-fw">
+            {% if target.attachments.count %}
+            <span class="position-absolute p-1 top-0 start-100 translate-middle bg-danger border-light rounded-circle">
+                <span class="visually-hidden">{{ target.attachments.count }} Attachments</span>
             </span>
+            {% endif %}
+        </i>
         <span class="tool-label">Attachments</span>
     </a>
     <a class="" href="{% url 'print-review' pk=object.pk %}" title="Print Document" target="_blank"
@@ -51,7 +49,6 @@
        title="Request Clarification" data-placement="right">
             <span class="icon-stack">
                 <i class="bi-chat icon-md text-success"></i>
-                <i class="bi-plus-sm"></i>
             </span>
         <span class="tool-label">Clarification</span>
     </a>

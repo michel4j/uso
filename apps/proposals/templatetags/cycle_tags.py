@@ -299,8 +299,8 @@ def cycle_comments(cycle):
         )
     elif cycle.state == cycle.STATES.open:
         txt = (
-            "<span class='text-info'>The call for proposals to be scheduled during the selected period will close"
-            "on <em>{close_date}</em>. Note that the earliest beam time for the selected "
+            "<span class='text-info'>The call for proposals to be scheduled beam time during the selected "
+            "period will close on <em>{close_date}</em>. Note that the earliest beam time for the selected "
             "scheduling period is in {start_duration}.</span>"
         )
     else:

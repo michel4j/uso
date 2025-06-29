@@ -1,6 +1,6 @@
 
 <div id="beamline-info-box" class="row">
-    <div class="{% if hide_description %}col-12{% else %}col-sm-12 col-md-6{% endif %}">
+    <div class="{% if hide_description %}col-12{% else %}col-md-6{% endif %}">
         <table class="table table-condensed">
             <tr>
                 <th>Source</th>
@@ -38,7 +38,7 @@
         </table>
     </div>
     {% if not hide_description %}
-        <div class="d-sm-none d-md-block col-sm-6">
+        <div class="col-md-6">
             <h5 class="text-condensed">{{ object.acronym }}</h5>
             <hr class="hr-xs"/>
             <p>{{ object.description }}</p>

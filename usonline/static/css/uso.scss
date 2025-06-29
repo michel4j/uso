@@ -113,7 +113,18 @@ $category-colors: (
                 (8, 22, 24%, 49%),
                 (9, 20, 10%, 70%),
 );
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
 $state-names: (info, primary, success, secondary, warning, danger);
+$timeline-colors: (
+  1: '#06d6a0', 2: '#ffd166', 3: '#ef476f',  4: '#118ab2', 5: '#7f7eff', 6: '#afc765', 7: '#78c5e7'
+);
 
 :root {
   // USO specific variables
@@ -125,6 +136,15 @@ $state-names: (info, primary, success, secondary, warning, danger);
   --uso-accent-text-1: #b3b3b3;
   --uso-accent-text-2: #b3b3b3;
   --uso-accent-text-3: #b3b3b3;
+  --uso-display-layout-toggle: none;
+  --uso-display-layout-left: flex;
+  --uso-display-layout-right: flex;
+
+  // Cycle timeline colors
+  --uso-timeline-text: rgba(0, 0, 0, 0.75);
+  @each $index, $color in $timeline-colors {
+    --uso-timeline-bg-#{$index}: #{$color};
+  }
 
   // Bootstrap variables
   --bs-border-radius: 0.2875rem;
@@ -248,6 +268,34 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--bs-light-bg-subtle);
+}
+
+#layout-toggle {
+  display: var(--uso-display-layout-toggle, none);
+  i:last-child {
+    display: var(--uso-display-layout-right, none);
+    align-items: center;
+    justify-content: center;
+  }
+  i:first-child {
+    display: var(--uso-display-layout-left, flex);
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@each $breakpoint, $value in $grid-breakpoints {
+  @media (max-width: $value) {
+    body.toggle-layout-#{$breakpoint} {
+      --uso-display-layout-toggle: block;
+      --uso-display-layout-left: flex;
+      --uso-display-layout-right: none;
+      &.toggle-right {
+        --uso-display-layout-left: none;
+        --uso-display-layout-right: flex;
+      }
+    }
+  }
 }
 
 #uso-content {
@@ -1184,23 +1232,26 @@ a {
   min-height: 50px;
 
   text {
+    fill: var(--uso-timeline-text)
+  }
+  .tick > text {
     fill: var(--bs-body-color)
   }
 
-  .timelineSeries_0 {
-    fill: var(--bs-secondary) !important;
+  .timelineSeries_cycle-call-open {
+    fill: var(--uso-timeline-bg-4) !important;
   }
 
-  .timelineSeries_1 {
-    fill: var(--bs-info) !important;
+  .timelineSeries_cycle-review-period {
+    fill: var(--uso-timeline-bg-6) !important;
   }
 
-  .timelineSeries_2 {
-    fill: var(--bs-success) !important;
+  .timelineSeries_cycle-alloc-schedule {
+    fill: var(--uso-timeline-bg-2) !important;
   }
 
-  .timelineSeries_3 {
-    fill: var(--bs-secondary) !important;
+  .timelineSeries_cycle-beam-time {
+    fill: var(--uso-timeline-bg-1) !important;
   }
 }
 

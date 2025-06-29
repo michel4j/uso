@@ -15,6 +15,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         out = "Current Cron Jobs:\n"
         for task in BackgroundTask.objects.all():
-            out += f"{task.name:50s} {task.next_run_time()} \n"
+            out += f"{task.name:50s} {task.next_run()} \n"
 
         sys.stdout.write(out + '\n')

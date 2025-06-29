@@ -1,32 +1,35 @@
-<table class="table table-condensed">
-    {% for com in object.clarifications.all %}
-    <tr>
-        <td>
-            {{ com.question|safe }}<br/>
-            <small class="text-body-secondary">asked by Reviewer &ndash; {{com.created|date}} {{com.created|time}}</small>
-        </td>
-    </tr>
-    <tr class="merge-up">
-        <td>
-            <div class="p-3 bg-darken">
-                {% if com.response %}
-                {{ com.response|safe }}<br/>
-                <small class="text-body-secondary">answered by {{com.responder}} &ndash; {{com.modified|date}} {{com.modified|time}}</small>
-                {% else %}
-                    {% if owner or admin %}
-                    <a href="#0" data-modal-url="{% url response_url_name ref=object.pk pk=com.pk %}"
-                       class="pull-right">
-                        <i class="bi-reply icon-fw"></i> <span class="tool-label">Reply</span>
-                    </a>
-                    {% endif %}
-                    &hellip;
-                {% endif %}
-            </div>
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td class="empty">No clarifications requested</td>
-    </tr>
-    {% endfor %}
-</table>
+{% for com in object.clarifications.all %}
+    <div class="d-flex flex-row align-items-stretch border border-black border-opacity-25 rounded mb-2">
+        <div class="d-flex flex-column align-items-center justify-content-center p-2 border-end border-black border-opacity-25">
+            <i class="bi bi-person-badge text-warning-emphasis icon-lg"></i>
+            <small class="text-body-secondary">Reviewer</small>
+        </div>
+        <div class="d-flex flex-grow-1 flex-column align-items-start justify-content-between p-3">
+            <span>{{ com.question|safe }}</span>
+            <small class="text-body-secondary">{{ com.created|date }} {{ com.created|time }}</small>
+        </div>
+    </div>
+
+    <div class="d-flex flex-row align-items-stretch border border-black border-opacity-25 rounded mb-2 bg-darken mb-2">
+        <div class="d-flex flex-grow-1 flex-column align-items-start justify-content-between p-3">
+            {% if com.response %}
+                <span>{{ com.response|safe }}</span>
+                <small class="text-body-secondary">{{ com.modified|date }} {{ com.modified|time }}</small>
+            {% elif owner or admin %}
+                <a href="#0" data-modal-url="{% url response_url_name ref=object.pk pk=com.pk %}">
+                    <i class="bi-reply icon-md icon-fw"></i><br/>
+                    <span class="tool-label">Reply</span>
+                </a>
+            {% else %}
+                <span class="text-danger">No response yet &hellip; </span>
+            {% endif %}
+        </div>
+        <div class="d-flex flex-column align-items-center justify-content-center p-2 border-start border-black border-opacity-25">
+            <i class="bi bi-person-circle text-info-emphasis icon-lg"></i>
+            <small class="text-body-secondary">{{ com.responder|default:"Applicant" }}</small>
+        </div>
+    </div>
+{% empty %}
+    <div class="empty">No clarifications requested</div>
+{% endfor %}
+

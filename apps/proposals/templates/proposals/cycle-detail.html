@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 {% load beamlines %}
 {% load cycle_tags %}
-
+{% load static %}
 {% block page-pretitle %}Cycle{% endblock %}
 
 {% block page-title %}
@@ -108,6 +108,7 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="{% static 'js/d3-timeline.min.js' %}"></script>
     {% include "proposals/cycle-timeline.html" %}
     <script>
         $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {

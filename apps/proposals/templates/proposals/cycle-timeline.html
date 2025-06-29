@@ -1,47 +1,45 @@
-{% load static %}
-<script src="{% static 'js/d3-timeline.min.js' %}"></script>
 <script>
     $(document).ready(function () {
         // Initialize the timeline with the cycle data
         const endDate = {{ object.end_date|date:'U' }}000;
         const cycleData = [
+
             {
                 times: [{
-                    "starting_time": {{ object.alloc_date|date:'U' }}000,
-                    "ending_time": {{ object.alloc_date|date:'U' }}000,
-                    "display": "circle"
-                }],
-                hover: "Allocation after {{ object.alloc_date|date:'D, M j' }}"
-            },
-            {
-                times: [{
-                    "label": "Call Open",
+                    "label": "Call",
                     "starting_time": {{ object.open_date|date:'U' }}000,
                     "ending_time": {{ object.close_date|date:'U' }}000,
-                    "class": "call-open"
-
                 }],
-                hover: "Call Open {{ object.open_date|date:'D, M j' }} - {{ object.close_date|date:'D, M j' }}"
+                class: "cycle-call-open",
+                hover: "Call for Proposals Open {{ object.open_date|date:'D, M j' }} - {{ object.close_date|date:'D, M j' }}"
             },
             {
                 times: [{
-                    "label": "Schedule Period",
+                    "label": "Reviews",
+                    "starting_time": {{ object.close_date|date:'U' }}000,
+                    "ending_time": {{ object.due_date|date:'U' }}000,
+                }],
+                class: "cycle-review-period",
+                hover: "Reviews from {{ object.close_date|date:'D, M j' }} - {{ object.due_date|date:'D, M j' }}"
+            },
+            {
+                times: [{
+                    "label": "Allocation/Scheduling",
+                    "starting_time": {{ object.alloc_date|date:'U' }}000,
+                    "ending_time": {{ object.start_date|date:'U' }}000,
+                }],
+                class: "cycle-alloc-schedule",
+                hover: "Allocation & Scheduling after {{ object.alloc_date|date:'D, M j' }}"
+            },
+            {
+                times: [{
+                    "label": "Beam Time",
                     "starting_time": {{ object.start_date|date:'U' }}000,
                     "ending_time": endDate,
-                    "class": "schedule-period"
                 }],
+                class: "cycle-beam-time",
                 hover: "Cycle starts {{ object.start_date|date:'D, M j' }} ends {{ object.end_date|date:'D, M j' }}"
             },
-            {% if object.due_date %}
-                {
-                    times: [{
-                        "starting_time": {{ object.due_date|date:'U' }}000,
-                        "display": "circle",
-                        "class": "due-date"
-                    }],
-                    hover: "Reviews Due {{ object.due_date|date:'D, M j' }}"
-                },
-            {% endif %}
         ];
         showTimeline("#cycle-timeline", cycleData);
     });

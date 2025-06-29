@@ -32,6 +32,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
     <script src="{% static 'dynforms/jquery-bs-datepicker.min.js' %}"></script>
     {% if cycle %}
+        <script src="{% static 'js/d3-timeline.min.js' %}"></script>
         {% include "proposals/cycle-timeline.html" with object=cycle %}
     {% endif %}
     <script type="text/javascript">
