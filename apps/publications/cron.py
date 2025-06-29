@@ -8,6 +8,9 @@ import json
 
 
 class FetchBiosync(BaseCronJob):
+    """
+    Fetch the latest biosync data from the PDB and update the local database.
+    """
     run_every = "P7D"
 
     def do(self):
@@ -15,6 +18,9 @@ class FetchBiosync(BaseCronJob):
 
 
 class FetchCitations(BaseCronJob):
+    """
+    Fetch the latest citation counts for articles published in the current month.
+    """
     run_every = "P1M"
 
     def do(self):
@@ -32,7 +38,10 @@ class FetchCitations(BaseCronJob):
 
 
 class UpdatePublications(BaseCronJob):
-    run_every = "P2D"
+    """
+    Update the meta-data for all articles published in the current month.
+    """
+    run_every = "P7D"
 
     def do(self):
         from publications import models
@@ -46,12 +55,15 @@ class UpdatePublications(BaseCronJob):
                 volume=info['volume'],
                 number=info['number'],
                 date=info['date'])
-            out += 'Updated meta-data for {0}'.format(a.code)
+            out += f'Updated meta-data for {a.code}'
             time.sleep(0.1)
         return out
 
 
 class UpdateMetrics(BaseCronJob):
+    """
+    Update the SJR metrics for journals based on the latest SJR database.
+    """
     run_every = "P3M"
 
     def do(self):

@@ -15,7 +15,10 @@ SITE_URL = settings.SITE_URL
 
 
 class NotifyProjects(BaseCronJob):
-    run_at = ["00:30"]
+    """
+    Notify applicants about the status of their projects and submissions.
+    """
+    run_at = "T00:30"  # Run every day at 00:30
 
     @staticmethod
     def process_cycle(cycle, projects, submissions):
@@ -105,7 +108,10 @@ class NotifyProjects(BaseCronJob):
 
 
 class CreateCallProjects(BaseCronJob):
-    run_at = ["00:15"]  # Should run before Notify projects
+    """
+    Create projects for all reviewed submissions in the current review cycle. Should be run before NotifyProjects.
+    """
+    run_at = "T00:15"  # Should run before Notify projects
 
     def do(self):
         from proposals.models import ReviewCycle, Submission
@@ -146,6 +152,9 @@ class CreateCallProjects(BaseCronJob):
 
 
 class CreateRapidAccessProjects(BaseCronJob):
+    """
+    Create projects for all reviewed rapid access submissions in the current review cycle.
+    """
     run_every = "PT15M"
 
     def do(self):
@@ -187,8 +196,12 @@ class CreateRapidAccessProjects(BaseCronJob):
 
         return "\n".join(log)
 
+
 class AutoSignOff(BaseCronJob):
-    run_at = ["08:00", "16:00", "00:00"]
+    """
+    Automatically sign off sessions that have not been signed off by the staff or spokesperson.
+    """
+    run_every = "PT4H"
 
     def do(self):
         from projects.models import Session
@@ -197,14 +210,14 @@ class AutoSignOff(BaseCronJob):
         pending = Session.objects.filter(state=Session.STATES.live, end__lte=prev_shift)
 
         for session in pending.all():
-            bl_role = "beamline-admin:{}".format(session.beamline.acronym.lower())
+            bl_role = "admin:{}".format(session.beamline.acronym.lower())
             recipients = [bl_role]
             for u in {session.staff, session.spokesperson}:
                 if not u.has_role(bl_role):
                     recipients.append(u)
 
             # Notify staff/spokesperson
-            reason = "Sign-off was expected {}".format(timesince.timesince(session.end))
+            reason = f"Sign-off was expected {timesince.timesince(session.end)}"
             notify.send(recipients, 'auto-sign-off', level=notify.LEVELS.important, context={
                 'session': session,
                 'reason': reason
@@ -215,9 +228,9 @@ class AutoSignOff(BaseCronJob):
 
         # cancel outstanding sessions on this beamline
         for session in Session.objects.filter(state=Session.STATES.ready, end__lte=prev_shift):
-            session.log('Cancelled on {}, Users did not sign-on as expected'.format(now.strftime('%c')))
+            session.log(f'Cancelled on {now.strftime("%c")}, Users did not sign-on as expected')
             session.state = Session.STATES.cancelled
             session.save()
 
         if pending.exists():
-            return "{} expired sessions closed".format(pending.count())
+            return f"{pending.count()} expired sessions closed"

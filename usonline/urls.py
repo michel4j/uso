@@ -28,6 +28,7 @@ urlpatterns = [
     path('messages/', include('notifier.urls')),
     path('', include('weather.urls')),
     path('', include('surveys.urls')),
+    path('', include('isocron.urls')),
 
     path('admin/logout/', LogoutView.as_view()),
     path('admin/', admin.site.urls),

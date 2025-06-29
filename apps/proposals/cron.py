@@ -10,6 +10,10 @@ from . import utils
 
 
 class CreateCycles(BaseCronJob):
+    """
+    Create next cycles if they do not exist.
+    Ensure there are always 4 future cycles, two years in advance for scheduling.
+    """
     run_every = "P2D"
 
     def do(self):
@@ -35,6 +39,9 @@ class CreateCycles(BaseCronJob):
 
 
 class CycleStateManager(BaseCronJob):
+    """
+    Manage the state of review cycles based on their dates.
+    """
     run_every = "PT2H"
 
     def do(self):
@@ -67,6 +74,9 @@ class CycleStateManager(BaseCronJob):
 
 
 class NotifyReviewers(BaseCronJob):
+    """
+    Notify reviewers about pending reviews.
+    """
     run_every = "P1D"
 
     def do(self):
@@ -86,8 +96,10 @@ class NotifyReviewers(BaseCronJob):
 
 
 class RemindReviewers(BaseCronJob):
-    run_every = "P1D"
-    run_at = ['02:00']
+    """
+    Remind reviewers about reviews that are due tomorrow.
+    """
+    run_every = "T02:00"    # every day at 2 AM local time
 
     def do(self):
         from proposals import models
@@ -116,6 +128,9 @@ class RemindReviewers(BaseCronJob):
 
 
 class CloseReviews(BaseCronJob):
+    """
+    Close reviews that are past their due date.
+    """
     run_every = "PT15M"
 
     def do(self):

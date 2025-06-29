@@ -64,3 +64,11 @@ def css_overrides():
     for style in getattr(settings, "USO_STYLE_OVERRIDES", []):
         styles += f"<link rel='stylesheet' href='{settings.MEDIA_URL}css/{style}'>\n"
     return mark_safe(styles)
+
+
+@register.simple_tag(name='state_tag')
+def state_tag(state, default="", **kwargs):
+    for key, value in kwargs.items():
+        if value == state:
+            return key
+    return default
