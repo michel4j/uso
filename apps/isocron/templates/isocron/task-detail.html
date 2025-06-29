@@ -2,7 +2,7 @@
 {% load markup %}
 {% load misc %}
 {% block modal_title %}<span style="opacity: 40%;">{{ task.app|upper }}</span> | {{ task }}{% endblock %}
-
+{% block pre_content %}<form method="POST" action="{% url 'task-run' pk=task.pk %}">{% csrf_token %}{% endblock %}
 {% block modal_body %}
     {% with last_log=task.last_log next_run=task.next_run %}
         <div class="alert alert-info">{{ task.description }}</div>
@@ -30,6 +30,8 @@
 {% endblock %}
 
 {% block modal_footer %}
-    <button type="button" class="btn btn-danger">Run Now</button>
+
+    <button type="submit" class="btn btn-danger">Run Now</button>
     <button type="button" class="ms-auto btn btn-secondary" data-bs-dismiss="modal">Close</button>
 {% endblock %}
+{% block post_content %}</form>{% endblock %}

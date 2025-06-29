@@ -103,7 +103,7 @@ class BackgroundTask(TimeStampedModel):
         if self.keep_logs > 0:
             logs = self.logs.order_by('-created')
             if logs.count() > self.keep_logs:
-                logs[self.keep_logs:].delete()
+                self.logs.filter(pk__in=logs[self.keep_logs:].values_list('pk', flat=True)).delete()
 
     def last_log(self) -> 'TaskLog':
         """
@@ -130,8 +130,9 @@ class BackgroundTask(TimeStampedModel):
         :param state: The state of the task (running, success, failed).
         :return: The created TaskLog instance.
         """
-        self.clean_logs()
+
         log = TaskLog.objects.create(task=self, message=message, state=state)
+        self.clean_logs()
         return log
 
     def next_run(self) -> datetime | None:
@@ -205,10 +206,10 @@ class BackgroundTask(TimeStampedModel):
         retry_time = parse_iso(self.retry_after)
         if not next_time:
             return False
-        elif (now - next_time).total_seconds() >= JOB_TIME_RESOLUTION:
-            return True
         elif retry_time and last_log:
             return (now - last_log.created) >= retry_time
+        elif (now - next_time).total_seconds() >= JOB_TIME_RESOLUTION:
+            return True
         elif not last_log:
             return True
         return False

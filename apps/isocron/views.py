@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.http import JsonResponse
+from django.views import View
 from django.views.generic import DetailView
 
 from itemlist.views import ItemListView
@@ -28,4 +30,15 @@ class TaskDetail(RolePermsViewMixin, DetailView):
     context_object_name = 'task'
     required_roles = USO_ADMIN_ROLES
 
+
+class RunTask(RolePermsViewMixin, View):
+    model = models.BackgroundTask
+    required_roles = USO_ADMIN_ROLES
+
+    def post(self, request, *args, **kwargs):
+        task = self.model.objects.get(pk=kwargs['pk'])
+        task.run_job(force=True)
+        last_job = task.last_log()
+        message = f"Task {task.name} completed: {last_job.get_state_display()}!"
+        return JsonResponse({"url": ".", "message": message})
 

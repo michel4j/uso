@@ -56,7 +56,8 @@ def _fmt_citations(citation, obj=None):
 
 class PublicationList(RolePermsViewMixin, ItemListView):
     queryset = models.Publication.objects.filter(reviewed=True).select_subclasses()
-    template_name = "publications/publication-list.html"
+    template_name= "tooled-item-list.html"
+    tool_template = "publications/publication-tools.html"
     paginate_by = 25
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
     list_title = "All Publications"
@@ -93,7 +94,6 @@ class PublicationList(RolePermsViewMixin, ItemListView):
 
 class PublicationAdminList(SuccessMessageMixin, PublicationList):
     queryset = models.Publication.objects.all().select_subclasses()
-    template_name = "publications/publication-list.html"
     allowed_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
     admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
     list_title = 'Modify Publications'
@@ -106,7 +106,6 @@ class PublicationAdminList(SuccessMessageMixin, PublicationList):
 class PublicationReviewList(PublicationAdminList):
     list_title = 'Pending Publications'
     queryset = models.Publication.objects.filter(reviewed=False).select_subclasses()
-    template_name = "publications/publication-list.html"
     paginate_by = 50
     list_columns = ['title', 'kind', 'code', 'facility_codes', 'date']
     list_transforms = {'cite': _fmt_citations, 'areas': _format_areas}
@@ -115,7 +114,8 @@ class PublicationReviewList(PublicationAdminList):
 
 
 class UserPublicationList(RolePermsViewMixin, ItemListView):
-    template_name = "publications/publication-list.html"
+    template_name= "tooled-item-list.html"
+    tool_template = "publications/publication-tools.html"
     paginate_by = 15
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
     list_columns = ['cite', 'facility_codes', 'kind']
