@@ -3,8 +3,10 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML, Field
 from django import forms
+from django.db import models
+from django.core.exceptions import ValidationError
 
-from . import models
+from .models import Clarification, Attachment
 
 
 class Fieldset(Div):
@@ -20,7 +22,7 @@ class Fieldset(Div):
 
 class ClarificationForm(ModalModelForm):
     class Meta:
-        model = models.Clarification
+        model = Clarification
         fields = ['requester', 'question', 'content_type', 'object_id']
         widgets = {
             'requester': forms.HiddenInput(),
@@ -43,7 +45,7 @@ class ClarificationForm(ModalModelForm):
 
 class ResponseForm(ModalModelForm):
     class Meta:
-        model = models.Clarification
+        model = Clarification
         fields = ['response', 'responder']
         widgets = {
             'response': forms.Textarea(attrs={'rows': 5}),
@@ -68,7 +70,7 @@ class ResponseForm(ModalModelForm):
 
 class AttachmentForm(ModalModelForm):
     class Meta:
-        model = models.Attachment
+        model = Attachment
         fields = ('owner', 'content_type', 'object_id', 'file', 'description', 'kind')
         widgets = {
             'content_type': forms.HiddenInput,
@@ -90,3 +92,110 @@ class AttachmentForm(ModalModelForm):
         self.footer.layout = Layout(
             StrictButton('Close', css_class='btn btn-secondary', data_bs_dismiss="modal", aria_label="Close")
         )
+
+
+class JSONDictionaryWidget(forms.MultiWidget):
+    """
+    A widget that displays a JSON dictionary of string:float as a list of
+    key-value input pairs.
+    """
+    template_name = 'misc/widgets/json-dict.html'
+
+    def __init__(self, attrs=None, max_pairs=5):
+        self.max_pairs = max_pairs
+        # Create a list of widgets for each key-value pair.
+        # Each pair consists of a TextInput for the key and a NumberInput for the value.
+        widgets = []
+        for i in range(self.max_pairs):
+            widgets.append(forms.TextInput(attrs={'placeholder': 'Field name'}))
+            widgets.append(forms.NumberInput(attrs={'placeholder': 'Weight', 'step': '0.01'}))
+        super().__init__(widgets, attrs)
+
+    def decompress(self, value):
+        """
+        Takes a single dictionary value from the database and splits it
+        into a list of values for the individual widgets.
+
+        :param value: A python dictionary (or None).
+        :return: A list of values for the text/number inputs.
+        """
+
+        if isinstance(value, dict):
+            # Pad the dictionary with empty items to ensure we have enough
+            # items to match the number of widgets.
+            items = list(value.items())
+            while len(items) < self.max_pairs:
+                items.append(('', ''))
+
+            # Flatten the list of (key, value) tuples
+            return [item for pair in items for item in pair]
+
+        # If there's no value, return a list of empty strings for all widgets.
+        return ['' for _ in range(self.max_pairs * 2)]
+
+    def get_context(self, name, value, attrs):
+        """
+        Overrides the default get_context to group the widgets into pairs,
+        """
+        context = super().get_context(name, value, attrs)
+
+        # Replace the subwidgets with our grouped pairs
+        subwidgets = context['widget']['subwidgets']
+        context['widget']['subwidgets'] = [
+            {
+                'key': key_widget,
+                'value': value_widget
+            }
+            for key_widget, value_widget in zip(subwidgets[::2], subwidgets[1::2])
+        ]
+        return context
+
+
+class JSONDictionaryField(forms.MultiValueField):
+    """
+    A field that represents a dictionary of string:float.
+    It uses the JSONDictionaryWidget for rendering.
+    """
+
+    def __init__(self, **kwargs):
+        max_pairs = kwargs.pop('max_pairs', 5)
+
+        # Define a CharField and a FloatField for each pair.
+        fields = []
+        for i in range(max_pairs):
+            fields.append(forms.CharField(required=False))
+            fields.append(forms.FloatField(required=False))
+
+        super().__init__(
+            fields=tuple(fields),
+            widget=JSONDictionaryWidget(max_pairs=max_pairs),
+            require_all_fields=False,
+            **kwargs
+        )
+
+    def compress(self, data_list):
+        """
+        Takes the list of cleaned values from the form's fields and
+        "compresses" them back into a single Python dictionary.
+
+        :param data_list: A list of cleaned data, e.g., ['a', 1.0, 'b', 2.0, '', None, ...]
+        :return: A dictionary of key:value pairs.
+        """
+        if not data_list:
+            return {}
+
+        dictionary = {}
+        # Iterate through the list in chunks of 2 (key, value).
+        for i in range(0, len(data_list), 2):
+            key = data_list[i]
+            value = data_list[i + 1]
+
+            # Only include pairs where the key is provided.
+            if key and value is not None:
+                # Basic validation: ensure keys are unique.
+                if key in dictionary:
+                    raise ValidationError(f"Duplicate key found: '{key}'. Keys must be unique.")
+                dictionary[key] = value
+
+        return dictionary
+

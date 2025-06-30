@@ -56,6 +56,9 @@ urlpatterns = [
     path('reviewers/edit/', views.EditReviewerProfile.as_view(), name="edit-reviewer-profile"),
     path('reviewers/<int:pk>/opt-out/', views.ReviewerOptOut.as_view(), name='reviewer-opt-out'),
 
-
+    path('review-types/', views.ReviewTypeList.as_view(), name="review-type-list"),
+    path('review-types/<int:pk>/edit/', views.EditReviewType.as_view(), name="edit-review-type"),
+    path('review-types/<int:pk>/delete/', views.DeleteReviewType.as_view(), name="delete-review-type"),
+    path('review-types/new/', views.AddReviewType.as_view(), name="add-review-type"),
 
 ]

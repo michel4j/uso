@@ -1102,15 +1102,10 @@ class AddReviewStage(RolePermsViewMixin, ModalCreateView):
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
     def get_initial(self):
         initial = super().get_initial()
         track = models.ReviewTrack.objects.get(acronym=self.kwargs['track'])
-        initial.update(track=track, position=(track.stages.count() + 1))
+        initial.update(track=track, position=(track.stages.count() + 1), pass_score=4.0)
         return initial
 
     def form_valid(self, form):
@@ -1127,7 +1122,6 @@ class EditReviewStage(RolePermsViewMixin, ModalUpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
         kwargs['delete_url'] = reverse("delete-review-stage", kwargs=self.kwargs)
         return kwargs
 
@@ -1900,3 +1894,57 @@ class UpdateReviewComments(RolePermsViewMixin, ModalUpdateView):
                 "url": ""
             }
         )
+
+
+class ReviewTypeList(RolePermsViewMixin, ItemListView):
+    model = ReviewType
+    template_name = "tooled-item-list.html"
+    tool_template = "proposals/review-type-tools.html"
+    list_columns = ['description', 'code', 'form_type', 'low_better', 'per_facility']
+    list_filters = ['created', 'modified']
+    list_search = ['name', 'code', 'description']
+    link_url = "edit-review-type"
+    link_attr = 'data-modal-url'
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+    paginate_by = 20
+
+
+class AddReviewType(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.ReviewTypeForm
+    model = ReviewType
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('review-type-list')
+
+
+class EditReviewType(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.ReviewTypeForm
+    model = ReviewType
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['delete_url'] = reverse("delete-review-type", kwargs=self.kwargs)
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('review-type-list')
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        ReviewType.objects.filter(pk=self.object.pk).update(**data)
+        return JsonResponse({"url": self.get_success_url()})
+
+
+class DeleteReviewType(RolePermsViewMixin, ModalDeleteView):
+    model = ReviewType
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('review-type-list')
+

@@ -1,24 +1,21 @@
-import functools
 import itertools
-import operator
-import time
 from itertools import chain
 
-from crisp_modals.forms import ModalModelForm, FullWidth, Row
+from crisp_modals.forms import ModalModelForm
 from crispy_forms.bootstrap import StrictButton, AppendedText, InlineCheckboxes, FormActions, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
 from django import forms
-from django.urls import reverse
-from django.db.models import Case, When, Q, IntegerField, Sum, Value, Count
+from django.db.models import Q, Count
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from dynforms.forms import DynModelForm
+from dynforms.utils import DotExpandedDict
 
+from misc.forms import JSONDictionaryField
 from . import models
 from . import utils
-from dynforms.forms import DynFormMixin, DynModelForm
-from dynforms.utils import DotExpandedDict
 from .models import get_user_model
 
 
@@ -207,7 +204,6 @@ class ReviewerForm(forms.Form):
 
 
 class OptOutForm(ModalModelForm):
-
     class Meta:
         model = models.Reviewer
         fields = ['comments']
@@ -495,21 +491,16 @@ class ReviewStageForm(ModalModelForm):
         widgets = {
             'track': forms.HiddenInput(),
             'kind': forms.Select(attrs={'class': 'select'}),
-            'blocks': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'},),
+            'blocks': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'}, ),
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
-        if self.instance and self.instance.pk:
-            self.body.title = "Edit Review Stage Information"
-        else:
+        if not (self.instance and self.instance.pk):
             track = self.initial['track']
             self.fields['kind'].queryset = models.ReviewType.objects.exclude(stages__track=track)
-            self.body.title = "Add Review Stage"
 
-        self.body.form_action = self.request.get_full_path()
         self.body.append(
             Div(
                 Div("kind", css_class="col-sm-6"),
@@ -520,3 +511,56 @@ class ReviewStageForm(ModalModelForm):
                 css_class="row"
             )
         )
+
+
+class ReviewTypeForm(ModalModelForm):
+    score_fields = JSONDictionaryField(label=_("Score Fields"), required=False)
+
+    class Meta:
+        model = models.ReviewType
+        fields = [
+            'code', 'kind', 'description', 'form_type', 'low_better', 'per_facility', 'role',
+            'score_fields'
+        ]
+        widgets = {
+            'description': forms.TextInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div("code", css_class="col-sm-4"),
+                Div("kind", css_class="col-sm-4"),
+                Div("form_type", css_class="col-sm-4"),
+                Div("description", css_class="col-sm-8"),
+                Div("role", css_class="col-sm-4"),
+                css_class="row"
+            ),
+            Div(
+
+                Div("score_fields", css_class="col-sm-12"),
+                css_class="row"
+            ),
+            Div(
+                Div('low_better', css_class="col-sm-4"),
+                Div('per_facility', css_class="col-sm-4"),
+                css_class="row align-items-end"
+            )
+        )
+
+    def clean(self):
+        data = super().clean()
+        score_field_names = set(data.get('score_fields', {}).keys())
+        form_field_names = set([
+            field['name']
+            for page in data['form_type'].pages
+            for field in page.get('fields', [])
+        ])
+        missing_fields = score_field_names - form_field_names
+        if missing_fields:
+            missing_text = ', '.join(f'"{field}"' for field in missing_fields)
+            raise forms.ValidationError(
+                f"Score fields {missing_text} not defined in {data['form_type']}."
+            )
+        return data
