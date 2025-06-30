@@ -58,10 +58,6 @@ def pictogram_url(pictogram):
 
 @register.inclusion_tag('samples/pictograms.html')
 def show_pictograms(hazards, extras=None, types=None):
-    print('show_pictograms called with hazards:', pprint.pformat(hazards))
-    print('show_pictograms called with extras:', pprint.pformat(extras))
-    print('show_pictograms called with types:', pprint.pformat(types))
-
     pictograms = utils.summarize_pictograms(hazards, extras=extras, types=types)
     return {'pictograms': pictograms.all()}
 
@@ -166,7 +162,7 @@ def get_permissions(context, data=None):
             'any': 'Require any',
             'all': 'Require all',
             'optional': 'Recommend',
-            'none': 'Not Required',
+            '': 'Not Required',
         }
     }
 

@@ -127,6 +127,15 @@ class Proposal(BaseFormModel):
         )
         Proposal.objects.filter(pk=self.pk).update(details=self.details)
 
+    def authors_text(self):
+        """
+        Return a text representing the authors in the format 'Last, First' for each team member
+        """
+        authors = []
+        for member in self.get_full_team():
+            authors.append(f"{member['last_name']}, {member['first_name']}")
+        return " · ".join(authors)
+
 
 class SubmissionQuerySet(QuerySet):
 

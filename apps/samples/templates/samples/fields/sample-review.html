@@ -95,7 +95,7 @@
                id="saved-hazards-{{ sample.pk }}"
         >
         <textarea id="permissions-{{ sample.pk }}" class="d-none"
-               class="permissions-field" aria-label="Permissions" disabled
+               class="permissions-field" aria-label="Permissions"
                name="{{ field.name }}.permissions.{{ sample.pk }}"
         >{{ permissions|jsonify }}</textarea>
         <input id="rejected-{{ sample.pk }}" type="hidden"

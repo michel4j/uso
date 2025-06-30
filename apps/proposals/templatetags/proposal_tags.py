@@ -47,6 +47,17 @@ FILE_TYPES = {
 }
 
 
+def permission_label(permission: str, scope: str) -> str:
+    """
+    Returns the label for a given permission and scope.
+    """
+    name = permission.replace('_', ' ').title()
+    scope_class = SCOPE_LABELS.get(scope, 'secondary')
+    scope_text = SCOPES.get(scope, '')
+    badge_type = f"text-bg-{scope_class}"
+    return f'<span class="m-1 badge {badge_type}">{name}&nbsp;[{scope_text}]</span>'
+
+
 @register.filter
 def verbose_name(value):
     return value._meta.verbose_name
@@ -158,9 +169,10 @@ def get_approval_reviews(context):
             )
             risk_text = RISK_LEVELS.get(r.details.get('risk_level', 0), '')
             permissions = ''.join([
-                f'<span class="label label-{SCOPE_LABELS[scope]}">{perm.title()}&nbsp;[{SCOPES[scope]}]</span>'
+                permission_label(perm, scope)
                 for perm, scope in r.details.get('requirements', {}).items()
             ])
+
             rev_list.append(
                 {
                     "review": r,

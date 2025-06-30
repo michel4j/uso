@@ -211,7 +211,6 @@ class Permissions(FieldType):
         values = {
             key: _get_value(value) for key, value in val.items()
         }
-        print(values)
         return {
             k: v for k, v in values.items() if v is not None
         }
