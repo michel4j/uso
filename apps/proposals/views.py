@@ -1786,7 +1786,7 @@ class ReviewerOptions(RolePermsViewMixin, TemplateView):
         selected = get_user_model().objects.filter(username=reviewer).first()
 
         if role:
-            context['options'] = [('', role.replace('-', ' ').upper() + ' Role', True)] + [
+            context['options'] = [('', role.replace('-', ' ').title() + ' Role', True)] + [
                 (user.username, user, user == selected) for user in candidates]
         else:
             context['options'] = []
