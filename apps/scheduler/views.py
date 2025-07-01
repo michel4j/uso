@@ -50,7 +50,7 @@ class Calendar(RolePermsViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        today = timezone.now().date()
+        today = timezone.localtime(timezone.now()).date()
         cur_date = self.kwargs.get(
             'month', date(int(self.kwargs.get('year', today.year)), today.month, today.day).isoformat()
         )
@@ -105,8 +105,8 @@ class EventEditor(RolePermsViewMixin, detail.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        today = timezone.localtime(timezone.now()).date()
         if not self.kwargs.get('date'):
-            today = timezone.now().date()
             if context['schedule'].end_date < today or context['schedule'].start_date > today:
                 show_date = context['schedule'].start_date
             else:
@@ -115,7 +115,7 @@ class EventEditor(RolePermsViewMixin, detail.DetailView):
         else:
             cur_date = self.kwargs.get('date')
         context['default_date'] = cur_date
-        context['today'] = timezone.now().date()
+        context['today'] = today
         context['default_view'] = 'monthshift'
         context['timezone'] = settings.TIME_ZONE
         context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
@@ -180,11 +180,12 @@ class FacilityModeListAPI(generics.ListAPIView):
         queryset = models.Mode.objects.filter(
             schedule__state__in=[models.Schedule.STATES.live, models.Schedule.STATES.tentative]
         )
+        today = timezone.localtime(timezone.now()).date()
         if self.request.GET.get('start') and self.request.GET.get('end'):
             start = timezone.make_aware(parser.parse(self.request.GET.get('start')))
             end = timezone.make_aware(parser.parse(self.request.GET.get('end')))
         else:
-            start = timezone.now().date().replace(day=1)
+            start = today.replace(day=1)
             end = start + timedelta(days=calendar.monthrange(start.year, start.month)[1])
         return queryset.filter(start__lte=end, end__gte=start).all()
 
@@ -311,7 +312,8 @@ class YearTemplate(RolePermsViewMixin, TemplateView):
         context['shifts'] = shifts
         context['shift_count'] = len(context['shift_starts'])
 
-        year = int(self.request.GET.get('year', timezone.now().year))
+        today = timezone.localtime(timezone.now()).date()
+        year = int(self.request.GET.get('year', today.year))
         cal = calendar.Calendar(6)
         context['year'] = year
         max_width = 1 + max([(r[0] % 6) + r[1] for r in [calendar.monthrange(year, m) for m in range(1, 13)]])
@@ -334,12 +336,12 @@ class CycleTemplate(RolePermsViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        now = timezone.localtime(timezone.now())
         date_str = self.request.GET.get('date', '')
         if date_str:
             d = parser.parse(date_str).date()
         else:
-            d = timezone.now().date()
+            d = now.date()
 
         slot = int(self.kwargs.get('slot', 8))
         config = models.ShiftConfig.objects.filter(duration=slot).order_by('modified').last()
@@ -355,7 +357,7 @@ class CycleTemplate(RolePermsViewMixin, TemplateView):
         context['months'] = [{
             'name': calendar.month_name[m], 'weeks': cal.monthdatescalendar(d.year, m), 'index': m
         } for m in range(cycle_start, cycle_end)]
-        context['current'] = utils.round_time(timezone.localtime(timezone.now()), timedelta(hours=config.duration))
+        context['current'] = utils.round_time(now, timedelta(hours=config.duration))
         return context
 
 
@@ -365,10 +367,11 @@ class MonthTemplate(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         date_str = self.request.GET.get('date', '')
+        now = timezone.localtime(timezone.now())
         if date_str:
             d = parser.parse(date_str).date()
         else:
-            d = timezone.now().date()
+            d = now.date()
 
         if 'start' in self.request.GET and 'end' in self.request.GET:
             context['range_start'] = parser.parse(self.request.GET.get('start')).date()
@@ -384,7 +387,7 @@ class MonthTemplate(TemplateView):
         context['headers'] = ['Week {}'.format(d.isocalendar()[1]) for d in context['month']['dates'][1][1:]]
         context['shifts'] = shifts
         context['shift_count'] = len(shifts)
-        context['current'] = utils.round_time(timezone.localtime(timezone.now()), timedelta(hours=config.duration))
+        context['current'] = utils.round_time(now, timedelta(hours=config.duration))
         return context
 
 
@@ -395,10 +398,11 @@ class WeekTemplate(TemplateView):
         context = super().get_context_data(**kwargs)
         date_str = self.request.GET.get('date', '')
         sections = self.request.GET.get('sections', '').split(',')
+        now = timezone.localtime(timezone.now())
         if date_str:
             d = parser.parse(date_str).date()
         else:
-            d = timezone.now().date()
+            d = now.date()
         cal = calendar.Calendar(calendar.SUNDAY)
         names = [calendar.day_abbr[x] for x in cal.iterweekdays()]
         dates = [x for x in cal.monthdatescalendar(d.year, d.month) if d in x][0]
@@ -411,7 +415,7 @@ class WeekTemplate(TemplateView):
         context['sections'] = sections
         context['shifts'] = shifts
         context['shift_count'] = len(shifts)
-        context['current'] = utils.round_time(timezone.localtime(timezone.now()), timedelta(hours=config.duration))
+        context['current'] = utils.round_time(now, timedelta(hours=config.duration))
         return context
 
 

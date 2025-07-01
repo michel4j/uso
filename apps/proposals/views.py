@@ -1948,3 +1948,65 @@ class DeleteReviewType(RolePermsViewMixin, ModalDeleteView):
     def get_success_url(self):
         return reverse('review-type-list')
 
+
+class TechniqueList(RolePermsViewMixin, ItemListView):
+    model = models.Technique
+    template_name = "tooled-item-list.html"
+    tool_template = "proposals/technique-tools.html"
+    list_columns = ['name', 'acronym', 'description', 'areas']
+    list_filters = ['created', 'modified', 'category']
+    list_search = ['name', 'acronym', 'description', 'category', 'parent__name', 'parent__description', 'parent__acronym']
+    link_url = "edit-technique"
+    link_attr = 'data-modal-url'
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+    paginate_by = 20
+
+
+class AddTechnique(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.TechniqueForm
+    model = models.Technique
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('technique-list')
+
+
+class EditTechnique(RolePermsViewMixin,  ModalUpdateView):
+    form_class = forms.TechniqueForm
+    model = models.Technique
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['delete_url'] = reverse("delete-technique", kwargs=self.kwargs)
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('technique-list')
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        models.Technique.objects.filter(pk=self.object.pk).update(**data)
+        return JsonResponse({"url": self.get_success_url()})
+
+
+class DeleteTechnique(RolePermsViewMixin, ModalDeleteView):
+    model = models.Technique
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('technique-list')
+
+    def confirmed(self, *args, **kwargs):
+        self.object = self.get_object()
+        ActivityLog.objects.log(
+            self.request, self.object, kind=ActivityLog.TYPES.delete, description='Technique Deleted'
+        )
+        self.object.delete()
+        return JsonResponse({"url": self.get_success_url()})
+
+

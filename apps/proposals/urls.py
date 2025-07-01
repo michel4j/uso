@@ -12,6 +12,11 @@ urlpatterns = [
     path('proposals/new/', views.CreateProposal.as_view(), name="create-proposal"),
 
     path('techniques/matrix/', views.TechniquesMatrix.as_view(), name="techniques-matrix"),
+    path('techniques/', views.TechniqueList.as_view(), name="technique-list"),
+    path('techniques/<int:pk>/edit/', views.EditTechnique.as_view(), name="edit-technique"),
+    path('techniques/<int:pk>/delete/', views.DeleteTechnique.as_view(), name="delete-technique"),
+    path('techniques/new/', views.AddTechnique.as_view(), name="add-technique"),
+
 
     path('submissions/', views.SubmissionList.as_view(), name='submission-list'),
     path('submissions/cycle/<int:cycle>/', views.CycleSubmissionList.as_view(), name='cycle-submission-list'),

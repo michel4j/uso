@@ -564,3 +564,25 @@ class ReviewTypeForm(ModalModelForm):
                 f"Score fields {missing_text} not defined in {data['form_type']}."
             )
         return data
+
+
+class TechniqueForm(ModalModelForm):
+    class Meta:
+        model = models.Technique
+        fields = ['name', 'category', 'description', 'acronym', 'parent']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2, }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div("name", css_class="col-sm-6"),
+                Div("acronym", css_class="col-sm-6"),
+                Div("category", css_class="col-sm-6"),
+                Div("parent", css_class="col-sm-6"),
+                Div("description", css_class="col-sm-12"),
+                css_class="row"
+            )
+        )
