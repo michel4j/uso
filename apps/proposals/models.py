@@ -768,8 +768,8 @@ class Review(BaseFormModel, GenericContentMixin):
     score = models.FloatField(default=0)
     due_date = models.DateField(null=True)
     cycle = models.ForeignKey(ReviewCycle, verbose_name=_('Cycle'), related_name='reviews', on_delete=models.CASCADE)
-    type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name='reviews')
-    stage = models.ForeignKey(ReviewStage, null=True, on_delete=models.SET_NULL, related_name='reviews')
+    type = models.ForeignKey(ReviewType, on_delete=models.PROTECT, related_name='reviews')
+    stage = models.ForeignKey(ReviewStage, null=True, on_delete=models.PROTECT, related_name='reviews')
 
     objects = ReviewQueryset.as_manager()
 
