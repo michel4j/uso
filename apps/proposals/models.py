@@ -412,7 +412,8 @@ class Technique(TimeStampedModel):
         ('imaging', _('Imaging')),
         ('microscopy', _('Microscopy')),
         ('spectroscopy', _('Spectroscopy')),
-        ('other', _('Other')), )
+        ('other', _('Other')),
+    )
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     category = models.CharField(_('Category'), max_length=50, choices=TYPES, default=TYPES.other)

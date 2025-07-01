@@ -23,7 +23,7 @@ def dt_display(val, obj=None):
 class AgreementList(RolePermsViewMixin, ItemListView):
     model = models.Agreement
     template_name = "tooled-item-list.html"
-    tool_template = "agreements/facility-list-tools.html"
+    tool_template = "agreements/list-tools.html"
     list_title = "Agreements"
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
     list_columns = ["name", "code", "state", "num_users"]

@@ -13,11 +13,16 @@
             integrity="sha512-YJgZG+6o3xSc0k5wv774GS+W1gx0vuSI/kr0E0UylL/Qg/noNspPtYwHPN9q6n59CTR/uhgXfjDXLTRI+uIryg=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{% static 'dynforms/jquery-bs-datepicker.min.js' %}" async></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
-            $('select[mutliple]').selectize({
-                plugins: ['remove_button'],
+            $('select[multiple]').each(function () {
+                $(this).removeClass('form-select').addClass('form-select-multiple');
+                new SlimSelect({
+                    select: this
+                })
             });
+
             $('.rich-text-input').trumbowyg({
                 resetCss: true,
                 removeformatPasted: true,

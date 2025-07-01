@@ -140,7 +140,7 @@ class PRCList(RolePermsViewMixin, ItemListView):
     order_by = ['user__last_name', 'created']
 
     def get_list_title(self):
-        return 'Peer-Reviewers - {} Track'.format(self.track)
+        return f'Peer-Reviewers - {self.track} Track'
 
     def get_detail_url(self, obj):
         return reverse('prc-reviews', kwargs={'cycle': self.cycle.pk, 'pk': obj.pk})
@@ -301,7 +301,7 @@ class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
                 conf_items |= config.items.filter(technique__in=req.get('techniques', []))
 
         if cycle.is_closed() or access_mode in ['staff', 'education', 'purchased', 'beamteam']:
-            special_track = models.ReviewTrack.objects.filter(special=True).first()
+            special_track = models.ReviewTrack.objects.filter(require_call=False).first()
             requests = {special_track: conf_items}
         else:
             requests = {track: items for track, items in list(conf_items.group_by_track().items()) if items.exists()}
