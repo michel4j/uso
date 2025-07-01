@@ -289,7 +289,6 @@ class ReviewTrack(TimeStampedModel):
     name = models.CharField(max_length=128)
     acronym = models.CharField(max_length=10, unique=True)
     description = models.TextField(null=True)
-    special = models.BooleanField("Special Requests", null=True, default=None, unique=True)
     require_call = models.BooleanField("Require Call", default=True)
     min_reviewers = models.IntegerField("Assignment", default=0)
     max_workload = models.IntegerField("Max. Workload", default=0)
