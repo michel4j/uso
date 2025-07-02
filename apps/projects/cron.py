@@ -29,7 +29,7 @@ class NotifyProjects(BaseCronJob):
                 When(
                     Q(allocations__shifts__gt=0, allocations__beamline__flex_schedule=False) |
                     Q(allocations__beamline__flex_schedule=True) |
-                    Q(submissions__track__special=True),
+                    Q(submissions__track__require_call=False),
                     then=Value(1)
                 ),
                 default=Value(0),
@@ -37,7 +37,7 @@ class NotifyProjects(BaseCronJob):
             ),
             special=Min(Case(
                 When(
-                    Q(submissions__kind=Submission.TYPES.user, submissions__track__special=True),
+                    Q(submissions__kind=Submission.TYPES.user, submissions__track__require_call=False),
                     then=Value(1)
                 ),
                 default=Value(0),
@@ -99,7 +99,7 @@ class NotifyProjects(BaseCronJob):
         if cycle:
             projects = models.Project.objects.filter(
                 allocations__cycle=cycle, created__date=yesterday
-            ).exclude(submissions__track__special=False)
+            ).exclude(submissions__track__require_call=True)
             submissions = Submission.objects.filter(cycle=cycle, state=Submission.STATES.reviewed)
             self.process_cycle(cycle, projects, submissions)
             submissions.update(state=Submission.STATES.complete, modified=timezone.now())
@@ -122,7 +122,7 @@ class CreateCallProjects(BaseCronJob):
         log = []
         if cycle:
             # Create Projects for general user access
-            submissions = cycle.submissions.exclude(track__special=True).filter(
+            submissions = cycle.submissions.filter(track__require_call=True).filter(
                 state=Submission.STATES.reviewed, project__isnull=True
             )
             if submissions.exists():

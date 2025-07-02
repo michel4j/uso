@@ -267,7 +267,7 @@ def active_reviews(cycle, reviewer):
     next_cycle = cycle.get_next_by_open_date()
     dt = datetime.today().date()
 
-    qra = Q(track__special=True) & Q(cycle__start_date__lte=dt, cycle__end_date__gte=dt)
+    qra = Q(track__require_call=False) & Q(cycle__start_date__lte=dt, cycle__end_date__gte=dt)
     qgu = Q(cycle__close_date__lt=dt) & Q(cycle__due_date__gte=dt) | Q(cycle__due_date__isnull=True)
     qchain = Q(proposal__in=cycle.submissions.filter(qra))
     qchain |= Q(proposal__in=next_cycle.submissions.filter(qgu))

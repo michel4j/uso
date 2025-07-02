@@ -10,6 +10,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, View, detail
 from itemlist.views import ItemListView
 
+from misc.models import ActivityLog
 from misc.utils import is_ajax
 from misc.views import JSONResponseMixin
 from roleperms.views import RolePermsViewMixin
@@ -210,8 +211,41 @@ class SampleDelete(RolePermsViewMixin, ModalDeleteView):
         return super().get_queryset()
 
 
+def get_hazard_categories(active_type: str = None) -> list:
+    """
+    Returns a list of hazard categories with their associated hazards and pictograms.
+
+    :param active_type: The code of the active hazard type to highlight in the list.
+    :return:
+    """
+
+    groups = []
+    for p in models.Pictogram.objects.exclude(code__in=['RG1', 'RG2', 'RG3', 'RG4', '000']):
+        hazards = p.hazards
+
+        groups.append({
+            'name': p.name,
+            'active': p.code == active_type,
+            'description': p.description,
+            'hazards': hazards.order_by('hazard__code'),
+            'image': f"/static/samples/pictograms/{p.code}.svg",
+        })
+    groups.append({
+        'name': "Biohazardous infectious materials",
+        'active': active_type in ['RG1', 'RG2', 'RG3', 'RG4'],
+        'description': (
+            "Materials which are or may contain microorganisms, nucleic acids or proteins that "
+            "cause or are a probable cause of infection, with or without toxicity, in humans or animals."
+        ),
+        'hazards': models.Hazard.objects.filter(hazard__code__startswith='RG').order_by('hazard__code'),
+        'image': "/static/samples/pictograms/RG.svg",
+    })
+
+    return groups
+
+
 class SampleHazards(RolePermsViewMixin, detail.DetailView):
-    template_name = "samples/forms/hazards.html"
+    template_name = "samples/forms/hazards-review.html"
     model = models.Sample
 
     def get_context_data(self, **kwargs):
@@ -223,42 +257,7 @@ class SampleHazards(RolePermsViewMixin, detail.DetailView):
             set(self.object.hazards.values_list('pictograms__code', flat=True))
         )
         active_type = 'GHS03' if not selected_types else list(selected_types)[0]
-
-        groups = []
-        for p in models.Pictogram.objects.exclude(code__in=['RG1', 'RG2', 'RG3', 'RG4', '000']):
-            # if p.code == 'GHS09':
-            #     hazards = models.Hazard.objects.filter(hazard__code__startswith='H4')
-            # elif p.code == 'GHS08':
-            #     hazards = p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H36')
-            # elif p.code == 'GHS01':
-            #     hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H20'))
-            # elif p.code == 'GHS02':
-            #     hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H22'))
-            # elif p.code == 'GHS04':
-            #     hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H28'))
-            # else:
-
-            hazards = p.hazards
-
-            groups.append({
-                'name': p.name,
-                'active': p.code == active_type,
-                'description': p.description,
-                'hazards': hazards.order_by('hazard__code'),
-                'image': f"/static/samples/pictograms/{p.code}.svg",
-            })
-        groups.append({
-            'name': "Biohazardous infectious materials",
-            'active': active_type in ['RG1', 'RG2', 'RG3', 'RG4'],
-            'description': (
-                "Materials which are or may contain microorganisms, nucleic acids or proteins that "
-                "cause or are a probable cause of infection, with or without toxicity, in humans or animals."
-            ),
-            'hazards': models.Hazard.objects.filter(hazard__code__startswith='RG').order_by('hazard__code'),
-            'image': "/static/samples/pictograms/RG.svg",
-        })
-
-        context['categories'] = groups
+        context['categories'] = get_hazard_categories(active_type)
         return context
 
 
@@ -271,3 +270,124 @@ class SamplePermissions(RolePermsViewMixin, detail.DetailView):
         context['field_name'] = self.kwargs['field_name']
         context['field'] = {"name": 'sample_permission'}
         return context
+
+
+class SafetyPermissionList(RolePermsViewMixin, ItemListView):
+    model = models.SafetyPermission
+    template_name = "tooled-item-list.html"
+    paginate_by = 15
+    link_url = 'edit-safety-permission'
+    link_attr = 'data-modal-url'
+    list_filters = ['created', 'modified', 'review']
+    list_columns = ['code', 'description', 'review']
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+
+class EditSafetyPermission(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.SafetyPermissionForm
+    model = models.SafetyPermission
+    success_url = reverse_lazy('safety-permission-list')
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+    def get_delete_url(self):
+        if self.check_admin():
+            return reverse('delete-safety-permission', kwargs={'pk': self.object.pk})
+        return None
+
+
+class AddSafetyPermission(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.SafetyPermissionForm
+    model = models.SafetyPermission
+    success_url = reverse_lazy('safety-permission-list')
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
+
+
+class DeleteSafetyPermission(RolePermsViewMixin, ModalDeleteView):
+    model = models.SafetyPermission
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
+
+
+class HazardousSubstanceList(RolePermsViewMixin, ItemListView):
+    model = models.HazardousSubstance
+    template_name = "samples/substances-list.html"
+    paginate_by = 15
+    link_url = 'edit-hazardous-substance'
+    link_attr = 'data-modal-url'
+    list_filters = ['created', 'modified']
+    list_columns = ['name', 'description']
+    list_search = ['name', 'description']
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+
+class EditHazardousSubstance(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.HazardousSubstanceForm
+    model = models.HazardousSubstance
+    template_name = "samples/forms/hazards-form.html"
+    success_url = reverse_lazy('hazardous-substance-list')
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['saved_hazards'] = list(self.object.hazards.values_list('pk', flat=True))
+        selected_types = set(self.object.hazards.values_list('pictograms__code', flat=True))
+        active_type = 'GHS03' if not selected_types else list(selected_types)[0]
+        context['categories'] = get_hazard_categories(active_type)
+        context['sample'] = self.object
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['saved_hazards'] = json.dumps(list(self.object.hazards.values_list('pk', flat=True)))
+        return initial
+
+    def get_delete_url(self):
+        if self.check_admin():
+            return reverse('delete-hazardous-substance', kwargs={'pk': self.object.pk})
+        return None
+
+    def form_valid(self, form):
+        hazards = form.cleaned_data.pop('hazard_list', models.Hazard.objects.none())
+        super().form_valid(form)
+        self.object.hazards.set(hazards)
+        ActivityLog.objects.log(
+            self.request, self.object, kind=ActivityLog.TYPES.modify, description='Hazardous Substance Modified',
+        )
+        return http.JsonResponse({'message': "Hazardous substance has been updated."})
+
+
+class AddHazardousSubstance(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.HazardousSubstanceForm
+    model = models.HazardousSubstance
+    template_name = "samples/forms/hazards-form.html"
+    success_url = reverse_lazy('hazardous-substance-list')
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = get_hazard_categories()
+        return context
+
+    def form_valid(self, form):
+        hazards = form.cleaned_data.pop('hazard_list', models.Hazard.objects.none())
+        super().form_valid(form)
+        self.object.hazards.set(hazards)
+        ActivityLog.objects.log(
+            self.request, self.object, kind=ActivityLog.TYPES.add, description='Hazardous Substance Added',
+        )
+        return http.JsonResponse({'message': "Hazardous substance has been added."})
+
+
+class DeleteHazardousSubstance(RolePermsViewMixin, ModalDeleteView):
+    model = models.HazardousSubstance
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+    def get_success_url(self):
+        return reverse('hazardous-substance-list')

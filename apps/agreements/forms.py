@@ -33,12 +33,16 @@ class AgreementForm(forms.ModelForm):
         self.helper.title = "Edit Agreement" if kwargs.get("instance") else "Create Agreement"
         self.helper.form_action = self.request.get_full_path()
         self.fields['roles'].choices = utils.uso_role_choices()
-        left_buttons = Div(css_class="pull-left")
-        right_buttons = Div(css_class="pull-right")
+        left_buttons = Div(css_class="d-flex flex-row gap-3")
+        right_buttons = Div(css_class="d-flex flex-row gap-3 ms-auto")
         buttons = FormActions(
             HTML("<hr/>"),
-            left_buttons,
-            right_buttons,
+            Div(
+                left_buttons,
+                right_buttons,
+                css_class="col-12 d-flex flex-row justify-content-between align-items-center"
+            ),
+            css_class="row"
         )
         if kwargs.get('instance'):
             if self.instance.state != models.Agreement.STATES.enabled:
@@ -57,11 +61,8 @@ class AgreementForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div("name", css_class="col-sm-12"),
-                Div(Field("state", css_class="selectize"), css_class="col-sm-3"),
-                Div(
-                    Field("roles", css_class="selectize", title="Users with these roles must accept the agreement."),
-                    css_class="col-sm-9"
-                ),
+                Div("state", css_class="col-sm-3"),
+                Div("roles", title="Users with these roles must accept the agreement.", css_class="col-sm-9"),
                 Div("description", css_class="col-sm-12"),
                 Div(Field("content", css_class="rich-text-input"), css_class="col-sm-12"),
                 css_class="row"

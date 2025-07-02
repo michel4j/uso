@@ -434,11 +434,33 @@ body.no-sidebar {
   }
 }
 
+@media print {
+  @page {
+    size: Letter portrait;
+    margin: 1in;
+  }
+  @page :first {
+    margin: 0.25in 1in 1in;
+  }
+  table, figure {
+    page-break-inside: avoid; /* Prevent the table from breaking across pages */
+  }
+  .section-content {
+    h1, h2, h3, h4, h5 {
+      break-after: avoid;
+    }
+  }
+}
+
 body.print-base {
   background-color: var(--bs-body-bg);
   border-radius: 0 !important;
-  font-size: 16px;
+  font-size: 11pt;
 
+  .logo {
+    height: 75px;
+    width: auto;
+  }
   #uso-branding {
     display: none;
   }
@@ -454,6 +476,7 @@ body.print-base {
   .footer {
     font-size: 80%;
   }
+
 }
 
 img {

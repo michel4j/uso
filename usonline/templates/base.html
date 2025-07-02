@@ -42,6 +42,7 @@
     {% block pre_js %}{% endblock %}
 </head>
 <body class="{% if not request.user.is_authenticated %}no-sidebar{% endif %} {% block body_class %}{% endblock %}">
+{% block document %}
 <div id="uso-wrapper">
     <header id="uso-header" class="bg-body-tertiary">
         <!-- Page Title Area -->
@@ -78,7 +79,7 @@
         </div>
     </main>
 </div>
-
+{% endblock %}
 <div id="modal-target"></div>
 <form class="d-none" id="logout-form" action="{% url 'portal-logout' %}" method="post">{% csrf_token %}</form>
 {% include "messages.html" %}
@@ -163,14 +164,6 @@
                 modal.remove();
             });
         });
-
-        // Initialize selects
-        $('select[multiple]').each(function (element){
-            new SlimSelect({
-                select: element
-            })
-        });
-
 
         // Initialize scroll boxes
         /*

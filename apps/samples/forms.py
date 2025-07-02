@@ -67,3 +67,60 @@ class SampleForm(ModalModelForm):
             data['hazards'] |= models.Hazard
         return data
 
+
+class SafetyPermissionForm(ModalModelForm):
+    class Meta:
+        model = models.SafetyPermission
+        fields = ('code', 'description',  'review')
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div('code', css_class='col-sm-12'),
+                Div('description', css_class='col-sm-12'),
+                Div('review', css_class='col-sm-12'),
+                css_class="row"
+            )
+        )
+
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        return code.replace('_', '-').upper()
+
+
+class HazardousSubstanceForm(ModalModelForm):
+    hazard_list = forms.ModelMultipleChoiceField(queryset=models.Hazard.objects.none(), required=True, label="Hazards")
+    saved_hazards = forms.CharField(widget=HiddenInput(), required=False)
+
+    class Meta:
+        model = models.HazardousSubstance
+        fields = ('name', 'description', 'hazard_list')
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['hazard_list'].queryset = models.Hazard.objects.all()
+        self.body.append(
+            Div(
+                Div('name', css_class='col-sm-12'),
+                Div('description', css_class='col-sm-12'),
+                css_class="row"
+            ),
+            Field('saved_hazards')
+        )
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '')
+        return name.strip().title()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        del cleaned_data['saved_hazards']   # discard saved_hazards as it's not needed
+        return cleaned_data
+

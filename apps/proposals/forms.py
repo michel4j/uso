@@ -317,8 +317,7 @@ class ReviewTrackForm(ModalModelForm):
 
     class Meta:
         model = models.ReviewTrack
-        fields = ('name', 'acronym', 'description',
-                  'min_reviewers', 'max_workload', 'committee')
+        fields = ('name', 'acronym', 'description', 'require_call', 'min_reviewers', 'max_workload', 'committee')
         widgets = {
             'description': forms.Textarea(attrs={'rows': 2, }),
         }
@@ -331,9 +330,6 @@ class ReviewTrackForm(ModalModelForm):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
         self.body.form_class = "review-track-form"
-        self.body.form_action = self.request.get_full_path()
-        self.body.title = "Edit Review Track Information"
-
         self.body.append(
             Div(
                 Div("name", css_class="col-sm-8"),
@@ -341,7 +337,8 @@ class ReviewTrackForm(ModalModelForm):
                 Div("description", css_class="col-sm-12"),
                 Div("min_reviewers", css_class="col-sm-6"),
                 Div("max_workload", css_class="col-sm-6"),
-                Div(Field("committee", css_class="selectize"), css_class="col-sm-12"),
+                Div("committee", css_class="col-sm-12"),
+                Div("require_call", css_class="col-sm-12"),
                 css_class="row"
             )
         )
@@ -564,3 +561,25 @@ class ReviewTypeForm(ModalModelForm):
                 f"Score fields {missing_text} not defined in {data['form_type']}."
             )
         return data
+
+
+class TechniqueForm(ModalModelForm):
+    class Meta:
+        model = models.Technique
+        fields = ['name', 'category', 'description', 'acronym', 'parent']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2, }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div("name", css_class="col-sm-6"),
+                Div("acronym", css_class="col-sm-6"),
+                Div("category", css_class="col-sm-6"),
+                Div("parent", css_class="col-sm-6"),
+                Div("description", css_class="col-sm-12"),
+                css_class="row"
+            )
+        )

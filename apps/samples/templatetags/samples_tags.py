@@ -195,3 +195,14 @@ def hz_transforms(pos, length=0, vertical=False):
 @register.filter
 def format_pstatement(prec, sample):
     return prec.text.format("<strong>{}</strong>".format(sample.details.get('keywords', {}).get(str(prec.code), "")))
+
+
+@register.simple_tag(takes_context=True)
+def update_saved_hazards(context):
+    saved_hazards = context.get('saved_hazards', [])
+    if not saved_hazards:
+        if 'data' in context:
+            saved_hazards = context['data'].get('saved_hazards', [])
+            saved_hazards = list(map(int, saved_hazards))
+    print("Saved Hazards:", saved_hazards)
+    return saved_hazards

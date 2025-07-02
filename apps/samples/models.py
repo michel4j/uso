@@ -206,7 +206,7 @@ class Sample(TimeStampedModel):
         return txt
 
 
-class HazardousSubstance(models.Model):
+class HazardousSubstance(TimeStampedModel):
     name = models.CharField("Name", max_length=255, unique=True)
     description = models.TextField()
     hazards = models.ManyToManyField(Hazard, verbose_name="Hazards", related_name='substances')
@@ -216,7 +216,7 @@ class HazardousSubstance(models.Model):
 
 
 class SafetyPermission(TimeStampedModel):
-    code = models.CharField(max_length=50)
+    code = models.SlugField(max_length=50)
     description = models.CharField(max_length=100, blank=True, null=True)
     review = models.BooleanField(_('Show in Review'), default=True)
 

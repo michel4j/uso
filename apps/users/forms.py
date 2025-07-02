@@ -353,8 +353,8 @@ class UserProfileForm(forms.ModelForm):
                 ), ), FormActions(
                 HTML('<hr class"hr-xs"/>'), Div(
                     StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
-                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                    css_class='text-right pull-right'
+                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary ms-2'),
+                    css_class='text-right d-flex flex-row justify-content-end align-items-center'
                 ), ), )
 
     def clean(self):
@@ -388,86 +388,6 @@ class UserProfileForm(forms.ModelForm):
                 }
         else:
             data['institution'] = None
-
-
-class ProfileForm(forms.Form):
-    title = forms.ChoiceField(
-        label=_("Title"), choices=blank_choice + User.TITLES, required=False, )
-    first_name = forms.CharField(
-        label=_("First Name"), max_length=100, required=True, )
-    last_name = forms.CharField(
-        label=_("Last Name"), max_length=100, required=True, )
-    other_names = forms.CharField(
-        label=_("Other Names"), max_length=100, required=False, )
-    email = forms.EmailField(
-        label=_("Email Address"), required=True, )
-    emergency_contact = forms.CharField(
-        label=_("Emergency Contact's Full Name"), max_length=20, required=False, )
-    emergency_phone = forms.CharField(
-        label=_("Emergency Phone Number"), max_length=20, required=False, )
-    research_field = forms.ModelMultipleChoiceField(
-        label=_("Research Fields"), required=False, queryset=SubjectArea.objects.all(), )
-    classification = forms.ChoiceField(
-        label=_("Classification"), required=False, initial='', choices=blank_choice + User.CLASSIFICATIONS, )
-    institution = forms.CharField(
-        label=_("Institution"), required=False, )
-    address_1 = forms.CharField(
-        label="", max_length=255, required=True, help_text="Department", )
-    address_2 = forms.CharField(
-        label="", max_length=255, required=False, help_text="Street Address", )
-    city = forms.CharField(
-        label="", max_length=100, required=True, help_text="City", )
-    region = forms.CharField(
-        label="",  # choices=REGIONS,
-        required=False, help_text="Province / State / Region", )
-    postal_code = forms.CharField(
-        label="", max_length=100, required=False, help_text="Postal / Zip Code", )
-    country = forms.CharField(
-        label="", required=False, help_text="Country", )
-    phone = forms.CharField(
-        label="Phone Number", max_length=20, required=True, )
-    alt_email = forms.CharField(
-        label="Alternate Email", max_length=20, required=False, )
-    person_id = forms.IntegerField(
-        widget=forms.HiddenInput, )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = "style-form"
-        self.helper.layout = Layout(
-            Accordion(
-                AccordionGroup(
-                    _("Change Your Profile"), Div(
-                        Div(Field('title', css_class="selectize"), css_class='col-sm-2'),
-                        Div('first_name', css_class='col-sm-3'),
-                        Div('last_name', css_class='col-sm-4'), Div('other_names', css_class='col-sm-3'),
-                        Div('email', css_class='col-sm-6'),
-                        Div('alt_email', css_class='col-sm-6'), Div('phone', css_class='col-sm-6'),
-                        Div('emergency_phone', css_class='col-sm-6'),
-                        css_class="row"
-                    ), Div(
-                        Div('emergency_contact', css_class='col-sm-12'), css_class="row"
-                    ), Div(
-                        Div(Field('research_field', css_class="selectize"), css_class='col-sm-12'),
-                        Div(Field('classification', css_class="selectize"), css_class='col-sm-6'), Div(
-                            Field(
-                                'institution', css_class='institution-input',
-                                placeholder="Type full name or select from existing entries"
-                            ), css_class='col-sm-6'
-                        ), css_class='row'
-                    ), Fieldset(
-                        "Work Address", Div(
-                            Div('address_1', css_class='col-sm-12'), Div('address_2', css_class='col-sm-12'),
-                            Div('country', placeholder="Type your country", css_class='col-sm-6'), Div(
-                                'region', placeholder="Type your province/state/territory", css_class='col-sm-6'
-                            ), Div('city', css_class='col-sm-6'), Div('postal_code', css_class='col-sm-6'),
-                            css_class="address row"
-                        ), ), FormActions(
-                        Submit('form', 'Save', css_class='button white')
-                    ), active=True
-                ), ), 'person_id'
-        )
 
 
 class LoginForm(AuthenticationForm):

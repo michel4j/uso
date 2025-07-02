@@ -22,7 +22,7 @@ class AllNotifications(BaseNav):
 
 
 class MessageTypes(BaseNav):
-    parent = 'users.People'
+    parent = 'misc.Admin'
     label = 'Message Templates'
     roles = USO_ADMIN_ROLES
     url = reverse('template-list')

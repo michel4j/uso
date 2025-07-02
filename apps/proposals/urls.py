@@ -12,6 +12,11 @@ urlpatterns = [
     path('proposals/new/', views.CreateProposal.as_view(), name="create-proposal"),
 
     path('techniques/matrix/', views.TechniquesMatrix.as_view(), name="techniques-matrix"),
+    path('techniques/', views.TechniqueList.as_view(), name="technique-list"),
+    path('techniques/<int:pk>/edit/', views.EditTechnique.as_view(), name="edit-technique"),
+    path('techniques/<int:pk>/delete/', views.DeleteTechnique.as_view(), name="delete-technique"),
+    path('techniques/new/', views.AddTechnique.as_view(), name="add-technique"),
+
 
     path('submissions/', views.SubmissionList.as_view(), name='submission-list'),
     path('submissions/cycle/<int:cycle>/', views.CycleSubmissionList.as_view(), name='cycle-submission-list'),
@@ -38,7 +43,7 @@ urlpatterns = [
     path('cycles/<int:pk>/', views.ReviewCycleDetail.as_view(), name="review-cycle-detail"),
     path('cycles/<int:pk>/add/', views.AddReviewCycles.as_view(), name="add-review-cycles"),
     path('cycles/<int:pk>/edit/', views.EditReviewCycle.as_view(), name="edit-review-cycle"),
-    path('review-tracks/<int:pk>/edit/', views.EditReviewTrack.as_view(), name="edit-review-track"),
+
     path('cycles/<int:pk>/assign/<int:stage>/', views.AssignReviewers.as_view(), name="assign-reviewers"),
     path('cycles/<int:pk>/start-reviews/', views.StartReviews.as_view(), name="start-reviews"),
     path('cycles/<int:cycle>/assigned/<int:stage>/', views.AssignedSubmissionList.as_view(), name="assigned-reviewers"),
@@ -47,6 +52,9 @@ urlpatterns = [
     path('cycles/<int:cycle>/<str:track>/evaluation/', views.ReviewEvaluationList.as_view(), name='review-evaluation'),
 
     path('tracks/', views.ReviewTrackList.as_view(), name="review-track-list"),
+    path('tracks/new/', views.AddReviewTrack.as_view(), name="add-review-track"),
+    path('tracks/<int:pk>/edit/', views.EditReviewTrack.as_view(), name="edit-review-track"),
+    path('tracks/<int:pk>/delete/', views.DeleteReviewTrack.as_view(), name="delete-review-track"),
     path('tracks/<slug:track>/stages/add/', views.AddReviewStage.as_view(), name="add-review-stage"),
     path('tracks/<slug:track>/stages/<int:pk>/edit/', views.EditReviewStage.as_view(), name="edit-review-stage"),
     path('tracks/<slug:track>/stages/<int:pk>/delete/', views.DeleteReviewStage.as_view(), name="delete-review-stage"),

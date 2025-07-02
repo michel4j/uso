@@ -25,7 +25,7 @@
                      title="{{ item.technique.get_category_display }} ({{ item.track.acronym }} Track)">
                     {% if item.config.facility != facility %}
                         <i class="bi-circle-fill" style="color: #ddd;"></i>
-                    {% elif item.track.special %}
+                    {% elif not item.track.require_call %}
                         <i class="bi-circle-fill text-warning"></i>
                     {% else %}
                         <i class="bi-circle-fill text-success"></i>

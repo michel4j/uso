@@ -41,11 +41,11 @@
         {% for track, items in config.items.group_by_track.items %}
             {% if items.exists %}
                 <div class="col-md-6 col-sm-12">
-                    <h5 class="text-condensed mt-3">{{ track.acronym }}&mdash;{{ track.name }}{% if track.special %}/Special
+                    <h5 class="text-condensed mt-3">{{ track.acronym }}&mdash;{{ track.name }}{% if not track.require_call %}/Special
                         Requests{% endif %} Review Track</h5>
                     {% for item in items %}
                         <div class="overflow ellipsis">
-                            {% if track.special %}
+                            {% if not track.require_call %}
                                 <i class="bi-circle-fill text-warning"></i>
                             {% else %}
                                 <i class="bi-circle-fill text-success"></i>

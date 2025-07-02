@@ -289,7 +289,6 @@ class ReviewTrack(TimeStampedModel):
     name = models.CharField(max_length=128)
     acronym = models.CharField(max_length=10, unique=True)
     description = models.TextField(null=True)
-    special = models.BooleanField("Special Requests", null=True, default=None, unique=True)
     require_call = models.BooleanField("Require Call", default=True)
     min_reviewers = models.IntegerField("Assignment", default=0)
     max_workload = models.IntegerField("Max. Workload", default=0)
@@ -412,7 +411,8 @@ class Technique(TimeStampedModel):
         ('imaging', _('Imaging')),
         ('microscopy', _('Microscopy')),
         ('spectroscopy', _('Spectroscopy')),
-        ('other', _('Other')), )
+        ('other', _('Other')),
+    )
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     category = models.CharField(_('Category'), max_length=50, choices=TYPES, default=TYPES.other)
@@ -768,8 +768,8 @@ class Review(BaseFormModel, GenericContentMixin):
     score = models.FloatField(default=0)
     due_date = models.DateField(null=True)
     cycle = models.ForeignKey(ReviewCycle, verbose_name=_('Cycle'), related_name='reviews', on_delete=models.CASCADE)
-    type = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name='reviews')
-    stage = models.ForeignKey(ReviewStage, null=True, on_delete=models.SET_NULL, related_name='reviews')
+    type = models.ForeignKey(ReviewType, on_delete=models.PROTECT, related_name='reviews')
+    stage = models.ForeignKey(ReviewStage, null=True, on_delete=models.PROTECT, related_name='reviews')
 
     objects = ReviewQueryset.as_manager()
 

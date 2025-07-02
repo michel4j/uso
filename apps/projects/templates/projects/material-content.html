@@ -3,24 +3,20 @@
 {% load samples_tags %}
 
 <h5><strong>Samples:</strong></h5>
-<hr class="hr-xxs"/>
 {% include "projects/samples.html" with samples=material.project_samples.by_kind %}
 {% if material.equipment %}
     <h5><strong>Equipment:</strong></h5>
-    <hr class="hr-xxs"/>
     {% include "proposals/equipment-list.html" with equipment=material.equipment%}
 {% endif %}
 <div class="row section">
     <div class="col-sm-12 section-content">
         <h5><strong>Sample Preparation:</strong></h5>
-        <hr class="hr-xxs"/>
         {{material.procedure|default:"<em>No sample handling onsite.</em>"}}
     </div>
 </div>
 <div class="row section">
     <div class="col-sm-12 section-content">
         <h5><strong>Waste Generation:</strong></h5>
-        <hr class="hr-xxs"/>
         {% if material.waste %}
             The following types of waste will be generated:
             <ul>
@@ -33,7 +29,6 @@
         {% endif %}
         {% if material.disposal %}
         <h5><strong>Waste Disposal:</strong></h5>
-        <hr class="hr-xxs"/>
         {{material.disposal}}
         {% endif %}
     </div>

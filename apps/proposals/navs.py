@@ -105,3 +105,21 @@ class PRCAssignments(BaseNav):
         if not allowed and hasattr(request.user, "reviewer"):
             allowed = request.user.reviewer.committee is not None
         return allowed
+
+
+class ReviewTracks(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Review Tracks'
+    separator = True
+    roles = USO_ADMIN_ROLES
+    url = reverse('review-track-list')
+    weight = 100
+
+
+class Techniques(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Techniques'
+    roles = USO_ADMIN_ROLES
+    url = reverse('technique-list')
+    weight = 101
+
