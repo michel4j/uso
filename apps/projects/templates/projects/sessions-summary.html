@@ -22,10 +22,10 @@
                 <td>{{ event.end | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.shifts|floatformat }} shift{{ event.shifts|pluralize:",s" }}</td>
                 <td class="text-center">
-                    {% if user|is_staff:event.beamline %}
+                    {% if admin or user|is_staff:event.beamline %}
                     <a href="#0" title="Hand Over Session"  class="text-danger"
                         data-modal-url="{% url 'session-handover' pk=event.project.pk fac=event.beamline.acronym event=event.pk %}">
-                        <i class="bi-play-circle icon-md icon-fw"></i>
+                        <i class="bi-play-circle icon-sm icon-fw"></i>
                     </a>
                     {% else %}
                         Hand-over Pending
