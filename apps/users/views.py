@@ -19,7 +19,6 @@ from itemlist.views import ItemListView
 from proxy.views import proxy_view
 
 from misc.models import ActivityLog
-from misc.views import JSONResponseMixin
 from notifier import notify
 from publications import stats
 from roleperms.utils import has_any_items
@@ -258,7 +257,7 @@ class RegistrationView(DynCreateView):
     template_name = "users/forms/registration-form.html"
     success_url = reverse_lazy("user-profile")
     form_class = forms.RegistrationForm
-    model = models.Registration()
+    model = models.Registration
 
     def get_form_type(self) -> FormType:
         form_type = FormType.objects.filter(code='registration').first()

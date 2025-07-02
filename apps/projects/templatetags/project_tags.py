@@ -45,13 +45,13 @@ def sample_state_display(sample):
                                                                                        sample.expiry.isoformat())
 
     if full_state == sample.STATES.approved:
-        return f"<i class='bi-check-circle-fill icon-fw text-success'></i> {full_display}"
+        return f"<i class='bi-check-circle-fill icon-fw text-success'></i>&nbsp;{full_display}"
     elif full_state == sample.STATES.pending:
-        return f"<i class='bi-hourglass  icon-fw text-body-secondary'></i> {full_display}"
+        return f"<i class='bi-hourglass icon-fw text-body-secondary'></i>&nbsp;{full_display}"
     elif full_state == sample.STATES.rejected:
-        return f"<i class='bi-ban  icon-fw text-danger'></i> {full_display}"
+        return f"<i class='bi-ban icon-fw text-danger'></i>&nbsp;{full_display}"
     elif full_state == sample.STATES.expired:
-        return f"<i class='bi-ban  icon-fw text-danger'></i> {full_display}"
+        return f"<i class='bi-ban icon-fw text-danger'></i>&nbsp;{full_display}"
 
 
 @register.filter(name="permission_code")

@@ -107,9 +107,19 @@ class PRCAssignments(BaseNav):
         return allowed
 
 
+class ReviewTracks(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Review Tracks'
+    separator = True
+    roles = USO_ADMIN_ROLES
+    url = reverse('review-track-list')
+    weight = 100
+
+
 class Techniques(BaseNav):
     parent = 'misc.Admin'
-    label = 'Manage Techniques'
+    label = 'Techniques'
     roles = USO_ADMIN_ROLES
     url = reverse('technique-list')
+    weight = 101
 

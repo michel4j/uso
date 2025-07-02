@@ -78,9 +78,9 @@ class BeamlineReqs(FieldType):
                 fac_id = req.get('facility')
                 fac = None if not fac_id else models.Facility.objects.filter(pk=fac_id).first()
                 if fac and not fac.flex_schedule and not req.get('shifts', 0):
-                    raise ValidationError("'shifts' is required for the {} beamline".format(fac))
+                    raise ValidationError(f"'shifts' is required for the {fac} beamline")
             if invalid_fields:
-                raise ValidationError("must complete {} for all selected beamlines".format(', '.join(invalid_fields)))
+                raise ValidationError(f'must complete {", ".join(invalid_fields)} for all selected beamlines')
 
         return requirements
 
@@ -104,6 +104,7 @@ class Reviewers(FieldType):
     def clean(self, val, multi=True, validate=False):
         if isinstance(val, dict):
             val = super().clean(val, multi=multi, validate=validate)
+        print(val)
         return [] if not val else val
 
 

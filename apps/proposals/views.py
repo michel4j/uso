@@ -642,6 +642,7 @@ class PrintReviewDoc(RolePermsViewMixin, detail.DetailView):
         context = super().get_context_data(**kwargs)
         context['reference'] = self.object.reference
         context['now'] = timezone.localtime(timezone.now())
+
         return context
 
 
@@ -1069,33 +1070,6 @@ class EditReviewCycle(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
             }
         )
 
-
-class EditReviewTrack(RolePermsViewMixin, ModalUpdateView):
-    form_class = forms.ReviewTrackForm
-    model = models.ReviewTrack
-    allowed_roles = USO_ADMIN_ROLES
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
-    def get_initial(self):
-        initial = super().get_initial()
-        track = self.get_object()
-        initial.update(committee=track.committee.all())
-        return initial
-
-    def form_valid(self, form):
-        data = form.cleaned_data
-        committee = data.pop('committee')
-        obj = self.get_object()
-        models.ReviewTrack.objects.filter(pk=obj.pk).update(**data)
-        obj.committee.clear()
-        obj.committee.add(*committee)
-        return JsonResponse({"url": ""})
-
-
 class AddReviewStage(RolePermsViewMixin, ModalCreateView):
     form_class = forms.ReviewStageForm
     model = models.ReviewStage
@@ -1392,14 +1366,6 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
 
         context['committee_member'] = is_committee_reviewer
         return context
-
-
-class ReviewTrackList(RolePermsViewMixin, ItemListView):
-    template_name = "item-list.html"
-    model = models.ReviewTrack
-    list_columns = ['acronym', 'name', 'description', 'duration']
-    list_filters = ['created', 'modified', 'require_call']
-    list_search = ['acronym', 'name', 'committee__last_name', 'description']
 
 
 class ReviewerList(RolePermsViewMixin, ItemListView):
@@ -2010,3 +1976,65 @@ class DeleteTechnique(RolePermsViewMixin, ModalDeleteView):
         return JsonResponse({"url": self.get_success_url()})
 
 
+class ReviewTrackList(RolePermsViewMixin, ItemListView):
+    template_name = "tooled-item-list.html"
+    model = models.ReviewTrack
+    tool_template = "proposals/track-list-tools.html"
+    list_columns = ['name',  'acronym', 'description', 'duration']
+    list_filters = ['created', 'modified', 'require_call']
+    list_search = ['acronym', 'name', 'committee__last_name', 'description']
+    link_url = "edit-review-track"
+    link_attr = 'data-modal-url'
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+    paginate_by = 20
+
+
+class AddReviewTrack(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.ReviewTrackForm
+    model = models.ReviewTrack
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+
+class EditReviewTrack(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.ReviewTrackForm
+    model = models.ReviewTrack
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['delete_url'] = reverse("delete-review-track", kwargs=self.kwargs)
+        return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        track = self.get_object()
+        initial.update(committee=track.committee.all())
+        return initial
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        committee = data.pop('committee', [])
+        models.ReviewTrack.objects.filter(pk=self.object.pk).update(**data)
+        self.object.committee.clear()
+        self.object.committee.add(*committee)
+        return JsonResponse({"url": "."})
+
+
+class DeleteReviewTrack(RolePermsViewMixin, ModalDeleteView):
+    model = models.ReviewTrack
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('review-track-list')
+
+    def confirmed(self, *args, **kwargs):
+        self.object = self.get_object()
+        ActivityLog.objects.log(
+            self.request, self.object, kind=ActivityLog.TYPES.delete, description='Review Track Deleted'
+        )
+        self.object.delete()
+        return JsonResponse({"url": self.get_success_url()})

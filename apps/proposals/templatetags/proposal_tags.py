@@ -328,6 +328,7 @@ def verbose_name_plural(value):
 @register.simple_tag(takes_context=True)
 def get_options(context, data=None):
     data = {} if not data else data
+    print(data)
     sel_techs = [0] + data.get('techniques', [])
     sel_fac = 0 if not data.get('facility') else int(data.get('facility'))
     cycle = models.ReviewCycle.objects.next()

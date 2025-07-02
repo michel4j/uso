@@ -10,6 +10,7 @@ class Tasks(BaseNav):
     parent = 'misc.Admin'
     label = 'Background Tasks'
     separator = True
+    weight = 90
     roles = USO_ADMIN_ROLES
     url = reverse('task-list')
 
