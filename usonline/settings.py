@@ -73,7 +73,6 @@ INSTALLED_APPS = [
     'weather',
     'surveys',
     'agreements',
-    #'schema_graph',
     'dynamic_breadcrumbs',
 ]
 
@@ -167,16 +166,16 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/logout/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-DEFAULT_FROM_EMAIL = "noreply@usonline.clsi"
-SERVER_EMAIL = "noreply@usonline.clsi"
+DEFAULT_FROM_EMAIL = "noreply@example.com"
+SERVER_EMAIL = "noreply@example.com"
 ADMINS = (
-    ('Michel', 'michel.fodje@lightsource.ca'),
+    ('Admin', 'admin@example.com'),
 )
 EMAIL_SUBJECT_PREFIX = '[USO] '
 
 
 SITE_URL = "http://localhost:8080"
-CAS_SERVER_URL = "https://cas.lightsource.ca/cas/"
+CAS_SERVER_URL = "https://cas.example.com/cas/"
 CAS_SERVICE_DESCRIPTION = "User Services Online"
 CAS_LOGOUT_COMPLETELY = True
 CAS_SINGLE_SIGN_OUT = True
