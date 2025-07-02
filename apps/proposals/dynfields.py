@@ -33,11 +33,16 @@ class BeamlineReqs(FieldType):
         return val
 
     def clean(self, val, multi=True, validate=True):
+
+        import pprint
+        print("=" * 20)
+        pprint.pprint(val)
+        print("=" * 20)
+
         # prepare initial value dict
         if isinstance(val, dict):
             val = super().clean(val, multi=multi, validate=validate)
-        import pprint
-        pprint.pprint(val)
+
         # make sure values are clean in prepared list
         for req in val:
             techs = req.get('techniques', [])
@@ -105,7 +110,6 @@ class Reviewers(FieldType):
     def clean(self, val, multi=True, validate=False):
         if isinstance(val, dict):
             val = super().clean(val, multi=multi, validate=validate)
-        print(val)
         return [] if not val else val
 
 

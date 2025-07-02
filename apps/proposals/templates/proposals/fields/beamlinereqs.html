@@ -2,11 +2,12 @@
 {% load jsonify %}
 {% load proposal_tags %}
 {% get_options data=data as options %}
-<div class="controls {{ repeatable }}" id="{{ field.name }}-controls{{ repeat_index }}"
+<div class="controls {{ repeatable }}" id="{{ field.name }}-controls--{{ repeat_index }}"
      data-field-name="{{ field.name }}" data-repeat-index="{{ repeat_index }}">
     <div class="row">
         <div class="field-group-item col-7">
-            <select name="{{ field.name }}.techniques" id="{{ field.name }}-techniques{{ repeat_index }}"
+            <select name="{{ field.name }}.techniques" id="{{ field.name }}-techniques--{{ repeat_index }}"
+                    data-repeat-name="{{ field.name }}"
                     multiple class="form-select-multiple {{ required }}" data-placeholder="Select techniques">
                 {% for technique in options.techniques %}
                     <option value="{{ technique.id }}" data-related="{{ technique.facilities|jsonify }}"
@@ -15,12 +16,12 @@
                     </option>
                 {% endfor %}
             </select>
-            <label for="{{ field.name }}-techniques{{ repeat_index }}" class="sub-label">
+            <label for="{{ field.name }}-techniques--{{ repeat_index }}" class="sub-label">
                 Techniques<span class="text-danger">∗</span>
             </label>
         </div>
         <div class="field-group-item col-3">
-            <select name="{{ field.name }}.facility" id="{{ field.name }}-facility{{ repeat_index }}"
+            <select name="{{ field.name }}.facility" id="{{ field.name }}-facility--{{ repeat_index }}"
                     class="form-select {{ required }}" data-placeholder="Select facility">
                 <option value=""></option>
                 {% for facility in options.facilities %}
@@ -31,7 +32,7 @@
                     </option>
                 {% endfor %}
             </select>
-            <label for="{{ field.name }}-facility{{ repeat_index }}" class="sub-label">
+            <label for="{{ field.name }}-facility--{{ repeat_index }}" class="sub-label">
                 Facility<span class="text-danger">∗</span>
             </label>
         </div>
@@ -48,21 +49,21 @@
 
                 </div>
             {% else %}
-                <input id="{{ field.name }}-shifts{{ repeat_index }}" name="{{ field.name }}.shifts"
+                <input id="{{ field.name }}-shifts--{{ repeat_index }}" name="{{ field.name }}.shifts"
                        class="form-control" type="number"
                        value="{{ data.shifts }}" placeholder="No. of shifts">
             {% endif %}
-            <label for="{{ field.name }}-shifts{{ repeat_index }}" class="sub-label">Shifts</label>
+            <label for="{{ field.name }}-shifts--{{ repeat_index }}" class="sub-label">Shifts</label>
         </div>
     </div>
     <div class="row">
-        <div class="field-group-item col-12 beamline-info"></div>
+        <div class="field-group-item col-12 beamline-info repeat-html-clear"></div>
     </div>
     <div class="row">
         <div class="field-group-item col-12">
-            <textarea cols="40" name="{{ field.name }}.procedure" id="{{ field.name }}-procedure"
+            <textarea cols="40" name="{{ field.name }}.procedure" id="{{ field.name }}-procedure--{{ repeat_index }}"
                       rows="3" class="textarea form-control {{ required }}">{{ data.procedure }}</textarea>
-            <label for="{{ field.name }}-procedure" class="sub-label">Experimental Procedure<span
+            <label for="{{ field.name }}-procedure--{{ repeat_index }}" class="sub-label">Experimental Procedure<span
                     class="text-danger">∗</span>
             </label>
         </div>
@@ -71,9 +72,9 @@
     {% if "justification" in field.options %}
         <div class="row">
             <div class="field-group-item col-12">
-                <textarea cols="40" name="{{ field.name }}.justification" id="{{ field.name }}-justification"
+                <textarea cols="40" name="{{ field.name }}.justification" id="{{ field.name }}-justification--{{ repeat_index }}"
                           rows="5" class="textarea form-control {{ required }}">{{ data.justification }}</textarea>
-                <label for="{{ field.name }}-justification" class="sub-label ">Justification of Suitability<span
+                <label for="{{ field.name }}-justification--{{ repeat_index }}" class="sub-label ">Justification of Suitability<span
                         class="text-danger">∗</span>
                 </label>
             </div>
@@ -100,6 +101,7 @@
         const $field = $(target);
         const selected = new Set(related);
         $field.find('option').removeAttr('disabled');
+        console.log(target, related)
         if (selected.size) {
             $field.find('option').each(function () {
                 let related = new Set($(this).data('related') || []);
@@ -114,7 +116,7 @@
 
     $(document).ready(function () {
         new SlimSelect({
-            select: "#{{ field.name }}-techniques{{ repeat_index }}",
+            select: "#{{ field.name }}-techniques--{{ repeat_index }}",
             placeholder: "Select techniques",
             showSearch: true,
             searchPlaceholder: "Search techniques",
@@ -124,18 +126,18 @@
         $(document).on('cycle-changed', function (event, data) {
             localStorage.setItem('techniquesMatrix', JSON.stringify(data));
             updateMatrix(
-                '#{{field.name}}-techniques{{repeat_index}}',
-                '#{{field.name}}-facility{{repeat_index}}',
+                '#{{field.name}}-techniques--{{repeat_index}}',
+                '#{{field.name}}-facility--{{repeat_index}}',
                 data
             );
         });
-        $(document).on('change', '#{{field.name}}-techniques{{repeat_index}}', function(){
+        $(document).on('change', '[name^="{{field.name}}.techniques"]', function(){
             const selected =  $(this).val() || [];
             const $target = $(this).closest('.controls').find('[name^="{{field.name}}.facility"]');
             updateRelated($target, selected.map(Number));
         });
 
-        $(document).on('change', '#{{field.name}}-facility{{repeat_index}}', function(){
+        $(document).on('change', '[name^="{{field.name}}.facility"]', function(){
             const facility = $(this).val() || '';
             const selected =  facility ? [facility] : [];
             const $target = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
@@ -146,10 +148,12 @@
                 const infoUrl = "{% url 'beamline-info' %}";
                 const $facilityInfo = $(this).closest('.controls').find('div.beamline-info');
                 $facilityInfo.load(infoUrl + facility);
+            } else {
+                $(this).closest('.controls').find('div.beamline-info').empty();
             }
         });
 
-        $('#{{field.name}}-facility{{repeat_index}}').trigger('change');
+        $('#{{field.name}}-facility--{{repeat_index}}').trigger('change');
     });
 
 </script>
