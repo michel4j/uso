@@ -116,10 +116,18 @@ class ReviewTracks(BaseNav):
     weight = 100
 
 
+class ReviewTypes(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Review Types'
+    roles = USO_ADMIN_ROLES
+    url = reverse('review-type-list')
+    weight = 101
+
+
 class Techniques(BaseNav):
     parent = 'misc.Admin'
     label = 'Techniques'
     roles = USO_ADMIN_ROLES
     url = reverse('technique-list')
-    weight = 101
+    weight = 102
 
