@@ -2619,6 +2619,9 @@ $stat-sizes: (
     font-size: 1rem;
     font-weight: 400;
 }
+.ss-content .ss-list .ss-option.ss-disabled {
+  display: none!important;
+}
 
 .df-form-tabs:empty {
   border-bottom: 1px solid var(--bs-border-color-translucent);

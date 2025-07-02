@@ -18,12 +18,12 @@
                    role="tab"
                    data-bs-toggle="tab">
                     <span>{{ group }}</span>
-                    <span class="technique-count badge rounded-circle bg-info"></span>
+                    <span class="technique-count badge rounded-circle bg-primary"></span>
                 </a>
             </li>
         {% endfor %}
     </ul>
-    <div class="tab-content text-condensed" style="overflow-y: scroll; height: 250px;">
+    <div class="tab-content text-condensed" style="overflow-y: auto; height: 250px;">
         {% for group, techniques in groups.items %}
             <div role="tabpanel" class="tab-pane {% if not forloop.counter0 %}active{% endif %}"
                  id="{{ field.name }}group-{{ forloop.counter0 }}">

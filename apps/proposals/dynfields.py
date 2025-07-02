@@ -36,7 +36,8 @@ class BeamlineReqs(FieldType):
         # prepare initial value dict
         if isinstance(val, dict):
             val = super().clean(val, multi=multi, validate=validate)
-
+        import pprint
+        pprint.pprint(val)
         # make sure values are clean in prepared list
         for req in val:
             techs = req.get('techniques', [])
