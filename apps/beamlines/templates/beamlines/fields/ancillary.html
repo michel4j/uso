@@ -2,21 +2,22 @@
 
 {% get_ancillaries data=data as ancillaries %}
 
-<div class="controls {{ repeatable }}" id="{{ field.name }}-controls">
+<div class="controls {{ repeatable }}" id="{{ field.name }}__controls" data-repeat-name="{{ repeat_name }}__controls">
     <div class="row">
         <div class="field-group-item col-sm-6 mb-2">
-            <select name="{{ field.name }}.labs" id="{{ field.name }}-labs" class="form-select-multiple"
+            <select name="{{ field.name }}__labs" id="{{ field.name }}__labs" class="form-select-multiple"
+                    data-repeat-name="{{ repeat_name }}__labs"
                     {% if 'multiple' in field.options %}multiple{% endif %}
                     data-placeholder="Select labs ...">
                 {% for item in ancillaries.labs %}
-                    <option value="{{ item.pk }}"
-                            {% if item.selected %}selected="selected"{% endif %}>{{ item }}</option>
+                    <option value="{{ item.pk }}" {% if item.selected %}selected="selected"{% endif %}>{{ item }}</option>
                 {% endfor %}
             </select>
-            <label for="{{ field.name }}-labs" class="sub-label">Labs</label>
+            <label for="{{ field.name }}__labs" class="sub-label" data-repeat-for="{{ repeat_name }}__labs">Labs</label>
         </div>
         <div class="field-group-item col-sm-6 mb-2">
-            <select name="{{ field.name }}.equipment" id="{{ field.name }}-equipment"
+            <select name="{{ field.name }}__equipment" id="{{ field.name }}__equipment"
+                    data-repeat-name="{{ repeat_name }}__equipment"
                     class="form-select-multiple"
                     {% if 'multiple' in field.options %}multiple{% endif %}
                     data-placeholder="Select equipment ...">
@@ -25,14 +26,14 @@
                             {% if item.selected %}selected="selected"{% endif %}>{{ item }}</option>
                 {% endfor %}
             </select>
-            <label for="{{ field.name }}-equipment" class="sub-label">Equipment</label>
+            <label for="{{ field.name }}__equipment" class="sub-label" data-repeat-for="{{ repeat_name }}__equipment">Equipment</label>
         </div>
     </div>
 </div>
 
 <script>
     $(document).ready(function () {
-        $("#{{ field.name }}-labs, #{{ field.name }}-equipment").each(function () {
+        $("#{{ field.name }}__labs, #{{ field.name }}__equipment").each(function () {
             new SlimSelect({
                 select: this,
                 showSearch: true,

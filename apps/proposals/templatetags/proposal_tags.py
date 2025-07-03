@@ -328,7 +328,13 @@ def verbose_name_plural(value):
 @register.simple_tag(takes_context=True)
 def get_options(context, data=None):
     data = {} if not data else data
-    sel_techs = [0] + data.get('techniques', [])
+    techniques = data.get('techniques')
+    if techniques and isinstance(techniques, list):
+        sel_techs = [0] + [int(t) for t in techniques if t]
+    elif isinstance (techniques, (int, str)):
+        sel_techs = [0] + [int(techniques)]
+    else:
+        sel_techs = [0]
     sel_fac = 0 if not data.get('facility') else int(data.get('facility'))
     cycle = models.ReviewCycle.objects.next()
     technique_matrix = get_techniques_matrix(cycle, sel_techs=sel_techs, sel_fac=sel_fac)

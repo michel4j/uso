@@ -25,23 +25,16 @@ class BeamlineReqs(FieldType):
     template_theme = "proposals/fields"
     required_subfields = ['techniques', 'facility', 'procedure', 'justification']
 
-    def coerce(self, val):
-        if isinstance(val, dict):
-            # clean strings
-            for k in ['justification', 'procedure']:
-                val[k] = val.get(k, '').strip()
-        return val
+    def _clean_one(self, val, validate=True):
+        pass
 
-    def clean(self, val, multi=True, validate=True):
-
-        import pprint
-        print("=" * 20)
-        pprint.pprint(val)
-        print("=" * 20)
+    def clean(self, val, multi=False, validate=True):
 
         # prepare initial value dict
         if isinstance(val, dict):
             val = super().clean(val, multi=multi, validate=validate)
+
+        print(val)
 
         # make sure values are clean in prepared list
         for req in val:

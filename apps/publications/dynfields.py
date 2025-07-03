@@ -6,12 +6,17 @@ class SubjectArea(FieldType):
     name = _("Subject Area")
     options = ['required', 'hide', 'multiple', 'keywords']
     template_name = "publications/fields/subjectarea.html"
+    multi_valued = True
 
-    def coerce(self, val):
-        if isinstance(val.get('keywords'), list):
-            val['keywords'] = "; ".join(val['keywords'])
-            val['areas'] = [int(v) for v in val.get('areas', [])]
-        return val
+    def clean(self, value, multi=False, validate=True):
+
+        if 'keywords' in value and isinstance(value['keywords'], list):
+            value['keywords'] = '; '.join(value['keywords']).strip()
+
+        return {
+            'keywords': value.get('keywords', '').strip(),
+            'areas': [int(v) for v in value.get('areas', [])]
+        }
 
 
 class ResearchArea(FieldType):
