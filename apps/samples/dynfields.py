@@ -37,9 +37,6 @@ class SampleHazards(FieldType):
     choices_type = 'checkbox'
     multi_valued = True
 
-    def coerce(self, val):
-        return int(val)
-
 
 class SafetyControls(FieldType):
     name = _("SafetyControls")
@@ -60,22 +57,8 @@ class Samples(FieldType):
     multi_valued = True
     required_subfields = ['sample', 'quantity']
 
-    def coerce(self, val):
-        return val
-
-    def clean(self, val, multi=False, validate=True):
-        val = super().clean(val, multi=multi, validate=validate)
-        if validate:
-            invalid_fields = set()
-            if isinstance(val, list):
-                for entry in val:
-                    invalid_fields |= {k for k, v in list(self.check_entry(entry).items()) if not v}
-            else:
-                invalid_fields |= {k for k, v in list(self.check_entry(val).items()) if not v}
-
-            if invalid_fields:
-                raise ValidationError("must complete {} for all samples".format(', '.join(invalid_fields)))
-        return val
+    def coerce(self, value: str, *flags: str):
+        return value
 
 
 class SampleHazardReviews(FieldType):

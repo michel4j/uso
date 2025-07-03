@@ -1,7 +1,10 @@
 {% load dynforms %}
 {% load samples_tags %}
 
-<div class="controls mb-3" id="{{ field.name }}-controls" data-field-name="{{ field.name }}">
+<div class="controls mb-3" id="{{ field.name }}-controls"
+     data-field-name="{{ field.name }}"
+     data-repeat-name="{{ repeat_name }}__controls"
+>
     {% get_user_samples data=data as samples %}
     <div class="sample-list">
         <div class="row header">
@@ -42,20 +45,20 @@
         $("#{{field.name}}-group").triggerHandler('dynrules:update');
 
         // find all Hazards classes and sample types
-        var non_haz_pk = "15";
-        var all_hazards = {};
-        var all_types = {};
+        let noHazard = "15";
+        let allHazards = {};
+        let allTypes = {};
         $("#{{field.name}}-controls img[data-sample-hazard]").each(function () {
-            if ($(this).attr("data-sample-hazard") !== non_haz_pk) {
-                all_hazards[$(this).attr("data-sample-hazard")] = 1;
+            if ($(this).attr("data-sample-hazard") !== noHazard) {
+                allHazards[$(this).attr("data-sample-hazard")] = 1;
             }
         });
         $("#{{field.name}}-controls [data-sample-type]").each(function () {
-            all_types[$(this).attr("data-sample-type")] = 1;
+            allTypes[$(this).attr("data-sample-type")] = 1;
         });
         // This element must be present in the form via a sample hazard field
         $('#sample-hazard-controls  input[type="checkbox"]').each(function () {
-            if ($(this).val() in all_hazards) {
+            if ($(this).val() in allHazards) {
                 $(this).prop("checked", true);
                 $(this).attr('checked', 'checked');
                 $(this).trigger('change');
@@ -68,7 +71,7 @@
 
         // manage non-hazard checkbox
         var non_hz = $('#sample-hazard-controls  input[type="checkbox"][value="15"]');
-        if (jQuery.isEmptyObject(all_hazards)) {
+        if (jQuery.isEmptyObject(allHazards)) {
             non_hz.removeAttr("disabled");
         } else {
             non_hz.attr("disabled", "disabled");
@@ -76,7 +79,7 @@
 
         // This element must be present in the form via a sample types field
         $('#sample-type-controls  input[type="checkbox"]').each(function () {
-            if ($(this).val() in all_types) {
+            if ($(this).val() in allTypes) {
                 $(this).prop("checked", true);
                 $(this).attr('checked', 'checked');
                 $(this).attr("disabled", "disabled");
