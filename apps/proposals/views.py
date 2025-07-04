@@ -20,6 +20,7 @@ from scipy import stats as scipy_stats
 from beamlines.models import Facility
 from misc import filters
 from misc.models import ActivityLog
+from misc.utils import debug_value
 from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from roleperms.views import RolePermsViewMixin
@@ -670,8 +671,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         if not allowed:
             obj = self.get_object()
             allowed = (
-                    obj.state != models.Review.STATES.closed and (
-                    obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
+                obj.state != models.Review.STATES.closed and (
+                obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
             )
         return allowed
 
@@ -679,6 +680,7 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         context = super().get_context_data(**kwargs)
         if context['review'].is_claimable():
             context['candidates'] = User.objects.all_with_roles(context['review'].role)
+
             # if only one person, assign as the reviewer
             if len(context['candidates']) == 1 and not self.object.reviewer:
                 context['review'].reviewer = context['candidates'][0]
@@ -690,11 +692,9 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
 
     def _valid_review(self, data, form_action):
         self.success_url = reverse("edit-review", kwargs={'pk': self.object.pk})
-        message = 'Review saved successfully'
         activity_description = 'Review saved'
         activity_type = ActivityLog.TYPES.modify
         if form_action == 'submit':
-            message = 'Review submitted successfully'
             activity_description = 'Review submitted'
             activity_type = ActivityLog.TYPES.task
             self.success_url = self.object.reference.get_absolute_url()
@@ -703,7 +703,7 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
 
         self.queryset.filter(pk=self.object.pk).update(**data)
         self.object.reference.update_state()
-        messages.success(self.request, message)
+        messages.success(self.request, activity_description)
         ActivityLog.objects.log(self.request, self.object, kind=activity_type, description=activity_description)
 
     def _valid_approval(self, data, form_action):

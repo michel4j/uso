@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 
 from django.conf import settings
@@ -49,13 +51,36 @@ class HStatement(TimeStampedModel):
         return self.code,  # tuple
 
 
+class PrecautionManager(CodeManager):
+    def for_hazards(self, hazards: list | models.QuerySet) -> models.QuerySet:
+        """
+        Return precautions for a list of hazards.
+        """
+
+        if isinstance(hazards, list):
+            hazards = Hazard.objects.filter(pk__in=hazards)
+
+        # select precautions from the hazards
+        precautions = self.filter(
+            pk__in=hazards.values_list('precautions__pk', flat=True)
+        ).distinct().order_by('code')
+
+        # remove precautions already present in combined codes
+        removed_codes = {
+            code
+            for codes in precautions.filter(code__contains="+").values_list('code', flat=True)
+            for code in codes.split('+')
+        }
+        return precautions.exclude(code__in=removed_codes).distinct()
+
+
 class PStatement(TimeStampedModel):
     code = models.CharField(max_length=20, unique=True, db_index=True)
     text = models.CharField(max_length=255)
-    objects = CodeManager()
+    objects = PrecautionManager()
 
     def __str__(self):
-        return "{}: {}".format(self.code, self.text)
+        return f"{self.code}: {self.text}"
 
     def natural_key(self):
         return self.code,  # tuple
@@ -172,12 +197,7 @@ class Sample(TimeStampedModel):
             return utils.summarize_pictograms(self.hazards)
 
     def precautions(self):
-        precautions = PStatement.objects.filter(
-            pk__in=[p.pk for hz in self.hazards.all() for p in hz.precautions.all()]).order_by('code')
-        remove_statements = []
-        for p in precautions.filter(code__contains="+"):
-            remove_statements.append(p.code.split("+"))
-        return precautions.exclude(code__in=[code for codes in remove_statements for code in codes]).distinct()
+        return PStatement.objects.for_hazards(self.hazards.all())
 
     def permissions(self):
         perms = {

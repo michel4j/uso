@@ -4,6 +4,8 @@ from django.utils.translation import gettext as _
 
 from dynforms.fields import FieldType
 
+from misc.utils import debug_value
+
 
 class SampleTypes(FieldType):
     name = _("Sample Types")
@@ -100,15 +102,12 @@ class SampleHazardReviews(FieldType):
 
     @staticmethod
     def clean_keywords(value):
+        if isinstance(value, str):
+            return json.loads(value)
+        if not isinstance(value, dict):
+            return value
+        return {}
 
-        return {
-            k: v[0].strip() if isinstance(v, list) else v.strip()
-            for k, v in list(value.items()) if k and v
-        }
-
-    def clean(self, value):
-        print('CLEANING', value)
-        return value
 
     # def clean(self, val, multi=True, validate=True):
     #     from . import models

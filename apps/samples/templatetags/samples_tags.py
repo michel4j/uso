@@ -1,11 +1,8 @@
-import pprint
-import re
 from collections import defaultdict
 
 from django import template
-from django.db.models import Q, When, BooleanField, Value, Case
-from django.utils.safestring import mark_safe
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.db.models import Q, When, BooleanField, Value, Case
 
 from samples import models
 from samples import utils
@@ -63,17 +60,6 @@ def show_pictograms(hazards, extras=None, types=None):
 
 
 @register.simple_tag(takes_context=True)
-def get_precautions(context, hazards):
-    precautions = models.PStatement.objects.filter(
-        pk__in=[p.pk for hz in hazards.all() for p in hz.precautions.all()]).distinct().order_by('code')
-    remove_statements = []
-    for p in precautions.filter(code__contains="+"):
-        remove_statements.append(p.code.split("+"))
-    precautions = precautions.exclude(code__in=[code for codes in remove_statements for code in codes])
-    return precautions
-
-
-@register.simple_tag(takes_context=True)
 def precaution_text(context, precaution):
     return precaution.text
 
@@ -115,7 +101,8 @@ def get_user_samples(context, data=None):
     if user.is_authenticated:
         try:
             _data = {int(v['sample']): v['quantity'] for v in data}
-            _all = {s.pk: s for s in models.Sample.objects.filter(Q(owner=user.pk) | Q(pk__in=list(_data.keys()))).distinct()}
+            _all = {s.pk: s for s in
+                    models.Sample.objects.filter(Q(owner=user.pk) | Q(pk__in=list(_data.keys()))).distinct()}
             samples = {
                 'selected': [(_all.get(k), v) for k, v in list(_data.items()) if k in _all],
                 'all': [(s, k in list(_data.keys())) for k, s in list(_all.items())]
@@ -139,7 +126,7 @@ def get_material_samples(context, data=None, material=None):
                 item['sample']: item
                 for item in data
             }
-    except (TypeError,KeyError):
+    except (TypeError, KeyError):
         sample_info = {}
 
     try:
@@ -148,11 +135,11 @@ def get_material_samples(context, data=None, material=None):
             (
                 s.sample,
                 s.quantity,
-                sample_info.get(s.sample.pk, {}).get('hazards', []),    # saved_hazards
-                s.sample.hazards.all(),                                 # sample_hazards
-                models.Hazard.objects.filter(pk__in=sample_info.get(s.sample.pk, {}).get('hazards', [])), # review_hazards
+                s.sample.hazards.all(),  # sample_hazards
+                models.Hazard.objects.filter(pk__in=sample_info.get(s.sample.pk, {}).get('hazards', [])),
+                # review_hazards
                 sample_info.get(s.sample.pk, {}).get('rejected', False),  # rejected
-                sample_info.get(s.sample.pk, {}).get('permissions', {}) or s.sample.permissions(),     # permissions
+                sample_info.get(s.sample.pk, {}).get('permissions', {}) or s.sample.permissions(),  # permissions
             )
             for s in samples.all()
         ]
@@ -162,37 +149,87 @@ def get_material_samples(context, data=None, material=None):
 
 
 @register.simple_tag(takes_context=True)
-def get_ethics_samples(context, data=None):
+def get_safety_samples(context, data):
+    """
+    Returns a list of dictionaries containing sample information for each sample's safety review.
+    :param context: template context
+    :param data: sample data to be processed, if any
+    :return:
+    """
     data = [] if not data else data
     review = context.get('object')
-    if not review or not hasattr(review, 'reference'):
+    invalid = (
+            not review or
+            not hasattr(review, 'reference') or
+            not hasattr(review.reference, 'project_samples') or
+            not isinstance(data, list)
+    )
+    if invalid:
         return []
 
+    # load sample_info with defaults from the sample
     material = review.reference
-    sample_info = {}
-    try:
-        if isinstance(data, list):
-            sample_info = {
-                item['sample']: item
-                for item in data
-            }
-    except (TypeError,KeyError):
-        sample_info = {}
+    sample_info = {
+        mat_sample.sample.pk: {
+            'sample': mat_sample.sample,
+            'quantity': mat_sample.quantity,
+            'expiry': mat_sample.expiry,
+            'rejected': mat_sample.state == mat_sample.STATES.rejected,
+            'hazards': mat_sample.sample.hazards.all(),
+            'permissions': mat_sample.sample.permissions(),
+            'precautions': mat_sample.sample.precautions(),
+            'keywords': mat_sample.sample.details.get('keywords', {}),
+        }
+        for mat_sample in material.project_samples.filter().order_by('sample__kind')
+    }
 
     try:
-        samples = material.project_samples.filter(sample__kind__in=models.Sample.ETHICS_TYPES).order_by('sample__kind')
-        sample_list = [
-            (
-                s.sample,
-                s.quantity,
-                sample_info.get(s.sample.pk, {}).get('decision'),    # decisition
-                sample_info.get(s.sample.pk, {}).get('expiry'),      # expiry
-            )
-            for s in samples.all()
-        ]
+        # update sample_info with data from the review
+        for rev_sample in data:
+            pk = int(rev_sample['sample'])
+            rev_sample['rejected'] = int(rev_sample.get('rejected', 0))
+
+            for key in ['expiry', 'decision', 'permissions', 'keywords']:
+                if key in rev_sample:
+                    sample_info[pk][key] = rev_sample[key]
+
+            if 'hazards' in rev_sample:
+                sample_info[pk]['hazards'] = models.Hazard.objects.filter(pk__in=rev_sample['hazards'])
+                sample_info[pk]['precautions'] = models.PStatement.objects.for_hazards(rev_sample['hazards'])
+
     except (ValueError, TypeError, KeyError):
-        sample_list = []
-    return sample_list
+        pass
+    return sample_info.values()
+
+
+@register.inclusion_tag('samples/fields/sample-safety.html', takes_context=True)
+def sample_safety_review(context, sample_info: dict):
+    """
+    Renders the safety review template with the provided context and data.
+    :param context: The template context
+    :param sample_info: Information about the sample to be reviewed
+    """
+
+    return {
+        'data': context.get('data'),
+        'field': context.get('field'),
+        **sample_info
+    }
+
+
+@register.inclusion_tag('samples/fields/sample-ethics.html', takes_context=True)
+def sample_ethics_review(context, sample_info: dict):
+    """
+    Renders the safety review template with the provided context and data.
+    :param context: The template context
+    :param sample_info: Information about the sample to be reviewed
+    """
+
+    return {
+        'data': context.get('data'),
+        'field': context.get('field'),
+        **sample_info
+    }
 
 
 @register.simple_tag(takes_context=True)
@@ -260,3 +297,19 @@ def update_saved_hazards(context):
             saved_hazards = list(map(int, saved_hazards))
     print("Saved Hazards:", saved_hazards)
     return saved_hazards
+
+
+@register.simple_tag(takes_context=True)
+def unpack(context, data: dict):
+    context.update(data)
+    return ''
+
+
+@register.filter
+def query_ids(queryset):
+    """
+    Returns a list of IDs from a queryset.
+    :param queryset: A Django queryset
+    :return: List of IDs
+    """
+    return [obj.pk for obj in queryset] if queryset else []

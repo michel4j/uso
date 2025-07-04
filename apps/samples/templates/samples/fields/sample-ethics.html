@@ -1,0 +1,68 @@
+{% load dynforms %}
+{% load static %}
+{% load samples_tags %}
+{% load project_tags %}
+{% load jsonify %}
+
+{% spaceless %}
+<div class="sample-row py-4 list-group-item {% if rejected %}rejected-sample {% endif %}{% if not sample.is_editable %}reviewed-sample{% else %}pending-sample{% endif %}"
+     id="{{ field.name }}-{{ sample.pk }}-ethics-container">
+    <div class="d-flex flex-row justify-content-start align-items-start gap-3">
+        <div>
+            <div class="lead">{{ sample.name }}</div>
+            <em>{{ sample.description|default:""|safe }}</em>
+        </div>
+        <i class="bi-{% if sample.is_editable %}unlock{% else %}lock{% endif %} icon-md icon-fw ms-auto"></i>
+    </div>
+
+    <div class="sample-properties">
+        <div class="sample-property">
+            <div class="text-body-secondary small">Quantity:</div>
+            <div>{{ quantity|default:"&hellip;" }}</div>
+        </div>
+        <div class="sample-property">
+            <div class="text-body-secondary small">Type:</div>
+            <div>{{ sample.get_kind_display }}</div>
+        </div>
+        <div class="sample-property">
+            <div class="text-body-secondary small">State:</div>
+            <div>{{ sample.get_state_display }}</div>
+        </div>
+        <div class="sample-property">
+            <div class="text-body-secondary small">Source:</div>
+            <div>{{ sample.source|default:"N/C" }}</div>
+        </div>
+    </div>
+
+    <div class="row sample-group no-space" id="{{ field.name }}-{{ sample.pk }}-review">
+        <div class="field-group-item col-sm-6">
+            <label class="form-label" for="{{ field.name }}-decision-{{ sample.pk }}">Decision</label>
+            <select class="form-select" name="{{ field.name }}__{{ sample.pk }}__decision"
+                    id="{{ field.name }}-decision-{{ sample.pk }}">
+                <option></option>
+                <option value="ethics" {% if decision == "ethics" %}selected{% endif %}>Valid Ethics
+                    Certificate
+                </option>
+                <option value="protocol" {% if decision == "protocol" %}selected{% endif %}>Valid AUP
+                    Certificate
+                </option>
+                <option value="exempt" {% if decision == "exempt" %}selected{% endif %}>Exempt</option>
+                <option value="rejected" {% if decision == "rejected" %}selected{% endif %}>Reject
+                </option>
+            </select>
+        </div>
+        <div class="expiry-field field-group-item col-sm-6"
+             id="{{ field.name }}-expiry-{{ sample.pk }}-input">
+            <label class="form-label" for="{{ field.name }}-expiry-{{ sample.pk }}">Expiry Date</label>
+            <input id="{{ field.name }}-expiry-{{ sample.pk }}" aria-label="Expiry Date"
+                   placeholder="Expiry date" name="{{ field.name }}__{{ sample.pk }}__expiry"
+                   class="form-control date-input"
+                   data-date-container="#{{ field.name }}-expiry-{{ sample.pk }}-input"
+                   type="text" value="{{ expiry|default:'' }}"
+                   {% if decision == "exempt" or decision == "rejected" %}disabled{% endif %}>
+        </div>
+    </div>
+    <input type="hidden" aria-label="Sample ID" name="{{ field.name }}__{{ sample.pk }}__sample"
+           value="{{ sample.pk }}">
+</div>
+{% endspaceless %}

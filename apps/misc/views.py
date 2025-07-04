@@ -1,14 +1,14 @@
 from crisp_modals.views import ModalCreateView, ModalUpdateView
-from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseRedirect, JsonResponse, Http404
-from django.utils import timezone
-from django.views.generic import edit, View
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.http import JsonResponse, Http404
+from django.shortcuts import render
+from django.utils import timezone
+from django.views.generic import View
+
+from roleperms.views import RolePermsViewMixin
 from . import forms
 from . import models
-from roleperms.views import RolePermsViewMixin
-from .utils import is_ajax
-from django.shortcuts import render
 
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 

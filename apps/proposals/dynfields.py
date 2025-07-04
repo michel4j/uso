@@ -1,5 +1,4 @@
 from django.utils.translation import gettext as _
-
 from dynforms.fields import FieldType
 
 
@@ -25,20 +24,24 @@ class BeamlineReqs(FieldType):
             return False
         return True
 
-    def clean_procedure(self, value):
+    @staticmethod
+    def clean_procedure(value):
         return value.strip()
 
-    def clean_justification(self, value):
+    @staticmethod
+    def clean_justification(value):
         return value.strip()
 
-    def clean_techniques(self, value):
+    @staticmethod
+    def clean_techniques(value):
         if isinstance(value, list):
             return [to_int(val) for val in value]
         elif isinstance(value, str):
             return [to_int(value)]
         return [value]
 
-    def clean_facility(self, value):
+    @staticmethod
+    def clean_facility(value):
         if isinstance(value, list):
             return to_int(value[0])
         elif isinstance(value, str):

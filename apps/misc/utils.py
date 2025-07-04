@@ -3,7 +3,8 @@
 import time
 from collections import defaultdict
 from importlib import import_module
-
+from inspect import getframeinfo, stack
+import yaml
 from django.conf import settings
 from django.db import models
 from django.http.request import HttpRequest
@@ -154,3 +155,17 @@ def is_ajax(request: HttpRequest) -> bool:
         request.headers.get('x-requested-with') == 'XMLHttpRequest'
         or request.accepts("application/json")
     )
+
+
+def debug_value(value, name=None):
+    """
+    Returns a string representation of the value for debugging purposes.
+    If 'name' is provided, it will be included in the output.
+    """
+    caller = getframeinfo(stack()[1][0])
+    print('='*80)
+    print(f'Name: {name}\nType: {type(value)}\nFile: {caller.filename}\nLine #: {caller.lineno}')
+    print('-'*80)
+    print(yaml.dump(value))
+    print('='*80)
+    print('\n')
