@@ -85,27 +85,27 @@
             </a>
         {% endif %}
         <input type="hidden" class="pk-field"
-               name="{{ field.name }}.sample.{{ sample.pk }}"
+               name="{{ field.name }}__{{ sample.pk }}__sample"
                value="{{ sample.pk }}"
         >
         <input type="hidden" class="hazards-field"
-               name="{{ field.name }}.hazards.{{ sample.pk }}"
+               name="{{ field.name }}__{{ sample.pk }}__hazards"
                data-saved-hazards="{{ hazard_ids|jsonify }}"
                value="{{ hazard_ids|jsonify }}"
                id="saved-hazards-{{ sample.pk }}"
         >
         <textarea id="permissions-{{ sample.pk }}" class="d-none"
                class="permissions-field" aria-label="Permissions"
-               name="{{ field.name }}.permissions.{{ sample.pk }}"
+               name="{{ field.name }}__{{ sample.pk }}__permissions"
         >{{ permissions|jsonify }}</textarea>
         <input id="rejected-{{ sample.pk }}" type="hidden"
                class="rejection-field"
-               name="{{ field.name }}.rejected.{{ sample.pk }}"
+               name="{{ field.name }}__{{ sample.pk }}__rejected"
                {% if rejected %}value="1"{% endif %}
         >
         <input id="keywords-{{ sample.pk }}" type="hidden"
                class="keywords-field"
-               name="{{ field.name }}.keywords.{{ sample.pk }}"
+               name="{{ field.name }}__{{ sample.pk }}__keywords"
                value=""
         >
     </div>
@@ -132,7 +132,7 @@
                     {% if "{}" in p.text %}
                         <input style="width:auto;" placeholder="keyword" type="text"
                                aria-label="Precaution Keywords"
-                               name="{{ field.name }}.keywords.{{ sample.pk }}.{{ p.code }}"
+                               name="{{ field.name }}__{{ sample.pk }}__keywords"
                                value="{% precaution_keyword p %}">
                     {% endif %}
                 </td>

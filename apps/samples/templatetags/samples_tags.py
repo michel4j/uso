@@ -110,19 +110,33 @@ def get_user_samples(context, data=None):
 def get_material_samples(context, data=None, material=None):
     if not material:
         return []
-    data = {} if not data else data
-    sample_info = {d['sample']: d for d in data}
-    samples = material.project_samples.order_by('sample__kind')
-    sample_list = [
-        (
-            s.sample, s.quantity, sample_info.get(s.sample.pk, {}).get('hazards', []),
-            s.sample.hazards.all(),
-            models.Hazard.objects.filter(pk__in=sample_info.get(s.sample.pk, {}).get('hazards', [])),
-            sample_info.get(s.sample.pk, {}).get('rejected', False),
-            sample_info.get(s.sample.pk, {}).get('permissions', {}) or s.sample.permissions()
-        )
-        for s in samples.all()
-    ]
+
+    sample_info = {}
+    try:
+        if isinstance(data, list):
+            sample_info = {
+                item['sample']: item
+                for item in data
+            }
+    except (TypeError,KeyError):
+        sample_info = {}
+
+    try:
+        samples = material.project_samples.order_by('sample__kind')
+        sample_list = [
+            (
+                s.sample,
+                s.quantity,
+                sample_info.get(s.sample.pk, {}).get('hazards', []),    # saved_hazards
+                s.sample.hazards.all(),                                 # sample_hazards
+                models.Hazard.objects.filter(pk__in=sample_info.get(s.sample.pk, {}).get('hazards', [])), # review_hazards
+                sample_info.get(s.sample.pk, {}).get('rejected', False),  # rejected
+                sample_info.get(s.sample.pk, {}).get('permissions', {}) or s.sample.permissions(),     # permissions
+            )
+            for s in samples.all()
+        ]
+    except (ValueError, TypeError, KeyError):
+        sample_list = []
     return sample_list
 
 
@@ -132,15 +146,31 @@ def get_ethics_samples(context, data=None):
     review = context.get('object')
     if not review or not hasattr(review, 'reference'):
         return []
-    material = review.reference
-    data = [] if not data else data
 
-    details = {int(info['sample']): info for info in [x for x in data if 'sample' in x]}
-    samples = material.samples.filter(Q(pk__in=list(details.keys())) | Q(kind__in=models.Sample.ETHICS_TYPES))
-    sample_list = [
-        (s, details.get(s.pk, {}).get('decision'), details.get(s.pk, {}).get('expiry', ''))
-        for s in samples.all()
-    ]
+    material = review.reference
+    sample_info = {}
+    try:
+        if isinstance(data, list):
+            sample_info = {
+                item['sample']: item
+                for item in data
+            }
+    except (TypeError,KeyError):
+        sample_info = {}
+
+    try:
+        samples = material.project_samples.filter(sample__kind__in=models.Sample.ETHICS_TYPES).order_by('sample__kind')
+        sample_list = [
+            (
+                s.sample,
+                s.quantity,
+                sample_info.get(s.sample.pk, {}).get('decision'),    # decisition
+                sample_info.get(s.sample.pk, {}).get('expiry'),      # expiry
+            )
+            for s in samples.all()
+        ]
+    except (ValueError, TypeError, KeyError):
+        sample_list = []
     return sample_list
 
 

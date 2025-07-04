@@ -6,7 +6,7 @@
 <div class="controls" id="{{ field.name }}-controls" data-field-name="{{ field.name }}">
     <div class="sample-list">
         <div id="{{ field.name }}-list" class="list-group list-group-flush">
-            {% for sample, decision, expiry in samples %}
+            {% for sample, quantity, decision, expiry in samples %}
                 <div class="sample-row py-4 list-group-item {% if rejected %}rejected-sample {% endif %}{% if not sample.is_editable %}reviewed-sample{% else %}pending-sample{% endif %}"
                      id="{{ field.name }}-{{ sample.pk }}-ethics-container">
                     <div class="d-flex flex-row justify-content-start align-items-start gap-3">
@@ -39,7 +39,7 @@
                     <div class="row sample-group no-space" id="{{ field.name }}-{{ sample.pk }}-review">
                         <div class="field-group-item col-sm-6">
                             <label class="form-label" for="{{ field.name }}-decision-{{ sample.pk }}">Decision</label>
-                            <select class="form-select" name="{{ field.name }}.decision.{{ sample.pk }}"
+                            <select class="form-select" name="{{ field.name }}__{{ sample.pk }}__decision"
                                     id="{{ field.name }}-decision-{{ sample.pk }}">
                                 <option></option>
                                 <option value="ethics" {% if decision == "ethics" %}selected{% endif %}>Valid Ethics
@@ -57,14 +57,14 @@
                              id="{{ field.name }}-expiry-{{ sample.pk }}-input">
                             <label class="form-label" for="{{ field.name }}-expiry-{{ sample.pk }}">Expiry Date</label>
                             <input id="{{ field.name }}-expiry-{{ sample.pk }}" aria-label="Expiry Date"
-                                   placeholder="Expiry date" name="{{ field.name }}.expiry.{{ sample.pk }}"
+                                   placeholder="Expiry date" name="{{ field.name }}__{{ sample.pk }}__expiry"
                                    class="form-control date-input"
                                    data-date-container="#{{ field.name }}-expiry-{{ sample.pk }}-input"
                                    type="text" value="{{ expiry|default:'' }}"
                                    {% if decision == "exempt" or decision == "rejected" %}disabled{% endif %}>
                         </div>
                     </div>
-                    <input type="hidden" aria-label="Sample ID" name="{{ field.name }}.sample.{{ sample.pk }}"
+                    <input type="hidden" aria-label="Sample ID" name="{{ field.name }}__{{ sample.pk }}__sample"
                            value="{{ sample.pk }}">
                 </div>
             {% empty %}
@@ -79,7 +79,7 @@
 
 <script>
     $(document).ready(function () {
-        $(document).on('change', 'input[name^="{{field.name}}.decision"]', function () {
+        $(document).on('change', 'input[name$="__decision"]', function () {
             const expiryTypes = ["ethics", "protocol"];
             const value = $(this).closest('input:checked').val();
             const $expiryField = $(this).closest('.sample-group').find('.expiry-field input');

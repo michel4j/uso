@@ -14,6 +14,7 @@ from django.views.generic import detail, edit, TemplateView, View
 from dynforms.models import FormType
 from dynforms.views import DynUpdateView, DynCreateView
 from itemlist.views import ItemListView
+from reportlab.lib.logger import infoOnce
 from scipy import stats as scipy_stats
 
 from beamlines.models import Facility
@@ -646,6 +647,17 @@ class PrintReviewDoc(RolePermsViewMixin, detail.DetailView):
         return context
 
 
+def select_ethics_decision(items):
+    if 'protocol' in items:
+        return 'protocol'
+    elif 'ethics' in items:
+        return 'certificate'
+    elif 'exempt' in items:
+        return 'exempt'
+    else:
+        return None
+
+
 class EditReview(RolePermsViewMixin, DynUpdateView):
     queryset = models.Review.objects.all()
     form_class = forms.ReviewForm
@@ -801,8 +813,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         data = form.cleaned_data
         form_action = data['details']['form_action']
         self.object.modified = timezone.now()
-        progress = self.object.validate(data['details']).get('progress')
-        data['is_complete'] = True if progress > 95.0 else False
+        errors = self.object.validate(data['details']).get('pages')
+        data['is_complete'] = True if not errors else False
         data['modified'] = timezone.now()
 
         if self.object.type.score_fields:
@@ -827,40 +839,48 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             } for s in self.object.reference.project_samples.all()]
 
         elif self.object.type in approval_types:
+            samples = {
+                s.sample.pk: {
+                    'sample': s.sample.pk,
+                    'hazards': [],
+                    'permissions': defaultdict(list),
+                    'keywords': {},
+                    'decision': [],
+                    'expiry': [],
+                    'rejected': [],
+                }
+                for s in self.object.reference.project_samples.all()
+            }
             # Combine information from completed reviews
-            safety_reviews = self.object.reference.reviews.safety()
-            hazards = defaultdict(set)
-            keywords = defaultdict(dict)
-            perms = defaultdict(lambda: defaultdict(list))
-            controls = set()
             req_types = defaultdict(list)
-            rejected = set()
+            for r in self.object.reference.reviews.safety():
+                try:
+                    for s in r.details.get('samples', []):
+                        samples[s['sample']]['hazards'] += s.get('hazards', [])
+                        samples[s['sample']]['keywords'].update(s.get('keywords', {}))
+                        samples[s['sample']]['decision'].append(s.get('decision', None))
+                        for code, kind in s.get('permissions', {}).items():
+                            samples[s['sample']]['permissions'][code].append(kind)
+                except:
+                    pass
 
-            for r in safety_reviews:
-                controls |= set(map(int, r.details.get('controls', [])))
-                for s in r.details.get('samples', []):
-                    if s.get('rejected'):  rejected.add(s['sample'])
-                    key = int(s['sample'])
-                    hazards[key] |= set(s.get('hazards', []))
-                    keywords[key].update(s.get('keywords', {}))
-                    for code, kind in s.get('permissions', {}).items():
-                        perms[key][code].append(kind)
                 temp_requirements = r.details.get('requirements', {})
                 if temp_requirements and isinstance(temp_requirements, dict):
                     for code, kind in temp_requirements.items():
                         req_types[code].append(kind)
 
-            initial['controls'] = list(controls)
             initial['requirements'] = {k: min(v) for k, v in req_types.items()}
             initial['samples'] = [
                 {
-                    'sample': s.sample.pk,
-                    'hazards': list(hazards.get(s.sample.pk, [])),
-                    'keywords': keywords.get(s.sample.pk, {}),
-                    'permissions': {k: min(v) for k, v in perms.get(s.sample.pk, {}).items()},
-                    'rejected': s.sample.pk in rejected,
+                    'sample': info['sample'],
+                    'hazards': list(set(info['hazards'])),
+                    'keywords': info['keywords'],
+                    'permissions': {k: min(v) for k, v in info['permissions'].items()},
+                    'decision': select_ethics_decision(info['decision']),
+                    'expiry': '' if not info['expiry'] else max(info['expiry']),
+                    'rejected': any(info['rejected']),
                 }
-                for s in self.object.reference.project_samples.all()
+                for info in samples.values()
             ]
             initial['reviews'] = [
                 {'review': rev.pk, 'completed': rev.is_complete}

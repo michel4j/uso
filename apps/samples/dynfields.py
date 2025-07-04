@@ -1,3 +1,5 @@
+import json
+
 from django.utils.translation import gettext as _
 
 from dynforms.fields import FieldType
@@ -78,9 +80,23 @@ class SampleHazardReviews(FieldType):
     choices_type = 'checkbox'
 
     def is_multi_valued(self, subfield: str = None) -> bool:
-        if subfield in ['hazards']:
-            return True
-        return False
+        if subfield:
+            return False
+        return True
+
+    @staticmethod
+    def clean_sample(value):
+        return int(value)
+
+    @staticmethod
+    def clean_hazards(value):
+        return json.loads(value) if isinstance(value, str) else value
+
+    @staticmethod
+    def clean_permissions(value):
+        if isinstance(value, str):
+            value = json.loads(value)
+        return value
 
     @staticmethod
     def tidy_keywords(value):
@@ -88,9 +104,6 @@ class SampleHazardReviews(FieldType):
             k: v[0].strip() if isinstance(v, list) else v.strip()
             for k, v in list(value.items()) if k and v
         }
-
-    def clean(self, data):
-        return data
 
     # def clean(self, val, multi=True, validate=True):
     #     from . import models
