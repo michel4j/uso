@@ -99,12 +99,16 @@ class SampleHazardReviews(FieldType):
         return value
 
     @staticmethod
-    def _keywords(value):
+    def clean_keywords(value):
 
         return {
             k: v[0].strip() if isinstance(v, list) else v.strip()
             for k, v in list(value.items()) if k and v
         }
+
+    def clean(self, value):
+        print('CLEANING', value)
+        return value
 
     # def clean(self, val, multi=True, validate=True):
     #     from . import models

@@ -103,11 +103,13 @@
                name="{{ field.name }}__{{ sample.pk }}__rejected"
                {% if rejected %}value="1"{% endif %}
         >
-        <texarea id="keywords-{{ sample.pk }}" class="d-none"
-               class="keywords-field" data-keywords-field="keyword-{{ sample.pk }}"
+        {% get_precaution_keywords as keywords %}
+        <input id="keywords-{{ sample.pk }}"
+               aria-label="Keywords"
+               class="d-none keywords-field" data-keywords-field="keyword-{{ sample.pk }}"
                name="{{ field.name }}__{{ sample.pk }}__keywords"
-               value=""
-        >{{ keywords|jsonify }}</texarea>
+               value='{{ keywords|jsonify }}'
+        >
     </div>
 </div>
 

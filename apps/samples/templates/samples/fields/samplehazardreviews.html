@@ -43,21 +43,25 @@
                 container.addClass("rejected-sample");
             }
         });
+
         $('[data-keywords-field]').each(function(){
             const $keywordsField = $(this);
-            const data = JSON.parse($keywordsField.text());
+            let data = JSON.parse($keywordsField.val());
             const selector = $keywordsField.data('keywords-field');
+            const $keywordInputs = $(`input.${selector}`);
 
-            $.each(data, function(code, value) {
-                const $input = $(`#${selector}-${code}`);
-                $input.val(value);
-                $input.on('change', function() {
-                    let data = {};
-                    $(`input.${selector}`).each( function(){
-                        data[$(this).data('keyword-code')] = $(this).val();
-                    });
-                    $keywordsField.text(JSON.stringify(data));
+            // Update the values if any changes
+            $keywordInputs.change(function(){
+                $keywordInputs.each(function(){
+                    console.log($(this).data('keyword-code'), $(this).val());
+                    data[$(this).data('keyword-code')] = $(this).val();
                 });
+                $keywordsField.val(JSON.stringify(data));
+            });
+
+            // Populate the inputs with the data
+            $.each(data, function(code, value) {
+                $(`#${selector}-${code}`).val(value);
             });
         });
     });

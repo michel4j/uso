@@ -91,6 +91,24 @@ def precaution_keyword(context, precaution):
 
 
 @register.simple_tag(takes_context=True)
+def get_precaution_keywords(context):
+    """
+    Returns a dictionary of precaution codes and their corresponding keywords for the given precautions.
+    """
+    sample = context.get('sample')
+    data = context.get('data', [])
+
+    if not sample or not data:
+        return {}
+
+    try:
+        sample_info = {d['sample']: d for d in data}
+        return sample_info[sample.pk].get('keywords', {})
+    except (KeyError, TypeError):
+        return {}
+
+
+@register.simple_tag(takes_context=True)
 def get_user_samples(context, data=None):
     data = [] if not data else data
     user = context['user']
