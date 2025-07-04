@@ -103,11 +103,11 @@
                name="{{ field.name }}__{{ sample.pk }}__rejected"
                {% if rejected %}value="1"{% endif %}
         >
-        <input id="keywords-{{ sample.pk }}" type="hidden"
-               class="keywords-field"
+        <texarea id="keywords-{{ sample.pk }}" class="d-none"
+               class="keywords-field" data-keywords-field="keyword-{{ sample.pk }}"
                name="{{ field.name }}__{{ sample.pk }}__keywords"
                value=""
-        >
+        >{{ keywords|jsonify }}</texarea>
     </div>
 </div>
 
@@ -131,8 +131,10 @@
                 <td>
                     {% if "{}" in p.text %}
                         <input style="width:auto;" placeholder="keyword" type="text"
+                               id="keyword-{{ sample.pk }}-{{ p.code }}"
+                               class="keyword-{{ sample.pk }}"
                                aria-label="Precaution Keywords"
-                               name="{{ field.name }}__{{ sample.pk }}__keywords"
+                               data-keyword-code="{{ p.code }}"
                                value="{% precaution_keyword p %}">
                     {% endif %}
                 </td>

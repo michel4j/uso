@@ -82,9 +82,12 @@ def precaution_text(context, precaution):
 def precaution_keyword(context, precaution):
     sample = context['sample']
     data = context['data']
-    sample_info = {d['sample']: d for d in data}
-    sample_keywords = sample_info[sample.pk].get('keywords', {})
-    return sample_keywords.get(precaution.code, '')
+    try:
+        sample_info = {d['sample']: d for d in data}
+        sample_keywords = sample_info[sample.pk].get('keywords', {})
+        return sample_keywords.get(precaution.code, '')
+    except:
+        return ''
 
 
 @register.simple_tag(takes_context=True)

@@ -99,7 +99,8 @@ class SampleHazardReviews(FieldType):
         return value
 
     @staticmethod
-    def tidy_keywords(value):
+    def _keywords(value):
+
         return {
             k: v[0].strip() if isinstance(v, list) else v.strip()
             for k, v in list(value.items()) if k and v
