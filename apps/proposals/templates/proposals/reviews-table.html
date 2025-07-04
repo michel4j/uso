@@ -19,7 +19,7 @@
         <tbody>
         {% for rev in reviews.by_completeness %}
         <tr>
-            <td style="width: 10%;">{{ rev | display_state }}</td>
+            <td style="width: 10%; vertical-align: middle;">{{ rev | display_state }}</td>
             <td>{{ rev.type }}</td>
             {%  if admin or committee_member %}
                 <td>

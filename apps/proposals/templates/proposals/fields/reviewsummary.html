@@ -75,14 +75,17 @@
             {% endif %}
 
             <div class="col-sm-12">
+            {% with rev.review.get_progress as progress %}
                 <div class="progress {% if rev.review.reviewer and rev.review.state < rev.review.STATES.submitted %}active{% endif %}"
                      role="progressbar" aria-label="Review Progress"
-                     aria-valuenow="{{ rev.completeness }}" aria-valuemin="0" aria-valuemax="100"
+                     aria-valuenow="{{ progress.total }}" aria-valuemin="0" aria-valuemax="100"
                      style="height: 0.5em;">
-                    <div class="progress-bar progress-bar-stripped bg-primary" style="width: {{ rev.completeness }}%;">
-                        <span class="visually-hidden">{{ rev.completeness }}% Complete</span>
+                    <div class="progress-bar progress-bar-stripped bg-{% if progress.required > 99 %}success{% else %}warning{% endif %}"
+                         style="width: {{ progress.total }}%;">
+                        <span class="visually-hidden">{{ progress.total }}% Complete</span>
                     </div>
                 </div>
+            {% endwith %}
             </div>
         </div>
     </div>

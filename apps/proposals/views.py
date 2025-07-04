@@ -814,7 +814,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         form_action = data['details']['form_action']
         self.object.modified = timezone.now()
         errors = self.object.validate(data['details']).get('pages')
-        data['is_complete'] = True if not errors else False
+        progress = self.object.get_progress(data['details'])
+        data['is_complete'] = (progress['required'] > 99 and not errors)
         data['modified'] = timezone.now()
 
         if self.object.type.score_fields:

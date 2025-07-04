@@ -244,8 +244,10 @@ def get_samples(context, data=None):
 
 @register.simple_tag(takes_context=True)
 def get_permissions(context, data=None):
+    data = context.get('data', {}) if not data else data
     if not isinstance(data, dict):
         data = {}
+
     perms = [(p, data.get(p.code)) for p in models.SafetyPermission.objects.filter(review=True)]
     return {
         'permissions': perms,
@@ -256,7 +258,6 @@ def get_permissions(context, data=None):
             '': 'Not Required',
         }
     }
-
 
 @register.filter
 def group_sample_choices(choices, defaults):

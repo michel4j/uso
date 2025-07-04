@@ -95,37 +95,28 @@ def display_scores(review):
 
 @register.filter
 def display_state(review):
+    progress = review.get_progress()
+    value = progress.get('total', 0.0)
     if review.is_submitted():
-        params = {
-            'title': 'Complete',
-            'style': 'bg-color-0',
-        }
-        progress = 100
+        state = "primary"
+        value = progress.get('required', 100.0)
     elif review.is_complete:
-        params = {
-            'title': 'Complete',
-            'style': 'bg-color-4 striped',
-        }
-        progress = max(5, min(100, review.validate().get('progress', 0.0)))
+        state = "success"
     else:
-        params = {
-            'title': 'Incomplete',
-            'style': 'bg-color-9 striped',
-        }
-        progress = max(5, min(100, review.validate().get('progress', 0.0)))
-    if review.state == review.STATES.closed:
-        params['style'] = 'bg-color-3'
-    elif review.state == review.STATES.pending:
-        params['style'] = 'bg-color-6'
-        progress = 0
-    params['state_display'] = review.get_state_display()
-    params['state'] = 'disabled' if review.state == review.STATES.closed else ''
+        state = "warning"
 
-    params['size'] = f"{progress}%"
-
-    state = ('<span class="inline-progress {state}" title="{title}: {state_display}">'
-             '<div class="{style}" style="width: {size};"></div></span>').format(**params)
-    return mark_safe(state)
+    bar = f"""
+        <div class="progress"
+             role="progressbar" aria-label="Review Progress"
+             aria-valuenow="{value}" aria-valuemin="0" aria-valuemax="100"
+             style="height: 1em;">
+            <div class="progress-bar bg-{state}"
+                 style="width: {value}%;">
+                <span class="visually-hidden">{value}% Complete</span>
+            </div>
+        </div>
+        """
+    return mark_safe(bar)
 
 
 @register.filter
