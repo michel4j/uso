@@ -9,11 +9,9 @@ class Ancillary(FieldType):
     template_theme = "beamlines/fields"
     options = ['required', 'hide', 'multiple']
     settings = ['label', 'options', 'width']
-    multi_valued = True
 
-    def coerce(self, val):
-        return val
-
-    def clean(self, val, multi=True, validate=False):
-        return val
+    def is_multi_valued(self, subfield: str = None) -> bool:
+        if subfield in ['labs', 'equipment']:
+            return True
+        return False
 

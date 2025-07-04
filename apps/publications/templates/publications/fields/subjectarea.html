@@ -7,7 +7,7 @@
 		<div class="field-group-item col-12">
 			<select name="{{field.name}}__areas" id="{{field.name}}__areas"
                     class="form-select-multiple"
-                    {% if 'multiple' in field.options %}multiple{% endif %}
+                    multiple
                     aria-label="{{ field.label }}"
             >
 			{% for value, choice in subj_areas %}

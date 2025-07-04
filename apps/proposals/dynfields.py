@@ -1,11 +1,3 @@
-
-
-import functools
-import operator
-from collections import OrderedDict
-from typing import Any
-
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from dynforms.fields import FieldType
@@ -26,16 +18,32 @@ class BeamlineReqs(FieldType):
     template_theme = "proposals/fields"
     required_subfields = ['techniques', 'facility', 'procedure', 'justification']
 
-    def coerce(self, value: Any, *flags):
-        if 'facility' in flags and isinstance(value, list):
+    def is_multi_valued(self, subfield: str = None) -> bool:
+        if subfield and subfield in ['techniques']:
+            return True
+        elif subfield:
+            return False
+        return True
+
+    def clean_procedure(self, value):
+        return value.strip()
+
+    def clean_justification(self, value):
+        return value.strip()
+
+    def clean_techniques(self, value):
+        if isinstance(value, list):
             return [to_int(val) for val in value]
-        elif 'shifts' in flags and isinstance(value, str):
+        elif isinstance(value, str):
+            return [to_int(value)]
+        return [value]
+
+    def clean_facility(self, value):
+        if isinstance(value, list):
+            return to_int(value[0])
+        elif isinstance(value, str):
             return to_int(value)
-        elif 'tags' in flags and isinstance(value, list):
-            return value
-        elif isinstance(value, list):
-            return value[0].srip()
-        return value[0]
+        return value
 
 
 class ReviewCycle(FieldType):
@@ -52,10 +60,6 @@ class Reviewers(FieldType):
     options = ['required', 'hide', 'repeat']
     settings = ['label', 'options', ]
     template_theme = "proposals/fields"
-    multi_valued = True
-
-    def coerce(self, value: Any, *flags):
-        return value
 
 
 class ReviewSummary(FieldType):
@@ -65,15 +69,14 @@ class ReviewSummary(FieldType):
     options = ['nolabel', 'required']
     template_theme = "proposals/fields"
     required_subfields = ["review", "completed"]
-    multi_valued = True
 
-    def get_completeness(self, data):
-        data = data if data else []
-        return 0 if not data else len([_f for _f in [v.get('completed') for v in data] if _f]) / float(len(data))
+    # def get_completeness(self, data):
+    #     data = data if data else []
+    #     return 0 if not data else len([_f for _f in [v.get('completed') for v in data] if _f]) / float(len(data))
 
-    def clean(self, value, multi=True, validate=False):
-        value = super().clean(value, multi=multi, validate=validate)
-
-        if validate and not value.get('completed'):
-            raise ValidationError("Review must be completed.")
-        return value
+    # def clean(self, value, multi=True, validate=False):
+    #     value = super().clean(value, multi=multi, validate=validate)
+    #
+    #     if validate and not value.get('completed'):
+    #         raise ValidationError("Review must be completed.")
+    #     return value

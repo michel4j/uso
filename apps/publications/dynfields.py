@@ -6,18 +6,17 @@ class ResearchArea(FieldType):
     name = _("Research Area")
     options = ['required', 'hide', 'inline']
     template_name = "publications/fields/researcharea.html"
-    multi_valued = True
-
-    def clean(self, value):
-        print(value)
-        return value
 
 
 class SubjectArea(FieldType):
     name = _("Subject Area")
-    options = ['required', 'hide', 'multiple', 'keywords']
+    options = ['required', 'hide']
     template_name = "publications/fields/subjectarea.html"
-    multi_valued = False
-    subfields = {
-        'areas': ResearchArea
-    }
+
+    def is_multi_valued(self, subfield: str = None) -> bool:
+        if subfield in ['areas']:
+            return True
+        return False
+
+    def clean_areas(self, value):
+        return [int(val) for val in value]

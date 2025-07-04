@@ -17,18 +17,16 @@
              title="{{ hz.name }}" data-sample-hazard="{{ hz.pk }}">
     {% endfor %}
         <input type="hidden"
-               name="{{ field_name }}__sample"
+               name="{{ field_name }}__{{ sample.pk }}__sample"
                value="{{ sample.pk }}"
-               data-repeat-name="{{ repeat_name }}__sample"
         >
 	</span>
     <div class="col-2">
         <input class="form-control input-sm me-auto text-right"
                aria-label="Quantity"
-               type="text" name="{{ field_name }}__quantity"
+               type="text" name="{{ field_name }}__{{ sample.pk }}__quantity"
                placeholder=" include number & units"
                value="{{ quantity }}"
-               data-repeat-name="{{ repeat_name }}__quantity"
         >
     </div>
     <div class="col-1 hidden-remove text-center" data-sample-pk="{{ sample.pk }}">&nbsp;&nbsp;<i

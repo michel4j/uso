@@ -92,12 +92,15 @@ def get_user_samples(context, data=None):
     data = [] if not data else data
     user = context['user']
     if user.is_authenticated:
-        _data = {int(v['sample']): v['quantity'] for v in data}
-        _all = {s.pk: s for s in models.Sample.objects.filter(Q(owner=user.pk) | Q(pk__in=list(_data.keys()))).distinct()}
-        samples = {
-            'selected': [(_all.get(k), v) for k, v in list(_data.items()) if k in _all],
-            'all': [(s, k in list(_data.keys())) for k, s in list(_all.items())]
-        }
+        try:
+            _data = {int(v['sample']): v['quantity'] for v in data}
+            _all = {s.pk: s for s in models.Sample.objects.filter(Q(owner=user.pk) | Q(pk__in=list(_data.keys()))).distinct()}
+            samples = {
+                'selected': [(_all.get(k), v) for k, v in list(_data.items()) if k in _all],
+                'all': [(s, k in list(_data.keys())) for k, s in list(_all.items())]
+            }
+        except (ValueError, TypeError):
+            samples = {}
     else:
         samples = {}
     return samples
