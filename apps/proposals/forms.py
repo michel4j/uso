@@ -35,12 +35,6 @@ class ProposalForm(DynModelForm):
     def clean(self):
         user_model = get_user_model()
         data = super().clean()
-
-        import yaml
-        print("-" * 80)
-        print(yaml.dump(data['details'], default_flow_style=False, allow_unicode=True))
-        print("-" * 80)
-
         data['title'] = data['details'].get('title')
         if not data['title']:
             self._errors['title'] = "You must add a title before you can save the proposal "
