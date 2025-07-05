@@ -1,6 +1,6 @@
 {% if facility %}
     <div class="alert alert-info my-3">
-        <h5>Facility Specifications:</h5>
+        <h5>{{ facility.acronym }} Specifications:</h5>
         <hr class="hr-xs"/>
         <div style="font-size: 90%;">
             {% include "beamlines/fields/beamline-info.html" with object=facility %}

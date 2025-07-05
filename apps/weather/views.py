@@ -16,9 +16,12 @@ def get_weather_context():
     conditions = weather.get_current()
     if not conditions:
         return ctx
-    now = django_timezone.now()
-    sunrise = datetime.fromtimestamp(conditions['current']['sunrise'], tz=timezone.utc)
-    sunset = datetime.fromtimestamp(conditions['current']['sunset'], tz=timezone.utc)
+    try:
+        now = django_timezone.now()
+        sunrise = datetime.fromtimestamp(conditions['current']['sunrise'], tz=timezone.utc)
+        sunset = datetime.fromtimestamp(conditions['current']['sunset'], tz=timezone.utc)
+    except (KeyError, ValueError):
+        return ctx
 
     icon_map = ICON_MAP_NIGHT if (now.hour > sunset.hour or now.hour < sunrise.hour) else ICON_MAP_DAY
     ctx['weather'] = {
