@@ -2,10 +2,11 @@
 {% load proposal_tags %}
 
 {% update_review_data %}
-<div class="controls {{ repeatable }}" id="{{ field.name }}-controls-{{ repeat_index }}">
+<div class="controls {{ repeatable }}" id="{{ field.name }}__controls" data-repeat-name="{{ repeat_name }}__controls">
     <div class="row">
         <div class="field-group-item col">
-            <select name="{{ field.name }}.type" id="{{ field.name }}-type{{ repeat_index }}" aria-label="{{ field.label }} Type"
+            <select name="{{ field.name }}__type" id="{{ field.name }}__type" aria-label="{{ field.label }} Type"
+                    data-repeat-name="{{ repeat_name }}__type"
                     class="form-select " data-placeholder="Select Review Type">
                 <option value="" data-review-role=""></option>
                 {% for rev_type in review_types %}
@@ -15,7 +16,9 @@
         </div>
         <div class="field-group-item col">
             <div class="input-group">
-                <select name="{{ field.name }}.reviewer" id="{{ field.name }}-reviewer{{ repeat_index }}" aria-label="{{ field.label }} Reviewer"
+                <select name="{{ field.name }}__reviewer" id="{{ field.name }}__reviewer"
+                        data-repeat-name="{{ repeat_name }}__reviewer"
+                        aria-label="{{ field.label }} Reviewer"
                         class="form-select"  data-placeholder="Select Reviewer/Role" data-selected-username="">
                 </select>
                 <button type="button" class="btn btn-danger remove-repeat" title="Delete entry">
@@ -27,23 +30,21 @@
 </div>
 
 <script>
-    function update_reviewers_field(element) {
-        const reviewer = element.closest('.controls').find('select[name^="{{field.name}}.reviewer"]');
+    function updateReviewerField(element) {
+        const $reviewerField = element.closest('.controls').find('select[name$="__reviewer"]');
         const role = element.find(':selected').attr('data-review-role');
-        reviewer.load('{% url "reviewer-options" %}?role=' + role , function () {
-            reviewer.trigger("chosen:updated");
-        });
+        $reviewerField.load('{% url "reviewer-options" %}?role=' + role);
     }
-    $('#{{field.name}}-controls-{{repeat_index}} select[name^="{{field.name}}.type"]').change(function () {
-        update_reviewers_field($(this));
+    $(document).on('change', 'select[name$="__type"]', function () {
+        updateReviewerField($(this));
     });
-    $(document).on('change', 'select[name^="{{field.name}}.reviewer"]', function () {
+    $(document).on('change', 'select[name$="__reviewer"]', function () {
         $(this).attr("data-selected-username", $(this).val());
     });
     // execute at the end
     $(function () {
         window.setTimeout(function () {
-            update_reviewers_field($('select[name^="{{field.name}}.type"]'));
+            updateReviewerField($('select[name$="__type"]'));
         }, 0);
     });
 

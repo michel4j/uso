@@ -6,6 +6,20 @@
      data-repeat-name="{{ repeat_name }}__controls"
      data-field-name="{{ field.name }}"
 >
+    <div class="callout mb-3">
+    <div class="d-flex justify-content-between gap-3 mb-3">
+        <h3>Facility <span class="repeat-html-count">{{ repeat_index|add:1 }}</span></h3>
+        <div class="">
+            {% if "repeat" in field.options %}
+                <button type="button"
+                        title="Delete {{ field.label }} item."
+                        class="btn btn-danger remove-repeat"
+                >
+                    <i class="bi-x-lg"></i>
+                </button>
+            {% endif %}
+        </div>
+    </div>
     <div class="row">
         <div class="field-group-item col-7">
             <select name="{{ field.name }}__techniques" id="{{ field.name }}__techniques"
@@ -40,27 +54,13 @@
             </label>
         </div>
         <div class="field-group-item col-2">
-            {% if "repeat" in field.options %}
-                <div class="input-group">
-                    <input id="{{ field.name }}__shifts" name="{{ field.name }}__shifts" class="form-control" min="0"
-                           data-repeat-name="{{ repeat_name }}__shifts"
-                           value="{{ data.shifts }}" aria-label="{{ field.label }} shifts">
-                    <button type="button"
-                            title="Delete facility, techniques, justification and procedure from {{ field.label }}"
-                            class="btn btn-danger remove-repeat"
-                    >
-                        <i class="bi-x "></i>
-                    </button>
-
-                </div>
-            {% else %}
-                <input id="{{ field.name }}__shifts" name="{{ field.name }}__shifts"
-                       data-repeat-name="{{ repeat_name }}__shifts"
-                       class="form-control" type="number"
-                       value="{{ data.shifts }}" placeholder="No. of shifts"
-                >
-            {% endif %}
-            <label for="{{ field.name }}__shifts" class="sub-label" data-repeat-for="{{ repeat_name }}__shifts">Shifts</label>
+            <input id="{{ field.name }}__shifts" name="{{ field.name }}__shifts"
+                   data-repeat-name="{{ repeat_name }}__shifts" aria-label="{{ field.label }} shifts"
+                   class="form-control" type="number" min="0"
+                   value="{{ data.shifts }}" placeholder="No. of shifts"
+            >
+            <label for="{{ field.name }}__shifts" class="sub-label"
+                   data-repeat-for="{{ repeat_name }}__shifts">Shifts</label>
         </div>
     </div>
     <div class="row">
@@ -94,79 +94,80 @@
         </div>
     {% endif %}
 </div>
-<hr/>
-<script>
-    function updateMatrix(techField, facField, data) {
-        const $techniquesField = $(techField);
-        const $facilitiesField = $(facField);
+    <script>
+        function updateMatrix(techField, facField, data) {
+            const $techniquesField = $(techField);
+            const $facilitiesField = $(facField);
 
-        $.each(data.techniques, function (i, row) {
-            let option = $techniquesField.find(`option[value='${row[0]}']`);
-            option.data('related', row[3]);
-        });
-        $.each(data.facilities, function (i, row) {
-            let option = $facilitiesField.find(`option[value='${row[0]}']`);
-            option.data('related', row[3]);
-        });
-    }
-
-    function updateRelated(target, related) {
-        const $field = $(target);
-        const selected = new Set(related);
-        $field.find('option').removeAttr('disabled');
-        console.log(target, related)
-        if (selected.size) {
-            $field.find('option').each(function () {
-                let related = new Set($(this).data('related') || []);
-                if (related.size === 0) {
-                    $(this).removeAttr('disabled');
-                } else if (selected.intersection(related).size === 0) {
-                    $(this).attr('disabled', 'disabled');
-                }
+            $.each(data.techniques, function (i, row) {
+                let option = $techniquesField.find(`option[value='${row[0]}']`);
+                option.data('related', row[3]);
+            });
+            $.each(data.facilities, function (i, row) {
+                let option = $facilitiesField.find(`option[value='${row[0]}']`);
+                option.data('related', row[3]);
             });
         }
-    }
 
-    $(document).ready(function () {
-        new SlimSelect({
-            select: "#{{ field.name }}__controls select[multiple]",
-            placeholder: "Select techniques",
-            showSearch: true,
-            searchPlaceholder: "Search techniques",
-            allowDeselect: true,
-        });
-
-        $(document).on('cycle-changed', function (event, data) {
-            localStorage.setItem('techniquesMatrix', JSON.stringify(data));
-            $("[name$='__techniques']").each(function () {
-                const $techField = $(this);
-                const $facilityField = $techField.closest('.controls').find('[name$="__facility"]');
-                updateMatrix($techField, $facilityField, data);
-            });
-        });
-        $(document).on('change', '[name$="__techniques"]', function () {
-            const selected = $(this).val() || [];
-            const $target = $(this).closest('.controls').find('[name$="__facility"]');
-            updateRelated($target, selected.map(Number));
-        });
-
-        $(document).on('change', '[name$="__facility"]', function () {
-            const facility = $(this).val() || '';
-            const selected = facility ? [facility] : [];
-            const $target = $(this).closest('.controls').find('[name$="__techniques"]');
-            updateRelated($target, selected.map(Number));
-
-            // beamline information
-            if (facility) {
-                const infoUrl = "{% url 'beamline-info' %}";
-                const $facilityInfo = $(this).closest('.controls').find('div.beamline-info');
-                $facilityInfo.load(infoUrl + facility);
-            } else {
-                $(this).closest('.controls').find('div.beamline-info').empty();
+        function updateRelated(target, related) {
+            const $field = $(target);
+            const selected = new Set(related);
+            $field.find('option').removeAttr('disabled');
+            console.log(target, related)
+            if (selected.size) {
+                $field.find('option').each(function () {
+                    let related = new Set($(this).data('related') || []);
+                    if (related.size === 0) {
+                        $(this).removeAttr('disabled');
+                    } else if (selected.intersection(related).size === 0) {
+                        $(this).attr('disabled', 'disabled');
+                    }
+                });
             }
+        }
+
+        $(document).ready(function () {
+            new SlimSelect({
+                select: "#{{ field.name }}__controls select[multiple]",
+                placeholder: "Select techniques",
+                showSearch: true,
+                searchPlaceholder: "Search techniques",
+                allowDeselect: true,
+            });
+
+            $(document).on('cycle-changed', function (event, data) {
+                localStorage.setItem('techniquesMatrix', JSON.stringify(data));
+                $("[name$='__techniques']").each(function () {
+                    const $techField = $(this);
+                    const $facilityField = $techField.closest('.controls').find('[name$="__facility"]');
+                    updateMatrix($techField, $facilityField, data);
+                });
+            });
+            $(document).on('change', '[name$="__techniques"]', function () {
+                const selected = $(this).val() || [];
+                const $target = $(this).closest('.controls').find('[name$="__facility"]');
+                updateRelated($target, selected.map(Number));
+            });
+
+            $(document).on('change', '[name$="__facility"]', function () {
+                const facility = $(this).val() || '';
+                const selected = facility ? [facility] : [];
+                const $target = $(this).closest('.controls').find('[name$="__techniques"]');
+                updateRelated($target, selected.map(Number));
+
+                // beamline information
+                if (facility) {
+                    const infoUrl = "{% url 'beamline-info' %}";
+                    const $facilityInfo = $(this).closest('.controls').find('div.beamline-info');
+                    $facilityInfo.load(infoUrl + facility);
+                } else {
+                    $(this).closest('.controls').find('div.beamline-info').empty();
+                }
+            });
+
+            $('[name$="__facility"]').trigger('change');
         });
+    </script>
+</div>
 
-        $('[name$="__facility"]').trigger('change');
-    });
 
-</script>

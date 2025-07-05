@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from dynforms.fields import FieldType
 
@@ -73,13 +74,16 @@ class ReviewSummary(FieldType):
     template_theme = "proposals/fields"
     required_subfields = ["review", "completed"]
 
-    # def get_completeness(self, data):
-    #     data = data if data else []
-    #     return 0 if not data else len([_f for _f in [v.get('completed') for v in data] if _f]) / float(len(data))
+    def is_multi_valued(self, subfield: str = None) -> bool:
+        return not subfield
 
-    # def clean(self, value, multi=True, validate=False):
-    #     value = super().clean(value, multi=multi, validate=validate)
-    #
-    #     if validate and not value.get('completed'):
-    #         raise ValidationError("Review must be completed.")
-    #     return value
+    @staticmethod
+    def clean_completed(value):
+        """
+        Cleans the 'completed' field to ensure it is a boolean.
+        """
+        try:
+            return int(value)
+        except ValueError:
+            raise ValidationError(_("The review must be 'completed."))
+

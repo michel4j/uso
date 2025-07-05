@@ -36,8 +36,8 @@
 			    </span>
                 {% if rev.review.type.is_safety %}
                     <span class="review-inputs">
-                    <input name="{{ field.name }}.review.{{ rev.review.pk }}" type="hidden" value="{{ rev.review.pk }}">
-                    <input name="{{ field.name }}.completed.{{ rev.review.pk }}" type="hidden"
+                    <input name="{{ field.name }}__{{ rev.review.pk }}__review" type="hidden" value="{{ rev.review.pk }}">
+                    <input name="{{ field.name }}__{{ rev.review.pk }}__completed" type="text" required class="d-none required"
                            value="{% if rev.review.is_submitted %}1{% endif %}">
                 </span>
                 {% endif %}
@@ -92,10 +92,10 @@
 {% endfor %}
 <script>
     $(".delete-review-command").click(function () {
-        var el = $(this);
-        var rev_form = $('#' + el.attr('data-review-prefix') + '-form');
-        var rev_desc = $('#' + el.attr('data-review-prefix') + '-description');
-        rev_form.html('<span class="text-danger text-condensed text-right">will be deleted when saved!</span>');
-        rev_desc.css('text-decoration', 'line-through');
+        const el = $(this);
+        const $reviewForm = $(`#${el.attr('data-review-prefix')}-form`);
+        const $reviewDesc = $(`#${el.attr('data-review-prefix')}-description`);
+        $reviewForm.html('<span class="text-danger text-condensed text-right">will be deleted when saved!</span>');
+        $reviewDesc.css('text-decoration', 'line-through');
     });
 </script>
