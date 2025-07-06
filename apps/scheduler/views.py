@@ -1,14 +1,16 @@
 import calendar
 import collections
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 
-from crisp_modals.views import ModalConfirmView
+from crisp_modals.views import ModalConfirmView, ModalCreateView, ModalUpdateView, ModalDeleteView
 from dateutil import parser
 from django.conf import settings
+from django.db.models import Sum
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.timezone import make_aware
 from django.views.generic import detail, TemplateView, View
 from itemlist.views import ItemListView
 from rest_framework import generics, status, permissions
@@ -16,7 +18,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 from roleperms.views import RolePermsViewMixin
-from . import models
+from . import models, forms
 from . import serializers
 from . import utils
 
@@ -32,8 +34,23 @@ def _fmt_states(state, obj=None):
     }.get(state, state)
 
 
+def parse_date(date_str: str) -> datetime:
+    """
+    Parse a date string into a timezone date for the local time. Returns the current date if the string is empty or invalid.
+    :param date_str: the date string to parse
+    """
+    now = timezone.localtime(timezone.now())
+    if not date_str:
+        return now
+    try:
+        dt = make_aware(parser.parse(date_str), timezone=timezone.get_current_timezone())
+        return dt
+    except ValueError:
+        return now
+
+
 class ScheduleListView(RolePermsViewMixin, ItemListView):
-    queryset = models.Schedule.objects.all()
+    model = models.Schedule
     template_name = "item-list.html"
     paginate_by = 15
     allowed_roles = USO_ADMIN_ROLES
@@ -43,6 +60,53 @@ class ScheduleListView(RolePermsViewMixin, ItemListView):
     list_search = ['description', 'state', 'start_date', 'end_date']
     list_transforms = {'state': _fmt_states}
     ordering = ['-start_date', '-state']
+
+
+class ModeTypeList(RolePermsViewMixin, ItemListView):
+    model = models.ModeType
+    template_name = "tooled-item-list.html"
+    tool_template = "scheduler/mode-type-tools.html"
+    paginate_by = 15
+    allowed_roles = USO_ADMIN_ROLES
+    link_url = 'edit-mode-type'
+    link_attr = 'data-modal-url'
+    list_filters = ['active', 'is_normal', 'created', 'modified']
+    list_columns = ['name', 'acronym', 'color', 'description', 'active', 'is_normal']
+    list_search = ['acronym', 'name', 'description']
+    list_transforms = {
+        'active': lambda x, obj: mark_safe('<i class="bi-check2 icon-fw"></i>') if x else '',
+        'is_normal': lambda x, obj: mark_safe('<i class="bi-check2 icon-fw"></i>') if x else '',
+        'color': lambda x, obj: mark_safe(f'<span class="badge" style="background-color: {x};">&nbsp;</span>'),
+    }
+
+
+class AddModeType(RolePermsViewMixin, ModalCreateView):
+    model = models.ModeType
+    form_class = forms.ModeTypeForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('mode-type-list')
+
+
+class EditModeType(RolePermsViewMixin, ModalUpdateView):
+    model = models.ModeType
+    form_class = forms.ModeTypeForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_delete_url(self):
+        return reverse('delete-mode-type', kwargs={'pk': self.object.pk})
+
+    def get_success_url(self):
+        return reverse('mode-type-list')
+
+
+class DeleteModeType(RolePermsViewMixin,  ModalDeleteView):
+    model = models.ModeType
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('mode-type-list')
 
 
 class Calendar(RolePermsViewMixin, TemplateView):
@@ -72,7 +136,7 @@ class Calendar(RolePermsViewMixin, TemplateView):
         context['shift_starts'] = [shift['time'] for shift in shifts]
         context['shifts'] = shifts
         context['shift_count'] = len(context['shift_starts'])
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
+        context['mode_types'] = models.ModeType.objects.all()
         context['subtitle'] = 'Current Schedule'
         context['show_year'] = True
         context['event_sources'] = [reverse('facility-modes-api'), ]
@@ -106,6 +170,7 @@ class EventEditor(RolePermsViewMixin, detail.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = timezone.localtime(timezone.now()).date()
+
         if not self.kwargs.get('date'):
             if context['schedule'].end_date < today or context['schedule'].start_date > today:
                 show_date = context['schedule'].start_date
@@ -118,7 +183,7 @@ class EventEditor(RolePermsViewMixin, detail.DetailView):
         context['today'] = today
         context['default_view'] = 'monthshift'
         context['timezone'] = settings.TIME_ZONE
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
+        context['mode_types'] = models.ModeType.objects.filter(active=True)
         context['subtitle'] = context['schedule'].description
 
         config = self.get_shift_config()
@@ -147,14 +212,13 @@ class EventStatsAPI(RolePermsViewMixin, View):
         return self.queryset.filter(schedule__pk=self.kwargs['pk']).all()
 
     def get(self, request, *args, **kwargs):
-        stats = collections.defaultdict(float)
-        for event in self.get_queryset().with_shifts():
-            stats[getattr(event, self.group_by)] += event.shifts
-        return JsonResponse(
-            [{
-                'id': k, 'count': v
-            } for k, v in list(stats.items())], safe=False
+        raw_stats = self.get_queryset().with_shifts().values(self.group_by).order_by(self.group_by).annotate(
+            count=Sum('shifts')
         )
+        return JsonResponse([
+            {'id': item[self.group_by], 'count': item['count']}
+            for item in raw_stats
+        ], safe=False)
 
 
 class ModeEditor(EventEditor):
@@ -268,7 +332,10 @@ class ModeListAPI(EventUpdateAPI):
 
     def get_data(self, info):
         return {
-            'start': parser.parse(info['start']), 'end': parser.parse(info['end']), 'kind': info['kind'], 'tags': info.get('tags', []),
+            'start': parser.parse(info['start']),
+            'end': parser.parse(info['end']),
+            'kind': models.ModeType.objects.get(pk=info['kind']),
+            'tags': info.get('tags', []),
             'comments': info.get('comments', '')
         }
 
@@ -305,7 +372,7 @@ class YearTemplate(RolePermsViewMixin, TemplateView):
         config = models.ShiftConfig.objects.filter(duration=slot).order_by('modified').last()
         shifts = config.shifts()
 
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
+        context['mode_types'] = models.ModeType.objects.all()
         context['shift_duration'] = f"{timedelta(hours=config.duration)}".zfill(8)
         context['shift_minutes'] = config.duration * 60
         context['shift_starts'] = [shift['time'] for shift in shifts]
@@ -350,7 +417,7 @@ class CycleTemplate(RolePermsViewMixin, TemplateView):
         cycle_start = (d.month // 7 * 6) + 1
         cycle_end = (d.month // 7 * 6) + 7
         cal = calendar.Calendar(calendar.SUNDAY)
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
+        context['mode_types'] = models.ModeType.objects.all()
         context['shifts'] = shifts
         context['shift_count'] = len(shifts)
         context['headers'] = [calendar.day_abbr[x][0].upper() for x in cal.iterweekdays()]

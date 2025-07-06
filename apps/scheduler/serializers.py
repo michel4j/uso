@@ -1,7 +1,6 @@
 from rest_framework import serializers
+
 from . import models
-from datetime import datetime
-from django.utils import timezone
 
 
 class ModeSerializer(serializers.ModelSerializer):
@@ -25,10 +24,10 @@ class ModeSerializer(serializers.ModelSerializer):
         return 'mode'
 
     def get_name(self, obj):
-        return obj.kind
+        return obj.kind.acronym
 
     def get_display(self, obj):
-        return obj.kind
+        return obj.kind.acronym
 
     def get_tentative(self, obj):
         return obj.schedule.state == obj.schedule.STATES.tentative

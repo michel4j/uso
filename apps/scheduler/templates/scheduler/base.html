@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load schedule_tags %}
 {% block extra_css %}
     <!--link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@3.1.0/dist/fullcalendar.min.css" integrity="sha256-cPqnGfw7Kn/K/TUQkWu5CN3sFeSv4iY7fFdp94V4Oos=" crossorigin="anonymous"-->
     <link href="{% static 'scheduler/scheduler.min.css' %}" rel="stylesheet">
+    <style>
+        {% get_mode_types as all_mode_types %}
+        {% for type in all_mode_types %}
+        .mode-{{ type.pk }} {
+            background-color: {{ type.color|default:'#ccc' }};
+        }
+        {% endfor %}
+    </style>
 {% endblock %}
 {% block post_js %}
     <script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>

@@ -33,6 +33,7 @@ from proposals.utils import truncated_title
 from roleperms.views import RolePermsViewMixin
 from samples.models import Sample
 from samples.templatetags.samples_tags import pictogram_url
+from scheduler.models import ModeType
 from scheduler.utils import round_time
 from scheduler.views import EventEditor, EventUpdateAPI, EventStatsAPI
 from users.models import User
@@ -806,7 +807,7 @@ class LabSignOff(RolePermsViewMixin, ModalConfirmView):
     def check_allowed(self):
         session = self.get_object()
         allowed = (
-            super().check_allowed() or self.check_owner(session) or session.team.filter(
+                super().check_allowed() or self.check_owner(session) or session.team.filter(
             username=self.request.user.username
         ).exists())
         return allowed
@@ -841,8 +842,8 @@ class CancelLabSession(RolePermsViewMixin, ModalDeleteView):
     def check_allowed(self):
         session = self.get_object()
         return (
-            session.state() == models.LabSession.STATES.pending and (
-            super().check_allowed() or session.team.filter(username=self.request.user.username).exists())
+                session.state() == models.LabSession.STATES.pending and (
+                super().check_allowed() or session.team.filter(username=self.request.user.username).exists())
         )
 
     def get_success_url(self):
@@ -1052,8 +1053,8 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         self.facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
         self.cycle = ReviewCycle.objects.filter(pk=self.kwargs['pk']).first()
         allowed = (
-            super().check_allowed() or self.facility.is_admin(self.request.user)
-        ) and (self.cycle.state >= self.cycle.STATES.evaluation)
+                          super().check_allowed() or self.facility.is_admin(self.request.user)
+                  ) and (self.cycle.state >= self.cycle.STATES.evaluation)
         return allowed
 
     def get_context_data(self, **kwargs):
@@ -1247,7 +1248,7 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
     template_name = "scheduler/calendar.html"
 
     def get_context_data(self, **kwargs):
-        from scheduler.models import ShiftConfig, Mode
+        from scheduler.models import ShiftConfig
         context = super().get_context_data(**kwargs)
 
         cur_date = self.request.GET.get('date', '')
@@ -1275,8 +1276,8 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
         context['shift_starts'] = [shift['time'] for shift in shifts]
         context['shifts'] = shifts
         context['shift_count'] = len(context['shift_starts'])
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in Mode.TYPES]
-        context['subtitle'] = '{}'.format(facility.acronym)
+        context['mode_types'] = ModeType.objects.all()
+        context['subtitle'] = facility.acronym
         context['show_year'] = False
         context['tag_types'] = facility.tags()
         context['event_sources'] = [
@@ -1663,7 +1664,7 @@ class AdminShiftRequest(RolePermsViewMixin, ModalUpdateView):
 
 
 class RequestPreferencesAPI(RolePermsViewMixin, View):
-    allowed_roles = ["employee"]
+    allowed_roles = USO_STAFF_ROLES
 
     def get(self, *args, **kwargs):
         facility = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
@@ -1714,7 +1715,7 @@ class ProjectSchedule(RolePermsViewMixin, detail.DetailView):
         return obj.is_owned_by(self.request.user)
 
     def get_context_data(self, **kwargs):
-        from scheduler.models import ShiftConfig, Mode
+        from scheduler.models import ShiftConfig
         context = super().get_context_data(**kwargs)
         cur_date = self.kwargs.get('date', timezone.now().date().isoformat())
 
@@ -1730,11 +1731,13 @@ class ProjectSchedule(RolePermsViewMixin, detail.DetailView):
         context['shift_starts'] = [shift['time'] for shift in shifts]
         context['shifts'] = shifts
         context['shift_count'] = len(context['shift_starts'])
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in Mode.TYPES]
-        context['subtitle'] = '{} Schedule'.format(self.project)
+        context['mode_types'] = ModeType.objects.all()
+        context['subtitle'] = f'{self.project} Schedule'
         context['show_year'] = False
-        context['event_sources'] = [reverse('facility-modes-api'),
-                                    reverse('project-schedule-api', kwargs={'pk': self.project.pk}), ]
+        context['event_sources'] = [
+            reverse('facility-modes-api'),
+            reverse('project-schedule-api', kwargs={'pk': self.project.pk}),
+        ]
         return context
 
 

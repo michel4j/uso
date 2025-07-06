@@ -38,6 +38,11 @@ DATABASES = {
     }
 }
 
+# -----------------------------------------------------------------------------
+# Configure style overrides
+# -----------------------------------------------------------------------------
+# USO_STYLE_OVERRIDES = ['custom.css']  # List of CSS files to override the default styles, place files in local/media/css/
+
 # Configure email server settings, otherwise email notifications will not work
 # ---
 # EMAIL_HOST_USER = "email@email-server.com"

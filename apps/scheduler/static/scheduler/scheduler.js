@@ -208,7 +208,7 @@ function setupCalendar(sel, options) {
                 shift = $(section_prefix + shift_sel);
 
                 if (event.rendering === 'mode') {
-                    shift.attr('class', `${shift.attr('data-default-class')} ${event.name}`);
+                    shift.attr('class', `${shift.attr('data-default-class')} mode-${event.kind}`);
                     shift.attr('title', event.description);
                     if (event.tentative) shift.addClass("tentative");
                     if (event.cancelled) {

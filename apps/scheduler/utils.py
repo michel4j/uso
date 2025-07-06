@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Q, Min, Max, F, ExpressionWrapper, fields
 
+from misc.utils import debug_value
+
 DURATION_FIELD = ExpressionWrapper(F('end') - F('start'), output_field=fields.DurationField())
 
 
@@ -17,9 +19,12 @@ def round_time(dt, delta):
 
 def create_event(schedule, queryset, data):
     # Do not create events which start or end outside of schedule
+
     data['schedule'] = schedule
     tags = data.pop('tags', [])
+
     if data['start'].date() < schedule.start_date or data['end'].date() > schedule.end_date:
+        debug_value(data)
         return status.HTTP_304_NOT_MODIFIED
 
     fields_filter = Q(cancelled=False, **{k: v for k, v in list(data.items()) if k not in ['start', 'end']})

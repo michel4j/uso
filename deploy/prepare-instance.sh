@@ -36,12 +36,13 @@ fi
 
 # Create directory structure
 mkdir -p "$USONLINE_DIR/local/kickstart" &&
-mkdir -p "$USONLINE_DIR/local/media" &&
+mkdir -p "$USONLINE_DIR/local/media/css" &&
 mkdir -p "$USONLINE_DIR/local/logs" &&
 mkdir -p "$USONLINE_DIR/database"
 
 # Copy configuration files
 cp "${SCRIPT_DIR}/settings_template.py" "$USONLINE_DIR/local/settings.py" &&
+cp "${SCRIPT_DIR}/custom.css" "$USONLINE_DIR/local/media/css/" &&
 cp "${SCRIPT_DIR}/docker-compose.yml" "$USONLINE_DIR/" &&
 echo "Instance directory is ready. Please update 'local/settings.py' and "
 echo "'docker-compose.yml' as needed before starting the instance."

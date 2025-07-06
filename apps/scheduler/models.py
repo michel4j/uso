@@ -54,13 +54,16 @@ class Schedule(TimeStampedModel, DateSpanMixin):
         return self.state in [self.STATES.draft, self.STATES.tentative]
 
     def mode_stats(self):
-        stats = defaultdict(int)
-        for m in self.modes.all().with_shifts():
-            stats[m.kind] += m.shifts
-        return stats
+        raw_stats = self.modes.all().with_shifts().values('kind__acronym').order_by('kind__acronym').annotate(
+            count=Sum('shifts')
+        )
+        return {
+            item['kind__acronym']: item['count']
+            for item in raw_stats
+        }
 
     def normal_shifts(self):
-        data = self.modes.filter(kind=Mode.TYPES.N).with_shifts().aggregate(total=Sum('shifts'))
+        data = self.modes.filter(kind__is_normal=True).with_shifts().aggregate(total=Sum('shifts'))
         return data.get('total', 0) or 0
 
     def __str__(self):
@@ -174,21 +177,25 @@ class ModeTag(TimeStampedModel):
         return self.name
 
 
+class ModeType(TimeStampedModel):
+    acronym = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+    color = models.CharField(max_length=10, blank=True, null=True)
+    active = models.BooleanField(default=True)
+    is_normal = models.BooleanField(default=False, help_text="Is this a normal mode? (e.g., work shift)")
+
+    def __str__(self):
+        return self.acronym
+
+
 class Mode(Event):
-    TYPES = Choices(
-        ('N', _('Normal')),
-        ('NS', _('Special Beam')),
-        ('D', _('Development')),
-        ('DS', _('Special Development')),
-        ('M', _('Maintenance')),
-        ('X', _('Shutdown')),
-    )
-    kind = models.CharField(_('Type'), choices=TYPES, default=TYPES.N, max_length=10)
+    kind = models.ForeignKey(ModeType, related_name='modes', on_delete=models.PROTECT)
     tags = models.ManyToManyField(ModeTag, blank=True)
     objects = EventQuerySet.as_manager()
 
     def __str__(self):
-        return "{0}: {1}-{2}".format(self.kind, self.start, self.end)
+        return f"{self.kind}: {self.start}-{self.end}"
 
     class Meta:
         unique_together = [('schedule', 'start', 'end')]

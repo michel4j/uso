@@ -551,8 +551,8 @@ $border-color_2: #ccc;
 }
 
 .event-src.active-src {
-  background-color: $background-color_26;
-  color: $color_2;
+  background-color: var(--bs-primary);
+  color: var(--bs-white) !important;
 }
 
 .cal-day {
