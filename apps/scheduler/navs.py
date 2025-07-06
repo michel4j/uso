@@ -23,4 +23,12 @@ class List(BaseNav):
     label = 'List of Schedules'
     roles = USO_ADMIN_ROLES
     url = reverse('schedule-list')
-    styles = "d-none d-sm-inline"
+
+
+class ModeTypes(BaseNav):
+    parent = Scheduling
+    label = 'Schedule Modes'
+    separator = True
+    weight = 100
+    roles = USO_ADMIN_ROLES
+    url = reverse('mode-type-list')
