@@ -291,8 +291,6 @@ class ReviewTrack(TimeStampedModel):
     acronym = models.CharField(max_length=10, unique=True)
     description = models.TextField(null=True)
     require_call = models.BooleanField("Require Call", default=True)
-    min_reviewers = models.IntegerField("Assignment", default=0)
-    max_workload = models.IntegerField("Max. Workload", default=0)
     notify_offset = models.IntegerField("Notify After", default=1)
     duration = models.IntegerField("Project Cycles", default=4)
 
@@ -704,7 +702,7 @@ class ReviewType(TimeStampedModel):
     description = models.TextField(blank=True, null=True)
     form_type = models.ForeignKey(FormType, on_delete=models.CASCADE, null=True)
     score_fields = models.JSONField(default=dict, blank=True, null=True)
-    low_better = models.BooleanField("Lower Score Better", default=True)
+    low_better = models.BooleanField(_("Lower Score Better"), default=True)
     per_facility = models.BooleanField(_("Per Facility"), default=False)
     role = models.CharField(max_length=100, null=True, blank=True)
     objects = ReviewTypeQueryset.as_manager()
@@ -744,8 +742,10 @@ class ReviewStage(TimeStampedModel):
     kind = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name='stages')
     position = models.IntegerField(_("Position"), default=0)
     min_reviews = models.IntegerField("Minimum Reviews", default=1)
+    max_workload = models.IntegerField("Max Workload", default=0)
     blocks = models.BooleanField(_("Block Passage"), default=True)
     pass_score = models.FloatField(_("Passing Score"), null=True, blank=True)
+    auto_create = models.BooleanField(_("Auto Create"), default=True)
     objects = ReviewStageQuerySet.as_manager()
 
     def __str__(self):

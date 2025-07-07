@@ -520,14 +520,12 @@ def assign_mip(cycle, stage, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tu
     reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()
     proposals = cycle.submissions.filter(track=track).order_by('?').distinct()
     results = {}
-    max_workload = track.max_workload
 
     print(f"Assigning {proposals.count()} proposals to {reviewers.count()} reviewers.")
-
     assigner = Assigner(proposals, reviewers, stage, cycle)
 
     success = []
-    prop_results, solver, status = mip_optimize(assigner, stage.min_reviews, max_workload, method=method)
+    prop_results, solver, status = mip_optimize(assigner, stage.min_reviews, stage.max_workload, method=method)
     print('External Reviewers:')
     print(f"Objective : {solver.Objective().Value()}")
     print(f"Duration  : {solver.WallTime():0.2f} ms")
@@ -607,11 +605,10 @@ def assign_brute_force(cycle, stage) -> tuple[dict, bool]:
     track = stage.track
     reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()
     proposals = cycle.submissions.filter(track=track).order_by('?').distinct()
-    max_workload = track.max_workload
 
     print(f"Assigning {proposals.count()} proposals to {reviewers.count()} reviewers.")
     assigner = Assigner(proposals, reviewers, stage, cycle)
-    assignments = optimize_brute_force(assigner, stage.min_reviews, max_workload)
+    assignments = optimize_brute_force(assigner, stage.min_reviews, stage.max_workload)
 
     committee = track.committee.order_by('?')
     if committee.count():

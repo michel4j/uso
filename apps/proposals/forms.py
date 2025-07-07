@@ -327,14 +327,12 @@ class ReviewTrackForm(ModalModelForm):
         model = models.ReviewTrack
         fields = (
             'name', 'acronym', 'description', 'require_call',
-            'min_reviewers', 'max_workload', 'committee', 'duration'
+            'committee', 'duration'
         )
         widgets = {
             'description': forms.Textarea(attrs={'rows': 2, }),
         }
         help_texts = {
-            'min_reviewers': 'Committee members per proposal',
-            'max_workload': 'Maximum reviewer workload',
             'duration': 'Duration of resulting Project in cycles',
         }
 
@@ -347,9 +345,7 @@ class ReviewTrackForm(ModalModelForm):
                 Div("name", css_class="col-sm-8"),
                 Div("acronym", css_class="col-sm-4"),
                 Div("description", css_class="col-sm-12"),
-                Div("min_reviewers", css_class="col-sm-4"),
-                Div("max_workload", css_class="col-sm-4"),
-                Div("duration", css_class="col-sm-4"),
+                Div("duration", css_class="col-sm-12"),
                 Div("committee", css_class="col-sm-12"),
                 Div("require_call", css_class="col-sm-12"),
                 css_class="row"
@@ -402,15 +398,14 @@ class ReviewerAssignmentForm(ModalModelForm):
         fields = []
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
+        stage = kwargs.pop('stage')
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
 
         self.body.title = "Edit Reviewer Assignment"
-        self.body.form_action = self.request.get_full_path()
 
         cycle = self.instance.cycle
-        track = self.instance.track
+        track = stage.track
 
         prop_info = utils.get_submission_info(self.instance)
         tech_filter = Q(techniques__in=prop_info['techniques'])
@@ -421,8 +416,8 @@ class ReviewerAssignmentForm(ModalModelForm):
             num_reviews=Count('user__reviews', filter=Q(user__reviews__cycle=cycle), distinct=True)
         )
 
-        if track.max_workload > 0:
-            reviewers = reviewers.exclude(num_reviews__gt=track.max_workload)
+        if stage.max_workload > 0:
+            reviewers = reviewers.exclude(num_reviews__gt=stage.max_workload)
 
         available = models.Reviewer.objects.filter(pk__in=list(
             itertools.chain(reviewers.values_list('pk', flat=True), track.committee.values_list('pk', flat=True))
@@ -497,11 +492,12 @@ class ReviewCommentsForm(ModalModelForm):
 class ReviewStageForm(ModalModelForm):
     class Meta:
         model = models.ReviewStage
-        fields = ['track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score']
+        fields = ['track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score', 'auto_create']
         widgets = {
             'track': forms.HiddenInput(),
             'kind': forms.Select(attrs={'class': 'select'}),
             'blocks': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'}, ),
+            'auto_create': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'}, ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -513,11 +509,13 @@ class ReviewStageForm(ModalModelForm):
 
         self.body.append(
             Div(
-                Div("kind", css_class="col-sm-6"),
-                Div("position", css_class="col-sm-6"),
+                Div("kind", css_class="col-sm-4"),
+                Div("position", css_class="col-sm-4"),
+                Div("auto_create", css_class="col-sm-4"),
                 Div("min_reviews", css_class="col-sm-4"),
                 Div("pass_score", css_class="col-sm-4"),
                 Div("blocks", css_class="col-sm-4"),
+
                 css_class="row"
             )
         )

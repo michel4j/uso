@@ -66,7 +66,7 @@
                    data-repeat-for="{{ repeat_name }}__shifts">Shifts</label>
             <input id="{{ field.name }}__shifts" name="{{ field.name }}__shifts"
                    data-repeat-name="{{ repeat_name }}__shifts" aria-label="{{ field.label }} shifts"
-                   class="form-control {% subfield_require 'facility' %}" type="number" min="0"
+                   class="form-control {% subfield_require 'shifts' %}" type="number" min="0"
                    value="{{ data.shifts }}" placeholder="No. of shifts"
             >
         </div>

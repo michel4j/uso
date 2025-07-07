@@ -16,7 +16,7 @@ class BeamlineReqs(FieldType):
     options = ['required', "repeat", "justification"]
     settings = ['label', 'options', ]
     template_theme = "proposals/fields"
-    required_subfields = ['techniques', 'facility', 'procedure', 'justification']
+    required_subfields = ['techniques', 'facility', 'procedure']
 
     def is_multi_valued(self, subfield: str = None) -> bool:
         if subfield and subfield in ['techniques']:
@@ -43,6 +43,17 @@ class BeamlineReqs(FieldType):
 
     @staticmethod
     def clean_facility(value):
+        if isinstance(value, list):
+            return to_int(value[0])
+        elif isinstance(value, str):
+            return to_int(value)
+        return value
+
+    @staticmethod
+    def clean_shifts(value):
+        """
+        Cleans the 'shifts' field to ensure it is an integer.
+        """
         if isinstance(value, list):
             return to_int(value[0])
         elif isinstance(value, str):

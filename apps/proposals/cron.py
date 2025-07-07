@@ -94,6 +94,7 @@ class NotifyReviewers(BaseCronJob):
             reviews.update(state=models.Review.STATES.open)
             if count:
                 return f"{count} reviewer notification(s) sent"
+        return ''
 
 
 class RemindReviewers(BaseCronJob):
@@ -126,6 +127,7 @@ class RemindReviewers(BaseCronJob):
 
             if len(list(info.values())):
                 return f"{len(list(info.values()))} reviewer reminders sent"
+        return ''
 
 
 class SubmissionStateManager(BaseCronJob):

@@ -344,27 +344,38 @@ class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
             due_date = min(cycle.due_date, timezone.now().date() + timedelta(weeks=2))
 
             # create review objects for the first stage of each review track
-            stage = track.stages.first()
-            if stage:
+            stage = track.stages.all().first()
+            if stage and stage.auto_create:
                 review_type = stage.kind
                 if review_type.per_facility:
-                    # create one review for each facility
+                    # create min_reviews reviews for each facility
                     to_create.extend(
                         [
                             models.Review(
-                                role=review_type.role.format(acronym), cycle=cycle, reference=obj, type=review_type,
-                                form_type=review_type.form_type, state=models.Review.STATES.open,
+                                role=review_type.role.format(acronym),
+                                cycle=cycle,
+                                reference=obj,
+                                type=review_type,
+                                form_type=review_type.form_type,
+                                state=models.Review.STATES.pending,
+                                stage=stage,
                                 due_date=due_date, details={'facility': facility.pk}
                             )
                             for acronym, facility in technical_info
+                            for _ in range(stage.min_reviews)
                         ]
                     )
                 else:
-                    # create one for the whole proposal
+                    # create min_reviews reviews for whole proposal
                     to_create.append(
                         models.Review(
-                            role=review_type.role, cycle=cycle, reference=obj, type=review_type,
-                            form_type=review_type.form_type, state=models.Review.STATES.open,
+                            role=review_type.role,
+                            cycle=cycle,
+                            stage=stage,
+                            reference=obj,
+                            type=review_type,
+                            form_type=review_type.form_type,
+                            state=models.Review.STATES.pending,
                             due_date=due_date
                         )
                     )
@@ -426,11 +437,9 @@ class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
                 roles |= {'user'}
                 user.update_profile(data={'extra_roles': roles})
 
-        return JsonResponse(
-            {
-                "url": success_url
-            }
-        )
+        return JsonResponse({
+            "url": success_url
+        })
 
 
 class ProposalDetail(RolePermsViewMixin, detail.DetailView):
@@ -1642,6 +1651,7 @@ class AddReviewAssignment(RolePermsViewMixin, ModalUpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
+        kwargs['stage'] = models.ReviewStage.objects.get(pk=self.kwargs['stage'])
         return kwargs
 
     def form_valid(self, form):
