@@ -22,9 +22,16 @@
     </div>
     <div class="row">
         <div class="field-group-item col-7">
+            <label for="{{ field.name }}__techniques"
+                   class="form-label {% subfield_require 'techniques' %}"
+                   data-repeat-for="{{ repeat_name }}__techniques">
+                Techniques
+            </label>
             <select name="{{ field.name }}__techniques" id="{{ field.name }}__techniques"
                     data-repeat-name="{{ repeat_name }}__techniques"
-                    multiple class="form-select-multiple {{ required }}" data-placeholder="Select techniques">
+                    multiple
+                    class="form-select-multiple {% subfield_require 'techniques' %}"
+                    data-placeholder="Select techniques">
                 {% for technique in options.techniques %}
                     <option value="{{ technique.id }}" data-related="{{ technique.facilities|jsonify }}"
                             class="option-technique-{{ technique.id }}"
@@ -32,14 +39,17 @@
                     </option>
                 {% endfor %}
             </select>
-            <label for="{{ field.name }}__techniques" class="sub-label" data-repeat-for="{{ repeat_name }}__techniques">
-                Techniques<span class="text-danger">∗</span>
-            </label>
         </div>
         <div class="field-group-item col-3">
+            <label for="{{ field.name }}__facility"
+                   class="form-label {% subfield_require 'facility' %}"
+                   data-repeat-for="{{ repeat_name }}__facility">
+                Facility
+            </label>
             <select name="{{ field.name }}__facility" id="{{ field.name }}__facility"
                     data-repeat-name="{{ repeat_name }}__facility"
-                    class="form-select {{ required }}" data-placeholder="Select facility">
+                    class="form-select {% subfield_require 'facility' %}"
+                    data-placeholder="Select facility">
                 <option value=""></option>
                 {% for facility in options.facilities %}
                     <option value="{{ facility.id }}" data-related="{{ facility.techniques|jsonify }}"
@@ -49,18 +59,16 @@
                     </option>
                 {% endfor %}
             </select>
-            <label for="{{ field.name }}__facility" class="sub-label" data-repeat-for="{{ repeat_name }}__facility">
-                Facility<span class="text-danger">∗</span>
-            </label>
         </div>
         <div class="field-group-item col-2">
+            <label for="{{ field.name }}__shifts"
+                   class="form-label {% subfield_require 'shifts' %}"
+                   data-repeat-for="{{ repeat_name }}__shifts">Shifts</label>
             <input id="{{ field.name }}__shifts" name="{{ field.name }}__shifts"
                    data-repeat-name="{{ repeat_name }}__shifts" aria-label="{{ field.label }} shifts"
-                   class="form-control" type="number" min="0"
+                   class="form-control {% subfield_require 'facility' %}" type="number" min="0"
                    value="{{ data.shifts }}" placeholder="No. of shifts"
             >
-            <label for="{{ field.name }}__shifts" class="sub-label"
-                   data-repeat-for="{{ repeat_name }}__shifts">Shifts</label>
         </div>
     </div>
     <div class="row">
@@ -68,28 +76,34 @@
     </div>
     <div class="row">
         <div class="field-group-item col-12">
-            <textarea cols="40" name="{{ field.name }}__procedure" id="{{ field.name }}__procedure"
-                      data-repeat-name="{{ repeat_name }}__procedure"
-                      rows="3" class="textarea form-control {{ required }}"
-            >{{ data.procedure }}</textarea>
-            <label for="{{ field.name }}__procedure" class="sub-label" data-repeat-for="{{ repeat_name }}__procedure">
-                Experimental Procedure<span class="text-danger">∗</span>
+            <label for="{{ field.name }}__procedure"
+                   class="form-label {% subfield_require 'procedure' %}"
+                   data-repeat-for="{{ repeat_name }}__procedure">
+                Experimental Procedure
             </label>
+            <textarea cols="40" name="{{ field.name }}__procedure"
+                      id="{{ field.name }}__procedure"
+                      data-repeat-name="{{ repeat_name }}__procedure"
+                      rows="3"
+                      class="textarea form-control {% subfield_require 'procedure' %}"
+            >{{ data.procedure }}</textarea>
         </div>
     </div>
 
     {% if "justification" in field.options %}
         <div class="row">
             <div class="field-group-item col-12">
+                <label for="{{ field.name }}__justification"
+                       class="form-label {% subfield_require 'justification' %}"
+                       data-repeat-for="{{ repeat_name }}__justification"
+                >Justification of Suitability
+                </label>
                 <textarea cols="40" name="{{ field.name }}__justification"
                           data-repeat-name="{{ repeat_name }}__justification"
                           id="{{ field.name }}__justification"
-                          rows="5" class="textarea form-control {{ required }}"
+                          rows="5"
+                          class="textarea form-control {% subfield_require 'procedure' %}"
                 >{{ data.justification }}</textarea>
-                <label for="{{ field.name }}__justification" class="sub-label "
-                       data-repeat-for="{{ repeat_name }}__justification"
-                >Justification of Suitability<span class="text-danger">∗</span>
-                </label>
             </div>
         </div>
     {% endif %}

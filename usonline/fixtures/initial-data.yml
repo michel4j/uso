@@ -2,11 +2,14 @@
   pk: 1
   fields:
     created: 2014-04-09 16:14:48+00:00
-    modified: 2025-06-06 02:16:25.770730+00:00
+    modified: 2025-06-24 21:38:10.286448+00:00
     name: Registration
     code: registration
     description: You will receive an email immediately upon submitting this form with
       instructions to complete your registration. User Office.
+    header: false
+    help_bar: false
+    wizard: true
     pages:
     - name: Tell us about yourself
       fields:
@@ -94,6 +97,7 @@
       - name: sector
         tags: ''
         label: Type of Institution
+        width: full
         options:
         - required
         - inline
@@ -140,11 +144,14 @@
   pk: 2
   fields:
     created: 2014-04-09 16:14:48+00:00
-    modified: 2025-06-06 02:49:55.455336+00:00
+    modified: 2025-07-07 15:18:16.375021+00:00
     name: Proposal
     code: proposal
     description: Form for creating and editing project proposals to be submitted for
       peer review
+    header: true
+    help_bar: true
+    wizard: false
     pages:
     - name: Description
       fields:
@@ -185,7 +192,6 @@
         width: full
         options:
         - required
-        - multiple
         field_type: subjectarea
         instructions: "Please select the subject areas which best describe  the proposed
           research.  Select all that apply. Additionally, provide up to 5 descriptive
@@ -311,42 +317,45 @@
       - name: first_cycle
         tags: tinytron
         label: Earliest Scheduling Period
+        width: full
         options:
         - required
         field_type: reviewcycle
         instructions: "Select the time period during which you are proposing to carry
           out the experiments.   This should correspond to the earliest time frame
-          you would like the proposal to be scheduled if approved.  \n\nThe call for
-          proposals is open twice a year, usually about 5 months prior to the start
-          of the scheduling period. Approved projects will remain active for two years
-          from the start date of the selected period. However, proposals submitted
-          after the close of the submission deadline  for the selected period will
-          be considered as special requests for discretionary time only. Such projects
-          will expire at the end of the selected scheduling period."
+          you would like the proposal to be scheduled if approved.  \r\n\r\nThe call
+          for proposals is open twice a year, usually about 5 months prior to the
+          start of the scheduling period. Approved projects will remain active for
+          two years from the start date of the selected period. However, proposals
+          submitted after the close of the submission deadline  for the selected period
+          will be considered as special requests for discretionary time only. Such
+          projects will expire at the end of the selected scheduling period."
       - name: beamline_reqs
         tags: ''
         label: Facility Requirements
+        width: full
         options:
         - required
         - repeat
-        - tags
         - justification
         field_type: beamlinereqs
+        max_repeat: null
         instructions: "Please identify all the techniques and beamlines you plan to
           use during your project.  Note that you can now submit a single proposal
           for multiple-beamline projects -- simply use the [+] button to add additional
-          sections as required.  \n\nFor each facility, complete the following fields:
-          \ \n\n*  _Techniques_ -- select all the techniques you plan to use on that
-          beamline.  \n*  _Facility_ -- select the facility. The available techniques
-          and facilities will auto-update based on your selections.  \n*  _Shifts_
-          -- Enter the number of shifts being requested for period identified above.
-          **NOT the total amount of time requested over the lifetime of the project.**
-          \ \n*  _Experimental Procedure_ --  describe the experimental procedure
-          to be followed at the selected facility specifically.  \n*  _Justification
+          sections as required.  \r\n\r\nFor each facility, complete the following
+          fields:  \r\n\r\n*  _Techniques_ -- select all the techniques you plan to
+          use on that beamline.  \r\n*  _Facility_ -- select the facility. The available
+          techniques and facilities will auto-update based on your selections.  \r\n*
+          \ _Shifts_ -- Enter the number of shifts being requested for period identified
+          above. **NOT the total amount of time requested over the lifetime of the
+          project.**  \r\n*  _Experimental Procedure_ --  describe the experimental
+          procedure to be followed at the selected facility specifically.  \r\n*  _Justification
           of Suitability_ --  Explain why this particular facility is suitable for
           the planned experiments. Also explain the rational for the amount of beam
-          time requested above.\n\nFor each facility you plan to use, you are advised
-          to discuss your experiment with the beamline scientist to confirm its suitability."
+          time requested above.\r\n\r\nFor each facility you plan to use, you are
+          advised to discuss your experiment with the beamline scientist to confirm
+          its suitability."
       - name: ancillaries
         tags: ''
         label: Ancillaries Requirements
@@ -369,14 +378,12 @@
           discuss with the relevant beamline scientist if in doubt.'
       - name: date_preferences
         tags: ''
-        label: Scheduling Preferences
+        label: Date Preferences
+        width: full
         options:
-        - multiple
-        field_type: datepreference
-        instructions: 'Optionally, select preferred and undesirable dates for scheduling.
-          If you are awarded beam time, your preferences will be taken into consideration
-          during scheduling if possible. We make no guarantees that you will be scheduled
-          as specified. '
+        - list
+        field_type: date
+        instructions: Please select your preferred dates
     - name: Materials
       fields:
       - name: safety-instructions
@@ -525,6 +532,9 @@
     name: Scientific Review
     code: scientific-review
     description: Form to be filled by reviewer during Scientific Peer Review
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Scientific Merit
       fields:
@@ -691,6 +701,9 @@
     name: Technical Review
     code: technical-review
     description: Technical review form to be completed by reviewers
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Technical Review
       fields:
@@ -811,6 +824,9 @@
     description: Final Safety Approval Form to be completed by the safety approver
       after all safety reviews have been complete. Can also be used to create new
       safety reviews.
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Assign Reviewers
       fields:
@@ -890,6 +906,9 @@
     name: Ethics Review
     code: ethics-review
     description: Ethics review form
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Ethics Review
       fields:
@@ -938,6 +957,9 @@
     name: Safety Review
     code: safety-review
     description: Safety review form to be completed by safety reviewers
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Samples
       fields:
@@ -1022,6 +1044,9 @@
     name: New Project
     code: project
     description: Form for creating projects
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Basic Information
       fields:
@@ -1236,6 +1261,9 @@
     code: amendment
     description: Form for submitting changes in a project's samples, equipment, and/or
       procedures for safety/ethics review.
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Project Materials
       fields:
@@ -1311,6 +1339,9 @@
     name: Team Amendment
     code: team
     description: Form for changing team members, delegate, or leader of a project
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Team
       fields:
@@ -1364,6 +1395,9 @@
     name: User Feedback
     code: feedback
     description: Form to capture user feedback following beamtime.
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Operations
       fields:
@@ -1611,6 +1645,9 @@
     name: Form For testing
     code: test-form
     description: Just an example playground form for testing
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: First Page
       fields:
@@ -1643,6 +1680,9 @@
     name: Equipment Review
     code: equipment-review
     description: For used for reviewing equipment
+    header: false
+    help_bar: false
+    wizard: false
     pages:
     - name: Equipment Review
       fields:

@@ -2,11 +2,11 @@
 {% load pub_dynfields %}
 {% set_subject_areas as subj_areas %}
 
-<div class="controls {{repeatable}}" id="{{field.name}}__controls">
+<div class="controls" id="{{field.name}}__controls">
    <div class="row">
 		<div class="field-group-item col-12">
 			<select name="{{field.name}}__areas" id="{{field.name}}__areas"
-                    class="form-select-multiple"
+                    class="form-select-multiple {% subfield_require 'areas' %}"
                     multiple
                     aria-label="{{ field.label }}"
             >
@@ -14,13 +14,14 @@
 				<option value="{{value}}" {% if value in data.areas %}selected="selected"{% endif %} >{{choice}}</option>
 			{% endfor %}
 			</select>
-            <label for="{{field.name}}__areas" class="sub-label">Subject Areas</label>
+            <label for="{{field.name}}__areas" class="sub-label {% subfield_require 'areas' %}">Subject Areas</label>
 		</div>
 	</div>
 	<div class="row">
 	    <div class="field-group-item col-12">
-		    <input id="{{field.name}}__keywords" name="{{field.name}}__keywords" class="form-control" type="text" value="{{data.keywords}}">
-            <label for="{{field.name}}__keywords" class="sub-label">Keywords</label>
+		    <input id="{{field.name}}__keywords" name="{{field.name}}__keywords"
+                   class="form-control {% subfield_require 'keywords' %}" type="text" value="{{data.keywords}}">
+            <label for="{{field.name}}__keywords" class="sub-label {% subfield_require 'keywords' %}">Keywords</label>
 	    </div>			
    </div>
 </div>

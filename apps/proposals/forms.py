@@ -14,6 +14,7 @@ from dynforms.forms import DynModelForm
 from dynforms.utils import DotExpandedDict
 
 from misc.forms import JSONDictionaryField
+from misc.utils import debug_value
 from . import models
 from . import utils
 from .models import get_user_model
@@ -38,7 +39,14 @@ class ProposalForm(DynModelForm):
         data['title'] = data['details'].get('title')
         if not data['title']:
             self._errors['title'] = "You must add a title before you can save the proposal "
-        data['keywords'] = data['details'].get('subject', {}).get('keywords')
+
+        subjects = data['details'].get('subject', {})
+        if isinstance(subjects, list) and len(subjects) == 1:
+            subjects = subjects[0]
+        else:
+            subjects = subjects or {}
+
+        data['keywords'] = subjects.get('keywords', '').strip()
         team_members = data['details'].get('team_members', [])[:]  # make a copy to avoid modifying in-place
         existing_emails = []
         for k in ['leader', 'delegate']:

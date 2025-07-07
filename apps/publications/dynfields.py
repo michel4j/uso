@@ -10,13 +10,15 @@ class ResearchArea(FieldType):
 
 class SubjectArea(FieldType):
     name = _("Subject Area")
-    options = ['required', 'hide']
+    options = ['required', 'hide', 'multiple']
     template_name = "publications/fields/subjectarea.html"
+    required_subfields = ['areas', 'keywords']
 
     def is_multi_valued(self, subfield: str = None) -> bool:
         if subfield in ['areas']:
             return True
         return False
 
-    def clean_areas(self, value):
+    @staticmethod
+    def clean_areas(value):
         return [int(val) for val in value]
