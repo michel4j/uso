@@ -13,27 +13,35 @@
 {% if schedule.is_editable or not mode_editor %}
     <div class="src-tools p-3 mb-3 bg-warning-subtle">
         <div class="row">
-            <div class="col-xs-12">
-                <span id="src-instruction"></span>
+            <div class="col-sm-12">
+                <div class="src-instruction-idle flex-row align-items-center justify-content-start gap-3">
+                    <i class="bi bi-hand-index-thumb"></i> Select an item from the list.
+                </div>
+                <div class="src-instruction-starting flex-row align-items-center justify-content-start gap-3">
+                    <i class="bi bi-arrow-bar-right"></i> Select the first shift.
+                </div>
+                <div class="src-instruction-ending flex-row align-items-center justify-content-start gap-3">
+                    <i class="bi bi-arrow-bar-left"></i> Select the last shift.
+                </div>
             </div>
         </div>
         <hr class="hr-xs"/>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-sm-12">
                 {% if view.allow_reservations %}
                     <a href="#0" class="event-src pull-left "
-                       data-key='default' data-event='{"kind": "", "tags": [], "placeholder": true}'>
+                       data-key='default' data-event='{"kind": null, "tags": [], "placeholder": true}'>
                         <i class="bi-geo-alt icon-fw icon-sm"></i><br/>
                         <span class="tool-label">Reserve</span>
                     </a>
                 {% endif %}
                 <a href="#0" class="event-src pull-right "
-                   data-key='default' data-event='{"kind": "", "tags": [], "delete": true}'>
+                   data-key='default' data-event='{"kind": null, "tags": [], "delete": true}'>
                     <i class="bi-trash icon-fw icon-sm"></i><br/>
                     <span class="tool-label">Erase</span>
                 </a>
                 <a href="#0" class="event-src pull-right "
-                   data-key='default' data-event='{"kind": "", "tags": [], "cancel": true}'>
+                   data-key='default' data-event='{"kind": null, "tags": [], "cancel": true}'>
                     <i class="bi-ban icon-fw icon-sm"></i><br/>
                     <span class="tool-label">Cancel</span>
                 </a>

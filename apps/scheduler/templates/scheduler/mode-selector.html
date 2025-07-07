@@ -7,7 +7,7 @@
             <li id="mode-type-{{ mode.pk }}"
                 class="list-group-item {% if schedule.state != 'live' %}event-src{% endif %}"
                 data-kind="{{mode.pk}}" data-key="{{mode.pk}}"
-                data-event='{"kind":"{{mode.pk}}", "tags": []}'
+                data-event='{"kind": {{mode.pk}}, "tags": []}'
             >
                 <div class="d-flex flex-row align-items-center justify-content-start py-1 gap-2">
                     <div class="badge mode-{{ mode.pk }}" style="width: 2em;">&nbsp;</div>

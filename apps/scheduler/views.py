@@ -17,6 +17,7 @@ from rest_framework import generics, status, permissions
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
+from misc.utils import debug_value
 from roleperms.views import RolePermsViewMixin
 from . import models, forms
 from . import serializers
@@ -331,10 +332,11 @@ class ModeListAPI(EventUpdateAPI):
     allowed_schedule_states = [models.Schedule.STATES.draft, models.Schedule.STATES.tentative]
 
     def get_data(self, info):
+        debug_value(info)
         return {
             'start': parser.parse(info['start']),
             'end': parser.parse(info['end']),
-            'kind': models.ModeType.objects.get(pk=info['kind']),
+            'kind': models.ModeType.objects.filter(pk=info['kind']).first(),
             'tags': info.get('tags', []),
             'comments': info.get('comments', '')
         }

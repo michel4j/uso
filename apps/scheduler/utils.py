@@ -23,8 +23,7 @@ def create_event(schedule, queryset, data):
     data['schedule'] = schedule
     tags = data.pop('tags', [])
 
-    if data['start'].date() < schedule.start_date or data['end'].date() > schedule.end_date:
-        debug_value(data)
+    if data['start'].date() < schedule.start_date or data['end'].date() >= schedule.end_date:
         return status.HTTP_304_NOT_MODIFIED
 
     fields_filter = Q(cancelled=False, **{k: v for k, v in list(data.items()) if k not in ['start', 'end']})

@@ -9,7 +9,7 @@
                 data-content="{{ alloc.project.title }}" data-placement="bottom"
                 data-kind='{{alloc.pk}}' data-key='project' data-allocation='{{alloc.shifts}}'
                 data-extra-events-url="{% url 'schedule-request-api' pk=alloc.project.pk fac=alloc.beamline.acronym %}"
-                data-event='{"project":"{{alloc.project.pk}}", "tags": [{% for tag in alloc.tags %}{{tag.pk}}{%if not forloop.last %}, {% endif %}{% endfor %}] }'
+                data-event='{"project": {{alloc.project.pk}}, "tags": [{% for tag in alloc.tags %}{{tag.pk}}{%if not forloop.last %}, {% endif %}{% endfor %}] }'
             >
                 <div class="d-flex flex-row align-items-center justify-content-start py-1 gap-2">
                     <div class="badge bg-secondary" style="width: 2em;" title="Allocated Shifts">{{alloc.shifts}}</div>

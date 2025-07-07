@@ -73,7 +73,7 @@ def create_cycle(today=None):
     alloc_date = due_date + timedelta(weeks=ALLOC_OFFSET_WEEKS)
     existing = models.ReviewCycle.objects.filter(start_date=start_date, open_date=open_date)
     if not existing.count():
-        description = f"{start_date.strftime('%b')}-{end_date.strftime('%b')} {end_date.strftime('%Y')}: Schedule"
+        description = f"{start_date.strftime('%Y')} {start_date.strftime('%b')}-{end_date.strftime('%b')}: Schedule"
         config = ShiftConfig.objects.first()
         schedule = Schedule.objects.create(
             start_date=start_date, end_date=end_date, description=description, config=config
@@ -107,7 +107,7 @@ def create_mock(start_date, end_date, open_date, close_date, due_date, alloc_dat
 
     existing = models.ReviewCycle.objects.filter(start_date=start_date, open_date=open_date)
     if not existing.count():
-        description = f"{start_date.strftime('%b')}-{end_date.strftime('%b')} {end_date.strftime('%Y')}: Schedule"
+        description = f"{start_date.strftime('%Y')} {start_date.strftime('%b')}-{end_date.strftime('%b')}: Schedule"
         config = ShiftConfig.objects.latest('created')
         schedule = Schedule.objects.create(
             start_date=start_date, end_date=end_date, description=description, config=config

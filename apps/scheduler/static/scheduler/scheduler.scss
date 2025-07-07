@@ -229,20 +229,37 @@ $border-color_2: #ccc;
 }
 
 .fc-toolbar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  height: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 30px;
+  grid-template-areas: "left center right";
+  grid-gap: 1em;
   margin-bottom: 13px;
 
+  .fc-left {
+    grid-area: left;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+  }
   .fc-right {
+    grid-area: right;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
     .fc-button-group {
       float: right;
     }
   }
 
   .fc-center {
+    grid-area: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     .fc-button-group {
       margin: 0 auto;
       text-align: center;
@@ -581,6 +598,7 @@ $border-color_2: #ccc;
   }
 }
 
+
 .cal-shift {
   > .event-tools.active {
     &::before {
@@ -669,16 +687,11 @@ $border-color_2: #ccc;
 .idle {
   + {
     #src-panel {
-      #src-instruction {
-        &:before {
-          font-family: $font-family_1;
-          content: "\F402";
-          margin-right: 1rem;
-        }
-
-        &:after {
-          content: "Select an item from the list";
-        }
+      .src-instruction-ending, .src-instruction-starting {
+        display: none;
+      }
+      .src-instruction-idle {
+        display: flex;
       }
     }
   }
@@ -687,16 +700,11 @@ $border-color_2: #ccc;
 .starting {
   + {
     #src-panel {
-      #src-instruction {
-        &:before {
-          font-family: $font-family_3;
-          content: "\e6d9";
-          margin-right: 1rem;
-        }
-
-        &:after {
-          content: "Select first shift";
-        }
+      .src-instruction-idle, .src-instruction-ending {
+        display: none;
+      }
+      .src-instruction-starting {
+        display: flex;
       }
     }
   }
@@ -715,16 +723,11 @@ $border-color_2: #ccc;
 .ending {
   + {
     #src-panel {
-      #src-instruction {
-        &:before {
-          font-family: $font-family_3;
-          content: "\e6da";
-          margin-right: 1rem;
-        }
-
-        &:after {
-          content: "Select last shift";
-        }
+      .src-instruction-idle, .src-instruction-starting {
+        display: none;
+      }
+      .src-instruction-ending {
+        display: flex;
       }
     }
   }

@@ -240,6 +240,7 @@ function setupCalendar(sel, options) {
                         );
                         if (options.editor) {
                             first_shift.find('.event-tools').addClass('active').data('event', event);
+
                         }
                         if (options.showLinks && event.url) {
                             shift.find('.event-label').attr('data-href', event.url);
@@ -260,17 +261,44 @@ function setupCalendar(sel, options) {
     });
 }
 
+function eventToolsContent() {
+        let $control = $(this);
+        let event = $control.data("event");
+        let comments = event.comments ? event.comments : ""
+        $control.popover({
+            html: true,
+            trigger: 'focus',
+            placement: 'bottom',
+            container: 'body',
+            customClass: 'event-tools-popover',
+            sanitize: false,
+            content: function() {
+                return (
+                    `
+                        <textarea class="form-control w-100 mb-2" type="text" rows="3" name="comments" placeholder="Comments ...">${comments}</textarea>
+                        <div class='toolbox mt-2'>
+                            <a href='#0' data-action='comments'><i class='bi-floppy icon-sm'></i><span class="tool-label">Save</span></a>
+                            <a href='#0' data-action='cancel'><i class='bi-ban icon-sm'></i><span class="tool-label">Cancel</span></a>
+                            <a href='#0' data-action='reset'><i class='bi-arrow-clockwise icon-sm'></i><span class="tool-label">Reset</span></a>
+                            <a href='#0' data-action='delete'><i class='bi-trash icon-sm'></i><span class="tool-label">Delete</span></a>
+                        </div>
+                    `
+                );
+            }
+        });
+
+}
+
 function setupEditor(sel, options) {
     let defaults = {
         editorType: 'event'
     };
     options = $.extend({}, defaults, options || {});
-    let rangeStart = moment(options.rangeStart, "YYYY-MM-DD");
-    let rangeEnd = moment(options.rangeStart, "YYYY-MM-DD");
 
-    // prepare click events for event source
-    let calendar = $(sel);
-    calendar.addClass('idle');
+    // prepare click events for event-source
+    let $calendar = $(sel);
+    $calendar.addClass('idle');
+
     function clearEvents() {
         $('.cal-day .cal-shift').each(function(){
             const shift = $(this);
@@ -280,20 +308,26 @@ function setupEditor(sel, options) {
     }
 
     $(document).on('click', '.event-src', function (event) {
-        calendar.fullCalendar('removeEventSource', $('.active-src').attr('data-extra-events-url'));
+        $calendar.fullCalendar('removeEventSource', $('.active-src').attr('data-extra-events-url'));
+        const $eventSrc = $('.event-src');
+
+        // clear any existing date preferences
         $('.fc-day-number.prefs-available, .fc-day-number.prefs-unavailable').removeClass('prefs-available prefs-unavailable');
+
         if (!($(this).is('.active-src'))) {
-            $('.event-src').removeClass('active-src');
-            calendar.removeClass('idle ending').addClass('starting');
+            // The active was changed
+            $eventSrc.removeClass('active-src');
             $(this).addClass('active-src');
-            calendar.fullCalendar('addEventSource', $(this).attr('data-extra-events-url'));
+            $calendar.removeClass('idle ending').addClass('starting');
+            $calendar.fullCalendar('addEventSource', $(this).attr('data-extra-events-url'));
             $.each($(this).data('event').tags, function (i, id) {
-                $('#tag-' + id).addClass('active');
+                $(`#tag-${id}`).addClass('active');
             });
         } else {
+            // The active was clicked again, so we clear the selection
             const class_name = `selected-${$('.event-src.active-src').attr('data-key')}`;
-            $('.event-src').removeClass('active-src');
-            calendar.removeClass('ending starting').addClass('idle');
+            $eventSrc.removeClass('active-src');
+            $calendar.removeClass('ending starting').addClass('idle');
             $(`.cal-shift.${class_name}`).removeClass(class_name);
             $('.tag').removeClass('active');
         }
@@ -301,11 +335,11 @@ function setupEditor(sel, options) {
 
     // starting shift selected
     $(document).on('click', '.starting .fc-view .cal-day .cal-shift', function (event) {
-        $(sel + '.starting').removeClass('idle starting').addClass('ending').attr('data-range-start', $(this).attr('data-shift-id'));
+        $calendar.removeClass('idle starting').addClass('ending').attr('data-range-start', $(this).attr('data-shift-id'));
     });
     // ending shift selected
     $(document).on('click', '.ending .fc-view .cal-day .cal-shift', function (event) {
-        let t1 = moment(calendar.attr('data-range-start'), 'YYYY-MM-DDTHH');
+        let t1 = moment($calendar.attr('data-range-start'), 'YYYY-MM-DDTHH');
         let t2 = moment($(this).attr('data-shift-id'), 'YYYY-MM-DDTHH');
         let start_time = moment(moment.min(t1, t2));
         let end_time = moment(moment.max(t1, t2));
@@ -322,9 +356,12 @@ function setupEditor(sel, options) {
             data: JSON.stringify(post_data),
             success: function (data) {
                 clearEvents();
-                calendar.fullCalendar('refetchEvents');
-                calendar.removeClass('starting ending').addClass('idle');
-                $('.event-src').removeClass('active-src');
+                const $activeSrc = $('.event-src.active-src');
+                $calendar.fullCalendar('refetchEvents');
+                $calendar.removeClass('idle ending').addClass('starting');
+                $.each($activeSrc.data('event').tags, function (i, id) {
+                    $(`#tag-${id}`).addClass('active');
+                });
                 updateStats(options.statsAPI);
             }
         });
@@ -333,7 +370,7 @@ function setupEditor(sel, options) {
     //highlihght range while editing
     $(document).on('mouseenter', '.ending .fc-view .cal-shift', function (event) {
         let selected = [];
-        let t1 = moment(calendar.attr('data-range-start'), 'YYYY-MM-DDTHH');
+        let t1 = moment($calendar.attr('data-range-start'), 'YYYY-MM-DDTHH');
         let t2 = moment($(this).attr('data-shift-id'), 'YYYY-MM-DDTHH');
         let class_name = "selected-" + $('.event-src.active-src').attr('data-key');
         let start_time = moment(moment.min(t1, t2));
@@ -351,10 +388,10 @@ function setupEditor(sel, options) {
     // Escape pressed while editing
     $(document).keyup(function(e) {
         if (e.keyCode === 27) {
-            calendar.fullCalendar('removeEventSource', $('.active-src').attr('data-extra-events-url'));
+            $calendar.fullCalendar('removeEventSource', $('.active-src').attr('data-extra-events-url'));
             let class_name = `selected-${$('.event-src.active-src').attr('data-key')}`;
             $('.event-src').removeClass('active-src');
-            calendar.removeClass('ending starting').addClass('idle');
+            $calendar.removeClass('ending starting').addClass('idle');
             $(`.cal-shift.${class_name}`).removeClass(class_name);
             $('.tag').removeClass('active');
         }
@@ -382,20 +419,20 @@ function setupEditor(sel, options) {
             data: JSON.stringify(post_data),
             success: function (data) {
                 clearEvents();
-                calendar.fullCalendar('refetchEvents');
+                $calendar.fullCalendar('refetchEvents');
                 updateStats(options.statsAPI);
             }
         });
     });
 
     // Handle display of event tools
-    $(document).on('mouseenter', '.idle .cal-shift .event-tools.active', function() {
-        let control = $(this);
-        let event = control.data("event");
+    $(document).on('click', '.idle .cal-shift .event-tools.active', function() {
+        const $control = $(this);
+        let event = $control.data("event");
         let comments = event.comments ? event.comments : ""
-        control.popover({
+        $control.popover({
             html: true,
-            trigger: 'hover',
+            trigger: 'manual',
             placement: 'bottom',
             container: 'body',
             customClass: 'event-tools-popover',
@@ -414,30 +451,42 @@ function setupEditor(sel, options) {
                 );
             }
         });
-        control.popover("show");
-    });
+        $control.popover('show');
 
-    // Handle editing actions from event tools
-    $(document).on('click', '.cal-shift .event-tools.active .popover a[data-action]', function() {
-        let tools = $(this).closest('.event-tools');
-        let event = tools.data('event');
-        let action = $(this).attr('data-action');
-        if (action === 'comments') {
-            event['comments'] = tools.find('textarea').val()
-        } else {
-            event[action] = true;
-        }
-        $.ajax({
-            url: options.eventsAPI,
-            type: "POST",
-            data: JSON.stringify(event),
-            success: function (data) {
-                clearEvents();
-                calendar.fullCalendar('refetchEvents');
-                updateStats(options.statsAPI);
+        // close on next click outside
+        $(document).off('click.event-tools').on('click.event-tools', function(e) {
+            if (!$(e.target).closest('.event-tools-popover').length) {
+                $control.popover('hide');
             }
         });
+
+        // Handle editing actions from event tools
+        $('.event-tools-popover a[data-action]').off('click.tool-action').on('click.tool-action', function() {
+            const $popover = $(this).closest('.event-tools-popover');
+            let action = $(this).attr('data-action');
+            if (action === 'comments') {
+                event['comments'] = $popover.find('textarea').val()
+            } else {
+                event[action] = true;
+            }
+            $.ajax({
+                url: options.eventsAPI,
+                type: "post",
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(event),
+                success: function (data) {
+                    clearEvents();
+                    $calendar.fullCalendar('refetchEvents');
+                    updateStats(options.statsAPI);
+                }
+            });
+            $control.popover('hide');
+        });
     });
+
+
+
 
     $(document).on('mouseenter', '.starting .cal-day-header .cal-shift', function (event) {
         let class_name = `selected-${$('.event-src.active-src').attr('data-key')}`;
