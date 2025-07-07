@@ -23,3 +23,5 @@ class TechnicalTags(FieldType):
     options = ['required', 'hide', 'nolabel']
     settings = ['label', 'options']
 
+    def clean(self, value):
+        return int(value) if value else None
