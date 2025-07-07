@@ -347,14 +347,14 @@ $border-color_2: #ccc;
   .cal-shift {
     min-height: 2.5em;
     line-height: 2.5em;
-    font-size: 95%;
+    font-size: 90%;
   }
 }
 
 .slot-4-hrs {
   .cal-shift {
-    min-height: 1.5em;
-    line-height: 1.5em;
+    min-height: 1.75em;
+    line-height: 1.75em;
     font-size: 85%;
   }
 }
@@ -625,11 +625,10 @@ $border-color_2: #ccc;
 
   .event-label {
     display: inline-block;
-    text-align: left;
-    margin-right: 0;
+    text-align: center;
+    text-transform: uppercase;
     flex: 1;
-    font-weight: 600;
-    padding-left: 0.5em;
+    margin-right: 1.25rem;
   }
 }
 

@@ -261,7 +261,7 @@ class EventUpdateAPI(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     parser_classes = (JSONParser,)
     creation_key = 'id'
-    allowed_schedule_states = [models.Schedule.STATES.live]
+    allowed_schedule_states = [models.Schedule.STATES.live, models.Schedule.STATES.tentative]
 
     def get_queryset(self, *args, **kwargs):
         self.schedule = models.Schedule.objects.filter(pk=self.kwargs['pk']).first()
@@ -332,7 +332,6 @@ class ModeListAPI(EventUpdateAPI):
     allowed_schedule_states = [models.Schedule.STATES.draft, models.Schedule.STATES.tentative]
 
     def get_data(self, info):
-        debug_value(info)
         return {
             'start': parser.parse(info['start']),
             'end': parser.parse(info['end']),

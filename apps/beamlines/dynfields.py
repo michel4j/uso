@@ -15,3 +15,11 @@ class Ancillary(FieldType):
             return True
         return False
 
+
+class TechnicalTags(FieldType):
+    name = _("Technical Tags")
+    icon = "bi-paint-bucket"
+    template_theme = "beamlines/fields"
+    options = ['required', 'hide', 'nolabel']
+    settings = ['label', 'options']
+

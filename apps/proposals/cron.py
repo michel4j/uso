@@ -1,10 +1,11 @@
 from collections import defaultdict
 from datetime import timedelta
 
-from django.db.models import Min, F
+from django.db.models import Min, F, Max
 from django.utils import timezone
 
 from isocron import BaseCronJob
+from misc.utils import debug_value
 from notifier import notify
 from . import utils
 
@@ -124,7 +125,39 @@ class RemindReviewers(BaseCronJob):
                 })
 
             if len(list(info.values())):
-                return "{} reviewer reminders sent".format(len(list(info.values())))
+                return f"{len(list(info.values()))} reviewer reminders sent"
+
+
+class SubmissionStateManager(BaseCronJob):
+    """
+    Manage Submission State based on completion of reviews.
+    """
+    run_every = "PT15M"
+
+    def do(self):
+        from proposals import models
+
+        logs = []
+        now = timezone.localtime(timezone.now())
+
+        # at least one review submitted, switch pending to in progress
+        subs = models.Submission.objects.annotate(max_state=Max('reviews__state'), min_state=Min('reviews__state'))
+        started_subs = subs.filter(
+            max_state__in=[1, 2], state=models.Submission.STATES.pending
+        )
+        if started_subs.exists():
+            started_subs.update(state=models.Submission.STATES.started, modified=now)
+            logs.append(f"{started_subs.count()} Submissions started review")
+
+        completed_subs = subs.filter(
+            min_state=models.Review.STATES.submitted, state__lt=models.Submission.STATES.reviewed
+        )
+        if completed_subs.exists():
+            for sub in completed_subs:
+                sub.close()
+            logs.append(f"{completed_subs.count()} Submissions completed review")
+
+        return '\n'.join(logs)
 
 
 class CloseReviews(BaseCronJob):
@@ -152,19 +185,12 @@ class CloseReviews(BaseCronJob):
                 for submission in cycle.submissions.filter(track=track):
                     submission.close()
 
-        # Close RA reviews if they are complete
+        # Close Non-call reviews if they are complete
         cycle = models.ReviewCycle.objects.filter(open_date__lt=today, end_date__gt=today).first()
         for track in cycle.tracks().filter(require_call=False):
             revs = models.Review.objects.filter(cycle=cycle, stage__track=track, state=models.Review.STATES.submitted)
             if revs.exists():
                 revs.update(state=models.Review.STATES.closed, modified=timezone.now())
                 logs.append(f"{revs.count()} {track} Reviews closed")
-
-        ra_subs = cycle.submissions.filter(track__require_call=False).exclude(state=models.Submission.STATES.complete)
-        to_close = ra_subs.annotate(min_state=Min('reviews__state')).values('id', 'min_state').filter(min_state=models.Review.STATES.closed)
-        if to_close:
-            for submission in cycle.submissions.filter(pk__in=[s['id'] for s in to_close]):
-                submission.close()
-            logs.append(f"{len(to_close)} RA Reviews closed")
 
         return '\n'.join(logs)

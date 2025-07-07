@@ -317,13 +317,17 @@ class ReviewTrackForm(ModalModelForm):
 
     class Meta:
         model = models.ReviewTrack
-        fields = ('name', 'acronym', 'description', 'require_call', 'min_reviewers', 'max_workload', 'committee')
+        fields = (
+            'name', 'acronym', 'description', 'require_call',
+            'min_reviewers', 'max_workload', 'committee', 'duration'
+        )
         widgets = {
             'description': forms.Textarea(attrs={'rows': 2, }),
         }
         help_texts = {
             'min_reviewers': 'Committee members per proposal',
             'max_workload': 'Maximum reviewer workload',
+            'duration': 'Duration of resulting Project in cycles',
         }
 
     def __init__(self, *args, **kwargs):
@@ -335,8 +339,9 @@ class ReviewTrackForm(ModalModelForm):
                 Div("name", css_class="col-sm-8"),
                 Div("acronym", css_class="col-sm-4"),
                 Div("description", css_class="col-sm-12"),
-                Div("min_reviewers", css_class="col-sm-6"),
-                Div("max_workload", css_class="col-sm-6"),
+                Div("min_reviewers", css_class="col-sm-4"),
+                Div("max_workload", css_class="col-sm-4"),
+                Div("duration", css_class="col-sm-4"),
                 Div("committee", css_class="col-sm-12"),
                 Div("require_call", css_class="col-sm-12"),
                 css_class="row"

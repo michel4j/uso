@@ -23,10 +23,16 @@ class BeamTimeSerializer(serializers.ModelSerializer):
         )
 
     def get_name(self, obj):
-        return 'RESERVED' if not obj.project else obj.project.code()
+        if obj.project:
+            return obj.project.code()
+        else:
+            return f'Reserved: {obj.comments}'
 
     def get_description(self, obj):
-        return 'RESERVED: {}'.format(obj.comments) if not obj.project else obj.project.__str__()
+        if obj.project:
+            return obj.project.leader_name()
+        else:
+            return f'Reserved: {obj.comments}'
 
     def get_rendering(self, obj):
         return 'beamtime'
@@ -38,7 +44,7 @@ class BeamTimeSerializer(serializers.ModelSerializer):
         return "reservation" if not obj.project else obj.project.kind
 
     def get_url(self, obj):
-        return "" if not obj.project else reverse('project-detail', kwargs={'pk': obj.project.pk})
+        return "" if not obj.project else obj.project.get_absolute_url()
 
     def get_section(self, obj):
         return slugify(obj.beamline.acronym, allow_unicode=True)

@@ -47,9 +47,11 @@
                 <span class="stats-title pull-left">Samples<br/>Approved</span>
             </div>
             <div>
-                <small class="text-body-secondary">Related Materials</small><br/>
+                <small class="text-body-secondary">Related Materials:</small><br/>
                 {% for mat in material.siblings.all %}
                     <a href="{% url "material-detail" pk=mat.pk %}">{{ mat }} [{{ mat.get_state_display }}]</a>&nbsp;
+                {% empty %}
+                    &mdash;
                 {% endfor %}
             </div>
             <div class="ms-auto">

@@ -25,6 +25,7 @@ from beamlines.models import Facility
 from misc.filters import FutureDateListFilterFactory
 from misc.functions import Shifts
 from misc.models import ActivityLog
+from misc.utils import debug_value
 from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from proposals.filters import CycleFilterFactory
@@ -1304,6 +1305,7 @@ class BeamTimeAPI(EventUpdateAPI):
             m.update_due_dates()
 
     def get_data(self, info):
+        debug_value(info)
         data = super().get_data(info)
         data.update(
             {

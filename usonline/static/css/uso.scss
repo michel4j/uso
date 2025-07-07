@@ -2141,6 +2141,10 @@ body.no-scroll {
 
 table {
   --bs-table-bg: transparent !important;
+  &.table-fixed {
+    width: 100%;
+    table-layout: fixed;
+  }
 }
 
 .icon-stack {

@@ -94,7 +94,7 @@ class NotifyProjects(BaseCronJob):
             submissions.update(state=Submission.STATES.complete, modified=timezone.now())
             models.ReviewCycle.objects.filter(pk=cycle.pk).update(state=models.ReviewCycle.STATES.schedule)
 
-        # Notify RA projects the day after they are created
+        # Notify non-call projects the day after they are created
         cycle = ReviewCycle.objects.current().first()
         if cycle:
             projects = models.Project.objects.filter(
@@ -151,15 +151,15 @@ class CreateCallProjects(BaseCronJob):
         return "\n".join(log)
 
 
-class CreateRapidAccessProjects(BaseCronJob):
+class CreateNonCallProjects(BaseCronJob):
     """
-    Create projects for all reviewed rapid access submissions in the current review cycle.
+    Create projects for all reviewed non-call submissions in the current cycle.
     """
     run_every = "PT15M"
 
     def do(self):
         from proposals.models import ReviewCycle, Submission
-        # Handle rapid-access submissions and flexible beamlines
+        # Handle non-call submissions and flexible beamlines
         today = timezone.localtime(timezone.now()).date()
         cycle = ReviewCycle.objects.filter(open_date__lte=today, end_date__gte=today).first()
         log = []

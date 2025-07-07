@@ -9,6 +9,7 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 
 from beamlines.models import Facility
+from misc.utils import debug_value
 from proposals.models import ReviewType
 from . import models
 
@@ -121,7 +122,7 @@ def create_project(submission):
                 if stage.kind.low_better else
                 score >= stage.pass_score
             )
-
+        debug_value(scores)
         if not passes_review and stage.blocks:
             break
 
@@ -134,6 +135,9 @@ def create_project(submission):
         project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
         project.techniques.add(*submission.techniques.all())
         project.submissions.add(submission)
+
+        debug_value(requirements)
+
         for facility, spec in requirements.items():
             scores = compress_scores(scores, facility)
             create_project_allocations(project, spec, cycle, scores=scores)

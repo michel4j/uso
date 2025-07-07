@@ -57,8 +57,15 @@ class Project(DateSpanMixin, TimeStampedModel):
     def __str__(self):
         return "{}~{}".format(
             self.code(),
-            self.get_leader().last_name,
+            self.leader_name(),
         )
+
+    def leader_name(self) -> str:
+        """
+        Get the last name of the project leader or spokesperson if the leader is not found.
+        :return:
+        """
+        return self.get_leader().last_name
 
     def code(self):
         return f"{self.cycle.pk:0>2d}{self.get_kind_display()[0].upper()}{self.pk:0>5d}"
