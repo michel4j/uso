@@ -1244,9 +1244,11 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
     allowed_roles = USO_ADMIN_ROLES
 
     def get_list_columns(self):
+        track = models.ReviewTrack.objects.filter(acronym=self.kwargs['track']).first()
+        review_types = track.stages.values_list('kind__pk', 'kind__code')
         columns = ['proposal', 'code', 'facilities', 'reviewer']
-        for rev_type in ReviewType.objects.scored():
-            columns.extend([f'{rev_type.code}_avg', f'{rev_type.code}_std'])
+        for pk, code in review_types:
+            columns.extend([f'{code}_avg', f'{code}_std'])
         columns.append('adj')
         return columns
 
@@ -1262,9 +1264,10 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
         return transforms
 
     def get_queryset(self, *args, **kwargs):
-        qset = super().get_queryset(*args, **kwargs)
-        qset = qset.filter(cycle_id=self.kwargs['cycle'], track__acronym=self.kwargs['track']).with_scores()
-        return qset
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(state__gte=models.Submission.STATES.reviewed)
+        queryset = queryset.filter(cycle_id=self.kwargs['cycle'], track__acronym=self.kwargs['track']).with_scores()
+        return queryset
 
 
 class SubmissionDetail(RolePermsViewMixin, detail.DetailView):

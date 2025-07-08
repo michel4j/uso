@@ -689,6 +689,8 @@ class ReviewTypeQueryset(models.QuerySet):
         :return:
         """
         annotations = {}
+        keys = self.values_list('code', flat=True)
+        print('KEYS', keys)
         for rev_type in ReviewType.objects.scored():
 
             annotations[f"{rev_type.code}_avg"] = Avg(
