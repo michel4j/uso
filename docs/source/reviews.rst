@@ -53,6 +53,8 @@ Each review stage is defined by the following attributes:
   ReviewType, this can be a minimum or maximum score.
 - **Blocks Passage**: A flag indicating whether this stage blocks the passage of a proposal to the next stage.
 - **Create Automatically**: A flag indicating whether this stage is created automatically when a proposal is submitted.
+- **Start Automatically**: A flag indicating whether reviews in this stage are started automatically. When a review starts,
+  email notifications are sent to reviewers and the review is open and available to be completed.
 
 
 Review Process Workflow

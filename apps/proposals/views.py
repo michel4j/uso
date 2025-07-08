@@ -1610,7 +1610,6 @@ class AddReviewAssignment(RolePermsViewMixin, ModalUpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
         kwargs['stage'] = models.ReviewStage.objects.get(pk=self.kwargs['stage'])
         return kwargs
 

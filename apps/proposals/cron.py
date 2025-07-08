@@ -73,21 +73,20 @@ class CycleStateManager(BaseCronJob):
         )
 
 
-class OpenReviews(BaseCronJob):
+class StartReviews(BaseCronJob):
     """
-    Open pending reviews and notify reviewers, one day after they were created.
+    Open pending reviews and notify reviewers, once daily. Only automatically created reviews.
+    are processed. Manually created reviews can be opened through the cycle management interface.
     """
     run_every = "P1D"
 
     def do(self):
         from . import models
         logs = []
-        today = timezone.localtime(timezone.now())
-        yesterday = today - timedelta(days=1)
 
         # reviews one day later to avoid spamming
         reviews = models.Review.objects.filter(
-            state=models.Review.STATES.pending, created__lte=yesterday
+            state=models.Review.STATES.pending, stage__auto_create=True, due_date__isnull=False
         )
         count = utils.notify_reviewers(reviews)
         reviews.update(state=models.Review.STATES.open)

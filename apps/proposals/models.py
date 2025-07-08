@@ -748,6 +748,7 @@ class ReviewStage(TimeStampedModel):
     blocks = models.BooleanField(_("Block Passage"), default=True)
     pass_score = models.FloatField(_("Passing Score"), null=True, blank=True)
     auto_create = models.BooleanField(_("Auto Create"), default=True)
+    auto_start = models.BooleanField(_("Auto Start"), default=True)
     objects = ReviewStageQuerySet.as_manager()
 
     def __str__(self):
