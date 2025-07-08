@@ -697,11 +697,11 @@
   pk: 4
   fields:
     created: 2015-03-26 19:10:13+00:00
-    modified: 2025-05-25 20:00:46.772590+00:00
+    modified: 2025-07-08 20:58:02.317424+00:00
     name: Technical Review
     code: technical-review
     description: Technical review form to be completed by reviewers
-    header: false
+    header: true
     help_bar: false
     wizard: false
     pages:
@@ -774,6 +774,7 @@
       - name: risk_level
         tags: ''
         label: Risk Level of Proposed Experiment
+        width: full
         values:
         - The samples/sample handling procedures are recognized as being of minimal
           risk.
@@ -795,7 +796,7 @@
         field_type: scorechoices
         instructions: Estimate the risk level for the proposed experiment based on
           the samples and procedures described.  Note that a final safety review will
-          be performed by HSE before any experiment proceeds at the CLS.
+          be performed by HSE before any experiment proceeds.
         default_choices: []
       - name: comments_safety
         size: small
@@ -818,13 +819,13 @@
   pk: 5
   fields:
     created: 2015-03-26 19:10:54+00:00
-    modified: 2025-03-03 02:35:28.284450+00:00
+    modified: 2025-07-08 20:57:45.283715+00:00
     name: Safety Approval
     code: safety-approval
     description: Final Safety Approval Form to be completed by the safety approver
       after all safety reviews have been complete. Can also be used to create new
       safety reviews.
-    header: false
+    header: true
     help_bar: false
     wizard: false
     pages:
@@ -902,11 +903,11 @@
   pk: 6
   fields:
     created: 2015-03-26 19:13:32+00:00
-    modified: 2024-12-05 23:21:10.233892+00:00
+    modified: 2025-07-08 20:57:51.992044+00:00
     name: Ethics Review
     code: ethics-review
     description: Ethics review form
-    header: false
+    header: true
     help_bar: false
     wizard: false
     pages:
@@ -953,11 +954,11 @@
   pk: 7
   fields:
     created: 2015-10-16 18:40:18+00:00
-    modified: 2025-03-03 03:19:41.432146+00:00
+    modified: 2025-07-08 20:57:31.065639+00:00
     name: Safety Review
     code: safety-review
     description: Safety review form to be completed by safety reviewers
-    header: false
+    header: true
     help_bar: false
     wizard: false
     pages:
@@ -1724,3 +1725,63 @@
       - Submit
     - - save
       - Apply & Save
+- model: dynforms.formtype
+  pk: 15
+  fields:
+    created: 2025-07-08 19:46:33.767639+00:00
+    modified: 2025-07-08 20:58:13.355541+00:00
+    name: Safety Pre-Assessment
+    code: safety-assessment
+    description: "A preliminary safety review that is performed at the Proposal stage.
+      More detailed\r\nsafety review and approval is performed later."
+    header: true
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Safety Assessment
+      fields:
+      - name: risk_level
+        tags: ''
+        label: Risk Level of Proposed Experiment
+        width: full
+        values:
+        - The samples/sample handling procedures are recognized as being of minimal
+          risk.
+        - The experiment may require additional controls and/or HSE attention before
+          commencing.
+        - HSE involvement/confirmation of controls will likely be required for this
+          experient to proceed.
+        - This experiment appears to be too risky to be performed at the CLS.
+        - It is unclear what level of risk is presented in this proposal.
+        choices:
+        - Low
+        - Medium
+        - High
+        - Unacceptable
+        - Not Sure
+        default: []
+        options:
+        - required
+        field_type: scorechoices
+        instructions: Estimate the risk level for the proposed experiment based on
+          the samples and procedures described.  Note that a final safety review will
+          be performed by HSE before any experiment proceeds.
+        default_choices: []
+      - name: comments
+        size: small
+        tags: ''
+        label: Safety Comments
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide any comments to the safety approver about the
+          safety of the proposed experiment if applicable
+    actions:
+    - - save
+      - Save
+    - - submit
+      - Submit
