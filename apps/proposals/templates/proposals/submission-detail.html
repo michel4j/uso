@@ -5,6 +5,7 @@
 {% load humanize %}
 {% load jsonify %}
 {% load markup %}
+{% load misc %}
 
 {% block page-pretitle %}
     Submission
@@ -35,7 +36,7 @@
             <span class="tool-label">Project</span>
         </a>
     {% endif %}
-    {% if admin and object.state == object.STATES.reviewed %}
+    {% if admin and object.state > object.STATES.reviewed %}
         <a href='#0' data-modal-url='{% url 'adjust-submission-score' object.pk %}' class="pull-right">
             <i class="bi-arrows-expand-vertical icon-md icon-fw"></i><br/>
             <span class="tool-label">Adjust Score</span>
@@ -47,10 +48,14 @@
     {% endif %}
 {% endblock %}
 
-{% block page-status-style %}callout {% folio_status object.state draft=object.STATES.pending info=object.STATES.started warn=object.STATES.reviewed default='bg-success' %}{% endblock %}
+{% block page-status-style %}callout callout-{% state_tag object.state info=object.STATES.started %}{% state_tag object.approved success=True danger=False %}{% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
+    <h3 class="my-0">
+        <span class="badge bg-{% state_tag object.state info=object.STATES.started %}{% state_tag object.approved success=True danger=False %} text-condensed">
+            {% if object.approved == True %}Approved{% elif object.approved == False %}Rejected{% else %}{{ object.get_state_display }}{% endif %}
+        </span>
+    </h3>
     <div>
         <small class="text-wide text-body-secondary">First Cycle:</small>
         <br/>
@@ -74,31 +79,6 @@
         <br/>
         {{ object.get_kind_display }}
     </div>
-
-    <!--div>
-        {% if not object.track.require_call %}
-            <small class="text-wide text-body-secondary">Final Decision:</small><br/>
-            {% if object.state != object.STATES.closed %}
-                <em>Incomplete</em>
-            {% else %}
-                {% if object.scores.technical < 4 %}
-                    <span class="badge progress-bar-success">&nbsp;Approved&nbsp;</span>
-                {% else %}
-                    <span class="badge progress-bar-danger">&nbsp;Rejected&nbsp;</span>
-                {% endif %}
-            {% endif %}
-        {% else %}
-            <small class="text-wide text-body-secondary">Final Score:</small><br/>
-            {% if object.state != object.STATES.complete %}
-                <em>Incomplete</em>
-            {% else %}
-                {% with object.score as score %}
-                    <span class="badge"
-                          style="background-color: {{ score|color_scale }}">&nbsp;{{ score|floatformat:"-1" }}&nbsp;</span>
-                {% endwith %}
-            {% endif %}
-        {% endif %}
-    </div-->
 {% endblock %}
 
 {% block page-content %}
@@ -138,7 +118,7 @@
                 </ul>
             </div>
         </div>
-        {% if object.state == object.STATES.complete or object.state == object.STATES.reviewed and admin %}
+        {% if object.state == object.STATES.complete or admin and object.state == object.STATES.reviewed %}
             <div class="row">
                 <div class="col-xs-12">
                     <div class="p-3 mb-3 border-3d">

@@ -803,14 +803,18 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         safety_types = ReviewType.objects.safety()
         approval_types = ReviewType.objects.safety_approval()
         if self.object.type in safety_types:
-            initial['samples'] = [{
-                "sample": s.sample.pk, "hazards": s.sample.hazards.values_list('pk', flat=True), "keywords": {},
-            } for s in self.object.reference.project_samples.all()]
+            initial['samples'] = [
+                {
+                    "sample": sample.pk,
+                    "hazards": sample.hazards.values_list('pk', flat=True), "keywords": {},
+                }
+                for sample in self.object.reference.get_samples()
+            ]
 
         elif self.object.type in approval_types:
             samples = {
-                s.sample.pk: {
-                    'sample': s.sample.pk,
+                sample.pk: {
+                    'sample': sample.pk,
                     'hazards': [],
                     'permissions': defaultdict(list),
                     'keywords': {},
@@ -818,7 +822,7 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
                     'expiry': [],
                     'rejected': [],
                 }
-                for s in self.object.reference.project_samples.all()
+                for sample in self.object.reference.get_samples()
             }
             # Combine information from completed reviews
             req_types = defaultdict(list)
@@ -1271,27 +1275,24 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
 
     def check_owner(self, obj):
         return (
-                self.request.user.username in [
+            self.request.user.username in [
             obj.proposal.spokesperson.username, obj.proposal.delegate_username, obj.proposal.leader_username
-        ]
-        )
+        ])
 
     def get_queryset(self):
         return self.model.objects.with_scores()
-
-    def check_admin(self):
-        submission = self.get_object()
-        return super().check_admin() or any(fac.is_admin(self.request.user) for fac in submission.facilities())
 
     def check_allowed(self):
         submission = self.get_object()
         reviewer = self.request.user.reviewer if hasattr(self.request.user, 'reviewer') else None
         is_committee = reviewer and reviewer.committee == submission.track
         is_committee_reviewer = is_committee and submission.reviews.filter(reviewer=self.request.user).exists()
+        is_facility_admin = any(fac.is_admin(self.request.user) for fac in submission.facilities())
         return (
                 super().check_allowed() or
                 self.check_admin() or
                 self.check_owner(submission) or
+                is_facility_admin or
                 is_committee_reviewer
         )
 
@@ -1834,7 +1835,7 @@ class UpdateReviewComments(RolePermsViewMixin, ModalUpdateView):
     allowed_roles = USO_ADMIN_ROLES
 
     def get_queryset(self):
-        return self.model.objects.filter(state=models.Submission.STATES.reviewed)
+        return self.model.objects.filter(state__gte=models.Submission.STATES.complete)
 
     def form_valid(self, form):
         data = form.cleaned_data

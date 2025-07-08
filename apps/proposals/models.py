@@ -179,8 +179,6 @@ class Submission(TimeStampedModel):
         started = (1, 'Started')
         reviewed = (2, 'Reviewed')
         complete = (3, 'Complete')
-        approved = (4, 'Approved')
-        rejected = (5, 'Rejected')
 
     class TYPES(models.TextChoices):
         user = ('user', 'User Access')
@@ -194,6 +192,7 @@ class Submission(TimeStampedModel):
     track = models.ForeignKey('ReviewTrack', on_delete=models.CASCADE, related_name='submissions')
     cycle = models.ForeignKey("ReviewCycle", on_delete=models.CASCADE, related_name='submissions')
     state = models.IntegerField(choices=STATES.choices, default=STATES.pending)
+    approved = models.BooleanField(null=True, blank=True)
     techniques = models.ManyToManyField('ConfigItem', blank=True, related_name='submissions')
     reviews = GenericRelation('proposals.Review')
     comments = models.TextField(blank=True)
@@ -234,17 +233,6 @@ class Submission(TimeStampedModel):
     facilities.sort_field = 'techniques__config__facility__acronym'
     spokesperson.sort_field = 'proposal__spokesperson__first_name'
 
-    def close(self):
-        comments = ""
-        for n, review in enumerate(self.reviews.complete()):
-            text = review.details.get('comments', '').strip()
-            if not text: continue
-            comments += f"**Reviewer #**{n + 1} ({review.type}): {text}  \n\n"
-        self.comments = comments
-        Submission.objects.filter(pk=self.pk).update(
-            comments=comments, state=self.STATES.reviewed, modified=timezone.localtime(timezone.now())
-        )
-
     def scores(self):
         summary = self.reviews.score_summary()
         summary['facilities'] = {
@@ -252,6 +240,32 @@ class Submission(TimeStampedModel):
             for r in self.reviews.technical().complete()
         }
         return summary
+
+    def get_samples(self):
+        """
+        Returns a list of samples associated with this material.
+        """
+        from samples.models import Sample
+        sample_ids = [item['sample'] for item in self.proposal.details.get('sample_list', [])]
+        return Sample.objects.filter(pk__in=sample_ids)
+
+    def get_review_content(self):
+        """
+        Returns a dictionary of review content for this submission.
+        """
+        return {
+            'title': self.title(),
+            'authors': self.proposal.authors_text(),
+            'science': self.proposal.details,
+            'safety': {
+                'samples': self.proposal.details.get('sample_list', []),
+                'equipment': self.proposal.details.get('equipment', []),
+                'handling': self.proposal.details.get('sample_handling', ''),
+                'waste': self.proposal.details.get('waste_generation', []),
+                'disposal': self.proposal.details.get('disposal_procedure', ''),
+            },
+            'attachments': self.proposal.attachments,
+        }
 
     def adj(self):
         if hasattr(self, 'adjustment'):

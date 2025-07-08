@@ -774,7 +774,7 @@ def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
             # create min_reviews reviews for each facility
             to_create.extend([
                 models.Review(
-                    role=review_type.role.format(facility.acronym),  #  assume role as a placeholder for the facility acronym
+                    role=review_type.role.format(facility.acronym),  # assume role as a placeholder for the facility acronym
                     cycle=submission.cycle,
                     reference=submission,
                     type=review_type,
@@ -813,6 +813,11 @@ def advance_review_workflow(submission) -> list[str]:
     :return: List of messages indicating the workflow actions taken
     """
     from . import models
+
+    if submission.state >= submission.STATES.reviewed:
+        # If the submission is already beyond the reviewed state no further action is needed
+        return []
+
     logs = []
     track = submission.track
     stage_scores = submission.reviews.complete().values('stage__position').order_by('stage__position').annotate(
@@ -835,7 +840,7 @@ def advance_review_workflow(submission) -> list[str]:
     }
 
     num_facilities = submission.facilities().count()
-
+    print(submission, stage_status)
     # Iterate through stages in the track and check if the submission passes each stage based on the scores
     # If a stage has blocks, it will stop the workflow
     review_failed = False
@@ -852,30 +857,40 @@ def advance_review_workflow(submission) -> list[str]:
         if not reviews_created:
             new = create_reviews_for_stage(submission, stage)
             if new:
-                logs.append(f'{submission}: Created {new} reviews for stage {stage.position}')
+                logs.append(f'Submission {submission}: Created {new} review(s) for stage-{stage.position}')
             break
         elif reviews_created and not reviews_completed:
             # If reviews are created but are not completed, stop processing
             break
         elif reviews_completed and not stage_passed:
             # Reviews are complete but failed, we cannot advance
-            logs.append(f'Submission {submission} failed at stage {stage.position} and is now rejected.')
-            submission.reviews.filter(stage=stage).update(state=submission.reviews.STATES.closed)
+            num_closed = submission.reviews.filter(
+                stage=stage, state__lt=models.Review.STATES.closed
+            ).update(state=submission.reviews.STATES.closed)
+            if num_closed:
+                logs.append(f'Submission {submission}: {num_closed} stage-{stage.position} review(s) closed.')
+            logs.append(f'Submission {submission}: failed at stage-{stage.position} and is now rejected.')
             review_failed = True
             break
         elif stage_passed:
             # If the stage is passed, we can advance to the next stage
-            submission.reviews.filter(stage=stage).update(state=models.Review.STATES.closed)
+            num_closed = submission.reviews.filter(
+                stage=stage, state__lt=models.Review.STATES.closed
+            ).update(state=models.Review.STATES.closed)
+            if num_closed:
+                logs.append(f'Submission {submission}: {num_closed} stage-{stage.position} review(s) closed.')
             continue
     else:
         # If we reached here, all stages passed, we can mark the submission as approved
-        submission.status = submission.STATES.approved
+        submission.state = submission.STATES.reviewed
+        submission.approved = True
         submission.save()
-        logs.append(f'Submission {submission} passed all stages and is now approved.')
+        logs.append(f'Submission {submission}: passed all stages and is now approved.')
 
     if review_failed:
         # If any stage failed, we mark the submission as rejected
-        submission.status = submission.STATES.rejected
+        submission.state = submission.STATES.reviewed
+        submission.approved = False
         submission.save()
 
     return logs

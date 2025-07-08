@@ -1,7 +1,8 @@
 import calendar
 import functools
 import itertools
-from datetime import timedelta
+from datetime import timedelta, datetime
+import numpy
 
 from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalConfirmView, ModalDeleteView
 from dateutil import parser
@@ -469,13 +470,13 @@ class SessionHandOver(RolePermsViewMixin, ModalCreateView):
         start = timezone.localtime(self.beamtime.start) if self.beamtime else timezone.localtime(timezone.now())
         end = timezone.localtime(self.beamtime.end) if self.beamtime else timezone.localtime(timezone.now() + one_shift)
 
+        if start.date() == end.date() and start.time() > end.time():
+            # if start time is after end time, we assume the end time is on the next day
+            end += timedelta(days=1)
         initial['start_date'] = start.date()
         initial['end_date'] = end.date()
         initial['start_time'] = start.strftime('%H:%M')
         initial['end_time'] = end.strftime('%H:%M')
-
-        print(initial, self.beamtime)
-
         return initial
 
     def form_valid(self, form):

@@ -129,6 +129,23 @@ def review_email(review):
     ]))
 
 
+@register.filter
+def submission_status(submission):
+    """
+    Returns the status of a submission as a string.
+    """
+    if submission.state == models.Submission.STATES.pending:
+        return "Pending"
+    elif submission.state == models.Submission.STATES.started:
+        return "In Progress"
+    elif submission.state == models.Submission.STATES.complete:
+        return "Complete"
+    elif submission.state == models.Submission.STATES.rejected:
+        return "Rejected"
+    else:
+        return "Unknown"
+
+
 @register.simple_tag(takes_context=True)
 def get_approval_reviews(context):
     from samples.models import Hazard

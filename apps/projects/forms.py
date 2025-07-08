@@ -87,7 +87,7 @@ def shift_choices(name="Shifts", size=8, show_now=False):
 
     if show_now:
         now = timezone.localtime(timezone.now())
-        choices["NOW"] = (now.strftime('%H:%M'), now.strftime('Now %H:%M'))
+        choices["NOW"] = ("now", now.strftime('Now %H:%M'))
     for h in times:
         choices[f"T{h:02d}"] = (f'{h:02d}:00', f'{h:02d}:00')
 
@@ -170,6 +170,10 @@ class HandOverForm(ModalModelForm):
                 continue
 
             elif field in ['start_time', 'end_time']:
+                if cleaned_data[field] == 'now':
+                    cleaned_data[field] = timezone.localtime(timezone.now()).strftime('%H:%M')
+
+                # Convert to time object
                 cleaned_data[field] = datetime.strptime(cleaned_data[field], '%H:%M').time()
 
         for name in ['start', 'end']:

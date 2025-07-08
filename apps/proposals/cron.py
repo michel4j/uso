@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import timedelta
 
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 
 from isocron import BaseCronJob
@@ -75,8 +75,8 @@ class CycleStateManager(BaseCronJob):
 
 class StartReviews(BaseCronJob):
     """
-    Open pending reviews and notify reviewers, once daily. Only automatically created reviews.
-    are processed. Manually created reviews can be opened through the cycle management interface.
+    Open pending reviews and notify reviewers, once daily. Only reviews from auto-start stages
+    are processed. Non auto-start reviews can be opened through the cycle management interface.
     """
     run_every = "P1D"
 
@@ -86,7 +86,7 @@ class StartReviews(BaseCronJob):
 
         # reviews one day later to avoid spamming
         reviews = models.Review.objects.filter(
-            state=models.Review.STATES.pending, stage__auto_create=True, due_date__isnull=False
+            state=models.Review.STATES.pending, stage__auto_start=True, due_date__isnull=False
         )
         count = utils.notify_reviewers(reviews)
         reviews.update(state=models.Review.STATES.open)
@@ -142,18 +142,21 @@ class AdvanceReviewWorkflow(BaseCronJob):
     Manage Submission State based on completion of reviews, creates reviews for next stages.
     """
     run_every = "PT30M"
+    submissions: QuerySet
 
-    def do(self):
+    def is_ready(self):
         from proposals import models
-
-        logs = []
         now = timezone.localtime(timezone.now())
-        submissions = models.Submission.objects.filter(
+        self.submissions = models.Submission.objects.filter(
             Q(cycle__due_date__lt=now, cycle__end_date__gt=now, track__require_call=True) |
             Q(cycle__start_date__lte=now, cycle__end_date__gt=now, track__require_call=False),
+            state__lt=models.Submission.STATES.reviewed,
         )
+        return self.submissions.exists()
 
-        for submission in submissions:
+    def do(self):
+        logs = []
+        for submission in self.submissions:
             sub_logs = utils.advance_review_workflow(submission)
             logs.extend(sub_logs)
 

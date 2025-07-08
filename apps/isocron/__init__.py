@@ -54,8 +54,11 @@ class BaseCronJob(object, metaclass=CronJobMeta):
         pass
 
     def is_ready(self) -> bool:
-        """Return True or False if True, run if false, do not run. Can be used to check database conditions
-         in addition to the time-based frequency. True by default"""
+        """
+        Return True or False if True, run if false, do not run. Can be used to check database conditions
+        in addition to the time-based frequency. True by default. Instance variable can be set here and used
+        in the do()
+        """
         return True
 
     def run_thread(self, force=False):
@@ -65,9 +68,8 @@ class BaseCronJob(object, metaclass=CronJobMeta):
 
     def run(self, force=False):
         from .models import BackgroundTask, TaskLog
-
-        # do not run if the is_ready is not met
-        if force or self.is_ready():
+        ready_to_run = self.is_ready()  # make sure is_ready is always called
+        if force or ready_to_run:
             now = timezone.localtime(timezone.now())
             task = BackgroundTask.objects.get(name=self.code)
             log = task.save_log(state=TaskLog.StateType.running, message=f"Running cron job since {now.isoformat()}")

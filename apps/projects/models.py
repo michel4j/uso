@@ -360,6 +360,49 @@ class Material(TimeStampedModel):
                 return True
         return False
 
+    def get_samples(self):
+        """
+        Returns a list of samples associated with this material.
+        """
+        from samples.models import Sample
+        return Sample.objects.filter(pk__in=self.samples.values_list('pk', flat=True))
+
+    def get_review_content(self):
+        """
+        Returns a dictionary of review content for this submission.
+        """
+        author_list = []
+        for member in self.project.team.all():
+            roles = set()
+            if member == self.project.spokesperson:
+                roles.add('S')
+            if member == self.project.leader:
+                roles.add('L')
+            if member == self.project.delegate:
+                roles.add('D')
+            if roles:
+                author_list.append(f'{member.get_full_name()} ({", ".join(roles)})')
+            else:
+                author_list.append(member.get_full_name())
+
+        authors = ", ".join(author_list)
+        return {
+            'title': self.project.title,
+            'authors': authors,
+            'science': self.project.proposal.details,
+            'safety': {
+                'samples': [
+                    {'sample': s.sample.pk, 'quantity': s.quantity}
+                    for s in self.project_samples.all()
+                ],
+                'equipment': self.equipment,
+                'handling': self.procedure,
+                'waste': self.waste,
+                'disposal': self.disposal,
+            },
+            'attachments': self.project.attachments,
+        }
+
     def pictograms(self):
         from samples.models import Pictogram, Hazard
         from samples import utils

@@ -492,12 +492,13 @@ class ReviewCommentsForm(ModalModelForm):
 class ReviewStageForm(ModalModelForm):
     class Meta:
         model = models.ReviewStage
-        fields = ['track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score', 'auto_create']
+        fields = ['track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score', 'auto_create', 'auto_start']
         widgets = {
             'track': forms.HiddenInput(),
             'kind': forms.Select(attrs={'class': 'select'}),
             'blocks': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'}, ),
             'auto_create': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'}, ),
+            'auto_start': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'}, ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -509,12 +510,13 @@ class ReviewStageForm(ModalModelForm):
 
         self.body.append(
             Div(
-                Div("kind", css_class="col-sm-4"),
                 Div("position", css_class="col-sm-4"),
-                Div("auto_create", css_class="col-sm-4"),
-                Div("min_reviews", css_class="col-sm-4"),
-                Div("pass_score", css_class="col-sm-4"),
+                Div("kind", css_class="col-sm-8"),
+                Div("min_reviews", css_class="col-sm-6"),
+                Div("pass_score", css_class="col-sm-6"),
                 Div("blocks", css_class="col-sm-4"),
+                Div("auto_create", css_class="col-sm-4"),
+                Div("auto_start", css_class="col-sm-4"),
                 css_class="row"
             ),
             Field('track'),

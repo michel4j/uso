@@ -3,7 +3,7 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.db.models import Case, Min, When, Q, BooleanField, Value
+from django.db.models import Case, Min, When, Q, BooleanField, Value, QuerySet
 from django.utils import timezone, timesince
 
 from . import models
@@ -109,26 +109,33 @@ class NotifyProjects(BaseCronJob):
 
 class CreateCallProjects(BaseCronJob):
     """
-    Create projects for all reviewed submissions in the current review cycle. Should be run before NotifyProjects.
+    Create projects for all reviewed submissions in the current review cycle.
+    Should be run before NotifyProjects.
     """
     run_at = "T00:15"  # Should run before Notify projects
+    cycles: QuerySet
+
+    def is_ready(self):
+        from proposals.models import ReviewCycle
+        today = timezone.localtime(timezone.now()).date()
+
+        # Recently closed review cycles
+        self.cycles = ReviewCycle.objects.filter(alloc_date=today, state=ReviewCycle.STATES.review)
+        return self.cycles.exists()
 
     def do(self):
         from proposals.models import ReviewCycle, Submission
-        today = timezone.localtime(timezone.now()).date()
-
         # create allocations for recently closed review cycles
-        cycle = ReviewCycle.objects.filter(alloc_date=today, state=ReviewCycle.STATES.review).first()
         log = []
-        if cycle:
-            # Create Projects for general user access
+        for cycle in self.cycles:
+            # Create Projects for approved submissions which don't have a project yet
             submissions = cycle.submissions.filter(track__require_call=True).filter(
-                state=Submission.STATES.approved, project__isnull=True
+                state=Submission.STATES.reviewed, approved=True, project__isnull=True
             )
             if submissions.exists():
                 for submission in submissions:
                     utils.create_project(submission)
-                log.append(f"Created {submissions.count()} projects for cycle {cycle}")
+                log.append(f"Created projects for {submissions.count()} submissions of cycle {cycle}")
 
             # create allocations for allocation requests
             count = 0
@@ -138,7 +145,6 @@ class CreateCallProjects(BaseCronJob):
                     'justification': alloc_request.justification,
                     'procedure': alloc_request.procedure
                 }
-                # FIXME: Score adjustments ??
                 utils.create_project_allocations(
                     alloc_request.project, spec, alloc_request.cycle,
                     shifts=0, shift_request=alloc_request.shift_request,
@@ -153,28 +159,42 @@ class CreateCallProjects(BaseCronJob):
 
 class CreateNonCallProjects(BaseCronJob):
     """
-    Create projects for all reviewed non-call submissions in the current cycle.
+    Create projects for all approved reviewed non-call submissions in the current cycle.
     """
     run_every = "PT15M"
+    submissions: QuerySet
+    cycles: QuerySet
+
+    def is_ready(self):
+        from proposals.models import ReviewCycle, Submission
+        # Handle non-call submissions and flexible beamlines
+        today = timezone.localtime(timezone.now()).date()
+        self.submissions = Submission.objects.filter(
+            cycle__end_date__gte=today, track__require_call=False,
+            state=Submission.STATES.reviewed, approved=True, project__isnull=True
+        ).distinct()
+        self.cycles = ReviewCycle.objects.filter(open_date__lte=today, end_date__gte=today)
+
+        return self.submissions.exists() or self.cycles.exists()
 
     def do(self):
         from proposals.models import ReviewCycle, Submission
         # Handle non-call submissions and flexible beamlines
         today = timezone.localtime(timezone.now()).date()
-        cycle = ReviewCycle.objects.filter(open_date__lte=today, end_date__gte=today).first()
-        log = []
-        if cycle:
-            submissions = Submission.objects.filter(
-                cycle__start_date__gte=cycle.start_date, track__require_call=False, state=Submission.STATES.approved,
-                project__isnull=True
-            ).distinct()
-            if submissions.exists():
-                for submission in submissions:
-                    utils.create_project(submission)
-                log.append(f"Created {submissions.count()} projects for non-call review tracks")
 
-            # create allocation objects for flexible beamlines every cycle, until expiry
-            next_cycle = ReviewCycle.objects.next()
+        log = []
+
+        # create projects for non-call submissions
+        if self.submissions.exists():
+            for submission in self.submissions:
+                utils.create_project(submission)
+            log.append(f"Created {self.submissions.count()} projects for non-call review tracks")
+
+        # create allocation objects for flexible beamlines every cycle, until expiry
+        for cycle in self.cycles:
+            next_cycle = ReviewCycle.objects.next(dt=cycle.start_date)
+            if not next_cycle:
+                continue
 
             # which projects on flexible beamlines which are still active next cycle do not have allocations yet
             flex_projects = models.Project.objects.exclude(cycle=next_cycle).filter(

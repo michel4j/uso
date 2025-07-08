@@ -41,8 +41,7 @@ def beamline_shifts(project, bl):
 def sample_state_display(sample):
     full_state = sample.full_state()
     prefix = 'Expired' if full_state == sample.STATES.expired else 'Expires'
-    full_display = sample.STATES[full_state] if not sample.expiry else '{} {}'.format(prefix,
-                                                                                       sample.expiry.isoformat())
+    full_display = sample.STATES[full_state] if not sample.expiry else f'{prefix} {sample.expiry.isoformat()}'
 
     if full_state == sample.STATES.approved:
         return f"<i class='bi-check-circle-fill icon-fw text-success'></i>&nbsp;{full_display}"

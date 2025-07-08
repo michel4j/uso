@@ -14,14 +14,11 @@
 {% block body_class %}toggle-layout-md{% endblock %}
 
 {% block content %}
+    {% with proposal=reference.get_review_content %}
     <div id="review-grid" class="bg-secondary-subtle">
         <div id="review-content" class="page">
              <div id="review-proposal">
-                {% if review.type.is_safety or review.type.is_approval %}
-                    {% include "projects/safety-detail.html" with material=reference %}
-                {% else %}
-                    {% include "proposals/proposal-content.html" with proposal=reference.proposal %}
-                {% endif %}
+                 {% include "proposals/proposal-content.html" %}
              </div>
             <div id="review-extras" class="bg-notes-warning">
                 {% include "proposals/review-tools.html" %}
@@ -38,6 +35,7 @@
             </div>
         </div>
     </div>
+    {% endwith %}
 {% endblock %}
 
 {% block extra_js %}

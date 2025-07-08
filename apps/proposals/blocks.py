@@ -25,11 +25,6 @@ class ProposalsBlock(BaseBlock):
         filters = Q(leader_username=user.username) | Q(spokesperson=user) | Q(delegate_username=user.username)
         proposals = models.Proposal.objects.filter(filters)
         drafts = proposals.filter(state=models.Proposal.STATES.draft)
-
-        submitted = proposals.filter(
-            Q(state__gte=models.Proposal.STATES.submitted) &
-            Q(submissions__state__lt=models.Submission.STATES.reviewed),
-        ).distinct()
         open_cycles = models.ReviewCycle.objects.filter(state=models.Cycle.STATES.open)
         ctx.update({
             "drafts": drafts,

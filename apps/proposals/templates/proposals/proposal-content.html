@@ -6,20 +6,14 @@
 {% load markup %}
 
 <script src="{% static 'js/mathjax-config.js' %}" async></script>
-
+{% spaceless %}
 <div class="row section">
     <div class="col-12 section-content">
         <div class="text-condensed text-body-secondary"><strong>{{ reference }}</strong></div>
         <h2 class="border-bottom">{{ proposal.title }}</h2>
-        <strong>
-            {% for member in proposal.get_full_team %}
-                <span title="{{ member.email|get_institution }}">{{ member.last_name }}, {{ member.first_name }}</span>
-                <span class="text-info">{{ member.roles|team_roles }}</span>
-                {% if not forloop.last %}&middot;{% endif %}
-            {% endfor %}
-        </strong>
+        <strong>{{ proposal.authors }}</strong>
 
-        {% if proposal.details.subject.keywords %}
+        {% if proposal.subject.keywords %}
             <hr/>
             Keywords: <em>{{ proposal.details.subject.keywords }}</em>
             <hr/>
@@ -27,37 +21,50 @@
     </div>
 </div>
 
+{% if proposal.science.abstract %}
 <div class="row section">
     <div class="col-12 section-content">
         <h3>Abstract</h3>
-        {{ proposal.details.abstract|markdown }}
+        {{ proposal.science.abstract|markdown }}
     </div>
 </div>
+{% endif %}
+
+{% if proposal.science.scientific_merit %}
 <div class="row section">
     <div class="col-12 section-content">
         <h3>Scientific Description</h3>
-        {{ proposal.details.scientific_merit|safe }}
+        {{ proposal.science.scientific_merit|safe }}
     </div>
 </div>
+{% endif %}
+
+{% if proposal.science.team_capability %}
 <div class="row section">
     <div class="col-12 section-content">
         <h3>Capability &amp; Productivity of Research Team</h3>
         {{ proposal.details.team_capability|markdown }}
     </div>
 </div>
+{% endif %}
+
+{% if proposal.science.societal_impact %}
 <div class="row section">
     <div class="col-12 section-content">
         <h3>Societal, Economic and Industrial Relevance</h3>
-        {{ proposal.details.societal_impact|default:"<em>Not completed.</em>" }}
+        {{ proposal.science.societal_impact|default:"<em>Not completed.</em>" }}
     </div>
 </div>
+{% endif %}
+
+{% if proposal.science.beamline_reqs %}
 <div class="row section">
     <div class="col-12 section-content">
         <h3>Facilities &amp; Techniques</h3>
-        {% show_facility_requirements proposal.details.beamline_reqs cycle=proposal.details.first_cycle %}
+        {% show_facility_requirements proposal.science.beamline_reqs cycle=proposal.science.first_cycle %}
     </div>
 
-    {% get_selected_ancillaries data=proposal.details.ancillaries as ancillary %}
+    {% get_selected_ancillaries data=proposal.science.ancillaries as ancillary %}
     {% if ancillary.labs.exists or ancillary.equipment.exists %}
         <div class="col-12 section-content">
             <h3>Ancillary Requirements:</h3>
@@ -70,50 +77,51 @@
         </div>
     {% endif %}
 </div>
+{% endif %}
 
 {% if not hide_safety %}
-    <div class="row section">
-        <div class="col-sm-12 section-content">
-            <h3>Materials</h3>
-            <h4>Samples:</h4>
-            {% get_samples data=proposal.details.sample_list as samples %}
-            {% include "samples/sample_table.html" %}
-            {% if proposal.details.equipment %}
-                <h4>Equipment:</h4>
-                <hr class="hr-xxs"/>
-                {% include "proposals/equipment-list.html" with equipment=proposal.details.equipment %}
-            {% endif %}
-
-        </div>
+<div class="row section">
+    <div class="col-sm-12 section-content">
+        <h3>Materials</h3>
+        <h4>Samples:</h4>
+        {% get_samples data=proposal.safety.samples as samples %}
+        {% include "samples/sample_table.html" %}
+        {% if proposal.safety.equipment %}
+            <h4>Equipment:</h4>
+            <hr class="hr-xxs"/>
+            {% include "proposals/equipment-list.html" with equipment=proposal.safety.equipment %}
+        {% endif %}
     </div>
+</div>
 
-    <div class="row section">
-        <div class="col-sm-12 section-content">
-            <h4>Sample Preparation:</h4>
-            <div>{{ proposal.details.sample_handling|default:"<em>No sample handling onsite.</em>" }}</div>
-        </div>
-    </div>
 
-    <div class="row section">
-        <div class="col-sm-12 section-content">
-            <h4>Waste Generation:</h4>
-            {% if proposal.details.waste_generation %}
-                The following types of waste will be generated:
-                <ul>
-                    {% for w in proposal.details.waste_generation %}
-                        <li>{{ w|waste_label }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <em>No waste will be generated.</em>
-            {% endif %}
-            {% if proposal.details.disposal_procedure %}
-                <h4>Waste Disposal:</h4>
-                {{ proposal.details.disposal_procedure }}
-            {% endif %}
-        </div>
+<div class="row section">
+    <div class="col-sm-12 section-content">
+        <h4>Sample Preparation:</h4>
+        <div>{{ proposal.safety.handling|default:"<em>No sample handling onsite.</em>" }}</div>
     </div>
+</div>
+<div class="row section">
+    <div class="col-sm-12 section-content">
+        <h4>Waste Generation:</h4>
+        {% if proposal.safety.waste %}
+            The following types of waste will be generated:
+            <ul>
+                {% for w in proposal.safety.waste %}
+                    <li>{{ w|waste_label }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <em>No waste will be generated.</em>
+        {% endif %}
+        {% if proposal.safety.disposal %}
+            <h4>Waste Disposal:</h4>
+            {{ proposal.safety.disposal }}
+        {% endif %}
+    </div>
+</div>
 {% endif %}
+
 {% if show_safety %}
     {% if proposal.attachments.exists %}
         <div class="row section">
@@ -150,3 +158,4 @@
         </div>
     {% endif %}
 {% endif %}
+{% endspaceless %}

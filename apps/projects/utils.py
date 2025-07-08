@@ -65,11 +65,11 @@ def create_project(submission):
     cycle = submission.cycle
     track = submission.track
 
-    if submission.kind == submission.TYPES.user:
-        expiry = calculate_end_date(cycle.end_date, track.duration - 1)
-    else:
-        expiry = None
+    if not submission.approved:
+        # If the submission is not approved, do not create a project
+        return
 
+    expiry = calculate_end_date(cycle.end_date, track.duration - 1)
     info = {
         'proposal': proposal,
         'kind': submission.kind,
