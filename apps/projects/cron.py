@@ -45,7 +45,7 @@ class NotifyProjects(BaseCronJob):
             )),
         ).distinct()
 
-        rejected = submissions.filter(project__isnull=True).distinct()
+        rejected = submissions.filter(state=Submission.STATES.rejected).distinct()
 
         # Success:
         for project in successful:
@@ -123,7 +123,7 @@ class CreateCallProjects(BaseCronJob):
         if cycle:
             # Create Projects for general user access
             submissions = cycle.submissions.filter(track__require_call=True).filter(
-                state=Submission.STATES.reviewed, project__isnull=True
+                state=Submission.STATES.approved, project__isnull=True
             )
             if submissions.exists():
                 for submission in submissions:
@@ -165,7 +165,7 @@ class CreateNonCallProjects(BaseCronJob):
         log = []
         if cycle:
             submissions = Submission.objects.filter(
-                cycle__start_date__gte=cycle.start_date, track__require_call=False, state=Submission.STATES.reviewed,
+                cycle__start_date__gte=cycle.start_date, track__require_call=False, state=Submission.STATES.approved,
                 project__isnull=True
             ).distinct()
             if submissions.exists():

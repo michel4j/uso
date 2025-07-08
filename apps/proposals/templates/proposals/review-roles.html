@@ -12,11 +12,14 @@
                 which is currently held by the following individuals:
             </p>
             <ul style="padding-left: 2em;">
-                {% for person in candidates %}
+                {% for person in candidates|slice:":5" %}
                     <li><strong>{{ person.first_name }} {{ person.last_name }}</strong></li>
                     {% empty %}
                     <li><em>Nobody</em></li>
                 {% endfor %}
+                {% if candidates|length > 5 %}
+                    ... and {{ candidates|length|add:"-5" }} more.
+                {% endif %}
             </ul>
 
             {% with object.get_progress as progress %}
@@ -62,9 +65,12 @@
                 which is currently held by the following individuals:
             </p>
             <ul style="padding-left: 2em;">
-                {% for person in candidates %}
+                {% for person in candidates|slice:":5" %}
                     <li><strong>{{ person.first_name }} {{ person.last_name }}</strong></li>
                 {% endfor %}
+                {% if candidates|length > 5 %}
+                    ... and {{ candidates|length|add:"-5" }} more.
+                {% endif %}
             </ul>
             You must claim it in order to complete the review.
             Once claimed, the responsibility to complete the review

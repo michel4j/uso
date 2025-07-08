@@ -754,7 +754,6 @@ def user_format(value, obj):
     return str(obj.proposal.spokesperson)
 
 
-
 def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
     """
     Create a review stage for a submission
@@ -766,12 +765,6 @@ def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
     from . import models
     to_create = []
 
-    # map acronym to facility in a unique set
-    technical_info = {
-        (item.config.facility.acronym.lower(), item.config.facility)
-        for item in submission.facilities()
-    }
-
     due_date = min(submission.cycle.due_date, timezone.now().date() + timedelta(weeks=due_weeks))
 
     # create review objects for the requested stage
@@ -781,7 +774,7 @@ def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
             # create min_reviews reviews for each facility
             to_create.extend([
                 models.Review(
-                    role=review_type.role.format(acronym),  #  assume role as a placeholder for the facility acronym
+                    role=review_type.role.format(facility.acronym),  #  assume role as a placeholder for the facility acronym
                     cycle=submission.cycle,
                     reference=submission,
                     type=review_type,
@@ -790,7 +783,7 @@ def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
                     stage=stage,
                     due_date=due_date, details={'facility': facility.pk}
                 )
-                for acronym, facility in technical_info
+                for facility in submission.facilities()
                 for _ in range(stage.min_reviews)
             ])
         else:
@@ -813,14 +806,14 @@ def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
     return len(to_create)
 
 
-def advance_review_workflow(submission) -> int:
+def advance_review_workflow(submission) -> list[str]:
     """
     Advance the review workflow for a submission
     :param submission: Submission instance
-    :return: Number of reviews created
+    :return: List of messages indicating the workflow actions taken
     """
-    from .models import ReviewStage, ReviewCycle
-
+    from . import models
+    logs = []
     track = submission.track
     stage_scores = submission.reviews.complete().values('stage__position').order_by('stage__position').annotate(
         score=Avg('score'), position=F('stage__position'), completed=Count('pk', distinct=True)
@@ -841,7 +834,7 @@ def advance_review_workflow(submission) -> int:
         for s in stage_reviews
     }
 
-    num_facilities = submission.facilities.count()
+    num_facilities = submission.facilities().count()
 
     # Iterate through stages in the track and check if the submission passes each stage based on the scores
     # If a stage has blocks, it will stop the workflow
@@ -857,19 +850,35 @@ def advance_review_workflow(submission) -> int:
         )
 
         if not reviews_created:
-            create_reviews_for_stage(submission, stage)
+            new = create_reviews_for_stage(submission, stage)
+            if new:
+                logs.append(f'{submission}: Created {new} reviews for stage {stage.position}')
             break
         elif reviews_created and not reviews_completed:
             # If reviews are created but are not completed, stop processing
             break
         elif reviews_completed and not stage_passed:
             # Reviews are complete but failed, we cannot advance
+            logs.append(f'Submission {submission} failed at stage {stage.position} and is now rejected.')
+            submission.reviews.filter(stage=stage).update(state=submission.reviews.STATES.closed)
             review_failed = True
             break
         elif stage_passed:
             # If the stage is passed, we can advance to the next stage
+            submission.reviews.filter(stage=stage).update(state=models.Review.STATES.closed)
             continue
+    else:
+        # If we reached here, all stages passed, we can mark the submission as approved
+        submission.status = submission.STATES.approved
+        submission.save()
+        logs.append(f'Submission {submission} passed all stages and is now approved.')
 
     if review_failed:
-        # The submission failed review, close it with a rejection
-        return 0#
+        # If any stage failed, we mark the submission as rejected
+        submission.status = submission.STATES.rejected
+        submission.save()
+
+    return logs
+
+
+

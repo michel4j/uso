@@ -341,47 +341,6 @@ class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
 
             obj.techniques.add(*items)
             obj.save()
-            due_date = min(cycle.due_date, timezone.now().date() + timedelta(weeks=2))
-
-            # create review objects for the first stage of each review track
-            stage = track.stages.all().first()
-            if stage and stage.auto_create:
-                review_type = stage.kind
-                if review_type.per_facility:
-                    # create min_reviews reviews for each facility
-                    to_create.extend(
-                        [
-                            models.Review(
-                                role=review_type.role.format(acronym),
-                                cycle=cycle,
-                                reference=obj,
-                                type=review_type,
-                                form_type=review_type.form_type,
-                                state=models.Review.STATES.pending,
-                                stage=stage,
-                                due_date=due_date, details={'facility': facility.pk}
-                            )
-                            for acronym, facility in technical_info
-                            for _ in range(stage.min_reviews)
-                        ]
-                    )
-                else:
-                    # create min_reviews reviews for whole proposal
-                    to_create.append(
-                        models.Review(
-                            role=review_type.role,
-                            cycle=cycle,
-                            stage=stage,
-                            reference=obj,
-                            type=review_type,
-                            form_type=review_type.form_type,
-                            state=models.Review.STATES.pending,
-                            due_date=due_date
-                        )
-                    )
-
-        # create review objects for technical
-        models.Review.objects.bulk_create(to_create)
 
         # update state
         self.object.state = self.object.STATES.submitted
