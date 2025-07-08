@@ -840,7 +840,6 @@ def advance_review_workflow(submission) -> list[str]:
     }
 
     num_facilities = submission.facilities().count()
-    print(submission, stage_status)
     # Iterate through stages in the track and check if the submission passes each stage based on the scores
     # If a stage has blocks, it will stop the workflow
     review_failed = False

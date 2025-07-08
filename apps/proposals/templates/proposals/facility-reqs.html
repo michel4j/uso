@@ -3,21 +3,20 @@
     <div class="callout p-3 border-color-{{ forloop.counter0 }}">
     <div class="row">
         <div class="col-12">
-            <h3 class="my-0 py-3 border-bottom border-color-{{ forloop.counter0 }} text-condensed">
+            <h3 class="my-0 py-3 d-flex border-bottom border-color-{{ forloop.counter0 }} text-condensed">
                 <strong>{{ ctx.facility.acronym }}</strong> &mdash; {{ ctx.facility.name }}
                 {% if ctx.facility.flex_schedule %}
-                    <span class="badge badge-{{ forloop.counter0 }} pull-right">
-                <strong data-bs-toggle="popover"
-                        data-trigger="hover"
-                        data-content="Number of Shifts will be assigned as required based on availability"
-                        data-placement="bottom"
-                >Flexible
-                </strong>
-            </span>
+                    <span class="badge badge-{{ forloop.counter0 }} ms-auto">
+                    <strong data-bs-toggle="popover"
+                            data-trigger="hover"
+                            data-content="Number of Shifts will be assigned as required based on availability"
+                            data-placement="bottom"
+                    >Flexible</strong>
+                    </span>
                 {% else %}
-                    <span class="badge badge-{{ forloop.counter0 }} pull-right">
-                <strong>{{ ctx.shifts|default:"0" }} Shift{{ ctx.shifts|pluralize:",s" }}</strong>
-            </span>
+                    <span class="badge badge-{{ forloop.counter0 }} ms-auto">
+                        <strong>{{ ctx.shifts|default:"0" }} Shift{{ ctx.shifts|pluralize:",s" }}</strong>
+                    </span>
                 {% endif %}
             </h3>
         </div>
@@ -31,8 +30,12 @@
 
         <div class="col-12">
             {% with forloop.counter0 as facility_counter %}
-            <h4>Experimental Procedure:&nbsp;{% for tech in ctx.techniques %}
-                <span class="badge badge-{{ facility_counter }}" title="{{ tech }}">{{ tech.acronym }}</span>{% endfor %}</h4>
+                <h4 class="d-flex flex-row gap-2">
+                    <span class="me-auto">Experimental Procedure:&nbsp;</span>
+                    {% for tech in ctx.techniques %}
+                    <span class="badge badge-{{ facility_counter }}" title="{{ tech }}">{{ tech.acronym }}</span>
+                    {% endfor %}
+                </h4>
             <p>{{ ctx.procedure }}</p>
         {% endwith %}
         </div>

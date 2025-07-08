@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Q
+from django.db.models import Q, Avg, StdDev, Count, F
 from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -1306,6 +1306,19 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
             project__start_date__lte=cycle.start_date, project__end_date__gt=cycle.start_date
         ).with_scores()
 
+        population_scores = models.Submission.objects.filter(track=self.object.track).annotate(
+            position=F('reviews__stage__position')
+        ).exclude(
+            Q(reviews__isnull=True) | Q(reviews__score__isnull=True) | Q(reviews__is_complete=False)
+        ).values(
+            'position'
+        ).order_by('position').annotate(
+            avg=Avg('reviews__score', filter=Q(reviews__is_complete=True, reviews__score__isnull=False), distinct=True),
+            stdev=StdDev('reviews__score', filter=Q(reviews__is_complete=True, reviews__score__isnull=False)),
+            count=Count('reviews__pk', filter=Q(reviews__is_complete=True, reviews__score__isnull=False), distinct=True)
+        ).values('position', 'avg', 'stdev', 'count')
+
+        debug_value(list(population_scores))
         object_scores = {
             rev_type.code: getattr(self.object, f"{rev_type.code}_avg")
             for rev_type in ReviewType.objects.scored()

@@ -15,7 +15,7 @@ class TaskList(RolePermsViewMixin, ItemListView):
     model = models.BackgroundTask
     template_name = "item-list.html"
     paginate_by = 20
-    list_columns = ['task', 'app', 'run_every', 'run_at', 'retry_after', 'keep_logs', 'last_ran', 'next_run', 'is_due']
+    list_columns = ['task', 'app', 'run_every', 'run_at', 'retry_after', 'last_ran', 'next_run', 'is_due']
     list_filters = ['created', 'modified']
     link_url = "task-detail"
     link_attr = 'data-modal-url'
