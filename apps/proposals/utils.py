@@ -4,9 +4,10 @@ from datetime import date, timedelta, datetime
 from typing import Literal
 
 from django.conf import settings
-from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField, F
+from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField, F, Avg, Count
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.functions import Concat, Lower
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from docutils.nodes import entry
 from model_utils import Choices
@@ -752,3 +753,123 @@ def notify_reviewers(reviews):
 def user_format(value, obj):
     return str(obj.proposal.spokesperson)
 
+
+
+def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
+    """
+    Create a review stage for a submission
+    :param submission: instance
+    :param stage: ReviewStage instance
+    :param due_weeks: Number of weeks from now to set the due date if the cycle due date is in the past
+    :return: number of reviews created
+    """
+    from . import models
+    to_create = []
+
+    # map acronym to facility in a unique set
+    technical_info = {
+        (item.config.facility.acronym.lower(), item.config.facility)
+        for item in submission.facilities()
+    }
+
+    due_date = min(submission.cycle.due_date, timezone.now().date() + timedelta(weeks=due_weeks))
+
+    # create review objects for the requested stage
+    if stage and stage.auto_create:
+        review_type = stage.kind
+        if review_type.per_facility:
+            # create min_reviews reviews for each facility
+            to_create.extend([
+                models.Review(
+                    role=review_type.role.format(acronym),  #  assume role as a placeholder for the facility acronym
+                    cycle=submission.cycle,
+                    reference=submission,
+                    type=review_type,
+                    form_type=review_type.form_type,
+                    state=models.Review.STATES.pending,
+                    stage=stage,
+                    due_date=due_date, details={'facility': facility.pk}
+                )
+                for acronym, facility in technical_info
+                for _ in range(stage.min_reviews)
+            ])
+        else:
+            to_create.extend([
+                models.Review(
+                    role=review_type.role,
+                    cycle=submission.cycle,
+                    reference=submission,
+                    type=review_type,
+                    form_type=review_type.form_type,
+                    state=models.Review.STATES.pending,
+                    stage=stage,
+                    due_date=due_date,
+                )
+                for _ in range(stage.min_reviews)
+            ])
+
+    # create review objects in bulk
+    models.Review.objects.bulk_create(to_create)
+    return len(to_create)
+
+
+def advance_review_workflow(submission) -> int:
+    """
+    Advance the review workflow for a submission
+    :param submission: Submission instance
+    :return: Number of reviews created
+    """
+    from .models import ReviewStage, ReviewCycle
+
+    track = submission.track
+    stage_scores = submission.reviews.complete().values('stage__position').order_by('stage__position').annotate(
+        score=Avg('score'), position=F('stage__position'), completed=Count('pk', distinct=True)
+    ).values('position', 'score', 'completed').order_by('position')
+    stage_reviews = submission.reviews.values('stage__position').order_by('stage__position').annotate(
+        position=F('stage__position'), num_reviews=Count('pk', distinct=True)
+    ).values('position', 'num_reviews').order_by('position')
+
+    scores = {
+        s['position']: s for s in stage_scores
+    }
+    stage_status = {
+        s['position']: {
+            'score': scores.get(s['position'], {}).get('score', 0),
+            'completed': scores.get(s['position'], {}).get('completed', 0),
+            'num_reviews': s['num_reviews']
+        }
+        for s in stage_reviews
+    }
+
+    num_facilities = submission.facilities.count()
+
+    # Iterate through stages in the track and check if the submission passes each stage based on the scores
+    # If a stage has blocks, it will stop the workflow
+    review_failed = False
+    for stage in track.stages.all():
+        num_required = stage.min_reviews if not stage.kind.per_facility else num_facilities * stage.min_reviews
+        reviews_created = stage_status.get(stage.position, {}).get('num_reviews', 0) >= num_required
+        reviews_completed = stage_status.get(stage.position, {}).get('completed', 0) >= num_required
+        stage_passed = (
+            (not stage.blocks) or
+            (stage.kind.low_better and stage_status.get(stage.position, {}).get('score', 0) <= stage.pass_score) or
+            (not stage.kind.low_better and stage_status.get(stage.position, {}).get('score', 0) >= stage.pass_score)
+        )
+
+        if not reviews_created:
+            create_reviews_for_stage(submission, stage)
+            break
+        elif reviews_created and not reviews_completed:
+            # If reviews are created but are not completed, stop processing
+            break
+        elif reviews_completed and not stage_passed:
+            # Reviews are complete but failed, we cannot advance
+            review_failed = True
+            break
+        elif stage_passed:
+            # If the stage is passed, we can advance to the next stage
+            continue
+
+    if review_failed:
+        # The submission failed review, close it with a rejection
+        return 0#

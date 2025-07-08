@@ -1100,6 +1100,7 @@ class EditReviewCycle(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
             }
         )
 
+
 class AddReviewStage(RolePermsViewMixin, ModalCreateView):
     form_class = forms.ReviewStageForm
     model = models.ReviewStage

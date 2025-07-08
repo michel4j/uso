@@ -515,9 +515,9 @@ class ReviewStageForm(ModalModelForm):
                 Div("min_reviews", css_class="col-sm-4"),
                 Div("pass_score", css_class="col-sm-4"),
                 Div("blocks", css_class="col-sm-4"),
-
                 css_class="row"
-            )
+            ),
+            Field('track'),
         )
 
 

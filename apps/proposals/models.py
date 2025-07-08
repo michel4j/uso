@@ -179,6 +179,8 @@ class Submission(TimeStampedModel):
         started = (1, 'Started')
         reviewed = (2, 'Reviewed')
         complete = (3, 'Complete')
+        approved = (4, 'Approved')
+        rejected = (5, 'Rejected')
 
     class TYPES(models.TextChoices):
         user = ('user', 'User Access')

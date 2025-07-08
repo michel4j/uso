@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import timedelta
 
-from django.db.models import Min, F, Max
+from django.db.models import Min, F, Max, Q
 from django.utils import timezone
 
 from isocron import BaseCronJob
@@ -82,18 +82,18 @@ class NotifyReviewers(BaseCronJob):
 
     def do(self):
         from . import models
-        cycle = models.ReviewCycle.objects.next()
+
         today = timezone.localtime(timezone.now())
         yesterday = today - timedelta(days=1)
-        if cycle:
-            # Notify technical reviews one day later to avoid spamming
-            reviews = models.Review.objects.technical().filter(
-                state=models.Review.STATES.pending, created__lte=yesterday
-            )
-            count = utils.notify_reviewers(reviews)
-            reviews.update(state=models.Review.STATES.open)
-            if count:
-                return f"{count} reviewer notification(s) sent"
+
+        # Notify technical reviews one day later to avoid spamming
+        reviews = models.Review.objects.technical().filter(
+            state=models.Review.STATES.pending, created__lte=yesterday
+        )
+        count = utils.notify_reviewers(reviews)
+        reviews.update(state=models.Review.STATES.open)
+        if count:
+            return f"{count} reviewer notification(s) sent"
         return ''
 
 
@@ -141,23 +141,37 @@ class SubmissionStateManager(BaseCronJob):
 
         logs = []
         now = timezone.localtime(timezone.now())
+        tracks = models.ReviewTrack.objects.annotate(max_stage=Max('stages__position'))
 
-        # at least one review submitted, switch pending to in progress
-        subs = models.Submission.objects.annotate(max_state=Max('reviews__state'), min_state=Min('reviews__state'))
-        started_subs = subs.filter(
-            max_state__in=[1, 2], state=models.Submission.STATES.pending
-        )
-        if started_subs.exists():
-            started_subs.update(state=models.Submission.STATES.started, modified=now)
-            logs.append(f"{started_subs.count()} Submissions started review")
+        for track in tracks:
+            # at least one review submitted, switch pending to in progress
+            subs = models.Submission.objects.filter(
+                Q(cycle__due_date__lt=now, cycle__end_date__gt=now, track__require_call=True) |
+                Q(cycle__start_date__lte=now, cycle__end_date__gt=now, track__require_call=False),
+                track=track,
+            ).annotate(
+                max_state=Max('reviews__state'),
+                min_state=Min('reviews__state'),
+                max_stage=Max('reviews__stage__position')
+            )
 
-        completed_subs = subs.filter(
-            min_state=models.Review.STATES.submitted, state__lt=models.Submission.STATES.reviewed
-        )
-        if completed_subs.exists():
-            for sub in completed_subs:
-                sub.close()
-            logs.append(f"{completed_subs.count()} Submissions completed review")
+            # at least one review submitted, switch pending to in progress
+            started = subs.filter(
+                max_state__in=[1, 2], state=models.Submission.STATES.pending
+            )
+            if started.exists():
+                started.update(state=models.Submission.STATES.started, modified=now)
+                logs.append(f"{started.count()} Submissions started review")
+
+            # all reviews are submitted and the last stage is present
+            completed = subs.filter(
+                min_state=models.Review.STATES.submitted,
+                max_stage=track.max_stage
+            )
+            if completed.exists():
+                for submission in completed:
+                    submission.close()
+                logs.append(f"{completed.count()} {track} Submissions reviewed")
 
         return '\n'.join(logs)
 
@@ -170,29 +184,89 @@ class CloseReviews(BaseCronJob):
 
     def do(self):
         from proposals import models
-        cycle = models.ReviewCycle.objects.review().first()
+
         logs = []
         today = timezone.localtime(timezone.now()).date()
-        if cycle and cycle.due_date < today:
-            # Do not process Rapid Access Track
-            for track in cycle.tracks().filter(require_call=True):
-                revs = models.Review.objects.filter(
-                    cycle=cycle, stage__track=track,
-                    state=models.Review.STATES.submitted
-                )
-                if revs.exists():
-                    revs.update(state=models.Review.STATES.closed, modified=timezone.now())
-                    logs.append(f"{revs.count()} {track} Reviews closed")
+        tracks = models.ReviewTrack.objects.annotate(max_stage=Max('stages__position'))
 
-                for submission in cycle.submissions.filter(track=track):
-                    submission.close()
+        call_filters = {
+            'cycle__due_date__lt': today,
+            'cycle__start_date__gte': today,
+        }
+        non_call_filters = {
+            'cycle__due_date__lt': today,
+            'cycle__end_date__gte': today,
+        }
 
-        # Close Non-call reviews if they are complete
-        cycle = models.ReviewCycle.objects.filter(open_date__lt=today, end_date__gt=today).first()
-        for track in cycle.tracks().filter(require_call=False):
-            revs = models.Review.objects.filter(cycle=cycle, stage__track=track, state=models.Review.STATES.submitted)
+        # Close reviews
+        for track in tracks:
+            revs = models.Review.objects.filter(
+                Q(cycle__due_date__lt=today, cycle__end_date__gt=today, stage__track__require_call=True) |
+                Q(cycle__start_date__lte=today, cycle__end_date__gt=today, stage__track__require_call=False),
+                stage__track=track,
+                state=models.Review.STATES.submitted,
+            )
+
             if revs.exists():
                 revs.update(state=models.Review.STATES.closed, modified=timezone.now())
                 logs.append(f"{revs.count()} {track} Reviews closed")
+
+                filters = (
+                    Q(stage__blocks=False) |
+                    Q(type__low_better=True, score__lt=F('stage__pass_score')) |
+                    Q(type__low_better=False, score__gt=F('stage__pass_score'))
+                )
+
+                to_create = []
+
+                for rev in revs.filter(filters, stage__position__lt=track.max_stage):
+                    stage = track.stages.filter(position=rev.stage.position + 1, auto_create=True).first()
+                    if not stage:
+                        continue
+
+                    due_date = min(rev.cycle.due_date, timezone.now().date() + timedelta(weeks=2))
+
+                    technical_info = {
+                        (item.config.facility.acronym.lower(), item.config.facility)
+                        for item in rev.reference.techniques.all()
+                    }
+
+                    # create next stage review
+                    review_type = stage.kind
+                    if review_type.per_facility:
+                        # create min_reviews reviews for each facility
+                        to_create.extend(
+                            [
+                                models.Review(
+                                    role=review_type.role.format(acronym),
+                                    cycle=rev.cycle,
+                                    reference=rev.reference,
+                                    type=review_type,
+                                    form_type=review_type.form_type,
+                                    state=models.Review.STATES.pending,
+                                    stage=stage,
+                                    due_date=due_date, details={'facility': facility.pk}
+                                )
+                                for acronym, facility in technical_info
+                                for _ in range(stage.min_reviews)
+                            ]
+                        )
+                    else:
+                        # create min_reviews reviews for proposal
+                        to_create.append(
+                            models.Review(
+                                role=review_type.role,
+                                cycle=rev.cycle,
+                                stage=stage,
+                                reference=rev.reference,
+                                type=review_type,
+                                form_type=review_type.form_type,
+                                state=models.Review.STATES.pending,
+                                due_date=due_date
+                            )
+                        )
+                if to_create:
+                    models.Review.objects.bulk_create(to_create)
+                    logs.append(f"{len(to_create)} {track} Reviews created for next stage")
 
         return '\n'.join(logs)
