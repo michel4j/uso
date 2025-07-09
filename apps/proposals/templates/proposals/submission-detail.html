@@ -159,12 +159,14 @@
             </div>
         {% endif %}
         {% if admin or committee_member %}
+            {% if object.reviews.exists %}
             <div class="row section">
                 <div class="col-xs-12">
                     <h3>Reviews</h3>
                     {% include "proposals/reviews-table.html" with reviews=object.reviews.all %}
                 </div>
             </div>
+            {% endif %}
         {% endif %}
     </div>
     {% include "proposals/review-results.html" %}

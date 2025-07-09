@@ -2393,6 +2393,12 @@ span.allocation-score {
   > h3:first-of-type, div.h3:first-of-type {
     align-self: center;
   }
+  > .status-badge {
+    align-self: center;
+    font-size: calc(0.9rem + 0.6vw);
+    font-weight: 400;
+    text-wrap: nowrap;
+  }
 
   &:empty {
     padding: 0 !important;

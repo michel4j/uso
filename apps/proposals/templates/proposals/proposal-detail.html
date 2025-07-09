@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 {% load static %}
-{% load folio %}
+{% load misc %}
 {% load dynforms %}
 {% load beamlines %}
 {% load samples_tags %}
@@ -82,26 +82,31 @@
 {% endblock %}
 
 
-{% block page-status-style %}callout {% folio_status proposal.state draft=proposal.STATES.draft success=proposal.STATES.submitted %}{% endblock %}
+{% block page-status-style %}callout callout-{% state_tag proposal.state secondary=proposal.STATES.draft success=proposal.STATES.submitted %}{% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ proposal.get_state_display }}</span>
-    </h3>
+    <span class="status-badge badge bg-{% state_tag proposal.state secondary=proposal.STATES.draft success=proposal.STATES.submitted %} text-condensed">{{ proposal.get_state_display }}</span>
     <div>
         <small class="text-wide text-body-secondary">Spokesperson:</small><br/>{{ proposal.spokesperson|default:"&hellip;" }}<br/>
         <small class="text-wide text-body-secondary">Delegate:</small><br/>{{ proposal.get_delegate|default:"&hellip;" }}
     </div>
     <div>
         <small class="text-wide text-body-secondary">Address:</small><br/>
-        {% if proposal.spokesperson.address %}
-            {% with proposal.spokesperson.address as address %}
-                <p class="text-condensed">
-                    {{ address.address_1 }},<br/> {{ address.address_2 }}, {{ address.city }},<br/>
-                    {{ address.region }}, {{ address.postal_code }}, {{ address.country }}
-                </p>
-            {% endwith %}
-        {% else %}
-            &hellip;
+        {% if proposal.details.invoice_address %}
+        {% with proposal.details.invoice_address as address %}
+            <p class="text-condensed">
+                {% if address.place %}{{ address.place }},<br/> {% endif %}
+                {{ address.street }},<br/>
+                {{ address.city }}, {{ address.code }},<br/> {{ address.region }}, {{ address.country }}
+            </p>
+        {% endwith %}
+        {% elif proposal.spokesperson.address %}
+        {% with proposal.spokesperson.address as address %}
+            <p class="text-condensed">
+                {{ address.address_1 }},<br/> {{ address.address_2 }}, {{ address.city }},<br/>
+                {{ address.region }}, {{ address.postal_code }}, {{ address.country }}
+            </p>
+        {% endwith %}
         {% endif %}
     </div>
     <div>
