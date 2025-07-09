@@ -45,49 +45,26 @@
 
         // find all Hazards classes and sample types
         let noHazard = "15";
-        let allHazards = {};
-        let allTypes = {};
+        let allHazards = new Set();
+        let allTypes = new Set();
+
+        // record sample types
         $("#{{field.name}}-controls img[data-sample-hazard]").each(function () {
             if ($(this).attr("data-sample-hazard") !== noHazard) {
-                allHazards[$(this).attr("data-sample-hazard")] = 1;
+                allHazards.add($(this).attr("data-sample-hazard"));
             }
         });
+        // record sample hazards
         $("#{{field.name}}-controls [data-sample-type]").each(function () {
-            allTypes[$(this).attr("data-sample-type")] = 1;
-        });
-        // This element must be present in the form via a sample hazard field
-        $('#sample-hazard-controls  input[type="checkbox"]').each(function () {
-            if ($(this).val() in allHazards) {
-                $(this).prop("checked", true);
-                $(this).attr('checked', 'checked');
-                $(this).trigger('change');
-                $(this).attr("disabled", "disabled");
-            } else if ($(this).is('[disabled]')) {
-                $(this).removeAttr("checked");
-                $(this).removeAttr("disabled");
-            }
+            allTypes.add($(this).attr("data-sample-type"));
         });
 
-        // manage non-hazard checkbox
-        let non_hz = $('#sample-hazard-controls  input[type="checkbox"][value="15"]');
-        if (jQuery.isEmptyObject(allHazards)) {
-            non_hz.removeAttr("disabled");
-        } else {
-            non_hz.attr("disabled", "disabled");
-        }
-
-        // This element must be present in the form via a sample types field
-        $('#sample-type-controls  input[type="checkbox"]').each(function () {
-            if ($(this).val() in allTypes) {
-                $(this).prop("checked", true);
-                $(this).attr('checked', 'checked');
-                $(this).attr("disabled", "disabled");
-            } else if ($(this).is('[disabled]')) {
-                $(this).removeAttr("checked");
-                $(this).removeAttr("disabled");
-            }
-
-        });
+        // trigger samples changed event
+        let eventData = {
+            hazards: Array.from(allHazards),
+            types: Array.from(allTypes)
+        };
+        $(document).trigger('uso:samples-changed', eventData);
     }
 
     $('#{{field.name}}-search').change(function () {
@@ -96,7 +73,7 @@
         if ($searchInput.val() !== "") {
             const url = `{% url 'sample-field-root' %}${$searchInput.val()}/{{field.name}}/`;
             $.ajax(url).done(function (html) {
-                $('#{{field.name}}-list').append(html).slideDown(600);
+                $('#{{field.name}}-list').append(html).slideDown(500);
                 $searchInput.find("option:selected").attr('disabled', 'disabled');
                 $searchInput.val("");
                 update_{{field.name}}();
@@ -116,7 +93,7 @@
 
             let url = `{% url 'sample-field-root' %}${data.pk}/{{field.name}}/`;
             $.ajax(url).done(function (html) {
-                $('#{{field.name}}-list').append(html).slideDown(600);
+                $('#{{field.name}}-list').append(html).slideDown(500);
                 update_{{field.name}}();
             });
         }
@@ -171,11 +148,12 @@
                     if ($option.length) {
                         // re-enable option in select
                         $option.removeAttr('disabled');
+
                     }
+                    update_{{field.name}}();
                 });
             }
             popover.dispose();
-            update_{{field.name}}();
         });
     });
 

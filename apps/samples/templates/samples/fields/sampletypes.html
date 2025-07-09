@@ -20,3 +20,18 @@
 	    {% endfor %}
 	</div>
 </div>
+
+<script>
+    // Update sample types checkboxes based on the samples changed event
+    $(document).on('uso:samples-changed', function (e, data) {
+        let allTypes = data.types || [];
+        //reset all checkboxes
+        $('#{{field.name}}-controls input[type="checkbox"]').removeAttr('checked');
+
+        // check new ones
+        $.each([...allTypes], function (index, value) {
+            $(`#{{field.name}}-controls input[value="${value}"]`).attr('checked', 'checked');
+        });
+    });
+
+</script>

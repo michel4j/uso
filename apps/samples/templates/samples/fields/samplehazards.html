@@ -25,27 +25,54 @@
 			{% endfor %}
 	</div>
 </div>
-<script type="text/javascript">	
-	// clear hazards if "not hazardous" selected, and vice-versa
-	var non_hz_pk = "15";
-	var fld_sel = '#{{field.name}}-controls input[name="{{field.name}}"]';
-	var hz_ctrls = ':not(input[value="'+ non_hz_pk +'"])';
-	var non_hz_ctrls = '[value="'+ non_hz_pk +'"]';
-	
-	$(fld_sel).filter(hz_ctrls).change(function(){
-		if (this.checked) {				
-			$(fld_sel).filter(non_hz_ctrls).each(function(){
-				$(this).removeAttr('checked');
-				$(this).prop('checked', false);				
-			});		
-		}
-	});		
-	$(fld_sel).filter(non_hz_ctrls).change(function(){
-		if (this.checked) {
-			$(fld_sel).filter(hz_ctrls).each(function(){
-				$(this).removeAttr('checked');
-				$(this).prop('checked', false);
-			});
-		}
-	});
+<script type="text/javascript">
+
+    $(document).on('uso:samples-changed', function (e, data) {
+        let allHazards = data.hazards || [];
+        //reset all checkboxes
+        $('#{{field.name}}-controls input[type="checkbox"]').removeAttr('checked');
+
+
+        // check new ones
+        $.each([...allHazards], function (index, value) {
+            $(`#{{field.name}}-controls input[value="${value}"]`).attr('checked', 'checked');
+        });
+
+        // manage non-hazard checkbox
+        let $nonHazard = $('{{ field.name }}-controls  input[type="checkbox"][value="15"]');
+        if (jQuery.isEmptyObject(allHazards)) {
+            $nonHazard.removeAttr("disabled");
+        } else {
+            $nonHazard.attr("disabled", "disabled");
+        }
+    });
+
+
+    $(document).ready(function () {
+        // clear hazards if "not hazardous" selected, and vice-versa
+        const nonHazardID = "15";
+        const inputSelector = `#{{field.name}}-controls input[name="{{field.name}}"]`;
+        const hazardSelector = `:not(input[value="${nonHazardID}"])`;
+        const nonHazardSelector = `[value="${nonHazardID}"]`;
+
+        $(inputSelector).filter(hazardSelector).change(function(){
+            if (this.checked) {
+                $(inputSelector).filter(nonHazardSelector).each(function(){
+                    $(this).removeAttr('checked');
+                    $(this).prop('checked', false);
+                });
+            }
+        });
+        $(inputSelector).filter(nonHazardSelector).change(function(){
+            if (this.checked) {
+                $(inputSelector).filter(hazardSelector).each(function(){
+                    $(this).removeAttr('checked');
+                    $(this).prop('checked', false);
+                });
+            }
+        });
+    });
+
+
+
 </script>
