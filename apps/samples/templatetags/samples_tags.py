@@ -100,14 +100,14 @@ def get_user_samples(context, data=None):
     user = context['user']
     if user.is_authenticated:
         try:
-            _data = {int(v['sample']): v['quantity'] for v in data}
+            _data = {int(v['sample']): v.get('quantity', '') for v in data}
             _all = {s.pk: s for s in
                     models.Sample.objects.filter(Q(owner=user.pk) | Q(pk__in=list(_data.keys()))).distinct()}
             samples = {
                 'selected': [(_all.get(k), v) for k, v in list(_data.items()) if k in _all],
                 'all': [(s, k in list(_data.keys())) for k, s in list(_all.items())]
             }
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, KeyError):
             samples = {}
     else:
         samples = {}
@@ -235,7 +235,7 @@ def sample_ethics_review(context, sample_info: dict):
 @register.simple_tag(takes_context=True)
 def get_samples(context, data=None):
     data = [] if not data else data
-    quantities = {int(v['sample']): v['quantity'] for v in data if v}
+    quantities = {int(v['sample']): v.get('quantity', '') for v in data if v}
     return [
         (s, quantities.get(s.pk))
         for s in models.Sample.objects.filter(pk__in=quantities.keys()).order_by('kind')

@@ -137,6 +137,24 @@ class Proposal(BaseFormModel):
             authors.append(f"{member['last_name']}, {member['first_name']}")
         return " · ".join(authors)
 
+    def get_review_content(self):
+        """
+        Returns a dictionary of review content for this submission.
+        """
+        return {
+            'title': self.title,
+            'authors': self.authors_text(),
+            'science': self.details,
+            'safety': {
+                'samples': self.details.get('sample_list', []),
+                'equipment': self.details.get('equipment', []),
+                'handling': self.details.get('sample_handling', ''),
+                'waste': self.details.get('waste_generation', []),
+                'disposal': self.details.get('disposal_procedure', ''),
+            },
+            'attachments': self.attachments,
+        }
+
 
 class SubmissionQuerySet(QuerySet):
 
@@ -253,19 +271,7 @@ class Submission(TimeStampedModel):
         """
         Returns a dictionary of review content for this submission.
         """
-        return {
-            'title': self.title(),
-            'authors': self.proposal.authors_text(),
-            'science': self.proposal.details,
-            'safety': {
-                'samples': self.proposal.details.get('sample_list', []),
-                'equipment': self.proposal.details.get('equipment', []),
-                'handling': self.proposal.details.get('sample_handling', ''),
-                'waste': self.proposal.details.get('waste_generation', []),
-                'disposal': self.proposal.details.get('disposal_procedure', ''),
-            },
-            'attachments': self.proposal.attachments,
-        }
+        return self.proposal.get_review_content()
 
     def adj(self):
         if hasattr(self, 'adjustment'):

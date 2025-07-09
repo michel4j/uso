@@ -152,7 +152,7 @@
         </div>
     {% endif %}
     <div class="p-5">
-        {% include "proposals/proposal-content.html" %}
+        {% include "proposals/proposal-content.html" with proposal=proposal.get_review_content %}
     </div>
 {% endblock %}
 
