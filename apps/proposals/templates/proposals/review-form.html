@@ -29,6 +29,8 @@
             <div class="">
                 {% if object.is_claimable and object.reviewer != user %}
                     {% include "proposals/review-roles.html" %}
+                {% elif object.state == object.STATES.closed %}
+                {% include "proposals/review-summary.html" %}
                 {% else %}
                     {% include "dynforms/form.html" %}
                 {% endif %}

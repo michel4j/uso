@@ -1,0 +1,47 @@
+{% load timeish %}
+{% load markup %}
+{% load proposal_tags %}
+<div class="col-12">
+    <div class="df-form-header">
+        <h1 class="df-form-title">{{ review.type }}</h1>
+        <div class="df-form-description">{{ review.form_type.description }}</div>
+    </div>
+    <div class="p-5 bg-transparent">
+
+        {% if object.is_complete %}
+            <h3>Review Closed!</h3>
+            <hr/>
+            {% with object.get_progress as progress %}
+
+                <h4 style="margin-top: 0.25em; margin-bottom: 0;">{{ object.reviewer }}</h4>
+                <em class="text-body-secondary">{{ object.type }}</em>
+                <div class="progress {% if object.reviewer and object.state < robject.STATES.submitted %}active{% endif %}"
+                     role="progressbar" aria-label="Review Progress"
+                     aria-valuenow="{{ progress.total }}" aria-valuemin="0" aria-valuemax="100"
+                     style="height: 1.5em;">
+                    <div class="progress-bar progress-bar-stripped bg-{% if progress.required > 99 %}success{% else %}warning{% endif %}"
+                         style="width: {{ progress.required }}%;"
+                         data-bs-toggle="tooltip"
+                         title="{{ progress.required }}% Total, {{ progress.required }}% Required"
+                    >
+                        <span>{{ progress.required }}% Complete</span>
+                    </div>
+                </div>
+                {% if object.details.comments or object.details.comments_committee %}
+                    <hr class="hr-xs"/>
+                    {{ object.details.comments|markdown }}
+                    {% if object.details.comments_committee %}
+                        <span class="text-danger">{{ object.details.comments_committee|markdown }}</span>
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+        {% else %}
+            <h3>Review Incomplete!</h3>
+            <hr/>
+            <p>This review was originally assigned to {% if object.reviewer %}{{ object.reviewer }}
+            {% else %}role <span class="badge bg-info">{{ object.role }}</span>{% endif %}</p>
+            <p>The review is now closed and can no longer be completed.</p>
+        {% endif %}
+    </div>
+</div>
+
