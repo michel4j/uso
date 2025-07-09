@@ -1,18 +1,21 @@
 {% extends "scheduler/selector.html" %}
 
 {% block selector_content %}
-    <table class="table table-condensed">
+    <ul class="list-group list-group-flush" id="scheduler-selector-list">
         {% for member in staff %}
-            <tr id="{{ member.username }}" {% if schedule.state != 'draft' %}class="event-src"{% endif %}
-                data-event='{"staff":"{{ member.username }}", "tags": [] }'>
-                <td style="vertical-align: middle;">
-                    <img class="profile-img" src="{{ member.get_photo }}" style="margin: 0 !important;"
-                         onerror="this.src='/static/img/blank-profile.png';">
-                </td>
-                <td style="vertical-align: middle;" class="">{{ member }}</td>
-                <td><span id="stats-{{ member.pk }}" title="Scheduled Shifts"
-                          class="stats badge progress-bar-success"></span></td>
-            </tr>
+            <li id="staff-member-{{ member.username }}"
+                class="list-group-item {% if schedule.state != 'draft' %}event-src{% endif %}"
+                data-event='{"staff": "{{ member.username }}", "tags": [] }'
+            >
+                <div class="d-flex flex-row align-items-center justify-content-start py-1 gap-2">
+                    <img class="profile-img m-0" src="{{ member.get_photo }}"
+                         alt="{{ member.username }}'s photo"
+                         onerror="this.src='/static/img/blank-profile.png';"
+                    />
+                    <div>{{ member }}</div>
+                    <div title="Scheduled Shifts" id="stats-{{member.pk}}" class="ms-auto badge rounded-pill bg-danger stats"></div>
+                </div>
+            </li>
         {% endfor %}
-    </table>
+    </ul>
 {% endblock %}

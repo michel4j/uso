@@ -315,12 +315,13 @@ class UserSupportListAPI(generics.ListAPIView):
 
 class ScheduleSupport(EventEditor):
     selector_template = "beamlines/support-selector.html"
+    allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         self.facility = models.Facility.objects.filter(pk=self.kwargs['fac']).first()
         return (
-                super().check_allowed() or
-                self.facility.is_admin(self.request.user)
+            super().check_allowed() or
+            self.facility.is_admin(self.request.user)
         )
 
     def get_shift_config(self):
@@ -329,6 +330,7 @@ class ScheduleSupport(EventEditor):
 
     def get_api_urls(self):
         url = reverse('schedule-support-api', kwargs={'pk': self.schedule.pk, 'fac': self.facility.acronym})
+        print(url)
         return {
             'api': url,
             'events': [
@@ -349,7 +351,7 @@ class ScheduleSupport(EventEditor):
         else:
             fac = self.facility
         role = "beamline-staff:{}".format(self.facility.acronym.lower())
-        context['staff'] = User.objects.all_with_roles(role)
+        context['staff'] = self.facility.staff_list()
         return context
 
 
