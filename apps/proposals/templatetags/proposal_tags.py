@@ -1,5 +1,6 @@
 import functools
 import operator
+from collections import defaultdict
 from mimetypes import MimeTypes
 
 from django import template
@@ -7,6 +8,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
+from misc.utils import debug_value
 from proposals import models
 from proposals.utils import scale_color, get_techniques_matrix
 from users.models import User
@@ -475,13 +477,16 @@ def get_all_tracks(context):
 
 
 @register.simple_tag(takes_context=True)
-def get_technique_options(context, settings):
-    if not settings:
-        settings = {}
+def get_technique_options(context, configs):
+    print(configs)
+    configs = configs or set()
+    config_groups = defaultdict(list)
+    for tech, track in configs:
+        config_groups[tech].append(track)
     groups = {}
     for group in sorted(models.Technique.TYPES, reverse=True):
         groups[group[-1]] = [
-            (technique, settings.get(technique.pk, ""))
+            (technique, config_groups[technique.pk])
             for technique in models.Technique.objects.filter(category=group[0]).order_by('name')
         ]
     return groups

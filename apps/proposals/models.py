@@ -543,7 +543,7 @@ class ConfigItem(TimeStampedModel):
     objects = ConfigItemManager()
 
     class Meta:
-        unique_together = [("config", "technique")]
+        unique_together = [("config", "technique", "track")]
 
     def __str__(self):
         return f"{self.config}/{self.track.acronym}/{self.technique.short_name()}"

@@ -2,7 +2,7 @@
 {% load proposal_tags %}
 
 {% get_all_tracks as tracks %}
-{% get_technique_options settings=field.value as groups %}
+{% get_technique_options configs=field.value as groups %}
 
 <div class="controls {{ field_class }}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}
      id="{{ field.name }}-controls">
@@ -23,53 +23,44 @@
             </li>
         {% endfor %}
     </ul>
-    <div class="tab-content text-condensed" style="overflow-y: auto; height: 250px;">
+    <div class="tab-content text-condensed" style="overflow-y: auto; height: 300px;">
         {% for group, techniques in groups.items %}
             <div role="tabpanel" class="tab-pane {% if not forloop.counter0 %}active{% endif %}"
                  id="{{ field.name }}group-{{ forloop.counter0 }}">
 
-                <table class="config-list table table-hover table-condensed">
+                <table class="config-list table table-hover">
                     <thead>
                     <tr>
-                        <th>Techniques</th>
+                        <th class="col-auto">Techniques</th>
                         {% for track in tracks %}
-                            <th class="col-xs-1" title="{{ track }} Review Track">{{ track.acronym }}</th>{% endfor %}
-                        <th title="Technique Not Available" class="col-xs-1">N/A</th>
+                            <th class="text-center" title="{{ track }} Review Track">{{ track.acronym }}</th>
+                        {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
-                    {% for technique, value in techniques %}
+                    {% for technique, values in techniques %}
                         <tr>
                             <td>
                                 {{ technique }}
-                                <input type="hidden" name="{{ field.name }}.technique.{{ technique.pk }}"
-                                       value="{{ technique.pk }}">
+                                <input type="hidden"
+                                       name="{{ field.name }}__{{ technique.pk }}__technique"
+                                       value="{{ technique.pk }}"
+                                />
                             </td>
                             {% for track in tracks %}
                                 <td>
-                                    <div class="radio">
-                                        <label for="{{ field.name }}_{{ technique.pk }}_{{ track.acronym }}"
-                                        ><input name="{{ field.name }}.value.{{ technique.pk }}"
+                                    <div class="form-check ms-3">
+                                        <input name="{{ field.name }}__{{ technique.pk }}__value"
                                                 id="{{ field.name }}_{{ technique.pk }}_{{ track.acronym }}"
-                                                value="{{ track.acronym }}"
-                                                {% if value == track.acronym %}checked="checked"{% endif %}
-                                                type="radio"
-                                        ></label>
+                                                value="{{ track.pk }}"
+                                                {% if track.pk in values %}checked="checked"{% endif %}
+                                                type="checkbox"
+                                                aria-label="{{ technique }} and {{ track }} Review Track"
+                                                class="form-check-input"
+                                        />
                                     </div>
                                 </td>
                             {% endfor %}
-                            <td>
-                                <div class="radio">
-                                    <label for="{{ field.name }}_{{ technique.pk }}_NA">
-                                        <input name="{{ field.name }}.value.{{ technique.pk }}"
-                                               id="{{ field.name }}_{{ technique.pk }}_NA"
-                                               value=""
-                                               class="empty-value"
-                                               {% if not value %}checked="checked"{% endif %}
-                                               type="radio">
-                                    </label>
-                                </div>
-                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

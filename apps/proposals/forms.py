@@ -241,7 +241,7 @@ class OptOutForm(ModalModelForm):
 
 
 class FacilityConfigForm(ModalModelForm):
-    settings = forms.Field(required=False)
+    configs = forms.Field(required=False)
     accept = forms.TypedChoiceField(
         label="Accepting Proposals?",
         coerce=lambda x: x == 'True',
@@ -249,7 +249,7 @@ class FacilityConfigForm(ModalModelForm):
 
     class Meta:
         model = models.FacilityConfig
-        fields = ['comments', 'facility', 'accept', 'cycle', 'settings']
+        fields = ['comments', 'facility', 'accept', 'cycle', 'configs']
         widgets = {
             'comments': forms.Textarea(attrs={'rows': 3, }),
             'facility': forms.HiddenInput(),
@@ -281,7 +281,7 @@ class FacilityConfigForm(ModalModelForm):
             ),
             'facility',
             Div(
-                Field('settings', template="proposals/fields/facilityconfig.html"),
+                Field('configs', template="proposals/fields/facilityconfig.html"),
                 style="margin-top: 0.5em;"
             ),
             'comments',
@@ -289,9 +289,13 @@ class FacilityConfigForm(ModalModelForm):
 
     def clean(self):
         data = super().clean()
-        raw_settings = DotExpandedDict(self.data).with_lists().get('settings', {})
-        settings = list(zip(raw_settings.get('technique', []), raw_settings.get('value', [])))
-        data['settings'] = {int(k): v for k, v in settings if v}
+        raw_configs = DotExpandedDict(dict(self.data.lists())).with_lists().get('configs', {})
+        configs = {
+            (int(item['technique'][0]), int(v))
+            for item in raw_configs if 'value' in item and 'technique' in item
+            for v in item['value']
+        }
+        data['configs'] = list(configs)
         data['start_date'] = data['cycle'].start_date
         return data
 

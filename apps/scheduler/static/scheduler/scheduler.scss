@@ -608,6 +608,7 @@ $border-color_2: #ccc;
 
     background: rgba(0, 0, 0, 0.075);
     cursor: pointer;
+    pointer-events: none;
   }
 
   > .event-tools {
@@ -683,7 +684,11 @@ $border-color_2: #ccc;
   }
 }
 
+
 .idle {
+  .event-tools.active {
+    pointer-events: all;
+  }
   + {
     #src-panel {
       .src-instruction-ending, .src-instruction-starting {

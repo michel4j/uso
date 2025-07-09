@@ -904,40 +904,32 @@ class EditConfig(RolePermsViewMixin, ModalUpdateView):
     def get_initial(self):
         initial = super().get_initial()
         config = self.get_object()
-        initial['settings'] = {t.technique.pk: t.track.acronym for t in config.items.all()}
+        initial['configs'] = {(t.technique.pk, t.track.pk) for t in config.items.all()}
         return initial
 
     def form_valid(self, form):
         data = form.cleaned_data
-        settings = data.pop('settings', {})
-        settings_set = set(settings.items())
-        items_set = {(i.technique.pk, i.track.acronym) for i in self.object.items.all()}
-        settings_techniques = set(settings.keys())
-        items_techniques = set(x[0] for x in items_set)
-        tracks = {t.acronym: t for t in models.ReviewTrack.objects.all()}
+        configs = data.pop('configs', [])
+        configs_set = set(configs)
+        items_set = {
+            (i.technique.pk, i.track.pk) for i in self.object.items.all()
+        }
 
         # remove deleted items
-        to_delete = items_techniques - settings_techniques
-        self.object.items.filter(technique_id__in=to_delete).delete()
-
-        # update changed items
-        changed_items = defaultdict(list)
-        for pk, acronym in settings_set - items_set:
-            changed_items[tracks[acronym]].append(pk)
-        for track, pks in list(changed_items.items()):
-            self.object.items.filter(technique_id__in=pks).update(track=track)
+        to_delete = items_set - configs_set
+        for tech, track in to_delete:
+            self.object.items.filter(technique_id=tech, track_id=track).delete()
 
         # add new entries
         new_items = []
-        for pk in settings_techniques - items_techniques:
-            new_items.append(models.ConfigItem(technique_id=pk, config=self.object, track=tracks[settings[pk]]))
+        for tech, track in configs_set - items_set:
+            new_items.append(models.ConfigItem(technique_id=tech, config=self.object, track_id=track))
         models.ConfigItem.objects.bulk_create(new_items)
 
         # save configuration
         data['modified'] = timezone.localtime(timezone.now())
         models.FacilityConfig.objects.filter(pk=self.object.pk).update(**data)
-        msg = "Configuration modified. {} techniques deleted, {} added, and {} updated.".format(
-            len(to_delete), len(new_items), len(list(changed_items.keys())), )
+        msg = f"Configuration modified. {len(to_delete)} techniques deleted, {len(new_items)} added."
         messages.success(
             self.request, msg
         )
@@ -969,33 +961,40 @@ class AddFacilityConfig(RolePermsViewMixin, ModalCreateView):
             initial['cycle'] = models.ReviewCycle.objects.filter(open_date__gt=timezone.now()).first()
             initial['comments'] = config.comments
             initial['facility'] = self.facility
-            initial['settings'] = {t.technique.pk: t.track.acronym for t in config.items.all()}
+            initial['configs'] = {(t.technique.pk, t.track.pk) for t in config.items.all()}
         else:
             initial['accept'] = True
             initial['cycle'] = models.ReviewCycle.objects.filter(open_date__gt=timezone.now()).first()
             initial['comments'] = ""
             initial['facility'] = self.facility
-            initial['settings'] = {}
+            initial['configs'] = set()
         return initial
 
     def form_valid(self, form):
         data = form.cleaned_data
-        settings = data.pop('settings', {})
-        tracks = {t.acronym: t for t in models.ReviewTrack.objects.all()}
+        configs = data.pop('configs', set())
         # save configuration
         config = models.FacilityConfig.objects.create(**data)
+        configs_set = set(configs)
+        items_set = {
+            (i.technique.pk, i.track.pk) for i in config.items.all()
+        }
 
         # add new entries
         new_items = []
-        for pk, track_acronym in list(settings.items()):
-            new_items.append(models.ConfigItem(technique_id=pk, config=config, track=tracks[track_acronym]))
+        for tech, track in configs_set - items_set:
+            new_items.append(models.ConfigItem(technique_id=tech, config=config, track_id=track))
         models.ConfigItem.objects.bulk_create(new_items)
-        msg = "Configuration created. {} techniques added.".format(len(new_items))
+
+        # save configuration
+        data['modified'] = timezone.localtime(timezone.now())
+        models.FacilityConfig.objects.filter(pk=config.pk).update(**data)
+        msg = f"New configuration with {len(new_items)} items added."
         messages.success(
             self.request, msg
         )
         ActivityLog.objects.log(
-            self.request, config, kind=ActivityLog.TYPES.modify, description=msg
+            self.request, config, kind=ActivityLog.TYPES.create, description=msg
         )
         return JsonResponse({"url": ""})
 
