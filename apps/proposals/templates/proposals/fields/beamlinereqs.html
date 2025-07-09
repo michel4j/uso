@@ -179,7 +179,10 @@
                 }
             });
 
+            // Initialize the techniques and facilities based on the current cycle
             $('[name$="__facility"]').trigger('change');
+            $('[name$="__techniques"]').trigger('change');
+
         });
     </script>
 </div>

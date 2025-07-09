@@ -195,6 +195,7 @@ class EditSample(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
             return http.JsonResponse({
                 'pk': self.object.pk,
                 'name': str(self.object),
+                'event': 'uso:sample-updated',
             })
         else:
             return response

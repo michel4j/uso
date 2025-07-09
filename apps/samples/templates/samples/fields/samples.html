@@ -69,7 +69,7 @@
         });
 
         // manage non-hazard checkbox
-        var non_hz = $('#sample-hazard-controls  input[type="checkbox"][value="15"]');
+        let non_hz = $('#sample-hazard-controls  input[type="checkbox"][value="15"]');
         if (jQuery.isEmptyObject(allHazards)) {
             non_hz.removeAttr("disabled");
         } else {
@@ -92,83 +92,93 @@
 
     $('#{{field.name}}-search').change(function () {
         /* Add sample when select changes, then immediately reset select to "" */
-        const tgt_el = $(this);
-        if (tgt_el.val() != "") {
-            const url = "{% url 'sample-field' %}" + tgt_el.val() + "/{{field.name}}/";
+        const $searchInput = $(this);
+        if ($searchInput.val() !== "") {
+            const url = `{% url 'sample-field-root' %}${$searchInput.val()}/{{field.name}}/`;
             $.ajax(url).done(function (html) {
                 $('#{{field.name}}-list').append(html).slideDown(600);
-                tgt_el.find("option:selected").attr('disabled', 'disabled');
-                tgt_el.val("");
-                tgt_el.trigger('chosen:updated');
+                $searchInput.find("option:selected").attr('disabled', 'disabled');
+                $searchInput.val("");
                 update_{{field.name}}();
             });
         }
     });
-    $("#{{field.name}}-controls").on('click', '.hidden-remove:not(.active)', function () {
-        var el = $(this);
-        el.addClass('active');
-        el.popover({
-            title: 'Are you sure?',
-            placement: 'bottom',
-            content: "Click again while icon is active to remove."
-        });
-        el.popover('show');
-        setTimeout(function () {
-            el.removeClass('active');
-            el.popover('hide');
-        }, 3000);
+
+    $(document).on('uso:sample-created', function(event, data) {
+        // This event is triggered when a new sample is created
+        // It will add the new sample to the list and update the search select
+        const $searchInput = $("#{{field.name}}-search");
+        if (data.pk !== null) {
+            const $newOption = $("<option disabled></option");
+            $newOption.attr('value', data.pk);
+            $newOption.text(data.name);
+            $searchInput.append($newOption);
+
+            let url = `{% url 'sample-field-root' %}${data.pk}/{{field.name}}/`;
+            $.ajax(url).done(function (html) {
+                $('#{{field.name}}-list').append(html).slideDown(600);
+                update_{{field.name}}();
+            });
+        }
     });
-    $("#{{field.name}}-controls").on('click', '.hidden-remove.active', function () {
-        var tgt_el = $("#{{field.name}}-search");
-        var el = $(this).parent();
-        var opt_el = tgt_el.find('option[value="' + $(this).attr('data-sample-pk') + '"]');
-        opt_el.removeAttr('disabled');
-        tgt_el.trigger('chosen:updated');
-        el.slideUp(300, function () {
-            el.remove();
+
+    $(document).on('uso:sample-updated', function(event, data) {
+        // This event is triggered when a sample is edited
+        // It will replace the sample row in the list and update the select option
+        const $searchInput = $("#{{field.name}}-search");
+        if (data.pk !== null) {
+            const $option = $searchInput.find(`option[value="${data.pk}"]`);
+            $option.text(data.name);
+
+            let url = `{% url 'sample-field-root' %}${data.pk}/{{field.name}}/`;
+            let $row = $(`#sample-${data.pk}-row`);
+            let quantity = $row.find(`input[name="{{field.name}}__${data.pk}__quantity"]`).val();
+            $.ajax(url).done(function (html) {
+                $row.replaceWith(html);
+                $row.find(`input[name$="__quantity"]`).val(quantity);
+                update_{{field.name}}();
+            });
+        }
+    });
+
+    $("#{{field.name}}-controls").on('click', ".remove-button", function (e) {
+        let sampleID = $(this).data('sample-pk');
+        let $toDelete = $(this).closest(`#sample-${sampleID}-row`);
+
+
+        // show confirmation popover
+        const popover = new bootstrap.Popover(this, {
+            trigger: 'focus',
+            html: true,
+            placement: 'right',
+            sanitize: false,
+            title: "Remove Item?",
+            content: `
+                <div class="w-100 d-flex flex-row gap-3">
+                    <button class="btn btn-xs btn-secondary" role="button">Cancel</button>
+                    <button data-confirmed-remove="1" class="btn btn-xs btn-danger" role="button">Remove</button>
+                </div>`,
+        });
+        popover.show();
+
+        // single click on popover button removes the item, click outside closes the
+        // popover
+        $(document).one('click', '.popover button', function () {
+            if ($(this).is("[data-confirmed-remove]")) {
+                $toDelete.slideUp('fast', function () {
+                    $toDelete.remove();
+                    let $option = $(`#{{field.name}}-search option[value="${sampleID}"]`);
+                    if ($option.length) {
+                        // re-enable option in select
+                        $option.removeAttr('disabled');
+                    }
+                });
+            }
+            popover.dispose();
             update_{{field.name}}();
         });
     });
-    {#$('#{{field.name}}-new').click(function () {#}
-    {#    $('#modal-target').load("{% url 'add-sample-modal' %}", function () {#}
-    {#        $("#modalForm").on('hidden.bs.modal', function () {#}
-    {#            var tgt_el = $("#{{field.name}}-search");#}
-    {##}
-    {#            if ($(this).attr('data-new-object-pk') != null) {#}
-    {#                var new_opt = $("<option disabled></option");#}
-    {#                new_opt.attr('value', $(this).attr('data-new-object-pk'));#}
-    {#                new_opt.text($(this).attr('data-new-object-name'));#}
-    {#                tgt_el.append(new_opt);#}
-    {##}
-    {#                var url = "{% url 'sample-field' %}" + $(this).attr('data-new-object-pk') + "/{{field.name}}/";#}
-    {#                $.ajax(url).done(function (html) {#}
-    {#                    $('#{{field.name}}-list').append(html).slideDown(600);#}
-    {#                    tgt_el.trigger('chosen:updated');#}
-    {#                    update_{{field.name}}();#}
-    {#                });#}
-    {#            }#}
-    {#        });#}
-    {#    });#}
-    {#});#}
-    $('#{{field.name}}-controls').on('click', 'a.sample-edit-command', function () {
-        var el = $(this).closest(".sample-list-row");
-        var existing_quantity = el.find('input[name="{{field.name}}.quantity"]').val();
-        $('#modal-form').load($(this).attr('data-edit-url'), function () {
-            $("#modalForm").on('hidden.bs.modal', function () {
-                var tgt_el = $("#{{field.name}}-search");
-                var sample_pk = $(this).attr('data-new-object-pk');
-                if (sample_pk != null) {
-                    var url = "{% url 'sample-field' %}" + sample_pk + "/{{field.name}}/";
-                    var qel = el.find('input[name="{{field.name}}.quantity"]');
-                    var equant = qel.val();
-                    $.ajax(url).done(function (html) {
-                        $("#sample-" + sample_pk + "-row").replaceWith(html);
-                        $("#sample-" + sample_pk + "-row").find('input[name="{{field.name}}.quantity"]').val(equant);
-                    });
-                }
-            });
-        });
-    });
+
     $(function () {
         window.setTimeout(function () {
             update_{{field.name}}();
