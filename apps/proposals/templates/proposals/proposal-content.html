@@ -7,155 +7,156 @@
 
 <script src="{% static 'js/mathjax-config.js' %}" async></script>
 {% spaceless %}
-<div class="row section">
-    <div class="col-12 section-content">
-        <div class="text-condensed text-body-secondary"><strong>{{ reference }}</strong></div>
-        <h2 class="border-bottom">{{ proposal.title }}</h2>
-        <strong>{{ proposal.authors }}</strong>
-
-        {% if proposal.subject.keywords %}
-            <hr/>
-            Keywords: <em>{{ proposal.details.subject.keywords }}</em>
-            <hr/>
-        {% endif %}
-    </div>
-</div>
-
-{% if proposal.science.abstract %}
-<div class="row section">
-    <div class="col-12 section-content">
-        <h3>Abstract</h3>
-        {{ proposal.science.abstract|markdown }}
-    </div>
-</div>
-{% endif %}
-
-{% if proposal.science.scientific_merit %}
-<div class="row section">
-    <div class="col-12 section-content">
-        <h3>Scientific Description</h3>
-        {{ proposal.science.scientific_merit|safe }}
-    </div>
-</div>
-{% endif %}
-
-{% if proposal.science.team_capability %}
-<div class="row section">
-    <div class="col-12 section-content">
-        <h3>Capability &amp; Productivity of Research Team</h3>
-        {{ proposal.details.team_capability|markdown }}
-    </div>
-</div>
-{% endif %}
-
-{% if proposal.science.societal_impact %}
-<div class="row section">
-    <div class="col-12 section-content">
-        <h3>Societal, Economic and Industrial Relevance</h3>
-        {{ proposal.science.societal_impact|default:"<em>Not completed.</em>" }}
-    </div>
-</div>
-{% endif %}
-
-{% if proposal.science.beamline_reqs %}
-<div class="row section">
-    <div class="col-12 section-content">
-        <h3>Facilities &amp; Techniques</h3>
-        {% show_facility_requirements proposal.science.beamline_reqs cycle=proposal.science.first_cycle %}
-    </div>
-
-    {% get_selected_ancillaries data=proposal.science.ancillaries as ancillary %}
-    {% if ancillary.labs.exists or ancillary.equipment.exists %}
+    <div class="row section">
         <div class="col-12 section-content">
-            <h3>Ancillary Requirements:</h3>
-            {% if ancillary.labs.exists %}
-                <p><strong>Labs:</strong>&nbsp; {{ ancillary.labs|join:", " }}</p>
-            {% endif %}
-            {% if ancillary.equipment.exists %}
-                <p><strong>Equipment:</strong>&nbsp; {{ ancillary.equipment|join:", " }}</p>
+            <div class="text-condensed text-body-secondary"><strong>{{ reference }}</strong></div>
+            <h2 class="border-bottom">{{ proposal.title }}</h2>
+            <strong>{{ proposal.authors }}</strong>
+
+            {% if proposal.subject.keywords %}
+                <hr/>
+                Keywords: <em>{{ proposal.details.subject.keywords }}</em>
+                <hr/>
             {% endif %}
         </div>
-    {% endif %}
-</div>
-{% endif %}
-
-{% if not hide_safety %}
-<div class="row section">
-    <div class="col-sm-12 section-content">
-        <h3>Materials</h3>
-        <h4>Samples:</h4>
-        {% get_samples data=proposal.safety.samples as samples %}
-        {% include "samples/sample_table.html" %}
-        {% if proposal.safety.equipment %}
-            <h4>Equipment:</h4>
-            <hr class="hr-xxs"/>
-            {% include "proposals/equipment-list.html" with equipment=proposal.safety.equipment %}
-        {% endif %}
     </div>
-</div>
 
-
-<div class="row section">
-    <div class="col-sm-12 section-content">
-        <h4>Sample Preparation:</h4>
-        <div>{{ proposal.safety.handling|default:"<em>No sample handling onsite.</em>" }}</div>
-    </div>
-</div>
-<div class="row section">
-    <div class="col-sm-12 section-content">
-        <h4>Waste Generation:</h4>
-        {% if proposal.safety.waste %}
-            The following types of waste will be generated:
-            <ul>
-                {% for w in proposal.safety.waste %}
-                    <li>{{ w|waste_label }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <em>No waste will be generated.</em>
-        {% endif %}
-        {% if proposal.safety.disposal %}
-            <h4>Waste Disposal:</h4>
-            {{ proposal.safety.disposal }}
-        {% endif %}
-    </div>
-</div>
-{% endif %}
-
-{% if show_safety %}
-    {% if proposal.attachments.exists %}
+    {% if proposal.science.abstract %}
         <div class="row section">
-            <div class="col-sm-12 section-content">
-                <h3>Appendix: Attachments</h3>
-                <div class="alert alert-transparent text-center">
-                    {% for attachment in proposal.attachments.all %}
-                        {% if attachment.is_image %}
-                            <img src="{{ attachment.file.url }}" width="70%"/>
-                            <p>{{ attachment.description }} [{{ attachment.get_kind_display }}]</p>
-                        {% else %}
-                            {{ attachment.file|file_icon }}
-                            <a href="{{ attachment.file.url }}" target="_blank">{{ attachment.description }}
-                                [{{ attachment.get_kind_display }}]</a>
-                        {% endif %}
-                        {% if not forloop.last %}
-                            <hr class="hr-lg"/>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
+            <div class="col-12 section-content">
+                <h3>Abstract</h3>
+                {{ proposal.science.abstract|markdown }}
             </div>
         </div>
     {% endif %}
-{% else %}
-    {% if proposal.attachments.scientific.exists %}
-        <div class="row section">
-            {% if proposal.attachments.scientific.count %}
+
+    {% if content_mode != 'safety' %}
+        {% if proposal.science.scientific_merit %}
+            <div class="row section">
                 <div class="col-12 section-content">
-                    <h3>Appendix: Attachments</h3>
-                    {% include "proposals/attachments.html" with object=proposal %}
+                    <h3>Scientific Description</h3>
+                    {{ proposal.science.scientific_merit|safe }}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if proposal.science.team_capability %}
+            <div class="row section">
+                <div class="col-12 section-content">
+                    <h3>Capability &amp; Productivity of Research Team</h3>
+                    {{ proposal.details.team_capability|markdown }}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if proposal.science.societal_impact %}
+            <div class="row section">
+                <div class="col-12 section-content">
+                    <h3>Societal, Economic and Industrial Relevance</h3>
+                    {{ proposal.science.societal_impact|default:"<em>Not completed.</em>" }}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+    {% if proposal.science.beamline_reqs %}
+        <div class="row section">
+            <div class="col-12 section-content">
+                <h3>Facilities &amp; Techniques</h3>
+                {% show_facility_requirements proposal.science.beamline_reqs cycle=proposal.science.first_cycle %}
+            </div>
+
+            {% get_selected_ancillaries data=proposal.science.ancillaries as ancillary %}
+            {% if ancillary.labs.exists or ancillary.equipment.exists %}
+                <div class="col-12 section-content">
+                    <h3>Ancillary Requirements:</h3>
+                    {% if ancillary.labs.exists %}
+                        <p><strong>Labs:</strong>&nbsp; {{ ancillary.labs|join:", " }}</p>
+                    {% endif %}
+                    {% if ancillary.equipment.exists %}
+                        <p><strong>Equipment:</strong>&nbsp; {{ ancillary.equipment|join:", " }}</p>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
     {% endif %}
-{% endif %}
+
+    {% if not content_mode or content_mode == 'safety' or content_mode == 'technical' %}
+        <div class="row section">
+            <div class="col-sm-12 section-content">
+                <h3>Materials</h3>
+                <h4>Samples:</h4>
+                {% get_samples data=proposal.safety.samples as samples %}
+                {% include "samples/sample_table.html" %}
+                {% if proposal.safety.equipment %}
+                    <h4>Equipment:</h4>
+                    <hr class="hr-xxs"/>
+                    {% include "proposals/equipment-list.html" with equipment=proposal.safety.equipment %}
+                {% endif %}
+            </div>
+        </div>
+
+
+        <div class="row section">
+            <div class="col-sm-12 section-content">
+                <h4>Sample Preparation:</h4>
+                <div>{{ proposal.safety.handling|default:"<em>No sample handling onsite.</em>" }}</div>
+            </div>
+        </div>
+        <div class="row section">
+            <div class="col-sm-12 section-content">
+                <h4>Waste Generation:</h4>
+                {% if proposal.safety.waste %}
+                    The following types of waste will be generated:
+                    <ul>
+                        {% for w in proposal.safety.waste %}
+                            <li>{{ w|waste_label }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <em>No waste will be generated.</em>
+                {% endif %}
+                {% if proposal.safety.disposal %}
+                    <h4>Waste Disposal:</h4>
+                    {{ proposal.safety.disposal }}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if show_safety %}
+        {% if proposal.attachments.exists %}
+            <div class="row section">
+                <div class="col-sm-12 section-content">
+                    <h3>Appendix: Attachments</h3>
+                    <div class="alert alert-transparent text-center">
+                        {% for attachment in proposal.attachments.all %}
+                            {% if attachment.is_image %}
+                                <img src="{{ attachment.file.url }}" width="70%"/>
+                                <p>{{ attachment.description }} [{{ attachment.get_kind_display }}]</p>
+                            {% else %}
+                                {{ attachment.file|file_icon }}
+                                <a href="{{ attachment.file.url }}" target="_blank">{{ attachment.description }}
+                                    [{{ attachment.get_kind_display }}]</a>
+                            {% endif %}
+                            {% if not forloop.last %}
+                                <hr class="hr-lg"/>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        {% if proposal.attachments.scientific.exists %}
+            <div class="row section">
+                {% if proposal.attachments.scientific.count %}
+                    <div class="col-12 section-content">
+                        <h3>Appendix: Attachments</h3>
+                        {% include "proposals/attachments.html" with object=proposal %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
 {% endspaceless %}

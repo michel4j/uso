@@ -18,7 +18,7 @@
     <div id="review-grid" class="bg-secondary-subtle">
         <div id="review-content" class="page">
              <div id="review-proposal">
-                 {% include "proposals/proposal-content.html" %}
+                 {% include "proposals/proposal-content.html" with content_mode=review.type.kind %}
              </div>
             <div id="review-extras" class="bg-notes-warning">
                 {% include "proposals/review-tools.html" %}
