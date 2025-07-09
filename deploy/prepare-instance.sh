@@ -16,9 +16,9 @@ SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 # Check if buildah exists, then build the image
 echo "Building the Docker/Podman image..."
 if command -v buildah &> /dev/null; then
-  buildah bud -t usonline:latest .
+  buildah bud -t usonline:$(git describe) -t usonline:latest .
 elif command -v docker &> /dev/null; then
-  docker build -t usonline:latest .
+  docker build -t usonline:$(git describe) -t usonline:latest .
   docker image prune -f
 else
   echo "Neither buildah nor docker is installed. Exiting."
