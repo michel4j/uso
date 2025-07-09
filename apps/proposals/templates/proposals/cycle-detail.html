@@ -44,12 +44,7 @@
             <i class="bi-calendar-plus icon-md icon-fw"></i><br/>
             <span class="tool-label">Schedule</span>
         </a>
-        {% if object.state == object.STATES.assign %}
-            <a href="#0" data-modal-url="{% url "start-reviews" pk=object.pk %}" class="pull-right">
-                <i class="bi-skip-forward icon-md icon-fw"></i><br/>
-                <span class="tool-label">Start&nbsp;Reviews</span>
-            </a>
-        {% elif object.state >= object.STATES.schedule %}
+        {% if object.state >= object.STATES.schedule %}
             <a href='{% url "cycle-invoicing" pk=object.pk %}' class="pull-right">
                 <i class="bi-credit-card icon-md icon-fw"></i><br/>
                 <span class="tool-label">Invoicing</span>

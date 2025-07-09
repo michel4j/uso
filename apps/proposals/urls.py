@@ -45,7 +45,7 @@ urlpatterns = [
     path('cycles/<int:pk>/edit/', views.EditReviewCycle.as_view(), name="edit-review-cycle"),
 
     path('cycles/<int:pk>/assign/<int:stage>/', views.AssignReviewers.as_view(), name="assign-reviewers"),
-    path('cycles/<int:pk>/start-reviews/', views.StartReviews.as_view(), name="start-reviews"),
+    path('cycles/<int:cycle>/start-reviews/<int:pk>/', views.StartReviews.as_view(), name="start-reviews"),
     path('cycles/<int:cycle>/assigned/<int:stage>/', views.AssignedSubmissionList.as_view(), name="assigned-reviewers"),
     path('cycles/<int:cycle>/committee/<int:pk>/', views.ReviewerAssignments.as_view(), name="prc-reviews"),
     path('cycles/<int:cycle>/committee/<str:track>/', views.PRCList.as_view(), name="prc-members"),

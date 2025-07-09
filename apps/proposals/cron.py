@@ -47,30 +47,48 @@ class CycleStateManager(BaseCronJob):
     def do(self):
         from . import models
         today = timezone.localtime(timezone.now()).date()
-
+        logs = []
         # check and switch to open
-        models.ReviewCycle.objects.filter(
+        opened = models.ReviewCycle.objects.filter(
             open_date__lte=today, state=models.ReviewCycle.STATES.pending
         ).update(state=models.ReviewCycle.STATES.open)
+        if opened:
+            logs.append(f"{opened} review cycle(s) opened")
 
         # check and switch to assign
-        models.ReviewCycle.objects.filter(
+        assigned = models.ReviewCycle.objects.filter(
             close_date__lte=today, state=models.ReviewCycle.STATES.open,
         ).update(
             state=models.ReviewCycle.STATES.assign
         )
+        if assigned:
+            logs.append(f"{assigned} review cycle(s) switched to assign state")
+
+        # check and switch to review
+        reviewing = models.ReviewCycle.objects.filter(
+            start_date__lte=today, end_date__gte=today, state=models.ReviewCycle.STATES.assign,
+            submissions__state__gte=models.Submission.STATES.started
+        ).update(state=models.ReviewCycle.STATES.review)
+        if reviewing:
+            logs.append(f"{reviewing} review cycle(s) switched to review state")
 
         # check and switch to active
-        models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.active).filter(
+        active = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.active).filter(
             start_date__lte=today, end_date__gte=today
         ).update(state=models.ReviewCycle.STATES.active)
+        if active:
+            logs.append(f"{active} review cycle(s) switched to active state")
 
         # check and switch to archive
-        models.ReviewCycle.objects.exclude(
+        archived = models.ReviewCycle.objects.exclude(
             state=models.ReviewCycle.STATES.archive
         ).filter(end_date__lt=today).update(
             state=models.ReviewCycle.STATES.archive
         )
+        if archived:
+            logs.append(f"{archived} review cycle(s) archived")
+
+        return '\n'.join(logs)
 
 
 class StartReviews(BaseCronJob):

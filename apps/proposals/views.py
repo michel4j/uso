@@ -525,6 +525,8 @@ class ReviewList(RolePermsViewMixin, ItemListView):
 
 class StageReviewList(ReviewList):
     list_title = 'Stage Reviews'
+    template_name = "tooled-item-list.html"
+    tool_template = "proposals/stage-review-tools.html"
 
     def get_list_title(self):
         stage = models.ReviewStage.objects.filter(pk=self.kwargs.get('stage')).first()
@@ -533,6 +535,12 @@ class StageReviewList(ReviewList):
             return f"{cycle} / {stage} - Reviews"
         else:
             return self.list_title
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cycle'] = models.ReviewCycle.objects.filter(pk=self.kwargs.get('cycle')).first()
+        context['stage'] = models.ReviewStage.objects.filter(pk=self.kwargs.get('stage')).first()
+        return context
 
     def get_queryset(self, *args, **kwargs):
         self.queryset = models.Review.objects.filter(
@@ -1761,21 +1769,21 @@ class ReviewerOptions(RolePermsViewMixin, TemplateView):
 
 
 class StartReviews(RolePermsViewMixin, ModalConfirmView):
-    queryset = models.ReviewCycle.objects.filter(state=models.ReviewCycle.STATES.assign)
     template_name = "proposals/forms/reviews.html"
-    model = models.ReviewCycle
+    model = models.ReviewStage
     allowed_roles = USO_ADMIN_ROLES
 
     def confirmed(self, *args, **kwargs):
-        cycle = self.get_object()
-        if cycle:
-            # gather relevant scientific reviews
-            reviews = models.Review.objects.filter(cycle=cycle, state=models.Review.STATES.pending).scientific()
+        stage = self.get_object()
+        cycle = models.ReviewCycle.objects.filter(pk=self.kwargs.get('cycle')).first()
+        if cycle and stage:
+            # gather relevant reviews
+            reviews = models.Review.objects.filter(cycle=cycle, stage=stage, state=models.Review.STATES.pending)
             utils.notify_reviewers(reviews)
             reviews.update(state=models.Review.STATES.open)
-            models.ReviewCycle.objects.filter(pk=cycle.pk).update(state=models.ReviewCycle.STATES.review)
             ActivityLog.objects.log(
-                self.request, cycle, kind=ActivityLog.TYPES.modify, description='Scientific Reviewers Notified'
+                self.request, cycle, kind=ActivityLog.TYPES.modify,
+                description=f'Cycle {cycle}: Reviews for {stage.track} stage-{stage.position} started'
             )
         return JsonResponse({"url": ""})
 
