@@ -43,7 +43,7 @@
 
 
 {% block page-status-bar %}
-    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
+    <span class="status-badge badge bg-info text-condensed">{{ object.get_state_display }}</span>
     <div class="d-none d-sm-block">
         <small class="text-wide text-body-secondary">Lab:</small><br/>{{ object.lab.name }}
     </div>

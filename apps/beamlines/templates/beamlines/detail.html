@@ -85,9 +85,7 @@
 
 {% block page-status-bar %}
     {% if object.kind != 'village' %}
-        <h4>
-            <span class="badge bg-info text-condensed my-2">{{ object.get_state_display }}</span>
-        </h4>
+        <span class="status-badge badge bg-info text-condensed my-2">{{ object.get_state_display }}</span>
         <div class="my-2">
             {{ object.description }}
         </div>

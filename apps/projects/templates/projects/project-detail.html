@@ -69,7 +69,7 @@
     callout {% folio_status object.state draft='pending' success='active' danger='inactive' %}{% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ project.state.title }}</span></h3>
+    <span class="status-badge badge bg-info text-condensed">{{ project.state.title }}</span>
     <div>
         <small class="text-wide text-body-secondary">Project Leader:</small><br/>
         {{ project.get_leader|default:"&hellip;" }}<br/>

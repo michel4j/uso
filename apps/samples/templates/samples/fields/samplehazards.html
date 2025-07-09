@@ -7,21 +7,19 @@
 	<div class="row no-space hazard-controls" id="sample-hazard-controls">
 		{% get_pictograms as pictograms %}
 			{% for pic in pictograms %}
-		    <label class="checkbox pictogram pull-left col-sm-6 col-md-4 col-lg-3">
 		    	<input name="{{field.name}}"
 		       	id="{{field.name}}_{{forloop.counter}}"
-		       	value="{{pic.pk}}"
+		       	value="{{pic.pk}}" aria-label="{{field.name}}"
 		       	{% if pic.pk in data %}checked="checked"{% endif %}
 		       	type="checkbox">
-		       	<div class="hazard-input media"
-				    data-bs-toggle="popover"
-				    data-placement="bottom"
-				    data-trigger="hover"
-				    data-content="{{pic.description}}">
-					<img class="media-object pull-left" src="{% pictogram_url pic %}" alt="{{pic.code}}">
-					<div class="media-body">{{pic.name}}</div>
-                </div>
-			</label>
+                <label class="checkbox pictogram pull-left col-sm-6 col-md-6 col-lg-4"
+                    for="{{field.name}}_{{forloop.counter}}"
+                >
+		       	<span class="hazard-input">
+					<img src="{% pictogram_url pic %}" alt="{{pic.code}}">
+					<span>{{pic.name}}</span>
+                </span>
+			    </label>
 			{% endfor %}
 	</div>
 </div>

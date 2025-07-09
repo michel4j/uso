@@ -37,9 +37,8 @@
     {% folio_status object.state success='approved' draft='pending' danger='rejected' %}{% endblock %}
 {% block page-status-bar %}
 
-    <h3 class="my-0"><span
-            class="badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
-    </h3>
+    <span class="status-badge badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
+
     <div>
         <span class="stats-number pull-left">{{ material.project_samples.approved.count }}/{{ material.project_samples.count }}</span>
         <span class="stats-title pull-left">Samples<br/>Approved</span>

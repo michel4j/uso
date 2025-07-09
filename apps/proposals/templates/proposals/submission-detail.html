@@ -51,11 +51,9 @@
 {% block page-status-style %}callout callout-{% state_tag object.state info=object.STATES.started %}{% state_tag object.approved success=True danger=False %}{% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="my-0">
-        <span class="badge bg-{% state_tag object.state secondary=object.STATES.pending info=object.STATES.started %}{% state_tag object.approved success=True danger=False %} text-condensed">
-            {% if object.approved == True %}Approved{% elif object.approved == False %}Rejected{% else %}{{ object.get_state_display }}{% endif %}
-        </span>
-    </h3>
+    <span class="status-badge badge bg-{% state_tag object.state secondary=object.STATES.pending info=object.STATES.started %}{% state_tag object.approved success=True danger=False %} text-condensed">
+        {% if object.approved == True %}Approved{% elif object.approved == False %}Rejected{% else %}{{ object.get_state_display }}{% endif %}
+    </span>
     <div>
         <small class="text-wide text-body-secondary">First Cycle:</small>
         <br/>

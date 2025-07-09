@@ -32,9 +32,8 @@
 {% block page-status-style %}callout {% if object.available %}callout-success{% endif %}{% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="my-0"><span class="badge bg-info text-condensed">{% if object.available %}Available{% else %}Not
+    <span class="status-badge badge bg-info text-condensed">{% if object.available %}Available{% else %}Not
         Available{% endif %}</span>
-    </h3>
     <div>
         <small class="text-wide text-body-secondary">Workspaces:</small>
         <br/>{% for ws in lab.workspaces.all %}{{ ws.name }}{% if not forloop.last %}, {% endif %}{% endfor %}

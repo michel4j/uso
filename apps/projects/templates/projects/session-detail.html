@@ -71,7 +71,7 @@
 {% endblock %}
 
 {% block page-status-bar %}
-    <h3 class="my-0"><span class="badge bg-info text-condensed">{{ object.get_state_display }}</span></h3>
+    <span class="status-badge badge bg-info text-condensed">{{ object.get_state_display }}</span>
     <div>
         <small class="text-wide text-body-secondary">Beamline:</small><br/>{{ object.beamline.acronym }}
     </div>
