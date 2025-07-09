@@ -64,13 +64,27 @@ class CycleStateManager(BaseCronJob):
         if assigned:
             logs.append(f"{assigned} review cycle(s) switched to assign state")
 
-        # check and switch to review
-        reviewing = models.ReviewCycle.objects.filter(
+        # check and switch to review based on dates and if submissions are started
+        reviewing = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.review).filter(
             start_date__lte=today, end_date__gte=today, state=models.ReviewCycle.STATES.assign,
             submissions__state__gte=models.Submission.STATES.started
         ).update(state=models.ReviewCycle.STATES.review)
         if reviewing:
             logs.append(f"{reviewing} review cycle(s) switched to review state")
+
+        # check and switch to evaluation
+        evaluating = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.evaluation).filter(
+            due_date__lte=today, alloc_date__gte=today,
+        ).update(state=models.ReviewCycle.STATES.evaluation)
+        if evaluating:
+            logs.append(f"{evaluating} review cycle(s) switched to evaluation state")
+
+        # check and switch to scheduling
+        scheduling = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.schedule).filter(
+            alloc_date__lte=today, start_date__gt=today,
+        ).update(state=models.ReviewCycle.STATES.schedule)
+        if scheduling:
+            logs.append(f"{scheduling} review cycle(s) switched to scheduling state")
 
         # check and switch to active
         active = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.active).filter(

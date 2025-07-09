@@ -361,7 +361,7 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
         (1, 'open', _('Call Open')),
         (2, 'assign', _('Assigning')),
         (3, 'review', _('Review')),
-        (4, 'evaluation', _('Allocation')),
+        (4, 'evaluation', _('Evaluation')),
         (5, 'schedule', _('Scheduling')),
         (6, 'active', _('Active')),
         (7, 'archive', _('Archived')), )

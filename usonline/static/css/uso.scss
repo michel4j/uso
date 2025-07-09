@@ -1096,6 +1096,7 @@ $toast-icons: (
 #toast-container {
   width: 300px;
   bottom: 70px;
+  pointer-events: none;
 
   > .toast {
     display: flex;

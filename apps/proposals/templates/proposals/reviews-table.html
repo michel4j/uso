@@ -51,7 +51,7 @@
                 {% if rev.state >= rev.STATES.submitted %}
                 <i class="bi-lock icon-fw text-body-secondary"></i>
                 {% else %}
-                <a href="{% url 'edit-review' pk=rev.pk %}"><i class="bi-pencil icon-fw"></i></a>
+                <a href="{% url 'edit-review' pk=rev.pk %}" title="Edit Review" class="btn btn-xs btn-light"><i class="bi-pencil icon-fw"></i></a>
                 {% endif %}
             </td>
             {% endif %}
