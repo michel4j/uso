@@ -22,7 +22,6 @@ from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment, Clarificati
 from misc.utils import debug_value
 from publications.models import SubjectArea
 
-
 User = getattr(settings, "AUTH_USER_MODEL")
 USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", 'approval')
 
@@ -165,16 +164,17 @@ class SubmissionQuerySet(QuerySet):
         """
         annotations = {}
         for rev_type in ReviewType.objects.scored():
-
             annotations[f"{rev_type.code}_avg"] = Avg(
                 Case(
-                    When(Q(reviews__state__gte=Review.STATES.submitted, reviews__type=rev_type), then=F('reviews__score')),
+                    When(Q(reviews__state__gte=Review.STATES.submitted, reviews__type=rev_type),
+                         then=F('reviews__score')),
                     output_field=models.FloatField()
                 )
             )
             annotations[f"{rev_type.code}_std"] = StdDev(
                 Case(
-                    When(Q(reviews__state__gte=Review.STATES.submitted, reviews__type=rev_type), then=F('reviews__score')),
+                    When(Q(reviews__state__gte=Review.STATES.submitted, reviews__type=rev_type),
+                         then=F('reviews__score')),
                     output_field=models.FloatField()
                 )
             )
@@ -191,6 +191,27 @@ _submission_code_func = Concat(
 )
 
 
+class AccessPool(TimeStampedModel):
+    """
+    A pool of beam time that can accessed by projects.
+    """
+    name = models.CharField(max_length=128, unique=True)
+    description = models.TextField(null=True, blank=True)
+    role = models.CharField(max_length=128, blank=True, null=True)
+    is_default = models.BooleanField(default=False)
+
+    def delete(self, using=None, keep_parents=False):
+        """
+        Override delete to prevent deletion of default access pool.
+        """
+        if self.is_default:
+            raise ValueError("Cannot delete the default access pool.")
+        super().delete(using=using, keep_parents=keep_parents)
+
+    def __str__(self):
+        return self.name
+
+
 class Submission(TimeStampedModel):
     class STATES(models.IntegerChoices):
         pending = (0, 'Pending')
@@ -199,7 +220,7 @@ class Submission(TimeStampedModel):
         complete = (3, 'Complete')
 
     class TYPES(models.TextChoices):
-        user = ('user', 'User Access')
+        user = ('user', 'General Access')
         staff = ('staff', 'Staff Access')
         purchased = ('purchased', 'Purchased Access')
         beamteam = ('beamteam', 'Beam Team')
@@ -207,6 +228,7 @@ class Submission(TimeStampedModel):
 
     proposal = models.ForeignKey(Proposal, related_name='submissions', on_delete=models.CASCADE)
     kind = models.CharField(_('Access Type'), max_length=20, choices=TYPES.choices, default=TYPES.user)
+    pool = models.ForeignKey(AccessPool, related_name='submissions', on_delete=models.SET_DEFAULT, default=1)
     track = models.ForeignKey('ReviewTrack', on_delete=models.CASCADE, related_name='submissions')
     cycle = models.ForeignKey("ReviewCycle", on_delete=models.CASCADE, related_name='submissions')
     state = models.IntegerField(choices=STATES.choices, default=STATES.pending)
@@ -457,7 +479,7 @@ class FacilityConfigQueryset(models.QuerySet):
         elif not d:
             d = timezone.now().date()
 
-        pre_extras = {'facility__configs__start_date__lte':  d}
+        pre_extras = {'facility__configs__start_date__lte': d}
         return self.annotate(
             latest=Max(
                 Case(
@@ -480,7 +502,7 @@ class FacilityConfigQueryset(models.QuerySet):
         elif not d:
             d = timezone.now().date()
 
-        pre_extras = {'facility__configs__start_date__lte':  d}
+        pre_extras = {'facility__configs__start_date__lte': d}
         return self.annotate(
             latest=Max(
                 Case(
@@ -698,7 +720,6 @@ class ReviewTypeQueryset(models.QuerySet):
         keys = self.values_list('code', flat=True)
         print('KEYS', keys)
         for rev_type in ReviewType.objects.scored():
-
             annotations[f"{rev_type.code}_avg"] = Avg(
                 Case(
                     When(Q(reviews__is_complete=True, reviews__type=rev_type), then=F('reviews__score')),

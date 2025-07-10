@@ -36,6 +36,7 @@ class Project(DateSpanMixin, TimeStampedModel):
     TYPES = PROJECT_TYPES
     proposal = models.ForeignKey('proposals.Proposal', null=True, on_delete=models.SET_NULL, related_name="project")
     submissions = models.ManyToManyField('proposals.Submission', blank=True, related_name="project")
+    pool = models.ForeignKey('proposals.AccessPool', related_name='projects', on_delete=models.SET_DEFAULT, default=1)
     kind = models.CharField(_('Type'), max_length=20, choices=TYPES, default=TYPES.user)
     spokesperson = models.ForeignKey(User, related_name='+', null=True, on_delete=models.SET_NULL)
     leader = models.ForeignKey(User, related_name='+', null=True, on_delete=models.SET_NULL)

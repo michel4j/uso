@@ -61,6 +61,19 @@
                         <div class="track-stage-body">
                             {% stage_stats stage cycle %}
                         </div>
+                        <div class="track-stage-body small">
+                            {% if stage.auto_create %}
+                                Reviews created automatically,
+                            {% else %}
+                                Reviews created manually,
+                            {% endif %}
+                            {% if stage.auto_start %}
+                                and started automatically.
+                            {% else %}
+                                and started manually.
+                            {% endif %}
+
+                        </div>
                     </div>
                 {% endfor %}
                 <div class="track-stage d-none d-sm-flex">
