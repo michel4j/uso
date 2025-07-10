@@ -24,7 +24,7 @@ class BeamTimeSerializer(serializers.ModelSerializer):
 
     def get_name(self, obj):
         if obj.project:
-            return obj.project.code()
+            return obj.project.code
         else:
             return f'Reserved: {obj.comments}'
 

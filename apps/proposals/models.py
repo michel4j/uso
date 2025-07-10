@@ -227,7 +227,6 @@ class Submission(TimeStampedModel):
         education = ('education', 'Education/Outreach')
 
     proposal = models.ForeignKey(Proposal, related_name='submissions', on_delete=models.CASCADE)
-    kind = models.CharField(_('Access Type'), max_length=20, choices=TYPES.choices, default=TYPES.user)
     pool = models.ForeignKey(AccessPool, related_name='submissions', on_delete=models.SET_DEFAULT, default=1)
     track = models.ForeignKey('ReviewTrack', on_delete=models.CASCADE, related_name='submissions')
     cycle = models.ForeignKey("ReviewCycle", on_delete=models.CASCADE, related_name='submissions')

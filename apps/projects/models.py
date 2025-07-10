@@ -68,10 +68,9 @@ class Project(DateSpanMixin, TimeStampedModel):
         """
         return self.get_leader().last_name
 
+    @property
     def code(self):
         return f"{self.cycle.pk:0>2d}{self.get_kind_display()[0].upper()}{self.pk:0>5d}"
-
-    code.sort_field = 'id'
 
     def is_owned_by(self, user):
         return user in [self.spokesperson, self.leader, self.delegate]
@@ -422,7 +421,7 @@ class Material(TimeStampedModel):
 
     @property
     def code(self):
-        return "M{}/{}".format(self.project.code(), self.project.pk, )
+        return "M{}/{}".format(self.project.code, self.project.pk, )
 
     def __str__(self):
         return self.code
