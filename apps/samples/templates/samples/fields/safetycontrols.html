@@ -4,7 +4,7 @@
 	<div class="row no-space" id="safetycontrols-controls">
 		{% get_safety_controls data=data as control_types %}
         {% for kind, control_groups in control_types.items  %}
-            <div class="sample-type-group col-xs-12">
+            <div class="sample-type-group col-sm-12">
             <h5>{{kind}}</h5>
             {% for group, choices in control_groups.items %}
             <strong><em>{{group}}:</em></strong>

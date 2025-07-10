@@ -6,7 +6,7 @@
 
 <div class="cycle-box p-3 mb-2  bg-darken">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-sm-12">
             {% if owner or admin and object.state != 'inactive' %}
                 <span class="box-tools pull-right text-center">
                     <a href='{% url "edit-team" pk=project.pk %}' class="pull-right">
@@ -45,7 +45,7 @@
     <hr class="hr-xs">
     <div class="row">
         {% for member in object.team.all|dictsort:"first_name" %}
-        <div class="col-xs-6 col-sm-4 col-md-3">
+        <div class="col-sm-6 col-sm-4 col-md-3">
             <div class="p-3 mb-2 {% if user.email.lower == member.email.lower %}thick-border{% endif %} border-3d">
                 {% if user.email.lower == member.email.lower and member != object.spokesperson %}
                 <a data-modal-url="{% url 'remove-team' pk=project.pk user_pk=member.pk %}" class="pull-right"
@@ -93,7 +93,7 @@
         </div>
         {% endfor %}
         {% for email, member in object.extra_team.items %}
-        <div class="col-xs-6 col-sm-4 col-md-3">
+        <div class="col-sm-6 col-sm-4 col-md-3">
             <div class="p-3 mb-2  bg-danger text-body-secondary">
                 <img class="pull-left team-img" src="{% static 'img/blank-profile.png' %}" title="Not a Registered User">
                 <div class="overflow ellipsis" style="line-height: 1;">
@@ -112,7 +112,7 @@
     </div>
     <div style="font-size: 95%;">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-sm-12">
                     <i class="bi-info-circle text-primary icon-lg icon-fw pull-left"></i>To avoid delays, please ensure all participating team members have the appropriate permissions before your
                     scheduled beam time. Required permissions are indicated for each team member above. Please contact beamline staff once your project has been scheduled.
                     <hr class="hr-lg"/>

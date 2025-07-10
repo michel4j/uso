@@ -94,7 +94,7 @@
     {% if object.clarifications.count %}
         <div class="row collapse {% if project.clarifications.pending.exists %}in{% endif %}"
              id="project-clarifications">
-            <div class="col-xs-12">
+            <div class="col-sm-12">
                 <div class="p-3 bg-notes-warning">
                     <h4 class="my-0">Clarification Requests</h4>
                     <hr class="hr-xs"/>
@@ -108,7 +108,7 @@
         {% with object.beamline_allocations as allocations %}
             <div class="row">
                 {% for falloc in allocations %}
-                    <div class="col-xs-12 {% if allocations|length > 1 %}col-sm-6 {% elif allocations|length > 3 %} col-md-4{% endif %}">
+                    <div class="col-sm-12 {% if allocations|length > 1 %}col-sm-6 {% elif allocations|length > 3 %} col-md-4{% endif %}">
                         {% include "projects/allocation.html" %}
                     </div>
                 {% endfor %}

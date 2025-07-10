@@ -154,7 +154,7 @@ class ClaimPublicationList(RolePermsViewMixin, ItemListView):
     list_transforms = {'cite': _fmt_citations, 'beamlines': _format_beamlines}
     list_search = ['authors', 'title', 'date']
     ordering = ['kind', '-year', 'authors']
-    list_styles = {'cite': 'col-xs-10', }
+    list_styles = {'cite': 'col-sm-10', }
     list_title = 'Matched Publications'
 
     def get_queryset(self, *args, **kwargs):

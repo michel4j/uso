@@ -4,7 +4,7 @@
 {% load cycle_tags %}
 
 {% block page-title %}
-    <span class="d-none d-xs-inline">Facility &mdash; </span>
+    <span class="d-none d-sm-inline">Facility &mdash; </span>
     <span class="text-body-secondary">{{ object }}</span>
 {% endblock %}
 
@@ -113,7 +113,7 @@
 
         <div class="row g-2">
             {% for cycle in cycles %}
-                <div class="col-xs-12 col-sm-6">
+                <div class="col-sm-12 col-sm-6">
                     {% include "projects/beamline-cycle.html" %}
                 </div>
             {% endfor %}

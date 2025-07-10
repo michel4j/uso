@@ -18,12 +18,12 @@
                             <hr class="hr-xs"/>
                             {% for perm_code in permissions.all %}
                                 {% if member|has_perm:perm_code %}
-                                    <small class="col-xs-6">
+                                    <small class="col-sm-6">
                                         <strong class="text-success overflow ellipsis">{{ perm_code }}&nbsp;<i
                                                 class="bi-check2 icon-fw"></i></strong>
                                     </small>
                                 {% else %}
-                                    <small class="col-xs-6">
+                                    <small class="col-sm-6">
                                         <strong class="text-danger overflow ellipsis">{{ perm_code }}&nbsp;<i
                                                 class="bi-ban icon-fw"></i></strong>
                                     </small>
@@ -31,12 +31,12 @@
                             {% endfor %}
                             {% for perm_code in permissions.any %}
                                 {% if member|has_perm:perm_code %}
-                                    <small class="col-xs-6">
+                                    <small class="col-sm-6">
                                         <strong class="text-success overflow ellipsis">{{ perm_code }}&nbsp;<i
                                                 class="bi-check2 icon-fw"></i></strong>
                                     </small>
                                 {% else %}
-                                    <small class="col-xs-6">
+                                    <small class="col-sm-6">
                                         <strong class="text-warning overflow ellipsis">{{ perm_code }}&nbsp;<i
                                                 class="bi-ban icon-fw"></i></strong>
                                     </small>
@@ -45,24 +45,24 @@
                             {% if permissions.user %}
                                 {% if object.kind == object.TYPES.remote %}
                                     {% if member|is_remote_user:object.beamline %}
-                                        <small class="col-xs-6">
+                                        <small class="col-sm-6">
                                             <strong class="text-success overflow ellipsis">{{ object.beamline.acronym }}-REMOTE-USER&nbsp;<i
                                                     class="bi-check2 icon-fw"></i></strong>
                                         </small>
                                     {% else %}
-                                        <small class="col-xs-6">
+                                        <small class="col-sm-6">
                                             <strong class="text-danger overflow ellipsis">{{ object.beamline.acronym }}-REMOTE-USER&nbsp;<i
                                                     class="bi-ban icon-fw"></i></strong>
                                         </small>
                                     {% endif %}
                                 {% else %}
                                     {% if member|is_user:object.beamline %}
-                                        <small class="col-xs-6">
+                                        <small class="col-sm-6">
                                             <strong class="text-success overflow ellipsis">{{ object.beamline.acronym }}-USER&nbsp;<i
                                                     class="bi-check2 icon-fw"></i></strong>
                                         </small>
                                     {% else %}
-                                        <small class="col-xs-6">
+                                        <small class="col-sm-6">
                                             <strong class="text-danger overflow ellipsis">{{ object.beamline.acronym }}-USER&nbsp;<i
                                                     class="bi-ban icon-fw"></i></strong>
                                         </small>

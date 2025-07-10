@@ -88,7 +88,7 @@ class ProjectList(RolePermsViewMixin, ItemListView):
                     'kind',
                     BeamlineFilterFactory.new("beamlines")]
     list_search = ['proposal__title', 'proposal__team', 'proposal__keywords', 'id']
-    list_styles = {'title': 'col-xs-3', 'state': 'text-center'}
+    list_styles = {'title': 'col-sm-3', 'state': 'text-center'}
     list_transforms = {'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
     order_by = ['end_date', 'cycle', '-created']
@@ -106,7 +106,7 @@ class MaterialList(RolePermsViewMixin, ItemListView):
     list_search = ['project__title', 'project__spokesperson__username', 'project__id',
                    'project__spokesperson__last_name',
                    'project__spokesperson__first_name', 'id']
-    list_styles = {'title': 'col-xs-6'}
+    list_styles = {'title': 'col-sm-6'}
     link_url = "material-detail"
     order_by = ['-modified', 'state']
     list_title = 'Materials'
@@ -154,7 +154,7 @@ class UserProjectList(RolePermsViewMixin, ItemListView):
     list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind',
                     BeamlineFilterFactory.new("beamlines")]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
-    list_styles = {'title': 'col-xs-3', 'state': 'text-center'}
+    list_styles = {'title': 'col-sm-3', 'state': 'text-center'}
     list_transforms = {'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
     order_by = ['-end_date', '-created']
@@ -193,7 +193,7 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
     list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind',
                     BeamlineFilterFactory.new("beamlines")]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
-    list_styles = {'title': 'col-xs-3'}
+    list_styles = {'title': 'col-sm-3'}
     list_transforms = {'beamlines': _fmt_beamlines, 'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
     order_by = ['-cycle__start_date', '-created']
@@ -1833,7 +1833,7 @@ class InvoicingList(RolePermsViewMixin, ItemListView):
                   'invoice_country', 'invoice_code', 'shifts_allocated', 'shifts_used']
     list_filters = ['start_date', 'end_date', 'kind', BeamlineFilterFactory.new("beamlines")]
     list_search = ['proposal__title', 'proposal__team', 'id']
-    list_styles = {'title': 'col-xs-3', 'state': 'text-center', 'beamlines': 'col-xs-2'}
+    list_styles = {'title': 'col-sm-3', 'state': 'text-center', 'beamlines': 'col-sm-2'}
     list_transforms = {
         'beamlines': _fmt_beamlines,
     }

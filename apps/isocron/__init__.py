@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-import bisect
 import re
 import threading
 import traceback
 from datetime import time, date, datetime, timedelta
 
 import isodate
-import pytz
-from django.conf import settings
 from django.utils import timezone
 
 from misc.utils import load

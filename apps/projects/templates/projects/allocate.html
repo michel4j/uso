@@ -50,7 +50,7 @@
             {% for kind, pool in pools.items %}{% if kind != 'user' %}
                 <div class="alert alert-secondary">
                     <div class="row">
-                        <div class="col-xs-12">
+                        <div class="col-sm-12">
                             <div class="pull-left">
                                 <h4 class="text-condensed" style="margin: 0.25em 0;">
                                     {{ pool.name }} Pool
@@ -118,7 +118,7 @@
             {% endif %}{% endfor %}
             <div class="alert alert-info">
                 <div class="row">
-                    <div class="col-xs-12">
+                    <div class="col-sm-12">
                     <span class="pull-left">
                         <h4 style="margin: 0.25em 0;"><strong>Discretionary Shifts</strong></h4>
                         <small>
@@ -156,7 +156,7 @@
                 {% with pool=pools.user %}
 
                     <div class="row">
-                        <div class="col-xs-12">
+                        <div class="col-sm-12">
                     <span class="pull-left">
                     <h4 class="text-condensed" style="margin: 0.25em 0;">
                         {{ pool.name }} Pool

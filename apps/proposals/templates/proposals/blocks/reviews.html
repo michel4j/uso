@@ -21,7 +21,7 @@
             match you with the most appropriate proposals.
         </p>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-sm-12">
                 <a data-modal-url="{% url 'reviewer-opt-out' reviewer.pk %}" class="btn btn-sm btn-primary mb-1">
                     <i class="bi-x-lg icon-fw"></i>&nbsp;Opt-Out
                 </a>
@@ -34,7 +34,7 @@
     {% endif %}
     {% if reviews.pending.count %}
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <h5 class="my-0">
                         Review{{ reviews.pending.count|pluralize:",s" }} Needing Attention
                         <span class="badge bg-info pull-right">{{ reviews.pending.count }} of <span
@@ -44,7 +44,7 @@
             </div>
             <hr class="hr-xs bottom-edge"/>
             <div id="review-list" class="row scroll-box" style="max-height: 200px;">
-                <ul class="list-unstyled list-ruled col-xs-12">
+                <ul class="list-unstyled list-ruled col-sm-12">
                     {% for review in reviews.pending %}
                         <li class="text-condensed" style="line-height: 1.7;">
                             <a class="pull-right" href='{% url "edit-review" pk=review.pk %}'
@@ -99,7 +99,7 @@
             As an expert in your field, we would appreciate your help. Tell us where your expertise lies, and we will
             match you with appropriate proposals during the next cycle.
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <a href="{% url 'edit-reviewer-profile' %}" class="btn btn-sm btn-success pull-right">
                         <i class="bi-check2"></i>&emsp;I want to help!
                     </a>

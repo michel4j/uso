@@ -27,8 +27,8 @@
                 data-result-url="{% url 'compound-record' pk=substance.pk %}">
                 <i class="bi-box-arrow-down icon-fw icon-md"></i>
             </td>
-            <td>{{substance.name}}</td>
-            <td>{% show_pictograms substance.hazards %}</td>
+            <td style="vertical-align: middle;">{{substance.name}}</td>
+            <td>{% show_pictograms substance.hazards size="xs" %}</td>
         </tr>
         {% empty %}
         <tr>
@@ -42,7 +42,7 @@
 {% endwith %}
 <div class="row">
     <hr/>
-    <div class="col-xs-12 text-right">
+    <div class="col-sm-12 text-right">
         <button id="cancel-search" type="button" class="btn btn-secondary"><i class="bi-arrow-left-circle icon-fw"></i>&ensp;
             Back
         </button>

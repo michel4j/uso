@@ -1,9 +1,9 @@
 {% if cycle.state == cycle.STATES.assign  and techniques %}
-    <div class="col-xs-12" style="padding-top: 1em;">
+    <div class="col-sm-12" style="padding-top: 1em;">
         <h5>Reviewer Redundancy</h5>
         <hr class="hr-xxs"/>
     </div>
-    <div class="col-xs-12">
+    <div class="col-sm-12">
         <div class="row">
             {% for tech, counts in techniques.items %}
                 <div class="col-sm-12 col-md-6 col-lg-4">
@@ -20,7 +20,7 @@
             {% endfor %}
         </div>
     </div>
-    <div class="col-xs-12">
+    <div class="col-sm-12">
         <small class="text-body-secondary">
             <i class="bi-circle-fill text-info-emphasis"></i>&nbsp;Proposals &emsp;
             <i class="bi-circle-fill text-danger"></i>&nbsp;Reviewers

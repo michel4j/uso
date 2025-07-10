@@ -1,12 +1,7 @@
-import io
 from typing import Any
 
 from django.conf import settings
 from django.db.models import F, Q, Avg
-from django.http import HttpResponse
-from django.template import Context
-from django.template.loader import get_template
-from xhtml2pdf import pisa
 
 from beamlines.models import Facility
 from misc.utils import debug_value
@@ -16,18 +11,6 @@ from . import models
 USO_SCORE_VETO_FUNCTION = getattr(settings, "USO_SCORE_VETO_FUNCTION", lambda score: score > 4)
 USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
 USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", "approval")
-
-
-def render_to_pdf(template_src, context_dict):
-    template = get_template(template_src)
-    context = Context(context_dict)
-    html = template.render(context)
-    result = io.StringIO()
-
-    pdf = pisa.pisaDocument(io.StringIO(html.encode("ISO-8859-1")), result)
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return HttpResponse(f'We had some errors<pre>{html}</pre>')
 
 
 def to_int(val, default=0):

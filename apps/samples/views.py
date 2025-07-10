@@ -29,19 +29,26 @@ class HSDBSearch(RolePermsViewMixin, TemplateView):
     template_name = 'samples/inline-search.html'
 
     def get_context_data(self, **kwargs):
+        try:
+            from fuzzywuzzy import process
+        except ImportError:
+            process = None
+
         context = super().get_context_data(**kwargs)
         search_string = self.request.GET.get('q')
-        choices = {h.pk: h.name for h in models.HazardousSubstance.objects.all()}
+
         if search_string:
-            results = models.HazardousSubstance.objects.filter(Q(name__icontains=search_string))[:MAX_RESULTS]
-            """
-            # fuzzy search
-            hits = process.extract(search_string, choices, limit=MAX_RESULTS)
-            hit_ids = [v[-1] for v in hits]
-            samples = models.HazardousSubstance.objects.in_bulk(hit_ids)
-            results = filter(None, [samples.get(pk) for pk in hit_ids])
-            """
-            context['results'] = results
+            if not process:
+                substances = models.HazardousSubstance.objects.filter(Q(name__icontains=search_string))[:MAX_RESULTS]
+            else:
+                # Use fuzzywuzzy to find the best matches
+                choices = dict(models.HazardousSubstance.objects.values_list('pk', 'name'))
+                hits = process.extract(search_string, choices, limit=MAX_RESULTS)
+                id_list = [v[-1] for v in hits]
+                results = models.HazardousSubstance.objects.in_bulk(id_list)
+                substances = filter(None, [results.get(pk) for pk in id_list])
+
+            context['results'] = substances
             context['search_string'] = search_string
         return context
 

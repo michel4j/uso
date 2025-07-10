@@ -423,7 +423,7 @@ class PubWizardForm3(ModalForm):
                         'details')
 
         self.body.append(
-            Div(Div(warning, css_class="col-xs-12"), css_class="row"),
+            Div(Div(warning, css_class="col-sm-12"), css_class="row"),
             Accordion(
                 AccordionGroup("Review the Details", reference, active=False),
                 self.cls_details,

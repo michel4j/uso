@@ -87,7 +87,7 @@ class InstitutionList(RolePermsViewMixin, ItemListView):
     link_url = 'edit-institution'
     link_attr = 'data-modal-url'
     link_field = 'name'
-    list_styles = {'num_users': 'text-center', 'name': 'col-xs-4'}
+    list_styles = {'num_users': 'text-center', 'name': 'col-sm-4'}
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
 
 

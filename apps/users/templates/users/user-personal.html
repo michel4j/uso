@@ -57,7 +57,7 @@
         <div class="col-sm-6 col-lg-3">
         {% if object.address %}
             {% if object.address.api_format|api_coords %}
-                <div class="page-content col-xs-12" style="padding-left: 0; padding-right: 0;">
+                <div class="page-content col-sm-12" style="padding-left: 0; padding-right: 0;">
                 {% with object.address.api_format|api_coords as latlng %}
                     <div id="map_canvas" class="col-sm-5 col-md-7" style="height:241px; width: 100%; border:1px #ddd solid;"></div>
 
@@ -126,12 +126,12 @@
                     <i class="bi-check2 icon-fw"></i></span></small>
             <p>{{ acceptance.agreement.description }}</p>
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
 
                 </div>
             </div>
             <div class="row collapse" id="full-agreement">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <hr />
                     {{ acceptance.agreement.content|safe }}
                 </div>

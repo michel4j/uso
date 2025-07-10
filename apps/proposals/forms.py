@@ -116,7 +116,7 @@ class ReviewerForm(forms.Form):
                     '<h3>Techniques</h3>'
                     '<hr class="hr-xs"/>'
                 ),
-                css_class="col-xs-12"
+                css_class="col-sm-12"
             ),
             css_class="row"
         )
@@ -125,7 +125,7 @@ class ReviewerForm(forms.Form):
             tech_fields.append(
                 Div(
                     tech,
-                    css_class="col-xs-12 field-w2"
+                    css_class="col-sm-12 field-w2"
                 )
             )
 
@@ -173,7 +173,7 @@ class ReviewerForm(forms.Form):
                         '<h3>Subject Areas</h3>'
                         '<hr class="hr-xs"/>'
                     ),
-                    css_class="col-xs-12"
+                    css_class="col-sm-12"
                 ),
 
                 Div(Field('areas', css_class="selectize"), css_class="col-sm-12"),
@@ -230,10 +230,10 @@ class OptOutForm(ModalModelForm):
                 Div(
                     Div(
                         HTML("{% include 'proposals/forms/optout-header.html' %}"),
-                        css_class="col-xs-12"
+                        css_class="col-sm-12"
                     ),
-                    Div('comments', css_class="col-xs-12"),
-                    css_class="col-xs-12 gap-2"
+                    Div('comments', css_class="col-sm-12"),
+                    css_class="col-sm-12 gap-2"
                 ),
                 css_class="row"
             )
@@ -383,7 +383,7 @@ class ReviewCyclePoolForm(forms.ModelForm):
                         StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
                         css_class='pull-right'
                     ),
-                    css_class="col-xs-12"
+                    css_class="col-sm-12"
                 ),
                 css_class="modal-footer row"
             )

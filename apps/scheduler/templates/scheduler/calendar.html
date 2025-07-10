@@ -36,7 +36,7 @@
 						{% if tag_types %}
 						<li class="col-sm-12"><hr class="hr-xs"></li>
 							{% for tag in tag_types %}
-							<li id="tag-{{tag.pk}}" class="col-xs-3 tag cat-fg-{{forloop.counter0}}" data-tag="{{tag}}" data-cat="{{forloop.counter0}}">
+							<li id="tag-{{tag.pk}}" class="col-sm-3 tag cat-fg-{{forloop.counter0}}" data-tag="{{tag}}" data-cat="{{forloop.counter0}}">
 								<i class="bi-tag icon-fw"></i>&nbsp;{{tag}}
 							</li>
 							{% endfor %}

@@ -152,7 +152,7 @@ class HandOverForm(ModalModelForm):
                 Div(DateField('end_date'), css_class='col-sm-6'),
                 Div(Field('start_time', css_class="selectize"), css_class='col-sm-6'),
                 Div(Field('end_time', css_class="selectize"), css_class='col-sm-6'),
-                Div(Field("kind", css_class="selectize"), css_class="col-xs-12"),
+                Div(Field("kind", css_class="selectize"), css_class="col-sm-12"),
                 css_class="row"
             )
         )
@@ -261,11 +261,11 @@ class LabSessionForm(ModalModelForm):
                 css_class="row"
             ),
             Div(
-                Div(InlineCheckboxes("workspaces"), css_class="col-xs-12"),
+                Div(InlineCheckboxes("workspaces"), css_class="col-sm-12"),
                 css_class="row"
             ),
             Div(
-                Div(InlineCheckboxes("team"), css_class="col-xs-12"),
+                Div(InlineCheckboxes("team"), css_class="col-sm-12"),
                 css_class="row"
             )
         )
@@ -434,7 +434,7 @@ class SessionForm(ModalModelForm):
                         Div(Field("staff", css_class="selectize"), css_class="col-sm-12"),
                         css_class="row"
                     ),
-                    css_class="col-xs-12"
+                    css_class="col-sm-12"
                 ),
                 css_class="row modal-scroll-body"
             )
@@ -590,9 +590,9 @@ class AllocationForm(ModalModelForm):
                 Div(
                     'cycle', 'beamline', 'project',
                     Div('shifts', css_class="col-sm-12"),
-                    Div('comments', css_class="col-xs-12"),
+                    Div('comments', css_class="col-sm-12"),
                     Div(Field('last_cycle', css_class="selectize"), css_class="col-sm-12"),
-                    css_class="col-xs-12 gap-2"
+                    css_class="col-sm-12 gap-2"
                 ),
                 css_class="row"
             )
@@ -615,8 +615,8 @@ class ReservationForm(ModalModelForm):
             Div(
                 Div(
                     Div('shifts', css_class="col-sm-12"),
-                    Div('comments', css_class="col-xs-12"),
-                    css_class="col-xs-12 gap-2"
+                    Div('comments', css_class="col-sm-12"),
+                    css_class="col-sm-12 gap-2"
                 ),
                 css_class="row"
             )
@@ -660,8 +660,8 @@ class ShiftRequestForm(forms.ModelForm):
             Div(
                 Div('shift_request', css_class="col-sm-6"),
                 Div(Field('tags', css_class="selectize"), css_class="col-sm-6"),
-                Div('justification', css_class="col-xs-12"),
-                Div('comments', css_class="col-xs-12"),
+                Div('justification', css_class="col-sm-12"),
+                Div('comments', css_class="col-sm-12"),
                 Div(
                     PrependedText(
                         "good_dates",
@@ -714,7 +714,7 @@ class RequestAdminForm(forms.ModelForm):
         self.helper.form_action = self.request.path
         self.helper.layout = Layout(
             Div(
-                Div(Field('state', css_class="selectize"), css_class="col-xs-12"),
+                Div(Field('state', css_class="selectize"), css_class="col-sm-12"),
                 css_class="row narrow"
             ),
             Div(
@@ -725,7 +725,7 @@ class RequestAdminForm(forms.ModelForm):
                         'Save', type='submit', value='decline',
                         css_class='btn btn-primary pull-right'
                     ),
-                    css_class="col-xs-12"
+                    css_class="col-sm-12"
                 ),
                 css_class="modal-footer row"
             )
@@ -782,7 +782,7 @@ class DeclineForm(forms.ModelForm):
                                  css_class="btn btn-secondary pull-left"),
                     StrictButton('Yes, Decline', type='submit', value='decline',
                                  css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
+                    css_class="col-sm-12"
                 ),
                 css_class="modal-footer row"
             )

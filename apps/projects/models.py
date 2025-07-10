@@ -405,12 +405,17 @@ class Material(TimeStampedModel):
         }
 
     def pictograms(self):
-        from samples.models import Pictogram, Hazard
+        from samples.models import Pictogram
         from samples import utils
-        hazards = Hazard.objects.filter(pk__in=self.samples.values_list('hazards__pk', flat=True))
+        hazards = self.hazards()
         hazard_types = Pictogram.objects.filter(
             pk__in=self.samples.filter(is_editable=True).values_list('hazard_types__pk', flat=True))
         return utils.summarize_pictograms(hazards, types=hazard_types)
+
+    def hazards(self):
+        from samples.models import Hazard
+        hazards = Hazard.objects.filter(pk__in=self.samples.values_list('hazards__pk', flat=True))
+        return hazards
 
     def title(self):
         return self.project.title

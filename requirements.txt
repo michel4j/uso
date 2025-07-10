@@ -20,14 +20,10 @@ ortools~=9.12.4544
 numpy>=1.26.4
 scipy>=1.14.1
 phonenumbers~=8.13.49
-pycryptodome>=3.21.0
 python-dateutil~=2.9.0.post0
 psycopg2-binary
 markdown
-pytz~=2024.2
 requests~=2.32.3
-xhtml2pdf==0.2.16
-pycountry==18.5.26
 xlrd
 unicodecsv
 prettytable~=1.0.1

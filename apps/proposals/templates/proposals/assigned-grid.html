@@ -2,15 +2,15 @@
 {% with object as submission %}
 <div class="p-3 bg-transparent">
     <div  class="row">
-        <div class="col-xs-12 col-sm-8">
+        <div class="col-sm-12 col-sm-8">
             {% include "proposals/submission-snippet.html" %}
         </div>
-        <div class="col-xs-12 col-sm-4">
+        <div class="col-sm-12 col-sm-4">
             <div class="row no-space bg-transparent">
                 {% for review in submission.reviews|for_stage:stage %}
-                <div class="col-xs-12 grid-reviewer">
+                <div class="col-sm-12 grid-reviewer">
                 {% if not stage.kind.is_scientific %}
-                    <a href="#/" class="col-xs-8" data-modal-url="{% url  'show-compatibility' pk=review.pk %}">
+                    <a href="#/" class="col-sm-8" data-modal-url="{% url  'show-compatibility' pk=review.pk %}">
                         {% if review.reviewer.reviewer.committee %}
                             {{review.assigned_to}} <i class="bi-award text-warning"></i>
                         {% else %}
@@ -33,7 +33,7 @@
                 </div>
                 {% endfor %}
                 {%  if cycle.state > cycle.STATES.open and cycle.state < cycle.STATES.archived and not stage.auto_create %}
-                    <div class="col-xs-12 grid-reviewer">
+                    <div class="col-sm-12 grid-reviewer">
                         <a href="#/" title="Add Reviewer" data-modal-url="{% url 'add-reviewer-assignment' pk=submission.pk stage=stage.pk %}"
                            class="text-success pull-right"><i class="bi-plus-circle"></i>
                         </a>

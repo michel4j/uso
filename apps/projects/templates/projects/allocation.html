@@ -2,7 +2,7 @@
 {% load beamlines %}
 <div class="cycle-box p-3 bg-darken">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-sm-12">
         {% if owner or admin %}
             <div class="box-tools pull-right" style="">
                 {% if falloc.can_renew  %}
@@ -43,22 +43,22 @@
         <div class="col-sm-12">
             <div class="row text-condensed">
                 {%  if falloc.allocation.declined %}
-                    <div class="col-xs-4 text-center">
+                    <div class="col-sm-4 text-center">
                         <span class="stats-danger">Allocation<br/> Declined by User!</span>
                     </div>
                 {% elif not falloc.facility.flex_schedule %}
-                    <div class="col-xs-4">
+                    <div class="col-sm-4">
                         <span class="stats-number pull-left">{{falloc.allocation.shifts|floatformat}}</span>
                         <span class="stats-title pull-left">Allocated<br/>Shifts</span>
                     </div>
                 {%  endif %}
 
-                <div class="col-xs-4">
+                <div class="col-sm-4">
                     <span class="stats-number pull-left">{{falloc.totals.scheduled|floatformat}}</span>
                     <span class="stats-title pull-left">Scheduled<br/>Shifts</span>
 
                 </div>
-                <div class="col-xs-4">
+                <div class="col-sm-4">
                     <span class="stats-number pull-left">{{falloc.totals.used|floatformat}}</span>
                     <span class="stats-title pull-left">Used<br/>Shifts</span>
 

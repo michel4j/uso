@@ -1,4 +1,4 @@
-{% load folio %}
+{% load misc %}
 {% load static %}
 {% load samples_tags %}
 {% load project_tags %}
@@ -38,11 +38,11 @@
             {% endif %}
         </div>
 
-        <div class="d-flex flex-row gap-3 justify-items-between align-items-center callout {% folio_status material.state success='approved' draft='pending' danger='rejected' %}">
+        <div class="d-flex flex-row gap-3 justify-items-between align-items-center callout callout-{% state_tag material.state success='approved' secondary='pending' danger='rejected' %}">
             <h3 class="my-0">
-                <span class="badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
+                <span class="status-badge badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
             </h3>
-            <div>
+            <div class="align-self-center">
                 <span class="stats-number pull-left">{{ material.project_samples.approved.count }}/{{ material.project_samples.count }}</span>
                 <span class="stats-title pull-left">Samples<br/>Approved</span>
             </div>
@@ -55,18 +55,14 @@
                 {% endfor %}
             </div>
             <div class="ms-auto">
-                <div class="pictogram-box">
-                    {% for hz in material.pictograms %}
-                        <img src="{% pictogram_url hz %}" title="{{ hz.name }}">
-                    {% endfor %}
-                </div>
+            {% show_pictograms material.hazards size="md"%}
             </div>
         </div>
         <div class="card-body">
         {% with material.warnings as warnings %}
             {% if warnings %}
                 <div class="row">
-                    <div class="col-xs-12">
+                    <div class="col-sm-12">
                         <div class="alert alert-danger">
                             <ul class="list-ruled">
                                 {% for warning in warnings %}
@@ -80,7 +76,7 @@
         {% endwith %}
         {% if material.controls.count %}
             <div class="row text-wide">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <div class="alert alert-warning">
                         <ul class="list-ruled">
                             {% for control in material.controls.all %}

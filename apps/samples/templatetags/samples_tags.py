@@ -54,9 +54,9 @@ def pictogram_url(pictogram):
 
 
 @register.inclusion_tag('samples/pictograms.html')
-def show_pictograms(hazards, extras=None, types=None):
+def show_pictograms(hazards, extras=None, types=None, size="sm", stack=True):
     pictograms = utils.summarize_pictograms(hazards, extras=extras, types=types)
-    return {'pictograms': pictograms.all()}
+    return {'pictograms': pictograms.all(), 'stack': stack, 'size': size}
 
 
 @register.simple_tag(takes_context=True)

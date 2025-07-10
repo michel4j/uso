@@ -126,16 +126,16 @@ class PasswordResetForm(forms.Form):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field('email'), css_class="col-xs-12"
+                    Field('email'), css_class="col-sm-12"
                 ), Div(
-                    Field('last_name'), css_class="col-xs-6"
+                    Field('last_name'), css_class="col-sm-6"
                 ), Div(
-                    Field('username'), css_class="col-xs-6"
+                    Field('username'), css_class="col-sm-6"
                 ), css_class="row"
             ), FormActions(
                 Div(
-                    Submit('submit', 'Request Reset', css_class='bg-primary col-xs-6 col-sm-4 pull-right'),
-                    css_class="col-xs-12"
+                    Submit('submit', 'Request Reset', css_class='bg-primary col-sm-6 col-sm-4 pull-right'),
+                    css_class="col-sm-12"
                 ), css_class="row"
             ), )
 
@@ -205,10 +205,10 @@ class PasswordForm(forms.ModelForm):
             Div(
                 Div(
                     Field('password', placeholder="Password", css_class="form-control input-lg"),
-                    css_class="form-group left-inner-addon col-xs-12"
+                    css_class="form-group left-inner-addon col-sm-12"
                 ), Div(
                     Field('confirm', placeholder="Password again", css_class="form-control input-lg"),
-                    css_class="form-group left-inner-addon col-xs-12"
+                    css_class="form-group left-inner-addon col-sm-12"
                 ),
                 css_class="row"
             ), FormActions(
@@ -216,7 +216,7 @@ class PasswordForm(forms.ModelForm):
                     Submit('submit', 'Set Password', css_class='btn-primary ms-auto'),
                     css_class="col-12 d-flex"
                 ), Div(
-                    HTML('&nbsp;'), css_class="col-xs-12"
+                    HTML('&nbsp;'), css_class="col-sm-12"
                 ), css_class="row"
             ), )
 
@@ -253,16 +253,16 @@ class PasswordChangeForm(forms.Form):
                     PrependedText(
                         'old_password', mark_safe("<i class='bi-shield-lock login-form-icon'></i>"),
                         css_class="form-control"
-                    ), css_class="form-group left-inner-addon col-xs-12"
+                    ), css_class="form-group left-inner-addon col-sm-12"
                 ), Div(
                     PrependedText(
                         'new_password', mark_safe("<i class='bi-shield-lock login-form-icon'></i>"),
                         css_class="form-control"
-                    ), css_class="form-group left-inner-addon col-xs-12"
+                    ), css_class="form-group left-inner-addon col-sm-12"
                 ), Div(
                     PrependedText(
                         'confirm', mark_safe("<i class='bi-shield-lock login-form-icon'></i>"), css_class="form-control"
-                    ), css_class="form-group left-inner-addon col-xs-12"
+                    ), css_class="form-group left-inner-addon col-sm-12"
                 ), css_class="row"
             ), FormActions(
                 Submit('form2', 'Change Password', css_class='button white')
@@ -406,10 +406,10 @@ class LoginForm(AuthenticationForm):
             Div(
                 Div(
                     Field('username', placeholder="Username", css_class="form-control input-md"),
-                    css_class="form-group left-inner-addon col-xs-12"
+                    css_class="form-group left-inner-addon col-sm-12"
                 ), Div(
                     Field('password', placeholder="Password", css_class="form-control input-md"),
-                    css_class="form-group left-inner-addon col-xs-12"
+                    css_class="form-group left-inner-addon col-sm-12"
                 ),
                 css_class="row"
             ), FormActions(

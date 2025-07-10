@@ -1,11 +1,8 @@
-from datetime import datetime
-
-import pytz
 from django import template
 from django.db.models import Q, Sum, Count, Avg
 from django.db.models.functions import Coalesce
-from django.utils.safestring import mark_safe
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from projects import models
 

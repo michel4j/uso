@@ -8,7 +8,7 @@
 {% block panel_content %}
 <div class="p-3 bg-transparent">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-sm-12">
             <h4 class="my-0">
                 Active Project{{user.projects.active.count|pluralize:",s"}}
                 <span class="badge progress-bar-info pull-right">{{user.projects.active.count}}</span>&nbsp;
@@ -17,7 +17,7 @@
     </div>
     <hr class="hr-xs bottom-edge"/>
     <div class="row scroll-box" style="max-height: 300px;">
-    <ul class="col-xs-12 list-unstyled list-ruled">
+    <ul class="col-sm-12 list-unstyled list-ruled">
         {% for project in user.projects.active %}
         <li class="text-condensed" style="line-height: 1.7;">
             <a class="pull-right" href='{% url "project-detail" pk=project.pk %}'

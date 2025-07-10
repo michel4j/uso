@@ -5,11 +5,11 @@
 {% load samples_tags %}
 
 <div class="controls row {{ field_class }} {% if form_show_errors%}{% if field.errors %} has-error{% endif %}{% endif %}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
-	<div class="col-xs-12">
-		<label class="control-label col-xs-12" style="margin-bottom: 0; padding-left: 0;">{{ field.field.label }}</label>
+	<div class="col-sm-12">
+		<label class="control-label col-sm-12" style="margin-bottom: 0; padding-left: 0;">{{ field.field.label }}</label>
 		{% include 'bootstrap5/layout/help_text.html' %}
 	</div>
-	<div class="col-xs-12">
+	<div class="col-sm-12">
 		<table class="table table-condensed">
 				<thead>
 				<tr>

@@ -50,7 +50,7 @@ class SampleForm(ModalModelForm):
             Div(
                 Div(Field('kind', css_class="selectize"), css_class='col-sm-6'),
                 Div(Field('state', css_class="selectize"), css_class='col-sm-6'),
-                Div(InlineCheckboxes('hazard_types'), css_class='col-xs-12 field-w3'),
+                Div(InlineCheckboxes('hazard_types'), css_class='col-sm-12 field-w3'),
                 Div('description', css_class='col-sm-12'),
                 css_class="row"
             ),

@@ -8,8 +8,7 @@ import os
 import re
 import requests
 import subprocess
-from lxml import etree, html
-import itertools
+from lxml import etree
 from django.conf import settings
 from django.utils import timezone
 
@@ -25,6 +24,7 @@ KEYWORD_XPATH = {
 
 USO_PDB_FACILITIES = getattr(settings, 'USO_PDB_FACILITIES', {})
 GOOGLE_API_KEY = getattr(settings, 'GOOGLE_API_KEY', '')
+
 
 def join_names(authors):
     return '; '.join(a['name'] for a in authors)

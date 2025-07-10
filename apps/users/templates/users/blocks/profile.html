@@ -37,8 +37,8 @@
     {% if object.roles or object.permissions %}
             {% if object.roles %}
             <tr>
-                <td class="item text-left col-xs-1"><i class="bi-person-vcard icon-fw"></i></td>
-                <td class="col-xs-10">{% for r in object.roles %}<span title="Role: {{ r }}" class="badge bg-info me-1">{{r|role_label}}</span>{% endfor %}</td>
+                <td class="item text-left col-sm-1"><i class="bi-person-vcard icon-fw"></i></td>
+                <td class="col-sm-10">{% for r in object.roles %}<span title="Role: {{ r }}" class="badge bg-info me-1">{{r|role_label}}</span>{% endfor %}</td>
             </tr>
             {% endif %}
             {% if object.permissions %}

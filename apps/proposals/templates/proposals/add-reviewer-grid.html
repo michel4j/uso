@@ -43,14 +43,14 @@
                         <i class="bi-list-ol icon-fw"></i><br/>
                     </a>
                     <div class="row collapse" id="reviewer-workload-{{ reviewer.pk }}">
-                        <div class="col-xs-12">
+                        <div class="col-sm-12">
                             <hr class="hr-xs">
                             <h4><strong>{{ workload }}</strong> Review{{ workload|pluralize }}</h4>
                             {% reviewer_reviews as reviews %}
                             {% for review in reviews %}
-                                <span class="col-xs-2"
+                                <span class="col-sm-2"
                                       style="padding-left:0em; padding-right:0em;">{{ review|display_state }}</span>
-                                <span class="col-xs-10">{{ review.reference }}</span>
+                                <span class="col-sm-10">{{ review.reference }}</span>
                                 {% if rev.reviewer.reviewer.committee %}
                                     {{ rev.reviewer }} <i class="bi-award text-warning"></i>
                                 {% else %}

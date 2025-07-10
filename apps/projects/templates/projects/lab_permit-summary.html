@@ -3,12 +3,12 @@
 {% load project_tags %}
 
 <div class="row">
-    <div class="col-xs-12">
+    <div class="col-sm-12">
         <small class="text-wide text-body-secondary">Project:</small>
         <h3 class="my-0"><strong class="text-condensed"><a href="{% url 'lab-permit' session.pk %}">{{ session.project.code }}</a></strong></h3my-0>
     </div>
 
-    <div class="col-xs-12">
+    <div class="col-sm-12">
         <small class="text-wide text-body-secondary">Team:</small>
         <br/>
         {% for member in session.team.all %}
@@ -21,14 +21,14 @@
             >
         {% endfor %}
     </div>
-    <div class="col-xs-12">
+    <div class="col-sm-12">
         <small class="text-wide text-body-secondary">Period:</small>
         <br/>
         {{ session.start|date:"Y-m-d H:i" }} &ndash;
         {{ session.end|date:"Y-m-d H:i" }}
     </div>
     {% if session.equipment.count %}
-    <div class="col-xs-12">
+    <div class="col-sm-12">
         <small class="text-wide text-body-secondary">Equipment:</small>
         <br/>
         {% for eqmt in session.equipment.all %}{{ eqmt }}{% if not forloop.last %}

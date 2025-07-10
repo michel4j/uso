@@ -7,7 +7,7 @@
             {% for item in equipment %}
             <div id="{{field.name}}-{{forloop.counter0}}-equipment-container" class="p-3 mb-3 bg-white {% if 'rejected' in item.decision %}bg-danger{% endif %}">
                 <div class="row">
-                    <div class="col-xs-12">
+                    <div class="col-sm-12">
                         <h5 class="my-0 text-condensed"><strong>{{ item.name }}</strong></h5>
                         Manufacturer: <em class="text-body-secondary">{{ item.manufacturer|default:"N/C" }}</em>&emsp;
                         Model: <em class="text-body-secondary">{{ item.model|default:"N/C" }}</em>&emsp;

@@ -1124,7 +1124,7 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
         'facilities': _fmt_beamlines,
         'title': utils.truncated_title
     }
-    list_styles = {'title': 'col-xs-2'}
+    list_styles = {'title': 'col-sm-2'}
     admin_roles = USO_ADMIN_ROLES
     paginate_by = 25
 
@@ -1154,7 +1154,7 @@ class UserSubmissionList(RolePermsViewMixin, ItemListView):
         'facilities': _fmt_beamlines,
         'title': utils.truncated_title
     }
-    list_styles = {'title': 'col-xs-2'}
+    list_styles = {'title': 'col-sm-2'}
     admin_roles = USO_ADMIN_ROLES
     paginate_by = 25
 
@@ -1195,7 +1195,7 @@ class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
 
     }
 
-    list_styles = {'title': 'col-xs-2'}
+    list_styles = {'title': 'col-sm-2'}
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1499,7 +1499,7 @@ class AssignedSubmissionList(RolePermsViewMixin, ItemListView):
     list_search = ['proposal__title', 'proposal__id', 'proposal__team', 'proposal__keywords',
                    'proposal__spokesperson__last_name']
     link_url = "submission-detail"
-    list_styles = {'proposal': 'col-xs-6'}
+    list_styles = {'proposal': 'col-sm-6'}
     order_by = ['-cycle__start_date', '-created']
     list_title = 'Reviewer Assignments'
     allowed_roles = USO_ADMIN_ROLES
@@ -1526,7 +1526,7 @@ class ReviewerAssignments(RolePermsViewMixin, ItemListView):
     list_search = ['proposal__title', 'proposal__id', 'proposal__team', 'proposal__keywords',
                    'proposal__spokesperson__last_name']
     link_url = "submission-detail"
-    list_styles = {'proposal': 'col-xs-6'}
+    list_styles = {'proposal': 'col-sm-6'}
     order_by = ['-cycle__start_date', '-created']
     list_title = 'Reviewer Assignments'
     allowed_roles = USO_ADMIN_ROLES
@@ -1563,7 +1563,7 @@ class PRCAssignments(RolePermsViewMixin, ItemListView):
     list_search = ['proposal__title', 'proposal__id', 'proposal__team', 'proposal__keywords',
                    'proposal__spokesperson__last_name']
     link_url = "submission-detail"
-    list_styles = {'proposal': 'col-xs-6'}
+    list_styles = {'proposal': 'col-sm-6'}
     order_by = ['-cycle__start_date', '-created']
     list_title = 'Committee Assignments'
     allowed_roles = USO_ADMIN_ROLES

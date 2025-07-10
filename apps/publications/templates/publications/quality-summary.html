@@ -34,7 +34,7 @@ Publication Quality Metrics
 <div class="page-body">
 	{% for tbl in tables %}
 		<div class="row data-reports">
-			<div class="col-xs-12">
+			<div class="col-sm-12">
 				{% if forloop.first %}
                     {% render_plot tbl plot_type='stackedAreaChart' %}
                     {% if beamline %}

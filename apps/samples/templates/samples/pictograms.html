@@ -1,5 +1,5 @@
 {% load samples_tags %}
-<div class="pictogram-box pictogram-sm">
+<div class="pictogram-box pictogram-{{ size }} {% if stack %}stacked{% endif %}">
     {% for hz in pictograms %}
         <img src="{% pictogram_url hz %}" title="{{ hz.name }}" alt="{{ hz.name }}" class="{% if hz.extra %}extra-pictogram{% endif %}">
     {% endfor %}

@@ -3,8 +3,8 @@
 
 <div class="controls row {{ field_class }}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
     {% include 'bootstrap5/layout/field_errors_block.html' %}
-    <div class="col-xs-12">
-        <label class="form-label col-xs-12">{{ field.field.label }}</label>
+    <div class="col-sm-12">
+        <label class="form-label col-sm-12">{{ field.field.label }}</label>
 	</div>
     {% for choice in field.field.choices %}
     <div class="col-md-6 col-sm-12">

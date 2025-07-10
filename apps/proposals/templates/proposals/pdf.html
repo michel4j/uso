@@ -10,7 +10,7 @@
 {% block printed-content %}
 <div class="bg-transparent">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-sm-12">
                 {% if object.type.is_safety or object.type.is_approval %}
                     {% include "projects/safety-detail.html" with material=reference %}
                 {% else %}

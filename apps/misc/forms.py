@@ -14,7 +14,7 @@ class Fieldset(Div):
         if 'css_class' not in kwargs:
             kwargs['css_class'] = "row"
         super().__init__(
-            Div(HTML("<h3>{}</h3><hr class='hr-xs'/>".format(title)), css_class="col-xs-12"),
+            Div(HTML("<h3>{}</h3><hr class='hr-xs'/>".format(title)), css_class="col-sm-12"),
             *args,
             **kwargs
         )

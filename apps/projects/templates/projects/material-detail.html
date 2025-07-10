@@ -7,7 +7,7 @@
 {% load l10n %}
 {% load markup %}
 {% load static %}
-{% load folio %}
+{% load misc %}
 
 
 
@@ -34,12 +34,12 @@
 {% endblock %}
 
 {% block page-status-style %}callout
-    {% folio_status object.state success='approved' draft='pending' danger='rejected' %}{% endblock %}
+    callout-{% state_tag object.state success='approved' secondary='pending' danger='rejected' %}{% endblock %}
 {% block page-status-bar %}
 
     <span class="status-badge badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
 
-    <div>
+    <div class="align-self-center">
         <span class="stats-number pull-left">{{ material.project_samples.approved.count }}/{{ material.project_samples.count }}</span>
         <span class="stats-title pull-left">Samples<br/>Approved</span>
     </div>
@@ -58,11 +58,7 @@
         {% endfor %}
     </div>
     <div>
-        <div class="pictogram-box">
-            {% for hz in material.pictograms %}
-                <img src="{% pictogram_url hz %}" title="{{ hz.name }}">
-            {% endfor %}
-        </div>
+        {% show_pictograms material.hazards size="md" %}
     </div>
 {% endblock %}
 
@@ -79,7 +75,7 @@
     <div class="page-body">
         {% if material.controls.count %}
             <div class="row text-wide">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <div class="alert alert-warning">
                         <h3>Controls</h3>
                         <ul class="list-ruled">

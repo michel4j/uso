@@ -13,7 +13,7 @@
         </div>
         <div class="row">
             {% for object in object_list %}
-                <div class="grid-cell col-xs-12">
+                <div class="grid-cell col-sm-12">
                     <div class="claim-grid {% if object.pk in cycle_reviewers %}bg-success{% else %}{% endif %}">
                         <h5>
                             <strong>{{ object.user }}</strong><span>&mdash; {{ object.user.institution|default:"Unknown Institution" }}</span>

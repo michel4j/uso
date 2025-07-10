@@ -91,11 +91,11 @@ class AcceptanceForm(forms.ModelForm):
             Div(
                 Div(
                     HTML("{% include 'agreements/detail.html' %}"),
-                    css_class="col-xs-12"
+                    css_class="col-sm-12"
                 ),
                 Div(
                     Field("agreed"),
-                    css_class="col-xs-12"
+                    css_class="col-sm-12"
                 ),
                 css_class="row"
             ),

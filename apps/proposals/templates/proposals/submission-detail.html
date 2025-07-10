@@ -88,7 +88,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12 col-sm-6">
+            <div class="col-sm-12 col-sm-6">
                 <h4>Shifts Requested</h4>
                 {% for bl in object.proposal.details.beamline_reqs %}
                     <ul>
@@ -99,7 +99,7 @@
                     </ul>
                 {% endfor %}
             </div>
-            <div class="col-xs-12 col-sm-6">
+            <div class="col-sm-12 col-sm-6">
                 <h4>Techniques Requested</h4>
                 <ul class="list-unstyled list-ruled">
                     {% for item in object.techniques.all %}
@@ -118,16 +118,16 @@
         </div>
         {% if object.state == object.STATES.complete or admin and object.state == object.STATES.reviewed %}
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <div class="p-3 mb-3 border-3d">
                         <div class="row">
 
-                            <div class="col-sm-6 col-xs-12">
+                            <div class="col-sm-6 col-sm-12">
                                 <h4>Score Summary</h4>
                                 <hr class="hr-xs"/>
                                 <div class="row">
                                     {% for review_type, info in ranks.items %}
-                                        <div class="col-xs-3">
+                                        <div class="col-sm-3">
                                             <small class="text-wide text-body-secondary">{{ review_type }}</small><br/>
                                             <h2 class="my-0 text-center"
                                                 style="color: {{ info.score |color_scale }}">
@@ -137,7 +137,7 @@
                                 </div>
                                 <div class="row">
                                     {% for review_type, info in ranks.items %}
-                                        <div id="histogram" class="histogram col-xs-3"
+                                        <div id="histogram" class="histogram col-sm-3"
                                              data-histogram='{"values": {{ info.values|jsonify }}, "rank": {{ info.rank }}, "score": {{ info.score }} }'>
                                             <p class="text-center">All: <em>{{ info.rank | ordinal }} Percentile</em>
                                             </p>
@@ -146,7 +146,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-6 col-xs-12">
+                            <div class="col-sm-6 col-sm-12">
                                 <h4>Reviewer Comments</h4>
                                 <hr class="hr-xs"/>
                                 {{ object.comments | markdown }}
@@ -159,7 +159,7 @@
         {% if admin or committee_member %}
             {% if object.reviews.exists %}
             <div class="row section">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <h3>Reviews</h3>
                     {% include "proposals/reviews-table.html" with reviews=object.reviews.all %}
                 </div>
