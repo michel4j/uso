@@ -154,6 +154,15 @@ class Proposal(BaseFormModel):
             'attachments': self.attachments,
         }
 
+    def hazards(self):
+        """
+        Returns a list of hazards associated with this proposal.
+        """
+        from samples.models import Sample, Hazard
+        sample_ids = [item['sample'] for item in self.details.get('sample_list', [])]
+        hazard_ids = Sample.objects.filter(pk__in=sample_ids).values_list('hazards__pk', flat=True)
+        return Hazard.objects.filter(pk__in=hazard_ids)
+
 
 class SubmissionQuerySet(QuerySet):
 

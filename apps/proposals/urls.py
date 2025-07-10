@@ -69,4 +69,9 @@ urlpatterns = [
     path('review-types/<int:pk>/delete/', views.DeleteReviewType.as_view(), name="delete-review-type"),
     path('review-types/new/', views.AddReviewType.as_view(), name="add-review-type"),
 
+    path('access-pools/', views.AccessPoolList.as_view(), name="access-pool-list"),
+    path('access-pools/<int:pk>/edit/', views.EditAccessPool.as_view(), name="edit-access-pool"),
+    path('access-pools/<int:pk>/delete/', views.DeleteAccessPool.as_view(), name="delete-access-pool"),
+    path('access-pools/new/', views.AddAccessPool.as_view(), name="add-access-pool"),
+
 ]

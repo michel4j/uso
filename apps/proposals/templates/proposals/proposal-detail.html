@@ -111,14 +111,8 @@
     </div>
     <div>
         <small class="text-wide text-body-secondary">Hazards:</small><br/>
-        <div class="pictogram-box">
-            {% for hz in  proposal.details.sample_hazards|fetch_hazards %}
-                {% with 'samples/pictograms/'|add:hz.code|add:'.svg' as pictogram_svg %}
-                    <img src="{% static pictogram_svg %}" title="{{ hz.name }}">
-                {% endwith %}
-            {% empty %}
-                &emsp;&hellip;&emsp;
-            {% endfor %}
+        <div class="">
+            {% show_pictograms proposal.hazards size="md" %}
         </div>
     </div>
 {% endblock %}

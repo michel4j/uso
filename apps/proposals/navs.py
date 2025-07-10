@@ -107,13 +107,21 @@ class PRCAssignments(BaseNav):
         return allowed
 
 
+class AccessPools(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Access Pools'
+    roles = USO_ADMIN_ROLES
+    url = reverse('access-pool-list')
+    separator = True
+    weight = 100
+
+
 class ReviewTracks(BaseNav):
     parent = 'misc.Admin'
     label = 'Review Tracks'
-    separator = True
     roles = USO_ADMIN_ROLES
     url = reverse('review-track-list')
-    weight = 100
+    weight = 101
 
 
 class ReviewTypes(BaseNav):
@@ -121,7 +129,7 @@ class ReviewTypes(BaseNav):
     label = 'Review Types'
     roles = USO_ADMIN_ROLES
     url = reverse('review-type-list')
-    weight = 101
+    weight = 105
 
 
 class Techniques(BaseNav):
@@ -129,5 +137,4 @@ class Techniques(BaseNav):
     label = 'Techniques'
     roles = USO_ADMIN_ROLES
     url = reverse('technique-list')
-    weight = 102
-
+    weight = 110

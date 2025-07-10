@@ -600,3 +600,23 @@ class TechniqueForm(ModalModelForm):
                 css_class="row"
             )
         )
+
+
+class AccessPoolForm(ModalModelForm):
+    class Meta:
+        model = models.AccessPool
+        fields = ['name', 'description', 'role']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2, }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div("name", css_class="col-sm-6"),
+                Div("role", css_class="col-sm-6"),
+                Div("description", css_class="col-sm-12"),
+                css_class="row"
+            )
+        )

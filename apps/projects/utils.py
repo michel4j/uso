@@ -55,7 +55,7 @@ def create_project(submission):
     expiry = calculate_end_date(cycle.end_date, track.duration - 1)
     info = {
         'proposal': proposal,
-        'kind': submission.kind,
+        'pool': submission.pool,
         'spokesperson': proposal.spokesperson,
         'title': proposal.title,
         'cycle': cycle,

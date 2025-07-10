@@ -1114,8 +1114,8 @@ class DeleteReviewStage(RolePermsViewMixin, ModalDeleteView):
 class SubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    list_columns = ['title', 'code', 'spokesperson', 'cycle', 'kind', 'facilities', 'state']
-    list_filters = ['created', 'state', 'track', 'kind', 'cycle']
+    list_columns = ['title', 'code', 'spokesperson', 'cycle', 'pool', 'facilities', 'state']
+    list_filters = ['created', 'state', 'track', 'pool', 'cycle']
     list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
     link_url = "submission-detail"
     order_by = ['-cycle_id']
@@ -1144,8 +1144,8 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
 class UserSubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    list_columns = ['title', 'code', 'spokesperson', 'cycle', 'kind', 'facilities', 'state']
-    list_filters = ['created', 'state', 'track', 'kind', 'cycle']
+    list_columns = ['title', 'code', 'spokesperson', 'cycle', 'pool', 'facilities', 'state']
+    list_filters = ['created', 'state', 'track', 'pool', 'cycle']
     list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
     link_url = "submission-detail"
     order_by = ['-cycle_id']
@@ -1182,8 +1182,8 @@ class TrackSubmissionList(CycleSubmissionList):
 class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    list_columns = ['code', 'title', 'spokesperson', 'cycle', 'kind', 'facilities', 'state']
-    list_filters = ['created', 'state', 'track', 'kind']
+    list_columns = ['code', 'title', 'spokesperson', 'cycle', 'pool', 'facilities', 'state']
+    list_filters = ['created', 'state', 'track', 'pool']
     list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
     link_url = "submission-detail"
     order_by = ['-cycle_id']
@@ -2052,3 +2052,58 @@ class DeleteReviewTrack(RolePermsViewMixin, ModalDeleteView):
         )
         self.object.delete()
         return JsonResponse({"url": self.get_success_url()})
+
+
+class AccessPoolList(RolePermsViewMixin, ItemListView):
+    template_name = "item-list.html"
+    model = models.AccessPool
+    list_columns = ['name', 'description', 'role', 'is_default']
+    list_filters = ['created', 'modified', 'is_default']
+    list_search = ['name', 'description', 'role']
+    link_url = "edit-access-pool"
+    link_attr = 'data-modal-url'
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+    paginate_by = 20
+
+
+class AddAccessPool(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.AccessPoolForm
+    model = models.AccessPool
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('access-pool-list')
+
+
+class EditAccessPool(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.AccessPoolForm
+    model = models.AccessPool
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        obj = self.get_object()
+        # Deleting default access pools is not allowed
+        if not obj.is_default:
+            kwargs['delete_url'] = reverse("delete-access-pool", kwargs=self.kwargs)
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('access-pool-list')
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        models.AccessPool.objects.filter(pk=self.object.pk).update(**data)
+        return JsonResponse({"url": self.get_success_url()})
+
+
+class DeleteAccessPool(RolePermsViewMixin, ModalDeleteView):
+    model = models.AccessPool
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('access-pool-list')
