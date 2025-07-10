@@ -196,6 +196,13 @@ class Sample(TimeStampedModel):
         else:
             return utils.summarize_pictograms(self.hazards)
 
+    def all_hazards(self):
+        """
+        Return all hazards for this sample, including a guess from the hazard types.
+        """
+        hazards = self.hazards.all() | Hazard.objects.filter(pictograms__in=self.hazard_types.all())
+        return hazards.distinct()
+
     def precautions(self):
         return PStatement.objects.for_hazards(self.hazards.all())
 

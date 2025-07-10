@@ -64,10 +64,10 @@
             <br/>
             <span class="tool-label">Submissions</span>
         </a>
-        <a href="{% url "beamline-proposals" fac=object.acronym %}" class="float-end">
-            <i class="bi-journal-medical icon-md icon-fw"></i>
+        <a href="#0" data-modal-url="{% url "edit-facility-pools" acronym=object.acronym %}" class="float-end">
+            <i class="bi-diagram-3 icon-md icon-fw"></i>
             <br/>
-            <span class="tool-label">Proposals</span>
+            <span class="tool-label">Access&nbsp;Pools</span>
         </a>
     {% endif %}
 {% endblock %}
@@ -113,7 +113,7 @@
 
         <div class="row g-2">
             {% for cycle in cycles %}
-                <div class="col-sm-12 col-sm-6">
+                <div class="col-sm-6">
                     {% include "projects/beamline-cycle.html" %}
                 </div>
             {% endfor %}

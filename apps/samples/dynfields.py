@@ -39,6 +39,9 @@ class SampleHazards(FieldType):
     def is_multi_valued(self, subfield: str = None) -> bool:
         return True
 
+    def clean(self, value):
+        return list(map(int, value))
+
 
 class SafetyControls(FieldType):
     name = _("SafetyControls")

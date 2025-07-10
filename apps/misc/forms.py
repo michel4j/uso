@@ -199,3 +199,115 @@ class JSONDictionaryField(forms.MultiValueField):
 
         return dictionary
 
+
+class ModelPoolWidget(forms.MultiWidget):
+    """
+    A widget that displays an float input for model items and allows allocation
+    of percentage weights to each item with auto-update.
+    """
+    template_name = 'misc/widgets/pools.html'
+
+    def __init__(self, model, attrs=None):
+        # Create a list of widgets for each key-value pair.
+        # Each pair consists of a TextInput for the key and a NumberInput for the value.
+        self.model = model
+        self.entries = self.model.objects.in_bulk()
+        self.names = [str(item) for item in self.entries.values()]
+        self.items = list(self.entries.values())
+        widgets = []
+        for item in self.items:
+            attrs = {'readonly': True} if item.is_default else {}
+            widgets.append(
+                forms.TextInput(attrs=attrs)
+            )
+        super().__init__(widgets, attrs)
+
+    def decompress(self, value):
+        """
+        Takes a single dictionary value from the database and splits it
+        into a list of values for the individual widgets.
+
+        :param value: A python dictionary (or None).
+        :return: A list of values for the text/number inputs.
+        """
+        if isinstance(value, dict):
+            # Pad the dictionary with empty items to ensure we have enough
+            # items to match the number of widgets.
+
+            return [
+                value.get(pk, value.get(str(pk), ''))
+                for pk in self.entries.keys()
+            ]
+
+        # If there's no value, return a list of empty strings for all widgets.
+        return ['' * len(self.entries)]
+
+    def get_context(self, name, value, attrs):
+        """
+        Overrides the default get_context to group the widgets into pairs,
+        """
+        context = super().get_context(name, value, attrs)
+
+        # Replace the subwidgets with our grouped pairs
+        subwidgets = context['widget']['subwidgets']
+        context['widget']['subwidgets'] = [
+            (name, widget, item)
+            for name, widget, item in zip(self.names, subwidgets, self.items)
+        ]
+        return context
+
+
+class ModelPoolField(forms.MultiValueField):
+    """
+    A widget that displays an float input for model items and allows allocation
+    of percentage weights to each item with auto-update.
+    """
+
+    def __init__(self, **kwargs):
+        model = kwargs.pop('model', None)
+        if isinstance(model, str):
+            # If a string is provided, assume it's a model name and import it.
+            from django.apps import apps
+            model = apps.get_model(model)
+
+        elif not model or not issubclass(model, models.Model):
+            raise ValueError("ModelPoolField requires a valid Django model.")
+
+        # Define a FloatField for each pair.
+        self.entries = model.objects.in_bulk()
+        fields = []
+        for name, item in self.entries.items():
+            fields.append(forms.FloatField(required=False))
+
+        super().__init__(
+            fields=tuple(fields),
+            widget=ModelPoolWidget(model),
+            require_all_fields=False,
+            **kwargs
+        )
+
+    def compress(self, data_list):
+        """
+        Takes the list of cleaned values from the form's fields and
+        "compresses" them back into a single Python dictionary.
+
+        :param data_list: A list of cleaned data, e.g., ['a', 1.0, 'b', 2.0, '', None, ...]
+        :return: A dictionary of key:value pairs.
+        """
+        if not data_list:
+            return {}
+
+        dictionary = {}
+        # Iterate through the list
+        for i, pk in enumerate(self.entries.keys()):
+            # Get the value for this key
+            value = data_list[i]
+            if value not in (None, '', ' '):
+                if isinstance(value, str):
+                    value = value.strip()
+                dictionary[pk] = value
+
+        return dictionary
+
+
+

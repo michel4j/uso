@@ -12,10 +12,7 @@
     <span class="col-2" data-sample-type="{{ sample.kind }}">{{ sample.get_kind_display }}</span>
     <span class="col-1">{{ sample.get_state_display }}</span>
     <span class="col-3">
-	{% for hz in sample.hazard_types.all %}
-        <img class="media-object me-auto" width="28" height="28" alt="Hazards" src="{% pictogram_url hz %}"
-             title="{{ hz.name }}" data-sample-hazard="{{ hz.pk }}">
-    {% endfor %}
+        {% show_pictograms sample.all_hazards size="xs" stack=False %}
         <input type="hidden"
                name="{{ field_name }}__{{ sample.pk }}__sample"
                value="{{ sample.pk }}"

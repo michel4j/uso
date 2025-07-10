@@ -134,7 +134,7 @@ class PasswordResetForm(forms.Form):
                 ), css_class="row"
             ), FormActions(
                 Div(
-                    Submit('submit', 'Request Reset', css_class='bg-primary col-sm-6 col-sm-4 pull-right'),
+                    Submit('submit', 'Request Reset', css_class='bg-primary col-sm-6 col-md-4 pull-right'),
                     css_class="col-sm-12"
                 ), css_class="row"
             ), )

@@ -400,3 +400,21 @@ class LaboratoryHistory(RolePermsViewMixin, ItemListView):
                 self.check_admin()
         )
         return allowed
+
+
+class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.AllocationPoolForm
+    model = models.Facility
+    allowed_roles = USO_ADMIN_ROLES
+    slug_field = 'acronym'
+    slug_url_kwarg = 'acronym'
+
+    def check_allowed(self):
+        facility = self.get_object()
+        return (
+            super().check_allowed() or
+            facility.is_admin(self.request.user)
+        )
+
+    def get_success_url(self):
+        return reverse("facility-detail", kwargs={'acronym': self.object.acronym})

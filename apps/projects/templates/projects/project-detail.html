@@ -108,7 +108,7 @@
         {% with object.beamline_allocations as allocations %}
             <div class="row">
                 {% for falloc in allocations %}
-                    <div class="col-sm-12 {% if allocations|length > 1 %}col-sm-6 {% elif allocations|length > 3 %} col-md-4{% endif %}">
+                    <div class="{% if allocations|length > 1 %}col-sm-6{% elif allocations|length > 3 %}col-md-4{% else %}col-sm-12{% endif %}">
                         {% include "projects/allocation.html" %}
                     </div>
                 {% endfor %}

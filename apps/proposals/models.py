@@ -146,7 +146,7 @@ class Proposal(BaseFormModel):
             'science': self.details,
             'safety': {
                 'samples': self.details.get('sample_list', []),
-                'equipment': self.details.get('equipment', []),
+                'equipment': [eq for eq in self.details.get('equipment', []) if eq],
                 'handling': self.details.get('sample_handling', ''),
                 'waste': self.details.get('waste_generation', []),
                 'disposal': self.details.get('disposal_procedure', ''),
@@ -160,8 +160,10 @@ class Proposal(BaseFormModel):
         """
         from samples.models import Sample, Hazard
         sample_ids = [item['sample'] for item in self.details.get('sample_list', [])]
-        hazard_ids = Sample.objects.filter(pk__in=sample_ids).values_list('hazards__pk', flat=True)
-        return Hazard.objects.filter(pk__in=hazard_ids)
+        hazard_ids = set(Sample.objects.filter(pk__in=sample_ids).values_list('hazards__pk', flat=True))
+        return Hazard.objects.filter(
+            Q(pk__in=hazard_ids) | Q(pictograms__id__in=self.details.get('sample_hazards', []))
+        ).distinct()
 
 
 class SubmissionQuerySet(QuerySet):
