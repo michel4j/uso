@@ -600,6 +600,7 @@ class AllocationForm(ModalModelForm):
 
 
 class ReservationForm(ModalModelForm):
+
     class Meta:
         model = models.Reservation
         fields = ['shifts', 'comments']
@@ -609,10 +610,20 @@ class ReservationForm(ModalModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.body.title = 'Reserve Beamtime'
+        self.body.title =  'Reserve Beam Time'
         self.body.append(
             Div(
+                Div(
+                    HTML(
+                        "<div class='callout callout-info'>\n"
+                        "    <div class='lead'>Facility: {{facility.acronym}}&mdash;"
+                        "    <strong class='text-condensed'>{{facility.name}}</strong></div>\n"
+                        "    {% if pool %}\n"
+                        "    <div class='lead'>Beam Time Pool: <strong>{{pool.name}}</strong></div>\n"
+                        "    {% endif %}\n"
+                        "</div>\n"
+                    ),
+                ),
                 Div(
                     Div('shifts', css_class="col-sm-12"),
                     Div('comments', css_class="col-sm-12"),

@@ -1,5 +1,6 @@
 {% load allocation_tags %}
 {% load misc %}
+
 <div>
     <table class="table-hover table-condensed table">
         <tr>
@@ -9,10 +10,10 @@
             <th class="text-right" title="Requested Shifts">Request</th>
             <th class="text-right" title="Allocated Shifts">Award</th>
             <th>
-                <text title="Total Awarded Shifts" class="pull-right">Total</text>
+                <span title="Total Awarded Shifts" class="pull-right">Total</span>
             </th>
         </tr>
-        {% for p in pool.projects %}
+        {% for p in section.projects.all1 %}
             <tr class="pool-row {% allocation_style p pool.cutoff pool.decision %}">
                 <td>
                     {% if p.project.submissions.first.pk %}

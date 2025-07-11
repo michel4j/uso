@@ -10,6 +10,7 @@ def discretionary_time(data):
 
 @register.simple_tag(name='allocation_style')
 def allocation_style(allocation, cutoff, decision):
+    print(allocation, cutoff, decision)
     if allocation.score == 0 or allocation.score > decision:
         return ''
     elif allocation.score <= cutoff:

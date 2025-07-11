@@ -56,10 +56,7 @@ class Project(DateSpanMixin, TimeStampedModel):
     details = models.JSONField(default=dict, null=True, blank=True, editable=False)
 
     def __str__(self):
-        return "{}~{}".format(
-            self.code(),
-            self.leader_name(),
-        )
+        return f"{self.code}~{self.leader_name()}"
 
     def leader_name(self) -> str:
         """
@@ -782,12 +779,11 @@ class BeamTime(Event):
 
 
 class Reservation(TimeStampedModel):
-    TYPES = PROJECT_TYPES
     cycle = models.ForeignKey('proposals.ReviewCycle', on_delete=models.CASCADE, related_name="reservations")
     beamline = models.ForeignKey('beamlines.Facility', on_delete=models.CASCADE, related_name="reservations")
     shifts = models.PositiveIntegerField(default=0)
-    kind = models.CharField(max_length=20, choices=TYPES, null=True)
+    pool = models.ForeignKey('proposals.AccessPool', related_name='reservations', on_delete=models.SET_NULL, null=True)
     comments = models.TextField(blank=True, null=True)
 
     class Meta:
-        unique_together = ('beamline', 'cycle', 'kind')
+        unique_together = ('beamline', 'cycle', 'pool')

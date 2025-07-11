@@ -1068,7 +1068,7 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         allocations = cycle.allocations.filter(beamline=fac)
 
         total = schedule.normal_shifts()
-        unavailable = reservations.filter(kind__in=['', None]).aggregate(total=Coalesce(Sum('shifts'), 0))
+        unavailable = reservations.filter(pool__isnull=True).aggregate(total=Coalesce(Sum('shifts'), 0))
 
         fac_total = total - unavailable['total']
         context['facility'] = fac
@@ -1079,13 +1079,14 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         context['unavailable_shifts'] = unavailable['total']
         left_over = fac_total
         pools = {}
+        default_pool = AccessPool.objects.filter(is_default=True).first()
         for pool, percent in fac.access_pools():
-            reserved = reservations.filter(kind=pool).aggregate(total=Coalesce(Sum('shifts'), 0))
-            pool_allocations = allocations.filter(project__kind=pool).annotate(
+            reserved = reservations.filter(pool=pool).aggregate(total=Coalesce(Sum('shifts'), 0))
+            pool_allocations = allocations.filter(project__pool=pool).annotate(
                 priority=Case(
-                    When(score=0, then=Value('1')), default=Value('0'), output_field=IntegerField(), )
+                    When(score=0, then=Value(1)), default=Value(0), output_field=IntegerField(),
+                )
             )
-
             used = pool_allocations.aggregate(total=Coalesce(Sum('shifts'), 0))
             available = int(fac_total * percent / 100.0)
             left_over -= available
@@ -1094,20 +1095,26 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
             if pool.is_default:
                 context['discretionary'] += unused
             info = {
-                'shifts': available, 'name': pool.name, 'key': pool.pk, 'decision': 0, 'percent': percent,
+                'shifts': available, 'decision': 0, 'percent': percent,
                 'reserved': reserved,
                 'used': used, 'unused': unused, 'projects': pool_allocations.order_by('priority', 'score').distinct(),
             }
             pools[pool] = info
 
         context['discretionary'] += left_over
-        if pools.get('user', {}).get('projects', models.Project.objects.none()).count() > 1:
-            decider = AllocDecider(pools['user']['shifts'], extra=context['discretionary'])
-            final = functools.reduce(decider, pools['user']['projects'])
-            pools['user']['decision'] = final.decision
-            pools['user']['cutoff'] = final.cutoff
-            pools['user']['available'] = pools['user']['shifts'] + context['discretionary']
-        context['pools'] = pools
+        if pools[default_pool].get('projects', models.Allocation.objects.none()).count() > 1:
+
+            shifts = pools[default_pool]['shifts']
+            projects = pools[default_pool]['projects']
+            decider = AllocDecider(shifts, extra=context['discretionary'])
+            final = functools.reduce(decider, projects)
+            pools[default_pool]['decision'] = final.decision
+            pools[default_pool]['cutoff'] = final.cutoff
+            pools[default_pool]['available'] = pools[default_pool]['shifts'] + context['discretionary']
+        context['default'] = {
+            'pool': default_pool, 'section': pools[default_pool],
+        }
+        context['sections'] = pools
 
         return context
 
@@ -1164,21 +1171,24 @@ class EditReservation(RolePermsViewMixin, ModalCreateView):
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
-        fac = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
-        return super().check_allowed() or fac.is_admin(self.request.user)
+        self.facility = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
+        return super().check_allowed() or self.facility.is_admin(self.request.user)
 
     def get_success_url(self):
         return reverse('allocate-review-cycle', kwargs={'pk': self.kwargs['cycle'], 'fac': self.kwargs['fac']})
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['form_action'] = self.request.get_full_path()
-        return kwargs
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['facility'] = self.facility
+        context['cycle'] = ReviewCycle.objects.get(pk=self.kwargs['cycle'])
+        context['pool'] = AccessPool.objects.filter(pk=self.kwargs.get('pool', None)).first()
+        return context
 
     def get_initial(self):
         initial = super().get_initial()
         res = models.Reservation.objects.filter(
-            beamline__acronym=self.kwargs['fac'], cycle__pk=self.kwargs['cycle'], kind=self.kwargs.get('pool', None)
+            beamline__acronym=self.kwargs['fac'], cycle__pk=self.kwargs['cycle'],
+            pool=self.kwargs.get('pool', None)
         ).first()
         if res:
             initial.update(
@@ -1190,10 +1200,10 @@ class EditReservation(RolePermsViewMixin, ModalCreateView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        fac = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
+        facility = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
         cycle = ReviewCycle.objects.get(pk=self.kwargs['cycle'])
         res, created = models.Reservation.objects.get_or_create(
-            beamline=fac, cycle=cycle, kind=self.kwargs.get('pool', None)
+            beamline=facility, cycle=cycle, pool=self.kwargs.get('pool', None)
         )
         models.Reservation.objects.filter(pk=res.pk).update(**data)
         return JsonResponse(

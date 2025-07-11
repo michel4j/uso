@@ -45,7 +45,7 @@ urlpatterns = [
     path('lab-sessions/<int:pk>/cancel/', views.CancelLabSession.as_view(), name='cancel-lab-session'),
     path('lab-sessions/<int:pk>/', views.LabPermit.as_view(), name='lab-permit'),
 
-    path('reservations/<int:cycle>/<str:fac>/<str:pool>/', views.EditReservation.as_view(), name='edit-pool-reservation'),
-    path('reservations/<int:cycle>/<str:fac>/', views.EditReservation.as_view(), name='edit-reservation'),
+    path('reservations/<int:cycle>/<slug:fac>/<int:pool>/', views.EditReservation.as_view(), name='edit-pool-reservation'),
+    path('reservations/<int:cycle>/<slug:fac>/', views.EditReservation.as_view(), name='edit-reservation'),
 
 ]
