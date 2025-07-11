@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ -z "$1" ]; then
   echo "Usage: $0 <directory>"
   echo "Please provide a parent directory for the instance."
@@ -12,18 +14,7 @@ PARENT_DIR="$1"
 USONLINE_DIR="$PARENT_DIR/usonline"
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 
-# Build a docker image
-# Check if buildah exists, then build the image
-echo "Building the Docker/Podman image..."
-if command -v buildah &> /dev/null; then
-  buildah bud -t usonline:$(git describe) -t usonline:latest .
-elif command -v docker &> /dev/null; then
-  docker build -t usonline:$(git describe) -t usonline:latest .
-  docker image prune -f
-else
-  echo "Neither buildah nor docker is installed. Exiting."
-  exit 1
-fi
+. "$SCRIPT_DIR/build-image.sh" && echo "Image built successfully."
 
 
 if [ -d "$USONLINE_DIR" ]; then
@@ -41,8 +32,13 @@ mkdir -p "$USONLINE_DIR/local/logs" &&
 mkdir -p "$USONLINE_DIR/database"
 
 # Copy configuration files
+PASSWORD=$(openssl rand -base64 32 | tr -d '\n=')
+SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n=')
 cp "${SCRIPT_DIR}/settings_template.py" "$USONLINE_DIR/local/settings.py" &&
 cp "${SCRIPT_DIR}/custom.css" "$USONLINE_DIR/local/media/css/" &&
 cp "${SCRIPT_DIR}/docker-compose.yml" "$USONLINE_DIR/" &&
+sed -i "s|POSTGRES_PASSWORD\:.*$|POSTGRES_PASSWORD: ${PASSWORD}|g" $USONLINE_DIR/docker-compose.yml
+sed -i "s|'PASSWORD':.*$|'PASSWORD': '${PASSWORD}'|g" $USONLINE_DIR/local/settings.py
+sed -i "s|SECRET_KEY = .*$|SECRET_KEY = '${SECRET_KEY}'|g" $USONLINE_DIR/local/settings.py
 echo "Instance directory is ready. Please update 'local/settings.py' and "
 echo "'docker-compose.yml' as needed before starting the instance."

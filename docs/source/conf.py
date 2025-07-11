@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'User Services Online'
-copyright = '2024, Kathryn Janzen, Michel Fodje'
+copyright = '2025, Kathryn Janzen, Michel Fodje'
 author = 'Michel Fodje'
-release = '1.0.0'
+release = '25.08'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
