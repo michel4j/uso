@@ -30,7 +30,7 @@ from misc.utils import debug_value
 from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from proposals.filters import CycleFilterFactory
-from proposals.models import ReviewCycle, ReviewType
+from proposals.models import ReviewCycle, ReviewType, AccessPool
 from proposals.utils import truncated_title
 from roleperms.views import RolePermsViewMixin
 from samples.models import Sample
@@ -1055,8 +1055,8 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         self.facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
         self.cycle = ReviewCycle.objects.filter(pk=self.kwargs['pk']).first()
         allowed = (
-                          super().check_allowed() or self.facility.is_admin(self.request.user)
-                  ) and (self.cycle.state >= self.cycle.STATES.evaluation)
+            super().check_allowed() or self.facility.is_admin(self.request.user)
+        ) and (self.cycle.state >= self.cycle.STATES.evaluation)
         return allowed
 
     def get_context_data(self, **kwargs):
@@ -1079,9 +1079,7 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         context['unavailable_shifts'] = unavailable['total']
         left_over = fac_total
         pools = {}
-        for pool_type in models.PROJECT_TYPES:
-            pool = pool_type[0]
-            percent = fac.details.get('beamtime', {}).get(pool) or 0
+        for pool, percent in fac.access_pools():
             reserved = reservations.filter(kind=pool).aggregate(total=Coalesce(Sum('shifts'), 0))
             pool_allocations = allocations.filter(project__kind=pool).annotate(
                 priority=Case(
@@ -1093,10 +1091,10 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
             left_over -= available
             unused = available - (used['total'] + reserved['total'])
 
-            if pool != 'user':
+            if pool.is_default:
                 context['discretionary'] += unused
             info = {
-                'shifts': available, 'name': models.PROJECT_TYPES[pool], 'key': pool, 'decision': 0, 'percent': percent,
+                'shifts': available, 'name': pool.name, 'key': pool.pk, 'decision': 0, 'percent': percent,
                 'reserved': reserved,
                 'used': used, 'unused': unused, 'projects': pool_allocations.order_by('priority', 'score').distinct(),
             }
