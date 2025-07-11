@@ -6,7 +6,7 @@
         {% if owner or admin %}
             {% if config.is_editable %}
                 <span class="box-tools pull-right" style="">
-                 <a href='#0' data-modal-url='{% url "edit-facility-config" pk=config.pk %}' class="pull-right">
+                 <a href='#0' data-modal-url='{% url "edit-facility-config" pk=config.pk%}' class="pull-right">
                     <i class="bi-pencil icon-fw"></i><br/>
                     <span class="tool-label">Edit</span>
                  </a>

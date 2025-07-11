@@ -5,7 +5,7 @@ from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from django.http import HttpResponseRedirect, Http404, HttpResponseNotFound
+from django.http import HttpResponseRedirect, Http404, HttpResponseNotFound, JsonResponse
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, detail
@@ -14,6 +14,7 @@ from itemlist.views import ItemListView
 from rest_framework import generics, permissions
 from rest_framework.parsers import JSONParser
 
+from misc.utils import debug_value
 from projects.models import LabSession
 from proposals.filters import TechniqueFilterFactory
 from roleperms.views import RolePermsViewMixin
@@ -263,15 +264,6 @@ class EditFacility(RolePermsViewMixin, edit.UpdateView):
         self.model.objects.filter(pk=self.object.pk).update(**data)
         return HttpResponseRedirect(self.get_success_url())
 
-    def get_initial(self):
-        initial = super().get_initial()
-        facility = self.get_object()
-        beamtime = facility.details.get('beamtime', {})
-        for f in ['staff', 'maintenance', 'purchased', 'beamteam', 'user']:
-            initial[f'time_{f}'] = beamtime.get(f, 0)
-        initial['public_support'] = facility.details.get('public_support', False)
-        return initial
-
 
 class UserSupportAPI(EventUpdateAPI):
     model = models.UserSupport
@@ -401,20 +393,3 @@ class LaboratoryHistory(RolePermsViewMixin, ItemListView):
         )
         return allowed
 
-
-class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
-    form_class = forms.AllocationPoolForm
-    model = models.Facility
-    allowed_roles = USO_ADMIN_ROLES
-    slug_field = 'acronym'
-    slug_url_kwarg = 'acronym'
-
-    def check_allowed(self):
-        facility = self.get_object()
-        return (
-            super().check_allowed() or
-            facility.is_admin(self.request.user)
-        )
-
-    def get_success_url(self):
-        return reverse("facility-detail", kwargs={'acronym': self.object.acronym})

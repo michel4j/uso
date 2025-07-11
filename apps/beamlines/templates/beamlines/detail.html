@@ -36,7 +36,7 @@
     {% if "employee" in user.roles %}
     {% endif %}
     {% if admin or user|is_staff:object %}
-        <a href="{% url "beamline-projects" fac=object.acronym %}" class="float-end">
+        <a href="{% url "facility-projects" slug=object.acronym %}" class="float-end">
             <i class="bi-briefcase icon-md icon-fw"></i>
             <br/>
             <span class="tool-label">Projects</span>
@@ -51,7 +51,7 @@
             <a href='{% url "facility-config-detail" pk=object.pk %}' class="float-end">
                 <i class="bi-sliders2-vertical icon-md icon-fw"></i>
                 <br/>
-                <span class="tool-label">Techniques</span>
+                <span class="tool-label">Settings</span>
             </a>
         {% endif %}
         <a href="{% url 'beamline-schedule' object.acronym %}" class="float-end">
@@ -59,15 +59,10 @@
             <br/>
             <span class="tool-label">Calendar</span>
         </a>
-        <a href="{% url "beamline-submissions" fac=object.acronym %}" class="float-end">
-            <i class="bi-journal-check icon-md icon-fw"></i>
+        <a href="{% url "facility-proposals" slug=object.acronym %}" class="float-end">
+            <i class="bi-journal-medical icon-md icon-fw"></i>
             <br/>
-            <span class="tool-label">Submissions</span>
-        </a>
-        <a href="#0" data-modal-url="{% url "edit-facility-pools" acronym=object.acronym %}" class="float-end">
-            <i class="bi-diagram-3 icon-md icon-fw"></i>
-            <br/>
-            <span class="tool-label">Access&nbsp;Pools</span>
+            <span class="tool-label">Proposals</span>
         </a>
     {% endif %}
 {% endblock %}

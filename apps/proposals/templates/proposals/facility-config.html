@@ -1,11 +1,12 @@
 {% extends 'page.html' %}
 {% load crispy_forms_tags %}
 {% load beamlines %}
+{% load misc %}
 
 {% block page-pretitle %}Facility Configs{% endblock %}
 
 {% block page-title %}
-    <strong>{{ object.acronym }}</strong> &mdash; Available Techniques
+    <strong>{{ object.acronym }}</strong> &mdash; Techniques and Pool Allocation
 {% endblock %}
 
 {% block page-subtitle %}
@@ -19,23 +20,42 @@
 {% block page-tools %}
     {% if object.kind != 'village' %}
         {% if owner or admin %}
-            <a href='#0' data-modal-url='{% url "add-facility-config" pk=object.pk %}' class="pull-right">
+            <a href='#0' data-modal-url='{% url "add-facility-config" slug=object.acronym %}' class="pull-right">
                 <i class="bi-plus-lg icon-md icon-fw"></i><br/>
                 <span class="tool-label">Add Config</span>
+            </a>
+            <a href="#0" data-modal-url="{% url "edit-facility-pools" slug=object.acronym %}" class="float-end">
+                <i class="bi-diagram-3 icon-md icon-fw"></i>
+                <br/>
+                <span class="tool-label">Access&nbsp;Pools</span>
             </a>
         {% endif %}
     {% endif %}
 {% endblock %}
 
-{% block page-content %}
+{% block page-status-style %}callout callout-info{% endblock %}
+{% block page-status-bar %}
+    {% with object.active_config as config %}
+        <span class="status-badge badge bg-{% state_tag config.accept success=True warning=False %} text-condensed">
+        {% if config.accept %}Accepting{% else %}Not Accepting{% endif %}
+        </span>
+        {% for pool, percent in object.access_pools %}
+            <div class="col-auto">
+                <small class="text-body-secondary">{{ pool.name }}</small><br/>
+                <span class="stats-number">{{ percent }}%</span>
+            </div>
+        {% endfor %}
+    {% endwith %}
+{% endblock %}
 
+{% block page-content %}
     {% for config in object.configs.pending %}
         {% include "proposals/config-box.html" with pending=True %}
     {% endfor %}
     {% include "proposals/config-box.html" with config=object.active_config active=True %}
     {% for config in object.configs.expired %}
         {% if forloop.first %}<h3>Previous Configurations</h3>{% endif %}
-         {% include "proposals/config-box.html" %}
+        {% include "proposals/config-box.html" %}
     {% endfor %}
 
 {% endblock %}

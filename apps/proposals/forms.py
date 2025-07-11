@@ -13,11 +13,11 @@ from django.utils.translation import gettext as _
 from dynforms.forms import DynModelForm
 from dynforms.utils import DotExpandedDict
 
-from misc.forms import JSONDictionaryField
-from misc.utils import debug_value
+from misc.forms import JSONDictionaryField, ModelPoolField
 from . import models
 from . import utils
 from .models import get_user_model
+from beamlines.models import Facility
 
 
 class DateField(AppendedText):
@@ -617,6 +617,25 @@ class AccessPoolForm(ModalModelForm):
                 Div("name", css_class="col-sm-6"),
                 Div("role", css_class="col-sm-6"),
                 Div("description", css_class="col-sm-12"),
+                css_class="row"
+            )
+        )
+
+
+class AllocationPoolForm(ModalModelForm):
+    pools = ModelPoolField(model='proposals.AccessPool', required=False, label="Pool Allocations")
+
+    class Meta:
+        fields = ['flex_schedule']
+        model = Facility
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.title = f"Pool Allocations - {self.instance.acronym}"
+        self.body.append(
+            Div(
+                Div('flex_schedule', css_class="col-sm-12"),
+                Div('pools', css_class="col-sm-12"),
                 css_class="row"
             )
         )

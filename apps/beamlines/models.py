@@ -91,6 +91,18 @@ class Facility(TimeStampedModel):
         tree = itertools.chain(child.dtrace(stop=stop) for child in self.children.all())
         return [self] + flatten(*tree)
 
+    def access_pools(self):
+        """
+        Returns a list of access pools for this facility and its parents.
+        """
+        from proposals.models import AccessPool
+        pool_types = AccessPool.objects.in_bulk()
+        pool_allocation = self.details.get('pools', {})
+        return [
+            (obj, pool_allocation.get(pk, pool_allocation.get(str(pk), 0)))
+            for pk, obj in pool_types.items()
+        ]
+
     def is_user(self, user, remote=False):
         perms = {
             True: ['{}-REMOTE-USER', '{}-USER'],

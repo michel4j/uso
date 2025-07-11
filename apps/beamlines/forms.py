@@ -117,27 +117,3 @@ class WorkspaceForm(ModalModelForm):
                 css_class="row"
             )
         )
-
-
-class AllocationPoolForm(ModalModelForm):
-    allocation = ModelPoolField(model='proposals.AccessPool', required=False, label="Pool Allocations")
-
-    class Meta:
-        fields = ['flex_schedule']
-        model = models.Facility
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.body.title = f"Pool Allocations - {self.instance.acronym}"
-        self.body.append(
-            Div(
-                Div('flex_schedule', css_class="col-sm-12"),
-                Div('allocation', css_class="col-sm-12"),
-                css_class="row"
-            )
-        )
-
-    def clean(self):
-        allocation = self.cleaned_data.pop('allocation', {})
-        print(allocation)
-        return self.cleaned_data

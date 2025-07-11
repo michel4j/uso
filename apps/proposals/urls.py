@@ -31,13 +31,13 @@ urlpatterns = [
     path('reviews/<int:cycle>/<int:stage>/', views.StageReviewList.as_view(), name='stage-review-list'),
     path('reviews/<int:pk>/compatibility/', views.ReviewCompatibility.as_view(), name="show-compatibility"),
 
-    path('facilities/<int:pk>/configs/new/', views.AddFacilityConfig.as_view(), name='add-facility-config'),
-    path('facilities/<int:pk>/configs/<int:config>/edit/', views.AddFacilityConfig.as_view(), name='edit-facility-config'),
+    path('facilities/<slug:slug>/configs/new/', views.AddFacilityConfig.as_view(), name='add-facility-config'),
     path('facilities/configs/<int:pk>/edit/', views.EditConfig.as_view(), name='edit-facility-config'),
     path('facilities/configs/<int:pk>/delete/', views.DeleteConfig.as_view(), name='delete-facility-config'),
-    path('facilities/<slug:fac>/submissions/', views.BeamlineSubmissionList.as_view(), name='beamline-submissions'),
-    path('facilities/<slug:fac>/submissions/<int:cycle>/', views.BeamlineSubmissionList.as_view(), name='beamline-submissions'),
-    path('facilities/<slug:fac>/proposals/', views.FacilityDraftProposals.as_view(), name='beamline-proposals'),
+    path('facilities/<slug:slug>/pools/', views.EditFacilityPools.as_view(), name='edit-facility-pools'),
+    path('facilities/<slug:slug>/submissions/', views.FacilitySubmissionList.as_view(), name='facility-submissions'),
+    path('facilities/<slug:slug>/submissions/<int:cycle>/', views.FacilitySubmissionList.as_view(), name='facility-cycle-submissions'),
+    path('facilities/<slug:slug>/proposals/', views.FacilityDraftProposals.as_view(), name='facility-proposals'),
 
     path('cycles/', views.ReviewCycleList.as_view(), name="review-cycle-list"),
     path('cycles/<int:pk>/', views.ReviewCycleDetail.as_view(), name="review-cycle-detail"),

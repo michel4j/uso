@@ -2309,6 +2309,10 @@ body.registration {
       min-width: 100%;
     }
   }
+  span.stats-number {
+    font-size: 24px;
+    line-height: 24px;
+  }
   @include narrow-branding();
   @include narrow-sidebar();
 }

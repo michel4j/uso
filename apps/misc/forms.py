@@ -277,7 +277,7 @@ class ModelPoolField(forms.MultiValueField):
         self.entries = model.objects.in_bulk()
         fields = []
         for name, item in self.entries.items():
-            fields.append(forms.FloatField(required=False))
+            fields.append(forms.IntegerField(required=False))
 
         super().__init__(
             fields=tuple(fields),

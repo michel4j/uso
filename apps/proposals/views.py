@@ -116,7 +116,7 @@ class FacilityDraftProposals(ProposalList):
 
     def check_allowed(self):
         allowed = super().check_allowed()
-        facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
+        facility = Facility.objects.filter(acronym__iexact=self.kwargs['slug']).first()
         if not facility:
             return False
         allowed |= facility.is_admin(self.request.user)
@@ -124,7 +124,7 @@ class FacilityDraftProposals(ProposalList):
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
-        facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
+        facility = Facility.objects.filter(acronym__iexact=self.kwargs['slug']).first()
         self.queryset = queryset.filter(state=models.Proposal.STATES.draft).filter(
             details__beamline_reqs__contains=[{'facility': facility.pk}]
         )
@@ -945,7 +945,7 @@ class AddFacilityConfig(RolePermsViewMixin, ModalCreateView):
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
-        self.facility = models.Facility.objects.get(pk=self.kwargs['pk'])
+        self.facility = models.Facility.objects.get(acronym=self.kwargs['slug'])
         return super().check_allowed() or self.facility.is_admin(self.request.user)
 
     def get_form_kwargs(self):
@@ -1179,7 +1179,7 @@ class TrackSubmissionList(CycleSubmissionList):
         return qset
 
 
-class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
+class FacilitySubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
     list_columns = ['code', 'title', 'spokesperson', 'cycle', 'pool', 'facilities', 'state']
@@ -1204,7 +1204,7 @@ class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
 
     def check_allowed(self):
         from beamlines.models import Facility
-        self.facility = Facility.objects.get(acronym=self.kwargs['fac'])
+        self.facility = Facility.objects.get(acronym=self.kwargs['slug'])
         allowed = (super().check_allowed() or self.facility.is_staff(self.request.user))
         return allowed
 
@@ -1213,7 +1213,7 @@ class BeamlineSubmissionList(RolePermsViewMixin, ItemListView):
         if self.kwargs.get('cycle'):
             queryset = queryset.filter(cycle=self.kwargs['cycle'])
         queryset = queryset.filter(
-            techniques__config__facility__acronym=self.kwargs['fac']
+            techniques__config__facility__acronym=self.kwargs['slug']
         ).order_by().distinct()
         self.queryset = queryset
         return super().get_queryset(*args, **kwargs)
@@ -2107,3 +2107,35 @@ class DeleteAccessPool(RolePermsViewMixin, ModalDeleteView):
 
     def get_success_url(self):
         return reverse('access-pool-list')
+
+
+class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.AllocationPoolForm
+    model = models.Facility
+    allowed_roles = USO_ADMIN_ROLES
+    slug_field = 'acronym'
+
+    def check_allowed(self):
+        facility = self.get_object()
+        return (
+            super().check_allowed() or
+            facility.is_admin(self.request.user)
+        )
+
+    def get_initial(self):
+        initial = super().get_initial()
+        facility = self.get_object()
+        initial['pools'] = facility.details.get('pools', {})
+        return initial
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        pools = data.pop('pools', {})
+
+        self.object.details.update(pools=pools)
+        self.object.flex_schedule = data.get('flex_schedule', False)
+        self.object.save()
+        return JsonResponse({'url': self.get_success_url()})
+
+    def get_success_url(self):
+        return reverse("facility-detail", kwargs={'acronym': self.object.acronym})
