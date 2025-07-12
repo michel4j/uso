@@ -7,6 +7,7 @@ from django.conf import settings
 from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField, F, Avg, Count
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.functions import Concat, Lower
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from docutils.nodes import entry
@@ -748,6 +749,47 @@ def notify_reviewers(reviews):
         )
         count += 1
     return count
+
+
+def notify_submission(proposal, cycle):
+    """
+    Notify all team members of a proposal about the submission
+    :param proposal: The proposal instance
+    :param cycle: The review cycle instance
+    """
+
+    success_url = reverse('proposal-detail', kwargs={'pk': proposal.pk})
+    full_url = f"{getattr(settings, 'SITE_URL', '')}{success_url}"
+
+    others = []
+    registered_members = []
+    for member in proposal.get_full_team():
+        user = proposal.get_member(member)
+        if not member.get('roles'):
+            others.append(member.get('email', '') if not user else user)
+            continue
+        if user:
+            registered_members.append(user)
+            recipients = [user]
+        else:
+            recipients = [member.get('email', '')]
+        data = {
+            'name': "{first_name} {last_name}".format(**member) if not user else user.get_full_name(),
+            'proposal_title': proposal.title, 'is_delegate': 'delegate' in member.get('roles', []),
+            'is_leader': 'leader' in member.get('roles', []),
+            'is_spokesperson': 'spokesperson' in member.get('roles', []), 'proposal_url': full_url, 'cycle': cycle,
+            'spokesperson': proposal.spokesperson,
+        }
+        notify.send(recipients, 'proposal-submitted', context=data)
+
+    # notify others
+    notify.send(
+        others, 'proposal-submitted', context={
+            'name': "Research Team Member", 'proposal_title': proposal.title, 'is_delegate': False,
+            'is_leader': False, 'is_spokesperson': False, 'proposal_url': full_url, 'cycle': cycle,
+            'spokesperson': proposal.spokesperson,
+        }
+    )
 
 
 def user_format(value, obj):

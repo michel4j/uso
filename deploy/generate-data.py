@@ -656,7 +656,7 @@ class FakeProposal:
                             'justification': self.fake.paragraph(nb_sentences=10),
                         }
                     ],
-                    'proposal_type': 'user',
+                    'pool': 1,
                     'scientific_merit': (
                             self.fake.paragraph(nb_sentences=15)
                             + random.choice(EQUATIONS)

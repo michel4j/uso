@@ -279,7 +279,7 @@ def expand_role(role: str, realms: list[str]) -> set[str]:
     """
 
     return {
-        role.format(realm) for realm in realms
+        role.format(realm) for realm in realms if role.strip()
     }
 
 
@@ -329,8 +329,9 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
             for pool in models.AccessPool.objects.all()
         }
         available_pool_ids = [
-            pk for pk, roles in pool_roles.items() if not roles or self.request.user.has_any_role(*roles)
+            pk for pk, roles in pool_roles.items() if self.request.user.has_any_role(*roles) or not roles
         ]
+        print(available_pool_ids)
 
         # Select available tracks based on requested techniques and call status
         if cycle.is_closed():
@@ -381,83 +382,34 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         access_pool = data['access_pool']
         tracks = data['tracks']
         cycle = self.submit_info["cycle"]
-
-        print(data)
-        return JsonResponse({})
-
+        track_ids = tracks.values_list('pk', flat=True)
         self.object = super().get_object()
 
-        # create submissions and technical reviews
-        to_create = []
+        # create submissions
         for track, items in list(self.submit_info['requests'].items()):
-            obj = models.Submission.objects.create(
-                proposal=self.object, track=track, pool=access_pool, cycle=cycle
-            )
-            # map acronym to facility in a unique set
-            technical_info = {
-                (item.config.facility.acronym.lower(), item.config.facility)
-                for item in items
-            }
+            if track.pk not in track_ids:
+                continue
 
+            obj = models.Submission.objects.create(proposal=self.object, track=track, pool=access_pool, cycle=cycle)
             obj.techniques.add(*items)
             obj.save()
 
         # update state
         self.object.state = self.object.STATES.submitted
-        self.object.details['proposal_type'] = access_mode
         self.object.save()
 
         # lock all attachments
         self.object.attachments.all().update(is_editable=False)
 
-        # notify team members of submitted proposal
-        success_url = reverse('proposal-detail', kwargs={'pk': self.object.pk})
-        full_url = f"{getattr(settings, 'SITE_URL', '')}{success_url}"
-
-        others = []
-        registered_members = []
-        for member in self.object.get_full_team():
-            user = self.object.get_member(member)
-            if not member.get('roles'):
-                others.append(member.get('email', '') if not user else user)
-                continue
-            if user:
-                registered_members.append(user)
-                recipients = [user]
-            else:
-                recipients = [member.get('email', '')]
-            data = {
-                'name': "{first_name} {last_name}".format(**member) if not user else user.get_full_name(),
-                'proposal_title': self.object.title, 'is_delegate': 'delegate' in member.get('roles', []),
-                'is_leader': 'leader' in member.get('roles', []),
-                'is_spokesperson': 'spokesperson' in member.get('roles', []), 'proposal_url': full_url, 'cycle': cycle,
-                'spokesperson': self.object.spokesperson,
-            }
-            notify.send(recipients, 'proposal-submitted', context=data)
-
-        # notify others
-        notify.send(
-            others, 'proposal-submitted', context={
-                'name': "Research Team Member", 'proposal_title': self.object.title, 'is_delegate': False,
-                'is_leader': False, 'is_spokesperson': False, 'proposal_url': full_url, 'cycle': cycle,
-                'spokesperson': self.object.spokesperson,
-            }
-        )
+        # notify team members of a submitted proposal
+        utils.notify_submission(self.object, cycle)
         messages.add_message(self.request, messages.SUCCESS, 'Proposal has been submitted.')
         ActivityLog.objects.log(
             self.request, self.object, kind=ActivityLog.TYPES.task, description='Proposal submitted'
         )
 
-        # Add User Role to all register team members who do not have the role
-        for user in registered_members:
-            user.fetch_profile()
-            roles = user.get_all_roles()
-            if 'user' not in roles:
-                roles |= {'user'}
-                user.update_profile(data={'extra_roles': roles})
-
         return JsonResponse({
-            "url": success_url
+            "url": "."
         })
 
 

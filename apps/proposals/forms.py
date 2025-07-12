@@ -673,20 +673,19 @@ class SubmitProposalForm(ModalModelForm):
                 css_class="row"
             )
         )
-
+        self.fields['access_pool'].initial = submit_info['pools'].filter(is_default=True).first()
         track_ids = [track.pk for track in submit_info['requests'].keys()]
         self.fields['access_pool'].queryset = submit_info['pools']
         self.fields['tracks'].queryset = models.ReviewTrack.objects.filter(pk__in=track_ids)
         if len(track_ids) == 1:
             self.fields['tracks'].initial = models.ReviewTrack.objects.filter(pk=track_ids[0])
+            self.fields['tracks'].disabled = True
+        if len(submit_info['pools']) == 1:
+            self.fields['access_pool'].disabled = True
 
         self.footer.clear()
         if len(track_ids) == 0:
             self.footer.append(
-                Div(
-                    HTML("<p class='text-danger'>No review tracks available for this proposal.</p>"),
-                    css_class="col-sm-12"
-                ),
                 StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
             )
         else:
@@ -694,12 +693,3 @@ class SubmitProposalForm(ModalModelForm):
                 StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
                 StrictButton('Submit Proposal', type='submit', value='submit', css_class="ms-auto btn btn-primary"),
             )
-
-    def clean(self):
-        data = super().clean()
-        print(data)
-        if not data.get('access_pool'):
-            raise forms.ValidationError("You must select an access pool to submit the proposal.")
-        if not data.get('tracks'):
-            raise forms.ValidationError("You must select at least one review track to submit the proposal.")
-        return data
