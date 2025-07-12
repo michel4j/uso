@@ -8,10 +8,10 @@ urlpatterns = [
     path('facilities/new/', views.CreateFacility.as_view(), name='create-beamline'),
 
     path('facilities/<slug:acronym>/', views.BeamlineDetail.as_view(), name='facility-detail'),
-    path('facilities/<int:pk>/edit/', views.EditFacility.as_view(), name='edit-beamline'),
+    path('facilities/<slug:acronym>/edit/', views.EditFacility.as_view(), name='edit-facility'),
     path('facilities/<int:fac>/support/<int:pk>/', views.ScheduleSupport.as_view(), name="schedule-support"),
     path(
-        'facilities/<int:pk>/config/',
+        'facilities/<slug:acronym>/config/',
         views.BeamlineDetail.as_view(template_name="proposals/facility-config.html"),
         name='facility-config-detail'
     ),

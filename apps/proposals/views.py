@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import timedelta
+from typing import Sequence
 
 from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView, ModalConfirmView
 from django.conf import settings
@@ -269,6 +270,19 @@ class CloneProposal(RolePermsViewMixin, ModalConfirmView):
         )
 
 
+def expand_role(role: str, realms: list[str]) -> set[str]:
+    """
+    Expand a role string into a set of roles. substituting any wildcards with the full set of roles.
+    :param role: The role to expand
+    :param realms: List of realms to expand the role into
+    :return: set of roles
+    """
+
+    return {
+        role.format(realm) for realm in realms
+    }
+
+
 class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
     model = models.Proposal
     template_name = "proposals/forms/submit.html"
@@ -290,29 +304,63 @@ class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
         """
         requirements = self.object.details['beamline_reqs']
         cycle = models.ReviewCycle.objects.get(pk=self.object.details['first_cycle'])
-
         conf_items = models.ConfigItem.objects.none()
-        beamteam = []
+        facility_acronyms = set()
         for req in requirements:
             config = models.FacilityConfig.objects.active(d=cycle.start_date).accepting().filter(
                 facility__pk=req.get('facility')
             ).last()
             if config:
                 acronym = config.facility.acronym.lower()
-                beamteam.append(self.request.user.has_role(f'beamteam-member:{acronym}'))
+                facility_acronyms.add(acronym)
                 conf_items |= config.items.filter(technique__in=req.get('techniques', []))
 
-        if cycle.is_closed() or access_mode in ['staff', 'education', 'purchased', 'beamteam']:
-            special_track = models.ReviewTrack.objects.filter(require_call=False).first()
-            requests = {special_track: conf_items}
+        # Select available pools
+        # A pool is available if it doesn't define any roles, or the user matches one of the defined roles
+        pool_roles = {
+            pool.pk: expand_role(pool.role, list(facility_acronyms))
+            for pool in models.AccessPool.objects.all()
+        }
+        available_pool_ids = [
+            pk for pk, roles in pool_roles.items() if not roles or self.request.user.has_any_role(*roles)
+        ]
+
+        # Select available tracks based on requested techniques and call status
+        if cycle.is_closed():
+            valid_tracks = models.ReviewTrack.objects.filter(require_call=False)
         else:
-            requests = {track: items for track, items in list(conf_items.group_by_track().items()) if items.exists()}
+            valid_tracks = models.ReviewTrack.objects.filter(require_call=True)
+
+        track_ids = valid_tracks.values_list('pk', flat=True)
+
+
+        requests = {
+            track: items
+            for track, items in list(conf_items.group_by_track().items())
+            if items.exists() and track.pk in track_ids
+        }
+        if not requests:
+            message = (
+                "Based on your selected techniques, there are no available review tracks "
+                "for this proposal at this time. Please check back later."
+            )
+        elif len(requests) > 1:
+            message = (
+                "You have selected techniques that require multiple review tracks. "
+                "Please select the tracks you wish to submit your proposal to. "
+                "You can select more than one track, but you must select at least one."
+            )
+        else:
+            message = (
+                "You have selected techniques that require a single review track. "
+                "Please review the details below and confirm your submission."
+            )
 
         info = {
-            "requests": requests, "cycle": cycle, "beamteam": all(beamteam),
-            "staff": self.request.user.has_any_role(*USO_STAFF_ROLES),
-            "education": self.request.user.has_any_role(*USO_STAFF_ROLES),
-            "industrial": self.request.user.has_any_role(*USO_STAFF_ROLES),
+            "message": message,
+            "requests": requests,
+            "cycle": cycle,
+            "pools": models.AccessPool.objects.filter(pk__in=available_pool_ids),
         }
         return info
 
@@ -1238,7 +1286,7 @@ def _adjusted_score(val, obj=None):
 class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    list_filters = ['created', 'track', 'kind', 'techniques__config__facility']
+    list_filters = ['created', 'pool', 'techniques__config__facility']
     list_search = ['proposal__title', 'proposal__id', 'proposal__team', 'proposal__keywords']
     link_url = "submission-detail"
     order_by = ['proposal__id', '-cycle_id', '-stdev']
@@ -2125,7 +2173,9 @@ class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
     def get_initial(self):
         initial = super().get_initial()
         facility = self.get_object()
-        initial['pools'] = facility.details.get('pools', {})
+        initial['pools'] = {
+            pool.pk: percent for pool, percent in facility.access_pools()
+        }
         return initial
 
     def form_valid(self, form):

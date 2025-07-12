@@ -36,11 +36,11 @@ class BeamlineList(RolePermsViewMixin, ItemListView):
     list_columns = ['name', 'acronym', 'kind', 'state']
     link_url = 'facility-detail'
     link_kwarg = 'acronym'
+    link_field = 'acronym'
     paginate_by = 20
     list_filters = {'state', 'kind', TechniqueFilterFactory.new()}
     list_search = ['acronym', 'name', 'port']
     ordering = ['kind', '-state', 'name']
-
 
 def _fmt_codes(bls, obj=None):
     return ', '.join([bl.code for bl in bls.distinct()])

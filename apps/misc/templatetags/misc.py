@@ -11,6 +11,11 @@ def verbose_name(value):
 
 
 @register.filter
+def modulo(num, val):
+    return num % val
+
+
+@register.filter
 def verbose_name_plural(value):
     return value._meta.verbose_name_plural
 

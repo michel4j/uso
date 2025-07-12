@@ -20,11 +20,11 @@
 {% block page-tools %}
     {% if object.kind != 'village' %}
         {% if owner or admin %}
-            <a href='#0' data-modal-url='{% url "add-facility-config" slug=object.acronym %}' class="pull-right">
+            <a href='#0' data-modal-url='{% url "add-facility-config" slug=object.acronym %}'>
                 <i class="bi-plus-lg icon-md icon-fw"></i><br/>
                 <span class="tool-label">Add Config</span>
             </a>
-            <a href="#0" data-modal-url="{% url "edit-facility-pools" slug=object.acronym %}" class="float-end">
+            <a href="#0" data-modal-url="{% url "edit-facility-pools" slug=object.acronym %}">
                 <i class="bi-diagram-3 icon-md icon-fw"></i>
                 <br/>
                 <span class="tool-label">Access&nbsp;Pools</span>

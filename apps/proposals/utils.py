@@ -865,7 +865,7 @@ def advance_review_workflow(submission) -> list[str]:
             # Reviews are complete but failed, we cannot advance
             num_closed = submission.reviews.filter(
                 stage=stage, state__lt=models.Review.STATES.closed
-            ).update(state=submission.reviews.STATES.closed)
+            ).update(state=models.Review.STATES.closed)
             if num_closed:
                 logs.append(f'Submission {submission}: {num_closed} stage-{stage.position} review(s) closed.')
             logs.append(f'Submission {submission}: failed at stage-{stage.position} and is now rejected.')

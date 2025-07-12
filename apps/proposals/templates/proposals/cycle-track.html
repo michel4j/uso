@@ -23,21 +23,17 @@
                                 <span class="tool-label">Evaluate</span>
                             </a>
                         {% endif %}
-
                         <a href='{% url "track-submission-list" cycle=cycle.pk track=track.acronym %}'>
                             <i class="bi-journal-check icon-md icon-fw"></i>
                             <span class="tool-label">Submissions</span>
                         </a>
                         <a href="#0" data-modal-url="{% url 'add-review-stage' track=track.acronym %}">
-                            <i class="bi-plus-lg icon-md icon-fw"></i>
+                            <i class="bi-plus-square icon-md icon-fw"></i>
                             <span class="tool-label">Add&nbsp;Stage</span>
                         </a>
                     </div>
                 {% endif %}
             </div>
-
-
-
         </div>
     </div>
     <div class="row">
@@ -77,7 +73,6 @@
                             {% else %}
                                 and started manually.
                             {% endif %}
-
                         </div>
                     </div>
                 {% endfor %}

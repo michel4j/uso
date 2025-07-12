@@ -154,7 +154,7 @@ def get_facility_cycle_stats(facility, cycle):
 
     reservations = models.Reservation.objects.filter(beamline=facility, cycle=cycle)
     total = cycle.schedule.normal_shifts()
-    unavailable = reservations.filter(kind__in=['', None]).aggregate(total=Coalesce(Sum('shifts'), 0))
+    unavailable = reservations.filter(pool__isnull=True).aggregate(total=Coalesce(Sum('shifts'), 0))
 
     aggregations = {
         'total': Count('id', distinct=True),
@@ -177,7 +177,7 @@ def get_facility_cycle_stats(facility, cycle):
 
 @register.simple_tag(takes_context=True)
 def get_equipment_list(context, data=()):
-    if not 'review' in context:
+    if 'review' not in context:
         return []
 
     review = context['review']

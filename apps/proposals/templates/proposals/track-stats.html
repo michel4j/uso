@@ -28,7 +28,7 @@
     <div class="count-list">
     {% for entry in facilities %}
         <div class="count-list-item">
-            <a class="name" href="{% url "beamline-submissions" fac=entry.facility_acronym cycle=cycle.pk %}">{{ entry.facility_acronym }}</a>&ensp;<strong class="value">{{ entry.count }}</strong>
+            <a class="name" href="{% url "facility-cycle-submissions" slug=entry.facility_acronym cycle=cycle.pk %}">{{ entry.facility_acronym }}</a>&ensp;<strong class="value">{{ entry.count }}</strong>
         </div>
     {% endfor %}
     </div>

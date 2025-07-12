@@ -1,5 +1,6 @@
 import itertools
 import re
+from email.policy import default
 from functools import lru_cache
 
 from django.conf import settings
@@ -96,12 +97,16 @@ class Facility(TimeStampedModel):
         Returns a list of access pools for this facility and its parents.
         """
         from proposals.models import AccessPool
-        pool_types = AccessPool.objects.in_bulk()
+        pool_types = AccessPool.objects.exclude(is_default=True).in_bulk()
         pool_allocation = self.details.get('pools', {})
-        return [
+        default_pool = AccessPool.objects.filter(is_default=True).first()
+        pools = [
             (obj, pool_allocation.get(pk, pool_allocation.get(str(pk), 0)))
             for pk, obj in pool_types.items()
         ]
+        remaining = 100 - sum(alloc for _, alloc in pools)
+        pools.append((default_pool, remaining))
+        return pools
 
     def is_user(self, user, remote=False):
         perms = {
