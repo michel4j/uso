@@ -425,6 +425,7 @@ class FakeFacility:
                 'start_date': '2025-01-01',
                 'accept': True,
                 'facility': facility,
+                'cycle': 1,
             }
         }
         self.new_configs.append(info)

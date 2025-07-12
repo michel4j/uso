@@ -283,10 +283,12 @@ def expand_role(role: str, realms: list[str]) -> set[str]:
     }
 
 
-class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
+class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
     model = models.Proposal
-    template_name = "proposals/forms/submit.html"
+    form_class = forms.SubmitProposalForm
+    #template_name = "proposals/forms/submit.html"
     success_url = reverse_lazy('user-proposals')
+    submit_info: dict
 
     def get_queryset(self):
         query = (Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
@@ -295,11 +297,16 @@ class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
         self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft).filter(query)
         return super().get_queryset()
 
-    def prepare_submission(self, access_mode="user"):
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        self.submit_info = self.prepare_submission()
+        kwargs['submit_info'] = self.submit_info
+        return kwargs
+
+    def prepare_submission(self):
         """
         Determine the available review tracks and submission options for the current user and the proposal's
         instrument requirements.
-        :param access_mode:
         :return:
         """
         requirements = self.object.details['beamline_reqs']
@@ -333,7 +340,6 @@ class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
 
         track_ids = valid_tracks.values_list('pk', flat=True)
 
-
         requests = {
             track: items
             for track, items in list(conf_items.group_by_track().items())
@@ -359,6 +365,7 @@ class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
         info = {
             "message": message,
             "requests": requests,
+            "num_tracks": len(requests),
             "cycle": cycle,
             "pools": models.AccessPool.objects.filter(pk__in=available_pool_ids),
         }
@@ -366,20 +373,25 @@ class SubmitProposal(RolePermsViewMixin, ModalConfirmView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(self.prepare_submission())
+        context.update(self.submit_info)
         return context
 
-    def confirmed(self, *args, **kwargs):
+    def form_valid(self, form):
+        data = form.cleaned_data
+        access_pool = data['access_pool']
+        tracks = data['tracks']
+        cycle = self.submit_info["cycle"]
+
+        print(data)
+        return JsonResponse({})
+
         self.object = super().get_object()
-        access_mode = self.request.POST.get('project_type', 'user')
-        info = self.prepare_submission(access_mode=access_mode)
-        cycle = info["cycle"]
 
         # create submissions and technical reviews
         to_create = []
-        for track, items in list(info['requests'].items()):
+        for track, items in list(self.submit_info['requests'].items()):
             obj = models.Submission.objects.create(
-                proposal=self.object, track=track, kind=access_mode, cycle=cycle
+                proposal=self.object, track=track, pool=access_pool, cycle=cycle
             )
             # map acronym to facility in a unique set
             technical_info = {

@@ -17,7 +17,7 @@
         <div class="col-sm-7 mb-3">
             <div class="fs-4">Cycle <strong>{{ cycle }}</strong></div>
             <hr class="hr-xs"/>
-            <small>{{ cycle|cycle_comments }}</small>
+            <span class="smaller">{{ cycle|cycle_comments }}</span>
         </div>
         <div class="col-sm-5 mb-3">
             <div class="fs-4">Access Pool</div>
@@ -34,11 +34,17 @@
                 <div class="col-sm-12">{{ message }}</div>
                 {% for track, items in requests.items %}
                     <div class="col-sm-12">
-                        <div class="callout callout-{{ forloop.counter0 }}">
-                            <h4 class="form-check">
-                            <input id="track-{{ forloop.counter }}" name="tracks" type="checkbox" class="form-check-input" value="{{ track.pk }}"/>
+                        <div class="callout mb-2">
+                            <div class="form-check lead">
+                            <input
+                                    id="track-{{ forloop.counter }}"
+                                    name="tracks" type="checkbox"
+                                    class="form-check-input"
+                                    value="{{ track.pk }}"
+                                    {% if num_tracks == 1 %}checked disabled{% endif %}
+                            />
                             <label class="form-check-label" for="track-{{ forloop.counter }}">{{ track }} Track</label>
-                            </h4>
+                            </div>
                             <hr class="hr-xs"/>
                             {% for item in items %}
                                 <span class="badge bg-primary">{{ item.technique.acronym }} &mdash; {{ item.config.facility.acronym }}</span>

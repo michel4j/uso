@@ -1,12 +1,13 @@
 import itertools
 from itertools import chain
 
-from crisp_modals.forms import ModalModelForm
+from crisp_modals.forms import ModalModelForm, ModalForm
 from crispy_forms.bootstrap import StrictButton, AppendedText, InlineCheckboxes, FormActions, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
 from django import forms
 from django.db.models import Q, Count
+from django.forms.models import ModelChoiceField
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -261,9 +262,11 @@ class FacilityConfigForm(ModalModelForm):
         today = timezone.now().date()
         self.fields['cycle'].queryset = models.ReviewCycle.objects.filter(open_date__gt=today)
         if self.instance and self.instance.pk:
-            self.fields['cycle'].queryset |= models.ReviewCycle.objects.filter(pk=self.instance.cycle.pk)
-            if self.instance.cycle.open_date <= today:
+            if self.instance.cycle is None:
                 self.fields['cycle'].disabled = True
+            elif self.instance.cycle.start_date < today:
+                self.fields['cycle'].disabled = True
+                self.fields['cycle'].queryset |= models.ReviewCycle.objects.filter(pk=self.instance.cycle.pk)
 
         self.body.title = 'Configure Technique Availability'
         self.body.form_action = self.request.get_full_path()
@@ -639,3 +642,64 @@ class AllocationPoolForm(ModalModelForm):
                 css_class="row"
             )
         )
+
+
+class SubmitProposalForm(ModalModelForm):
+    access_pool = forms.ModelChoiceField(
+        queryset=models.AccessPool.objects.none(), required=True, label="Access Pool",
+        widget=forms.RadioSelect
+    )
+    tracks = forms.ModelMultipleChoiceField(
+        queryset=models.ReviewTrack.objects.none(), required=True, label="Review Tracks",
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    class Meta:
+        model = models.Proposal
+        fields = ['access_pool', 'tracks']
+
+    def __init__(self, submit_info=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.title = "Submit Proposal"
+        self.body.append(
+            Div(
+                Div(
+                    HTML("{% include 'proposals/forms/submit-header.html' %}"),
+                    css_class="col-sm-12"
+                ),
+                Div('tracks', css_class="col-sm-6 fs-5"),
+                Div('access_pool', css_class="col-sm-6 fs-5"),
+
+                css_class="row"
+            )
+        )
+
+        track_ids = [track.pk for track in submit_info['requests'].keys()]
+        self.fields['access_pool'].queryset = submit_info['pools']
+        self.fields['tracks'].queryset = models.ReviewTrack.objects.filter(pk__in=track_ids)
+        if len(track_ids) == 1:
+            self.fields['tracks'].initial = models.ReviewTrack.objects.filter(pk=track_ids[0])
+
+        self.footer.clear()
+        if len(track_ids) == 0:
+            self.footer.append(
+                Div(
+                    HTML("<p class='text-danger'>No review tracks available for this proposal.</p>"),
+                    css_class="col-sm-12"
+                ),
+                StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+            )
+        else:
+            self.footer.append(
+                StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+                StrictButton('Submit Proposal', type='submit', value='submit', css_class="ms-auto btn btn-primary"),
+            )
+
+    def clean(self):
+        data = super().clean()
+        print(data)
+        if not data.get('access_pool'):
+            raise forms.ValidationError("You must select an access pool to submit the proposal.")
+        if not data.get('tracks'):
+            raise forms.ValidationError("You must select at least one review track to submit the proposal.")
+        return data

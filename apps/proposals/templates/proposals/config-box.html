@@ -4,7 +4,7 @@
 
     <div class="card-header">
         {% if owner or admin %}
-            {% if config.is_editable %}
+            {% if config.is_editable or admin %}
                 <span class="box-tools pull-right" style="">
                  <a href='#0' data-modal-url='{% url "edit-facility-config" pk=config.pk%}' class="pull-right">
                     <i class="bi-pencil icon-fw"></i><br/>
