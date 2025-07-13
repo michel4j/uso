@@ -831,6 +831,7 @@ class ReviewStage(TimeStampedModel):
     max_workload = models.IntegerField("Max Workload", default=0)
     blocks = models.BooleanField(_("Block Passage"), default=True)
     pass_score = models.FloatField(_("Passing Score"), null=True, blank=True)
+    weight = models.FloatField(_("Weight"), default=1.0)
     auto_create = models.BooleanField(_("Auto Create"), default=True)
     auto_start = models.BooleanField(_("Auto Start"), default=True)
     objects = ReviewStageQuerySet.as_manager()

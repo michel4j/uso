@@ -499,7 +499,10 @@ class ReviewCommentsForm(ModalModelForm):
 class ReviewStageForm(ModalModelForm):
     class Meta:
         model = models.ReviewStage
-        fields = ['track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score', 'auto_create', 'auto_start']
+        fields = [
+            'track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score',
+            'auto_create', 'auto_start', 'weight'
+        ]
         widgets = {
             'track': forms.HiddenInput(),
             'kind': forms.Select(attrs={'class': 'select'}),
@@ -517,8 +520,9 @@ class ReviewStageForm(ModalModelForm):
 
         self.body.append(
             Div(
-                Div("position", css_class="col-sm-4"),
-                Div("kind", css_class="col-sm-8"),
+                Div("position", css_class="col-sm-3"),
+                Div("kind", css_class="col-sm-6"),
+                Div("weight", css_class="col-sm-3"),
                 Div("min_reviews", css_class="col-sm-6"),
                 Div("pass_score", css_class="col-sm-6"),
                 Div("blocks", css_class="col-sm-4"),

@@ -32,10 +32,11 @@
 {% endblock %}
 
 {% block page-content %}
-    <div class="callout callout-primary mb-3">
+    <div class="callout callout-{% state_tag facility.flex_schedule danger=True info=False %} mb-3">
         <div class="row">
             <div class="col-sm-6 mb-3">
-                <h3 class="text-condensed">Available shifts</h3>
+                <h3 class="text-condensed">{% if facility.flex_schedule %}Allocation not required for
+                    {{ facility }}{% else %}Available shifts{% endif %}</h3>
             </div>
             <div class="col-sm-6 d-flex align-items-center flex-row gap-2 mb-3">
                 <div class="btn btn-success calc ms-auto px-3"
@@ -82,8 +83,8 @@
                                         Allocation<br/>Request{{ pool.projects.count|pluralize }}
                                     </span>
                             </div>
-                            <div class="d-flex flex-column">
-                                <span class="stats-title"><small>Available</small></span><br/>
+                            <div class="d-flex flex-column ">
+                                <span class="stats-title"><small>Available</small></span>
                                 <span class="btn btn-success calc"
                                       title="Available for Pool: {{ section.percent }}% of {{ available_shifts|floatformat }}">
                                         {{ section.shifts }}
@@ -91,7 +92,7 @@
                             </div>
                             <h3><br/>-</h3>
                             <div class="d-flex flex-column">
-                                <span class="stats-title"><small>Allocated</small></span><br/>
+                                <span class="stats-title"><small>Allocated</small></span>
                                 <span class="btn btn-info calc"
                                       title="Allocated">
                                         {{ section.used.total|default:0|floatformat }}
@@ -99,7 +100,7 @@
                             </div>
                             <h3><br/>-</h3>
                             <div class="d-flex flex-column">
-                                <span class="stats-title"><small>Reserved</small></span><br/>
+                                <span class="stats-title"><small>Reserved</small></span>
                                 <a href="#0" class="btn btn-danger" title="Edit Reserved"
                                    data-modal-url="{% url 'edit-pool-reservation' cycle=cycle.pk  fac=facility.acronym pool=pool.pk %}">
                                     {{ pool.reserved.total|default:0 }}
@@ -108,7 +109,7 @@
                             </div>
                             <h3><br/>=</h3>
                             <div class="d-flex flex-column">
-                                <span class="stats-title"><small>Left Over</small></span><br/>
+                                <span class="stats-title"><small>Left Over</small></span>
                                 <span class="btn btn-warning calc"
                                       title="Left Over Shifts">
                                         {{ pool.unused|default:0|floatformat }}
@@ -138,27 +139,27 @@
                         </small>
                     </div>
                     <div class="d-flex flex-column ms-auto">
-                        <span class="stats-title"><small>Total</small></span><br/>
+                        <span class="stats-title"><small>Total</small></span>
                         <span class="btn btn-warning calc"
                               title="Total Discretionary">
-                                        {{ discretionary|default:0|floatformat }}
-                                    </span>
+                            {{ discretionary|default:0|floatformat }}
+                        </span>
                     </div>
                     <h3><br/>+</h3>
                     <div class="d-flex flex-column">
-                        <span class="stats-title"><small>User Disc</small></span><br/>
+                        <span class="stats-title"><small>User&nbsp;Disc</small></span>
                         <span class="btn btn-primary calc"
                               title="Left Over Shifts from User Pool">
-                                        {{ pools.user.unused|default:0|floatformat }}
-                                </span>
+                            {{ pools.user.unused|default:0|floatformat }}
+                        </span>
                     </div>
                     <h3><br/>=</h3>
                     <div class="d-flex flex-column">
-                        <span class="stats-title"><small>Disc Left</small></span><br/>
+                        <span class="stats-title"><small>Disc&nbsp;Left</small></span>
                         <span class="btn btn-warning calc"
                               title="Remaining Discretionary Shifts">
-                                        {{ pools.user.unused|default:0|floatformat|add:discretionary|default:0 }}
-                                </span>
+                            {{ pools.user.unused|default:0|floatformat|add:discretionary|default:0 }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -177,29 +178,29 @@
                             </div>
                         </div>
                         <div class="d-flex flex-row mt-auto ms-auto me-3 text-condensed">
-                                    <span class="stats-number">
-                                        {{ section.projects.count }}
-                                    </span>
+                            <span class="stats-number">
+                                {{ section.projects.count }}
+                            </span>
                             <span class="stats-title pull-left">
-                                        Allocation<br/>Request{{ section.projects.count|pluralize }}
-                                    </span>
+                                Allocation<br/>Request{{ section.projects.count|pluralize }}
+                            </span>
                         </div>
                         <div class="d-flex flex-column">
-                            <span class="stats-title"><small>Total</small></span><br/>
+                            <span class="stats-title"><small>Total</small></span>
                             <span class="btn btn-success calc"
                                   title="Available for Pool: {{ section.percent }}% of {{ available_shifts|floatformat }}">
                                         {{ section.shifts }}</span>
                         </div>
                         <h3><br/>-</h3>
                         <div class="d-flex flex-column">
-                            <span class="stats-title"><small>Allocated</small></span><br/>
+                            <span class="stats-title"><small>Allocated</small></span>
                             <span class="btn btn-info calc" title="Allocated">
                                         {{ section.used.total|default:0|floatformat }}
                                         </span>
                         </div>
                         <h3><br/>=</h3>
                         <div class="d-flex flex-column">
-                            <span class="stats-title"><small>Availabe</small></span><br/>
+                            <span class="stats-title"><small>Available</small></span>
                             <span class="btn btn-primary calc"
                                   title="Left Over Shifts">
                                         {{ section.unused|default:0|floatformat }}

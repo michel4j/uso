@@ -210,15 +210,18 @@ class ModelPoolWidget(forms.MultiWidget):
     def __init__(self, model, attrs=None):
         # Create a list of widgets for each key-value pair.
         # Each pair consists of a TextInput for the key and a NumberInput for the value.
+        attrs = attrs or {}
         self.model = model
         self.entries = self.model.objects.in_bulk()
         self.names = [str(item) for item in self.entries.values()]
         self.items = list(self.entries.values())
         widgets = []
         for item in self.items:
-            attrs = {'readonly': True} if item.is_default else {}
+            item_attrs = {**attrs}
+            if item.is_default:
+                item_attrs['readonly'] = True
             widgets.append(
-                forms.TextInput(attrs=attrs)
+                forms.TextInput(attrs=item_attrs)
             )
         super().__init__(widgets, attrs)
 

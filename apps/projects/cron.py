@@ -3,9 +3,10 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.db.models import Case, Min, When, Q, BooleanField, Value, QuerySet
+from django.db.models import Case, Min, When, Q, BooleanField, Value, QuerySet, F
 from django.utils import timezone, timesince
 
+from proposals.models import Submission
 from . import models
 from . import utils
 from isocron import BaseCronJob
@@ -37,7 +38,7 @@ class NotifyProjects(BaseCronJob):
             ),
             special=Min(Case(
                 When(
-                    Q(submissions__kind=Submission.TYPES.user, submissions__track__require_call=False),
+                    Q(submissions__pool__is_default=True, submissions__track__require_call=False),
                     then=Value(1)
                 ),
                 default=Value(0),
@@ -45,7 +46,7 @@ class NotifyProjects(BaseCronJob):
             )),
         ).distinct()
 
-        rejected = submissions.filter(state=Submission.STATES.rejected).distinct()
+        rejected = submissions.filter(approved=False).distinct()
 
         # Success:
         for project in successful:
@@ -59,7 +60,7 @@ class NotifyProjects(BaseCronJob):
                 'project': project,
                 'cycle': cycle,
                 'submission_urls': ", ".join([
-                    '{}{}'.format(SITE_URL, s.get_absolute_url()) for s in project.submissions.all()
+                    f'{SITE_URL}{s.get_absolute_url()}' for s in project.submissions.all()
                 ]),
                 'project_url': f'{SITE_URL}{project.get_absolute_url()}',
                 'allocations': project.allocations.filter(cycle=cycle),
@@ -113,33 +114,42 @@ class CreateCallProjects(BaseCronJob):
     Should be run before NotifyProjects.
     """
     run_at = "T00:15"  # Should run before Notify projects
-    cycles: QuerySet
+    alloc_requests: QuerySet
+    submissions: QuerySet
 
     def is_ready(self):
-        from proposals.models import ReviewCycle
+        from proposals.models import ReviewCycle, Submission
+        from .models import AllocationRequest
+
         today = timezone.localtime(timezone.now()).date()
 
-        # Recently closed review cycles
-        self.cycles = ReviewCycle.objects.filter(alloc_date=today, state=ReviewCycle.STATES.review)
-        return self.cycles.exists()
+        # submissions in these cycles that require call
+        self.submissions = Submission.objects.filter(
+            cycle__alloc_date__lte=today, track__require_call=True, approved=True, project__isnull=True,
+            state__gte=Submission.STATES.reviewed
+        ).distinct()
+
+        # allocation requests in these cycles that are submitted
+        self.alloc_requests = AllocationRequest.objects.filter(
+            cycle__alloc_date__lte=today, state=AllocationRequest.STATES.submitted,
+            project__end_date__gte=F('cycle__end_date'),
+        ).distinct()
+        return self.submissions.exists() or self.alloc_requests.exists()
 
     def do(self):
         from proposals.models import ReviewCycle, Submission
         # create allocations for recently closed review cycles
         log = []
-        for cycle in self.cycles:
-            # Create Projects for approved submissions which don't have a project yet
-            submissions = cycle.submissions.filter(track__require_call=True).filter(
-                state=Submission.STATES.reviewed, approved=True, project__isnull=True
-            )
-            if submissions.exists():
-                for submission in submissions:
-                    utils.create_project(submission)
-                log.append(f"Created projects for {submissions.count()} submissions of cycle {cycle}")
 
-            # create allocations for allocation requests
+        if self.submissions.exists():
+            for submission in self.submissions:
+                utils.create_project(submission)
+            log.append(f"Created projects for {self.submissions.count()} submissions.")
+
+        # create allocations for allocation requests
+        if self.alloc_requests.exists():
             count = 0
-            for alloc_request in cycle.allocation_requests.filter(state=models.AllocationRequest.STATES.submitted):
+            for alloc_request in self.alloc_requests:
                 spec = {
                     'facility': alloc_request.beamline.pk,
                     'justification': alloc_request.justification,
@@ -152,8 +162,8 @@ class CreateCallProjects(BaseCronJob):
                 models.AllocationRequest.objects.filter(pk=alloc_request.pk).update(
                     state=models.AllocationRequest.STATES.complete)
                 count += 1
-            log.append(f"Created {count} allocations from Allocation Requests for cycle {cycle}")
-            ReviewCycle.objects.filter(pk=cycle.pk).update(state=ReviewCycle.STATES.evaluation)
+            log.append(f"Renewed {count} project allocations from Allocation Requests")
+
         return "\n".join(log)
 
 
@@ -171,7 +181,7 @@ class CreateNonCallProjects(BaseCronJob):
         today = timezone.localtime(timezone.now()).date()
         self.submissions = Submission.objects.filter(
             cycle__end_date__gte=today, track__require_call=False,
-            state=Submission.STATES.reviewed, approved=True, project__isnull=True
+            state__gte=Submission.STATES.reviewed, approved=True, project__isnull=True
         ).distinct()
         self.cycles = ReviewCycle.objects.filter(open_date__lte=today, end_date__gte=today)
 
@@ -211,7 +221,7 @@ class CreateNonCallProjects(BaseCronJob):
                         procedure=alloc.procedure, justification=alloc.justification, shifts=0
                     )
                 log.append(
-                    f"Created {flex_allocations.count()} allocations for flexible scheduling for cycle {next_cycle}"
+                    f"Renewed {flex_allocations.count()} project allocations for flexible scheduling for cycle {next_cycle}"
                 )
 
         return "\n".join(log)

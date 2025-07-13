@@ -1100,7 +1100,7 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
                 'used': used, 'unused': unused, 'projects': pool_allocations.order_by('priority', 'score').distinct(),
             }
             pools[pool] = info
-
+        print(pools)
         context['discretionary'] += left_over
         if pools[default_pool].get('projects', models.Allocation.objects.none()).count() > 1:
 

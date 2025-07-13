@@ -2164,6 +2164,7 @@ class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
     model = models.Facility
     allowed_roles = USO_ADMIN_ROLES
     slug_field = 'acronym'
+    success_url = "."
 
     def check_allowed(self):
         facility = self.get_object()
@@ -2178,6 +2179,7 @@ class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
         initial['pools'] = {
             pool.pk: percent for pool, percent in facility.access_pools()
         }
+        debug_value(initial)
         return initial
 
     def form_valid(self, form):
@@ -2189,5 +2191,3 @@ class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
         self.object.save()
         return JsonResponse({'url': self.get_success_url()})
 
-    def get_success_url(self):
-        return reverse("facility-detail", kwargs={'acronym': self.object.acronym})

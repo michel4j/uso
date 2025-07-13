@@ -795,7 +795,10 @@ a[disabled] {
   }
 }
 
-.uneditable-input {
+.uneditable-input, input[readonly], textarea[readonly] {
+  background-color: var(--bs-tertiary-bg);
+  pointer-events: none;
+  color: var(--bs-secondary-text-emphasis);
   &:focus {
     box-shadow: none !important;
     outline: 0 none;

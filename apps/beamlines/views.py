@@ -33,7 +33,7 @@ class BeamlineList(RolePermsViewMixin, ItemListView):
     tool_template = "beamlines/facility-list-tools.html"
     admin_roles = USO_ADMIN_ROLES
     list_title = 'Facilities'
-    list_columns = ['name', 'acronym', 'kind', 'state']
+    list_columns = ['name', 'acronym', 'kind', 'flex_schedule', 'state']
     link_url = 'facility-detail'
     link_kwarg = 'acronym'
     link_field = 'acronym'
@@ -41,9 +41,6 @@ class BeamlineList(RolePermsViewMixin, ItemListView):
     list_filters = {'state', 'kind', TechniqueFilterFactory.new()}
     list_search = ['acronym', 'name', 'port']
     ordering = ['kind', '-state', 'name']
-
-def _fmt_codes(bls, obj=None):
-    return ', '.join([bl.code for bl in bls.distinct()])
 
 
 class LaboratoryList(RolePermsViewMixin, ItemListView):
