@@ -1,11 +1,40 @@
 {% load cycle_tags %}
 <div class="callout callout-info mb-3">
-    <h4>{{ object.title }}</h4>
-    {{ object.authors_text }}
-    <div class="col-sm-12 my-3">
-        <div class="fs-4">Cycle <strong>{{ cycle }}</strong></div>
+    <div class="col-sm-12">
+        <div class="fs-5">{{ object.code }} | Cycle <strong>{{ cycle }}</strong></div>
         <hr class="hr-xs"/>
         <p class="smaller">{{ cycle|cycle_comments }}</p>
         <p class="smaller">{{ message }}</p>
     </div>
+    {% for track, items in requests.items %}
+        <hr class="hr-xs"/>
+        <div class="col-sm-12">
+            <div class="row align-items-center">
+                {% if track.pk in invalid_tracks %}
+                    <i class="col-auto bi-exclamation-square text-danger icon-lg" data-bs-toggle="tooltip"  title="Not Available"></i>
+                {% else %}
+                    <i class="col-auto bi-check-square text-success icon-lg" data-bs-toggle="tooltip"  title="Available"></i>
+                {% endif %}
+                <div class="col-1 col-sm-3 text-condensed lh-1">{{ track.acronym }}<span class="d-none d-sm-inline"> &ndash; {{ track.name }}</span></div>
+                <div class="col ms-auto small">
+                {% for item in items %}
+                    {% if track.pk in valid_tracks %}
+                        <div class="badge bg-primary mb-1" data-bs-toggle="tooltip" title="Available">
+                            {{ item.technique.acronym }} &mdash; {{ item.config.facility.acronym }}
+                        </div>
+                    {% elif item.technique.pk in invalid_techniques %}
+                        <div class="badge bg-danger mb-1" data-bs-toggle="tooltip" title="Not Available">
+                            {{ item.technique.acronym }} &mdash; {{ item.config.facility.acronym }}
+                        </div>
+                    {% else %}
+                        <div class="badge bg-secondary mb-1" data-bs-toggle="tooltip" title="Available through another track">
+                            {{ item.technique.acronym }} &mdash; {{ item.config.facility.acronym }}
+                        </div>
+                    {% endif %}
+
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 </div>

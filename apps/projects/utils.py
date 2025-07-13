@@ -69,11 +69,25 @@ def create_project(submission):
         }
     }
 
+    requests = []
+    facilities = submission.facilities().values_list('pk', flat=True)
+    for req in proposal.details.get('beamline_reqs', []):
+        facility_id = req.get('facility', 0)
+        if facility_id not in facilities:
+            continue
+        requests.append({
+            **req,
+            'techniques': list(
+                submission.techniques.filter(config__facility=facility_id).values_list('technique__pk', flat=True)
+            )
+        })
+
     scores = dict(
         submission.reviews.complete().values('stage').order_by('stage').annotate(
             score=Avg('score')
         ).values_list('stage__kind__code', 'score')
     )
+
     passes_review = False
     check_facilities = False
     valid_facilities = set()
@@ -94,9 +108,9 @@ def create_project(submission):
 
             passes_review = len(stage_scores) > 0
             if passes_review and stage.blocks:
-                valid_facilities = set(stage_scores.keys())  # only these facilities can be valid
+                valid_facilities = set(map(int, stage_scores.keys()))  # only these facilities can be valid
             elif passes_review:
-                valid_facilities |= set(stage_scores.keys())  # add any valid ones from this stage to the set
+                valid_facilities |= set(map(int, stage_scores.keys()))  # add any valid ones from this stage to the set
             scores[stage_code] = stage_scores
         else:
             score = scores[stage_code]
@@ -105,21 +119,19 @@ def create_project(submission):
                 if stage.kind.low_better else
                 score >= stage.pass_score
             )
-        debug_value(scores)
+
         if not passes_review and stage.blocks:
             break
 
     if passes_review:
         requirements = {
             entry['facility']: entry
-            for entry in proposal.details.get('beamline_reqs', [])
-            if (to_int(entry['facility']) in valid_facilities or not check_facilities)
+            for entry in requests
+            if (entry['facility'] in valid_facilities or not check_facilities)
         }
         project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
         project.techniques.add(*submission.techniques.all())
         project.submissions.add(submission)
-
-        debug_value(requirements)
 
         for facility, spec in requirements.items():
             scores = compress_scores(scores, facility)

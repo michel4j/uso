@@ -292,21 +292,17 @@ def cycle_comments(cycle):
         return ""
     if cycle.state > cycle.STATES.open:
         txt = (
-            "<span class='text-danger'>The submission deadline for the selected period elapsed on "
-            "<em>{close_date}</em>. Only Non-Call tracks will be listed below if any are available.</span>"
+            "<span class='text-danger'>The call for proposals closed on "
+            "<em>{close_date}</em>.</span>"
         )
     elif cycle.state == cycle.STATES.open:
         txt = (
-            "<span class='text-info'>The call for proposals to be scheduled beam time during the selected "
-            "period will close on <em>{close_date}</em>. Note that the earliest beam time for the selected "
-            "scheduling period is in {start_duration}.</span>"
+            "<span class='text-info'>The call for proposals will close on <em>{close_date}</em>.</span>"
         )
     else:
         txt = (
-            "<span class='text-body-secondary'>The call for proposals to be scheduled during the selected period "
-            "will open in {open_duration} on <em>{open_date}</em>. The list of available techniques and beamlines "
-            "may change before that date. Note that the earliest beam time for the selected scheduling period is "
-            "in {start_duration}.</span>"
+            "<span class='text-body-secondary'>The call for proposals will open in {open_duration} "
+            "on <em>{open_date}</em>.</span>"
         )
     out = txt.format(
         close_date=cycle.close_date.strftime("%b %d, %Y"),

@@ -1,4 +1,5 @@
 import os
+import copy
 from datetime import date, timedelta, datetime
 
 from django.conf import settings
@@ -13,6 +14,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
+from reportlab.graphics.barcode.code128 import starta
 
 from beamlines.models import Facility
 from dynforms.models import BaseFormModel, FormType
@@ -136,7 +138,7 @@ class Proposal(BaseFormModel):
             authors.append(f"{member['last_name']}, {member['first_name']}")
         return " · ".join(authors)
 
-    def get_review_content(self):
+    def get_document(self):
         """
         Returns a dictionary of review content for this submission.
         """
@@ -293,17 +295,35 @@ class Submission(TimeStampedModel):
 
     def get_samples(self):
         """
-        Returns a list of samples associated with this material.
+        Returns a list of samples associated with this submission/material.
         """
         from samples.models import Sample
         sample_ids = [item['sample'] for item in self.proposal.details.get('sample_list', [])]
         return Sample.objects.filter(pk__in=sample_ids)
 
-    def get_review_content(self):
+    def get_document(self):
         """
-        Returns a dictionary of review content for this submission.
+        Returns a dictionary of content for this submission. This is used to display the
+        proposal in the review system.
         """
-        return self.proposal.get_review_content()
+
+        doc = copy.deepcopy(self.proposal.get_document())
+
+        # Update facilities and techniques as those are likely different for the submission
+        facilities = self.facilities().values_list('pk', flat=True)
+        proposal_reqs = doc['science']['beamline_reqs']
+        doc['science']['beamline_reqs'] = []
+        for req in proposal_reqs:
+            facility_id = req.get('facility', 0)
+            if facility_id not in facilities:
+                continue
+            doc['science']['beamline_reqs'].append({
+                **req,
+                'techniques': list(
+                    self.techniques.filter(config__facility=facility_id).values_list('technique__pk', flat=True)
+                )
+            })
+        return doc
 
     def adj(self):
         if hasattr(self, 'adjustment'):
@@ -311,20 +331,6 @@ class Submission(TimeStampedModel):
         else:
             adj = 0
         return adj
-
-    def score(self):
-        if hasattr(self, 'adjustment'):
-            adj = self.adjustment.value
-        else:
-            adj = 0
-
-        if hasattr(self, 'merit') and self.merit:
-            return self.merit + adj
-        else:
-            scores = self.scores()
-            score = scores.get('merit', 0.0) + adj
-            score = score if score else 0.0
-        return score
 
     class Meta:
         unique_together = ("proposal", "track")
@@ -483,6 +489,31 @@ class Technique(TimeStampedModel):
 
 
 class FacilityConfigQueryset(models.QuerySet):
+
+    def for_facility(self, facility, accepting=True):
+        """
+        Return the queryset representing all objects accepting proposals for a given facility.
+        :param facility: Facility object or id
+        :param accepting: If True, only return configurations that are accepting proposals,
+        otherwise if false, only those not accepting, if None, return all configurations for the facility.
+        """
+        if accepting in [True, False]:
+            filters = {'facility': facility, 'accept': accepting}
+        else:
+            filters = {'facility': facility}
+        return self.filter(**filters).order_by('start_date')
+
+    def get_for_cycle(self, cycle):
+        """
+        Return the queryset representing all objects for a given cycle.
+        """
+        if isinstance(cycle, int):
+            cycle = ReviewCycle.objects.get(pk=cycle)
+
+        return self.filter(
+            Q(cycle=cycle) | Q(start_date__lte=cycle.start_date)
+        ).order_by('start_date').last()
+
     def active(self, year=None, d=None):
         if year and not d:
             d = date(year, 12, 31)

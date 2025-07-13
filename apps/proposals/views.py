@@ -9,13 +9,15 @@ from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q, Avg, StdDev, Count, F
 from django.http import HttpResponseRedirect, JsonResponse, Http404
+from django.template.defaultfilters import pluralize
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.views.generic import detail, edit, TemplateView, View
 from dynforms.models import FormType
 from dynforms.views import DynUpdateView, DynCreateView
 from itemlist.views import ItemListView
-from reportlab.lib.logger import infoOnce
+
 from scipy import stats as scipy_stats
 
 from beamlines.models import Facility
@@ -311,16 +313,14 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         """
         requirements = self.object.details['beamline_reqs']
         cycle = models.ReviewCycle.objects.get(pk=self.object.details['first_cycle'])
-        conf_items = models.ConfigItem.objects.none()
+        techniques = models.ConfigItem.objects.none()
         facility_acronyms = set()
         for req in requirements:
-            config = models.FacilityConfig.objects.active(d=cycle.start_date).accepting().filter(
-                facility__pk=req.get('facility')
-            ).last()
+            config = models.FacilityConfig.objects.for_facility(req.get('facility')).get_for_cycle(cycle)
             if config:
                 acronym = config.facility.acronym.lower()
                 facility_acronyms.add(acronym)
-                conf_items |= config.items.filter(technique__in=req.get('techniques', []))
+                techniques |= config.items.filter(technique__in=req.get('techniques', []))
 
         # Select available pools
         # A pool is available if it doesn't define any roles, or the user matches one of the defined roles
@@ -331,7 +331,6 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         available_pool_ids = [
             pk for pk, roles in pool_roles.items() if self.request.user.has_any_role(*roles) or not roles
         ]
-        print(available_pool_ids)
 
         # Select available tracks based on requested techniques and call status
         if cycle.is_closed():
@@ -339,33 +338,56 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         else:
             valid_tracks = models.ReviewTrack.objects.filter(require_call=True)
 
-        track_ids = valid_tracks.values_list('pk', flat=True)
-
+        available_tracks = set(valid_tracks.values_list('pk', flat=True))
         requests = {
-            track: items
-            for track, items in list(conf_items.group_by_track().items())
-            if items.exists() and track.pk in track_ids
+            track: track_techniques
+            for track, track_techniques in techniques.group_by_track().items()
+            if track_techniques.exists()
         }
-        if not requests:
+
+        invalid_tracks = set()
+        valid_tracks = set()
+        valid_track_techniques = set()
+        invalid_track_techniques = set()
+
+        for track, techniques in requests.items():
+            if track.pk in available_tracks:
+                valid_tracks.add(track.pk)
+                valid_track_techniques.update(techniques.values_list('technique__pk', flat=True))
+            else:
+                invalid_tracks.add(track.pk)
+                invalid_track_techniques.update(techniques.values_list('technique__pk', flat=True))
+
+        invalid_techniques = invalid_track_techniques - valid_track_techniques
+
+        if not valid_tracks:
             message = (
-                "Based on your selected techniques, there are no available review tracks "
-                "for this proposal at this time. Please check back later."
+                "No review tracks are available for submission. Select a different cycle or check back "
+                "during the next call for proposals."
             )
-        elif len(requests) > 1:
+        elif len(valid_tracks) > 1:
             message = (
-                "You have selected techniques that require multiple review tracks. "
-                "Please select the tracks you wish to submit your proposal to. "
-                "You can select more than one track, but you must select at least one."
+                "Multiple review tracks are available. Please select at least one track to submit your proposal. "
+                "You can select multiple tracks if your proposal is relevant to more than one track."
             )
         else:
             message = (
-                "You have selected techniques that require a single review track. "
-                "Please review the details below and confirm your submission."
+                "One review track is available for submission, therefore it has been pre-selected."
+            )
+        num_invalid = len(invalid_techniques)
+        if num_invalid > 0:
+
+            message += (
+                f" <span class='text-danger'>{num_invalid} "
+                f"technique{pluralize(num_invalid, ' is,s are')} not available for submission</span> "
             )
 
         info = {
-            "message": message,
+            "message": mark_safe(message),
             "requests": requests,
+            "valid_tracks": valid_tracks,
+            "invalid_tracks": invalid_tracks,
+            "invalid_techniques": invalid_techniques,
             "num_tracks": len(requests),
             "cycle": cycle,
             "pools": models.AccessPool.objects.filter(pk__in=available_pool_ids),
@@ -1318,14 +1340,8 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
                 is_committee_reviewer
         )
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        cycle = self.object.cycle
-        queryset = models.Submission.objects.filter(
-            project__start_date__lte=cycle.start_date, project__end_date__gt=cycle.start_date
-        ).with_scores()
-
-        population_scores = models.Submission.objects.filter(track=self.object.track).annotate(
+    def get_population_scores(self):
+        scores = models.Submission.objects.filter(track=self.object.track).annotate(
             position=F('reviews__stage__position')
         ).exclude(
             Q(reviews__isnull=True) | Q(reviews__score__isnull=True) | Q(reviews__is_complete=False)
@@ -1337,7 +1353,30 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
             count=Count('reviews__pk', filter=Q(reviews__is_complete=True, reviews__score__isnull=False), distinct=True)
         ).values('position', 'avg', 'stdev', 'count')
 
-        debug_value(list(population_scores))
+        return scores
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cycle = self.object.cycle
+        queryset = models.Submission.objects.filter(
+            project__start_date__lte=cycle.start_date, project__end_date__gt=cycle.start_date
+        ).with_scores()
+
+        proposal_requests = {
+            item['facility']: item
+            for item in self.object.proposal.details.get('beamline_reqs', [])
+        }
+        facility_requests = {}
+        for facility in self.object.facilities():
+            req = proposal_requests.get(facility.pk, {})
+            facility_requests[facility] = {
+                'shifts': req.get('shifts', 0),
+                'techniques': self.object.techniques.filter(config__facility=facility),
+            }
+        context['facility_requests'] = facility_requests
+
+        population_scores = self.get_population_scores()
+
         object_scores = {
             rev_type.code: getattr(self.object, f"{rev_type.code}_avg")
             for rev_type in ReviewType.objects.scored()
@@ -1389,7 +1428,6 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
         reviewer = self.request.user.reviewer if hasattr(self.request.user, 'reviewer') else None
         is_committee = reviewer and reviewer.committee == self.object.track
         is_committee_reviewer = is_committee and self.object.reviews.filter(reviewer=self.request.user).exists()
-
         context['committee_member'] = is_committee_reviewer
         return context
 

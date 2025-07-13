@@ -17,10 +17,7 @@
 {% endblock %}
 
 {% block page-subtitle %}
-    {% for member in object.proposal.get_full_team %}
-        {{ member.last_name }}, {{ member.first_name }} <strong class="text-info">{{ member.roles|team_roles }}</strong>
-        {% if not forloop.last %}&middot;{% endif %}
-    {% endfor %}
+    {{object.proposal.authors_text }}
 {% endblock %}
 
 {% block page-tools %}
@@ -64,6 +61,13 @@
         <br/>
         {{ object.track }}
     </div>
+    <div>
+        <small class="text-wide text-body-secondary">Requested Facilities:</small>
+        <br/>
+        {% for facility in object.facilities %}
+            <a class="mb-1 me-1 badge bg-primary" href='{% url "facility-detail" acronym=facility.acronym %}'>{{ facility }}</a>
+        {% endfor %}
+    </div>
     {% if object.siblings.exists %}
         <div>
             <small class="text-wide text-body-secondary">Related:</small><br/>
@@ -73,55 +77,74 @@
         </div>
     {% endif %}
     <div>
-        <small class="text-wide text-body-secondary">Type:</small>
+        <small class="text-wide text-body-secondary">Access Pool:</small>
         <br/>
-        {{ object.get_kind_display }}
+        {{ object.pool }}
     </div>
 {% endblock %}
 
 {% block page-content %}
     <div class="page-body">
         <div class="row">
-            <div class="col-sm-12">
+            <div class="col-sm-12 mb-3">
                 <h4>Summary</h4>
                 {{ object.proposal.details.abstract|markdown }}
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12 col-sm-6">
-                <h4>Shifts Requested</h4>
-                {% for bl in object.proposal.details.beamline_reqs %}
-                    <ul>
-                        <li>
-                            {{ bl.facility|get_facility }} &emsp; <span
-                                class="badge">{{ bl.shifts|default:"unspecified" }} shift{{ bl.shifts|pluralize:",s" }}</span>
-                        </li>
-                    </ul>
-                {% endfor %}
-            </div>
-            <div class="col-sm-12 col-sm-6">
-                <h4>Techniques Requested</h4>
-                <ul class="list-unstyled list-ruled">
-                    {% for item in object.techniques.all %}
-                    <li>
-                        <strong>{{ submission.track }}</strong>  &mdash; {{ item }}
-                    </li>
+            <div class="col-sm-12 mb-3">
+                <h4>Requests</h4>
+                <table class="table table-ruled border-bottom">
+                    <thead>
+                        <tr>
+                            <th>Facility</th>
+                            <th>Shifts Requested</th>
+                            <th>Techniques</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for facility, requested in facility_requests.items %}
+                        <tr>
+                            <td>
+                                <a href='{% url "facility-detail" acronym=facility.acronym %}'>{{ facility.acronym }} &mdash; {{ facility.name }}</a>
+                            </td>
+                            <td>
+                                {{ requested.shifts|default:"unspecified" }} shift{{ requested.shifts|pluralize:",s" }}
+                            </td>
+                            <td>
+                                <ul class="my-0">
+                                {% for item in requested.techniques %}
+                                    <li>{{ item.technique }}</li>
+                                {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
                     {% endfor %}
-                    {% for submission in object.siblings.all %}
-                        {% for item in submission.techniques.all %}
-                            <strong>{{ submission.track }}</strong>  &mdash; {{ item }}
-                            <a href='{% url "submission-detail" pk=submission.pk %}'><i class="bi-arrow-right-circle icon-fw"></i></a>
-                        {% endfor %}
-                    {% endfor %}
-                </ul>
+                    </tbody>
+                </table>
             </div>
         </div>
         {% if object.state == object.STATES.complete or admin and object.state == object.STATES.reviewed %}
             <div class="row">
                 <div class="col-sm-12">
+                    <h4>Review Scores</h4>
+                    <div class="row">
+                    {% for stage in object.track.stages.all %}
+                        <div class="col">
+                            <div class="card bg-danger-subtle mb-3">
+                                <div class="card-header d-flex align-items-center">
+                                    <i class="bi bi-{{ forloop.counter }}-square icon-md"></i> &nbsp; {{ stage.kind }}
+                                </div>
+                                <div class="card-body">
+                                    {{ stage }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+
                     <div class="p-3 mb-3 border-3d">
                         <div class="row">
-
                             <div class="col-sm-6 col-sm-12">
                                 <h4>Score Summary</h4>
                                 <hr class="hr-xs"/>

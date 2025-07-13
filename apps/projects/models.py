@@ -364,7 +364,7 @@ class Material(TimeStampedModel):
         from samples.models import Sample
         return Sample.objects.filter(pk__in=self.samples.values_list('pk', flat=True))
 
-    def get_review_content(self):
+    def get_document(self):
         """
         Returns a dictionary of review content for this submission.
         """

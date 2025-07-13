@@ -126,6 +126,12 @@
                     $('.dateinput').datePicker({
                         dateFormat: "YYYY-MM-DD",
                     });
+
+                    // tooltips in modal
+                    const tooltipTriggerList = [].slice.call(document.querySelectorAll('#modal-target [data-bs-toggle="tooltip"]'));
+                    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                        new bootstrap.Tooltip(tooltipTriggerEl);
+                    });
                 }
             });
 
