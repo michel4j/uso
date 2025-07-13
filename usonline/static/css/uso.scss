@@ -563,13 +563,6 @@ h1, h2, h3, h4, h5, h6 {
   overflow-x: hidden;
   transition: padding 500ms ease 0s;
 
-  >
-  .page-tools {
-    right: 15px;
-    top: 15px;
-    margin-bottom: 4px;
-  }
-
   .list-group {
     list-style: none outside;
 
@@ -610,12 +603,6 @@ h1, h2, h3, h4, h5, h6 {
         border-bottom-color: var(--bs-border-color-translucent);
       }
     }
-  }
-}
-
-.page-tools {
-  .btn-group {
-    padding-left: 3px;
   }
 }
 
@@ -1722,7 +1709,7 @@ table.fixed-header {
   display: inline-block;
   font-size: 85%;
   color: var(--bs-body-color);
-  opacity: 0.75;
+  opacity: 0.8;
   line-height: 0.75;
   padding-top: 0.5em;
 }
@@ -1731,20 +1718,30 @@ table.fixed-header {
   padding: 0.5em 0;
   line-height: 1;
   text-align: center;
-
+  br {
+    display: none;
+  }
   .tool-label {
     min-width: 4em;
   }
 
+  .btn-group {
+    padding-left: 3px;
+  }
+
   a {
+    display: flex;
+    flex-direction: column;
     position: relative;
-    text-align: center;
+    align-items: center;
+    justify-content: center;
     padding: 0 0.5em;
 
     &:last-child {
       padding-left: 1.5em;
       border-left: 1px solid var(--bs-border-color-translucent);
     }
+
   }
 }
 
