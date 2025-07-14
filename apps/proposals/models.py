@@ -211,6 +211,9 @@ class AccessPool(TimeStampedModel):
     role = models.CharField(max_length=128, blank=True, null=True)
     is_default = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ['is_default']
+
     def delete(self, using=None, keep_parents=False):
         """
         Override delete to prevent deletion of default access pool.

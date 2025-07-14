@@ -287,7 +287,6 @@ def expand_role(role: str, realms: list[str]) -> set[str]:
 class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
     model = models.Proposal
     form_class = forms.SubmitProposalForm
-    #template_name = "proposals/forms/submit.html"
     success_url = reverse_lazy('user-proposals')
     submit_info: dict
 
@@ -374,11 +373,12 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
                 "One review track is available for submission, therefore it has been pre-selected."
             )
         num_invalid = len(invalid_techniques)
+        num_valid = len(valid_track_techniques)
         if num_invalid > 0:
 
             message += (
-                f" <span class='text-danger'>{num_invalid} "
-                f"technique{pluralize(num_invalid, ' is,s are')} not available for submission</span> "
+                f" <span class='text-danger'>{num_invalid} requested "
+                f"technique{pluralize(num_invalid, ',s')} can not be submitted</span> "
             )
 
         info = {
