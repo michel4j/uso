@@ -143,18 +143,18 @@ class CreateCallProjects(BaseCronJob):
 
         if self.submissions.exists():
             for submission in self.submissions:
-                utils.create_project(submission)
-            log.append(f"Created projects for {self.submissions.count()} submissions.")
+                project = utils.create_project(submission)
+                if project:
+                    log.append(f"Submission {submission}: Created project {project}.")
 
         # create allocations for allocation requests
         if self.alloc_requests.exists():
-            count = 0
             for alloc_request in self.alloc_requests:
                 specs = {
                     'justification': alloc_request.justification,
                     'procedure': alloc_request.procedure
                 }
-                utils.create_allocation_tree(
+                created = utils.create_allocation_tree(
                     alloc_request.project,
                     alloc_request.beamline,
                     alloc_request.cycle,
@@ -166,8 +166,7 @@ class CreateCallProjects(BaseCronJob):
                     state=models.AllocationRequest.STATES.complete,
                     modified=timezone.localtime(timezone.now())
                 )
-                count += 1
-            log.append(f"Renewed {count} project allocations from Allocation Requests")
+                f"Project {alloc_request.project}: Renewed on {alloc_request.beamline} for cycle {alloc_request.cycle}."
 
         return "\n".join(log)
 
@@ -202,8 +201,9 @@ class CreateNonCallProjects(BaseCronJob):
         # create projects for non-call submissions
         if self.submissions.exists():
             for submission in self.submissions:
-                utils.create_project(submission)
-            log.append(f"Created {self.submissions.count()} projects for non-call review tracks")
+                project = utils.create_project(submission)
+                if project:
+                    log.append(f"Submission {submission}: Created project {project}.")
 
         # create allocation objects for flexible beamlines every cycle, until expiry
         for cycle in self.cycles:
@@ -227,10 +227,9 @@ class CreateNonCallProjects(BaseCronJob):
                         'procedure': alloc.procedure
                     }
                     utils.create_allocation(alloc.project, alloc.beamline, next_cycle, specs=specs, shifts=0)
-                log.append(
-                    f"Renewed {flex_allocations.count()} project allocations for "
-                    f"flexible scheduling for cycle {next_cycle}"
-                )
+                    log.append(
+                        f"Project {alloc.project}: Renewed on {alloc.beamline} for cycle {next_cycle}."
+                    )
 
         return "\n".join(log)
 

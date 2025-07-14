@@ -23,7 +23,6 @@ from scipy.stats import percentileofscore
 from beamlines.models import Facility
 from misc import filters
 from misc.models import ActivityLog
-from misc.utils import debug_value
 from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from roleperms.views import RolePermsViewMixin
@@ -1353,8 +1352,6 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
             if not stage_scores:
                 continue
 
-            debug_value(population)
-
             if stage.kind.per_facility:
                 stage_results[stage] = {
                     acronym: {
@@ -2130,7 +2127,6 @@ class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
         initial['pools'] = {
             pool.pk: percent for pool, percent in facility.access_pools()
         }
-        debug_value(initial)
         return initial
 
     def form_valid(self, form):

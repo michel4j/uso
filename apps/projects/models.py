@@ -648,10 +648,13 @@ class Allocation(TimeStampedModel):
         active = self.cycle.STATES.evaluation <= self.cycle.state <= self.cycle.STATES.active
         return active
 
-    def previous(self, num=4):
-        return reversed(
-            [self.project.allocations.filter(cycle_id=self.cycle.pk - i, beamline=self.beamline).first() for i in
-             range(1, num + 1)])
+    def previous_beamtime(self):
+        scheduled = self.project.beamtimes.filter(
+            beamline=self.beamline
+        ).with_shifts().aggregate(total=Sum('shifts'))
+        if scheduled['total'] is None:
+            return 0
+        return scheduled['total']
 
     def tags(self):
         return self.project.tags.filter(Q(facility=self.beamline) | Q(facility__children=self.beamline) | Q(
@@ -662,7 +665,7 @@ class Allocation(TimeStampedModel):
             Q(start__gte=self.cycle.start_date) & Q(end__lte=self.cycle.end_date))
 
     def __str__(self):
-        return "{}:{}:{}".format(self.project, self.beamline, self.cycle)
+        return f"{self.project}:{self.beamline}:{self.cycle}"
 
 
 class ShiftRequestQueryset(models.QuerySet):

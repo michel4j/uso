@@ -2,54 +2,50 @@
 {% load misc %}
 
 <div>
-    <table class="table-hover table-condensed table">
+    <table class="table-hover table-ruled table">
         <tr>
-            <th class="col-sm-3">Project</th>
-            <th>Scores</th>
-            <th class="d-none d-md-table-cell">Past Beamtime</th>
-            <th class="text-right" title="Requested Shifts">Request</th>
-            <th class="text-right" title="Allocated Shifts">Award</th>
+            <th class="">Project</th>
+            <th class="text-end">Scores</th>
+            <th class="text-end">Previous<span class="d-none d-sm-inline"> Beamtime</span></th>
+            <th class="text-end" title="Requested Shifts">Request</th>
+            <th class="text-end" title="Allocated Shifts">Award</th>
             <th>
                 <span title="Total Awarded Shifts" class="pull-right">Total</span>
             </th>
         </tr>
-        {% for p in section.projects.all1 %}
-            <tr class="pool-row {% allocation_style p pool.cutoff pool.decision %}">
+        {% for alloc in section.projects.all %}
+            <tr class="pool-row {% allocation_style alloc section.cutoff section.decision %}">
                 <td>
-                    {% if p.project.submissions.first.pk %}
-                        <a href="{% url 'submission-detail' p.project.submissions.first.pk %}"
-                           data-bs-toggle="popover" title="{{ p.project }}" data-content="{{ p.project.title }}"
-                           data-trigger="hover"
-                        >
-                            {{ p.project }}
+                    {% if alloc.project.submissions.first.pk %}
+                        <a href="{% url 'submission-detail' alloc.project.submissions.first.pk %}">
+                            {{ alloc.project }}
                         </a>
                     {% else %}
-                        {{ p.project }}
+                        {{ alloc.project }}
                     {% endif %}
-                    {% if p.is_new %}&nbsp;<i class="bi-star text-warning icon-fw"></i>{% endif %}
+                    {% if alloc.is_new %}&nbsp;<i class="bi-star text-warning icon-fw" title="New Project"></i>{% endif %}
                 </td>
-                <td>
-                    {% for name, score in p.scores.items %}
-                        <span class="allocation-score" title="{{ name|title }}">{{ score|floatformat:2 }}</span>
-                    {% endfor %}
-                </td>
-                <td class="d-none d-md-table-cell">
-                    <div class="col-sm-12">{% for a in p.previous %}
-                        <div class="col-sm-3" title="{{ a.cycle }}">
-                            {% if a %}{{ a.shifts|default:0 }}{% else %}{% endif %}
+                <td class="text-end" data-bs-toggle="scores-popover">
+                    {{ alloc.score|floatformat:2 }}
+                    <div class="d-none">
+                        <div id="allocation-score-{{ alloc.pk }}" class="d-flex flex-column">
+                            {% for name, score in alloc.scores.items %}
+                                <div><strong>{{ name }}: </strong> {{ score|floatformat }}</div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
                     </div>
-                    <!-- Previous Allocations-->
                 </td>
-                <td class="text-right">{{ p.shift_request }}</td>
-                <td class="hover-edit text-right">
-                    <a title="Edit Allocation" style="cursor: pointer;" data-modal-url="{% url 'edit-allocation' p.pk %}">
-                        <text class="text-info pool-{{ p.key }}-item" style="font-weight: 700;">{{ p.shifts }}</text>
+                <td class="text-end">
+                    {{ alloc.previous_beamtime|floatformat:0 }}
+                </td>
+                <td class="text-end">{{ alloc.shift_request }}</td>
+                <td class="hover-edit text-end">
+                    <a title="Edit Allocation" style="cursor: pointer;" data-modal-url="{% url 'edit-allocation' alloc.pk %}">
+                        <text class="text-info pool-{{ alloc.key }}-item" style="font-weight: 700;">{{ alloc.shifts }}</text>
                     </a>
                 </td>
                 <td>
-                    <text class="pull-right">{% store p.name p.shifts %}</text>
+                    <text class="pull-right">{% store alloc.name alloc.shifts %}</text>
                 </td>
             </tr>
         {% endfor %}

@@ -15,14 +15,11 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
-from reportlab.graphics.barcode.code128 import starta
-
 from beamlines.models import Facility
 from dynforms.models import BaseFormModel, FormType
 from misc.fields import StringListField
-from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment, Clarification, GenericContentMixin, \
-    GenericContentQueryset
-from misc.utils import debug_value
+from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
+from misc.models import Clarification, GenericContentMixin, GenericContentQueryset
 from publications.models import SubjectArea
 
 User = getattr(settings, "AUTH_USER_MODEL")
@@ -339,19 +336,19 @@ class Submission(TimeStampedModel):
         all_scores = self.scores()
 
         # each facility gets its own scores, per facility scores are separate, the rest are shared
-        facility_scores = {}
-        for facility in self.facilities():
-            facility_scores[facility] = {
-                stage: score if stage.kind.per_facility else score.get(facility.acronym, {})
-                for stage, score in all_scores.items()
+        facility_scores = {
+            facility: {
+                stage: stage_score.get(facility.acronym, stage_score)
+                for stage, stage_score in all_scores.items()
             }
+            for facility in self.facilities()
+        }
 
         if passing_only:
             passing = {}
             for facility, scores in facility_scores.items():
                 for stage, stage_score in scores.items():
-
-                    if not stage_score.get("passed"):
+                    if stage.blocks and not stage_score.get("passed"):
                         break
                 else:
                     # if we didn't break, it means all stages passed
@@ -829,7 +826,7 @@ class ReviewQueryset(GenericContentQueryset):
         return self.filter(type__kind=ReviewType.Types.safety)
 
     def complete(self):
-        return self.filter(state__gte=Review.STATES.submitted)
+        return self.filter(is_complete=True)
 
     def pending(self):
         return self.filter(state__lt=Review.STATES.submitted)
@@ -871,7 +868,6 @@ class ReviewTypeQueryset(models.QuerySet):
         """
         annotations = {}
         keys = self.values_list('code', flat=True)
-        print('KEYS', keys)
         for rev_type in ReviewType.objects.scored():
             annotations[f"{rev_type.code}_avg"] = Avg(
                 Case(

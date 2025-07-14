@@ -64,7 +64,7 @@ def summarize_scores(scores: dict) -> tuple[float, dict]:
 
     # Calculate the average score weighted by the stage weight
     weighted_avg = 0.0
-    if not numpy.isclose(score_data['weight'], 0):
+    if not numpy.isclose(sum(score_data['weight']), 0):
         weighted_avg = numpy.average(score_data['average'], weights=score_data['weight'])
 
     # Create a dictionary with the average score for each stage
@@ -111,7 +111,7 @@ def create_project(submission) -> models.Project | None:
     passing_facilities = submission.get_facility_scores(passing_only=True)
     passing_requests = {
         facility: details
-        for facility, details in submission.get_requests()
+        for facility, details in submission.get_requests().items()
         if facility in passing_facilities
     }
 
@@ -121,7 +121,8 @@ def create_project(submission) -> models.Project | None:
         for facility, details in passing_requests.items():
             project.techniques.add(*details['techniques'].all())
             create_allocation_tree(
-                project, facility, cycle, specs=details, scores=passing_facilities[facility]
+                project, facility, cycle, specs=details, shift_request=details.get('shifts', 0),
+                scores=passing_facilities[facility]
             )
 
         project.submissions.add(submission)
@@ -164,9 +165,9 @@ def create_allocation_tree(
         cycle: ReviewCycle,
         specs: dict = None,
         shifts: int = 0,
-        shift_request: int = None,
+        shift_request: int = 0,
         scores: dict = None
-):
+) -> list[models.Allocation]:
     """
     Create facility allocation objects for a project based on the provided specifications. Takes
     into account the facility type and creates allocations for all relevant sub-facilities.
@@ -175,12 +176,12 @@ def create_allocation_tree(
     :param cycle: Review cycle for the allocation
     :param specs: Specification dictionary containing justification and experimental procedure information
     :param shifts: Number of shifts allocated to the project, defaults to 0
-    :param shift_request: Requested shifts for the allocation, defaults to None
+    :param shift_request: Requested shifts for the allocation, defaults to 0
     :param scores: Review scores for this facility, defaults to None
     """
 
     specs = specs or {}
-    shift_request = shift_request if shift_request is None else shifts
+    shift_request = shift_request if shift_request is not None else shifts
 
     # Select facilities based on their type and parent-child relationships.
     # Allocation objects will be created for beamlines and equipment that are children
@@ -189,11 +190,15 @@ def create_allocation_tree(
         Q(kind__in=[Facility.TYPES.beamline, Facility.TYPES.equipment], parent__pk=facility.pk) |
         Q(kind=Facility.TYPES.beamline, pk=facility.pk)
     )
+    created = []
     for facility in facilities:
-        create_allocation(
+        alloc = create_allocation(
             project, facility, cycle, specs=specs, shifts=shifts,
             shift_request=shift_request, scores=scores,
         )
+        if alloc:
+            created.append(alloc)
+    return created
 
 
 def create_allocation(
@@ -202,9 +207,9 @@ def create_allocation(
         cycle: ReviewCycle,
         specs: dict = None,
         shifts: int = 0,
-        shift_request: int = None,
+        shift_request: int = 0,
         scores: dict = None
-):
+) -> models.Allocation:
     """
     Create a single allocation objects for a project.
     :param project: Target project for the allocation
@@ -212,7 +217,7 @@ def create_allocation(
     :param cycle: Review cycle for the allocation
     :param specs: Specification dictionary containing justification and experimental procedure information
     :param shifts: Number of shifts allocated to the project, defaults to 0
-    :param shift_request: Requested shifts for the allocation, defaults to None
+    :param shift_request: Requested shifts for the allocation, defaults to 0
     :param scores: Review scores for this facility, defaults to None
     """
 

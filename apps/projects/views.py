@@ -1043,7 +1043,7 @@ class AllocDecider(object):
         return self
 
     def __str__(self):
-        return '{} [{}:{}]'.format(self.used, self.cutoff, self.decision)
+        return f'{self.used} [{self.cutoff}:{self.decision}]'
 
 
 class AllocateBeamtime(RolePermsViewMixin, TemplateView):
@@ -1095,15 +1095,18 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
             if pool.is_default:
                 context['discretionary'] += unused
             info = {
-                'shifts': available, 'decision': 0, 'percent': percent,
+                'shifts': available,
+                'decision': 0,
+                'percent': percent,
                 'reserved': reserved,
-                'used': used, 'unused': unused, 'projects': pool_allocations.order_by('priority', 'score').distinct(),
+                'used': used,
+                'unused': unused,
+                'projects': pool_allocations.order_by('priority', 'score').distinct(),
             }
             pools[pool] = info
-        print(pools)
+
         context['discretionary'] += left_over
         if pools[default_pool].get('projects', models.Allocation.objects.none()).count() > 1:
-
             shifts = pools[default_pool]['shifts']
             projects = pools[default_pool]['projects']
             decider = AllocDecider(shifts, extra=context['discretionary'])
@@ -1111,6 +1114,7 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
             pools[default_pool]['decision'] = final.decision
             pools[default_pool]['cutoff'] = final.cutoff
             pools[default_pool]['available'] = pools[default_pool]['shifts'] + context['discretionary']
+
         context['default'] = {
             'pool': default_pool, 'section': pools[default_pool],
         }
