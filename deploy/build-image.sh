@@ -13,6 +13,6 @@ elif command -v docker &> /dev/null; then
   docker build -t usonline:$(git describe) -t usonline:latest .
   docker image prune -f
 else
-  echo "Neither buildah nor docker is installed. Exiting."
+  echo "Neither podman, buildah nor docker are installed. Exiting!"
   exit 1
 fi

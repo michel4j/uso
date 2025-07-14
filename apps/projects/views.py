@@ -376,7 +376,7 @@ class CreateProject(RolePermsViewMixin, edit.CreateView):
 
         # team and allocations
         for bl in info['details'].get('beamline_reqs', []):
-            utils.create_project_allocations(self.object, bl, self.object.cycle)
+            utils.create_allocation_tree(self.object, bl, self.object.cycle)
 
         # create materials
         material = models.Material.objects.get_or_create(project=project)

@@ -150,17 +150,22 @@ class CreateCallProjects(BaseCronJob):
         if self.alloc_requests.exists():
             count = 0
             for alloc_request in self.alloc_requests:
-                spec = {
-                    'facility': alloc_request.beamline.pk,
+                specs = {
                     'justification': alloc_request.justification,
                     'procedure': alloc_request.procedure
                 }
-                utils.create_project_allocations(
-                    alloc_request.project, spec, alloc_request.cycle,
-                    shifts=0, shift_request=alloc_request.shift_request,
+                utils.create_allocation_tree(
+                    alloc_request.project,
+                    alloc_request.beamline,
+                    alloc_request.cycle,
+                    specs=specs,
+                    shifts=0,
+                    shift_request=alloc_request.shift_request,
                 )
                 models.AllocationRequest.objects.filter(pk=alloc_request.pk).update(
-                    state=models.AllocationRequest.STATES.complete)
+                    state=models.AllocationRequest.STATES.complete,
+                    modified=timezone.localtime(timezone.now())
+                )
                 count += 1
             log.append(f"Renewed {count} project allocations from Allocation Requests")
 
@@ -206,7 +211,8 @@ class CreateNonCallProjects(BaseCronJob):
             if not next_cycle:
                 continue
 
-            # which projects on flexible beamlines which are still active next cycle do not have allocations yet
+            # which projects on flexible beamlines which are still
+            # active next cycle do not have allocations yet
             flex_projects = models.Project.objects.exclude(cycle=next_cycle).filter(
                 beamlines__flex_schedule=True, end_date__gte=next_cycle.end_date
             ).exclude(allocations__cycle=next_cycle).distinct()
@@ -216,12 +222,14 @@ class CreateNonCallProjects(BaseCronJob):
             ).distinct()
             if flex_allocations.exists():
                 for alloc in flex_allocations:
-                    utils.create_allocation(
-                        alloc.project, alloc.beamline, next_cycle,
-                        procedure=alloc.procedure, justification=alloc.justification, shifts=0
-                    )
+                    specs = {
+                        'justification': alloc.justification,
+                        'procedure': alloc.procedure
+                    }
+                    utils.create_allocation(alloc.project, alloc.beamline, next_cycle, specs=specs, shifts=0)
                 log.append(
-                    f"Renewed {flex_allocations.count()} project allocations for flexible scheduling for cycle {next_cycle}"
+                    f"Renewed {flex_allocations.count()} project allocations for "
+                    f"flexible scheduling for cycle {next_cycle}"
                 )
 
         return "\n".join(log)

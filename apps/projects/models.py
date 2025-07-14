@@ -161,8 +161,9 @@ class Project(DateSpanMixin, TimeStampedModel):
             if num_allocs == 1:
                 allocation = allocs_for_bl.first()
             elif num_allocs > 1:
-                allocation = allocs_for_bl.filter(cycle__start_date__lte=this_cycle.start_date).order_by(
-                    '-cycle__start_date').first()
+                allocation = allocs_for_bl.filter(
+                    cycle__start_date__lte=this_cycle.start_date
+                ).order_by('-cycle__start_date').first()
             else:
                 continue
             cycle = allocation.cycle
@@ -247,8 +248,8 @@ class Project(DateSpanMixin, TimeStampedModel):
 
         any_perms |= {'FACILITY-ACCESS'}
         beamlines = self.beamlines.exclude(kind='equipment')
-        user_perms |= {'{}-USER'.format(bl.acronym) for bl in beamlines}
-        user_perms |= {'{}-REMOTE-USER'.format(bl.acronym) for bl in beamlines}
+        user_perms |= {f'{bl.acronym}-USER' for bl in beamlines}
+        user_perms |= {f'{bl.acronym}-REMOTE-USER' for bl in beamlines}
         return {'all': req_perms, 'any': any_perms, 'user': user_perms}
 
     def scores(self, bl):
@@ -610,8 +611,9 @@ class AllocationRequest(TimeStampedModel):
     project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="allocation_requests")
     cycle = models.ForeignKey('proposals.ReviewCycle', on_delete=models.CASCADE, related_name="allocation_requests")
     beamline = models.ForeignKey('beamlines.Facility', on_delete=models.CASCADE, related_name="allocation_requests")
-    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="allocation_requests",
-                                  verbose_name='Scheduling Tags')
+    tags = models.ManyToManyField(
+        'beamlines.FacilityTag', related_name="allocation_requests", verbose_name='Scheduling Tags'
+    )
     procedure = models.TextField(blank=True, null=True)
     justification = models.TextField(blank=True, null=True)
     shift_request = models.IntegerField('Shifts Requested', default=0)
@@ -619,7 +621,7 @@ class AllocationRequest(TimeStampedModel):
     poor_dates = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return '{} {}'.format(self.project, self.cycle)
+        return f'{self.project} {self.cycle}'
 
 
 class Allocation(TimeStampedModel):
