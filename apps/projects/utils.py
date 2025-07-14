@@ -101,15 +101,16 @@ def create_project(submission):
         project.refresh_team()
 
         # create materials
+        document = submission.get_document()
         material, created = models.Material.objects.get_or_create(
             project=project, defaults={
-                'procedure': proposal.details.get('sample_handling', ''),
-                'waste': proposal.details.get('waste_generation', []),
-                'disposal': proposal.details.get('disposal_procedure', ''),
-                'equipment': proposal.details.get('equipment', []),
+                'procedure': document['safety']['handling'],
+                'waste': document['safety']['waste'],
+                'disposal': document['safety']['disposal'],
+                'equipment': document['safety']['equipment'],
             }
         )
-        for sample in proposal.details.get('sample_list', []):
+        for sample in document['safety']['samples']:
             p_sample, created = models.ProjectSample.objects.get_or_create(
                 material=material, sample_id=sample['sample'],
                 defaults={'quantity': sample.get('quantity', '')}
