@@ -82,61 +82,22 @@ def create_project(submission):
             )
         })
 
-    scores = dict(
-        submission.reviews.complete().values('stage').order_by('stage').annotate(
-            score=Avg('score')
-        ).values_list('stage__kind__code', 'score')
-    )
+    passing_facilities = submission.get_facility_scores(passing_only=True)
+    requests = submission.get_requests()
 
-    passes_review = False
-    check_facilities = False
-    valid_facilities = set()
-    for stage in track.stages.all():
-        stage_code = stage.kind.code
-        if stage.kind.per_facility:
-            check_facilities = True  # check passage for each facility independently
-            facility_scoring = submission.reviews.complete().filter(stage=stage).annotate(
-                facility=F('details__facility')
-            ).values('facility').annotate(
-                score=Avg('score')
-            ).values_list('facility', 'score')
-
-            if stage.kind.low_better:
-                stage_scores = dict(facility_scoring.filter(score__lte=stage.pass_score))
-            else:
-                stage_scores = dict(facility_scoring.filter(score__gte=stage.pass_score))
-
-            passes_review = len(stage_scores) > 0
-            if passes_review and stage.blocks:
-                valid_facilities = set(map(int, stage_scores.keys()))  # only these facilities can be valid
-            elif passes_review:
-                valid_facilities |= set(map(int, stage_scores.keys()))  # add any valid ones from this stage to the set
-            scores[stage_code] = stage_scores
-        else:
-            score = scores[stage_code]
-            passes_review = (
-                score <= stage.pass_score
-                if stage.kind.low_better else
-                score >= stage.pass_score
-            )
-
-        if not passes_review and stage.blocks:
-            break
-
-    if passes_review:
-        requirements = {
-            entry['facility']: entry
-            for entry in requests
-            if (entry['facility'] in valid_facilities or not check_facilities)
+    if passing_facilities:
+        passing_requests = {
+            facility: details
+            for facility, details in requests.items()
+            if facility in passing_facilities
         }
         project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
-        project.techniques.add(*submission.techniques.all())
+        for facility, details in passing_requests.items():
+            details['facility'] = details.get('facility', 0)
+            project.techniques.add(*details['techniques'].all())
+            create_project_allocations(project, details, cycle, scores=passing_facilities[facility])
+
         project.submissions.add(submission)
-
-        for facility, spec in requirements.items():
-            scores = compress_scores(scores, facility)
-            create_project_allocations(project, spec, cycle, scores=scores)
-
         project.refresh_team()
 
         # create materials

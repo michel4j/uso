@@ -925,6 +925,7 @@ def advance_review_workflow(submission) -> list[str]:
         # If we reached here, all stages passed, we can mark the submission as approved
         submission.state = submission.STATES.reviewed
         submission.approved = True
+        submission.comments = submission.get_comments()
         submission.save()
         logs.append(f'Submission {submission}: passed all stages and is now approved.')
 
@@ -932,6 +933,7 @@ def advance_review_workflow(submission) -> list[str]:
         # If any stage failed, we mark the submission as rejected
         submission.state = submission.STATES.reviewed
         submission.approved = False
+        submission.comments = submission.get_comments()
         submission.save()
 
     return logs

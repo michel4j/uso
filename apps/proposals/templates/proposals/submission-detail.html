@@ -17,15 +17,15 @@
 {% endblock %}
 
 {% block page-subtitle %}
-    {{object.proposal.authors_text }}
+    {{ object.proposal.authors_text }}
 {% endblock %}
 
 {% block page-tools %}
-    {% if admin  %}
-    <a href='{% url 'proposal-detail' object.proposal.pk %}' class="pull-right">
-        <i class="bi-file-earmark-richtext icon-md icon-fw"></i><br/>
-        <span class="tool-label">Proposal</span>
-    </a>
+    {% if admin %}
+        <a href='{% url 'proposal-detail' object.proposal.pk %}' class="pull-right">
+            <i class="bi-file-earmark-richtext icon-md icon-fw"></i><br/>
+            <span class="tool-label">Proposal</span>
+        </a>
     {% endif %}
     {% if object.project.exists %}
         <a href='{% url 'project-detail' object.project.first.pk %}' class="pull-right">
@@ -49,7 +49,8 @@
 
 {% block page-status-bar %}
     <span class="status-badge badge bg-{% state_tag object.state secondary=object.STATES.pending info=object.STATES.started %}{% state_tag object.approved success=True danger=False %} text-condensed">
-        {% if object.approved == True %}Approved{% elif object.approved == False %}Rejected{% else %}{{ object.get_state_display }}{% endif %}
+        {% if object.approved == True %}Approved{% elif object.approved == False %}Rejected{% else %}
+            {{ object.get_state_display }}{% endif %}
     </span>
     <div>
         <small class="text-wide text-body-secondary">First Cycle:</small>
@@ -65,7 +66,8 @@
         <small class="text-wide text-body-secondary">Requested Facilities:</small>
         <br/>
         {% for facility in object.facilities %}
-            <a class="mb-1 me-1 badge bg-primary" href='{% url "facility-detail" acronym=facility.acronym %}'>{{ facility }}</a>
+            <a class="mb-1 me-1 badge bg-primary"
+               href='{% url "facility-detail" acronym=facility.acronym %}'>{{ facility }}</a>
         {% endfor %}
     </div>
     {% if object.siblings.exists %}
@@ -96,26 +98,27 @@
                 <h4>Requests</h4>
                 <table class="table table-ruled border-bottom">
                     <thead>
-                        <tr>
-                            <th>Facility</th>
-                            <th>Shifts Requested</th>
-                            <th>Techniques</th>
-                        </tr>
+                    <tr>
+                        <th>Facility</th>
+                        <th>Shifts Requested</th>
+                        <th>Techniques</th>
+                    </tr>
                     </thead>
                     <tbody>
                     {% for facility, requested in facility_requests.items %}
                         <tr>
                             <td>
-                                <a href='{% url "facility-detail" acronym=facility.acronym %}'>{{ facility.acronym }} &mdash; {{ facility.name }}</a>
+                                <a href='{% url "facility-detail" acronym=facility.acronym %}'>{{ facility.acronym }}
+                                    &mdash; {{ facility.name }}</a>
                             </td>
                             <td>
                                 {{ requested.shifts|default:"unspecified" }} shift{{ requested.shifts|pluralize:",s" }}
                             </td>
                             <td>
                                 <ul class="my-0">
-                                {% for item in requested.techniques %}
-                                    <li>{{ item.technique }}</li>
-                                {% endfor %}
+                                    {% for item in requested.techniques %}
+                                        <li>{{ item.technique }}</li>
+                                    {% endfor %}
                                 </ul>
                             </td>
                         </tr>
@@ -124,69 +127,59 @@
                 </table>
             </div>
         </div>
-        {% if object.state == object.STATES.complete or admin and object.state == object.STATES.reviewed %}
+        {% if object.state == object.STATES.complete or admin and object.state >= object.STATES.reviewed %}
             <div class="row">
                 <div class="col-sm-12">
                     <h4>Review Scores</h4>
                     <div class="row">
-                    {% for stage in object.track.stages.all %}
-                        <div class="col">
-                            <div class="card bg-danger-subtle mb-3">
-                                <div class="card-header d-flex align-items-center">
-                                    <i class="bi bi-{{ forloop.counter }}-square icon-md"></i> &nbsp; {{ stage.kind }}
-                                </div>
-                                <div class="card-body">
-                                    {{ stage }}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                    </div>
-
-                    <div class="p-3 mb-3 border-3d">
-                        <div class="row">
-                            <div class="col-sm-6 col-sm-12">
-                                <h4>Score Summary</h4>
-                                <hr class="hr-xs"/>
-                                <div class="row">
-                                    {% for review_type, info in ranks.items %}
-                                        <div class="col-sm-3">
-                                            <small class="text-wide text-body-secondary">{{ review_type }}</small><br/>
-                                            <h2 class="my-0 text-center"
-                                                style="color: {{ info.score |color_scale }}">
-                                                <strong>{{ info.score | floatformat:-1 }}</strong></h2>
+                        {% for stage, results in stage_results.items %}
+                            <div class="col">
+                                {% if stage.kind.per_facility %}
+                                    {% for acronym, facility_results in results.items %}
+                                        <div class="card mb-3 bg-{% state_tag facility_results.passed danger=False success=True secondary=None %}-subtle">
+                                            <div class="card-header d-flex align-items-center">
+                                                <i class="bi bi-{{ stage.position }}-square icon-md"></i>
+                                                &nbsp; {{ stage.kind }} &mdash; {{ acronym }}
+                                            </div>
+                                            <div class="card-body">
+                                                {% stat_card description="Average" value=facility_results.score units="" %}
+                                                {% stat_card description="Std Dev" value=facility_results.stdev units="" %}
+                                                {% stat_card description="Percentile" value=facility_results.rank units="%" %}
+                                            </div>
                                         </div>
                                     {% endfor %}
-                                </div>
-                                <div class="row">
-                                    {% for review_type, info in ranks.items %}
-                                        <div id="histogram" class="histogram col-sm-3"
-                                             data-histogram='{"values": {{ info.values|jsonify }}, "rank": {{ info.rank }}, "score": {{ info.score }} }'>
-                                            <p class="text-center">All: <em>{{ info.rank | ordinal }} Percentile</em>
-                                            </p>
+                                {% else %}
+                                    <div class="card mb-3 bg-{% state_tag results.passed danger=False success=True secondary=None %}-subtle mb-3">
+                                        <div class="card-header d-flex align-items-center">
+                                            <i class="bi bi-{{ stage.position }}-square icon-md"></i>
+                                            &nbsp; {{ stage.kind }}
                                         </div>
-                                    {% endfor %}
-                                </div>
+                                        <div class="card-body">
+                                            {% stat_card description="Average" value=results.score units="" %}
+                                            {% stat_card description="Std Dev" value=results.stdev units="" %}
+                                            {% stat_card description="Percentile" value=results.rank units="%" %}
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
-
-                            <div class="col-sm-6 col-sm-12">
-                                <h4>Reviewer Comments</h4>
-                                <hr class="hr-xs"/>
-                                {{ object.comments | markdown }}
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
+                </div>
+                <div class="col-sm-12">
+                    <h4>Reviewer Comments</h4>
+                    <hr class="hr-xs"/>
+                    <div>{{ object.comments|markdown }}</div>
                 </div>
             </div>
         {% endif %}
         {% if admin or committee_member %}
             {% if object.reviews.exists %}
-            <div class="row section">
-                <div class="col-sm-12">
-                    <h3>Reviews</h3>
-                    {% include "proposals/reviews-table.html" with reviews=object.reviews.all %}
+                <div class="row section">
+                    <div class="col-sm-12">
+                        <h3>Reviews</h3>
+                        {% include "proposals/reviews-table.html" with reviews=object.reviews.all %}
+                    </div>
                 </div>
-            </div>
             {% endif %}
         {% endif %}
     </div>

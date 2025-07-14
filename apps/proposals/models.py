@@ -1,5 +1,6 @@
 import os
 import copy
+from collections import defaultdict
 from datetime import date, timedelta, datetime
 
 from django.conf import settings
@@ -194,7 +195,7 @@ class SubmissionQuerySet(QuerySet):
         return self.annotate(**annotations).distinct()
 
 
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, Cast
 from misc.functions import String, LPad
 
 _submission_code_func = Concat(
@@ -259,8 +260,7 @@ class Submission(TimeStampedModel):
         ).order_by('?').first()
 
     def __str__(self):
-        return '{}~{}'.format(
-            self.code(), self.proposal.spokesperson.last_name, )
+        return f'{self.code()}~{self.proposal.spokesperson.last_name}'
 
     def get_absolute_url(self):
         return reverse('submission-detail', kwargs={'pk': self.pk})
@@ -285,13 +285,90 @@ class Submission(TimeStampedModel):
     facilities.sort_field = 'techniques__config__facility__acronym'
     spokesperson.sort_field = 'proposal__spokesperson__first_name'
 
-    def scores(self):
-        summary = self.reviews.score_summary()
-        summary['facilities'] = {
-            int(r.details.get('requirements', {}).get('facility', 0)): r.score
-            for r in self.reviews.technical().complete()
-        }
+    def scores(self) -> dict:
+        """
+        Generate a summary of review scores for this submission. The result is a dictionary with keys
+        corresponding to the review stage, per-facility review stages will have a further level keyed with facility ids
+        :return:
+        """
+        facility_scores = defaultdict(list)
+        acronyms = dict(self.facilities().values_list('pk', 'acronym'))
+
+        # fetch score information from all completed reviews
+        review_scores = self.reviews.complete().annotate(
+            position=F('stage__position'),
+            facility=Cast('details__facility', output_field=models.IntegerField()),
+        ).order_by('position', 'facility').annotate(
+            score_avg=Avg('score'),
+            score_std=StdDev('score'),
+        ).values(
+            'position',
+            'score',
+            'stage',
+            'facility',
+            'score_avg',
+            'score_std',
+        )
+
+        stages = self.track.stages.in_bulk()
+
+        # create a dictionary mapping stage objects to score information
+        for entry in review_scores:
+            facility_scores[stages.get(entry['stage'], None)].append(entry)
+
+        summary = {}
+        for stage, stage_scores in facility_scores.items():
+            if stage.kind.per_facility:
+                # collect review scores per facility
+                summary[stage] = {
+                    acronyms[int(item['facility'])]: stage.add_passage(item)
+                    for item in stage_scores
+                }
+            else:
+                summary[stage] = stage.add_passage(stage_scores[0])
+
         return summary
+
+    def get_facility_scores(self, passing_only=False) -> dict:
+        """
+        Generate a summary of review scores for this submission, grouped by facility. Each facility
+        gets its own scores, per facility scores are separate, the rest are shared
+
+        :param passing_only: If True, only return scores for facilities that passed all review stages
+        """
+        all_scores = self.scores()
+
+        # each facility gets its own scores, per facility scores are separate, the rest are shared
+        facility_scores = {}
+        for facility in self.facilities():
+            facility_scores[facility] = {
+                stage: score if stage.kind.per_facility else score.get(facility.acronym, {})
+                for stage, score in all_scores.items()
+            }
+
+        if passing_only:
+            passing = {}
+            for facility, scores in facility_scores.items():
+                for stage, stage_score in scores.items():
+
+                    if not stage_score.get("passed"):
+                        break
+                else:
+                    # if we didn't break, it means all stages passed
+                    passing[facility] = scores
+            return passing
+
+        return facility_scores
+
+    def get_score_distribution(self) -> dict:
+        """
+        Returns a dictionary of score distributions for each review stage.
+        """
+
+        return {
+            stage: list(stage.reviews.filter(is_complete=True).values_list('score', flat=True))
+            for stage in self.track.stages.all()
+        }
 
     def get_samples(self):
         """
@@ -300,6 +377,31 @@ class Submission(TimeStampedModel):
         from samples.models import Sample
         sample_ids = [item['sample'] for item in self.proposal.details.get('sample_list', [])]
         return Sample.objects.filter(pk__in=sample_ids)
+
+    def get_requests(self) -> dict:
+        """
+        Returns a dictionary of beamline requests associated with this submission.
+        They keys facility objects, and are dictionaries containing the following keys:
+        - techniques: queryset of configs requested for this facility
+        - shifts: number of shifts requested for this facility
+        - procedure: sample handling procedure for this facility
+        - justification: justification for this facility
+        """
+
+        proposal_requests = {
+            item['facility']: item
+            for item in self.proposal.details.get('beamline_reqs', [])
+        }
+        facility_requests = {}
+        for facility in self.facilities():
+            req = proposal_requests.get(facility.pk, {})
+            facility_requests[facility] = {
+                'shifts': req.get('shifts', 0),
+                'techniques': self.techniques.filter(config__facility=facility),
+                'procedure': req.get('procedure', ''),
+                'justification': req.get('justification', ''),
+            }
+        return facility_requests
 
     def get_document(self):
         """
@@ -324,6 +426,22 @@ class Submission(TimeStampedModel):
                 )
             })
         return doc
+
+    def get_comments(self) -> str:
+        """
+        Extract reviewer comments from completed reviews
+        """
+        all_comments = self.reviews.complete().values_list('stage__kind__description', 'details__comments')
+        counts = defaultdict(int)
+        texts = []
+        for name, comments in all_comments:
+            if not comments:
+                continue
+            counts[name] += 1
+            texts.append(
+                f"**{name} #{counts[name]}**: {comments}\n"
+            )
+        return "\n".join(texts)
 
     def adj(self):
         if hasattr(self, 'adjustment'):
@@ -729,12 +847,6 @@ class ReviewQueryset(GenericContentQueryset):
         """NOTE: returns a user queryset not a Review queryset"""
         return get_user_model().objects.filter(pk__in=self.values_list('reviewer__pk', flat=True))
 
-    def score_summary(self):
-        return {
-            score['type__code']: score['score__avg']
-            for score in self.scored().values('type__code').annotate(Avg('score')).order_by('type__code')
-        }
-
 
 class ReviewTypeQueryset(models.QuerySet):
     def safety(self):
@@ -836,12 +948,28 @@ class ReviewStage(TimeStampedModel):
     auto_start = models.BooleanField(_("Auto Start"), default=True)
     objects = ReviewStageQuerySet.as_manager()
 
-    def __str__(self):
-        return f"{self.track.acronym} - Stage {self.position}"
-
     class Meta:
         unique_together = ('track', 'kind')
         ordering = ('track', 'position')
+
+    def __str__(self):
+        return f"{self.track.acronym} - Stage {self.position}"
+
+    def add_passage(self, info: dict) -> dict:
+        """
+        Add passage data to the score information.
+        :param info: Dictionary containing the score information. A 'score_avg' or 'score' key is expected.
+        :return: Updated info dictionary with a boolean `passed` key added
+        """
+
+        if 'score_avg' not in info and not 'score' in info:
+            return info
+
+        score = info.get('score_avg', info.get('score', 0.0))
+        return {
+            **info,
+            'passed': (score <= self.pass_score) if self.kind.low_better else (score >= self.pass_score)
+        }
 
 
 class Review(BaseFormModel, GenericContentMixin):

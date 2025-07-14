@@ -4,11 +4,11 @@
       <div class="info">{{ description }}</div>
        {% if url %}
         <a href="{{ url }}">
-            <span class="value">{{ value }}</span><span class="unit">{{ units }}</span>
+            <span class="value">{{ value|floatformat }}</span><span class="unit">{{ units }}</span>
         </a>
        {% else %}
            <div>
-               <span class="value">{{ value }}</span><span class="unit">{{ units }}</span>
+               <span class="value">{{ value|floatformat }}</span><span class="unit">{{ units }}</span>
            </div>
        {% endif %}
    </div>

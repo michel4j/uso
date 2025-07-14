@@ -18,7 +18,7 @@ from dynforms.models import FormType
 from dynforms.views import DynUpdateView, DynCreateView
 from itemlist.views import ItemListView
 
-from scipy import stats as scipy_stats
+from scipy.stats import percentileofscore
 
 from beamlines.models import Facility
 from misc import filters
@@ -1340,94 +1340,45 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
                 is_committee_reviewer
         )
 
-    def get_population_scores(self):
-        scores = models.Submission.objects.filter(track=self.object.track).annotate(
-            position=F('reviews__stage__position')
-        ).exclude(
-            Q(reviews__isnull=True) | Q(reviews__score__isnull=True) | Q(reviews__is_complete=False)
-        ).values(
-            'position'
-        ).order_by('position').annotate(
-            avg=Avg('reviews__score', filter=Q(reviews__is_complete=True, reviews__score__isnull=False), distinct=True),
-            stdev=StdDev('reviews__score', filter=Q(reviews__is_complete=True, reviews__score__isnull=False)),
-            count=Count('reviews__pk', filter=Q(reviews__is_complete=True, reviews__score__isnull=False), distinct=True)
-        ).values('position', 'avg', 'stdev', 'count')
-
-        return scores
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        cycle = self.object.cycle
-        queryset = models.Submission.objects.filter(
-            project__start_date__lte=cycle.start_date, project__end_date__gt=cycle.start_date
-        ).with_scores()
 
-        proposal_requests = {
-            item['facility']: item
-            for item in self.object.proposal.details.get('beamline_reqs', [])
-        }
-        facility_requests = {}
-        for facility in self.object.facilities():
-            req = proposal_requests.get(facility.pk, {})
-            facility_requests[facility] = {
-                'shifts': req.get('shifts', 0),
-                'techniques': self.object.techniques.filter(config__facility=facility),
-            }
-        context['facility_requests'] = facility_requests
+        population = self.object.get_score_distribution()
+        scores = self.object.scores()
+        stage_results = {}
+        for stage in self.object.track.stages.all():
+            stage_scores = scores.get(stage, {})
+            stage_population = population.get(stage, [])
 
-        population_scores = self.get_population_scores()
+            if not stage_scores:
+                continue
 
-        object_scores = {
-            rev_type.code: getattr(self.object, f"{rev_type.code}_avg")
-            for rev_type in ReviewType.objects.scored()
-            if getattr(self.object, f"{rev_type.code}_avg") is not None
-        }
-        all_scores = {
-            code: queryset.exclude(
-                **{f"{code}_avg__isnull": True}
-            ).values_list(f"{code}_avg", flat=True)
-            for code, score in object_scores.items() if score is not None
-        }
-        facility_scores = {
-            fac: {
-                code: queryset.filter(techniques__config__facility=fac).exclude(
-                    **{f"{code}_avg__isnull": True}
-                ).values_list(f"{code}_avg", flat=True)
-                for code, score in object_scores.items() if score is not None
-            }
-            for fac in self.object.facilities()
-        }
-        context['ranks'] = {
-            rev_type: {
-                'score': object_scores[rev_type.code],
-                'rank': int(
-                    100 - scipy_stats.percentileofscore(all_scores[rev_type.code], object_scores[rev_type.code])
-                ),
-                'values': list(all_scores[rev_type.code])
-            }
-            for rev_type in ReviewType.objects.scored()
-            if rev_type.code in object_scores and all_scores.get(rev_type.code)
-        }
+            debug_value(population)
 
-        context['facility_ranks'] = {
-            fac: {
-                rev_type: {
-                    'facility': fac,
-                    'type': rev_type,
-                    'rank': int(
-                        100 - scipy_stats.percentileofscore(fac_scores[rev_type.code], object_scores[rev_type.code])
-                    ),
-                    'values': list(fac_scores[rev_type.code])
+            if stage.kind.per_facility:
+                stage_results[stage] = {
+                    acronym: {
+                        'score': facility_scores['score_avg'],
+                        'stdev': facility_scores['score_std'],
+                        'passed': facility_scores.get('passed'),
+                        'rank': int(100 - percentileofscore(stage_population, facility_scores.get('score_avg', 0))),
+                    }
+                    for acronym, facility_scores in stage_scores.items()
                 }
-                for rev_type in ReviewType.objects.scored()
-                if rev_type.code in object_scores and fac_scores.get(rev_type.code)
-            }
-            for fac, fac_scores in facility_scores.items()
-        }
+            else:
+                stage_results[stage] = {
+                    'score': stage_scores['score_avg'],
+                    'stdev': stage_scores['score_std'],
+                    'passed': stage_scores.get('passed'),
+                    'rank': int(100 - percentileofscore(stage_population, stage_scores.get('score_avg', 0))),
+                }
 
         reviewer = self.request.user.reviewer if hasattr(self.request.user, 'reviewer') else None
         is_committee = reviewer and reviewer.committee == self.object.track
         is_committee_reviewer = is_committee and self.object.reviews.filter(reviewer=self.request.user).exists()
+
+        context['stage_results'] = stage_results
+        context['facility_requests'] = self.object.get_requests()
         context['committee_member'] = is_committee_reviewer
         return context
 
