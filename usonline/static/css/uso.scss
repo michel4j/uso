@@ -539,6 +539,11 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .page-subtitle {
@@ -1372,8 +1377,8 @@ div.dashboard {
 
 .team-img {
   border-radius: 5%;
-  width: 5em;
-  height: 5em;
+  width: 4em;
+  height: 4em;
   background-size: contain;
   margin-right: 10px;
 }

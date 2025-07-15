@@ -6,8 +6,8 @@
 {% load markup %}
 
 {% if material %}
-    <div class="card">
-        <div class="card-header d-flex flex-row justify-content-start align-items-center">
+    <div class="bg-darken rounded-1">
+        <div class="p-3 d-flex flex-row justify-content-start align-items-center">
             <h4 class="my-0 d-flex fle-row align-items-center">
                 <i class="{{ material|material_state_icon }} icon-md me-2"></i>
                 <span class="d-none d-sm-block">Samples &amp; Materials&nbsp;|&nbsp;</span>
@@ -58,7 +58,7 @@
             {% show_pictograms material.hazards size="md"%}
             </div>
         </div>
-        <div class="card-body">
+        <div class="p-3">
         {% with material.warnings as warnings %}
             {% if warnings %}
                 <div class="row">

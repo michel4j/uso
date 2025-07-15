@@ -14,10 +14,9 @@
     Project
 {% endblock %}
 
-{% block page-title %}{{ project.title }}{% endblock %}
-{% block page-subtitle %}
-    {{ project.get_kind_display }} Project {% for review in project.submissions.all %}[
-    <a href="{% url 'submission-detail' pk=review.pk %}"> Submission {{ review.code }}</a>]{% endfor %}
+{% block page-title %}
+    {{ project.code }}
+    <div class="d-none d-md-block fs-5 text-body-secondary border-start text-wrap ps-3">{{ project.title | truncatewords:30 }}</div>
 {% endblock %}
 
 {% block page-tools %}
@@ -31,7 +30,6 @@
             <span class="tool-label">Use Lab</span>
         </a>
     {% endif %}
-
 
     <a href='{% url "project-history" pk=project.pk %}' class="pull-right">
         <i class="bi-clock-history icon-md icon-fw"></i><br/>
@@ -71,11 +69,17 @@
 {% block page-status-bar %}
     <span class="status-badge badge bg-info text-condensed">{{ project.state.title }}</span>
     <div>
+        <small class="text-wide text-body-secondary">Review Results:</small><br/>
+        {% for submission in project.submissions.all %}
+        <a href="{% url 'submission-detail' pk=submission.pk %}">{{ submission.code }}</a>{% if not forloop.last %}<br/>{% endif %}
+        {% endfor %}
+    </div>
+    <div>
         <small class="text-wide text-body-secondary">Project Leader:</small><br/>
         {{ project.get_leader|default:"&hellip;" }}<br/>
         {{ project.get_leader.institution|default:"" }}
     </div>
-    <div>
+    <div class="d-none d-md-block">
         <small class="text-wide text-body-secondary">Spokesperson:</small><br/>
         {{ project.spokesperson|default:"&hellip;" }}<br/>
         {{ project.spokesperson.institution|default:"&hellip;" }}
