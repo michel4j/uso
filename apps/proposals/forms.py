@@ -1,24 +1,23 @@
 import itertools
 from itertools import chain
 
-from crisp_modals.forms import ModalModelForm, ModalForm
+from crisp_modals.forms import ModalModelForm
 from crispy_forms.bootstrap import StrictButton, AppendedText, InlineCheckboxes, FormActions, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
 from django import forms
 from django.db.models import Q, Count
-from django.forms.models import ModelChoiceField
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from dynforms.forms import DynModelForm
 from dynforms.utils import DotExpandedDict
 
+from beamlines.models import Facility
 from misc.forms import JSONDictionaryField, ModelPoolField
 from . import models
 from . import utils
 from .models import get_user_model
-from beamlines.models import Facility
 
 
 class DateField(AppendedText):
@@ -92,8 +91,7 @@ class ReviewerForm(forms.Form):
         required=False
     )
 
-    def __init__(self, *args, **kwargs):
-        admin = kwargs.pop('admin', False)
+    def __init__(self, admin=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         techs = {}
@@ -109,12 +107,13 @@ class ReviewerForm(forms.Form):
                 techs[kind] = qs.count()
                 if 'techniques' in self.initial:
                     self.fields[kind].initial = self.initial['techniques'].filter(category=kind)
+
         self.fields['areas'].queryset = models.SubjectArea.objects.filter(category__isnull=True).order_by('name')
         self.fields['sub_areas'].queryset = models.SubjectArea.objects.exclude(category__isnull=True).order_by('name')
         tech_fields = Div(
             Div(
                 HTML(
-                    '<h3>Techniques</h3>'
+                    '<h3 class="mt-4">Techniques</h3>'
                     '<hr class="hr-xs"/>'
                 ),
                 css_class="col-sm-12"
@@ -153,14 +152,13 @@ class ReviewerForm(forms.Form):
                     'Opt Out', type='submit', name="submit", value='suspend',
                     css_class="btn btn-secondary"
                 )
-            extra_btns = Div(
+            extra_btns = [
                 disable_btn,
                 suspend_btn,
-                css_class="pull-left"
-            )
+            ]
 
         else:
-            extra_btns = Div(css_class="pull-left")
+            extra_btns = []
 
         self.helper = FormHelper()
         if reviewer:
@@ -171,15 +169,13 @@ class ReviewerForm(forms.Form):
             Div(
                 Div(
                     HTML(
-                        '<h3>Subject Areas</h3>'
+                        '<h3 class="mt-4">Subject Areas</h3>'
                         '<hr class="hr-xs"/>'
                     ),
                     css_class="col-sm-12"
                 ),
-
-                Div(Field('areas', css_class="selectize"), css_class="col-sm-12"),
                 Div(
-                    InlineCheckboxes('sub_areas', template="proposals/fields/%s/groupedcheckboxes.html"),
+                    InlineCheckboxes('sub_areas', template="proposals/fields/grouped-checkboxes.html"),
                     css_class="col-sm-12"
                 ),
                 css_class="row"
@@ -188,12 +184,12 @@ class ReviewerForm(forms.Form):
             tech_fields,
             FormActions(
                 HTML("<hr/>"),
-                extra_btns,
                 Div(
-                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
+                    *extra_btns,
+                    StrictButton('Revert', type='reset', value='Reset', css_class="ms-auto btn btn-secondary"),
                     StrictButton('Save', type='submit', name="submit", value='save', css_class='btn btn-primary'),
-                    css_class='pull-right'
-                ),
+                    css_class='d-flex justify-content-end align-items-center gap-2'
+                )
             )
         )
 
@@ -206,7 +202,7 @@ class ReviewerForm(forms.Form):
         cleaned_data['areas'] = list(
             chain(
                 cleaned_data.get('areas', []),
-                [sa for sa in cleaned_data.get('sub_areas', []) if sa.category in cleaned_data.get('areas', [])]
+                cleaned_data.get('sub_areas', [])
             )
         )
         return cleaned_data
@@ -273,7 +269,7 @@ class FacilityConfigForm(ModalModelForm):
         self.body.append(
             Div(
                 Div(
-                    Field('cycle', css_class="selectize"),
+                    'cycle',
                     css_class="col-sm-6"
                 ),
                 Div(
@@ -372,7 +368,7 @@ class ReviewCyclePoolForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "review-cycle-form"
-        self.helper.title = "Edit Reviewer Pool for Cycle {0}".format(self.instance)
+        self.helper.title = f"Edit Reviewer Pool for Cycle {self.instance}"
 
         self.helper.layout = Layout(
             Div(

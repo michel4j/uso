@@ -1093,7 +1093,10 @@ class Review(BaseFormModel, GenericContentMixin):
         url = reverse('edit-review', kwargs={'pk': self.pk})
         return f'{settings.SITE_URL}{url}'
 
-    def title(self):
+    def title(self) -> str:
+        """
+        Get a title for this review, which is a string representation of the type and content type.
+        """
         return f'{self.type} of {self.content_type.name.title()} {self.reference}'
 
     def assigned_to(self) -> str:
@@ -1115,7 +1118,10 @@ class Review(BaseFormModel, GenericContentMixin):
         """
         return self.role not in [None, ""]
 
-    def is_submitted(self):
+    def is_submitted(self) -> bool:
+        """
+        Check if this review is in the submitted state.
+        """
         return self.state == self.STATES.submitted
 
     def comments(self):

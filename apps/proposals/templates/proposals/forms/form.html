@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'page.html' %}
 {% load crispy_forms_tags %}
 {% load static %}
 
@@ -8,28 +8,11 @@
 {% block extra_js %}
 {% endblock %}
 
+{% block page-pretitle %}Form{% endblock %}
 {% block page-title %}{{ form.helper.title }}{% endblock %}
 
 
-{% block content %}
-<div class="page">
-	<div class="page-body">
-		{% crispy form form.helper %}
-	</div>
-</div>
-
-<script>
-	$('#id_areas').change(function(){
-	  var area_field = $('select[name^="areas"]');
-	  $.each($('.subarea'), function(i, val) {
-	    $('#'+val.id).addClass('hidden');
-	  });
-	  if (area_field.val() ) {
-		  $.each(area_field.val(), function(i, val) {
-			$('#area_'+val).removeClass('hidden');
-		  });
-	  }
-	});
-</script>
+{% block page-content %}
+    {% crispy form form.helper %}
 {% endblock %}
 
