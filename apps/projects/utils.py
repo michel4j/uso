@@ -92,17 +92,16 @@ def create_project(submission) -> models.Project | None:
     track = submission.track
     expiry = calculate_end_date(cycle.end_date, track.duration - 1)
     info = {
-        'proposal': proposal,
         'pool': submission.pool,
         'spokesperson': proposal.spokesperson,
+        'delegate': proposal.get_delegate(),
+        'leader': proposal.get_leader(),
         'title': proposal.title,
         'cycle': cycle,
         'start_date': cycle.start_date,
         'end_date': expiry,
         'details': {
-            'delegate': proposal.details.get('delegate', {}),       # FIXME: Team information is not passing through properly
-            'leader': proposal.details.get('leader', {}),
-            'team_members': proposal.details['team_members'],
+            'team_members': proposal.get_members(),
             'invoice_address': proposal.details.get('invoice_address', {})
         }
     }
@@ -116,7 +115,7 @@ def create_project(submission) -> models.Project | None:
     }
 
     if passing_requests:
-        # create project and allocations
+        # create the project if needed (only one per proposal), and allocations
         project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
         for facility, details in passing_requests.items():
             project.techniques.add(*details['techniques'].all())

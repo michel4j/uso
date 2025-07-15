@@ -3,6 +3,7 @@ import hashlib
 import json
 import operator
 import os
+import uuid
 from datetime import timedelta
 
 from django.conf import settings
@@ -160,7 +161,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     last_name = models.CharField(max_length=100, null=True, blank=True)
     preferred_name = models.CharField(_("Preferred First Name"), max_length=100, null=True, blank=True)
     other_names = models.CharField(max_length=100, null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
+    email = models.EmailField(unique=True, default=uuid.uuid4)
     photo = models.URLField(null=True, blank=True)
     emergency_contact = models.CharField(_("Emergency Contact (Full Name)"), max_length=100, null=True, blank=True)
     emergency_phone = models.CharField(max_length=20, null=True, blank=True)

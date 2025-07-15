@@ -1695,6 +1695,12 @@ table.fixed-header {
   }
 }
 
+.team-table {
+  td {
+    vertical-align: middle;
+  }
+}
+
 
 .table-tools {
   border-left: 1px solid var(--bs-border-color-translucent);

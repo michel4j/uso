@@ -562,7 +562,23 @@ class SessionForm(ModalModelForm):
 
 
 class TeamForm(DynForm):
-    pass
+    def clean(self):
+        cleaned_data = super().clean()
+        data = cleaned_data.get('details', {})
+        team_members = data.get('team_members', [])
+
+        new_team = [*team_members]  # copy existing team members
+        for role in ['leader', 'delegate']:
+            if data.get(role):
+                new_team.append({**data.pop(role), 'roles': [role]})
+
+        # check that each member only occurs once
+        member_emails = [member.get('email') for member in new_team if member.get('email')]
+        if len(member_emails) != len(set(member_emails)):
+            raise forms.ValidationError("Each team member must have a unique email address and must not be repeated.")
+
+        cleaned_data['details']['team_members'] = new_team
+        return cleaned_data
 
 
 class AllocationForm(ModalModelForm):

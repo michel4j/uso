@@ -1,8 +1,7 @@
 import calendar
 import functools
 import itertools
-from datetime import timedelta, datetime
-import numpy
+from datetime import timedelta
 
 from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalConfirmView, ModalDeleteView
 from dateutil import parser
@@ -83,10 +82,10 @@ class ProjectList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     paginate_by = 50
     list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'facility_codes', 'state']
-    list_filters = ['start_date', 'end_date', FutureDateListFilterFactory.new('end_date'),
-                    CycleFilterFactory.new('cycle'),
-                    'kind',
-                    BeamlineFilterFactory.new("beamlines")]
+    list_filters = [
+        'start_date', 'end_date', FutureDateListFilterFactory.new('end_date'),
+        CycleFilterFactory.new('cycle'), 'kind', BeamlineFilterFactory.new("beamlines")
+    ]
     list_search = ['proposal__title', 'proposal__team', 'proposal__keywords', 'id']
     list_styles = {'title': 'col-sm-3', 'state': 'text-center'}
     list_transforms = {'state': _fmt_project_state, 'title': truncated_title}
@@ -103,9 +102,10 @@ class MaterialList(RolePermsViewMixin, ItemListView):
     list_columns = ['code', 'project', 'title', 'state', 'risk_level', 'pictograms']
     list_filters = ['created', 'modified', 'state', 'risk_level']
     list_transforms = {'pictograms': _fmt_pictograms}
-    list_search = ['project__title', 'project__spokesperson__username', 'project__id',
-                   'project__spokesperson__last_name',
-                   'project__spokesperson__first_name', 'id']
+    list_search = [
+        'project__title', 'project__spokesperson__username', 'project__id',
+        'project__spokesperson__last_name', 'project__spokesperson__first_name', 'id'
+    ]
     list_styles = {'title': 'col-sm-6'}
     link_url = "material-detail"
     order_by = ['-modified', 'state']
@@ -120,9 +120,10 @@ class SessionList(RolePermsViewMixin, ItemListView):
     paginate_by = 15
     list_columns = ['project', 'beamline', 'state', 'kind', 'spokesperson', 'start', 'shifts']
     list_filters = ['modified', BeamlineFilterFactory.new("beamline"), 'state', 'kind']
-    list_search = ['project__title', 'project__spokesperson__username', 'project__id',
-                   'project__spokesperson__last_name',
-                   'project__spokesperson__first_name', 'id']
+    list_search = [
+        'project__title', 'project__spokesperson__username', 'project__id',
+        'project__spokesperson__last_name', 'project__spokesperson__first_name', 'id'
+    ]
     list_transforms = {'start': _fmt_localtime}
     link_url = "session-detail"
     order_by = ['-modified', 'state']
@@ -136,9 +137,10 @@ class LabSessionList(RolePermsViewMixin, ItemListView):
     paginate_by = 15
     list_columns = ['project', 'lab', 'state', 'spokesperson', 'start', 'end']
     list_filters = ['modified']
-    list_search = ['project__title', 'project__spokesperson__username', 'project__id',
-                   'project__spokesperson__last_name',
-                   'project__spokesperson__first_name', 'id']
+    list_search = [
+        'project__title', 'project__spokesperson__username', 'project__id',
+        'project__spokesperson__last_name', 'project__spokesperson__first_name', 'id'
+    ]
     list_transforms = {'start': _fmt_localtime, 'end': _fmt_localtime}
     link_url = "lab-permit"
     order_by = ['-modified']
@@ -151,8 +153,9 @@ class UserProjectList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     paginate_by = 50
     list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'facility_codes', 'state']
-    list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind',
-                    BeamlineFilterFactory.new("beamlines")]
+    list_filters = [
+        'start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind', BeamlineFilterFactory.new("beamlines")
+    ]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
     list_styles = {'title': 'col-sm-3', 'state': 'text-center'}
     list_transforms = {'state': _fmt_project_state, 'title': truncated_title}
@@ -190,8 +193,9 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     paginate_by = 50
     list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'state']
-    list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind',
-                    BeamlineFilterFactory.new("beamlines")]
+    list_filters = [
+        'start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind', BeamlineFilterFactory.new("beamlines")
+    ]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
     list_styles = {'title': 'col-sm-3'}
     list_transforms = {'beamlines': _fmt_beamlines, 'state': _fmt_project_state, 'title': truncated_title}
@@ -971,13 +975,26 @@ class UpdateTeam(RolePermsViewMixin, DynFormView):
 
     def get_initial(self):
         initial = super().get_initial()
-        initial.update(
+        other_members = [
             {
-                'team_members': self.object.team_members(), 'leader': self.object.get_leader(),
-                'delegate': self.object.delegate,
-                'invoice_address': self.object.invoice_address(), 'invoice_email': self.object.invoice_email()
+                'first_name': m.first_name,
+                'last_name': m.last_name,
+                'email': m.email
             }
-        )
+            for m in self.object.team.all()
+            if not m in [self.object.leader, self.object.delegate]
+        ]
+        for m in self.object.details.get('team_members', []):
+            if m.get('email', '').lower().strip() in self.object.pending_team:
+                other_members.append(m)
+
+        initial.update({
+            'team_members': other_members,
+            'leader': self.object.get_leader(),
+            'delegate': self.object.delegate,
+            'invoice_address': self.object.invoice_address(),
+            'invoice_email': self.object.invoice_email()
+        })
         return initial
 
     def get_success_url(self):
@@ -992,12 +1009,11 @@ class UpdateTeam(RolePermsViewMixin, DynFormView):
 
     def form_valid(self, form):
         data = form.cleaned_data['details']
-        for f in ['invoice_address', 'invoice_email', 'leader', 'delegate']:
+        for f in ['invoice_address', 'invoice_email', 'team_members']:
             self.object.details[f] = data.get(f)
-        self.object.details['team_members'] = data.get('team_members', [])
 
         self.object.save()
-        self.object.refresh_team()
+        self.object.refresh_team(request=self.request)
 
         messages.add_message(self.request, messages.SUCCESS, 'Project was updated successfully')
         return HttpResponseRedirect(self.get_success_url())
@@ -1019,7 +1035,7 @@ class RefreshTeam(RolePermsViewMixin, detail.View):
         return obj.is_owned_by(self.request.user)
 
     def get(self, *args, **kwargs):
-        self.project.refresh_team()
+        self.project.refresh_team(request=self.request)
         return HttpResponseRedirect(reverse('project-detail', kwargs={'pk': self.project.pk}))
 
 
@@ -1055,8 +1071,8 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         self.facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
         self.cycle = ReviewCycle.objects.filter(pk=self.kwargs['pk']).first()
         allowed = (
-            super().check_allowed() or self.facility.is_admin(self.request.user)
-        ) and (self.cycle.state >= self.cycle.STATES.evaluation)
+                          super().check_allowed() or self.facility.is_admin(self.request.user)
+                  ) and (self.cycle.state >= self.cycle.STATES.evaluation)
         return allowed
 
     def get_context_data(self, **kwargs):

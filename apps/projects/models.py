@@ -1,6 +1,6 @@
 import functools
 import operator
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from datetime import timedelta
 
 from django.conf import settings
@@ -9,6 +9,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -16,7 +17,8 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel, TimeFramedModel
 
 from misc.fields import StringListField
-from misc.models import DateSpanMixin, Attachment, Clarification
+from misc.models import DateSpanMixin, Attachment, Clarification, ActivityLog
+from misc.utils import debug_value
 from proposals.models import Review, ReviewCycle
 from scheduler.models import Event, EventQuerySet
 
@@ -102,13 +104,14 @@ class Project(DateSpanMixin, TimeStampedModel):
         return self.details['team_members'] or [{'first_name': '', 'last_name': '', 'email': ''}]
 
     def invoice_address(self):
+        leader = self.get_leader()
         return self.details.get('invoice_address', {}) or {
-            'place': self.get_leader().address.address_1,
-            'street': self.get_leader().address.address_2,
-            'city': self.get_leader().address.city,
-            'region': self.get_leader().address.region,
-            'country': self.get_leader().address.country,
-            'code': self.get_leader().address.postal_code
+            'place': leader.address.address_1,
+            'street': leader.address.address_2,
+            'city': leader.address.city,
+            'region': leader.address.region,
+            'country': leader.address.country,
+            'code': leader.address.postal_code
         }
 
     def invoice_email(self):
@@ -259,41 +262,79 @@ class Project(DateSpanMixin, TimeStampedModel):
         else:
             return {}
 
-    def refresh_team(self, data=None):
+    def refresh_team(self, data: dict = None, request: HttpRequest = None):
+        """
+        Extract team members from the project details and update the team field and assign spokesperson, leader, and
+        delegate fields.
+
+        :param data: Optional data to use instead of self.details.
+        :param request: Optional request object to log activity.
+
+        """
+        User = get_user_model()
         data = data if data else self.details
 
-        team_data = [_f for _f in [tm for tm in data.get('team_members', [])] if _f]
-        team_emails = set([_f for _f in {tm.get('email', '').lower().strip() for tm in team_data} if _f])
+        team_members = data.get('team_members', [])
+        team_emails = {member.get('email', '').lower().strip() for member in team_members}
 
+        registered_users = User.objects.none()
         if team_emails:
-            query = functools.reduce(
+            query_flt = functools.reduce(
                 operator.__or__,
                 [Q(email__iexact=email) | Q(alt_email__iexact=email) for email in team_emails], Q()
             )
-            registered_users = set(get_user_model().objects.filter(query))
-        else:
-            registered_users = set()
+            registered_users = User.objects.filter(query_flt)
 
-        extras = {}
-        for f in ['leader', 'delegate']:
-            extras[f] = None
-            if not data.get(f): continue
-            email = data[f].get('email', '').lower().strip()
-            if email:
-                team_emails.add(email)
-                user = get_user_model().objects.filter(Q(email__iexact=email) | Q(alt_email__iexact=email)).first()
-                if user:
-                    extras[f] = user
-                    registered_users.add(user)
-        registered_users.add(self.spokesperson)
-        pending_emails = team_emails - {u.email.lower() for u in registered_users}
+        self.team.set(registered_users)     # update the team with registered users
 
+        # Create a mapping of email to user for registered users, select out unregistered emails
+        email_to_member = {
+            user.email.lower().strip(): user
+            for user in registered_users
+        }
+        pending_team = list(set(team_emails) - set(email_to_member.keys()))
+
+        # Update leadership
+        current_roles = {
+            'delegate': self.delegate,
+            'leader': self.leader,
+            'spokesperson': self.spokesperson
+        }
+        # by default spokesperson is also the leader
+        updated_roles = {
+            'delegate': None,
+            'leader': self.spokesperson,
+            'spokesperson': self.spokesperson
+        }
+        for member in team_members:
+            email = member.get('email', '').lower().strip()
+            if not email or email not in email_to_member:
+                # skip unregistered or blank emails
+                continue
+
+            # if multiple members have the role, only the last one counts
+            user = email_to_member[email]
+            for role in member.get('roles', []):
+                updated_roles[role] = user
+
+        # Update the project roles and pending team
         Project.objects.filter(pk=self.pk).update(
-            pending_team=pending_emails, **extras
+            **updated_roles, pending_team=pending_team, modified=timezone.localtime(timezone.now())
         )
-        self.team.set(registered_users)
 
-        # Add User Role to all register team members who do have the role
+        # Update activity log
+        if request:
+            leadership_changes = ", ".join([
+                f'{role.title()} -> {user}'
+                for role, user in
+                set(updated_roles.items()) - set(current_roles.items())
+            ])
+            ActivityLog.objects.log(
+                request, self, kind=ActivityLog.TYPES.modify,
+                description=f"Project team updated: {leadership_changes}"
+            )
+
+        # Add User Role to all registered team members who do not have the role
         for user in self.team.all():
             user.fetch_profile()
             roles = user.get_all_roles()
@@ -510,18 +551,22 @@ class Session(TimeStampedModel, TimeFramedModel):
         return [{'sample': s.sample.pk, 'quantity': s.quantity} for s in self.samples.all()]
 
     def get_full_team(self):
-        project_roles = [('spokesperson', self.project.spokesperson.username),
-                         ('leader', self.project.leader.username),
-                         ('delegate', self.project.delegate.username)]
+        project_roles = [
+            ('spokesperson', self.project.spokesperson.username),
+            ('leader', self.project.leader.username),
+            ('delegate', self.project.delegate.username)
+        ]
         full_team = {}
         registered = list(self.team.all())
         for t in set(registered):
-            full_team[t.email] = {'name': t.get_full_name(),
-                                  'registered': True,
-                                  'classification': t.get_classification_display(),
-                                  'roles': [k for k, v in project_roles if v == t.username],
-                                  'photo': t.get_photo(),
-                                  'permissions': {p['code']: p for p in t.permissions}}
+            full_team[t.email] = {
+                'name': t.get_full_name(),
+                'registered': True,
+                'classification': t.get_classification_display(),
+                'roles': [k for k, v in project_roles if v == t.username],
+                'photo': t.get_photo(),
+                'permissions': {p['code']: p for p in t.permissions}
+            }
         return OrderedDict(
             sorted(iter(full_team.items()), key=lambda x: (x[1]['roles'], x[1]['classification']), reverse=True))
 

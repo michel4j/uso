@@ -101,7 +101,7 @@ def get_session_types(context):
 
 
 @register.simple_tag(takes_context=True)
-def show_project_roles(context, project, user):
+def show_project_roles(context, project, user, full=False):
     roles = []
     if user == project.spokesperson:
         roles.append(('S', 'Spokesperson'))
@@ -109,9 +109,13 @@ def show_project_roles(context, project, user):
         roles.append(('L', 'Project Leader'))
     if project.delegate and user == project.delegate:
         roles.append(('D', 'Delegate'))
-    role_texts = ['<text title="{1}">{0}</text>'.format(*r) for r in roles]
-    return mark_safe(
-        '&nbsp;(<strong class="text-primary">{}</strong>)'.format(', '.join(role_texts)) if roles else '')
+    if full:
+        role_texts = ['<span>{1}</span>'.format(*r) for r in roles]
+        text = '<br/>'.join(role_texts)
+    else:
+        role_texts = ['<span title="{1}">{0}</span>'.format(*r) for r in roles]
+        text = '<span class="text-body-secondary">{}</span>'.format(', '.join(role_texts))
+    return mark_safe(text)
 
 
 @register.filter
