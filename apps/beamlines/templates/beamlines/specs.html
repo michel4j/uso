@@ -1,45 +1,30 @@
-{% extends "proposals/track-box.html" %}
-{% load beamlines %}
-{% block box_class %}{% if facility != object %}bg-darken{% else %} bg-transparent {% endif %}{% endblock %}
-{% block box_header %}
-    {% if facility != object %}
-        <h4 class="my-0"><a href="{% url 'facility-detail' acronym=facility.acronym %}">{{ facility.acronym }}</a> Spec<span
-                class="d-none d-sm-inline">ification</span>s &amp; Techniques</h4>
-    {% else %}
-        <h4 class="my-0">Spec<span class="d-none d-sm-inline">ification</span>s &amp; Techniques</h4>
-    {% endif %}
-{% endblock %}
 
-{% block box_tools_style %}{% endblock %}
-{% block box_subheader %}{% endblock %}
-{% block box_tools_class %}hidden{% endblock %}
-{% block box_content %}
+{% load beamlines %}
+
+<div class="py-3">
     <div class="row">
         <div class="col-sm-6">
             {% include "beamlines/fields/beamline-info.html" with object=facility hide_description=True %}
-            <hr class="visible-xs hr-xs"/>
         </div>
         <div class="col-sm-6">
             {% for item in facility.active_techniques %}
-                <div class="overflow ellipsis"
+                <div class="overflow ellipsis text-condensed"
                      title="{{ item.technique.get_category_display }} ({{ item.track.acronym }} Track)">
                     {% if item.config.facility != facility %}
-                        <i class="bi-circle-fill" style="color: #ddd;"></i>
+                        <i class="bi-circle-fill text-secondary"></i>
                     {% elif not item.track.require_call %}
                         <i class="bi-circle-fill text-warning"></i>
                     {% else %}
                         <i class="bi-circle-fill text-success"></i>
                     {% endif %}
-                    &ensp;
                     {{ item.technique }} {% if item.config.facility != facility %} &mdash;
                     {{ item.config.facility.acronym }}{% endif %}
                 </div>
                 {% if forloop.last %}
                     <hr class="hr-xs"/>
-                    <span>
-                        <i class="bi-circle-fill text-success"></i>&nbsp;Available &emsp;
-                        <i class="bi-circle-fill text-warning"></i>&nbsp;Special Request &emsp;
-                        <i class="bi-circle-fill" style="color: #ddd;"></i>&nbsp;Not Accepting
+                    <span class="text-condensed">
+                        <i class="bi-circle-fill text-success"></i>&nbsp;Only During Calls
+                        <i class="bi-circle-fill text-warning"></i>&nbsp;Only Outside of Calls
                     </span>
                 {% endif %}
             {% empty %}
@@ -47,4 +32,4 @@
             {% endfor %}
         </div>
     </div>
-{% endblock %}}
+</div>

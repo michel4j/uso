@@ -39,6 +39,7 @@
     </div>
     {% if not hide_description %}
         <div class="col-md-6">
+            <p class="lead">{{ object.acronym }}</p>
             <p>{{ object.description }}</p>
             {% if config and config.comments %}
                 <div class="alert alert-warning"><span

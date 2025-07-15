@@ -239,6 +239,9 @@ class EditFacility(RolePermsViewMixin, edit.UpdateView):
     template_name = "form.html"
     model = models.Facility
     success_url = reverse_lazy('beamline-list')
+    slug_field = "acronym"
+    slug_url_kwarg = "acronym"
+
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
