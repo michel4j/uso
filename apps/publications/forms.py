@@ -47,55 +47,52 @@ class PublicationReviewForm(forms.ModelForm):
         self.fields['funders'].queryset = models.FundingSource.objects.filter(location__icontains='Canada')
         self.fields['beamlines'].help_text = ""
         self.helper.layout = Layout(
-            Fieldset(
-                _("Review Publication Details"),
+            Div(
                 Div(
                     Div(
-                        Div(
-                            HTML("""{{object.cite|safe}}"""),
-                            css_class="alert alert-info p-3 mb-3"
-                        ),
-                        css_class="col-sm-12"
+                        HTML("""{{object.cite|safe}}"""),
+                        css_class="alert alert-info p-3 mb-3"
                     ),
-                    css_class="row"),
-                Accordion(
-                    AccordionGroup(
-                        "Details",
+                    css_class="col-sm-12"
+                ),
+                css_class="row mt-3"),
+            Accordion(
+                AccordionGroup(
+                    "Details",
+                    Div(
                         Div(
-                            Div(
-                                Field('kind', css_class="selectize"), css_class='col-sm-12'),
-                            Div('title', css_class='col-sm-12'),
-                            Div('authors', css_class='col-sm-12'),
-                            Div(
-                                AppendedText("date", mark_safe('<i class="bi-calendar"></i>')),
-                                css_class="col-sm-12"
-                            ),
-                            css_class="row"
-                        ),
-                        self._extra_fields(),
-                        active=False
-                    ),
-                    AccordionGroup(
-                        "Additional Information",
+                            Field('kind', css_class="selectize"), css_class='col-sm-12'),
+                        Div('title', css_class='col-sm-12'),
+                        Div('authors', css_class='col-sm-12'),
                         Div(
-                            Div(
-                                Field('tags', css_class="selectize", placeholder="select all that apply"),
-                                css_class='col-sm-6'
-                            ),
-                            Div(
-                                Field('areas', css_class="selectize", placeholder="select all that apply"),
-                                css_class='col-sm-6'
-                            ),
-                            Div(Field('beamlines', css_class="selectize"), css_class='col-sm-6'),
-                            Div(Field('users', css_class="selectize"), css_class='col-sm-6'),
-                            Div(Field('funders', css_class="selectize", placeholder="select funding sources"),
-                                css_class='col-sm-12'), Div('keywords', css_class='col-sm-12'),
-                            Div('notes', css_class='col-sm-12'),
-                            css_class="row"
+                            AppendedText("date", mark_safe('<i class="bi-calendar"></i>')),
+                            css_class="col-sm-12"
                         ),
-                        active=True
+                        css_class="row"
                     ),
-                )
+                    self._extra_fields(),
+                    active=False
+                ),
+                AccordionGroup(
+                    "Additional Information",
+                    Div(
+                        Div(
+                            Field('tags', css_class="selectize", placeholder="select all that apply"),
+                            css_class='col-sm-6'
+                        ),
+                        Div(
+                            Field('areas', css_class="selectize", placeholder="select all that apply"),
+                            css_class='col-sm-6'
+                        ),
+                        Div(Field('beamlines', css_class="selectize"), css_class='col-sm-6'),
+                        Div(Field('users', css_class="selectize"), css_class='col-sm-6'),
+                        Div(Field('funders', css_class="selectize", placeholder="select funding sources"),
+                            css_class='col-sm-12'), Div('keywords', css_class='col-sm-12'),
+                        Div('notes', css_class='col-sm-12'),
+                        css_class="row"
+                    ),
+                    active=True
+                ),
             ),
             Div(
                 StrictButton(

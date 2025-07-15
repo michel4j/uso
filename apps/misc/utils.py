@@ -8,6 +8,9 @@ from django.conf import settings
 from django.http.request import HttpRequest
 
 
+USO_CODE_GENERATORS = getattr(settings, "USO_CODE_GENERATORS", {})
+
+
 class Joiner(object):
     def __init__(self, main=', ', last=' and '):
         self.main = main
@@ -166,3 +169,16 @@ def debug_value(value, name=None):
     print(yaml.dump(value))
     print('='*80)
     print('\n')
+
+
+def get_code_generator(name):
+    """
+    Returns a generator function by name from the USO_CODE_GENERATORS settings.
+    A code generator is a callable that takes an instance of a model and returns a code string.
+    If the generator does not exist, it raises a KeyError.
+    """
+    if name not in USO_CODE_GENERATORS:
+        raise KeyError(f"Generator '{name}' not found in USO_CODE_GENERATORS.")
+
+    return load_object(USO_CODE_GENERATORS[name])
+

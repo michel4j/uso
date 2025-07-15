@@ -7,7 +7,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Case, Avg, When, F, Q, StdDev, Max, Count
-from django.db.models.functions import Cast
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone

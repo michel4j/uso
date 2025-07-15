@@ -113,6 +113,15 @@
             $('body').toggleClass('toggle-right');
         });
         $(document).ready(function () {
+
+            // enable multiselects
+            $(document).find('select[multiple].selectmultiple').each(function () {
+                $(this).removeClass('form-select').addClass('form-select-multiple');
+                new SlimSelect({
+                    select: this
+                })
+            });
+
             setupAjaxProgress(); // Initialize AJAX Progress bar
             $('#modal-target').initModal({
                 setup: function (element) {
@@ -178,25 +187,8 @@
                     modal.remove();
                 });
             });
-
-            // Initialize scroll boxes
-            /*
-            $(".scroll-box").niceScroll({
-                cursorborder: "1px solid transparent",
-                cursorwidth: "9px",
-                cursorcolor: "var(--bs-secondary)",
-                autohidemode: "leave",
-                cursorborderradius: "0",
-                cursoropacitymax: 0.5
-            });
-            $(".scroll-box").scroll(function () {
-                $(this).getNiceScroll().resize();
-            });
-
-             */
         });
     </script>
-
     </body>
 {% endspaceless %}
 </html>

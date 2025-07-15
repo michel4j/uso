@@ -1,38 +1,26 @@
 {% extends "misc/blocks/panel.html" %}
-{% block panel_title %}Projects{% endblock %}
+{% block panel_title %}Active Projects{% endblock %}
 {% block panel_tools %}
 <a href="{% url 'user-project-list' %}" title="View all my projects">
     <i class="bi-list-ol icon-md icon-fw"></i>
 </a>
 {% endblock %}
 {% block panel_content %}
-<div class="p-3 bg-transparent">
-    <div class="row">
-        <div class="col-sm-12">
-            <h4 class="my-0">
-                Active Project{{user.projects.active.count|pluralize:",s"}}
-                <span class="badge progress-bar-info pull-right">{{user.projects.active.count}}</span>&nbsp;
-            </h4>
-        </div>
-    </div>
-    <hr class="hr-xs bottom-edge"/>
-    <div class="row scroll-box" style="max-height: 300px;">
-    <ul class="col-sm-12 list-unstyled list-ruled">
+    <div class="row scroll-box"  style="max-height: 200px">
+    <ul class="list-group list-group-flush ">
         {% for project in user.projects.active %}
-        <li class="text-condensed" style="line-height: 1.7;">
-            <a class="pull-right" href='{% url "project-detail" pk=project.pk %}'
-                data-bs-toggle="tooltip" title="View Project">
-                {% if project.clarifications.pending.count %}
-                <i class="bi-chat-left-text-alt text-danger"></i>
-                {% else %}
-                <i class="bi-eye icon-md"></i>
-                {% endif %}
-            </a>
-            <span class="overflow ellipsis" title="Modified {{proposal.modified|timesince}} ago">{{project.title}}</span>
-        </li>
+            <li class="list-group-item">
+                <a class="overflow ellipsis" href='{% url "project-detail" pk=project.pk %}'>
+                    {% if project.clarifications.pending.count %}
+                        <i class="bi-chat-left-text-alt text-warning"></i>
+                    {% else %}
+                        <i class="bi-arrow-right-circle"></i>
+                    {% endif %}
+                    &nbsp;{{ project.title }}
+                </a>
+            </li>
         {% endfor %}
     </ul>
     </div>
-</div>
 {% endblock %}
 

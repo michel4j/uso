@@ -33,7 +33,7 @@
                             <td class="text-body-secondary"><i class="bi-patch-check text-secondary"></i>
                                 &nbsp; {{ submission.code }}</td>
                         {% endif %}
-                        <td>{{ submission.track }}</td>
+                        <td>{{ submission.track.acronym }}<span class="d-none d-sm-inline"> - {{ submission.track.name }}</span></td>
                         <td>{{ submission.cycle }}</td>
                     </tr>
                 {% endfor %}
