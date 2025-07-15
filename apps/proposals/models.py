@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Case, Avg, When, F, Q, StdDev, Max, Count
-from django.db.models.functions import Concat, Cast
+from django.db.models.functions import Cast
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
@@ -19,7 +19,6 @@ from model_utils.models import TimeStampedModel
 
 from beamlines.models import Facility
 from misc.fields import StringListField
-from misc.functions import String, LPad
 from misc.models import Clarification, GenericContentMixin, GenericContentQueryset
 from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
 from publications.models import SubjectArea
@@ -259,7 +258,10 @@ class Submission(TimeStampedModel):
     def spokesperson(self):
         return self.proposal.spokesperson
 
-    def siblings(self):
+    def siblings(self) -> QuerySet:
+        """
+        Get a queryset of all other submissions for the same proposal.
+        """
         return self.proposal.submissions.exclude(pk=self.pk)
 
     def facilities(self) -> QuerySet:
@@ -268,15 +270,10 @@ class Submission(TimeStampedModel):
         """
         return Facility.objects.filter(pk__in=self.techniques.values_list('config__facility', flat=True)).distinct()
 
-    title.sort_field = 'proposal__title'
-    facilities.sort_field = 'techniques__config__facility__acronym'
-    spokesperson.sort_field = 'proposal__spokesperson__first_name'
-
     def scores(self) -> dict:
         """
         Generate a summary of review scores for this submission. The result is a dictionary with keys
         corresponding to the review stage, per-facility review stages will have a further level keyed with facility ids
-        :return:
         """
         facility_scores = defaultdict(list)
         acronyms = dict(self.facilities().values_list('pk', 'acronym'))
@@ -350,6 +347,7 @@ class Submission(TimeStampedModel):
     def get_score_distribution(self) -> dict:
         """
         Returns a dictionary of score distributions for each review stage.
+        Keys are stage objects, and values are lists of scores for that stage.
         """
 
         return {
@@ -357,7 +355,7 @@ class Submission(TimeStampedModel):
             for stage in self.track.stages.all()
         }
 
-    def get_samples(self):
+    def get_samples(self) -> QuerySet:
         """
         Returns a list of samples associated with this submission/material.
         """
@@ -390,7 +388,7 @@ class Submission(TimeStampedModel):
             }
         return facility_requests
 
-    def get_document(self):
+    def get_document(self) -> dict:
         """
         Returns a dictionary of content for this submission. This is used to display the
         proposal in the review system.
@@ -430,11 +428,19 @@ class Submission(TimeStampedModel):
             )
         return "\n".join(texts)
 
+    title.sort_field = 'proposal__title'
+    facilities.sort_field = 'techniques__config__facility__acronym'
+    spokesperson.sort_field = 'proposal__spokesperson__first_name'
+
     class Meta:
         unique_together = ("proposal", "track")
 
 
 class ReviewTrack(TimeStampedModel):
+    """
+    A review track represents a series of stages that a proposal must go through during the review process.
+    Each track can have multiple stages, and each stage can have a different review and reviewers.
+    """
     name = models.CharField(max_length=128)
     acronym = models.CharField(max_length=10, unique=True)
     description = models.TextField(null=True)
@@ -445,49 +451,75 @@ class ReviewTrack(TimeStampedModel):
     def __str__(self):
         return f"{self.acronym} - {self.name}"
 
-    def stage_progress(self, cycle):
+    def stage_progress(self, cycle: 'ReviewCycle') -> list[dict]:
         """
         Return a dictionary of the progress of each stage in the track for the given cycle
         :param cycle: ReviewCycle
-        :return:
+        :return: List of dictionaries with stage information per stage, keys are:
+            - 'stage': stage position
+            - 'count': total number of reviews
+            - 'complete': number of completed reviews
         """
-        return Review.objects.filter(cycle=cycle, stage__track=self).values('stage').annotate(
+        return list(Review.objects.filter(cycle=cycle, stage__track=self).values('stage').annotate(
             count=Count('stage'), complete=Count('stage', filter=Q(state=Review.STATES.submitted))
-        )
+        ))
 
 
 class ReviewCycleQuerySet(DateSpanQuerySet):
 
-    def archived(self):
+    def archived(self) -> QuerySet:
+        """
+        Return the queryset representing all cycles that are archived.
+        """
         return self.filter(state=ReviewCycle.STATES.archive)
 
-    def pending(self, dt=None):
-        """Return the queryset representing all objects with an start_date in the future"""
+    def pending(self, dt: datetime = None) -> QuerySet:
+        """
+        Return the queryset representing all cycles with an start_date in the future
+        :param dt: Optional date to filter from, defaults to today
+        """
         dt = timezone.now().date() if not dt else dt
         return self.filter(Q(open_date__gt=dt))
 
-    def open(self):
+    def open(self) -> QuerySet:
+        """
+        Return the queryset representing all objects in the open state.
+        """
         return self.filter(state=ReviewCycle.STATES.open)
 
-    def next_call(self, dt=None):
+    def next_call(self, dt: datetime = None):
+        """
+        Return the next review cycle that is open or pending, starting from the given date.
+        :param dt: Optional date to filter from, defaults to today
+        :return: ReviewCycle or None if no cycle is found
+        """
         dt = timezone.now().date() if not dt else dt
         return self.filter(open_date__gte=dt).first()
 
-    def review(self):
+    def review(self) -> QuerySet:
+        """
+        Return the queryset representing all objects in the review state.
+        """
         return self.filter(state=ReviewCycle.STATES.review)
 
-    def evaluation(self):
+    def evaluation(self) -> QuerySet:
+        """
+        Return the queryset representing all objects in the evaluation state.
+        """
         return self.filter(state=ReviewCycle.STATES.evaluation)
 
-    def schedule(self):
+    def schedule(self) -> QuerySet:
+        """
+        Return the queryset representing all objects in the scheduling state.
+        """
         return self.filter(state=ReviewCycle.STATES.schedule)
 
 
-class ReviewCycleManager(models.Manager.from_queryset(ReviewCycleQuerySet)):
-    use_for_related_fields = True
-
-
 class ReviewCycle(DateSpanMixin, TimeStampedModel):
+    """
+    A review cycle represents a period during which proposals are reviewed and evaluated, as well as the
+    scheduling of beamtime for successful proposals.,
+    """
     STATES = Choices(
         (0, 'pending', _('Call Pending')),
         (1, 'open', _('Call Open')),
@@ -509,33 +541,48 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
     reviewers = models.ManyToManyField("Reviewer", blank=True, related_name='cycles')
     state = models.SmallIntegerField(default=0, choices=STATES)
     schedule = models.OneToOneField("scheduler.Schedule", related_name='cycle', on_delete=models.CASCADE)
-    objects = ReviewCycleManager()
+    objects = ReviewCycleQuerySet.as_manager()
 
-    def live_schedule(self):
-        return self.schedule
-
-    def configs(self):
+    def configs(self) -> QuerySet:
+        """
+        Get the queryset of all active facility configurations for this cycle.
+        """
         return FacilityConfig.objects.active(d=self.start_date)
 
     def techniques(self):
+        """
+        Get a queryset of all techniques that are part of the configurations in this cycle.
+        :return:
+        """
         return Technique.objects.filter(pk__in=self.configs().values_list('techniques', flat=True)).distinct()
 
-    def tracks(self):
-        return ReviewTrack.objects.filter(pk__in=self.submissions.values_list('track', flat=True))
+    # def tracks(self):
+    #     return ReviewTrack.objects.filter(pk__in=self.submissions.values_list('track', flat=True))
 
-    def num_submissions(self):
+    def num_submissions(self) -> int:
+        """
+        Get the number of submissions in this cycle.
+        """
         return self.submissions.count()
 
-    def num_facilities(self):
+    def num_facilities(self) -> int:
+        """
+        Get the number of facilities that have active configurations in this cycle.
+        :return:
+        """
         return self.configs().count()
 
-    def is_closed(self):
+    def is_closed(self) -> bool:
         return self.close_date < timezone.now().date()
 
-    def is_open(self):
+    def is_open(self) -> bool:
         return self.state == self.STATES.open
 
-    def last_date(self):
+    def last_date(self) -> date:
+        """
+        Get the last valid date for this cycle, which is the day before the close date.
+        :return:
+        """
         return self.end_date - timedelta(days=1)
 
     def name(self):
@@ -553,6 +600,10 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
 
 
 class Technique(TimeStampedModel):
+    """
+    A scientific technique that can be used in a facility configuration. Used by beamlines, proposals and
+    reviewers. Allows for matching of proposals to beamlines and reviewers to proposals.
+    """
     TYPES = Choices(
         ('diffraction', _('Diffraction/Scattering')),
         ('imaging', _('Imaging')),
@@ -567,9 +618,12 @@ class Technique(TimeStampedModel):
     parent = models.ForeignKey('self', related_name='children', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return self.name if not self.acronym else '{} ({})'.format(self.name, self.acronym)
+        return self.name if not self.acronym else f'{self.name} ({self.acronym})'
 
     def short_name(self):
+        """
+        Get a short name for the technique, which is either the acronym or the name if no acronym is set.
+        """
         return self.name if not self.acronym else self.acronym
 
     class Meta:
@@ -578,7 +632,7 @@ class Technique(TimeStampedModel):
 
 class FacilityConfigQueryset(models.QuerySet):
 
-    def for_facility(self, facility, accepting=True):
+    def for_facility(self, facility, accepting=True) -> QuerySet:
         """
         Return the queryset representing all objects accepting proposals for a given facility.
         :param facility: Facility object or id
@@ -591,7 +645,7 @@ class FacilityConfigQueryset(models.QuerySet):
             filters = {'facility': facility}
         return self.filter(**filters).order_by('start_date')
 
-    def get_for_cycle(self, cycle):
+    def get_for_cycle(self, cycle) -> QuerySet:
         """
         Return the queryset representing all objects for a given cycle.
         """
@@ -602,7 +656,14 @@ class FacilityConfigQueryset(models.QuerySet):
             Q(cycle=cycle) | Q(start_date__lte=cycle.start_date)
         ).order_by('start_date').last()
 
-    def active(self, year=None, d=None):
+    def active(self, year=None, d=None) -> QuerySet:
+        """
+        Get the active configurations for a given date or year.
+        :param year: Either a year or None
+        :param d: a date object or None, if None, the current date is used.
+        :return: a queryset of active configurations.
+        """
+
         if year and not d:
             d = date(year, 12, 31)
         elif not d:
@@ -617,15 +678,28 @@ class FacilityConfigQueryset(models.QuerySet):
             )
         ).filter(start_date=F('latest'))
 
-    def accepting(self):
+    def accepting(self) -> QuerySet:
+        """
+        Select subset of configurations that are accepting proposals.
+        """
         return self.filter(accept=True)
 
-    def pending(self, d=None):
+    def pending(self, d: date = None) -> QuerySet:
+        """
+        Select subset of configurations that are pending, i.e. start date is in the future relative to a given
+        date or the current date, if no date is given.
+        """
         if not d:
             d = timezone.now().date()
         return self.filter(start_date__gt=d)
 
-    def expired(self, year=None, d=None):
+    def expired(self, year: int = None, d: date = None) -> QuerySet:
+        """
+        Select subset of configurations that are expired, relative to the given year or date. That is they were active
+        in the past but another configuration is more current on that date.
+        :param year: Optional year
+        :param d: Optional date, if not given, the current date is used.
+        """
         if year and not d:
             d = date(year, 12, 31)
         elif not d:
@@ -642,6 +716,10 @@ class FacilityConfigQueryset(models.QuerySet):
 
 
 class FacilityConfig(TimeStampedModel):
+    """
+    A configuration for a facility that defines the techniques available, the track they are associated with.
+    and the effective cycle or start date
+    """
     cycle = models.ForeignKey(ReviewCycle, verbose_name=_('Start Cycle'), on_delete=models.SET_NULL, null=True)
     start_date = models.DateField(_("Start Date"))
     accept = models.BooleanField("Accept Proposals", default=False)
@@ -662,42 +740,37 @@ class FacilityConfig(TimeStampedModel):
         else:
             return "<unsaved>"
 
-    def is_active(self):
+    def is_active(self) -> bool:
+        """
+        Check if this configuration is active, i.e. it is the latest configuration for the facility
+        """
         return FacilityConfig.objects.filter(facility=self.facility, pk=self.pk).active().exists()
 
-    def is_editable(self):
+    def is_editable(self) -> bool:
+        """
+        Check if this configuration is editable, i.e. it is not part of an open cycle.
+        """
         if self.cycle:
             return self.cycle.open_date > timezone.now().date()
         return False
 
     def siblings(self):
+        """
+        Get a queryset of all other configurations for the same facility that are not this one.
+        """
         return FacilityConfig.objects.filter(facility=self.facility).exclude(pk=self.pk)
 
 
 class ConfigItemQueryset(models.QuerySet):
-    def operating(self):
-        return self.filter(state=ConfigItem.STATES.operating)
-
-    def commissioning(self):
-        return self.filter(state=ConfigItem.STATES.commissioning)
-
     def group_by_track(self):
         return {track: self.filter(track=track) for track in ReviewTrack.objects.all()}
 
 
-class ConfigItemManager(models.Manager.from_queryset(ConfigItemQueryset)):
-    use_for_related_fields = True
-
-
 class ConfigItem(TimeStampedModel):
-    STATES = Choices(
-        ('design', 'Design'), ('construction', 'Construction'), ('commissioning', 'Commissioning'),
-        ('operating', 'Active'), )
     config = models.ForeignKey(FacilityConfig, related_name="items", on_delete=models.CASCADE)
     technique = models.ForeignKey(Technique, related_name="items", on_delete=models.CASCADE)
-    state = models.CharField(choices=STATES, default=STATES.operating, max_length=30)
     track = models.ForeignKey("ReviewTrack", on_delete=models.CASCADE)
-    objects = ConfigItemManager()
+    objects = ConfigItemQueryset.as_manager()
 
     class Meta:
         unique_together = [("config", "technique", "track")]
