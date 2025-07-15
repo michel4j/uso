@@ -1,4 +1,3 @@
-import os
 import copy
 from collections import defaultdict
 from datetime import date, timedelta, datetime
@@ -8,27 +7,25 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Case, Avg, When, F, Q, StdDev, Max, Count
+from django.db.models.functions import Concat, Cast
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from dynforms.models import BaseFormModel, FormType
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
+
 from beamlines.models import Facility
-from dynforms.models import BaseFormModel, FormType
 from misc.fields import StringListField
-from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
+from misc.functions import String, LPad
 from misc.models import Clarification, GenericContentMixin, GenericContentQueryset
+from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
 from publications.models import SubjectArea
 
 User = getattr(settings, "AUTH_USER_MODEL")
 USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", 'approval')
-
-
-def _proposal_filename(instance, filename):
-    ext = os.path.splitext(filename)[-1]
-    return os.path.join('proposals', str(instance.proposal.pk), instance.slug + ext)
 
 
 class Proposal(BaseFormModel):
@@ -50,27 +47,31 @@ class Proposal(BaseFormModel):
     attachments = GenericRelation(Attachment)
 
     @property
-    def code(self):
-        return '{0:0>6}'.format(
-            self.pk, )
+    def code(self) -> str:
+        return f'{self.pk:0>6}'
 
-    def is_editable(self):
+    def is_editable(self) -> bool:
         return self.state == self.STATES.draft
 
-    def authors(self):
-        return " \u00b7 ".join(["{last_name}, {first_name}".format(**member) for member in self.get_full_team()])
+    def authors(self) -> str:
+        """
+        Return a text representing the authors in the format 'Last, First' for each team member
+        """
+        return " · ".join([f"{member['last_name']}, {member['first_name']}" for member in self.get_members()])
 
     def __str__(self):
         title = self.title if self.title else 'No title'
         short_title = title if len(title) <= 52 else title[:52] + '..'
-        return "{} - {}".format(self.pk, short_title)
+        return f"{self.pk} - {short_title}"
 
     def get_absolute_url(self):
         reverse('proposal-detail', kwargs={'pk': self.pk})
 
-    def get_full_team(self):
-        """Return a unique list of team members including everyone with team roles ('leader', 'delegate' and
-        'spokesperson'). The team roles for each member will be in the key 'roles' which is a list """
+    def get_members(self) -> list[dict]:
+        """
+        Return a unique list of team members including everyone with team roles ('leader', 'delegate' and
+        'spokesperson'). The team roles for each member will be in the key 'roles' which is a list
+        """
 
         leader_email = self.details.get('leader', {}).get('email', '').strip().lower()
         spokesperson_email = self.spokesperson.email.strip().lower()
@@ -106,43 +107,40 @@ class Proposal(BaseFormModel):
         return list(full_team.values())
 
     def get_delegate(self):
+        """
+        Gets the user object for the delegate of this proposal, if one exists.
+        :return: User object or None if no delegate is set
+        """
         return get_user_model().objects.filter(username=self.delegate_username).first()
 
     def get_leader(self):
+        """
+        Returns the user object for the leader of this proposal, if one exists.
+        :return: User object or None if no leader is set
+        """
         return get_user_model().objects.filter(username=self.leader_username).first()
 
-    def get_member(self, info):
+    @staticmethod
+    def get_registered_member(info: dict):
+        """
+        Takes a user dictionary with an 'email' key and returns the user object if one exists
+        :param info: member dictionary containing 'email' key
+        :return: User object or None if no user with that email exists
+        """
         email = info['email'].strip()
         if email:
             return get_user_model().objects.filter(
                 models.Q(email__iexact=email) | models.Q(alt_email__iexact=email)
             ).first()
+        return None
 
-    def get_techniques(self):
-        techs = [int(v) for v in self.details['beamline_reqs'][0]['techniques']]
-
-        # filter to only techniques available in database
-        self.details['beamline_reqs'][0]['techniques'] = list(
-            Technique.objects.filter(pk__in=techs).values_list('pk', flat=True)
-        )
-        Proposal.objects.filter(pk=self.pk).update(details=self.details)
-
-    def authors_text(self):
-        """
-        Return a text representing the authors in the format 'Last, First' for each team member
-        """
-        authors = []
-        for member in self.get_full_team():
-            authors.append(f"{member['last_name']}, {member['first_name']}")
-        return " · ".join(authors)
-
-    def get_document(self):
+    def get_document(self) -> dict:
         """
         Returns a dictionary of review content for this submission.
         """
         return {
             'title': self.title,
-            'authors': self.authors_text(),
+            'authors': self.authors(),
             'science': self.details,
             'safety': {
                 'samples': self.details.get('sample_list', []),
@@ -154,7 +152,7 @@ class Proposal(BaseFormModel):
             'attachments': self.attachments,
         }
 
-    def hazards(self):
+    def hazards(self) -> QuerySet:
         """
         Returns a list of hazards associated with this proposal.
         """
@@ -171,7 +169,6 @@ class SubmissionQuerySet(QuerySet):
     def with_scores(self):
         """
         Calculate average and standard deviations of each review type
-        :return:
         """
         annotations = {}
         for rev_type in ReviewType.objects.scored():
@@ -190,16 +187,6 @@ class SubmissionQuerySet(QuerySet):
                 )
             )
         return self.annotate(**annotations).distinct()
-
-
-from django.db.models.functions import Concat, Cast
-from misc.functions import String, LPad
-
-_submission_code_func = Concat(
-    'track__acronym', LPad(
-        String('proposal_id'), 6
-    ), output_field=models.CharField()
-)
 
 
 class AccessPool(TimeStampedModel):
@@ -251,6 +238,7 @@ class Submission(TimeStampedModel):
     comments = models.TextField(blank=True)
     objects = SubmissionQuerySet.as_manager()
 
+    @property
     def code(self):
         return f'{self.track.acronym}{self.proposal.pk:0>6}'
 
@@ -260,13 +248,10 @@ class Submission(TimeStampedModel):
         ).order_by('?').first()
 
     def __str__(self):
-        return f'{self.code()}~{self.proposal.spokesperson.last_name}'
+        return f'{self.code}~{self.proposal.spokesperson.last_name}'
 
     def get_absolute_url(self):
         return reverse('submission-detail', kwargs={'pk': self.pk})
-
-    def update_state(self):
-        pass
 
     def title(self):
         return self.proposal.title
@@ -277,10 +262,12 @@ class Submission(TimeStampedModel):
     def siblings(self):
         return self.proposal.submissions.exclude(pk=self.pk)
 
-    def facilities(self):
+    def facilities(self) -> QuerySet:
+        """
+        Get a queryset of facilities associated with this submission.
+        """
         return Facility.objects.filter(pk__in=self.techniques.values_list('config__facility', flat=True)).distinct()
 
-    code.sort_field = 'id'
     title.sort_field = 'proposal__title'
     facilities.sort_field = 'techniques__config__facility__acronym'
     spokesperson.sort_field = 'proposal__spokesperson__first_name'
@@ -443,25 +430,8 @@ class Submission(TimeStampedModel):
             )
         return "\n".join(texts)
 
-    def adj(self):
-        if hasattr(self, 'adjustment'):
-            adj = self.adjustment.value
-        else:
-            adj = 0
-        return adj
-
     class Meta:
         unique_together = ("proposal", "track")
-
-
-class ScoreAdjustment(TimeStampedModel):
-    submission = models.OneToOneField(Submission, related_name='adjustment', on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reason = models.TextField()
-    value = models.FloatField(default=0.5)
-
-    def __str__(self):
-        return f'{self.submission} Score Adjustment: {self.value:+}'
 
 
 class ReviewTrack(TimeStampedModel):

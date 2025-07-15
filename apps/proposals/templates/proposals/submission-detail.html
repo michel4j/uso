@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block page-subtitle %}
-    {{ object.proposal.authors_text }}
+    {{ object.proposal.authors }}
 {% endblock %}
 
 {% block page-tools %}
@@ -34,10 +34,6 @@
         </a>
     {% endif %}
     {% if admin and object.state > object.STATES.reviewed %}
-        <a href='#0' data-modal-url='{% url 'adjust-submission-score' object.pk %}' class="pull-right">
-            <i class="bi-arrows-expand-vertical icon-md icon-fw"></i><br/>
-            <span class="tool-label">Adjust Score</span>
-        </a>
         <a href='#0' data-modal-url='{% url 'edit-submission-comments' object.pk %}' class="pull-right">
             <i class="bi-chat-right-text icon-md icon-fw"></i><br/>
             <span class="tool-label">Comments</span>

@@ -142,7 +142,7 @@ def get_submission_info(submission):
     return {
         'techniques': set(submission.techniques.values_list('technique__pk', flat=True)),
         'areas': set(proposal.areas.values_list('pk', flat=True)),
-        'emails': {user.get('email', '') for user in proposal.get_full_team()},
+        'emails': {user.get('email', '') for user in proposal.get_members()},
         'conflicts': {
             f'{r["fist_name"]},{r["last_name"]}'.strip().lower()
             for r in proposal.details.get('inappropriate_reviewers', [])
@@ -763,8 +763,8 @@ def notify_submission(proposal, cycle):
 
     others = []
     registered_members = []
-    for member in proposal.get_full_team():
-        user = proposal.get_member(member)
+    for member in proposal.get_members():
+        user = proposal.get_registered_member(member)
         if not member.get('roles'):
             others.append(member.get('email', '') if not user else user)
             continue

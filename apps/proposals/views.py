@@ -711,7 +711,6 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             data['state'] = models.Review.STATES.submitted
 
         self.queryset.filter(pk=self.object.pk).update(**data)
-        self.object.reference.update_state()
         messages.success(self.request, activity_description)
         ActivityLog.objects.log(self.request, self.object, kind=activity_type, description=activity_description)
 
@@ -1733,8 +1732,8 @@ class AskClarification(RequestClarification):
         proposal = self.get_reference()
         success_url = reverse_lazy('proposal-detail', kwargs={'pk': proposal.pk})
         full_url = "{}{}".format(getattr(settings, 'SITE_URL', ""), success_url)
-        for member in proposal.get_full_team():
-            user = proposal.get_member(member)
+        for member in proposal.get_members():
+            user = proposal.get_registered_member(member)
             if not member.get('roles'):
                 continue
             recipients = [user] if user else [member['email']]
@@ -1799,55 +1798,6 @@ class Statistics(RolePermsViewMixin, TemplateView):
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_STAFF_ROLES
     template_name = "proposals/statistics.html"
-
-
-class AddScoreAdjustment(RolePermsViewMixin, ModalUpdateView):
-    form_class = forms.AdjustmentForm
-    model = models.Submission
-    allowed_roles = USO_ADMIN_ROLES
-
-    def get_delete_url(self):
-        obj = self.get_object()
-        if hasattr(obj, 'adjustment'):
-            return reverse("remove-score-adjustment", kwargs={'pk': obj.pk})
-        return None
-
-    def get_initial(self):
-        initial = super().get_initial()
-        submission = self.get_object()
-        if hasattr(submission, 'adjustment'):
-            initial['value'] = submission.adjustment.value
-            initial['reason'] = submission.adjustment.reason
-        return initial
-
-    def form_valid(self, form):
-        data = form.cleaned_data
-        data['user'] = self.request.user
-        submission = self.get_object()
-        obj, created = models.ScoreAdjustment.objects.update_or_create(submission=submission, defaults=data)
-        ActivityLog.objects.log(
-            self.request, submission, kind=ActivityLog.TYPES.task,
-            description=f'Score Adjusted by {data["value"]}'
-        )
-        messages.success(self.request, f'Score adjustment of {obj.value} applied to submission')
-        return JsonResponse({"url": ""})
-
-
-class DeleteAdjustment(RolePermsViewMixin, ModalDeleteView):
-    model = models.ScoreAdjustment
-    allowed_roles = USO_ADMIN_ROLES
-
-    def get_object(self, queryset=None):
-        submission = models.Submission.objects.get(pk=self.kwargs['pk'])
-        return submission.adjustment
-
-    def confirmed(self, *args, **kwargs):
-        self.object = self.get_object()
-        ActivityLog.objects.log(
-            self.request, self.object, kind=ActivityLog.TYPES.delete, description='Score Adjustment Deleted'
-        )
-        self.object.delete()
-        return JsonResponse({"url": ""})
 
 
 class UpdateReviewComments(RolePermsViewMixin, ModalUpdateView):

@@ -427,9 +427,6 @@ class Material(TimeStampedModel):
     def get_absolute_url(self):
         return reverse('material-detail', kwargs={'pk': self.pk})
 
-    def update_state(self):
-        pass
-
     def update_due_dates(self):
         beamtime = self.project.beamtimes.filter(start__gte=timezone.now().date()).first()
         if beamtime:

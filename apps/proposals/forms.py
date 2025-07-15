@@ -444,36 +444,6 @@ class ReviewerAssignmentForm(ModalModelForm):
         )
 
 
-class AdjustmentForm(ModalModelForm):
-    VALUE_TYPES = (
-        (-1, '-1.0'),
-        (-0.5, '-0.5'),
-        (0.5, '+0.5'),
-        (1, '+1.0'),
-    )
-    value = forms.TypedChoiceField(choices=VALUE_TYPES, empty_value="0.0", coerce=float, label=_('Score Adjustment'))
-
-    class Meta:
-        model = models.ScoreAdjustment
-        fields = ('value', 'reason')
-
-        widgets = {
-            'reason': forms.Textarea(attrs={'rows': 3, }),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['value'].choices = self.VALUE_TYPES
-        self.fields['reason'].help_text = 'Please provide an explanation justifying the score adjustment'
-        self.body.append(
-            Div(
-                Div(Field('value', css_class="selectize"), css_class="col-sm-12"),
-                Div("reason", css_class="col-sm-12"),
-                css_class="row"
-            ),
-        )
-
-
 class ReviewCommentsForm(ModalModelForm):
     class Meta:
         model = models.Submission

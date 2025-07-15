@@ -15,7 +15,7 @@
 
             {% if proposal.subject.keywords %}
                 <hr/>
-                Keywords: <em>{{ proposal.details.subject.keywords }}</em>
+                Keywords: <em>{{ proposal.science.subject.keywords }}</em>
                 <hr/>
             {% endif %}
         </div>
@@ -44,7 +44,7 @@
             <div class="row section">
                 <div class="col-12 section-content">
                     <h3>Capability &amp; Productivity of Research Team</h3>
-                    {{ proposal.details.team_capability|markdown }}
+                    {{ proposal.science.team_capability|markdown }}
                 </div>
             </div>
         {% endif %}

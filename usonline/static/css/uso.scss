@@ -158,7 +158,6 @@ $timeline-colors: (
   --bs-font-monospace: "Fira Code";
   --bs-body-font-size: 11pt;
   --bs-breadcrumb-font-size: 0.85rem;
-  --bs-border-color: var(--bs-border-color-translucent);
 }
 
 //@import "https://fonts.googleapis.com/css?family=Fira+Code|Fira+Sans+Condensed:200,400,800|Fira+Sans:200,400,800&display=swap";
@@ -613,6 +612,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .table {
+  --bs-border-color: var(--bs-border-color-translucent);
   th {
     line-height: inherit;
     font-weight: 700;
