@@ -767,6 +767,9 @@ class ConfigItemQueryset(models.QuerySet):
 
 
 class ConfigItem(TimeStampedModel):
+    """
+    A model that connects a FacilityConfig with a Technique and a ReviewTrack.
+    """
     config = models.ForeignKey(FacilityConfig, related_name="items", on_delete=models.CASCADE)
     technique = models.ForeignKey(Technique, related_name="items", on_delete=models.CASCADE)
     track = models.ForeignKey("ReviewTrack", on_delete=models.CASCADE)
@@ -780,7 +783,11 @@ class ConfigItem(TimeStampedModel):
 
 
 class ReviewerQueryset(models.QuerySet):
-    def available(self, cycle=None):
+    def available(self, cycle=None) -> QuerySet:
+        """
+        Get a queryset of reviewers that are available for the given cycle.
+        :param cycle: Optional ReviewCycle object, if not given, the current date is used to determine availability.
+        """
         if not cycle:
             cycle_time = timezone.now()
         else:
@@ -794,11 +801,17 @@ class ReviewerQueryset(models.QuerySet):
             & Q(areas__isnull=False)
         ).distinct()
 
-    def committee(self):
+    def committee(self) -> QuerySet:
+        """
+        Get a queryset of reviewers that are part of a committee, i.e. have a non-null committee field.
+        """
         return self.filter(committee__isnull=False)
 
 
 class Reviewer(TimeStampedModel):
+    """
+    A reviewer is a user who can review proposals. They are associated with techniques and subject areas.
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='reviewer')
     techniques = models.ManyToManyField(Technique, related_name="reviewers")
     areas = models.ManyToManyField(SubjectArea, verbose_name=_('Subject Areas'), )
@@ -815,26 +828,50 @@ class Reviewer(TimeStampedModel):
     def __str__(self):
         return f"{self.user.last_name}, {self.user.first_name}{' 🜲' if self.committee else ''}"
 
-    def is_suspended(self, dt=None):
+    def is_suspended(self, dt: datetime = None) -> bool:
+        """
+        Check if the reviewer is suspended relative to a given date, i.e. they have opted out of reviewing
+        for more than a year.
+        :param dt: optional datetime to check against, if not given, the current date is used.
+        """
         dt = timezone.now() if not dt else datetime.combine(dt, datetime.min.time())
         expiry = (dt - timedelta(days=364)).date()
         return self.declined is not None and self.declined >= expiry
 
     def institution(self):
+        """
+        Get the reviewer's institution.
+        :return: Institution object or None if the user has no institution set.
+        """
         return self.user.institution
 
-    def reviews(self):
+    def reviews(self) -> QuerySet:
+        """
+        Get a queryset of all reviews for this reviewer.
+        """
         return self.user.reviews.all()
 
-    def cycle_reviews(self, cycle):
+    def cycle_reviews(self, cycle) -> QuerySet:
+        """
+        Get a queryset of all reviews for this reviewer in a given cycle.
+        :param cycle: target cycle
+        """
         return self.reviews().filter(cycle=cycle)
 
-    def committee_proposals(self, cycle):
+    def committee_proposals(self, cycle: ReviewCycle) -> QuerySet:
+        """
+        Get a queryset of all proposals that this reviewer has reviewed this cycle as a committee member.
+        :param cycle: Target cycle
+        :return: An empty queryset if the reviewer is not part of a committee
+        """
         if self.committee:
             return cycle.submissions.filter(track=self.committee, reviews__reviewer=self.user).distinct()
         return Submission.objects.none()
 
-    def topic_names(self):
+    def topic_names(self) -> str:
+        """
+        Get text representation of the techniques and subject areas this reviewer is associated with.
+        """
         techniques = ', '.join(self.techniques.values_list('acronym', flat=True))
         subjects = ', '.join(self.areas.values_list('name', flat=True))
         style = ''
@@ -848,12 +885,15 @@ class Reviewer(TimeStampedModel):
             f"<em>{subjects}</em></section>"
         )
 
-    topic_names.short_description = 'Topics'
-    topic_names.sort_field = 'techniques__name'
-
-    def area_names(self):
+    def area_names(self) -> str:
+        """
+        Get a comma-separated list of subject areas this reviewer is associated with.
+        """
         return ', '.join(self.areas.values_list('name', flat=True))
 
+    # descriptors for display in itemlist
+    topic_names.short_description = 'Topics'
+    topic_names.sort_field = 'techniques__name'
     area_names.short_description = 'Subject Areas'
     area_names.sort_field = 'areas__name'
 
@@ -931,6 +971,11 @@ class ReviewTypeQueryset(models.QuerySet):
 
 
 class ReviewType(TimeStampedModel):
+    """
+    A type of review that can be performed. Each type points to the form type used for the review, the
+    role of reviewers responsible for this review, the fields that are scored in the review,
+    whether lower scores are better, and if the review is per facility.
+    """
     class Types(models.TextChoices):
         safety = ('safety', _('Safety Review'))
         technical = ('technical', _('Technical Review'))
@@ -978,6 +1023,11 @@ class ReviewStageQuerySet(models.QuerySet):
 
 
 class ReviewStage(TimeStampedModel):
+    """
+    A review stage within a review track. Each stage is associated with a review type and has all
+    the information needed to determine of the review was successful or not, such as minimum reviews required,
+    maximum workload, whether it blocks passage to the next stage, and the passing score.
+    """
     track = models.ForeignKey(_('ReviewTrack'), on_delete=models.CASCADE, related_name='stages')
     kind = models.ForeignKey(ReviewType, on_delete=models.CASCADE, related_name='stages')
     position = models.IntegerField(_("Position"), default=0)
@@ -1015,6 +1065,10 @@ class ReviewStage(TimeStampedModel):
 
 
 class Review(BaseFormModel, GenericContentMixin):
+    """
+    A review object. It links to a generic reference object, making it possible to attach reviews to a wide
+    variety of object types. Currently, "Submission" and "Material".
+    """
     STATES = Choices(
         (0, 'pending', 'Pending'),
         (1, 'open', 'Open'),
@@ -1042,7 +1096,10 @@ class Review(BaseFormModel, GenericContentMixin):
     def title(self):
         return f'{self.type} of {self.content_type.name.title()} {self.reference}'
 
-    def assigned_to(self):
+    def assigned_to(self) -> str:
+        """
+        Get a string representation of the reviewer or the role if no reviewer is assigned.
+        """
         if self.reviewer:
             return self.reviewer.get_full_name()
         else:
@@ -1053,6 +1110,9 @@ class Review(BaseFormModel, GenericContentMixin):
                 return name.replace('-', ' ').title()
 
     def is_claimable(self):
+        """
+        Check if this review can be claimed by a reviewer.
+        """
         return self.role not in [None, ""]
 
     def is_submitted(self):
