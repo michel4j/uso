@@ -1336,11 +1336,11 @@
   pk: 10
   fields:
     created: 2015-11-20 19:54:39+00:00
-    modified: 2025-05-25 05:14:52.148988+00:00
+    modified: 2025-07-13 18:02:19.080405+00:00
     name: Team Amendment
     code: team
     description: Form for changing team members, delegate, or leader of a project
-    header: false
+    header: true
     help_bar: false
     wizard: false
     pages:
@@ -1392,11 +1392,11 @@
   pk: 12
   fields:
     created: 2015-12-10 17:47:19+00:00
-    modified: 2025-06-11 04:07:52.624823+00:00
+    modified: 2025-07-15 17:32:38.648799+00:00
     name: User Feedback
     code: feedback
     description: Form to capture user feedback following beamtime.
-    header: false
+    header: true
     help_bar: false
     wizard: false
     pages:
@@ -1428,17 +1428,18 @@
         instructions: Please rate the machine operations during your session according
           to the following categories.
         default_choices: []
-      - name: machine_comments
+      - name: amenities_desires
         size: small
         tags: ''
-        label: Comments on Storage Ring Operations
+        label: What amenities would you like made available?
         units: chars
+        width: full
         default: ''
         maximum: null
         minimum: null
         options: []
         field_type: paragraphtext
-        instructions: Provide any additional details about your ratings above.
+        instructions: ''
       - name: section-006
         tags: ''
         label: Beamline and End Station
@@ -1565,8 +1566,7 @@
       - name: amenities_desires
         size: small
         tags: ''
-        label: What amenities would you like made available at the CLS which are not
-          currently available?
+        label: What amenities would you like made available?
         units: chars
         width: full
         default: ''
@@ -1580,12 +1580,12 @@
         label: If you are not from Saskatoon, where did you stay during your visit?
         width: full
         values:
-        - Lutheran Seminary
+        - Guest House
         - Hotel
         - Bed & Breakfast
         - Friends or Family
         choices:
-        - Lutheran Seminary
+        - Guest House
         - Hotel
         - Bed & Breakfast
         - Friends or Family
@@ -1729,7 +1729,7 @@
   pk: 15
   fields:
     created: 2025-07-08 19:46:33.767639+00:00
-    modified: 2025-07-08 20:58:13.355541+00:00
+    modified: 2025-07-08 23:55:14.010784+00:00
     name: Safety Pre-Assessment
     code: safety-assessment
     description: "A preliminary safety review that is performed at the Proposal stage.
