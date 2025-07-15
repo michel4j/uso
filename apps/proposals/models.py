@@ -281,7 +281,7 @@ class Submission(TimeStampedModel):
         # fetch score information from all completed reviews
         review_scores = self.reviews.complete().annotate(
             position=F('stage__position'),
-            facility=Cast('details__facility', output_field=models.IntegerField()),
+            facility=F('details__facility'),
         ).order_by('position', 'facility').annotate(
             score_avg=Avg('score'),
             score_std=StdDev('score'),

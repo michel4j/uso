@@ -100,7 +100,7 @@ def create_project(submission) -> models.Project | None:
         'start_date': cycle.start_date,
         'end_date': expiry,
         'details': {
-            'delegate': proposal.details.get('delegate', {}),
+            'delegate': proposal.details.get('delegate', {}),       # FIXME: Team information is not passing through properly
             'leader': proposal.details.get('leader', {}),
             'team_members': proposal.details['team_members'],
             'invoice_address': proposal.details.get('invoice_address', {})
