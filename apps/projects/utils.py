@@ -4,7 +4,8 @@ import datetime
 from typing import Any
 
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Value, Max, Min
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from beamlines.models import Facility
@@ -117,6 +118,11 @@ def create_project(submission) -> models.Project | None:
     if passing_requests:
         # create the project if needed (only one per proposal), and allocations
         project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
+        if created:
+            # if the project was created, generate a unique code for it
+            project.code = generate_project_code(project)
+            project.save()
+
         for facility, details in passing_requests.items():
             project.techniques.add(*details['techniques'].all())
             create_allocation_tree(
@@ -243,6 +249,12 @@ def generate_project_code(project: models.Project) -> str:
     :param project: Proposal instance
     :return: Unique code string
     """
-    pk_str = f"{project.pk:0>5x}"
-    return f"{project.cycle.pk:0>3d}{project.pool.name[0]}-{pk_str}".upper()
+
+    # count the number of projects that have been created in the same cycle, including this one
+    count = project.__class__.objects.filter(
+        cycle=project.cycle, pk__lte=project.pk
+    ).aggregate(
+        count=Value(1) + Coalesce(Max('pk') - Min('pk'), 0)
+    )['count'] or 1
+    return f"{project.cycle.pk:0>3d}{project.pool.name[0]}-{count:0>5x}".upper()
 

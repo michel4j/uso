@@ -33,6 +33,7 @@ class Proposal(BaseFormModel):
         (0, 'draft', 'Not Submitted'),
         (1, 'submitted', 'Submitted')
     )
+    code = models.SlugField(unique=True)
     spokesperson = models.ForeignKey(User, related_name='+', on_delete=models.CASCADE)
     leader_username = models.CharField(max_length=50, null=True, blank=True)
     delegate_username = models.CharField(max_length=50, null=True, blank=True)
@@ -45,10 +46,6 @@ class Proposal(BaseFormModel):
     state = models.IntegerField(choices=STATES, default=STATES.draft)
     clarifications = GenericRelation(Clarification)
     attachments = GenericRelation(Attachment)
-
-    @property
-    def code(self) -> str:
-        return utils.generate_proposal_code(self)
 
     def is_editable(self) -> bool:
         return self.state == self.STATES.draft
@@ -230,6 +227,7 @@ class Submission(TimeStampedModel):
         education = ('education', 'Education/Outreach')
 
     proposal = models.ForeignKey(Proposal, related_name='submissions', on_delete=models.CASCADE)
+    code = models.SlugField(unique=True)
     pool = models.ForeignKey(AccessPool, related_name='submissions', on_delete=models.SET_DEFAULT, default=1)
     track = models.ForeignKey('ReviewTrack', on_delete=models.CASCADE, related_name='submissions')
     cycle = models.ForeignKey("ReviewCycle", on_delete=models.CASCADE, related_name='submissions')
@@ -239,10 +237,6 @@ class Submission(TimeStampedModel):
     reviews = GenericRelation('proposals.Review')
     comments = models.TextField(blank=True)
     objects = SubmissionQuerySet.as_manager()
-
-    @property
-    def code(self):
-        return utils.generate_submission_code(self)
 
     def reviewer(self):
         return get_user_model().objects.filter(

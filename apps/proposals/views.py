@@ -1,12 +1,12 @@
 from collections import defaultdict
 from datetime import timedelta
-from typing import Sequence
 
 from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalDeleteView, ModalConfirmView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db import transaction
 from django.db.models import Q, Avg, StdDev, Count, F
 from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.template.defaultfilters import pluralize
@@ -23,6 +23,7 @@ from scipy.stats import percentileofscore
 from beamlines.models import Facility
 from misc import filters
 from misc.models import ActivityLog
+from misc.utils import get_code_generator
 from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from roleperms.views import RolePermsViewMixin
@@ -178,7 +179,11 @@ class CreateProposal(RolePermsViewMixin, DynCreateView):
         data = form.cleaned_data
         data['spokesperson'] = self.request.user
 
-        self.object = self.model.objects.create(**form.cleaned_data)
+        with transaction.atomic():
+            self.object = self.model.objects.create(**form.cleaned_data)
+            self.object.code = get_code_generator('proposal')(self.object)
+            self.object.save()
+
         msg = 'Draft proposal created'
         messages.success(self.request, msg)
         ActivityLog.objects.log(
@@ -411,9 +416,11 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
             if track.pk not in track_ids:
                 continue
 
-            obj = models.Submission.objects.create(proposal=self.object, track=track, pool=access_pool, cycle=cycle)
-            obj.techniques.add(*items)
-            obj.save()
+            with transaction.atomic():
+                obj = models.Submission.objects.create(proposal=self.object, track=track, pool=access_pool, cycle=cycle)
+                obj.code = get_code_generator('submission')(obj)
+                obj.techniques.add(*items)
+                obj.save()
 
         # update state
         self.object.state = self.object.STATES.submitted

@@ -939,9 +939,6 @@ def advance_review_workflow(submission) -> list[str]:
     return logs
 
 
-from django.db.models import AutoField
-
-
 def generate_proposal_code(proposal):
     """
     Generate a unique code for a proposal
@@ -949,7 +946,7 @@ def generate_proposal_code(proposal):
     :return: Unique code string
     """
 
-    return f"{proposal.pk:08_}".replace('_', '-')
+    return f"{proposal.pk:07_}".replace('_', '-')
 
 
 def generate_submission_code(submission):
@@ -958,4 +955,5 @@ def generate_submission_code(submission):
     :param submission: Proposal instance
     :return: Unique code string
     """
-    return f"{submission.track.acronym[:2]}{submission.pk:08_}".replace('_', '-').upper()
+    proposal_code = generate_proposal_code(submission.proposal)
+    return f"{submission.track.acronym[:2]}{proposal_code}"

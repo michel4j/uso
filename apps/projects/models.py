@@ -27,6 +27,7 @@ User = getattr(settings, "AUTH_USER_MODEL")
 
 
 class Project(DateSpanMixin, TimeStampedModel):
+    code = models.SlugField(unique=True)
     proposal = models.ForeignKey('proposals.Proposal', null=True, on_delete=models.SET_NULL, related_name="project")
     submissions = models.ManyToManyField('proposals.Submission', blank=True, related_name="project")
     pool = models.ForeignKey('proposals.AccessPool', related_name='projects', on_delete=models.SET_DEFAULT, default=1)
@@ -56,10 +57,6 @@ class Project(DateSpanMixin, TimeStampedModel):
         :return:
         """
         return self.get_leader().last_name
-
-    @property
-    def code(self):
-        return utils.generate_project_code(self)
 
     def is_owned_by(self, user):
         return user in [self.spokesperson, self.leader, self.delegate]
