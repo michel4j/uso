@@ -9,7 +9,7 @@
     <div class="row scroll-box"  style="max-height: 200px">
     <ul class="list-group list-group-flush ">
         {% for project in user.projects.active %}
-            <li class="list-group-item">
+            <li class="list-group-item" style="--bs-list-group-color: inherit; --bs-list-group-bg: inherit;">
                 <a class="overflow ellipsis" href='{% url "project-detail" pk=project.pk %}'>
                     {% if project.clarifications.pending.count %}
                         <i class="bi-chat-left-text-alt text-warning"></i>
