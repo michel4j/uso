@@ -71,7 +71,7 @@ def _fmt_role(role, obj=None):
 class UserProposalList(RolePermsViewMixin, ItemListView):
     model = models.Proposal
     template_name = "proposals/proposal-list.html"
-    list_columns = ['title', 'state', 'created']
+    list_columns = ['code', 'title', 'state', 'created']
     list_filters = ['state', 'modified', 'created']
     list_transforms = {'state': _state_lbl, }
     link_url = "proposal-detail"
@@ -101,7 +101,7 @@ class ProposalList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     list_title = 'All Draft Proposals'
     allowed_roles = USO_ADMIN_ROLES
-    list_columns = ['title', 'spokesperson', 'id', 'state']
+    list_columns = ['code', 'title', 'spokesperson', 'state']
     list_filters = ['state', 'modified', 'created']
     list_transforms = {'state': _state_lbl, }
     link_url = "proposal-detail"
@@ -1077,7 +1077,7 @@ class CycleInfo(RolePermsViewMixin, detail.DetailView):
 class ReviewCycleList(RolePermsViewMixin, ItemListView):
     model = models.ReviewCycle
     template_name = "item-list.html"
-    list_columns = ['name', 'id', 'state', 'start_date', 'open_date', 'close_date', 'num_submissions', 'num_facilities']
+    list_columns = ['name', 'state', 'start_date', 'open_date', 'close_date', 'num_submissions', 'num_facilities']
     list_filters = ['start_date']
     link_url = "review-cycle-detail"
     list_search = ['start_date', 'open_date', 'close_date', 'alloc_date', 'due_date']

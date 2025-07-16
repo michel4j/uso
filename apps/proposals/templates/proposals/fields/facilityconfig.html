@@ -1,4 +1,5 @@
 {% load crispy_forms_filters %}
+{% load misc %}
 {% load proposal_tags %}
 
 {% get_all_tracks as tracks %}
@@ -33,7 +34,9 @@
                     <tr>
                         <th class="col-auto">Techniques</th>
                         {% for track in tracks %}
-                            <th class="text-center" title="{{ track }} Review Track">{{ track.acronym }}</th>
+                            <th class="text-center" title="{{ track }} Review Track">
+                                <span class="badge bg-{% state_tag track.require_call success=True warning=False %}">{{ track.acronym }}</span>
+                            </th>
                         {% endfor %}
                     </tr>
                     </thead>
