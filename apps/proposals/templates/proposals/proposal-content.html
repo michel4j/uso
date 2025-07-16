@@ -12,13 +12,27 @@
             <div class="text-condensed text-body-secondary"><strong>{{ reference }}</strong></div>
             <h2 class="border-bottom">{{ proposal.title }}</h2>
             <strong>{{ proposal.authors }}</strong>
-
-            {% if proposal.subject.keywords %}
-                <hr/>
-                Keywords: <em>{{ proposal.science.subject.keywords }}</em>
-                <hr/>
-            {% endif %}
         </div>
+    </div>
+    <div class="row section mt-3">
+        {% if proposal.keywords %}
+            <div class="col-sm">
+                <h6 class="mb-0">Keywords</h6>
+                <hr class="hr-xs"/>
+                {% for keyword in proposal.keywords %}
+                   <span class="badge border text-body-secondary rounded-1 me-1 mb-1">{{ keyword }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if proposal.topics %}
+            <div class="col-sm">
+                <h6 class="mb-0">Fields of Science</h6>
+                <hr class="hr-xs"/>
+                {% for topic in proposal.topics %}
+                    <span class="badge border text-body-secondary rounded-1 me-1 mb-1">{{ topic.code }} {{ topic }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
     {% if proposal.science.abstract %}

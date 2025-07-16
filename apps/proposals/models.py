@@ -21,6 +21,8 @@ from misc.fields import StringListField
 from misc.models import Clarification, GenericContentMixin, GenericContentQueryset
 from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
 from publications.models import SubjectArea
+from . import utils
+
 
 User = getattr(settings, "AUTH_USER_MODEL")
 USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", 'approval')
@@ -46,7 +48,7 @@ class Proposal(BaseFormModel):
 
     @property
     def code(self) -> str:
-        return f'{self.pk:0>6}'
+        return utils.generate_proposal_code(self)
 
     def is_editable(self) -> bool:
         return self.state == self.STATES.draft
@@ -139,6 +141,8 @@ class Proposal(BaseFormModel):
         return {
             'title': self.title,
             'authors': self.authors(),
+            'topics': self.areas.all(),
+            'keywords': [text.strip() for text in self.details.get('subject', {}).get('keywords', '').split(';')],
             'science': self.details,
             'safety': {
                 'samples': self.details.get('sample_list', []),
@@ -238,7 +242,7 @@ class Submission(TimeStampedModel):
 
     @property
     def code(self):
-        return f'{self.track.acronym}{self.proposal.pk:0>6}'
+        return utils.generate_submission_code(self)
 
     def reviewer(self):
         return get_user_model().objects.filter(

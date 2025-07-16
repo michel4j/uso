@@ -1,6 +1,5 @@
-from crisp_modals.forms import ModalModelForm, FullWidth, Row, QuarterWidth, HalfWidth, ThirdWidth, TwoThirdWidth
+from crisp_modals.forms import ModalModelForm, FullWidth, Row, ThirdWidth, TwoThirdWidth
 from crispy_forms.bootstrap import StrictButton
-from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, HTML, Field
 from django import forms
 from django.db import models

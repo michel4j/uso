@@ -235,3 +235,14 @@ def create_allocation(
         modified=timezone.localtime(timezone.now())
     )
     return alloc
+
+
+def generate_project_code(project: models.Project) -> str:
+    """
+    Generate a unique code for a submission
+    :param project: Proposal instance
+    :return: Unique code string
+    """
+    pk_str = f"{project.pk:0>5x}"
+    return f"{project.cycle.pk:0>3d}{project.pool.name[0]}-{pk_str}".upper()
+

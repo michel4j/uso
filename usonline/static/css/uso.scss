@@ -2629,6 +2629,10 @@ $stat-sizes: (
   font-size: 0.9em;
 }
 
+.modal.fade:not(.show) .modal-dialog {
+  transform: scale(0.8);
+}
+
 .form-select-multiple {
   --ss-primary-color: var(--bs-primary);
   --ss-bg-color: var(--bs-body-bg);

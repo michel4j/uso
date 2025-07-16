@@ -18,28 +18,18 @@ from model_utils.models import TimeStampedModel, TimeFramedModel
 
 from misc.fields import StringListField
 from misc.models import DateSpanMixin, Attachment, Clarification, ActivityLog
-from misc.utils import debug_value
 from proposals.models import Review, ReviewCycle
 from scheduler.models import Event, EventQuerySet
+from . import utils
+
 
 User = getattr(settings, "AUTH_USER_MODEL")
 
-PROJECT_TYPES = Choices(
-    ('user', 'General Access'),
-    ('staff', 'Staff Access'),
-    ('maintenance', 'Maintenance/Commissioning'),
-    ('purchased', 'Purchased Access'),
-    ('beamteam', 'Beam Team'),
-    ('education', 'Education/Outreach')
-)
-
 
 class Project(DateSpanMixin, TimeStampedModel):
-    TYPES = PROJECT_TYPES
     proposal = models.ForeignKey('proposals.Proposal', null=True, on_delete=models.SET_NULL, related_name="project")
     submissions = models.ManyToManyField('proposals.Submission', blank=True, related_name="project")
     pool = models.ForeignKey('proposals.AccessPool', related_name='projects', on_delete=models.SET_DEFAULT, default=1)
-    kind = models.CharField(_('Type'), max_length=20, choices=TYPES, default=TYPES.user)
     spokesperson = models.ForeignKey(User, related_name='+', null=True, on_delete=models.SET_NULL)
     leader = models.ForeignKey(User, related_name='+', null=True, on_delete=models.SET_NULL)
     delegate = models.ForeignKey(User, related_name='+', null=True, on_delete=models.SET_NULL)
@@ -69,7 +59,7 @@ class Project(DateSpanMixin, TimeStampedModel):
 
     @property
     def code(self):
-        return f"{self.cycle.pk:0>2d}{self.get_kind_display()[0].upper()}{self.pk:0>5d}"
+        return utils.generate_project_code(self)
 
     def is_owned_by(self, user):
         return user in [self.spokesperson, self.leader, self.delegate]
@@ -536,7 +526,7 @@ class Session(TimeStampedModel, TimeFramedModel):
 
         # Local access needs 'FACILITY-ACCESS' permissions and different USER type from Remote
         if self.kind == self.TYPES.remote:
-            user_perms |= {'{}-REMOTE-USER'.format(self.beamline.parent.acronym)}
+            user_perms |= {'{}-REMOTE-USER'.format(self.beamline.acronym)}
         else:
             req_perms |= {'FACILITY-ACCESS'}
             user_perms |= {'{}-USER'.format(self.beamline.acronym)}

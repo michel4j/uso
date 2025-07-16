@@ -41,7 +41,7 @@ from users.models import User
 from . import forms
 from . import models
 from . import serializers
-from . import utils
+
 
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 USO_HSE_ROLES = getattr(settings, 'USO_HSE_ROLES', ["staff:hse", "employee:hse"])
@@ -81,10 +81,10 @@ class ProjectList(RolePermsViewMixin, ItemListView):
     model = models.Project
     template_name = "item-list.html"
     paginate_by = 50
-    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'facility_codes', 'state']
+    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'pool', 'facility_codes', 'state']
     list_filters = [
         'start_date', 'end_date', FutureDateListFilterFactory.new('end_date'),
-        CycleFilterFactory.new('cycle'), 'kind', BeamlineFilterFactory.new("beamlines")
+        CycleFilterFactory.new('cycle'), 'pool', BeamlineFilterFactory.new("beamlines")
     ]
     list_search = ['proposal__title', 'proposal__team', 'proposal__keywords', 'id']
     list_styles = {'title': 'col-sm-3', 'state': 'text-center'}
@@ -115,7 +115,7 @@ class MaterialList(RolePermsViewMixin, ItemListView):
 
 
 class SessionList(RolePermsViewMixin, ItemListView):
-    queryset = models.Session.objects.with_shifts()
+    model = models.Session
     template_name = "item-list.html"
     paginate_by = 15
     list_columns = ['project', 'beamline', 'state', 'kind', 'spokesperson', 'start', 'shifts']
@@ -130,9 +130,13 @@ class SessionList(RolePermsViewMixin, ItemListView):
     admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
     allowed_roles = USO_STAFF_ROLES
 
+    def get_queryset(self, *args, **kwargs):
+        qset = super().get_queryset(*args, **kwargs)
+        return qset.with_shifts()
+
 
 class LabSessionList(RolePermsViewMixin, ItemListView):
-    queryset = models.LabSession.objects.all()
+    model = models.LabSession
     template_name = "item-list.html"
     paginate_by = 15
     list_columns = ['project', 'lab', 'state', 'spokesperson', 'start', 'end']
@@ -152,9 +156,9 @@ class UserProjectList(RolePermsViewMixin, ItemListView):
     model = models.Project
     template_name = "item-list.html"
     paginate_by = 50
-    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'facility_codes', 'state']
+    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'pool', 'facility_codes', 'state']
     list_filters = [
-        'start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind', BeamlineFilterFactory.new("beamlines")
+        'start_date', 'end_date', CycleFilterFactory.new('cycle'), 'pool', BeamlineFilterFactory.new("beamlines")
     ]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
     list_styles = {'title': 'col-sm-3', 'state': 'text-center'}
@@ -192,9 +196,9 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
     model = models.Project
     template_name = "item-list.html"
     paginate_by = 50
-    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'state']
+    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'pool', 'state']
     list_filters = [
-        'start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind', BeamlineFilterFactory.new("beamlines")
+        'start_date', 'end_date', CycleFilterFactory.new('cycle'), 'pool', BeamlineFilterFactory.new("beamlines")
     ]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
     list_styles = {'title': 'col-sm-3'}
@@ -347,62 +351,6 @@ class MaterialDetail(RolePermsViewMixin, detail.DetailView):
             fac.is_staff(self.request.user) for fac in material.project.beamlines.all()
         ))
         return allowed
-
-
-class CreateProject(RolePermsViewMixin, edit.CreateView):
-    form_class = forms.ProjectForm
-    model = models.Project
-    template_name = "projects/forms/project-form.html"
-    allowed_roles = USO_ADMIN_ROLES
-
-    def get_initial(self):
-        initial = super().get_initial()
-        initial['spokesperson'] = self.request.user
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form_title'] = "Create Purchased Access Project"
-        return context
-
-    def get_success_url(self):
-        success_url = reverse("project-list")
-        return success_url
-
-    def form_valid(self, form):
-        info = form.cleaned_data
-        info['kind'] = 'purchased'
-        info['spokesperson'] = self.request.user
-        self.object = self.model.objects.create(**info)
-        project = self.object
-        project.refresh_team()
-        messages.add_message(self.request, messages.SUCCESS, 'Project was created successfully')
-
-        # team and allocations
-        for bl in info['details'].get('beamline_reqs', []):
-            utils.create_allocation_tree(self.object, bl, self.object.cycle)
-
-        # create materials
-        material = models.Material.objects.get_or_create(project=project)
-        to_create = [models.ProjectSample(material=material, sample_id=sample['sample'], quantity=sample['quantity'])
-                     for sample in
-                     info['details'].get('sample_list', [])]
-        models.ProjectSample.objects.bulk_create(to_create)
-        hazards = material.samples.values_list('sample__hazards__pk', flat=True).distinct()
-        material.hazards.add(*hazards)
-        material.hazards.add(*info['details'].get('sample_hazards', []))
-        models.Material.objects.filter(pk=material.pk).update(
-            procedure=info['details'].get('sample_handling', ''), waste=info['details'].get('waste_generation', []),
-            disposal=info['details'].get('disposal_procedure', ''), equipment=info['details'].get('equipment', []), )
-
-        # Create Material Reviews
-        if material.needs_ethics():
-            ethics = models.Review.objects.create(
-                reference=material, kind="ethics", role="ethics-reviewer",
-                form_type=FormType.objects.get(code="ethics_review")
-            )
-
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class SessionDetail(RolePermsViewMixin, detail.DetailView):
@@ -642,7 +590,7 @@ class SessionSignOn(RolePermsViewMixin, ModalUpdateView):
 
         # cancel outstanding sessions on this beamline
         for old_session in session.beamline.sessions.filter(state=session.STATES.ready, start__lt=now):
-            old_session.log('Cancelled on {}, Users did not sign-on as expected'.format(now.strftime('%c')))
+            old_session.log(f'Cancelled on {now.strftime("%c")}, Users did not sign-on as expected')
             old_session.state = session.STATES.cancelled
             old_session.save()
 
@@ -742,11 +690,9 @@ class TerminateSession(RolePermsViewMixin, ModalCreateView):
             }
         )
 
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({
+            "url": "",
+        })
 
 
 class LabSignOn(RolePermsViewMixin, ModalCreateView):
@@ -798,11 +744,7 @@ class LabSignOn(RolePermsViewMixin, ModalCreateView):
             session.workspaces.add(*workspaces)
             session.equipment.add(*equipment)
             messages.success(self.request, 'Lab Sign-On successful')
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": "",})
 
 
 class LabSignOff(RolePermsViewMixin, ModalConfirmView):
@@ -833,11 +775,7 @@ class LabSignOff(RolePermsViewMixin, ModalConfirmView):
         self.object.details.update(history=log)
         models.LabSession.objects.filter(pk=self.object.pk).update(details=self.object.details, end=now)
         messages.success(self.request, 'Lab Sign-Off successful')
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": "",})
 
 
 class CancelLabSession(RolePermsViewMixin, ModalDeleteView):
@@ -1177,11 +1115,7 @@ class EditAllocation(RolePermsViewMixin, ModalUpdateView):
             models.Allocation.objects.filter(
                 project=alloc.project, beamline=alloc.beamline, cycle__end_date__gt=data['last_cycle'].end_date
             ).delete()
-        return JsonResponse(
-            {
-                "url": ""
-            }
-        )
+        return JsonResponse({"url": "",})
 
 
 class EditReservation(RolePermsViewMixin, ModalCreateView):
@@ -1311,10 +1245,10 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
         context['show_year'] = False
         context['tag_types'] = facility.tags()
         context['event_sources'] = [
-                                       reverse('facility-modes-api'),
-                                       reverse('support-schedule-api', kwargs={'fac': facility.acronym})] + [
-                                       reverse('beamtime-schedule-api', kwargs={'fac': fac}) for fac in fac_children
-                                   ]
+           reverse('facility-modes-api'),
+           reverse('support-schedule-api', kwargs={'fac': facility.acronym})] + [
+           reverse('beamtime-schedule-api', kwargs={'fac': fac}) for fac in fac_children
+        ]
         return context
 
 
@@ -1854,12 +1788,12 @@ class InvoicingList(RolePermsViewMixin, ItemListView):
     model = models.Project
     paginate_by = 50
     template_name = "item-list.html"
-    list_columns = ['code', 'kind', 'get_leader', 'invoice_email', 'pretty_invoice_address', 'shifts_allocated',
+    list_columns = ['code', 'pool', 'get_leader', 'invoice_email', 'pretty_invoice_address', 'shifts_allocated',
                     'shifts_used']
-    csv_fields = ['code', 'kind', 'get_leader', 'invoice_email', 'invoice_place', 'invoice_street', 'invoice_city',
+    csv_fields = ['code', 'pool', 'get_leader', 'invoice_email', 'invoice_place', 'invoice_street', 'invoice_city',
                   'invoice_region',
                   'invoice_country', 'invoice_code', 'shifts_allocated', 'shifts_used']
-    list_filters = ['start_date', 'end_date', 'kind', BeamlineFilterFactory.new("beamlines")]
+    list_filters = ['start_date', 'end_date', 'pool', BeamlineFilterFactory.new("beamlines")]
     list_search = ['proposal__title', 'proposal__team', 'id']
     list_styles = {'title': 'col-sm-3', 'state': 'text-center', 'beamlines': 'col-sm-2'}
     list_transforms = {

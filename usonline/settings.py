@@ -13,7 +13,6 @@ import sys
 from django.conf import global_settings
 from Crypto.Random import get_random_bytes
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(__file__)
 BASE_DIR = os.path.dirname(PROJECT_DIR)
@@ -190,6 +189,14 @@ register_serializer('yml', 'django.core.serializers.pyyaml')
 
 from users.profiles import ExternalProfileManager
 
+USO_DEFAULT_CODE_GENERATORS = {
+    'proposal': 'proposals.utils.generate_proposal_code',
+    'project': 'projects.utils.generate_project_code',
+    'submission': 'proposals.utils.generate_submission_code',
+    'material': 'projects.utils.generate_materials_code',
+}
+USO_CODE_GENERATORS = {}   # override this in local.settings.py to add custom code generators for various objects
+
 # ROLES
 USO_ADMIN_ROLES = ["admin:uso", "staff"]
 USO_CONTRACTS_ROLES = ["staff:contracts"]
@@ -231,3 +238,9 @@ except ImportError:
 # version number
 with open(os.path.join(BASE_DIR, 'VERSION'), 'r') as fobj:
     VERSION = fobj.read().strip()
+
+# Register custom code generators
+USO_CODE_GENERATORS = {
+    **USO_DEFAULT_CODE_GENERATORS,
+    **USO_CODE_GENERATORS
+}

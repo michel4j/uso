@@ -6,8 +6,6 @@ from . import views
 
 urlpatterns = [
     path('projects/', views.ProjectList.as_view(), name="project-list"),
-    path('projects/new/', views.CreateProject.as_view(), name="create-project"),
-
     path('projects/reports/', views.Statistics.as_view(), name="project-stats"),
 
     path('allocations/<int:pk>/request/shift/new/', views.CreateShiftRequest.as_view(), name="create-shift-request"),
