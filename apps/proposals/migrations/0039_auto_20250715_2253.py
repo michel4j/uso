@@ -9,14 +9,14 @@ def create_codes(apps, schema_editor):
     Submission = apps.get_model('proposals', 'Submission')
 
     # loop through and calculate the code for each proposal and submission
-    proposal_code_func = utils.get_code_generator('proposal')
+    proposal_code_func = utils.get_code_generator('PROPOSAL')
 
     all_proposals = Proposal.objects.all()
     for project in all_proposals:
         project._code = proposal_code_func(project)
     Proposal.objects.bulk_update(all_proposals, ['_code'])
 
-    submission_code_func = utils.get_code_generator('submission')
+    submission_code_func = utils.get_code_generator('SUBMISSION')
     all_submissions = Submission.objects.all()
     for submission in all_submissions:
         submission._code = submission_code_func(submission)

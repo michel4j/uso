@@ -1,4 +1,5 @@
 import copy
+import uuid
 from collections import defaultdict
 from datetime import date, timedelta, datetime
 
@@ -33,7 +34,7 @@ class Proposal(BaseFormModel):
         (0, 'draft', 'Not Submitted'),
         (1, 'submitted', 'Submitted')
     )
-    code = models.SlugField(unique=True)
+    code = models.SlugField(unique=True, default=uuid.uuid4, editable=False)
     spokesperson = models.ForeignKey(User, related_name='+', on_delete=models.CASCADE)
     leader_username = models.CharField(max_length=50, null=True, blank=True)
     delegate_username = models.CharField(max_length=50, null=True, blank=True)
@@ -219,15 +220,8 @@ class Submission(TimeStampedModel):
         reviewed = (2, 'Reviewed')
         complete = (3, 'Complete')
 
-    class TYPES(models.TextChoices):
-        user = ('user', 'General Access')
-        staff = ('staff', 'Staff Access')
-        purchased = ('purchased', 'Purchased Access')
-        beamteam = ('beamteam', 'Beam Team')
-        education = ('education', 'Education/Outreach')
-
     proposal = models.ForeignKey(Proposal, related_name='submissions', on_delete=models.CASCADE)
-    code = models.SlugField(unique=True)
+    code = models.SlugField(unique=True, default=uuid.uuid4, editable=False)
     pool = models.ForeignKey(AccessPool, related_name='submissions', on_delete=models.SET_DEFAULT, default=1)
     track = models.ForeignKey('ReviewTrack', on_delete=models.CASCADE, related_name='submissions')
     cycle = models.ForeignKey("ReviewCycle", on_delete=models.CASCADE, related_name='submissions')

@@ -69,13 +69,13 @@ def _fmt_role(role, obj=None):
 
 
 class UserProposalList(RolePermsViewMixin, ItemListView):
+    model = models.Proposal
     template_name = "proposals/proposal-list.html"
     list_columns = ['title', 'state', 'created']
     list_filters = ['state', 'modified', 'created']
     list_transforms = {'state': _state_lbl, }
     link_url = "proposal-detail"
-    add_url = "create-proposal"
-    list_search = ['title', 'areas__name', 'keywords']
+    list_search = ['title', 'areas__name', 'keywords', 'code', 'details']
     order_by = ['state', '-modified']
     list_title = 'My Proposals'
     paginate_by = 25
@@ -97,6 +97,7 @@ class UserProposalList(RolePermsViewMixin, ItemListView):
 
 
 class ProposalList(RolePermsViewMixin, ItemListView):
+    model = models.Proposal
     template_name = "item-list.html"
     list_title = 'All Draft Proposals'
     allowed_roles = USO_ADMIN_ROLES
@@ -104,8 +105,7 @@ class ProposalList(RolePermsViewMixin, ItemListView):
     list_filters = ['state', 'modified', 'created']
     list_transforms = {'state': _state_lbl, }
     link_url = "proposal-detail"
-    add_url = "create-proposal"
-    list_search = ['title', 'areas__name', 'keywords']
+    list_search = ['title', 'areas__name', 'keywords', 'code', 'details']
     order_by = ['state', 'created']
     paginate_by = 15
 
@@ -140,7 +140,6 @@ class PRCList(RolePermsViewMixin, ItemListView):
     list_columns = ['user', 'committee', 'active']
     list_filters = ['modified', 'created']
     link_url = "prc-reviews"
-    add_url = "create-proposal"
     list_search = ['title', 'areas__name', 'keywords']
     order_by = ['user__last_name', 'created']
 
@@ -181,7 +180,7 @@ class CreateProposal(RolePermsViewMixin, DynCreateView):
 
         with transaction.atomic():
             self.object = self.model.objects.create(**form.cleaned_data)
-            self.object.code = get_code_generator('proposal')(self.object)
+            self.object.code = get_code_generator('PROPOSAL')(self.object)
             self.object.save()
 
         msg = 'Draft proposal created'
@@ -418,7 +417,7 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
 
             with transaction.atomic():
                 obj = models.Submission.objects.create(proposal=self.object, track=track, pool=access_pool, cycle=cycle)
-                obj.code = get_code_generator('submission')(obj)
+                obj.code = get_code_generator('SUBMISSION')(obj)
                 obj.techniques.add(*items)
                 obj.save()
 
@@ -1155,7 +1154,10 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     list_columns = ['title', 'code', 'spokesperson', 'cycle', 'pool', 'facilities', 'state']
     list_filters = ['created', 'state', 'track', 'pool', 'cycle']
-    list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
+    list_search = [
+        'proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords',
+        'code', 'proposal__details'
+    ]
     link_url = "submission-detail"
     order_by = ['-cycle_id']
     list_title = 'Submitted Proposals'

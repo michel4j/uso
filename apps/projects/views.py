@@ -25,7 +25,7 @@ from beamlines.models import Facility
 from misc.filters import FutureDateListFilterFactory
 from misc.functions import Shifts
 from misc.models import ActivityLog
-from misc.utils import debug_value
+from misc.utils import debug_value, get_code_generator
 from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from proposals.filters import CycleFilterFactory
@@ -86,7 +86,10 @@ class ProjectList(RolePermsViewMixin, ItemListView):
         'start_date', 'end_date', FutureDateListFilterFactory.new('end_date'),
         CycleFilterFactory.new('cycle'), 'pool', BeamlineFilterFactory.new("beamlines")
     ]
-    list_search = ['proposal__title', 'proposal__team', 'proposal__keywords', 'id']
+    list_search = [
+        'code', 'proposal__code', 'proposal__title',
+        'proposal__team', 'proposal__keywords', 'submissions__code'
+    ]
     list_styles = {'title': 'col-sm-3', 'state': 'text-center'}
     list_transforms = {'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
@@ -104,7 +107,8 @@ class MaterialList(RolePermsViewMixin, ItemListView):
     list_transforms = {'pictograms': _fmt_pictograms}
     list_search = [
         'project__title', 'project__spokesperson__username', 'project__id',
-        'project__spokesperson__last_name', 'project__spokesperson__first_name', 'id'
+        'project__spokesperson__last_name', 'project__spokesperson__first_name', 'id',
+        'code', 'project__code'
     ]
     list_styles = {'title': 'col-sm-6'}
     link_url = "material-detail"
@@ -848,6 +852,7 @@ class UpdateMaterial(RolePermsViewMixin, DynFormView):
         info = form.cleaned_data['details']
         obj = self.object
 
+        # clone the object if it is not a new one
         if obj.state != obj.STATES.pending:
             obj.pk = None
             obj.state = obj.STATES.pending

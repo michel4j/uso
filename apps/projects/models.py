@@ -1,7 +1,9 @@
 import functools
 import operator
+import uuid
 from collections import OrderedDict, defaultdict
 from datetime import timedelta
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -18,16 +20,16 @@ from model_utils.models import TimeStampedModel, TimeFramedModel
 
 from misc.fields import StringListField
 from misc.models import DateSpanMixin, Attachment, Clarification, ActivityLog
+from misc.utils import get_code_generator
 from proposals.models import Review, ReviewCycle
 from scheduler.models import Event, EventQuerySet
-from . import utils
 
 
 User = getattr(settings, "AUTH_USER_MODEL")
 
 
 class Project(DateSpanMixin, TimeStampedModel):
-    code = models.SlugField(unique=True)
+    code = models.SlugField(unique=True, default=uuid.uuid4, editable=False)
     proposal = models.ForeignKey('proposals.Proposal', null=True, on_delete=models.SET_NULL, related_name="project")
     submissions = models.ManyToManyField('proposals.Submission', blank=True, related_name="project")
     pool = models.ForeignKey('proposals.AccessPool', related_name='projects', on_delete=models.SET_DEFAULT, default=1)
@@ -64,8 +66,7 @@ class Project(DateSpanMixin, TimeStampedModel):
     def facility_codes(self):
         return ', '.join([bl.acronym for bl in self.beamlines.distinct()])
 
-    facility_codes.sort_field = 'beamlines__acronym'
-    facility_codes.short_description = 'Facilities'
+
 
     def get_absolute_url(self):
         return reverse('project-detail', kwargs={'pk': self.pk})
@@ -80,12 +81,8 @@ class Project(DateSpanMixin, TimeStampedModel):
         else:
             return {True: 'active', False: 'inactive'}.get(self.is_active(), 'inactive')
 
-    state.sort_field = 'end_date'
-
     def get_leader(self):
         return self.leader or self.spokesperson
-
-    get_leader.short_description = "Team Leader"
 
     def team_members(self):
         return self.details['team_members'] or [{'first_name': '', 'last_name': '', 'email': ''}]
@@ -111,8 +108,6 @@ class Project(DateSpanMixin, TimeStampedModel):
             ['place', 'street', 'city', 'code', 'region', 'country']
             if address.get(val, '').strip().replace('-', '')
         ] if _f])
-
-    pretty_invoice_address.short_description = "Invoice Address"
 
     def invoice_place(self):
         return self.invoice_address().get('place', '')
@@ -329,6 +324,13 @@ class Project(DateSpanMixin, TimeStampedModel):
                 roles |= {'user'}
                 user.update_profile(data={'extra_roles': list(roles)})
 
+    # Display attributes for itemlist
+    facility_codes.sort_field = 'beamlines__acronym'
+    facility_codes.short_description = 'Facilities'
+    state.sort_field = 'end_date'
+    get_leader.short_description = "Team Leader"
+    pretty_invoice_address.short_description = "Invoice Address"
+
 
 class MaterialQueryset(models.QuerySet):
     def pending(self):
@@ -355,6 +357,7 @@ class Material(TimeStampedModel):
         (4, 'unacceptable', 'Unacceptable')
     )
     project = models.ForeignKey('Project', null=False, related_name='materials', on_delete=models.CASCADE)
+    code = models.SlugField(unique=True, default=uuid.uuid4, editable=False)
     samples = models.ManyToManyField('samples.Sample', through='ProjectSample', related_name='projects', blank=True)
     procedure = models.TextField(verbose_name=_('Sample Handling Procedure'))
     waste = models.JSONField(verbose_name=_('Waste Generation'), default=list)
@@ -369,6 +372,9 @@ class Material(TimeStampedModel):
 
     class Meta:
         get_latest_by = 'modified'
+
+    def __str__(self):
+        return self.code
 
     def is_owned_by(self, user):
         return user in [self.project.spokesperson, self.project.leader, self.project.delegate]
@@ -445,12 +451,21 @@ class Material(TimeStampedModel):
     def title(self):
         return self.project.title
 
-    @property
-    def code(self):
-        return "M{}/{}".format(self.project.code, self.project.pk, )
+    def save(self, *args, **kwargs):
+        """
+        Override save method to clear code if pk is None
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        new_code_needed = (self.pk is None)  # when cloning, for example
+        if new_code_needed:
+            self.code = uuid.uuid4()
 
-    def __str__(self):
-        return self.code
+        super().save(*args, **kwargs)
+        if new_code_needed:
+            code_func = get_code_generator('MATERIAL')
+            self.__class__.objects.filter(pk=self.pk).update(code=code_func(self))
 
     def get_absolute_url(self):
         return reverse('material-detail', kwargs={'pk': self.pk})
@@ -499,7 +514,7 @@ class Session(TimeStampedModel, TimeFramedModel):
     objects = SessionQueryset.as_manager()
 
     def __str__(self):
-        return "{}{}".format(self.beamline.acronym, timezone.localtime(self.start).strftime('%Y%m%dT%H'))
+        return f"{self.beamline.acronym}{timezone.localtime(self.start).strftime('%Y%m%dT%H')}"
 
     class Meta:
         get_latest_by = 'modified'

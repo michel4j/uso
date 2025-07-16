@@ -190,10 +190,10 @@ register_serializer('yml', 'django.core.serializers.pyyaml')
 from users.profiles import ExternalProfileManager
 
 USO_DEFAULT_CODE_GENERATORS = {
-    'proposal': 'proposals.utils.generate_proposal_code',
-    'project': 'projects.utils.generate_project_code',
-    'submission': 'proposals.utils.generate_submission_code',
-    'material': 'projects.utils.generate_materials_code',
+    'PROPOSAL': 'proposals.utils.generate_proposal_code',
+    'PROJECT': 'projects.utils.generate_project_code',
+    'SUBMISSION': 'proposals.utils.generate_submission_code',
+    'MATERIAL': 'projects.utils.generate_material_code',
 }
 USO_CODE_GENERATORS = {}   # override this in local.settings.py to add custom code generators for various objects
 

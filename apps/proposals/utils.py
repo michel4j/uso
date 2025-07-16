@@ -935,7 +935,6 @@ def advance_review_workflow(submission) -> list[str]:
         submission.approved = False
         submission.comments = submission.get_comments()
         submission.save()
-
     return logs
 
 
@@ -956,4 +955,4 @@ def generate_submission_code(submission):
     :return: Unique code string
     """
     proposal_code = generate_proposal_code(submission.proposal)
-    return f"{submission.track.acronym[:2]}{proposal_code}"
+    return f"{submission.track.acronym[:2]}{proposal_code}".upper()

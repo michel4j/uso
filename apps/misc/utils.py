@@ -177,6 +177,7 @@ def get_code_generator(name):
     A code generator is a callable that takes an instance of a model and returns a code string.
     If the generator does not exist, it raises a KeyError.
     """
+    name = name.upper()
     if name not in USO_CODE_GENERATORS:
         raise KeyError(f"Generator '{name}' not found in USO_CODE_GENERATORS.")
 

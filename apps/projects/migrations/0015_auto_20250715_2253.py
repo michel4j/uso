@@ -8,7 +8,7 @@ def create_codes(apps, schema_editor):
     Project = apps.get_model('projects', 'Project')
 
     # loop through and calculate the code for each project
-    code_func = utils.get_code_generator('project')
+    code_func = utils.get_code_generator('PROJECT')
     all_projects = Project.objects.all()
     for project in all_projects:
         project._code = code_func(project)

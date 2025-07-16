@@ -92,25 +92,25 @@
                     <div class="d-flex flex-wrap gap-1 small">
                         {% for perm_code in permissions.all %}
                             {% if member|has_perm:perm_code %}
-                                <span class="badge bg-success"><i class="bi-check me-2 icon-sm"></i>{{ perm_code }}</span>
+                                <span class="border badge bg-success"><i class="bi-check me-2 icon-sm"></i>{{ perm_code }}</span>
                             {% else %}
-                                <span class="badge bg-danger"><i class="bi-exclamation-triangle me-2 icon-sm"></i>{{ perm_code }}</span>
+                                <span class="border badge bg-danger"><i class="bi-exclamation-triangle me-2 icon-sm"></i>{{ perm_code }}</span>
                             {% endif %}
                         {% endfor %}
                         {% for perm_code in permissions.any %}
                             {% if member|has_perm:perm_code %}
-                                <span class="badge bg-success"><i class="bi-check me-2 icon-sm"></i>{{ perm_code }}</span>
+                                <span class="border badge bg-success"><i class="bi-check me-2 icon-sm"></i>{{ perm_code }}</span>
                             {% else %}
-                                <span class="badge bg-warning"><i class="bi-exclamation-triangle me-2 icon-sm"></i>{{ perm_code }}</span>
+                                <span class="border badge bg-warning"><i class="bi-exclamation-triangle me-2 icon-sm"></i>{{ perm_code }}</span>
                             {% endif %}
                         {% endfor %}
                         {% for beamline in object.beamlines.distinct|no_equipment %}
                             {% if member|is_user:beamline %}
-                                <span class="badge bg-success"><i class="bi-check me-2 icon-sm"></i>{{beamline.acronym}}-USER</span>
+                                <span class="border badge bg-success"><i class="bi-check me-2 icon-sm"></i>{{beamline.acronym}}-USER</span>
                             {% elif member|is_remote_user:beamline %}
-                                <span class="badge bg-success"><i class="bi-check me-2 icon-sm"></i>{{beamline.acronym}}-REMOTE-USER</span>
+                                <span class="border badge bg-success"><i class="bi-check me-2 icon-sm"></i>{{beamline.acronym}}-REMOTE-USER</span>
                             {% else %}
-                                <span class="badge bg-danger"><i class="bi-exclamation-triangle me-2 icon-sm"></i>{{ beamline.acronym }}</span>
+                                <span class="border badge bg-danger"><i class="bi-exclamation-triangle me-2 icon-sm"></i>{{ beamline.acronym }}</span>
                             {% endif %}
                         {% endfor %}
                     </div>

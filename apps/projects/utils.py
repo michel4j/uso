@@ -9,6 +9,7 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from beamlines.models import Facility
+from misc.utils import get_code_generator
 from proposals.models import ReviewType, ReviewCycle
 from . import models
 
@@ -120,7 +121,8 @@ def create_project(submission) -> models.Project | None:
         project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
         if created:
             # if the project was created, generate a unique code for it
-            project.code = generate_project_code(project)
+            code_func = get_code_generator("PROJECT")
+            project.code = code_func(project)
             project.save()
 
         for facility, details in passing_requests.items():
@@ -143,6 +145,11 @@ def create_project(submission) -> models.Project | None:
                 'equipment': document['safety']['equipment'],
             }
         )
+        if created:
+            # if the material was created, generate a unique code for it
+            code_func = get_code_generator("MATERIAL")
+            material.code = code_func(material)
+            material.save()
 
         # add samples to the material
         for sample in document['safety']['samples']:
@@ -258,3 +265,18 @@ def generate_project_code(project: models.Project) -> str:
     )['count'] or 1
     return f"{project.cycle.pk:0>3d}{project.pool.name[0]}-{count:0>5x}".upper()
 
+
+def generate_material_code(material: models.Material) -> str:
+    """
+    Generate a unique code for a material
+    :param material: Material instance
+    :return: Unique code string
+    """
+
+    # count the number of materials that have been created in the same project, including this one
+    count = material.__class__.objects.filter(
+        project=material.project, pk__lte=material.pk
+    ).aggregate(
+        count=Value(1) + Coalesce(Max('pk') - Min('pk'), 0)
+    )['count'] or 1
+    return f"{material.project.code}M{count:0>3d}".upper()

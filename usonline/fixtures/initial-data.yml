@@ -954,7 +954,7 @@
   pk: 7
   fields:
     created: 2015-10-16 18:40:18+00:00
-    modified: 2025-07-08 20:57:31.065639+00:00
+    modified: 2025-07-16 13:01:12.403990+00:00
     name: Safety Review
     code: safety-review
     description: Safety review form to be completed by safety reviewers
@@ -979,12 +979,6 @@
         options: []
         field_type: permissions
         instructions: ''
-      - name: controls
-        tags: ''
-        label: Safety Controls
-        options: []
-        field_type: safetycontrols
-        instructions: Please, identify controls which apply to the experiment
     - name: Recommendation
       fields:
       - name: risk_level
@@ -1257,13 +1251,13 @@
   pk: 9
   fields:
     created: 2015-11-18 19:51:18+00:00
-    modified: 2025-05-31 03:59:13.995234+00:00
+    modified: 2025-07-16 14:22:19.643562+00:00
     name: Materials Amendment
     code: amendment
     description: Form for submitting changes in a project's samples, equipment, and/or
       procedures for safety/ethics review.
-    header: false
-    help_bar: false
+    header: true
+    help_bar: true
     wizard: false
     pages:
     - name: Project Materials
@@ -1324,9 +1318,11 @@
       - name: equipment
         tags: ''
         label: Equipment
+        width: full
         options:
         - repeat
         field_type: equipment
+        max_repeat: null
         instructions: Provide details of any equipment you will be bringing to assist
           you with the experiment. Be sure to describe the electrical/mechanical requirements
     actions:
