@@ -7,15 +7,11 @@ from django import template
 from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-
-from misc.utils import debug_value
 from proposals import models
 from proposals.utils import scale_color, get_techniques_matrix
 from users.models import User
 from ..models import Proposal, Review
 
-USO_SAFETY_REVIEWS = getattr(settings, 'USO_SAFETY_REVIEWS', ['safety', 'ethics'])
-USO_TECHNICAL_REVIEWS = getattr(settings, 'USO_TECHNICAL_REVIEWS', ['technical'])
 
 register = template.Library()
 
@@ -164,7 +160,7 @@ def get_approval_reviews(context):
 
     rev_list = []
     for r in reviews:
-        if r.type.code in USO_TECHNICAL_REVIEWS:
+        if r.type.is_technical():
             rev_list.append(
                 {
                     "review": r,

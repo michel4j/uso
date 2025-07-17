@@ -35,9 +35,6 @@ from .filters import CycleFilterFactory
 from .models import ReviewType
 from .templatetags import proposal_tags
 
-USO_SAFETY_REVIEWS = getattr(settings, 'USO_SAFETY_REVIEWS', [])
-USO_SCIENCE_REVIEWS = getattr(settings, 'USO_SCIENCE_REVIEWS', [])
-USO_SAFETY_APPROVAL = getattr(settings, 'USO_SAFETY_APPROVAL', "approval")
 USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
 USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff', 'employee'])
 USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse', 'employee:hse'])
@@ -839,7 +836,7 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             data['score'] = total_score
 
         self._valid_review(data, form_action)
-        if self.object.type.code == USO_SAFETY_APPROVAL:
+        if self.object.type.is_approval():
             self._valid_approval(data, form_action)
 
         return HttpResponseRedirect(self.success_url)

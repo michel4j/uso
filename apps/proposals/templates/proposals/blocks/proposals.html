@@ -26,7 +26,21 @@
                 </div>
             {% endfor %}
         </div>
-    {% else %}
+    {% elif next_call %}
+        <div class="alert alert-info">
+            The next call for proposals for beamtime to be schedule during the period
+            {{ next_call.start_date|date }} &ndash; {{ next_call.end_date|date }} will open on
+            {{ next_call.open_date|date }} with a submission deadline of
+            {{ next_call.close_date|date }}.
+            <div class="row mt-3">
+                <div class="col-sm-12">
+                    <a href="{% url 'create-proposal' %}" class="btn btn-sm btn-primary pull-right">
+                        <i class="bi-plus-lg icon-fw"></i>&nbsp;Create a Proposal
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
         <div class="alert alert-light text-center">
             There are currently no open calls for proposals.
         </div>

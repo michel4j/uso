@@ -7,11 +7,11 @@
             {% if config.is_editable or admin %}
                 <span class="box-tools pull-right" style="">
                  <a href='#0' data-modal-url='{% url "edit-facility-config" pk=config.pk%}' class="pull-right">
-                    <i class="bi-pencil icon-fw"></i><br/>
+                    <i class="bi-pencil icon-md  icon-fw"></i><br/>
                     <span class="tool-label">Edit</span>
                  </a>
                  <a href='#0' data-modal-url='{% url "delete-facility-config" pk=config.pk %}' class="pull-right">
-                    <i class="bi-trash icon-fw text-danger"></i><br/>
+                    <i class="bi-trash icon-fw icon-md text-danger"></i><br/>
                     <span class="tool-label">Delete</span>
                  </a>
                 </span>

@@ -185,21 +185,6 @@ ReviewType and FormType
     are used for creating scientific, technical and safety reviews is accomplished through the following configuration
     parameters.
 
-    .. code-block:: python
-
-        USO_SAFETY_REVIEWS = ["safety", "ethics", "equipment"]      # reviews assigned by safety approver
-        USO_TECHNICAL_REVIEWS = ["technical"]                       # technical review type
-        USO_SCIENCE_REVIEWS = ["scientific"]                        # science review type
-        USO_SAFETY_APPROVAL = "approval"                            # safety approval review type
-
-
-    The strings in the lists above are the code names of the ReviewTypes defined within the database.  For example,
-    to create a new review type with code "special-science" and make that the default scientific review, a new
-    FormType should be created and designed with the appropriate form fields, then a new review type should be created
-    linked to the new FormType, specifying the scoring scheme as a dictionary mapping field names from the FormType to
-    weights. Finally, changing the USO_SCIENCE_REVIEWS to ["special-science"] will switch all future scientific reviews
-    to use the "special-review" form and scoring scheme.
-
     An example scoring scheme where scores are calculated as a weighted average of three different fields, would be
     implemented as "{'field_one': 0.6, 'field_two': 0.2, 'field_three': 0.2}". Within the form designer, each of the
     fields may represent a number of possible values and are by default always a non-zero integer value. The final score

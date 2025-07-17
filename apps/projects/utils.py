@@ -13,9 +13,6 @@ from misc.utils import get_code_generator
 from proposals.models import ReviewType, ReviewCycle
 from . import models
 
-USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
-USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", "approval")
-
 
 def to_int(value: Any, default: int = 0) -> int:
     """
@@ -160,7 +157,7 @@ def create_project(submission) -> models.Project | None:
 
         # Create MaterialReviews
         # FIXME: This should be done in a signal or background task to allow for customization
-        approval_type = ReviewType.objects.get(code=USO_SAFETY_APPROVAL)
+        approval_type = ReviewType.objects.filter(kind=ReviewType.Types.approval).last()
         if approval_type:
             material.reviews.get_or_create(
                 type=approval_type, form_type=approval_type.form_type, defaults={

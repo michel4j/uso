@@ -26,7 +26,6 @@ from . import utils
 
 
 User = getattr(settings, "AUTH_USER_MODEL")
-USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", 'approval')
 
 
 class Proposal(BaseFormModel):

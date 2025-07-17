@@ -404,6 +404,7 @@ body.modal-open {
         border-right: 0.25em solid transparent;
 
         .nav-label {
+          font-family: $condensed-font-family;
           font-size: 95%;
           opacity: 0.8;
           padding-right: 0.5em;

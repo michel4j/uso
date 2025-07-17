@@ -26,9 +26,12 @@ class ProposalsBlock(BaseBlock):
         proposals = models.Proposal.objects.filter(filters)
         drafts = proposals.filter(state=models.Proposal.STATES.draft)
         open_cycles = models.ReviewCycle.objects.filter(state=models.Cycle.STATES.open)
+        next_call = models.ReviewCycle.objects.next_call()
+
         ctx.update({
             "drafts": drafts,
-            "open_cycles": open_cycles
+            "open_cycles": open_cycles,
+            "next_call": next_call,
         })
         return super().render(ctx)
 

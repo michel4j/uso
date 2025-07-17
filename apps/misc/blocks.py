@@ -5,6 +5,7 @@ from misc.blocktypes import BaseBlock, BLOCK_TYPES
 class ActivityBlock(BaseBlock):
     block_type = BLOCK_TYPES.dashboard
     template_name = "misc/blocks/activity.html"
+    style_classes = "bg-warning-subtle"
     priority = 99
 
     def render(self, context):

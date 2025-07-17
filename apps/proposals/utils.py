@@ -21,10 +21,6 @@ ALLOC_OFFSET_WEEKS = 2  # When must all committee evaluations be completed, 2 we
 DUE_WEEKS = 6  # Number of weeks from close of call to reviews due date
 
 USO_REVIEW_ASSIGNMENT = getattr(settings, "USO_REVIEW_ASSIGNMENT", "BRUTE_FORCE")
-USO_TECHNICAL_REVIEWS = getattr(settings, "USO_TECHNICAL_REVIEWS", [])
-USO_SCIENCE_REVIEWS = getattr(settings, "USO_SCIENCE_REVIEWS", [])
-USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
-USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", "approval")
 
 
 def truncated_title(title, obj=None):

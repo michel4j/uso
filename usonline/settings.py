@@ -216,24 +216,23 @@ USO_ADMIN_PERMS = []
 USO_OPEN_WEATHER_KEY = ""
 USO_WEATHER_LOCATION = [52.14, -106.63]  # Default to CLSI
 USO_PROFILE_MANAGER = ExternalProfileManager
-USO_REVIEW_ASSIGNMENT = "MIP"    # or either "MIP" or  "CMACRA" or "BRUTE_FORCE"
+USO_REVIEW_ASSIGNMENT = "MIP"    # or either "MIP" or "CMACRA" or "BRUTE_FORCE"
 USO_PDB_FACILITIES = {
     "CLSI08B1-1": ["CMCF-ID"],
     "CLSI08ID-1": ["CMCF-BM"],
 }
+
 ROLEPERMS_DEBUG = False
-
-USO_TECHNICAL_REVIEWS = ["technical"]             # technical review type
-USO_SAFETY_APPROVAL = "approval"                 # safety approval review type
 GOOGLE_API_KEY = ""
-
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
 
+# -----------------------------------------------------------------------------
+# Load local settings if available
 try:
     from local.settings import *
 except ImportError:
     import logging
-    logging.debug("No settings_local.py, using settings.py only.")
+    logging.debug("No local/settings.py, using settings.py only.")
 
 # version number
 with open(os.path.join(BASE_DIR, 'VERSION'), 'r') as fobj:

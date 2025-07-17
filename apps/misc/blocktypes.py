@@ -23,6 +23,7 @@ class BlockMeta(type):
             cls.plugins = defaultdict(list)
         priority = getattr(cls, "priority", len(cls.plugins[cls.block_type]))
         cls.plugins[cls.block_type].insert(priority, cls)
+        super().__init__(*args, **kwargs)
 
     def get_plugins(self, block_type=BLOCK_TYPES.dashboard):
         return [p() for p in self.plugins[block_type] if p != BaseBlock]
@@ -31,7 +32,8 @@ class BlockMeta(type):
 class BaseBlock(object, metaclass=BlockMeta):
     title = 'Block Title'
     block_type = BLOCK_TYPES.dashboard
-    style_classes = ""
+    style_classes = "bg-body-tertiary"
+    width_classes = "col-sm-12 col-md-6 col-lg-4"
     template_name = ''
     src_url = ''
     reload_freq = 0

@@ -42,10 +42,10 @@
         {% show_track_committee cycle track %}
         {% show_technique_matrix cycle track %}
         <div class="col-sm-12">
-            <div class="track-stages bg-darken">
+            <div class="card-group gap-1 my-3">
                 {% for stage in track.stages.all %}
-                    <div class="track-stage">
-                        <div class="track-stage-title">
+                    <div class="card bg-darken mb-3">
+                        <div class="card-header d-flex flex-row align-items-center">
                             <i class="bi-{{ stage.position }}-square icon-md icon-fw"></i>
                             <a href="#/" data-modal-url="{% url 'edit-review-stage' track=track.acronym pk=stage.pk %}"
                                title="{{ stage.kind }}"
@@ -59,10 +59,10 @@
                                 <i class="bi-people icon-md icon-fw"></i>
                             </a>
                         </div>
-                        <div class="track-stage-body">
+                        <div class="card-body">
                             {% stage_stats stage cycle %}
                         </div>
-                        <div class="track-stage-body small">
+                        <div class="card-footer small">
                             {% if stage.auto_create %}
                                 Reviews created automatically,
                             {% else %}
