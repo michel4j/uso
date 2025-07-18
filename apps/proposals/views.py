@@ -836,7 +836,7 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             data['score'] = total_score
 
         self._valid_review(data, form_action)
-        if self.object.type.is_approval():
+        if self.object.type.is_approval:
             self._valid_approval(data, form_action)
 
         return HttpResponseRedirect(self.success_url)

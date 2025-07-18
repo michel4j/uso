@@ -2,10 +2,10 @@
 {% with object as submission %}
 <div class="p-3 bg-transparent">
     <div  class="row">
-        <div class="col-sm-12 col-sm-8">
+        <div class="col-sm-12 col-md-8">
             {% include "proposals/submission-snippet.html" %}
         </div>
-        <div class="col-sm-12 col-sm-4">
+        <div class="col-sm-12 col-md-4">
             <div class="row no-space bg-transparent">
                 {% for review in submission.reviews|for_stage:stage %}
                 <div class="col-sm-12 grid-reviewer">

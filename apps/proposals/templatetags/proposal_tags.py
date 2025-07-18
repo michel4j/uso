@@ -160,7 +160,7 @@ def get_approval_reviews(context):
 
     rev_list = []
     for r in reviews:
-        if r.type.is_technical():
+        if r.type.is_technical:
             rev_list.append(
                 {
                     "review": r,
