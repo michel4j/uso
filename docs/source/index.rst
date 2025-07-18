@@ -3,7 +3,7 @@ USO: User Services Online
 #########################
 
 The User Services Online (USO) is an information management system developed at
-the Canadian Light Source which manages all information related to the use of a
+the Canadian Light Source, which manages information related to the use of a
 large-scale scientific research facility such as a synchrotron. A customized variant
 of this software is deployed and actively used at the Canadian Light Source, Inc (CLSI).
 However, this documentation describes only the open-source version of USO, which is available

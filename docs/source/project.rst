@@ -265,8 +265,8 @@ Materials
     and materials. Reviews of materials containing previously reviewed samples may be expedited.
 
 Session
-    A period of time during which a project is using a beamline/facility. A valid session requires
-    a few steps to establish:
+      A period of time during which a project is using a beamline/facility. A valid session requires
+      a few steps to establish:
 
     - *Hand-Over*: An action performed by beamline staff to hand over a beamline to a specific project
       for a specific time slot. A hand-over is required before user experiments can start.
