@@ -5,11 +5,11 @@ from misc.views import ManageAttachments
 urlpatterns = [
     path('proposals/', views.UserProposalList.as_view(), name="user-proposals"),
     path('submissions/', views.UserSubmissionList.as_view(), name="user-submissions"),
-    path('proposals/<int:pk>/', views.ProposalDetail.as_view(), name='proposal-detail'),
-    path('proposals/<int:pk>/edit/', views.EditProposal.as_view(), name='edit-proposal'),
-    path('proposals/<int:pk>/clone/', views.CloneProposal.as_view(), name='clone-proposal'),
-    path('proposals/<int:pk>/delete/', views.DeleteProposal.as_view(), name='delete-proposal'),
-    path('proposals/<int:pk>/submit/', views.SubmitProposal.as_view(), name='submit-proposal'),
+    path('proposals/<slug:slug>/', views.ProposalDetail.as_view(), name='proposal-detail'),
+    path('proposals/<slug:slug>/edit/', views.EditProposal.as_view(), name='edit-proposal'),
+    path('proposals/<slug:slug>/clone/', views.CloneProposal.as_view(), name='clone-proposal'),
+    path('proposals/<slug:slug>/delete/', views.DeleteProposal.as_view(), name='delete-proposal'),
+    path('proposals/<slug:slug>/submit/', views.SubmitProposal.as_view(), name='submit-proposal'),
 
     path('proposals/<int:pk>/clarifications/new/', views.AskClarification.as_view(), name='request-proposal-clarification'),
     path('proposals/<int:ref>/clarifications/<int:pk>/response/', views.AnswerClarification.as_view(), name='proposal-clarification-response'),

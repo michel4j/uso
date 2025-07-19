@@ -22,7 +22,7 @@
 
 {% block page-tools %}
     {% if admin %}
-        <a href='{% url 'proposal-detail' object.proposal.pk %}' class="pull-right">
+        <a href='{% url 'proposal-detail' object.proposal.code %}' class="pull-right">
             <i class="bi-file-earmark-richtext icon-md icon-fw"></i><br/>
             <span class="tool-label">Proposal</span>
         </a>

@@ -61,7 +61,7 @@ class Proposal(CodeModelMixin, BaseFormModel):
         return f"{self.pk} - {short_title}"
 
     def get_absolute_url(self):
-        reverse('proposal-detail', kwargs={'pk': self.pk})
+        reverse('proposal-detail', kwargs={'slug': self.code})
 
     def get_members(self) -> list[dict]:
         """

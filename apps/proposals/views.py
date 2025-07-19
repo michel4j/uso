@@ -72,11 +72,13 @@ class UserProposalList(RolePermsViewMixin, ItemListView):
     list_columns = ['code', 'title', 'state', 'created']
     list_filters = ['state', 'modified', 'created']
     list_transforms = {'state': _state_lbl, }
-    link_url = "proposal-detail"
     list_search = ['title', 'areas__name', 'keywords', 'code', 'details']
     order_by = ['state', '-modified']
     list_title = 'My Proposals'
     paginate_by = 25
+
+    def get_link_url(self, obj):
+        return reverse('proposal-detail', kwargs={'slug': obj.code})
 
     def get_queryset(self, *args, **kwargs):
         flts = (
@@ -102,10 +104,12 @@ class ProposalList(RolePermsViewMixin, ItemListView):
     list_columns = ['code', 'title', 'spokesperson', 'state']
     list_filters = ['state', 'modified', 'created']
     list_transforms = {'state': _state_lbl, }
-    link_url = "proposal-detail"
     list_search = ['title', 'areas__name', 'keywords', 'code', 'details']
     order_by = ['state', 'created']
     paginate_by = 15
+
+    def get_link_url(self, obj):
+        return reverse('proposal-detail', kwargs={'slug': obj.code})
 
     def get_queryset(self, *args, **kwargs):
         self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft)
@@ -167,9 +171,9 @@ class CreateProposal(RolePermsViewMixin, DynCreateView):
 
     def get_success_url(self):
         if self._form_action == 'save_continue':
-            success_url = reverse("edit-proposal", kwargs={'pk': self.object.pk})
+            success_url = reverse("edit-proposal", kwargs={'slug': self.object.code})
         else:
-            success_url = reverse("proposal-detail", kwargs={'pk': self.object.pk})
+            success_url = reverse("proposal-detail", kwargs={'slug': self.object.code})
         return success_url
 
     def form_valid(self, form):
@@ -196,6 +200,7 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
     form_class = forms.ProposalForm
     admin_roles = USO_ADMIN_ROLES
     form_action: str = 'save_continue'
+    slug_field = 'code'
 
     def check_owner(self, obj):
         qchain = Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
@@ -210,9 +215,9 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
 
     def get_success_url(self):
         if self.form_action == 'save_continue':
-            success_url = reverse("edit-proposal", kwargs={'pk': self.object.pk})
+            success_url = reverse("edit-proposal", kwargs={'slug': self.object.code})
         else:
-            success_url = reverse("proposal-detail", kwargs={'pk': self.object.pk})
+            success_url = reverse("proposal-detail", kwargs={'slug': self.object.code})
         return success_url
 
     def get_queryset(self):
@@ -244,6 +249,7 @@ class CloneProposal(RolePermsViewMixin, ModalConfirmView):
     model = models.Proposal
     template_name = 'proposals/forms/clone.html'
     success_url = reverse_lazy('user-proposals')
+    slug_field = 'code'
 
     def get_queryset(self):
         qchain = Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
@@ -262,7 +268,7 @@ class CloneProposal(RolePermsViewMixin, ModalConfirmView):
         self.object.modified = timezone.now()
         self.object.details['active_page'] = 1
         self.object.save()
-        success_url = reverse('edit-proposal', kwargs={'pk': self.object.pk})
+        success_url = reverse('edit-proposal', kwargs={'slug': self.object.code})
         ActivityLog.objects.log(
             self.request, self.object, kind=ActivityLog.TYPES.task, description='Proposal cloned'
         )
@@ -291,6 +297,7 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.SubmitProposalForm
     success_url = reverse_lazy('user-proposals')
     submit_info: dict
+    slug_field = 'code'
 
     def get_queryset(self):
         query = (Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
@@ -443,6 +450,7 @@ class ProposalDetail(RolePermsViewMixin, detail.DetailView):
     model = models.Proposal
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES + USO_STAFF_ROLES
+    slug_field = 'code'
 
     def check_owner(self, obj):
         return self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username]
@@ -462,6 +470,7 @@ class ProposalDetail(RolePermsViewMixin, detail.DetailView):
 class DeleteProposal(RolePermsViewMixin, ModalDeleteView):
     success_url = reverse_lazy('user-proposals')
     allowed_roles = USO_ADMIN_ROLES
+    slug_field = 'code'
 
     def check_owner(self, obj):
         return self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username]
@@ -1737,7 +1746,7 @@ class AskClarification(RequestClarification):
     def form_valid(self, form):
         response = super().form_valid(form)
         proposal = self.get_reference()
-        success_url = reverse_lazy('proposal-detail', kwargs={'pk': proposal.pk})
+        success_url = reverse_lazy('proposal-detail', kwargs={'slug': proposal.code})
         full_url = "{}{}".format(getattr(settings, 'SITE_URL', ""), success_url)
         for member in proposal.get_members():
             user = proposal.get_registered_member(member)

@@ -21,7 +21,7 @@
                     <tr style="min-width: 0;">
                         {% if submission.state == submission.STATES.pending %}
                             <td class="text-truncate">
-                                <a href='{% url "proposal-detail" pk=submission.proposal.pk %}'
+                                <a href='{% url "proposal-detail" slug=submission.proposal.code %}'
                                    data-bs-toggle="tooltip" title="View Proposal">
                                     {% if submission.proposal.clarifications.pending.count %}
                                         <i class="bi-chat-right-text text-danger"></i>{% else %}<i class="bi-eye"></i>

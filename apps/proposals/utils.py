@@ -754,7 +754,7 @@ def notify_submission(proposal, cycle):
     :param cycle: The review cycle instance
     """
 
-    success_url = reverse('proposal-detail', kwargs={'pk': proposal.pk})
+    success_url = reverse('proposal-detail', kwargs={'slug': proposal.code})
     full_url = f"{getattr(settings, 'SITE_URL', '')}{success_url}"
 
     others = []

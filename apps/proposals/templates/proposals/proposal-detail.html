@@ -34,21 +34,21 @@
                     <span class="tool-label">Submit</span>
                 </a>
             {% else %}
-                <a href='#0' data-modal-url='{% url "submit-proposal" pk=object.pk %}' class="pull-right">
+                <a href='#0' data-modal-url='{% url "submit-proposal" slug=object.code %}' class="pull-right">
                     <i class="bi-arrow-right-circle icon-md icon-fw text-success"></i><br/>
                     <span class="tool-label">Submit</span>
                 </a>
             {% endif %}
-            <a href='{% url "edit-proposal" pk=object.pk %}' class="pull-right">
+            <a href='{% url "edit-proposal" slug=object.code %}' class="pull-right">
                 <i class="bi-pencil icon-md icon-fw "></i><br/>
                 <span class="tool-label">Edit</span>
             </a>
-            <a href='#0' data-modal-url='{% url "delete-proposal" pk=object.pk %}' class="pull-right">
+            <a href='#0' data-modal-url='{% url "delete-proposal" slug=object.code %}' class="pull-right">
                 <i class="bi-trash icon-md text-danger icon-fw"></i><br/>
                 <span class="tool-label">Delete</span>
             </a>
         {% endif %}
-        <a href='#0' data-modal-url='{% url "clone-proposal" pk=object.pk %}' class="pull-right">
+        <a href='#0' data-modal-url='{% url "clone-proposal" slug=object.code %}' class="pull-right">
             <i class="bi-copy icon-md icon-fw"></i><br/>
             <span class="tool-label">Clone</span>
         </a>

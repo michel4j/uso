@@ -4,7 +4,7 @@
 {% load cycle_tags %}
 {% block modal_title %}Submit Proposal?{% endblock %}
 {% block pre_content %}
-    <form action="{% url 'submit-proposal' pk=object.pk %}" method="post">{% csrf_token %}
+    <form action="{% url 'submit-proposal' slug=object.code %}" method="post">{% csrf_token %}
 {% endblock %}
 
 {% block modal_body %}

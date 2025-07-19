@@ -60,7 +60,7 @@
                 <ul class="list-unstyled list-ruled">
                     {% for proposal in drafts %}
                         <li class="text-condensed py-1">
-                            <a class="overflow ellipsis" href='{% url "edit-proposal" pk=proposal.pk %}'
+                            <a class="overflow ellipsis" href='{% url "edit-proposal" slug=proposal.code %}'
                                data-bs-toggle="tooltip" title="Edit proposal">
                                 <i class="bi-pencil-square"></i>&emsp;{{ proposal.title }}
                             </a>
@@ -83,7 +83,7 @@
             <ul class="list-unstyled list-ruled">
                 {% for proposal in submitted %}
                     <li class="text-condensed py-1">
-                        <a class="overflow ellipsis" href='{% url "proposal-detail" pk=proposal.pk %}'
+                        <a class="overflow ellipsis" href='{% url "proposal-detail" slug=proposal.code %}'
                            data-bs-toggle="tooltip" title="View proposal">{% if proposal.clarifications.pending.count %}
                             <i class="bi-chat-right-text text-danger"></i>{% else %}<i class="bi-eye"></i>{% endif %}&emsp;{{ proposal.title }}
                         </a>
