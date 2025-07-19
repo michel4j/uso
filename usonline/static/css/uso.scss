@@ -114,16 +114,16 @@ $category-colors: (
                 (9, 20, 10%, 70%),
 );
 $grid-breakpoints: (
-  xs: 0,
-  sm: 576px,
-  md: 768px,
-  lg: 992px,
-  xl: 1200px,
-  xxl: 1400px
+        xs: 0,
+        sm: 576px,
+        md: 768px,
+        lg: 992px,
+        xl: 1200px,
+        xxl: 1400px
 );
 $state-names: (info, primary, success, secondary, warning, danger);
 $timeline-colors: (
-  1: '#06d6a0', 2: '#ffd166', 3: '#ef476f',  4: '#118ab2', 5: '#7f7eff', 6: '#afc765', 7: '#78c5e7'
+        1: '#06d6a0', 2: '#ffd166', 3: '#ef476f', 4: '#118ab2', 5: '#7f7eff', 6: '#afc765', 7: '#78c5e7'
 );
 
 :root {
@@ -221,6 +221,7 @@ $timeline-colors: (
     .nav-label {
       display: none;
     }
+
     .version {
       display: none;
     }
@@ -276,11 +277,13 @@ html, body {
 
 #layout-toggle {
   display: var(--uso-display-layout-toggle, none);
+
   i:last-child {
     display: var(--uso-display-layout-right, none);
     align-items: center;
     justify-content: center;
   }
+
   i:first-child {
     display: var(--uso-display-layout-left, flex);
     align-items: center;
@@ -294,6 +297,7 @@ html, body {
       --uso-display-layout-toggle: block;
       --uso-display-layout-left: flex;
       --uso-display-layout-right: none;
+
       &.toggle-right {
         --uso-display-layout-left: none;
         --uso-display-layout-right: flex;
@@ -466,6 +470,7 @@ body.print-base {
     height: 75px;
     width: auto;
   }
+
   #uso-branding {
     display: none;
   }
@@ -622,6 +627,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .table {
   --bs-border-color: var(--bs-border-color-translucent);
+
   th {
     line-height: inherit;
     font-weight: 700;
@@ -809,6 +815,7 @@ a[disabled] {
   background-color: var(--bs-tertiary-bg);
   pointer-events: none;
   color: var(--bs-secondary-text-emphasis);
+
   &:focus {
     box-shadow: none !important;
     outline: 0 none;
@@ -1259,6 +1266,7 @@ a {
   text {
     fill: var(--uso-timeline-text)
   }
+
   .tick > text {
     fill: var(--bs-body-color)
   }
@@ -1376,7 +1384,6 @@ div.dashboard {
   width: 2.4em;
   height: 2.4em;
   background-size: contain;
-  margin-right: 10px;
 }
 
 .team-img {
@@ -1737,9 +1744,11 @@ table.fixed-header {
   padding: 0.5em 0;
   line-height: 1;
   text-align: center;
+
   br {
     display: none;
   }
+
   .tool-label {
     min-width: 4em;
   }
@@ -2159,6 +2168,7 @@ body.no-scroll {
 
 table {
   --bs-table-bg: transparent !important;
+
   &.table-fixed {
     width: 100%;
     table-layout: fixed;
@@ -2366,6 +2376,7 @@ body.registration {
 
   &.stacked {
     margin-right: 22px;
+
     img {
       height: calc(100% * 2 / 3);
       margin-right: -22px;
@@ -2424,6 +2435,7 @@ span.allocation-score {
   > h3:first-of-type, div.h3:first-of-type {
     align-self: center;
   }
+
   > .status-badge {
     align-self: center;
     font-size: calc(0.9rem + 0.6vw);
@@ -2656,11 +2668,12 @@ $stat-sizes: (
   --ss-animation-timing: 0.2s;
   --ss-border-radius: var(--bs-border-radius);
   --ss-disabled-color: var(--bs-secondary-bg);
-    font-size: 1rem;
-    font-weight: 400;
+  font-size: 1rem;
+  font-weight: 400;
 }
+
 .ss-content .ss-list .ss-option.ss-disabled {
-  display: none!important;
+  display: none !important;
 }
 
 .df-form-tabs:empty {
@@ -2750,8 +2763,24 @@ body::before {
 }
 
 .ss-content .ss-list .ss-option.ss-disabled {
-    cursor: not-allowed;
-    background-color: inherit;
-    color: var(--bs-secondary-text-emphasis);
-    opacity: 0.5;
+  cursor: not-allowed;
+  background-color: inherit;
+  color: var(--bs-secondary-text-emphasis);
+  opacity: 0.5;
+}
+
+$position-values: (25, 75);
+@each $position in $position-values {
+  .top-#{$position} {
+    top: $position * 1%;
+  }
+  .bottom-#{$position} {
+    bottom: $position * 1%;
+  }
+  .left-#{$position} {
+    left: $position * 1%;
+  }
+  .right-#{$position} {
+    right: $position * 1%;
+  }
 }

@@ -322,7 +322,7 @@ class UserProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.title = "{}'s  Profile".format(self.instance)
+        self.helper.title = f"Edit {self.instance}'s  Profile"
         self.helper.layout = Layout(
             Fieldset(
                 "Personal Information", Div(

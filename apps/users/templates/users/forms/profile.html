@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'page.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
 {% load jsonify %}
@@ -96,13 +96,9 @@ $('.institution-input').typeahead(null, {
 
 </script>
 {% endblock %}
-
+{% block page-pretitle %}Form{% endblock %}
 {% block page-title %}{{form.helper.title}}{% endblock %}
 
-{% block content %}
-<div class="page p-3">
-	<div class="page-body">
-        {% crispy form form.helper %}
-    </div>
-</div>
+{% block page-content %}
+    {% crispy form form.helper %}
 {% endblock %}

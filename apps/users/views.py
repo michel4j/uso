@@ -568,27 +568,31 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
         return HttpResponseRedirect(self.success_url)
 
 
-class ChangePassword(RolePermsViewMixin, View):
-    def get(self, request, *args, **kwargs):
-        user = request.user
-        link = models.SecureLink.objects.create(user=user)
-        data = {
-            'name': user.first_name,
-            'reset_url': f"{SITE_URL}{reverse_lazy('password-reset', kwargs={'hash': link.hash})}",
-        }
-        recipients = [user]
-        if user.alt_email:
-            recipients.append(user.alt_email)
-        notify.send(recipients, 'password-reset', context=data)
-        messages.success(
-            self.request,
-            (
-                f"A request to reset {user}'s password has been received. "
-                "Please check your email for further instructions."
-            )
-        )
+class ChangePassword(RolePermsViewMixin, ModalConfirmView):
+    model = models.User
 
-        return HttpResponseRedirect(reverse_lazy('user-dashboard'))
+    def get_object(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return self.request.user
+        else:
+            raise Http404("You must be logged in to change your password.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Change Your Password"
+        context['message'] = (
+            "Are you sure you want to reset your password? An "
+            "email will be sent to you with instructions to set a new password."
+        )
+        return context
+
+    def confirmed(self, *args, **kwargs):
+        utils.send_reset(self.request.user, template='password-reset')
+        message = (
+            f"A request to reset {self.request.user}'s password has been received. "
+            "Please check your email for further instructions."
+        )
+        return JsonResponse({"url": "", "message": message})
 
 
 class PhotoView(View):

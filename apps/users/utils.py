@@ -43,17 +43,15 @@ def create_users(staff):
     return updated
 
 
-def send_reset(user):
+def send_reset(user, template='auto-password-reset'):
     from django.urls import reverse
     from notifier import notify
     link = models.SecureLink.objects.create(user=user)
     data = {
         'name': user.first_name,
-        'reset_url': "{}{}".format(
-            getattr(settings, 'SITE_URL', ""), reverse('password-reset', kwargs={'hash': link.hash})
-        ),
+        'reset_url': f"{getattr(settings, 'SITE_URL', '')}{reverse('password-reset', kwargs={'hash': link.hash})}",
     }
     recipients = [user]
     if user.alt_email:
         recipients.append(user.alt_email)
-    notify.send(recipients, 'auto-password-reset', context=data)
+    notify.send(recipients, template, context=data)

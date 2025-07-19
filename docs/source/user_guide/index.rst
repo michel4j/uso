@@ -5,6 +5,7 @@
    :maxdepth: 1
 
    starting
+   account
    proposals
    experiments
-   account
+

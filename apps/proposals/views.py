@@ -26,6 +26,7 @@ from misc.models import ActivityLog
 from misc.utils import get_code_generator
 from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
+from publications.models import SubjectArea
 from roleperms.views import RolePermsViewMixin
 from users.models import User
 from . import forms
@@ -194,6 +195,7 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
     model = models.Proposal
     form_class = forms.ProposalForm
     admin_roles = USO_ADMIN_ROLES
+    form_action: str = 'save_continue'
 
     def check_owner(self, obj):
         qchain = Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
@@ -207,13 +209,13 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
         return context
 
     def get_success_url(self):
-        if self._form_action == 'save_continue':
+        if self.form_action == 'save_continue':
             success_url = reverse("edit-proposal", kwargs={'pk': self.object.pk})
         else:
             success_url = reverse("proposal-detail", kwargs={'pk': self.object.pk})
         return success_url
 
-    def get_queryset(self, *args, **kwargs):
+    def get_queryset(self):
         if self.check_admin():
             self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft)
         else:
@@ -221,19 +223,17 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
                 delegate_username=self.request.user.username
             )
             self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft).filter(qchain)
-        return super().get_queryset(*args, **kwargs)
+        return super().get_queryset()
 
     def form_valid(self, form):
         data = form.cleaned_data
-        subject_areas = data.get('subject', {})
-        areas = subject_areas.get('areas', [])
-        keywords = subject_areas.get('keywords', '')
-        self.object.keywords = keywords
-        self.object.areas.add(*areas)
+        subject_areas = data['details'].get('subject', {})
+        areas = SubjectArea.objects.filter(pk__in=subject_areas.get('areas', []))
+        self.object.areas.set(areas)
         self.object.save()
         self.queryset.filter(pk=self.object.pk).update(**data)
         messages.success(self.request, 'Draft proposal was saved successfully')
-        self._form_action = form.cleaned_data['details']['form_action']
+        self.form_action = form.cleaned_data['details']['form_action']
         ActivityLog.objects.log(
             self.request, self.object, kind=ActivityLog.TYPES.modify, description='Proposal edited'
         )
@@ -241,6 +241,7 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
 
 
 class CloneProposal(RolePermsViewMixin, ModalConfirmView):
+    model = models.Proposal
     template_name = 'proposals/forms/clone.html'
     success_url = reverse_lazy('user-proposals')
 
@@ -248,7 +249,7 @@ class CloneProposal(RolePermsViewMixin, ModalConfirmView):
         qchain = Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
             delegate_username=self.request.user.username
         )
-        self.queryset = models.Proposal.objects.filter(qchain)
+        self.queryset = self.model.objects.filter(qchain)
         return super().get_queryset()
 
     def confirmed(self, *args, **kwargs):
@@ -279,7 +280,7 @@ def expand_role(role: str, realms: list[str]) -> set[str]:
     :param realms: List of realms to expand the role into
     :return: set of roles
     """
-
+    role = '' if role is None else role
     return {
         role.format(realm) for realm in realms if role.strip()
     }
@@ -1164,7 +1165,7 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
     }
     list_styles = {'title': 'col-sm-2'}
     admin_roles = USO_ADMIN_ROLES
-    paginate_by = 25
+    paginate_by = 20
 
     def get_queryset(self, *args, **kwargs):
         qset = super().get_queryset(*args, **kwargs)

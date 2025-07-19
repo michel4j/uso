@@ -6,12 +6,13 @@
                    href="#0" id="navbarDropdownNotifications" role="button"
                    data-bs-toggle="dropdown"
                    aria-expanded="false" title="Notifications">
-                    <i class="bi bi-bell icon-fw icon-md"></i>
-                    {% if notifications.pending.count %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info">
-                    {{ notifications.pending.count }}
-                    </span>
-                    {% endif %}
+                    <i class="bi bi-bell icon-fw icon-md position-relative">
+                        {% if notifications.pending.count %}
+                            <span class="position-absolute p-1 top-25 start-100 translate-middle bg-danger border-light rounded-circle">
+                                <span class="visually-hidden">New Notifications</span>
+                            </span>
+                        {% endif %}
+                    </i>
                 </a>
                 {% include "notifier/notifications.html" %}
             </li>
@@ -22,7 +23,7 @@
                data-bs-toggle="dropdown"
                aria-expanded="false" title="Profile Menu">
                 <img src="{{ request.user.get_photo }}" onerror="this.src='/static/img/blank-profile.png';"
-                     title="{{ request.user }}" data-bs-placement="bottom" class="rounded-circle"
+                     title="{{ request.user }}" data-bs-placement="bottom" class="profile-img"
                      style="width: 30px; height: 30px;" alt="{{ request.user }}"
                 />
             </a>
@@ -67,7 +68,7 @@
                     </li>
                 {% endif %}
                 <li>
-                    <a class="dropdown-item d-flex align-items-center" href="{% url 'change-password' %}">
+                    <a href="#0" class="dropdown-item d-flex align-items-center" data-modal-url="{% url 'change-password' %}">
                         <i class="bi bi-lock icon-xs icon-fw me-2"></i>
                         Change Password
                     </a>

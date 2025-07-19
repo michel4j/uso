@@ -1,6 +1,8 @@
 Managing Your Account
 =====================
 
-* **Updating Your Profile:** Changing contact information and affiliation.
-* **Profile Photos:** Uploading or updating your profile photo.
-* **Changing Your Password:** Security best practices.
+You can manage your account information through the :ref:`_profile_menu` at the top-right corner of the header bar.
+This menu provides access to various actions related to your account, such as updating your profile, changing your
+password, and managing your reviewer expertise, if you are a reviewer.
+
+

@@ -19,8 +19,7 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel, TimeFramedModel
 
 from misc.fields import StringListField
-from misc.models import DateSpanMixin, Attachment, Clarification, ActivityLog
-from misc.utils import get_code_generator
+from misc.models import DateSpanMixin, Attachment, Clarification, ActivityLog, CodeModelMixin
 from proposals.models import Review, ReviewCycle
 from scheduler.models import Event, EventQuerySet
 
@@ -28,8 +27,7 @@ from scheduler.models import Event, EventQuerySet
 User = getattr(settings, "AUTH_USER_MODEL")
 
 
-class Project(DateSpanMixin, TimeStampedModel):
-    code = models.SlugField(unique=True, default=uuid.uuid4, editable=False)
+class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
     proposal = models.ForeignKey('proposals.Proposal', null=True, on_delete=models.SET_NULL, related_name="project")
     submissions = models.ManyToManyField('proposals.Submission', blank=True, related_name="project")
     pool = models.ForeignKey('proposals.AccessPool', related_name='projects', on_delete=models.SET_DEFAULT, default=1)
@@ -65,8 +63,6 @@ class Project(DateSpanMixin, TimeStampedModel):
 
     def facility_codes(self):
         return ', '.join([bl.acronym for bl in self.beamlines.distinct()])
-
-
 
     def get_absolute_url(self):
         return reverse('project-detail', kwargs={'pk': self.pk})
@@ -343,7 +339,7 @@ class MaterialQueryset(models.QuerySet):
         return self.exclude(state='denied')
 
 
-class Material(TimeStampedModel):
+class Material(CodeModelMixin, TimeStampedModel):
     STATES = Choices(
         ('pending', 'Pending'),
         ('approved', 'Approved'),
@@ -357,7 +353,6 @@ class Material(TimeStampedModel):
         (4, 'unacceptable', 'Unacceptable')
     )
     project = models.ForeignKey('Project', null=False, related_name='materials', on_delete=models.CASCADE)
-    code = models.SlugField(unique=True, default=uuid.uuid4, editable=False)
     samples = models.ManyToManyField('samples.Sample', through='ProjectSample', related_name='projects', blank=True)
     procedure = models.TextField(verbose_name=_('Sample Handling Procedure'))
     waste = models.JSONField(verbose_name=_('Waste Generation'), default=list)
@@ -450,22 +445,6 @@ class Material(TimeStampedModel):
 
     def title(self):
         return self.project.title
-
-    def save(self, *args, **kwargs):
-        """
-        Override save method to clear code if pk is None
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        new_code_needed = (self.pk is None)  # when cloning, for example
-        if new_code_needed:
-            self.code = uuid.uuid4()
-
-        super().save(*args, **kwargs)
-        if new_code_needed:
-            code_func = get_code_generator('MATERIAL')
-            self.__class__.objects.filter(pk=self.pk).update(code=code_func(self))
 
     def get_absolute_url(self):
         return reverse('material-detail', kwargs={'pk': self.pk})

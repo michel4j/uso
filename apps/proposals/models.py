@@ -19,7 +19,7 @@ from model_utils.models import TimeStampedModel
 
 from beamlines.models import Facility
 from misc.fields import StringListField
-from misc.models import Clarification, GenericContentMixin, GenericContentQueryset
+from misc.models import Clarification, GenericContentMixin, GenericContentQueryset, CodeModelMixin
 from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
 from publications.models import SubjectArea
 from . import utils
@@ -28,12 +28,11 @@ from . import utils
 User = getattr(settings, "AUTH_USER_MODEL")
 
 
-class Proposal(BaseFormModel):
+class Proposal(CodeModelMixin, BaseFormModel):
     STATES = Choices(
         (0, 'draft', 'Not Submitted'),
         (1, 'submitted', 'Submitted')
     )
-    code = models.SlugField(unique=True, default=uuid.uuid4, editable=False)
     spokesperson = models.ForeignKey(User, related_name='+', on_delete=models.CASCADE)
     leader_username = models.CharField(max_length=50, null=True, blank=True)
     delegate_username = models.CharField(max_length=50, null=True, blank=True)
@@ -135,6 +134,7 @@ class Proposal(BaseFormModel):
         """
         Returns a dictionary of review content for this submission.
         """
+
         return {
             'title': self.title,
             'authors': self.authors(),
@@ -212,7 +212,7 @@ class AccessPool(TimeStampedModel):
         return self.name
 
 
-class Submission(TimeStampedModel):
+class Submission(CodeModelMixin, TimeStampedModel):
     class STATES(models.IntegerChoices):
         pending = (0, 'Pending')
         started = (1, 'Started')
@@ -220,7 +220,6 @@ class Submission(TimeStampedModel):
         complete = (3, 'Complete')
 
     proposal = models.ForeignKey(Proposal, related_name='submissions', on_delete=models.CASCADE)
-    code = models.SlugField(unique=True, default=uuid.uuid4, editable=False)
     pool = models.ForeignKey(AccessPool, related_name='submissions', on_delete=models.SET_DEFAULT, default=1)
     track = models.ForeignKey('ReviewTrack', on_delete=models.CASCADE, related_name='submissions')
     cycle = models.ForeignKey("ReviewCycle", on_delete=models.CASCADE, related_name='submissions')
