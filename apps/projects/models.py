@@ -732,12 +732,6 @@ class ShiftRequest(TimeStampedModel):
         progress = ('progress', _('In Progress'))
         completed = ('completed', _('Completed'))
 
-    STATES = Choices(
-        ('draft', 'Draft'),
-        ('submitted', 'Submitted'),
-        ('progress', 'In Progress'),
-        ('completed', 'Completed')
-    )
     state = models.CharField(max_length=20, choices=States.choices, default=States.draft)
     allocation = models.ForeignKey('Allocation', on_delete=models.CASCADE, related_name="bookings")
     comments = models.TextField(blank=True, null=True)

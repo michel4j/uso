@@ -1493,7 +1493,7 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
         data['beamline'] = self.allocation.beamline
 
         if form_action == 'submit':
-            data['state'] = self.model.STATES.submitted
+            data['state'] = self.model.States.submitted
 
         self.object = self.model.objects.create(**data)
         self.object.tags.add(*tags)
@@ -1546,7 +1546,7 @@ class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
         data['allocation'] = self.allocation
 
         if form_action == 'submit':
-            data['state'] = self.model.STATES.submitted
+            data['state'] = self.model.States.submitted
 
         self.object = self.model.objects.create(**data)
         self.object.tags.add(*tags)
@@ -1601,7 +1601,7 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
             success_url = reverse(self.edit_url, kwargs={'pk': self.object.pk})
             msg = 'Booking was saved successfully'
         else:
-            data['state'] = self.model.STATES.submitted
+            data['state'] = self.model.States.submitted
             success_url = reverse("project-detail", kwargs={'pk': self.get_project().pk})
             msg = 'Booking submitted'
 
@@ -1645,7 +1645,7 @@ class EditRenewalRequest(RolePermsViewMixin, edit.UpdateView):
             success_url = reverse("edit-renewal-request", kwargs={'pk': self.object.pk})
             msg = 'Request was saved successfully'
         else:
-            data['state'] = self.model.STATES.submitted
+            data['state'] = self.model.States.submitted
             success_url = reverse("project-detail", kwargs={'pk': self.object.project.pk})
             msg = 'Request submitted'
 
