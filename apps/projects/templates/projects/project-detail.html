@@ -111,9 +111,9 @@
     <div class="mt-3">
         {% with object.beamline_allocations as allocations %}
             <div class="row">
-                {% for falloc in allocations %}
+                {% for facility, info in allocations.items %}
                     <div class="{% if allocations|length > 1 %}col-sm-6{% elif allocations|length > 3 %}col-md-4{% else %}col-sm-12{% endif %}">
-                        {% include "projects/allocation.html" %}
+                        {% include "projects/allocation.html" with allocation=info.allocation %}
                     </div>
                 {% endfor %}
             </div>

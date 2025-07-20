@@ -303,7 +303,7 @@ class AllocRequestList(RolePermsViewMixin, ItemListView):
                    'project__spokesperson__last_name',
                    'project__spokesperson__first_name', 'id']
     order_by = ['-modified', 'state']
-    list_title = 'Allocation Requests'
+    list_title = 'Renewal Requests'
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
@@ -320,12 +320,12 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
     link_url = "manage-shift-request"
     link_attr = 'data-modal-url'
     order_by = ['-modified', 'state']
-    list_title = 'Shift Requests'
+    list_title = 'Booking Requests'
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
     def get_list_title(self):
-        return f'{self.facility.acronym} Shift Requests: {self.cycle}'
+        return f'{self.facility.acronym} Booking Requests: {self.cycle}'
 
     def check_allowed(self):
         self.facility = Facility.objects.get(pk=self.kwargs['pk'])
@@ -1451,31 +1451,31 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
     form_class = forms.AllocRequestForm
     template_name = "projects/forms/request-form.html"
     allowed_roles = USO_ADMIN_ROLES
+    allocation: models.Allocation
 
     def check_allowed(self):
-        self.facility = Facility.objects.get(acronym=self.kwargs.get('fac'))
-        self.project = models.Project.objects.get(pk=self.kwargs.get('pk'))
-        return (super().check_allowed() or self.check_owner(self.project))
+        self.allocation = models.Allocation.objects.get(pk=self.kwargs.get('pk'))
+        return super().check_allowed() or self.check_owner(self.allocation.project)
 
     def check_owner(self, obj):
-        return self.project.is_owned_by(self.request.user)
+        return self.allocation.project.is_owned_by(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['cycle'] = models.ReviewCycle.objects.get(pk=self.kwargs.get('cycle'))
-        context['project'] = models.Project.objects.get(pk=self.kwargs.get('pk'))
-        context['facility'] = self.facility
+        context['cycle'] = self.allocation.cycle
+        context['project'] = self.allocation.project
+        context['facility'] = self.allocation.beamline
+        context['form_title'] = "Request Renewal"
+        context['message'] = (
+            "Please use this form to request a renewal of your project allocation for the next cycle.  "
+            "Your project must be active during the requested period. To book beam time on flexible-scheduling "
+            "beamlines, use the 'Book Shifts' form instead."
+        )
         return context
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['facility'] = Facility.objects.get(acronym=self.kwargs.get('fac'))
-        kwargs['form_title'] = "Allocation Request"
-        return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
-        project = models.Project.objects.get(pk=self.kwargs.get('pk'))
+        project = self.allocation.project
         initial['shift_request'] = 1
         material = project.current_material()
         if material and material.siblings().pending().count():
@@ -1488,9 +1488,9 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
         tags = data.pop('tags', [])
         form_action = data.pop('form_action')
 
-        data['project'] = models.Project.objects.get(pk=self.kwargs.get('pk'))
-        data['cycle'] = models.ReviewCycle.objects.get(pk=self.kwargs.get('cycle'))
-        data['beamline'] = Facility.objects.get(acronym=self.kwargs.get('fac'))
+        data['project'] = self.allocation.project
+        data['cycle'] = self.allocation.cycle
+        data['beamline'] = self.allocation.beamline
 
         if form_action == 'submit':
             data['state'] = self.model.STATES.submitted
@@ -1499,11 +1499,11 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
         self.object.tags.add(*tags)
 
         if form_action == 'save':
-            success_url = reverse("edit-alloc-request", kwargs={'pk': self.object.pk})
-            msg = 'Allocation Request was saved successfully'
+            success_url = reverse("edit-renewal-request", kwargs={'pk': self.object.pk})
+            msg = 'Renewal Request was saved successfully'
         else:
             success_url = reverse("project-detail", kwargs={'pk': self.object.project.pk})
-            msg = 'Allocation Request submitted'
+            msg = 'Renewal Request submitted'
         messages.add_message(self.request, messages.SUCCESS, msg)
         return HttpResponseRedirect(success_url)
 
@@ -1513,10 +1513,11 @@ class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
     form_class = forms.ShiftRequestForm
     template_name = "projects/forms/request-form.html"
     allowed_roles = USO_ADMIN_ROLES
+    allocation: models.Allocation
 
     def check_allowed(self):
         self.allocation = models.Allocation.objects.get(pk=self.kwargs.get('pk'))
-        return (super().check_allowed() or self.check_owner(self.allocation.project))
+        return super().check_allowed() or self.check_owner(self.allocation.project)
 
     def check_owner(self, obj):
         return obj.is_owned_by(self.request.user)
@@ -1526,17 +1527,16 @@ class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
         initial['shift_request'] = 1
         return initial
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['facility'] = self.allocation.beamline
-        kwargs['form_title'] = "Shift Request"
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cycle'] = self.allocation.cycle
         context['project'] = self.allocation.project
         context['facility'] = self.allocation.beamline
+        context['form_title'] = "Book Beam Time"
+        context['message'] = (
+            "Please use this form to book beam time for your project on flexible-scheduling beamlines that do "
+            "not allocate beam time in advance."
+        )
         return context
 
     def form_valid(self, form):
@@ -1550,13 +1550,12 @@ class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
 
         self.object = self.model.objects.create(**data)
         self.object.tags.add(*tags)
-
         if form_action == 'save':
-            success_url = reverse("edit-shift-request", kwargs={'pk': self.object.pk})
-            msg = 'Shift Request was saved successfully'
+            success_url = reverse("edit-booking-request", kwargs={'pk': self.object.pk})
+            msg = 'Booking saved successfully'
         else:
             success_url = reverse("project-detail", kwargs={'pk': self.object.allocation.project.pk})
-            msg = 'Shift Request submitted'
+            msg = 'Booking submitted'
         messages.add_message(self.request, messages.SUCCESS, msg)
         return HttpResponseRedirect(success_url)
 
@@ -1565,13 +1564,16 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
     model = models.ShiftRequest
     form_class = forms.ShiftRequestForm
     template_name = "projects/forms/request-form.html"
-    edit_url = "edit-shift-request"
+    edit_url = "edit-booking-request"
     allowed_roles = USO_ADMIN_ROLES
 
+    def get_queryset(self):
+        qset = super().get_queryset()
+        return qset.filter(state=models.ShiftRequest.States.draft)
+
     def check_allowed(self):
-        object = self.get_object()
-        self.allocation = object.allocation
-        return (super().check_allowed() or self.check_owner(self))
+        obj = self.get_object()
+        return super().check_allowed() or self.check_owner(obj)
 
     def check_owner(self, obj):
         return obj.allocation.project.is_owned_by(self.request.user)
@@ -1579,17 +1581,16 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
     def get_project(self):
         return self.object.allocation.project
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['facility'] = self.object.allocation.beamline
-        kwargs['form_title'] = "Edit Shift Request"
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cycle'] = self.object.allocation.cycle
         context['project'] = self.object.allocation.project
         context['facility'] = self.object.allocation.beamline
+        context['form_title'] = "Edit Beam Time Booking"
+        context['message'] = (
+            "Please use this form to book beam time for your project on flexible-scheduling beamlines that do "
+            "not allocate beam time in advance."
+        )
         return context
 
     def form_valid(self, form):
@@ -1598,11 +1599,55 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
         form_action = data.pop('form_action', 'save')
         if form_action == 'save':
             success_url = reverse(self.edit_url, kwargs={'pk': self.object.pk})
-            msg = 'Shift Request was saved successfully'
+            msg = 'Booking was saved successfully'
         else:
             data['state'] = self.model.STATES.submitted
             success_url = reverse("project-detail", kwargs={'pk': self.get_project().pk})
-            msg = 'Shift Request submitted'
+            msg = 'Booking submitted'
+
+        self.model.objects.filter(pk=self.object.pk).update(**data)
+        self.object.tags.clear()
+        self.object.tags.add(*tags)
+        messages.add_message(self.request, messages.SUCCESS, msg)
+        return HttpResponseRedirect(success_url)
+
+
+class EditRenewalRequest(RolePermsViewMixin, edit.UpdateView):
+    model = models.AllocationRequest
+    form_class = forms.AllocRequestForm
+    template_name = "projects/forms/request-form.html"
+    allowed_roles = USO_ADMIN_ROLES
+
+    def check_allowed(self):
+        obj = self.get_object()
+        return super().check_allowed() or self.check_owner(obj)
+
+    def check_owner(self, obj):
+        return obj.project.is_owned_by(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cycle'] = self.object.cycle
+        context['project'] = self.object.project
+        context['facility'] = self.object.beamline
+        context['form_title'] = "Edit Renewal Request"
+        context['message'] = (
+            "Please use this form to book beam time for your project on flexible-scheduling beamlines that do "
+            "not allocate beam time in advance."
+        )
+        return context
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        tags = data.pop('tags', [])
+        form_action = data.pop('form_action', 'save')
+        if form_action == 'save':
+            success_url = reverse("edit-renewal-request", kwargs={'pk': self.object.pk})
+            msg = 'Request was saved successfully'
+        else:
+            data['state'] = self.model.STATES.submitted
+            success_url = reverse("project-detail", kwargs={'pk': self.object.project.pk})
+            msg = 'Request submitted'
 
         self.model.objects.filter(pk=self.object.pk).update(**data)
         self.object.tags.clear()
@@ -1647,7 +1692,7 @@ class RequestPreferencesAPI(RolePermsViewMixin, View):
         poor_dates = []
 
         for req in itertools.chain(
-                project.allocation_requests.all(), models.ShiftRequest.objects.filter(allocation__project=project).all()
+                project.renewals.all(), models.ShiftRequest.objects.filter(allocation__project=project).all()
         ):
             good_dates.extend([parser.parse(v) for v in [_f for _f in req.good_dates.split(',') if _f]])
             poor_dates.extend([parser.parse(v) for v in [_f for _f in req.poor_dates.split(',') if _f]])

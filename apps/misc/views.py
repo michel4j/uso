@@ -134,3 +134,4 @@ class Ping(RolePermsViewMixin, View):
         return JsonResponse({
             'server_time': timezone.localtime(timezone.now()).isoformat()
         })
+

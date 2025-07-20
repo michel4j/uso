@@ -2,13 +2,13 @@ import itertools
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseForbidden
 from django.template import loader
 from django.utils.decorators import method_decorator
 
 
 ROLEPERMS_DEBUG = getattr(settings, "ROLEPERMS_DEBUG", False)
+USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 
 
 class LoginRequiredMixin(object):
@@ -131,3 +131,13 @@ class OwnerRequiredMixin(RolePermsViewMixin):
         else:
             response = loader.render_to_string('403.html', request=self.request)
             return HttpResponseForbidden(response)
+
+
+class AdminRequiredMixin(RolePermsViewMixin):
+    """
+    Mixin to ensure that the user has admin permissions.
+    """
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+

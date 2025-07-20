@@ -15,9 +15,14 @@
 {% block page-classes %}p-5{% endblock %}
 
 {% block page-pretitle %}Form{% endblock %}
-{% block page-title %}{{ form.helper.title }}{% endblock %}
+{% block page-title %}{{ form_title }}{% endblock %}
 
 {% block page-content %}
+    <div class="callout callout-warning">
+        <div class="d-flex flex-row align-items-center gap-3">
+            <i class="bi-exclamation-diamond icon-lg icon-fw"></i> {{ message }}
+        </div>
+    </div>
     {% if cycle %}
         <div class="bg-darken my-3 p-3">
             <h4><strong>Period of Interest</strong> &mdash; Cycle {{ cycle }}</h4>
@@ -36,8 +41,13 @@
         {% include "proposals/cycle-timeline.html" with object=cycle %}
     {% endif %}
     <script type="text/javascript">
-        $('.dateinput').datePicker({
-            dateFormat: "YYYY-MM-DD",
-        });
+            // Initialize date inputs
+            $('.dateinput, .date-input').each(function(){
+                console.log($(this).is('[data-multi-date]'));
+                $(this).datePicker({
+                    dateFormat: "YYYY-MM-DD",
+                    multiple: $(this).is('[data-multi-date]') || false,
+                });
+            });
     </script>
 {% endblock %}

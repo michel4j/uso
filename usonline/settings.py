@@ -225,6 +225,10 @@ USO_PDB_FACILITIES = {
 ROLEPERMS_DEBUG = False
 GOOGLE_API_KEY = ""
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
+DYNFORMS_MIXINS = {
+    'VIEW': ['roleperms.views.AdminRequiredMixin'],
+    'EDIT': ['roleperms.views.AdminRequiredMixin'],
+}
 
 # -----------------------------------------------------------------------------
 # Load local settings if available

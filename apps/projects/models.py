@@ -131,7 +131,7 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
 
     def beamline_allocations(self):
         from proposals.models import Technique
-        allocations = []
+        allocations = {}
         this_cycle = ReviewCycle.objects.current().filter(
             start_date__lte=self.end_date, start_date__gte=self.start_date
         ).order_by('start_date').first()
@@ -165,8 +165,7 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
                 ).values_list('technique', flat=True)
             )
 
-            allocations.append({
-                'facility': beamline,
+            allocations[beamline] = {
                 'allocation': allocation,
                 'totals': totals,
                 'cycle': cycle,
@@ -175,11 +174,9 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
                     next_cycle.end_date) and not allocation.discretionary,
                 'can_decline': self.cycle.is_pending() and allocation.shifts,
                 'techniques': ", ".join([t.short_name() for t in techniques]),
-                'can_request': (self.is_pending() or self.is_active()) and (
+                'can_book': (self.is_pending() or self.is_active()) and (
                         beamline.flex_schedule or allocation.discretionary),
-                'shift_request': allocation.shift_requests.first(),
-                'alloc_request': self.allocation_requests.filter(beamline=beamline, cycle=next_cycle).first(),
-            })
+            }
         return allocations
 
     def active_allocations(self):
@@ -624,24 +621,42 @@ class LabSession(TimeStampedModel, TimeFramedModel):
             self.save()
 
 
+class AllocRequestQueryset(models.QuerySet):
+    def complete(self):
+        return self.filter(state='completed')
+
+    def pending(self):
+        return self.filter(state__in=['submitted'])
+
+    def incomplete(self):
+        return self.filter(state__in=['draft', 'submitted']).order_by('state')
+
+    def draft(self):
+        return self.filter(state='draft')
+
+
 class AllocationRequest(TimeStampedModel):
-    STATES = Choices(
-        ('draft', 'Draft'),
-        ('submitted', 'Submitted'),
-        ('complete', 'Completed')
-    )
-    state = models.CharField(max_length=20, choices=STATES, default='draft')
-    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="allocation_requests")
-    cycle = models.ForeignKey('proposals.ReviewCycle', on_delete=models.CASCADE, related_name="allocation_requests")
-    beamline = models.ForeignKey('beamlines.Facility', on_delete=models.CASCADE, related_name="allocation_requests")
-    tags = models.ManyToManyField(
-        'beamlines.FacilityTag', related_name="allocation_requests", verbose_name='Scheduling Tags'
-    )
+
+    class States(models.TextChoices):
+        draft = ('draft', _('Draft'))
+        submitted = ('submitted', _('Submitted'))
+        complete = ('complete', _('Completed'))
+
+    state = models.CharField(max_length=20, choices=States.choices, default=States.draft)
+    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="renewals")
+    cycle = models.ForeignKey('proposals.ReviewCycle', on_delete=models.CASCADE, related_name="renewals")
+    beamline = models.ForeignKey('beamlines.Facility', on_delete=models.CASCADE, related_name="renewals")
+    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="renewals", verbose_name='Tags')
     procedure = models.TextField(blank=True, null=True)
     justification = models.TextField(blank=True, null=True)
     shift_request = models.IntegerField('Shifts Requested', default=0)
-    good_dates = models.TextField(blank=True, null=True)
-    poor_dates = models.TextField(blank=True, null=True)
+    good_dates = models.JSONField(default=list)
+    poor_dates = models.JSONField(default=list)
+    comments = models.TextField(blank=True, null=True)
+    objects = AllocRequestQueryset.as_manager()
+
+    class Meta:
+        verbose_name = 'Renewal Request'
 
     def __str__(self):
         return f'{self.project} {self.cycle}'
@@ -679,6 +694,11 @@ class Allocation(TimeStampedModel):
             return 0
         return scheduled['total']
 
+    def renewals(self):
+        return AllocationRequest.objects.filter(
+            project=self.project, cycle=self.cycle, beamline=self.beamline
+        ).order_by('-state', '-created')
+
     def tags(self):
         return self.project.tags.filter(Q(facility=self.beamline) | Q(facility__children=self.beamline) | Q(
             facility__parent=self.beamline)).distinct()
@@ -698,40 +718,46 @@ class ShiftRequestQueryset(models.QuerySet):
     def pending(self):
         return self.filter(state__in=['submitted', 'progress'])
 
+    def incomplete(self):
+        return self.filter(state__in=['draft', 'submitted', 'progress']).order_by('state')
+
     def draft(self):
         return self.filter(state='draft')
 
-    def open(self):
-        return self.exclude(state='completed')
-
 
 class ShiftRequest(TimeStampedModel):
+    class States(models.TextChoices):
+        draft = ('draft', _('Draft'))
+        submitted = ('submitted', _('Submitted'))
+        progress = ('progress', _('In Progress'))
+        completed = ('completed', _('Completed'))
+
     STATES = Choices(
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
         ('progress', 'In Progress'),
         ('completed', 'Completed')
     )
-    state = models.CharField(max_length=20, choices=STATES, default='draft')
-    allocation = models.ForeignKey('Allocation', on_delete=models.CASCADE, related_name="shift_requests")
+    state = models.CharField(max_length=20, choices=States.choices, default=States.draft)
+    allocation = models.ForeignKey('Allocation', on_delete=models.CASCADE, related_name="bookings")
     comments = models.TextField(blank=True, null=True)
     justification = models.TextField(blank=True, null=True)
-    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="shift_requests",
-                                  verbose_name='Scheduling Tags')
+    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="bookings", verbose_name='Tags')
     shift_request = models.IntegerField("Shifts Requested", default=0)
-    good_dates = models.TextField(blank=True, null=True)
-    poor_dates = models.TextField(blank=True, null=True)
+    good_dates = models.JSONField(default=list)
+    poor_dates = models.JSONField(default=list)
     objects = ShiftRequestQueryset.as_manager()
 
     def __str__(self):
-        return "Request {}, {}".format(self.pk, self.allocation)
+        return "Booking {}, {}".format(self.pk, self.allocation)
 
     def project(self):
         return self.allocation.project
 
     def spokesperson(self):
-        return self.project().spokesperson
+        return self.project.spokesperson
 
+    @property
     def facility(self):
         return self.allocation.beamline
 

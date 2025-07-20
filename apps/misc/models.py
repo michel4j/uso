@@ -352,4 +352,3 @@ class CodeModelMixin(models.Model):
             count=Value(1) + Coalesce(Max('pk') - Min('pk'), 0)
         )['count'] or 1
         return index
-

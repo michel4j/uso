@@ -22,6 +22,24 @@ class DateField(AppendedText):
         super().__init__(field_name, mark_safe('<i class="bi-calendar"></i>'), *args, **kwargs)
 
 
+class CommaSeparatedListField(forms.CharField):
+    def to_python(self, value):
+        """
+        Converts the incoming string value to a Python list.
+        """
+        if not value:
+            return []
+        return [item.strip() for item in value.split(',') if item.strip()]
+
+    def prepare_value(self, value):
+        """
+        Converts a Python list back to a comma-separated string for display in the form.
+        """
+        if isinstance(value, list):
+            return ','.join(value)
+        return value
+
+
 class ProjectForm(DynFormMixin, forms.ModelForm):
 
     class Meta:
@@ -667,33 +685,26 @@ class ShiftRequestForm(forms.ModelForm):
                   "Use the scheduling tags above for more general requirements",
         widget=forms.Textarea(attrs={'rows': 4, })
     )
-    tags = forms.ModelMultipleChoiceField(label="Scheduling Tags", required=False, queryset=FacilityTag.objects)
-    good_dates = forms.CharField(required=False, label="Preferred Dates")
-    poor_dates = forms.CharField(required=False, label="Undesirable Dates")
+    good_dates = CommaSeparatedListField(required=False, label="Preferred Dates")
+    poor_dates = CommaSeparatedListField(required=False, label="Undesirable Dates")
 
     class Meta:
         model = models.ShiftRequest
-        fields = ['shift_request', 'justification', 'comments', 'tags',
-                  'good_dates', 'poor_dates']
+        fields = ['shift_request', 'justification', 'comments', 'good_dates', 'poor_dates']
 
     def __init__(self, *args, **kwargs):
-        self.facility = kwargs.pop('facility', None)
-        title = kwargs.pop('form_title', "Edit Request")
         super().__init__(*args, **kwargs)
-        self.fields['tags'].queryset = self.facility.tags()
         self.helper = FormHelper()
-        self.helper.title = title
         self.helper.layout = Layout(
             Div(
-                Div('shift_request', css_class="col-sm-6"),
-                Div(Field('tags', css_class="selectize"), css_class="col-sm-6"),
+                Div('shift_request', css_class="col-sm-12"),
                 Div('justification', css_class="col-sm-12"),
                 Div('comments', css_class="col-sm-12"),
                 Div(
                     PrependedText(
                         "good_dates",
                         mark_safe('<i class="bi-calendar-check-fill text-success"></i>'),
-                        css_class="dateinput",
+                        css_class="date-input", data_multi_date="true",
                         data_date_container="#div_id_good_dates"
                     ),
                     css_class="col-sm-6"
@@ -702,7 +713,8 @@ class ShiftRequestForm(forms.ModelForm):
                     PrependedText(
                         "poor_dates",
                         mark_safe('<i class="bi-calendar-minus text-danger"></i>'),
-                        css_class="dateinput",
+                        css_class="date-input",
+                        data_multi_date="true",
                         data_date_container="#div_id_poor_dates"
                     ),
                     css_class="col-sm-6"
@@ -711,16 +723,25 @@ class ShiftRequestForm(forms.ModelForm):
             ),
             Div(
                 Div(
-                    Div(
-                        StrictButton('Save', name="form_action", type='submit', value='save',       css_class='btn btn-secondary'),
-                        StrictButton('Submit', name="form_action", type='submit', value='submit',   css_class='btn btn-primary'),
-                        css_class='ms-auto my-3'
-                    ),
-                    css_class="col-12 d-flex justify-content-end"
+                    StrictButton('Save', name="form_action", type='submit', value='save', css_class='ms-auto btn btn-secondary'),
+                    StrictButton('Submit', name="form_action", type='submit', value='submit', css_class='btn btn-primary'),
+                    css_class="col-12 d-flex justify-content-end gap-2"
                 ),
                 css_class="modal-footer row"
             )
         )
+
+    # def clean_good_dates(self):
+    #     good_dates = self.cleaned_data.get('good_dates', '')
+    #     if good_dates:
+    #         return [d.strip() for d in good_dates.split(',') if d.strip()]
+    #     return []
+    #
+    # def clean_poor_dates(self):
+    #     poor_dates = self.cleaned_data.get('poor_dates', '')
+    #     if poor_dates:
+    #         return [d.strip() for d in poor_dates.split(',') if d.strip()]
+    #     return []
 
     def clean(self):
         data = super().clean()
@@ -737,7 +758,7 @@ class RequestAdminForm(forms.ModelForm):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.title = "Process Request"
+        self.helper.title = "Process Booking"
         self.helper.form_action = self.request.path
         self.helper.layout = Layout(
             Div(
@@ -762,8 +783,7 @@ class RequestAdminForm(forms.ModelForm):
 class AllocRequestForm(ShiftRequestForm):
     class Meta:
         model = models.AllocationRequest
-        fields = ['shift_request', 'justification', 'comments', 'tags',
-                  'good_dates', 'poor_dates']
+        fields = ['shift_request', 'justification', 'comments', 'good_dates', 'poor_dates']
 
 
 class DeclineForm(forms.ModelForm):
