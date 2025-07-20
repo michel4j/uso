@@ -145,7 +145,7 @@
                                 </a>
                                 {% else %}
                                     <span class="badge bg-{% state_tag renewal.state secondary=renewal.States.submitted primary=renewal.States.complete %}">
-                                        {{ booking.get_state_display }}
+                                        {{ renewal.get_state_display }}
                                     </span>
                                 {% endif %}
                             </td>
