@@ -49,7 +49,7 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
     details = models.JSONField(default=dict, null=True, blank=True, editable=False)
 
     def __str__(self):
-        return f"{self.code}~{self.leader_name()}"
+        return f"{self.code}~{self.leader_name()}".upper()
 
     def leader_name(self) -> str:
         """
@@ -164,14 +164,20 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
                     Q(config__facility=beamline) | Q(config__facility=beamline.parent)
                 ).values_list('technique', flat=True)
             )
-
+            renewal = allocation.renewals().first()
             allocations[beamline] = {
                 'allocation': allocation,
                 'totals': totals,
                 'cycle': cycle,
                 'next_cycle': next_cycle,
-                'can_renew': cycle.is_open() and self.is_active() and self.is_active(
-                    next_cycle.end_date) and not allocation.discretionary,
+                'renewal': renewal,
+                'can_renew': (
+                    cycle.is_open() and
+                    self.is_active() and
+                    (renewal is None or renewal.state in [AllocationRequest.States.draft]) and
+                    self.is_active(next_cycle.end_date) and
+                    not allocation.discretionary
+                ),
                 'can_decline': self.cycle.is_pending() and allocation.shifts,
                 'techniques': ", ".join([t.short_name() for t in techniques]),
                 'can_book': (self.is_pending() or self.is_active()) and (
@@ -695,8 +701,9 @@ class Allocation(TimeStampedModel):
         return scheduled['total']
 
     def renewals(self):
+        next_cycle = ReviewCycle.objects.next(self.cycle.start_date)
         return AllocationRequest.objects.filter(
-            project=self.project, cycle=self.cycle, beamline=self.beamline
+            project=self.project, cycle=next_cycle, beamline=self.beamline
         ).order_by('-state', '-created')
 
     def tags(self):

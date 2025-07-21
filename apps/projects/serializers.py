@@ -41,7 +41,7 @@ class BeamTimeSerializer(serializers.ModelSerializer):
         return self.get_description(obj)
 
     def get_project_type(self, obj):
-        return "reservation" if not obj.project else obj.project.kind
+        return "reservation" if not obj.project else obj.project.pool.name
 
     def get_url(self, obj):
         return "" if not obj.project else obj.project.get_absolute_url()

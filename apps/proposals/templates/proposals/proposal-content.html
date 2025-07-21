@@ -9,7 +9,9 @@
 {% spaceless %}
     <div class="row section">
         <div class="col-12 section-content">
-            <div class="text-condensed text-body-secondary"><strong>{{ reference }}</strong></div>
+            <div class="text-condensed text-body-secondary">
+                <a href="{{ reference.get_absolute_url }}">{{ reference }}</a>
+            </div>
             <h2 class="border-bottom">{{ proposal.title }}</h2>
             <strong>{{ proposal.authors }}</strong>
         </div>

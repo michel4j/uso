@@ -14,11 +14,18 @@
 
             {% if owner or admin %}
                 <div class="box-tools d-flex flex-row-reverse ms-auto">
-                    {% if not info.can_renew %}
+                    {% if info.can_renew %}
+                        {% if info.renewal %}
+                        <a href='{% url "edit-renewal-request" pk=info.renewal.pk %}'>
+                            <i class="bi-recycle icon-md icon-fw"></i>
+                            <span class="tool-label">Renewal</span>
+                        </a>
+                        {% else %}
                         <a href='{% url "create-renewal-request" pk=allocation.pk %}'>
                             <i class="bi-recycle icon-md icon-fw"></i>
                             <span class="tool-label">Renew</span>
                         </a>
+                        {% endif %}
                     {% endif %}
                     {% if info.can_decline %}
                         <a href="#0" data-modal-url='{% url "decline-alloc" pk=allocation.pk %}'>
@@ -92,8 +99,8 @@
                             <td class="text-nowrap">{{ booking.modified|timesince }} ago</td>
                             <td class="text-nowrap">{{ booking.shift_request|floatformat }}</td>
                             <td class="">
-                                <span class="text-success">{{ booking.good_dates|join:", " }}</span>
-                                <span class="text-danger">{{ booking.bad_dates|join:", " }}</span>
+                                <small class="text-success">{{ booking.good_dates|join:", " }}</small>&nbsp;
+                                <small class="text-danger">{{ booking.poor_dates|join:", " }}</small>
                             </td>
                             <td class="text-nowrap">
                                 {% if booking.state == booking.States.draft %}
@@ -135,8 +142,8 @@
                             <td class="text-nowrap">{{ renewal.created|date:"D, M j/Y H:i" }}</td>
                             <td class="text-nowrap">{{ renewal.shift_request|floatformat }}</td>
                             <td class="">
-                                <span class="text-success">{{ renewal.good_dates|join:", " }}</span>
-                                <span class="text-danger">{{ renewal.bad_dates|join:", " }}</span>
+                                <small class="text-success">{{ renewal.good_dates|join:", " }}</small>&nbsp;
+                                <small class="text-danger">{{ renewal.poor_dates|join:", " }}</small>
                             </td>
                             <td class="text-nowrap">
                                 {% if renewal.state == renewal.States.draft %}

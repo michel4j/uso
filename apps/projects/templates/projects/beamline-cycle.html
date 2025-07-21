@@ -32,7 +32,7 @@
                 <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}' class="pull-right"
                    style="position: relative;">
                     <i class="bi-inbox icon-md icon-fw"></i><br/>
-                    <span class="tool-label">Requests</span>
+                    <span class="tool-label">Bookings</span>
                     {% if requests.count %}
                         <div class="bubble progress-bar-warning">
                             <div>{{ requests.count|default:0 }}</div>

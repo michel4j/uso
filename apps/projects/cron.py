@@ -131,7 +131,7 @@ class CreateCallProjects(BaseCronJob):
 
         # allocation requests in these cycles that are submitted
         self.alloc_requests = AllocationRequest.objects.filter(
-            cycle__alloc_date__lte=today, state=AllocationRequest.STATES.submitted,
+            cycle__alloc_date__lte=today, state=AllocationRequest.States.submitted,
             project__end_date__gte=F('cycle__end_date'),
         ).distinct()
         return self.submissions.exists() or self.alloc_requests.exists()
@@ -163,10 +163,13 @@ class CreateCallProjects(BaseCronJob):
                     shift_request=alloc_request.shift_request,
                 )
                 models.AllocationRequest.objects.filter(pk=alloc_request.pk).update(
-                    state=models.AllocationRequest.STATES.complete,
+                    state=models.AllocationRequest.States.complete,
                     modified=timezone.localtime(timezone.now())
                 )
-                f"Project {alloc_request.project}: Renewed on {alloc_request.beamline} for cycle {alloc_request.cycle}."
+                log.append(
+                    f"Project {alloc_request.project}: Renewed on {alloc_request.beamline} "
+                    f"for cycle {alloc_request.cycle}."
+                )
 
         return "\n".join(log)
 

@@ -312,7 +312,8 @@ function setupEditor(sel, options) {
         const $eventSrc = $('.event-src');
 
         // clear any existing date preferences
-        $('.fc-day-number.prefs-available, .fc-day-number.prefs-unavailable').removeClass('prefs-available prefs-unavailable');
+        $('.prefs-available').removeClass('prefs-available');
+        $('.prefs-unavailable').removeClass('prefs-unavailable');
 
         if (!($(this).is('.active-src'))) {
             // The active was changed

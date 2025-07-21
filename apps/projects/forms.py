@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from dynforms.forms import DynFormMixin, DynForm
 
-from beamlines.models import FacilityTag, Lab, LabWorkSpace
+from beamlines.models import Lab, LabWorkSpace
 from misc.utils import Joiner
 from proposals.models import ReviewCycle
 from . import models
@@ -731,51 +731,25 @@ class ShiftRequestForm(forms.ModelForm):
             )
         )
 
-    # def clean_good_dates(self):
-    #     good_dates = self.cleaned_data.get('good_dates', '')
-    #     if good_dates:
-    #         return [d.strip() for d in good_dates.split(',') if d.strip()]
-    #     return []
-    #
-    # def clean_poor_dates(self):
-    #     poor_dates = self.cleaned_data.get('poor_dates', '')
-    #     if poor_dates:
-    #         return [d.strip() for d in poor_dates.split(',') if d.strip()]
-    #     return []
-
     def clean(self):
         data = super().clean()
         data['form_action'] = self.data.get('form_action')
         return data
 
 
-class RequestAdminForm(forms.ModelForm):
+class RequestAdminForm(ModalModelForm):
     class Meta:
         model = models.ShiftRequest
         fields = ['state']
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.title = "Process Booking"
-        self.helper.form_action = self.request.path
-        self.helper.layout = Layout(
+        self.body.title = "Manage Booking Request"
+        self.body.append(
+            HTML("<div class='callout callout-info'>{% include 'projects/forms/request-admin.html' %}</div>"),
             Div(
-                Div(Field('state', css_class="selectize"), css_class="col-sm-12"),
-                css_class="row narrow"
-            ),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal',
-                                 css_class="btn btn-secondary pull-left"),
-                    StrictButton(
-                        'Save', type='submit', value='decline',
-                        css_class='btn btn-primary pull-right'
-                    ),
-                    css_class="col-sm-12"
-                ),
-                css_class="modal-footer row"
+                Div('state', css_class="col-sm-12"),
+                css_class="row"
             )
         )
 

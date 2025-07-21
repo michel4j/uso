@@ -270,16 +270,16 @@ $border-color_2: #ccc;
 
 .prefs-available {
   .cal-day-number {
-    background-color: $background-color_2 !important;
-    color: $color_2;
+    background-color: var(--bs-success) !important;
+    color: var(--bs-white) !important;
     border-radius: 50%;
   }
 }
 
 .prefs-unavailable {
   .cal-day-number {
-    background-color: $background-color_3 !important;
-    color: $color_2;
+    background-color: var(--bs-danger) !important;
+    color: var(--bs-white) !important;
     border-radius: 50%;
   }
 }

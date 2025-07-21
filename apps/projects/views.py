@@ -216,9 +216,9 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
     def get_list_title(self):
         if self.kwargs.get('cycle'):
             cycle = models.ReviewCycle.objects.get(pk=self.kwargs['cycle'])
-            return '{} Projects: {}'.format(self.facility.acronym, cycle)
+            return f'{self.facility.acronym} Projects: {cycle}'
         else:
-            return '{} Projects'.format(self.facility.acronym)
+            return f'{self.facility.acronym} Projects'
 
     def check_allowed(self):
         self.facility = Facility.objects.get(acronym=self.kwargs['slug'])
@@ -312,7 +312,7 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
     model = models.ShiftRequest
     template_name = "item-list.html"
     paginate_by = 15
-    list_columns = ['project', 'spokesperson', 'facility', 'shift_request', 'created', 'state']
+    list_columns = ['project', 'facility', 'shift_request', 'created', 'state']
     list_filters = ['created', 'modified', 'state']
     list_search = ['allocation__project__title', 'allocation__project__spokesperson__username', 'project__id',
                    'allocation__project__spokesperson__last_name',
@@ -336,7 +336,7 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
     def get_queryset(self, *args, **kwargs):
         self.queryset = models.ShiftRequest.objects.filter(
             allocation__beamline=self.kwargs['pk'], allocation__cycle=self.kwargs['cycle']
-        )
+        ).exclude(state=self.model.States.draft)
         return super().get_queryset(*args, **kwargs)
 
 
@@ -551,13 +551,13 @@ class SessionSignOn(RolePermsViewMixin, ModalUpdateView):
                 'samples': new_samples - old_samples, 'team': new_team - old_team
             }
         }
-        activities = ['Sign-On updated by {} on {}'.format(self.request.user, now.strftime('%c'))]
+        activities = [f'Sign-On updated by {self.request.user} on {now.isoformat()}']
         for action, subjects in list(changes.items()):
             for object_type, objects in list(subjects.items()):
                 if objects:
                     activities.append(
                         '{} {}: {};'.format(
-                            action, object_type, ", ".join(["'{}'".format(x) for x in objects])
+                            action, object_type, ", ".join([f"'{x}'" for x in objects])
                         )
                     )
         session.log("; ".join(activities))
@@ -587,14 +587,14 @@ class SessionSignOn(RolePermsViewMixin, ModalUpdateView):
                 }
             )
             old_session.log(
-                'Auto Sign-Off on {}, New user on beamline.'.format(now.strftime('%c'))
+                f'Auto Sign-Off on {now.isoformat()}, New user on beamline.'
             )
             old_session.state = session.STATES.complete
             old_session.save()
 
         # cancel outstanding sessions on this beamline
         for old_session in session.beamline.sessions.filter(state=session.STATES.ready, start__lt=now):
-            old_session.log(f'Cancelled on {now.strftime("%c")}, Users did not sign-on as expected')
+            old_session.log(f'Cancelled on {now.isoformat()}, Users did not sign-on as expected')
             old_session.state = session.STATES.cancelled
             old_session.save()
 
@@ -632,7 +632,7 @@ class SessionSignOff(RolePermsViewMixin, ModalConfirmView):
     def confirmed(self, *args, **kwargs):
         log = self.session.details.get('history', [])
         now = timezone.localtime(timezone.now())
-        log.append(f'SignOff by {self.request.user} on {now.strftime("%c")}')
+        log.append(f'SignOff by {self.request.user} on {now.isoformat()}')
         self.session.details.update(history=log)
         models.Session.objects.filter(pk=self.session.pk).update(
             state=self.session.STATES.complete, details=self.session.details
@@ -775,7 +775,7 @@ class LabSignOff(RolePermsViewMixin, ModalConfirmView):
     def confirmed(self, *args, **kwargs):
         log = self.object.details.get('history', [])
         now = timezone.localtime(timezone.now())
-        log.append('SignOff by {} on {}'.format(self.request.user, now.strftime('%c')))
+        log.append(f'SignOff by {self.request.user} on {now.isoformat()}')
         self.object.details.update(history=log)
         models.LabSession.objects.filter(pk=self.object.pk).update(details=self.object.details, end=now)
         messages.success(self.request, 'Lab Sign-Off successful')
@@ -1462,7 +1462,7 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['cycle'] = self.allocation.cycle
+        context['cycle'] = ReviewCycle.objects.next(self.allocation.cycle.start_date)
         context['project'] = self.allocation.project
         context['facility'] = self.allocation.beamline
         context['form_title'] = "Request Renewal"
@@ -1489,7 +1489,7 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
         form_action = data.pop('form_action')
 
         data['project'] = self.allocation.project
-        data['cycle'] = self.allocation.cycle
+        data['cycle'] = ReviewCycle.objects.next(self.allocation.cycle.start_date)
         data['beamline'] = self.allocation.beamline
 
         if form_action == 'submit':
@@ -1659,7 +1659,6 @@ class EditRenewalRequest(RolePermsViewMixin, edit.UpdateView):
 class AdminShiftRequest(RolePermsViewMixin, ModalUpdateView):
     model = models.ShiftRequest
     form_class = forms.RequestAdminForm
-    template_name = "projects/forms/request-admin.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
@@ -1671,11 +1670,7 @@ class AdminShiftRequest(RolePermsViewMixin, ModalUpdateView):
 
     def form_valid(self, form):
         super().form_valid(form)
-        return JsonResponse(
-            {
-                "url": self.get_success_url()
-            }
-        )
+        return JsonResponse({"url": self.get_success_url()})
 
 
 class RequestPreferencesAPI(RolePermsViewMixin, View):
@@ -1684,21 +1679,28 @@ class RequestPreferencesAPI(RolePermsViewMixin, View):
     def get(self, *args, **kwargs):
         facility = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
         project = models.Project.objects.get(pk=self.kwargs['pk'])
-        alloc = models.Allocation.objects.filter(beamline=facility, project=project).last()
+
+        # get dates from the proposal
+        proposal_dates = project.proposal.details.get('date_preferences', '')
+        proposal_dates = proposal_dates.split(',') if proposal_dates else []
+
         start = parser.parse(self.request.GET['start'])
         end = parser.parse(self.request.GET['end'])
 
-        good_dates = []
+        good_dates = [parser.parse(v) for v in proposal_dates if v]
         poor_dates = []
 
         for req in itertools.chain(
                 project.renewals.all(), models.ShiftRequest.objects.filter(allocation__project=project).all()
         ):
-            good_dates.extend([parser.parse(v) for v in [_f for _f in req.good_dates.split(',') if _f]])
-            poor_dates.extend([parser.parse(v) for v in [_f for _f in req.poor_dates.split(',') if _f]])
+            good_dates.extend([parser.parse(v) for v in req.good_dates if req.good_dates])
+            poor_dates.extend([parser.parse(v) for v in req.poor_dates if req.poor_dates])
 
-        good_dates = [x for x in good_dates if start <= x <= end]
-        poor_dates = [x for x in poor_dates if start <= x <= end]
+        good_dates = {x for x in good_dates if start <= x <= end}
+        poor_dates = {x for x in poor_dates if start <= x <= end}
+
+        # removes duplicates
+        good_dates -= poor_dates
 
         events = [{
             'start': d.isoformat(), 'end': (d + timedelta(days=1)).isoformat(), 'name': 'Preferred Dates',
