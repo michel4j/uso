@@ -626,7 +626,7 @@ class AllocationForm(ModalModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.last_cycle.queryset = ReviewCycle.objects.filter(pk__gte=self.initial['cycle'])
+        self.fields['last_cycle'].queryset = ReviewCycle.objects.filter(pk__gte=self.initial['cycle'])
 
         self.body.title = 'Allocate Beamtime'
         self.body.append(

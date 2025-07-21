@@ -1,9 +1,7 @@
 import functools
 import operator
-import uuid
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from datetime import timedelta
-from typing import Any
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -167,18 +165,13 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
             renewal = allocation.renewals().first()
             allocations[beamline] = {
                 'allocation': allocation,
+                'project': self,
                 'totals': totals,
                 'cycle': cycle,
                 'next_cycle': next_cycle,
                 'renewal': renewal,
-                'can_renew': (
-                    cycle.is_open() and
-                    self.is_active() and
-                    (renewal is None or renewal.state in [AllocationRequest.States.draft]) and
-                    self.is_active(next_cycle.end_date) and
-                    not allocation.discretionary
-                ),
-                'can_decline': self.cycle.is_pending() and allocation.shifts,
+                'can_renew': allocation.can_renew(),
+                'can_decline': (not beamline.flex_schedule) and allocation.shifts > 0,
                 'techniques': ", ".join([t.short_name() for t in techniques]),
                 'can_book': (self.is_pending() or self.is_active()) and (
                         beamline.flex_schedule or allocation.discretionary),
@@ -687,6 +680,17 @@ class Allocation(TimeStampedModel):
 
     def is_new(self):
         return self.cycle == self.project.cycle
+
+    def can_renew(self):
+        next_cycle = ReviewCycle.objects.next(self.cycle.start_date)
+        renewal = self.renewals().first()
+        return (
+            next_cycle.is_open() and
+            self.project.is_active(next_cycle.end_date) and
+            not self.beamline.flex_schedule and
+            not self.discretionary and
+            (renewal is None or renewal.state in [AllocationRequest.States.draft])
+        )
 
     def is_active(self):
         active = self.cycle.STATES.evaluation <= self.cycle.state <= self.cycle.STATES.active

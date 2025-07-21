@@ -8,7 +8,10 @@
             </div>
         </div>
         {% endblock %}
+        {% block panel_body %}
         <div class="card-body">{% block panel_content %}{% endblock %}{% block bottom_tools %}{% endblock %}</div>
+        {% endblock %}
+        {% block panel_footer %}{% endblock %}
     </div>
 </div>
 {% if reload_freq > 0 and src_url %}

@@ -214,7 +214,7 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
         return context
 
     def get_success_url(self):
-        if self.form_action == 'save_continue':
+        if self.form_action == 'save':
             success_url = reverse("edit-proposal", kwargs={'slug': self.object.code})
         else:
             success_url = reverse("proposal-detail", kwargs={'slug': self.object.code})

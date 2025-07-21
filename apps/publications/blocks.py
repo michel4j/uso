@@ -25,18 +25,19 @@ class PublicationsBlock(BaseBlock):
         ctx = super().get_context_data()
         user = self.request.user
 
-        publications = user.publications.all()
-        stats_data = user.publications.values('kind').annotate(count=Count('pk'))
-        matches = views.get_author_matches(user)
-        stats_info = {entry['kind'].title(): entry['count'] for entry in stats_data}
-        stats_info['New Matches'] = matches
-
-        ctx.update({
-            "words": stats.get_keywords(publications, transform=math.sqrt),
-            "matches": matches,
-            "stats": stats_info,
-        })
-        if not publications and not matches:
+        publications = user.publications
+        if not publications.exists():
             self.visible = False
+        else:
+            stats_data = user.publications.values('kind').annotate(count=Count('pk'))
+            matches = views.get_author_matches(user)
+            stats_info = {entry['kind'].title(): entry['count'] for entry in stats_data}
+            stats_info['New Matches'] = matches
+
+            ctx.update({
+                "words": stats.get_keywords(publications, transform=math.sqrt),
+                "matches": matches,
+                "stats": stats_info,
+            })
 
         return ctx

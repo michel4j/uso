@@ -14,5 +14,6 @@ class ActivityBlock(BaseBlock):
         logs = models.ActivityLog.objects.filter(user=self.request.user)
         if logs.exists():
             ctx["logs"] = logs.order_by('-created')[:5]
-            return ctx
-        return {}
+        else:
+            self.visible = False
+        return ctx

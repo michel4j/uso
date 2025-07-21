@@ -5,7 +5,7 @@ Frequently Asked Questions (FAQ)
 A list of common questions from users, administrators, and developers.
 
 How do I ...
------------
+------------
 
 - **Register as a new user?**
    The registration page can be accessed through a link at the bottom of the login form. Complete all

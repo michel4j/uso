@@ -27,7 +27,7 @@
                         </a>
                         {% endif %}
                     {% endif %}
-                    {% if not info.can_decline %}
+                    {% if info.can_decline %}
                         <a href="#0" data-modal-url='{% url "decline-alloc" pk=allocation.pk %}'>
                             <i class="bi-x-lg icon-md icon-fw"></i>
                             <span class="tool-label">Decline</span>
@@ -85,17 +85,15 @@
                 <table class="table">
                     <thead>
                     <tr>
-                        <th class="text-nowrap">Created</th>
                         <th class="text-nowrap">Modified</th>
                         <th class="text-nowrap">Shifts</th>
-                        <th class="text-nowrap">Date Preferences</th>
+                        <th class="text-nowrap">Preferences</th>
                         <th class="text-nowrap">State</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for booking in allocation.bookings.incomplete %}
                         <tr>
-                            <td class="text-nowrap">{{ booking.created|date:"D, M j/Y H:i" }}</td>
                             <td class="text-nowrap">{{ booking.modified|timesince }} ago</td>
                             <td class="text-nowrap">{{ booking.shift_request|floatformat }}</td>
                             <td class="">

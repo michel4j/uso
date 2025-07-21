@@ -8,9 +8,9 @@
         <i class="bi-plus-lg icon-md icon-fw"></i>
     </a>
 {% endblock %}
-{% block panel_content %}
+{% block panel_body %}
     {% if open_cycles.exists %}
-        <div class="alert alert-warning">
+        <div class="card-body bg-info-subtle">
             {% for open_cycle in open_cycles.all %}
                 <p>
                     The call for proposals be scheduled during the period {{ open_cycle.start_date|date }}
@@ -27,7 +27,7 @@
             {% endfor %}
         </div>
     {% elif next_call %}
-        <div class="alert alert-info">
+        <div class="card-body bg-info-subtle">
             The next call for proposals for beamtime to be schedule during the period
             {{ next_call.start_date|date }} &ndash; {{ next_call.end_date|date }} will open on
             {{ next_call.open_date|date }} with a submission deadline of
@@ -40,56 +40,62 @@
                 </div>
             </div>
         </div>
-        {% else %}
-        <div class="alert alert-light text-center">
+    {% else %}
+        <div class="card-body text-center">
             There are currently no open calls for proposals.
         </div>
     {% endif %}
 
     {% if drafts.count %}
-        <div class="row">
-            <div class="col-12">
-                <h5 class="mt-3">
-                    Draft Proposal{{ drafts.count|pluralize:",s" }}
-                    <span class="badge rounded-circle bg-primary pull-right">{{ drafts.count }}</span>
-                </h5>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mt-3">
+                        Draft Proposal{{ drafts.count|pluralize:",s" }}
+                        <span class="badge rounded-circle bg-primary pull-right">{{ drafts.count }}</span>
+                    </h5>
+                </div>
             </div>
-        </div>
-        <div class="row" >
-            <div class="scroll-box col-12" style="max-height: 200px">
-                <ul class="list-unstyled list-ruled">
-                    {% for proposal in drafts %}
-                        <li class="text-condensed py-1">
-                            <a class="overflow ellipsis" href='{% url "edit-proposal" slug=proposal.code %}'
-                               data-bs-toggle="tooltip" title="Edit proposal">
-                                <i class="bi-pencil-square"></i>&emsp;{{ proposal.title }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
+            <div class="row">
+                <div class="scroll-box col-12" style="max-height: 200px">
+                    <ul class="list-unstyled list-ruled">
+                        {% for proposal in drafts %}
+                            <li class="text-condensed py-1">
+                                <a class="overflow ellipsis" href='{% url "edit-proposal" slug=proposal.code %}'
+                                   data-bs-toggle="tooltip" title="Edit proposal">
+                                    <i class="bi-pencil-square"></i>&emsp;{{ proposal.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
     {% endif %}
     {% if submitted.count %}
-        <div class="row">
-            <div class="col-12">
-                <h5 class="mt-3">Proposal{{ submitted.count|pluralize:",s" }} Being Reviewed
-                    <span class="badge rounded-circle bg-primary pull-right">{{ submitted.count }}</span>
-                </h5>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mt-3">Proposal{{ submitted.count|pluralize:",s" }} Being Reviewed
+                        <span class="badge rounded-circle bg-primary pull-right">{{ submitted.count }}</span>
+                    </h5>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="scroll-box col-12"  style="max-height: 200px;">
-            <ul class="list-unstyled list-ruled">
-                {% for proposal in submitted %}
-                    <li class="text-condensed py-1">
-                        <a class="overflow ellipsis" href='{% url "proposal-detail" slug=proposal.code %}'
-                           data-bs-toggle="tooltip" title="View proposal">{% if proposal.clarifications.pending.count %}
-                            <i class="bi-chat-right-text text-danger"></i>{% else %}<i class="bi-eye"></i>{% endif %}&emsp;{{ proposal.title }}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
+            <div class="row">
+                <div class="scroll-box col-12" style="max-height: 200px;">
+                    <ul class="list-unstyled list-ruled">
+                        {% for proposal in submitted %}
+                            <li class="text-condensed py-1">
+                                <a class="overflow ellipsis" href='{% url "proposal-detail" slug=proposal.code %}'
+                                   data-bs-toggle="tooltip" title="View proposal">
+                                    {% if proposal.clarifications.pending.count %}
+                                        <i class="bi-chat-right-text text-danger"></i>{% else %}
+                                        <i class="bi-eye"></i>{% endif %}&emsp;{{ proposal.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
     {% endif %}

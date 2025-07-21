@@ -22,4 +22,9 @@ class ProjectsBlock(BaseBlock):
             self.visible = False
 
         ctx["projects"] = projects
+        allocations = []
+        for project in projects:
+            allocations.extend(list(project.beamline_allocations().items()))
+        ctx['beamlines'] = [(bl, alloc) for bl, alloc in allocations if alloc['can_renew']]
+
         return ctx

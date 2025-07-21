@@ -67,6 +67,7 @@ class ReviewsBlock(BaseBlock):
         user = self.request.user
 
         from proposals import models
+        from projects.models import Project
 
         next_cycle = models.ReviewCycle.objects.next()
 
@@ -108,6 +109,7 @@ class ReviewsBlock(BaseBlock):
                 "next_call": next_call,
                 "can_review": can_review,
             })
+
         return ctx
 
 
