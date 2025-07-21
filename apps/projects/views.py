@@ -25,7 +25,7 @@ from beamlines.models import Facility
 from misc.filters import FutureDateListFilterFactory
 from misc.functions import Shifts
 from misc.models import ActivityLog
-from misc.utils import debug_value, get_code_generator
+from misc.utils import debug_value
 from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from proposals.filters import CycleFilterFactory
@@ -41,7 +41,6 @@ from users.models import User
 from . import forms
 from . import models
 from . import serializers
-
 
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 USO_HSE_ROLES = getattr(settings, 'USO_HSE_ROLES', ["staff:hse", "employee:hse"])
@@ -575,11 +574,8 @@ class SessionSignOn(RolePermsViewMixin, ModalUpdateView):
 
         # sign-off previous users on beamline if any
         for old_session in session.beamline.sessions.filter(state=session.STATES.live).exclude(pk=session.pk):
-            bl_role = "beamline-admin:{}".format(old_session.beamline.acronym.lower())
-            recipients = [bl_role]
-            for u in {old_session.staff, old_session.spokesperson}:
-                if not u.has_role(bl_role):
-                    recipients.append(u)
+            bl_admins = old_session.admin_list()
+            recipients = {*bl_admins} | {old_session.staff, old_session.spokesperson}
             reason = "Another user has taken control of the beamline"
             notify.send(
                 recipients, 'auto-sign-off', level=notify.LEVELS.important, context={
@@ -598,11 +594,7 @@ class SessionSignOn(RolePermsViewMixin, ModalUpdateView):
             old_session.state = session.STATES.cancelled
             old_session.save()
 
-        return JsonResponse(
-            {
-                'url': self.get_success_url()
-            }
-        )
+        return JsonResponse({'url': self.get_success_url()})
 
 
 class SessionSignOff(RolePermsViewMixin, ModalConfirmView):
@@ -638,11 +630,7 @@ class SessionSignOff(RolePermsViewMixin, ModalConfirmView):
             state=self.session.STATES.complete, details=self.session.details
         )
         messages.success(self.request, 'Beamline Sign-Off successful')
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": ""})
 
 
 class TerminateSession(RolePermsViewMixin, ModalCreateView):
@@ -683,20 +671,14 @@ class TerminateSession(RolePermsViewMixin, ModalCreateView):
         messages.success(self.request, 'Session terminated!')
 
         # Notify relevant parties
-        bl_role = "beamline-admin:{}".format(session.beamline.acronym.lower())
-        recipients = [bl_role]
-        for u in [_f for _f in {session.staff, session.spokesperson} if _f]:
-            if not u.has_role(bl_role):
-                recipients.append(u)
+        recipients = {*session.beamline.admin_list(), session.spokesperson, session.staff}
         notify.send(
             recipients, 'session-terminated', level=notify.LEVELS.important, context={
                 'session': session, 'reason': data['reason'], 'terminator': self.request.user,
             }
         )
 
-        return JsonResponse({
-            "url": "",
-        })
+        return JsonResponse({"url": ""})
 
 
 class LabSignOn(RolePermsViewMixin, ModalCreateView):
@@ -748,7 +730,7 @@ class LabSignOn(RolePermsViewMixin, ModalCreateView):
             session.workspaces.add(*workspaces)
             session.equipment.add(*equipment)
             messages.success(self.request, 'Lab Sign-On successful')
-        return JsonResponse({"url": "",})
+        return JsonResponse({"url": "", })
 
 
 class LabSignOff(RolePermsViewMixin, ModalConfirmView):
@@ -779,7 +761,7 @@ class LabSignOff(RolePermsViewMixin, ModalConfirmView):
         self.object.details.update(history=log)
         models.LabSession.objects.filter(pk=self.object.pk).update(details=self.object.details, end=now)
         messages.success(self.request, 'Lab Sign-Off successful')
-        return JsonResponse({"url": "",})
+        return JsonResponse({"url": "", })
 
 
 class CancelLabSession(RolePermsViewMixin, ModalDeleteView):
@@ -1120,7 +1102,7 @@ class EditAllocation(RolePermsViewMixin, ModalUpdateView):
             models.Allocation.objects.filter(
                 project=alloc.project, beamline=alloc.beamline, cycle__end_date__gt=data['last_cycle'].end_date
             ).delete()
-        return JsonResponse({"url": "",})
+        return JsonResponse({"url": "", })
 
 
 class EditReservation(RolePermsViewMixin, ModalCreateView):
@@ -1250,10 +1232,10 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
         context['show_year'] = False
         context['tag_types'] = facility.tags()
         context['event_sources'] = [
-           reverse('facility-modes-api'),
-           reverse('support-schedule-api', kwargs={'fac': facility.acronym})] + [
-           reverse('beamtime-schedule-api', kwargs={'fac': fac}) for fac in fac_children
-        ]
+                                       reverse('facility-modes-api'),
+                                       reverse('support-schedule-api', kwargs={'fac': facility.acronym})] + [
+                                       reverse('beamtime-schedule-api', kwargs={'fac': fac}) for fac in fac_children
+                                   ]
         return context
 
 
@@ -1662,6 +1644,7 @@ class AdminShiftRequest(RolePermsViewMixin, ModalUpdateView):
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
+        self.object = self.get_object()
         return super().check_allowed() or self.object.allocation.beamline.is_admin(self.request.user)
 
     def get_success_url(self):
@@ -1790,11 +1773,6 @@ class DeclineAllocation(RolePermsViewMixin, ModalUpdateView):
     def check_owner(self, obj):
         return obj.project.is_owned_by(self.request.user)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['allocation'] = self.object
@@ -1802,16 +1780,16 @@ class DeclineAllocation(RolePermsViewMixin, ModalUpdateView):
 
     def form_valid(self, form):
         allocation = self.get_object()
-        comments = "Allocation of {} shifts declined by {} on {}, reason: {}".format(
-            allocation.shifts, self.request.user, timezone.localtime(timezone.now()), form.cleaned_data['comments']
+        comments = (
+            f"Allocation of {allocation.shifts} shifts declined by {self.request.user} on "
+            f"{timezone.localtime(timezone.now())}, reason: {form.cleaned_data['comments']}"
         )
-
         data = {
             'allocation': allocation, 'shifts': allocation.shifts, 'comments': form.cleaned_data['comments'],
         }
 
         notify.send(
-            ["beamline-admin:{}".format(allocation.beamline.acronym.lower())], 'allocation-declined',
+            allocation.beamline.admin_list(), 'allocation-declined',
             level=notify.LEVELS.important, context=data
         )
         models.Allocation.objects.filter(pk=allocation.pk).update(
@@ -1819,11 +1797,7 @@ class DeclineAllocation(RolePermsViewMixin, ModalUpdateView):
         )
 
         messages.warning(self.request, 'Your request to decline the allocation was processed')
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": ""})
 
 
 class Statistics(RolePermsViewMixin, TemplateView):
@@ -1840,11 +1814,14 @@ class InvoicingList(RolePermsViewMixin, ItemListView):
     model = models.Project
     paginate_by = 50
     template_name = "item-list.html"
-    list_columns = ['code', 'pool', 'get_leader', 'invoice_email', 'pretty_invoice_address', 'shifts_allocated',
-                    'shifts_used']
-    csv_fields = ['code', 'pool', 'get_leader', 'invoice_email', 'invoice_place', 'invoice_street', 'invoice_city',
-                  'invoice_region',
-                  'invoice_country', 'invoice_code', 'shifts_allocated', 'shifts_used']
+    list_columns = [
+        'code', 'pool', 'get_leader', 'invoice_email', 'pretty_invoice_address', 'shifts_allocated',
+        'shifts_used'
+    ]
+    csv_fields = [
+        'code', 'pool', 'get_leader', 'invoice_email', 'invoice_place', 'invoice_street', 'invoice_city',
+        'invoice_region', 'invoice_country', 'invoice_code', 'shifts_allocated', 'shifts_used'
+    ]
     list_filters = ['start_date', 'end_date', 'pool', BeamlineFilterFactory.new("beamlines")]
     list_search = ['proposal__title', 'proposal__team', 'id']
     list_styles = {'title': 'col-sm-3', 'state': 'text-center', 'beamlines': 'col-sm-2'}

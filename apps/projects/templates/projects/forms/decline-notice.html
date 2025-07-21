@@ -1,0 +1,16 @@
+<div class='callout callout-danger'>
+    <h4>Are you sure?</h4>
+    <p>By declining this allocation, you are declaring you do not intend to use any of
+        your remaining allocated shifts for project <strong>{{ allocation.project.code }}</strong> on
+        beamline <strong>{{ allocation.beamline }}</strong> during the {{ allocation.cycle }} cycle.
+    </p>
+    <strong>NOTE:</strong>
+    <ol class="small">
+        <li>All outstanding scheduled beamtime on <strong>{{ allocation.beamline }}</strong> will be cancelled.</li>
+        <li>Declined shifts will be reallocated, and it may not be possible to reclaim them. </li>
+        <li>You will be able to renew the project by requesting another allocation on this beamline during the next
+            cycle. However, you will not be entitled to any privileges for not having used beamtime during
+            the {{ allocation.cycle }} cycle.
+        </li>
+    </ol>
+</div>

@@ -17,10 +17,11 @@ class MyFacilities(BaseBlock):
     template_name = "beamlines/blocks/facilities.html"
     priority = 10
 
-    def render(self, context):
+    def get_context_data(self):
+        ctx = super().get_context_data()
         from . import models
-        ctx = copy.copy(context)
-        user = context['request'].user
+        user = self.request.user
+
         # generate filters for staff and admin roles
         staff_pattern = re.compile(re.sub(r'[+-]$', '(?P<acronym>.+)$', USO_FACILITY_STAFF_ROLE))
         admin_pattern = re.compile(re.sub(r'[+-]$', '(?P<acronym>.+)$', USO_FACILITY_ADMIN_ROLE))
@@ -35,14 +36,11 @@ class MyFacilities(BaseBlock):
             filters = reduce(operator.__or__, [
                 models.Q(acronym__iexact=acronym) for acronym in staff_acronyms
             ], models.Q(pk__isnull=True))
+            facilities = models.Facility.objects.filter(filters)
+            ctx["facilities"] = facilities
+            self.visible = facilities.exists()
         else:
-            return None
+            self.visible = False
 
-        facilities = models.Facility.objects.filter(filters)
-        if facilities.exists():
-            ctx.update({
-                "facilities": facilities,
-            })
-            return super().render(ctx)
-        return ""
+        return ctx
 

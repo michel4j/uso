@@ -25,11 +25,10 @@ def version():
     return getattr(settings, 'VERSION', '')
 
 
-@register.simple_tag(takes_context=True)
-def show_block(context, block):
-    request = context['request']
-    if block.check_allowed(request):
-        content = block.render(context)
+@register.simple_tag()
+def show_block(block):
+    if block.check_allowed():
+        content = block.render()
         return mark_safe(content) if content else ""
     else:
         return ""

@@ -60,5 +60,5 @@ access to.  Roles currently assigned to you will be displayed within the "My Pro
 
 The "User" role is the most basic role and is assigned to all users. It allows you to view your profile, manage your
 account, and access the dashboard, submit proposals and manager your information such as samples, attachments, etc.
-Other roles, such as "Reviewer", "Beamline Staff", or "Administrator", grant additional privileges and access to
-specific features of the system.
+Other roles, such as "Reviewer", "Beamline Staff", or "Administrator", grant additional access to
+other features of the system.

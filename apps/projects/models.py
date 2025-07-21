@@ -520,10 +520,10 @@ class Session(TimeStampedModel, TimeFramedModel):
 
         # Local access needs 'FACILITY-ACCESS' permissions and different USER type from Remote
         if self.kind == self.TYPES.remote:
-            user_perms |= {'{}-REMOTE-USER'.format(self.beamline.acronym)}
+            user_perms |= {f'{self.beamline.acronym}-REMOTE-USER'}
         else:
             req_perms |= {'FACILITY-ACCESS'}
-            user_perms |= {'{}-USER'.format(self.beamline.acronym)}
+            user_perms |= {f'{self.beamline.acronym}-USER'}
 
         for s in self.samples.all():
             req_perms |= {k for k, v in list(s.sample.permissions().items()) if v == 'all'}
@@ -750,7 +750,7 @@ class ShiftRequest(TimeStampedModel):
     objects = ShiftRequestQueryset.as_manager()
 
     def __str__(self):
-        return "Booking {}, {}".format(self.pk, self.allocation)
+        return f"Booking {self.pk}, {self.allocation}"
 
     def project(self):
         return self.allocation.project

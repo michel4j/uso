@@ -1,5 +1,5 @@
-<div id="{{block.code}}" class="{{ block.width_classes }} py-2">
-    <div class="card {{ block.style_classes}}">
+<div id="{{block.code}}" class="block {{ width_classes }} py-2">
+    <div class="card {{ style_classes}}">
         {% block panel_cap %}
         <div class="card-header d-flex flex-row align-items-center justify-content-between">
             <h5 class="card-title m-0">{% block panel_title%}{% endblock %}</h5>
@@ -8,18 +8,15 @@
             </div>
         </div>
         {% endblock %}
-        <div class="card-body">
-        {% block panel_content %}{% endblock %}
-        {% block bottom_tools %}{% endblock %}
-        </div>
+        <div class="card-body">{% block panel_content %}{% endblock %}{% block bottom_tools %}{% endblock %}</div>
     </div>
 </div>
-{% if block.reload_freq > 0 and block.src_url %}
+{% if reload_freq > 0 and src_url %}
 <script>
 	setInterval( function(){
         $.ajax({
             type: 'GET',
-            url: "{{ block.src_url }}",
+            url: "{{ src_url }}",
             dataType: 'text',
             success: function(data) {
                 const $object = $('<div/>').html(data).contents();

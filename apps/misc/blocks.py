@@ -8,13 +8,11 @@ class ActivityBlock(BaseBlock):
     style_classes = "bg-warning-subtle"
     priority = 99
 
-    def render(self, context):
-        ctx = copy.copy(context)
+    def get_context_data(self):
+        ctx = super().get_context_data()
         from misc import models
-        logs = models.ActivityLog.objects.filter(user=context['request'].user)
+        logs = models.ActivityLog.objects.filter(user=self.request.user)
         if logs.exists():
-            ctx.update({
-                "logs": logs.order_by('-created')[:5],
-            })
-            return super().render(ctx)
-        return ""
+            ctx["logs"] = logs.order_by('-created')[:5]
+            return ctx
+        return {}

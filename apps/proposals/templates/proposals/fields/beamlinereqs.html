@@ -171,9 +171,9 @@
 
                 // beamline information
                 if (facility) {
-                    const infoUrl = "{% url 'beamline-info' %}";
+                    const infoUrl = `{% url 'beamline-info-root' %}${ facility }/`;
                     const $facilityInfo = $(this).closest('.controls').find('div.beamline-info');
-                    $facilityInfo.load(infoUrl + facility);
+                    $facilityInfo.load(infoUrl);
                 } else {
                     $(this).closest('.controls').find('div.beamline-info').empty();
                 }

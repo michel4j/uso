@@ -21,12 +21,9 @@ class PublicationsBlock(BaseBlock):
     template_name = "publications/blocks/publications.html"
     priority = 4
 
-    def check_allowed(self, request):
-        return request.user.is_authenticated
-
-    def render(self, context):
-        ctx = copy.copy(context)
-        user = context['request'].user
+    def get_context_data(self):
+        ctx = super().get_context_data()
+        user = self.request.user
 
         publications = user.publications.all()
         stats_data = user.publications.values('kind').annotate(count=Count('pk'))
@@ -40,6 +37,6 @@ class PublicationsBlock(BaseBlock):
             "stats": stats_info,
         })
         if not publications and not matches:
-            return ""
+            self.visible = False
 
-        return super().render(ctx)
+        return ctx

@@ -3,8 +3,7 @@ from django.urls import path
 from beamlines import views
 
 urlpatterns = [
-
-    path('beamlines/info/', views.FacilityDetails.as_view(), name='beamline-info'),
+    path('beamlines/info/', views.FacilityDetails.as_view(), name='beamline-info-root'),   # Root URL for beamline info
     path('beamlines/info/<int:pk>/', views.FacilityDetails.as_view(), name='beamline-info'),
 
     path('schedule/support/<slug:fac>/<int:pk>/', views.UserSupportAPI.as_view(), name='schedule-support-api'),

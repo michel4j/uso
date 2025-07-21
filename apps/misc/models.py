@@ -320,7 +320,8 @@ class CodeModelMixin(models.Model):
         if new_code_needed:
             key = self.__class__.__name__.upper()
             code_func = get_code_generator(key)
-            self.__class__.objects.filter(pk=self.pk).update(code=code_func(self))
+            self.code = code_func(self)
+            self.save(update_fields=['code'])
 
     def __str__(self):
         return f"{self.code}"

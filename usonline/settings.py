@@ -209,6 +209,9 @@ USO_STUDENT_ROLES = ["student"]
 USO_USER_ROLES = ["user"]
 USO_FACILITY_ADMIN_ROLE = 'admin:-'     # role templates '-' means propagate down subunits, '*' means don't propagate
 USO_FACILITY_STAFF_ROLE = 'staff:-'     # '+' means propagate up subunits
+USO_ONSITE_USER_PERMISSION = '{}-USER'
+USO_REMOTE_USER_PERMISSION = '{}-REMOTE-USER'
+USO_FACILITY_ACCESS_PERMISSION = 'FACILITY-ACCESS'
 
 USO_STYLE_OVERRIDES = []
 USO_THROTTLE_KEY = get_random_bytes(16)

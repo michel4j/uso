@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from django.conf import settings
 from crisp_modals.forms import ModalModelForm, Row, FullWidth
 from crispy_forms.bootstrap import StrictButton, PrependedText, AppendedText, InlineCheckboxes
 from crispy_forms.helper import FormHelper
@@ -14,7 +14,12 @@ from dynforms.forms import DynFormMixin, DynForm
 from beamlines.models import Lab, LabWorkSpace
 from misc.utils import Joiner
 from proposals.models import ReviewCycle
+
 from . import models
+
+ONSITE_USER_PERMISSION = getattr(settings, "USO_ONSITE_USER_PERMISSION", "{}-USER")
+REMOTE_USER_PERMISSION = getattr(settings, "USO_REMOTE_USER_PERMISSION", "{}-REMOTE-USER")
+FACILITY_ACCESS_PERMISSION = getattr(settings, "USO_FACILITY_ACCESS_PERMISSION", "FACILITY-ACCESS")
 
 
 class DateField(AppendedText):
@@ -149,8 +154,10 @@ class HandOverForm(ModalModelForm):
             Div(
                 HTML(
                     "<div class='callout callout-primary mb-3'>\n"
-                    "    <h5 class='overflow ellipsis'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></h5>\n"
-                    "    <p class='lead'>Facility: {{facility.acronym}}&mdash;<strong class='text-condensed'>{{facility.name}}</strong></p>\n"
+                    "<h5 class='overflow ellipsis'>Project: {{project}}&mdash;"
+                    "<strong class='text-condensed'>{{project.title}}</strong></h5>\n"
+                    "<p class='lead'>Facility: {{facility.acronym}}&mdash;"
+                    "<strong class='text-condensed'>{{facility.name}}</strong></p>\n"
                     "	{% if tags %}\n"
                     "	<div class=\"row\">\n"
                     "		<div class='col-sm-12 text-right' style='line-height: 1.6;'>\n"
@@ -259,7 +266,8 @@ class LabSessionForm(ModalModelForm):
             Div(Div(
                 HTML(
                     "<div class='alert alert-info'>\n"
-                    "    <p class='lead'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></p>\n"
+                    "   <p class='lead'>Project: {{project}}&mdash;"
+                    "   <strong class='text-condensed'>{{project.title}}</strong></p>\n"
                     "</div>\n"
                 ),
                 css_class="row"),
@@ -489,11 +497,11 @@ class SessionForm(ModalModelForm):
 
         # Local access needs 'FACILITY-ACCESS' permissions and different USER type from Remote
         if self.session.kind != self.session.TYPES.remote:
-            req_perms |= {'FACILITY-ACCESS'}
-            user_perms |= {'{}-USER'.format(self.session.beamline)}
+            req_perms |= {FACILITY_ACCESS_PERMISSION}
+            user_perms |= {ONSITE_USER_PERMISSION.format(self.session.beamline)}
             remote = False
         else:
-            user_perms |= {'{}-REMOTE-USER'.format(self.session.beamline)}
+            user_perms |= {REMOTE_USER_PERMISSION.format(self.session.beamline)}
             remote = True
 
         # fetch per sample permissions and check ethics for each sample
@@ -504,7 +512,7 @@ class SessionForm(ModalModelForm):
             if s.expiry and s.expiry < self.session.end.date():
                 ethics_problems.append(s)
         if ethics_problems:
-            self.add_error('Ethics expires before session.')
+            self.add_error('end', 'Ethics expires before session.')
             msg = (
                 'All samples requiring ethics must have valid certificates for the duration of the session. '
                 'The following samples will expire during the session: {}'.format(joiner(ethics_problems))
@@ -600,8 +608,10 @@ class TeamForm(DynForm):
 
 
 class AllocationForm(ModalModelForm):
-    last_cycle = forms.ModelChoiceField(label="Expiry Cycle", queryset=ReviewCycle.objects.all(), required=False,
-                                        help_text="Change this to limit the project duration")
+    last_cycle = forms.ModelChoiceField(
+        label="Expiry Cycle", queryset=ReviewCycle.objects.all(), required=False,
+        help_text="Change this to limit the project duration"
+    )
 
     class Meta:
         model = models.Allocation
@@ -616,7 +626,7 @@ class AllocationForm(ModalModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['last_cycle'].queryset = ReviewCycle.objects.filter(pk__gte=self.initial['cycle'])
+        self.last_cycle.queryset = ReviewCycle.objects.filter(pk__gte=self.initial['cycle'])
 
         self.body.title = 'Allocate Beamtime'
         self.body.append(
@@ -723,8 +733,14 @@ class ShiftRequestForm(forms.ModelForm):
             ),
             Div(
                 Div(
-                    StrictButton('Save', name="form_action", type='submit', value='save', css_class='ms-auto btn btn-secondary'),
-                    StrictButton('Submit', name="form_action", type='submit', value='submit', css_class='btn btn-primary'),
+                    StrictButton(
+                        'Save', name="form_action", type='submit', value='save',
+                        css_class='ms-auto btn btn-secondary'
+                    ),
+                    StrictButton(
+                        'Submit', name="form_action", type='submit', value='submit',
+                        css_class='btn btn-primary'
+                    ),
                     css_class="col-12 d-flex justify-content-end gap-2"
                 ),
                 css_class="modal-footer row"
@@ -760,7 +776,7 @@ class AllocRequestForm(ShiftRequestForm):
         fields = ['shift_request', 'justification', 'comments', 'good_dates', 'poor_dates']
 
 
-class DeclineForm(forms.ModelForm):
+class DeclineForm(ModalModelForm):
     comments = forms.CharField(
         label="Please explain why you are declining the allocated shifts",
         widget=forms.Textarea(attrs={'rows': 3, }),
@@ -771,42 +787,19 @@ class DeclineForm(forms.ModelForm):
         fields = ['comments']
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
-        self.helper.title = "Decline Allocation"
-        self.helper.form_action = self.request.path
-        self.helper.layout = Layout(
+        self.body.title = "Decline Allocation"
+        self.body.append(
             Div(
-                Div(
-                    HTML(
-                        "<div class='alert alert-danger text-default'>"
-                        "<h3>Are you sure?</h3>"
-                        "<p>By declining this allocation, you are declaring you do not intend to use any of "
-                        "your remaining allocated shifts for project <strong>{{allocation.project.code}}</strong> on "
-                        "beamline <strong>{{allocation.beamline}}</strong> during the {{allocation.cycle}} cycle.</p> "
-                        "<p><strong>NOTE:</strong> (1) All outstanding scheduled beamtime on <strong>{{allocation.beamline}}</strong> "
-                        "will be cancelled. (2) Declined shifts will be reallocated and it may not be possible to reclaim them."
-                        "(3) You will be able to renew the project by requesting another allocation on this beamline during the next cycle. "
-                        "However, you will not be entitled to any score bumps for not having used beamtime during the {{allocation.cycle}} cycle. </p>"
-                        "</div>"
-                    ),
-                ),
-                Field("comments", css_class="col-sm-12"),
-                css_class="row modal-body"
+                HTML("{% include 'projects/forms/decline-notice.html' %}"),
             ),
-            Div(css_class="modal-body"),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal',
-                                 css_class="btn btn-secondary pull-left"),
-                    StrictButton('Yes, Decline', type='submit', value='decline',
-                                 css_class='btn btn-primary pull-right'),
-                    css_class="col-sm-12"
-                ),
-                css_class="modal-footer row"
-            )
+            Field("comments", css_class="col-sm-12"),
+        )
+        self.footer.clear()
+        self.footer.append(
+            StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="auto btn btn-secondary"),
+            StrictButton('Yes, Decline', type='submit', value='submit', css_class='ms-auto btn btn-primary'),
         )
 
 
@@ -833,9 +826,9 @@ class TerminationForm(ModalModelForm):
                         "<div class='alert alert-danger text-default'>"
                         "<p class='lead'><strong>{{session}}</strong>: {{session.start}} &mdash; {{session.end}}</p>"
                         "<p>By terminating the session, you are declaring that the users are no longer "
-                        "permitted to use the beamline and administrative steps have been or will be taken to enforce that. "
-                        "<p><strong>NOTE:</strong> (1) Termination should only be done during extra-ordinary circumstances "
-                        "and should not be used to sign-off users from an active session. "
+                        "permitted to use the beamline and administrative steps have been or will be taken to enforce "
+                        "that. <p><strong>NOTE:</strong> (1) Termination should only be done during extra-ordinary "
+                        "circumstances and should not be used to sign-off users from an active session. "
                         "(2) Beamline Staff will be notified of all terminations. </p>"
                         "</div>"
                     )

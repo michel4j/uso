@@ -14,14 +14,10 @@ class ProposalsBlock(BaseBlock):
     template_name = "proposals/blocks/proposals.html"
     priority = 1
 
-    def check_allowed(self, request):
-        return request.user.is_authenticated
-
-    def render(self, context):
-        ctx = copy.copy(context)
+    def get_context_data(self):
+        ctx = super().get_context_data()
         from proposals import models
-        user = context['request'].user
-
+        user = self.request.user
         filters = Q(leader_username=user.username) | Q(spokesperson=user) | Q(delegate_username=user.username)
         proposals = models.Proposal.objects.filter(filters)
         drafts = proposals.filter(state=models.Proposal.STATES.draft)
@@ -33,7 +29,7 @@ class ProposalsBlock(BaseBlock):
             "open_cycles": open_cycles,
             "next_call": next_call,
         })
-        return super().render(ctx)
+        return ctx
 
 
 class SubmissionsBlock(BaseBlock):
@@ -41,23 +37,24 @@ class SubmissionsBlock(BaseBlock):
     template_name = "proposals/blocks/submissions.html"
     priority = 2
 
-    def check_allowed(self, request):
-        return request.user.is_authenticated
-
-    def render(self, context):
-        ctx = copy.copy(context)
+    def get_context_data(self):
+        ctx = super().get_context_data()
         from proposals import models
-        user = context['request'].user
+        user = self.request.user
 
-        filters = Q(proposal__leader_username=user.username) | Q(proposal__spokesperson=user) | Q(proposal__delegate_username=user.username)
+        filters = (
+            Q(proposal__leader_username=user.username) |
+            Q(proposal__spokesperson=user) |
+            Q(proposal__delegate_username=user.username)
+        )
         submissions = models.Submission.objects.filter(filters).order_by('-created')
         if not submissions.exists():
-            return ""
+            self.visible = False
 
         ctx.update({
             "submissions": submissions[:10],  # Limit to 10 most recent submissions
         })
-        return super().render(ctx)
+        return ctx
 
 
 class ReviewsBlock(BaseBlock):
@@ -65,14 +62,12 @@ class ReviewsBlock(BaseBlock):
     template_name = "proposals/blocks/reviews.html"
     priority = 1
 
-    def check_allowed(self, request):
-        return request.user.is_authenticated
+    def get_context_data(self):
+        ctx = super().get_context_data()
+        user = self.request.user
 
-    def render(self, context):
-        ctx = copy.copy(context)
         from proposals import models
 
-        user = context['request'].user
         next_cycle = models.ReviewCycle.objects.next()
 
         filters = Q(reviewer=user)
@@ -82,9 +77,9 @@ class ReviewsBlock(BaseBlock):
         reviews = models.Review.objects.filter(filters).filter(
             state__gt=models.Review.STATES.pending, state__lt=models.Review.STATES.submitted,
         )
-        show = reviews.exists()
+        self.visible = reviews.exists()
         if hasattr(user, 'reviewer'):
-            show = True
+            self.visible = True
             reviewer = user.reviewer
             ctx.update({
                 'reviewer': reviewer,
@@ -105,7 +100,7 @@ class ReviewsBlock(BaseBlock):
         if next_call:
             reviewer_available_next_call = models.Reviewer.objects.available(next_call).filter(user=user).exists()
             can_review = user.can_review()
-            show |= can_review
+            self.visible |= can_review
             ctx.update({
                 "upcoming_call": (
                     reviewer_available_next_call
@@ -113,8 +108,6 @@ class ReviewsBlock(BaseBlock):
                 "next_call": next_call,
                 "can_review": can_review,
             })
-        if show:
-            return super().render(ctx)
-        return ""
+        return ctx
 
 

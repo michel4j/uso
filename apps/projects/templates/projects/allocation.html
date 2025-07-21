@@ -27,7 +27,7 @@
                         </a>
                         {% endif %}
                     {% endif %}
-                    {% if info.can_decline %}
+                    {% if not info.can_decline %}
                         <a href="#0" data-modal-url='{% url "decline-alloc" pk=allocation.pk %}'>
                             <i class="bi-x-lg icon-md icon-fw"></i>
                             <span class="tool-label">Decline</span>

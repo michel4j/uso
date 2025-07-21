@@ -98,20 +98,15 @@ class LaboratoryDetail(RolePermsViewMixin, detail.DetailView):
         return obj.is_admin(self.request.user)
 
 
-class FacilityDetails(RolePermsViewMixin, TemplateView):
+class FacilityDetails(RolePermsViewMixin, detail.DetailView):
+    model = models.Facility
     template_name = 'beamlines/proposal-specs.html'
 
     def get_context_data(self, **kwargs):
-        from users.models import User
         context = super().get_context_data(**kwargs)
-        if self.kwargs.get('pk'):
-            self.object = models.Facility.objects.get(pk=self.kwargs['pk'])
-            context['object'] = context['facility'] = self.object
-            contact_role = "beamline-admin:{}".format(self.object.acronym.lower())
-            config = self.object.configs.first()
-            contacts = User.objects.all_with_roles(contact_role)
-            context['contacts'] = contacts
-            context['config'] = config
+        config = self.object.configs.first()
+        context['contacts'] = self.object.admin_list()
+        context['config'] = config
         return context
 
 
@@ -322,7 +317,6 @@ class ScheduleSupport(EventEditor):
 
     def get_api_urls(self):
         url = reverse('schedule-support-api', kwargs={'pk': self.schedule.pk, 'fac': self.facility.acronym})
-        print(url)
         return {
             'api': url,
             'events': [
@@ -335,14 +329,8 @@ class ScheduleSupport(EventEditor):
         }
 
     def get_context_data(self, **kwargs):
-        from users.models import User
         context = super().get_context_data(**kwargs)
         context['cycle'] = self.schedule.cycle
-        if self.facility.kind == models.Facility.TYPES.equipment:
-            fac = self.facility.parent
-        else:
-            fac = self.facility
-        role = "beamline-staff:{}".format(self.facility.acronym.lower())
         context['staff'] = self.facility.staff_list()
         return context
 

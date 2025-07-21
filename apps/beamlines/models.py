@@ -1,6 +1,5 @@
 import itertools
 import re
-from email.policy import default
 from functools import lru_cache
 
 from django.conf import settings
@@ -17,8 +16,10 @@ from misc.utils import flatten
 from scheduler.models import Event
 
 UserModel = getattr(settings, "AUTH_USER_MODEL")
-USO_FACILITY_STAFF_ROLE = getattr(settings, "USO_FACILITY_STAFF_ROLE", "staff:+")
-USO_FACILITY_ADMIN_ROLE = getattr(settings, "USO_FACILITY_ADMIN_ROLE", "admin:-")
+FACILITY_STAFF_ROLE = getattr(settings, "USO_FACILITY_STAFF_ROLE", "staff:+")
+FACILITY_ADMIN_ROLE = getattr(settings, "USO_FACILITY_ADMIN_ROLE", "admin:-")
+ONSITE_USER_PERMISSION = getattr(settings, "USO_ONSITE_USER_PERMISSION", "{}-USER")
+REMOTE_USER_PERMISSION = getattr(settings, "USO_REMOTE_USER_PERMISSION", "{}-REMOTE-USER")
 
 
 class FacilityManager(models.Manager):
@@ -110,8 +111,8 @@ class Facility(TimeStampedModel):
 
     def is_user(self, user, remote=False):
         perms = {
-            True: ['{}-REMOTE-USER', '{}-USER'],
-            False: ['{}-USER']
+            True: [REMOTE_USER_PERMISSION, ONSITE_USER_PERMISSION],
+            False: [ONSITE_USER_PERMISSION]
         }[remote]
         _perms = [perm.format(bl.acronym) for bl in self.utrace(stop='village') for perm in perms]
         return user.has_any_perm(*_perms) or self.is_staff(user)
@@ -121,7 +122,7 @@ class Facility(TimeStampedModel):
         """
         Takes a role string of the form <role>(:[+-*])? expands it for this facility and it's parents
         or children.
-        :param full_role: The role string to expand
+        :param full_role: The string to expand
         """
 
         if m := re.match(r'^(?P<role>[\w_-]+)(?::(?P<wildcard>[+*-]))?$', full_role):
@@ -139,16 +140,20 @@ class Facility(TimeStampedModel):
         return [full_role.format(self.acronym.lower())]
 
     def is_staff(self, user):
-        _roles = self.expand_role(USO_FACILITY_STAFF_ROLE)
+        _roles = self.expand_role(FACILITY_STAFF_ROLE)
         return user.has_any_role(*_roles)
 
     def is_admin(self, user):
-        _roles = self.expand_role(USO_FACILITY_ADMIN_ROLE)
+        _roles = self.expand_role(FACILITY_ADMIN_ROLE)
         return user.has_any_role(*_roles)
 
     def staff_list(self):
         user_model = get_user_model()
-        return user_model.objects.all_with_roles(*self.expand_role(USO_FACILITY_STAFF_ROLE))
+        return user_model.objects.all_with_roles(*self.expand_role(FACILITY_STAFF_ROLE))
+
+    def admin_list(self):
+        user_model = get_user_model()
+        return user_model.objects.all_with_roles(*self.expand_role(FACILITY_ADMIN_ROLE))
 
     def natural_key(self):
         return (self.acronym,)

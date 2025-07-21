@@ -27,8 +27,9 @@
                     <th>Facility Contacts</th>
                     <td>
                         {% for contact in contacts %}
-                            <a href="#0" data-bs-toggle="popover" title="{{ contact }}" data-placement="bottom"
-                               data-content="{{ contact.email }} {{ contact.address.phone }}" data-trigger="hover">
+                            <a href="#0" data-bs-toggle="popover" data-bs-placement="bottom"
+                               tabindex="0"  role="button" data-bs-container="body"
+                               data-bs-content="{{ contact.email }} {{ contact.address.phone }}" data-bs-trigger="focus">
                                 {{ contact }}
                             </a> {% if not forloop.last %}, {% endif %}
                         {% endfor %}
