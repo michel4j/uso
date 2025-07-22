@@ -1,4 +1,4 @@
-{% load timeish %}
+{% load misc %}
 {% load markup %}
 {% load proposal_tags %}
 <div class="col-12">
@@ -13,10 +13,10 @@
             <hr/>
             <p>
                 This review was originally assigned to the role
-                <span class="badge bg-info">{{ object.role|human_role }}</span>
+                <span class="badge bg-primary">{{ object.role|human_role }}</span>
                 which is currently held by the following individuals:
             </p>
-            <ul style="padding-left: 2em;">
+            <ul class="ps-2">
                 {% for person in candidates|slice:":5" %}
                     <li><strong>{{ person.first_name }} {{ person.last_name }}</strong></li>
                     {% empty %}
@@ -28,18 +28,18 @@
             </ul>
 
             {% with object.get_progress as progress %}
-            <div class="p-3 bg-white">
-			<h4 style="margin-top: 0.25em; margin-bottom: 0;">{{object.reviewer}}</h4>
+            <div class="alert alert-light">
+			<h4 class="my-0">{{object.reviewer}}</h4>
 			<em class="text-body-secondary">{{object.type}}</em>
             <div class="progress {% if object.reviewer and object.state < robject.STATES.submitted %}active{% endif %}"
                      role="progressbar" aria-label="Review Progress"
                      aria-valuenow="{{ progress.total }}" aria-valuemin="0" aria-valuemax="100"
-                     style="height: 1.5em;">
+                     style="height: 1em;">
                     <div class="progress-bar progress-bar-stripped bg-{% if progress.required > 99 %}success{% else %}warning{% endif %}"
                          style="width: {{ progress.total }}%;"
                          data-bs-toggle="tooltip" title="{{ progress.total }}% Total, {{ progress.required }}% Required"
                     >
-                        <span>{{ progress.total }}% Complete</span>
+                        <span class="visually-hidden">{{ progress.total }}% Complete</span>
                     </div>
             </div>
 			{% if object.details.comments or object.details.comments_committee %}
@@ -52,12 +52,12 @@
 		    </div>
             {% endwith %}
 
-            The review is incomplete but you can complete it after claiming it.
+            The review is incomplete, but you can complete it after claiming it.
             Once claimed, the responsibility to complete the review will be yours alone.
             <hr/>
             {% if review.due_date %}
-                The deadline for completing this review is <strong>{{ review.due_date }}</strong>, which is in
-                <strong>{{ review.due_date|timeuntil }}</strong>.
+                The deadline for completing this review is <strong>{{ review.due_date }}</strong>, which is
+                <strong>{{ review.due_date|from_now }}</strong>.
                 <hr/>
             {% endif %}
         {% else %}
@@ -65,7 +65,7 @@
             <hr/>
             <p>
                 This review has been assigned to the role &ensp;<span
-                    class="badge bg-info">{{ object.role|human_role }}</span>&ensp;
+                    class="badge bg-primary">{{ object.role|human_role }}</span>&ensp;
 
                 which is currently held by the following individuals:
             </p>
@@ -77,13 +77,13 @@
                     ... and {{ candidates|length|add:"-5" }} more.
                 {% endif %}
             </ul>
-            You must claim it in order to complete the review.
+            You must claim it to complete the review.
             Once claimed, the responsibility to complete the review
             will be yours alone.
             <hr/>
             {% if review.due_date %}
-                The deadline for completing this review is <strong>{{ review.due_date }}</strong>, which is in
-                <strong>{{ review.due_date|timeuntil }}</strong>.
+                The deadline for completing this review is <strong>{{ review.due_date }}</strong>, which is
+                <strong>{{ review.due_date|from_now }}</strong>.
                 <hr/>
             {% endif %}
         {% endif %}
