@@ -235,10 +235,15 @@ $timeline-colors: (
   animation: pulse 2s linear infinite;
 }
 
-html, body {
+html:not(.print-base) {
   height: 100%;
   margin: 0;
   overflow-y: hidden;
+  body {
+    height: 100%;
+    margin: 0;
+    overflow-y: hidden;
+  }
 }
 
 #uso-wrapper {
@@ -460,33 +465,34 @@ body.no-sidebar {
     }
   }
 }
+html.print-base {
+  body {
+    background-color: var(--bs-body-bg);
+    border-radius: 0 !important;
+    font-size: 11pt;
 
-body.print-base {
-  background-color: var(--bs-body-bg);
-  border-radius: 0 !important;
-  font-size: 11pt;
+    .logo {
+      height: 60px;
+      width: auto;
+    }
 
-  .logo {
-    height: 75px;
-    width: auto;
+    #uso-branding {
+      display: none;
+    }
+
+    #uso-header {
+      display: none;
+    }
+
+    #uso-sidebar {
+      display: none;
+    }
+
+    .footer {
+      font-size: 80%;
+    }
+
   }
-
-  #uso-branding {
-    display: none;
-  }
-
-  #uso-header {
-    display: none;
-  }
-
-  #uso-sidebar {
-    display: none;
-  }
-
-  .footer {
-    font-size: 80%;
-  }
-
 }
 
 img {
