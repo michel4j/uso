@@ -39,7 +39,7 @@
                     {{ facility }}{% else %}Available shifts{% endif %}</h3>
             </div>
             <div class="col-sm-6 d-flex align-items-center flex-row gap-2 mb-3">
-                <div class="btn btn-success calc ms-auto px-3"
+                <div class="btn btn-primary calc ms-auto px-3"
                      title="Total from Facility Schedule">{{ total_shifts|floatformat }}
                 </div>
                 <h3>-</h3>
@@ -95,7 +95,7 @@
                                 <span class="stats-title"><small>Allocated</small></span>
                                 <span class="btn btn-info calc"
                                       title="Allocated">
-                                        {{ section.used.total|default:0|floatformat }}
+                                        {{ section.used|default:0|floatformat }}
                                     </span>
                             </div>
                             <h3><br/>-</h3>
@@ -103,7 +103,7 @@
                                 <span class="stats-title"><small>Reserved</small></span>
                                 <a href="#0" class="btn btn-danger" title="Edit Reserved"
                                    data-modal-url="{% url 'edit-pool-reservation' cycle=cycle.pk  fac=facility.acronym pool=pool.pk %}">
-                                    {{ pool.reserved.total|default:0 }}
+                                    {{ section.reserved|default:0 }}
                                     <i class="icon-fw bi-pencil ms-1"></i>
                                 </a>
                             </div>
@@ -112,7 +112,7 @@
                                 <span class="stats-title"><small>Left Over</small></span>
                                 <span class="btn btn-warning calc"
                                       title="Left Over Shifts">
-                                        {{ pool.unused|default:0|floatformat }}
+                                        {{ section.unused|default:0|floatformat }}
                                     </span>
                             </div>
                         </div>
@@ -195,7 +195,7 @@
                         <div class="d-flex flex-column">
                             <span class="stats-title"><small>Allocated</small></span>
                             <span class="btn btn-info calc" title="Allocated">
-                                        {{ section.used.total|default:0|floatformat }}
+                                        {{ section.used|default:0|floatformat }}
                                         </span>
                         </div>
                         <h3><br/>=</h3>

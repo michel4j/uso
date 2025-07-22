@@ -17,7 +17,7 @@ class BeamlineFilterFactory(FilterFactory):
                     {
                         v['acronym']
                         for v in Facility.objects.exclude(
-                        kind__in=[Facility.TYPES.sector, Facility.TYPES.village, Facility.TYPES.equipment]
+                        kind__in=[Facility.Types.sector, Facility.Types.department, Facility.Types.instrument]
                     ).values(
                         'acronym'
                     )
@@ -25,7 +25,7 @@ class BeamlineFilterFactory(FilterFactory):
                 )
                 sectors = [
                     v for v in
-                    Facility.objects.filter(kind__in=[Facility.TYPES.sector, Facility.TYPES.village]).order_by('created')
+                    Facility.objects.filter(kind__in=[Facility.Types.sector, Facility.Types.department]).order_by('created')
                 ]
 
                 _chlist = [(bl, '{0}'.format(bl)) for bl in choices]

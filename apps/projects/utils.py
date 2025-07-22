@@ -196,8 +196,8 @@ def create_allocation_tree(
     # Allocation objects will be created for beamlines and equipment that are children
     # of the given facility or the facility itself if it is a beamline
     facilities = Facility.objects.filter(
-        Q(kind__in=[Facility.TYPES.beamline, Facility.TYPES.equipment], parent__pk=facility.pk) |
-        Q(kind=Facility.TYPES.beamline, pk=facility.pk)
+        Q(kind__in=[Facility.Types.beamline, Facility.Types.instrument], parent__pk=facility.pk) |
+        Q(kind=Facility.Types.beamline, pk=facility.pk)
     )
     created = []
     for facility in facilities:

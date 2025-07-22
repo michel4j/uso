@@ -16,8 +16,8 @@ def uso_role_choices(extra_choices=[]):
                    ] + [
                        ('beamteam-member:{}'.format(f.acronym.lower()), '{} BeamTeam Member'.format(f.acronym))
                        for f in
-                       Facility.objects.exclude(kind__in=[Facility.TYPES.village, Facility.TYPES.equipment]).exclude(
-                           parent__kind=Facility.TYPES.sector
+                       Facility.objects.exclude(kind__in=[Facility.Types.department, Facility.Types.instrument]).exclude(
+                           parent__kind=Facility.Types.sector
                        ).distinct()
                    ] + extra_choices
     return Choices(*sorted(role_choices))

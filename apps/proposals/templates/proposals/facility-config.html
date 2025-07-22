@@ -3,7 +3,7 @@
 {% load beamlines %}
 {% load misc %}
 
-{% block page-pretitle %}Facility Configs{% endblock %}
+{% block page-pretitle %}Facility Settings{% endblock %}
 
 {% block page-title %}
     <strong>{{ object.acronym }}</strong> &mdash; Techniques and Pool Allocation
@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block page-tools %}
-    {% if object.kind != 'village' %}
+    {% if object.kind != object.Types.village %}
         {% if owner or admin %}
             <a href='#0' data-modal-url='{% url "add-facility-config" slug=object.acronym %}'>
                 <i class="bi-plus-lg icon-md icon-fw"></i><br/>

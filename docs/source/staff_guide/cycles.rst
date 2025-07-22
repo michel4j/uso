@@ -1,5 +1,4 @@
-.. _staff-guide:
 
-Beam Time Cycles
-================
+Managing Cycles
+===============
 

@@ -83,8 +83,8 @@ def get_types(context):
 
 @register.simple_tag(takes_context=True)
 def get_beamlines(context):
-    beamlines = [b.acronym for b in Facility.objects.exclude(kind=Facility.TYPES.sector) if b.publications.count() > 0]
-    beamlines = [b.acronym for b in Facility.objects.filter(kind=Facility.TYPES.sector)]
+    beamlines = [b.acronym for b in Facility.objects.exclude(kind=Facility.Types.sector) if b.publications.count() > 0]
+    beamlines = [b.acronym for b in Facility.objects.filter(kind=Facility.Types.sector)]
     return beamlines
 
 

@@ -31,8 +31,6 @@
             <span class="tool-label">Edit</span>
         </a>
     {% endif %}
-    {% if object.kind != 'village' %}
-    {% endif %}
     {% if "employee" in user.roles %}
     {% endif %}
     {% if admin or user|is_staff:object %}
@@ -69,9 +67,9 @@
 
 {% block page-status-style %}
     callout
-    {% if object.state == object.STATES.commissioning %}
+    {% if object.state == object.States.commissioning %}
         callout-warning
-    {% elif object.state == object.STATES.decommissioned %}
+    {% elif object.state == object.States.decommissioned %}
         callout-secondary
     {% else %}
         callout-success
@@ -79,7 +77,7 @@
 {% endblock %}
 
 {% block page-status-bar %}
-    {% if object.kind != 'village' %}
+    {% if object.kind != object.Types.village %}
         <span class="status-badge badge bg-info text-condensed my-2">{{ object.get_state_display }}</span>
         <div class="my-2">
             {{ object.description }}

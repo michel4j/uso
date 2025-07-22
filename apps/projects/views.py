@@ -996,8 +996,8 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         self.facility = Facility.objects.filter(acronym__iexact=self.kwargs['fac']).first()
         self.cycle = ReviewCycle.objects.filter(pk=self.kwargs['pk']).first()
         allowed = (
-                          super().check_allowed() or self.facility.is_admin(self.request.user)
-                  ) and (self.cycle.state >= self.cycle.STATES.evaluation)
+            super().check_allowed() or self.facility.is_admin(self.request.user)
+        ) and (self.cycle.state >= self.cycle.STATES.evaluation)
         return allowed
 
     def get_context_data(self, **kwargs):
@@ -1009,29 +1009,38 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         allocations = cycle.allocations.filter(beamline=fac)
 
         total = schedule.normal_shifts()
-        unavailable = reservations.filter(pool__isnull=True).aggregate(total=Coalesce(Sum('shifts'), 0))
+        unavailable = dict(
+            reservations.values('pool__pk').order_by('pool__pk').annotate(
+                total=Coalesce(Sum('shifts'), 0)
+            ).values_list('pool__pk', 'total')
+        )
+        facility_reserved = unavailable.get(None, 0)
 
-        fac_total = total - unavailable['total']
+        fac_total = total - facility_reserved
         context['facility'] = fac
         context['cycle'] = cycle
         context['discretionary'] = 0
         context['total_shifts'] = total
         context['available_shifts'] = fac_total
-        context['unavailable_shifts'] = unavailable['total']
+        context['unavailable_shifts'] = facility_reserved
         left_over = fac_total
+
         pools = {}
         default_pool = AccessPool.objects.filter(is_default=True).first()
         for pool, percent in fac.access_pools():
-            reserved = reservations.filter(pool=pool).aggregate(total=Coalesce(Sum('shifts'), 0))
+
             pool_allocations = allocations.filter(project__pool=pool).annotate(
                 priority=Case(
                     When(score=0, then=Value(1)), default=Value(0), output_field=IntegerField(),
                 )
             )
-            used = pool_allocations.aggregate(total=Coalesce(Sum('shifts'), 0))
+
             available = int(fac_total * percent / 100.0)
-            left_over -= available
-            unused = available - (used['total'] + reserved['total'])
+            reserved = unavailable.get(pool.pk, 0)
+            used = pool_allocations.aggregate(total=Coalesce(Sum('shifts'), 0))['total']
+
+            left_over -= used + reserved
+            unused = available - (used + reserved)
 
             if pool.is_default:
                 context['discretionary'] += unused
@@ -1046,7 +1055,7 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
             }
             pools[pool] = info
 
-        context['discretionary'] += left_over
+        context['discretionary'] = left_over
         if pools[default_pool].get('projects', models.Allocation.objects.none()).count() > 1:
             shifts = pools[default_pool]['shifts']
             projects = pools[default_pool]['projects']
@@ -1143,15 +1152,12 @@ class EditReservation(RolePermsViewMixin, ModalCreateView):
         data = form.cleaned_data
         facility = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
         cycle = ReviewCycle.objects.get(pk=self.kwargs['cycle'])
+        pool = AccessPool.objects.filter(pk=self.kwargs.get('pool', None)).first()
         res, created = models.Reservation.objects.get_or_create(
-            beamline=facility, cycle=cycle, pool=self.kwargs.get('pool', None)
+            beamline=facility, cycle=cycle, pool=pool
         )
         models.Reservation.objects.filter(pk=res.pk).update(**data)
-        return JsonResponse(
-            {
-                "url": self.get_success_url()
-            }
-        )
+        return JsonResponse({"url": self.get_success_url()})
 
 
 class ScheduleBeamTime(EventEditor):
@@ -1182,8 +1188,8 @@ class ScheduleBeamTime(EventEditor):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cycle'] = self.schedule.cycle
-        if self.facility.kind == Facility.TYPES.equipment:
-            facilities = self.facility.utrace(stop=Facility.TYPES.village)
+        if self.facility.kind == Facility.Types.instrument:
+            facilities = self.facility.utrace(stop=Facility.Types.department)
             context['allocations'] = models.Allocation.objects.filter(
                 cycle=context['cycle'], beamline__in=facilities
             ).order_by('-shifts')
@@ -1211,7 +1217,7 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
             raise Http404
 
         fac_children = [f.acronym for f in facility.dtrace() if
-                        f.kind not in [facility.TYPES.village, facility.TYPES.sector]]
+                        f.kind not in [facility.Types.department, facility.Types.sector]]
 
         config = ShiftConfig.objects.filter(duration=facility.shift_size).order_by('modified').last()
         shifts = config.shifts()

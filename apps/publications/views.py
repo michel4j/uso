@@ -364,8 +364,8 @@ class PublicationWizard(SessionWizardView):
             model.objects.filter(pk=obj.pk).update(**info)
 
         if data.get('beamlines'):
-            bls = {bl for bl in data['beamlines'] if not bl.kind == bl.TYPES.sector}
-            for bl in [x for x in data['beamlines'] if (x.kind == x.TYPES.sector)]:
+            bls = {bl for bl in data['beamlines'] if not bl.kind == bl.Types.sector}
+            for bl in [x for x in data['beamlines'] if (x.kind == x.Types.sector)]:
                 bls.update(bl.children.all())
             data['beamlines'] = bls
             obj.beamlines.add(*data['beamlines'])

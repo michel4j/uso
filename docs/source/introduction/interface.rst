@@ -74,7 +74,7 @@ a collection of actions that a user may perform in the given context.  such as t
     On the right, the same page is shown on a small screen where the text labels are hidden and only the icons
     are visible.
 
-.. _profile_menu::
+.. _profile_menu:
 
 Profile Menu
 ------------

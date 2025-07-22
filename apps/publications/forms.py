@@ -107,8 +107,8 @@ class PublicationReviewForm(forms.ModelForm):
 
     def clean(self):
         data = super().clean()
-        bls = {bl for bl in data['beamlines'] if not bl.kind == bl.TYPES.sector}
-        for bl in [x for x in data['beamlines'] if (x.kind == x.TYPES.sector)]:
+        bls = {bl for bl in data['beamlines'] if not bl.kind == bl.Types.sector}
+        for bl in [x for x in data['beamlines'] if (x.kind == x.Types.sector)]:
             bls.update(bl.units.all())
         data['beamlines'] = bls
         data['reviewed'] = True

@@ -102,16 +102,23 @@ except for the spokesperson can voluntarily remove themselves from the team but 
 or the project leader (if specified) can add a person to the team. Team members and changes to the team are not
 reviewed but only members who meet all required qualifications will be able to participate during experiments.
 
+.. figure:: project-team.png
+    :alt: Team List
+    :align: center
+
+    A screenshot of the team list on the project page showing the team members and their qualifications/permissions.
+
 The :guilabel:`Edit Team` tool can be use to add or remove team members.  All team members must be registered users
 of the system. Use the :guilabel:`Update Team` tool to refresh the list of team members if any of the team
 members have registered since the last update. These tools are only available to the spokesperson, delegate,
 or project leader.
 
-Permission requirements identified during safety review are highlighted in the team list. If any required permissions
-are missing, the team member will not be able to participate in experiments until the permissions are granted. Some
-permissions may be required on a per-sample basis, in which case, those requirements will only be enforced when
-the sample is selected for use in a session. To prevent issues during the session, it is recommended to check that
-all team members intending to participate have the required permissions before starting a session.
+Qualifications/Permission requirements identified during safety review are highlighted in the team list.
+If any required qualifications are missing, the team member will not be able to participate in experiments until the
+qualifications are granted. Some qualifications may be required on a per-sample basis, in which case, those
+requirements will only be enforced when the sample is selected for use in a session. To prevent issues during the
+session, it is recommended to check that all team members intending to participate have the required
+permissions before starting a session.
 
 
 Beam Time Session

@@ -34,7 +34,7 @@ focuses on a specific aspect of the proposal, such as the research objectives, t
    A screenshot of the proposal form showing different sections in tabs and a help sidebar.
 
 On large screens, a help sidebar is displayed on the right-hand side of the page. Focusing on a given field loads
-relevant help text for the field in the help sidebar. A progress bar at the top of the form indicates what percentage
+relevant help text for the field in the help sidebar. A progress bar at the bottom of the form indicates what percentage
 of the form has been completed. The color of the progress bar will change from orange to green when the form
 is valid and can be submitted. However, the form can be saved at any point, even while incomplete.
 This allows users to return to the proposal later and continue filling it out. To save your progress while editing
@@ -86,6 +86,17 @@ Select the appropriate ReviewTracks and Access Pool for submissions.
 
    A screenshot of the proposal submit form.
 
+The proposal submit form allows you to select the review tracks for the proposal. Review tracks are predefined
+categories that determine how the proposal will be reviewed. The available review tracks varies depending on the
+beamline or techniques requested, and submission time. Some review are only available during specific calls for
+proposals.
+
+The submit form may also allow you to select an Access Pool for your submission. The Access Pool is a
+reserved slice of beam time that the proposal will be competing for. Most proposals are typically submitted
+to the default access pool, which is the general pool of beam time available for all peer-reviewed proposals. However,
+based on your roles, you may have access to other pools. If this is the case, you will be able to select the
+appropriate access pool for your submission.
+
 
 Submissions
 ===========
@@ -113,3 +124,6 @@ Rejected submissions will not have a project link, and the review status will re
    :align: center
 
    A screenshot of the submission page showing the review status, requested beamlines, techniques, and scores.
+   A percentile rank is also shown for each stage of the review track. The rank represents the perentage of "lifetme"
+   submissions that received a score lower than the current submission at the same stage. The higher the rank, the
+   better the score.

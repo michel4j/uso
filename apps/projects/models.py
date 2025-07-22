@@ -69,6 +69,19 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
         dt = dt if dt else timezone.localtime(timezone.now()).date()
         return self.start_date > dt
 
+    def is_multi_beamline(self):
+        """
+        Check if the project is allocated to multiple beamlines.
+        :return: True if the project has more than one beamline, False otherwise.
+        """
+        return self.beamlines.count() > 1
+
+    def leader_is_new(self):
+        """
+        Check if the project leader is new, this is their first project.
+        """
+        return self.leader and not self.leader.projects.exclude(pk=self.pk).exists()
+
     def state(self):
         if self.is_pending():
             return 'pending'

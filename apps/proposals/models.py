@@ -509,26 +509,27 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
     A review cycle represents a period during which proposals are reviewed and evaluated, as well as the
     scheduling of beamtime for successful proposals.,
     """
-    STATES = Choices(
-        (0, 'pending', _('Call Pending')),
-        (1, 'open', _('Call Open')),
-        (2, 'assign', _('Assigning')),
-        (3, 'review', _('Review')),
-        (4, 'evaluation', _('Evaluation')),
-        (5, 'schedule', _('Scheduling')),
-        (6, 'active', _('Active')),
-        (7, 'archive', _('Archived')), )
-    TYPES = Choices(
-        ('mock', 'Mock Cycle'),
-        ('normal', 'Normal Cycle'),
-    )
-    kind = models.CharField(_('Cycle Type'), max_length=20, choices=TYPES, default=TYPES.normal)
+    class STATES(models.IntegerChoices):
+        pending = (0, 'Pending')
+        open = (1, 'Open')
+        assign = (2, 'Assigning')
+        review = (3, 'Review')
+        evaluation = (4, 'Evaluation')
+        schedule = (5, 'Scheduling')
+        active = (6, 'Active')
+        archive = (7, 'Archived')
+
+    class TYPES(models.TextChoices):
+        mock = 'mock', _('Mock Cycle')
+        normal = 'normal', _('Normal Cycle')
+
+    kind = models.CharField(_('Cycle Type'), max_length=20, choices=TYPES.choices, default=TYPES.normal)
     open_date = models.DateField(_("Call Open Date"))
     close_date = models.DateField(_("Call Close Date"))
     alloc_date = models.DateField(_("Allocation Date"))
     due_date = models.DateField(_("Reviews Due"), null=True)
     reviewers = models.ManyToManyField("Reviewer", blank=True, related_name='cycles')
-    state = models.SmallIntegerField(default=0, choices=STATES)
+    state = models.SmallIntegerField(default=0, choices=STATES.choices)
     schedule = models.OneToOneField("scheduler.Schedule", related_name='cycle', on_delete=models.CASCADE)
     objects = ReviewCycleQuerySet.as_manager()
 

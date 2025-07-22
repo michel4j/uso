@@ -62,14 +62,14 @@ class EditAgreement(RolePermsViewMixin, AgreementFormMixin, edit.UpdateView):
             response = HttpResponseRedirect(self.get_success_url())
         elif self.request.POST.get('submit') == "delete":
             obj = self.get_object()
-            obj_repr = '{}'.format(obj)
+            obj_repr = f'{obj}'
             if obj.state == models.Agreement.STATES.disabled:
                 obj.delete()
-                messages.success(self.request, 'Agreement {} has been deleted'.format(obj_repr))
+                messages.success(self.request, f'Agreement {obj_repr} has been deleted')
             else:
                 messages.error(
                     self.request,
-                    'Active agreement {} can not be deleted. Must be disabled or archived'.format(obj_repr)
+                    f'Active agreement {obj_repr} can not be deleted. Must be disabled or archived'
                 )
             response = HttpResponseRedirect(self.get_success_url())
         else:

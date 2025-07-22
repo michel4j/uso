@@ -28,24 +28,25 @@ class FacilityManager(models.Manager):
 
 
 class Facility(TimeStampedModel):
-    STATES = Choices(
-        ('design', _('Design')),
-        ('construction', _('Construction')),
-        ('commissioning', _('Commissioning')),
-        ('operating', _('Operating')),
-        ('decommissioned', _('Decommissioned')),
-    )
-    TYPES = Choices(
-        ('beamline', _('Beamline')),
-        ('sector', _('Sector')),
-        ('village', _('Department')),
-        ('equipment', _('Equipment')),
-    )
-    SIZES = Choices(
-        (4, 'four', _('Four Hours')),
-        (8, 'eight', _('Eight Hours')),
-    )
-    kind = models.CharField(_('Type'), max_length=50, choices=TYPES, default=TYPES.beamline)
+
+    class States(models.TextChoices):
+        design = 'design', _('Design')
+        construction = 'construction', _('Construction')
+        commissioning = 'commissioning', _('Commissioning')
+        operating = 'operating', _('Operating')
+        decommissioned = 'decommissioned', _('Decommissioned')
+
+    class Types(models.TextChoices):
+        beamline = 'beamline', _('Beamline')
+        sector = 'sector', _('Sector')
+        department = 'department', _('Department')
+        instrument = 'instrument', _('Instrument')
+
+    class Sizes(models.IntegerChoices):
+        four = 4, _('Four Hours')
+        eight = 8, _('Eight Hours')
+
+    kind = models.CharField(_('Type'), max_length=50, choices=Types.choices, default=Types.beamline)
     name = models.CharField(max_length=255, unique=True)
     acronym = models.CharField(max_length=20, unique=True)
     port = models.CharField(max_length=10, blank=True, null=True)
@@ -56,12 +57,13 @@ class Facility(TimeStampedModel):
     flux = models.CharField(max_length=255, null=True, blank=True)
     resolution = models.CharField("Spectral Resolution", max_length=255, null=True, blank=True)
     source = models.CharField("Source Type", max_length=255, null=True, blank=True)
-    state = models.CharField(max_length=20, choices=STATES, default=STATES.design)
+    state = models.CharField(max_length=20, choices=States.choices, default=States.design)
     parent = models.ForeignKey(
-        "Facility", null=True, blank=True, related_name="children", verbose_name="Parent Facility", on_delete=models.SET_NULL
+        "Facility", null=True, blank=True, related_name="children",
+        verbose_name="Parent Facility", on_delete=models.SET_NULL
     )
     flex_schedule = models.BooleanField("Allocation Not Required", default=False)
-    shift_size = models.IntegerField("Shift Size (hrs)", choices=SIZES, default=SIZES.eight)
+    shift_size = models.IntegerField("Shift Size (hrs)", choices=Sizes.choices, default=Sizes.eight)
     details = models.JSONField(default=dict, blank=True, editable=False)
 
     objects = FacilityManager()
@@ -114,7 +116,7 @@ class Facility(TimeStampedModel):
             True: [REMOTE_USER_PERMISSION, ONSITE_USER_PERMISSION],
             False: [ONSITE_USER_PERMISSION]
         }[remote]
-        _perms = [perm.format(bl.acronym) for bl in self.utrace(stop='village') for perm in perms]
+        _perms = [perm.format(bl.acronym) for bl in self.utrace(stop=self.Types.department) for perm in perms]
         return user.has_any_perm(*_perms) or self.is_staff(user)
 
     @lru_cache(maxsize=128)

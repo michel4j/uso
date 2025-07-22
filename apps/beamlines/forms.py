@@ -9,15 +9,19 @@ from . import models
 
 
 class FacilityForm(forms.ModelForm):
+    allocation = forms.ChoiceField(
+        choices=((True, "Yes"), (False, "No")),
+        required=False, label="Allocation Required",
+        widget=forms.Select(choices=((True, "Yes"), (False, "No"))),
+    )
 
     class Meta:
         model = models.Facility
-        fields = ('name', 'kind', 'acronym', 'port', 'description', 'url', 'range', 'parent',
+        fields = ('name', 'kind', 'acronym', 'description', 'url', 'range', 'parent',
                   'state', 'spot_size', 'flux', 'resolution', 'source', 'flex_schedule',
                   'shift_size')
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4, }),
-            'flex_schedule': forms.Select(choices=((True, "Yes"), (False, "No"))),
         }
 
     def __init__(self, *args, **kwargs):
@@ -26,31 +30,31 @@ class FacilityForm(forms.ModelForm):
         self.helper.form_class = "facility-form"
         if self.instance.pk:
             self.helper.title = "Edit Facility"
+            self.fields['allocation'].initial = not self.instance.flex_schedule
         else:
             self.helper.title = "Create Facility"
 
         self.helper.layout = Layout(
             Div(
-                Div('name', css_class="col-sm-8"),
-                Div(Field('parent'), css_class="col-sm-4"),
+                Div('name', css_class="col-sm-9"),
                 Div('acronym', css_class="col-sm-3"),
-                Div(Field('kind'), css_class="col-sm-3"),
+                Div('kind', css_class="col-sm-3"),
+                Div('parent', css_class="col-sm-3"),
                 Div(Field('url', placeholder="https:// ..."), css_class='col-sm-6'),
                 Div('description', css_class='col-sm-12'),
                 css_class="row"
             ),
             Fieldset(
                 "Parameters",
-                Div('source', required=True, css_class="col-sm-5"),
-                Div('port', css_class="col-sm-2"),
-                Div(Field('state'), css_class="col-sm-5"),
+                Div('source', required=True, css_class="col-sm-6"),
+                Div('state', css_class="col-sm-6"),
                 Div('range', required=True, css_class="col-sm-6"),
                 Div('flux', required=True, css_class="col-sm-6"),
                 Div('resolution', required=True, css_class="col-sm-6"),
                 Div('spot_size', required=True, css_class="col-sm-6")
             ),
             Div(
-                Div(Field('flex_schedule'), css_class="col-sm-6"),
+                Div(Field('allocation'), css_class="col-sm-6"),
                 Div(Field('shift_size'), css_class="col-sm-6"),
                 css_class="row"
             ),
@@ -68,6 +72,7 @@ class FacilityForm(forms.ModelForm):
     def clean(self):
         data = super().clean()
         data['acronym'] = data.get('acronym', '').upper().replace('_', '-').replace(' ', '').strip()
+        data['flex_schedule'] = not data.pop('allocation', True)
         return data
 
 

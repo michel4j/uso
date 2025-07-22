@@ -2,6 +2,7 @@ from django import template
 from django.db.models import Case, When, Value, BooleanField
 
 from beamlines import models
+from beamlines.models import Facility
 
 register = template.Library()
 
@@ -97,7 +98,7 @@ def filtered_list(filters):
 
 @register.filter(name="sectors")
 def sectors(obj_list):
-    return [o for o in obj_list if o.kind in ['village', 'sector']]
+    return [o for o in obj_list if o.kind in [Facility.Types.department, Facility.Types.sector]]
 
 
 @register.filter(name="get_tracks")

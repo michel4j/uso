@@ -1,10 +1,8 @@
 
-
-import json
 import re
 from collections.abc import Sequence
 from datetime import datetime, date
-
+from urllib.parse import quote, unquote
 from django import forms
 from django.core.files.storage import FileSystemStorage
 from django.db import models
@@ -19,6 +17,9 @@ class LocalStorage(FileSystemStorage):
             return super().size(name)
         else:
             return 0
+
+
+SAFE_CHARS = ' &:~*!.\'"'
 
 
 class RestrictedFileField(FileField):
@@ -87,7 +88,7 @@ FORM_FIELD_SPLITTER = re.compile(r"\s*[;]\s*")
 
 
 class StringListField(models.TextField):
-    description = "A field to store a list of strings in the database. '<' or '>' not allowed within strings"
+    description = "A field to store a list of strings in the database."
 
     def from_db_value(self, value, expression, connection):
         return self.to_python(value)
@@ -97,11 +98,13 @@ class StringListField(models.TextField):
             return []
         if not isinstance(value, str):
             return value
-        return STRING_LIST_PATTERN.findall(value)
+        return [unquote(v) for v in STRING_LIST_PATTERN.findall(value)]
 
     def get_prep_value(self, value):
         if isinstance(value, list):
-            return "".join([f"<{v.strip()}>" for v in value])
+            return "".join([
+                f"<{quote(v.strip(), safe=SAFE_CHARS)}>" for v in value
+            ])
         else:
             return ""
 

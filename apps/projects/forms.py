@@ -546,7 +546,7 @@ class SessionForm(ModalModelForm):
                 if member.has_role('high-school-student')
             ]
             # Test if student is signing on to non-education project
-            if students and material.project.kind != material.project.TYPES.education:
+            if students and material.project.kind != material.project.Types.education:
                 msg = (
                     "High school students are not allowed on non-education projects. "
                     "The following users are affected: {}.".format(

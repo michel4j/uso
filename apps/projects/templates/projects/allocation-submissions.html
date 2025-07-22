@@ -16,6 +16,8 @@
         {% for alloc in section.projects.all %}
             <tr class="pool-row {% allocation_style alloc section.cutoff section.decision %}">
                 <td>
+                    <div class="d-flex flex-row align-items-center gap-2">
+                    <div class="me-auto">
                     {% if alloc.project.submissions.first.pk %}
                         <a href="{% url 'submission-detail' alloc.project.submissions.first.pk %}">
                             {{ alloc.project }}
@@ -23,17 +25,20 @@
                     {% else %}
                         {{ alloc.project }}
                     {% endif %}
-                    {% if alloc.is_new %}&nbsp;<i class="bi-star text-warning icon-fw" title="New Project"></i>{% endif %}
+                    </div>
+                    {% if alloc.is_new %}&nbsp;
+                        <i class="bi-star text-body-secondary icon-fw" title="New Project"></i>
+                    {% endif %}
+                    {% if alloc.project.is_multi_beamline %}
+                        <i class="bi-collection text-body-secondary icon-fw" title="Multi-Beamline Project"></i>
+                    {% endif %}
+                    {% if alloc.project.leader_is_new %}
+                        <i class="bi-person-plus text-body-secondary icon-fw" title="Legacy Project"></i>
+                    {% endif %}
+                    </div>
                 </td>
                 <td class="text-end" data-bs-toggle="scores-popover">
                     {{ alloc.score|floatformat:2 }}
-                    <div class="d-none">
-                        <div id="allocation-score-{{ alloc.pk }}" class="d-flex flex-column">
-                            {% for name, score in alloc.scores.items %}
-                                <div><strong>{{ name }}: </strong> {{ score|floatformat }}</div>
-                            {% endfor %}
-                        </div>
-                    </div>
                 </td>
                 <td class="text-end">
                     {{ alloc.previous_beamtime|floatformat:0 }}
@@ -41,7 +46,7 @@
                 <td class="text-end">{{ alloc.shift_request }}</td>
                 <td class="hover-edit text-end">
                     <a title="Edit Allocation" style="cursor: pointer;" data-modal-url="{% url 'edit-allocation' alloc.pk %}">
-                        <text class="text-info pool-{{ alloc.key }}-item" style="font-weight: 700;">{{ alloc.shifts }}</text>
+                        <text class="text-primary pool-{{ alloc.key }}-item fw-bold">{{ alloc.shifts }}</text>
                     </a>
                 </td>
                 <td>
