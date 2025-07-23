@@ -187,11 +187,12 @@ in the sidebar.
 Allocating Beam Time
 --------------------
 Some beamlines that require allocation, Beam time must allocated to projects after reviews are completed, typically
-on the Allocation Date of the cycle. To allocate beam time, click on the :guilabel:`Allocate` tool for the relevant
-cycle on the facility detail page.  On the cycle allocation page, you will see several sections corresponding to the
+on the Allocation Date of the cycle. To allocate beam time, click on the :guilabel:`Allocate` :icon:`bi bi-diagram-3`  tool
+for the relevant cycle on the facility detail page.  On the cycle allocation page, you will
+see several sections corresponding to the
 different access pools available. Each section displays the number of shifts available for allocation based on the
 access pool allotments configured for the facility. Pool allotments can be configured either through the
-facility detail page, or by clicking the :guilabel:`Access Pools` tool at the top of the allocation page.  Each
+facility detail page, or by clicking the :guilabel:`Access Pools` :icon:`bi bi-diagram-3` tool at the top of the allocation page.  Each
 facility can specify it's own allotments.
 
 .. figure:: allocation-page.png
@@ -211,9 +212,10 @@ Within each pool section, all projects eligible for allocation are listed. This 
 resulting from approved submissions and projects from previous cycles that submitted renewal requests. The list shows
 the project name, number of shifts requested, the aggregate review score, the number of shifts used during previous
 cycles, and the number of awarded shifts. Icons may be displayed next to the project name to indicate
-aspects of the project that may be of interest during allocation. For example, a Star is shown indicate new projects.
-Projects from new Principal Investigators (PIs) are indicated with a Person icon, and multi-beamline projects are
-indicated with a stacked card.
+aspects of the project that may be of interest during allocation. For example, a Star :icon:`bi bi-star;1.25em` is shown
+indicate new projects. Projects from new Principal Investigators (PIs) are indicated with a Person icon
+:icon:`bi bi-person-plus;1.25em`,   and multi-beamline projects are indicated with a stacked card
+icon :icon:`bi bi-collection;1.25em`.
 
 The projects are sorted by the review score and the table rows are color-coded based on the likelihood of allocation.
 A green background indicates projects that can have all requested shifts allocated based on the number of shifts

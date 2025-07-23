@@ -1,7 +1,7 @@
 .. _dev-guide:
 
-Setting up a Development Environment
-====================================
+System Architecture
+===================
 
 * **Prerequisites:** Required software (Git, Python, Docker).
 * **Cloning the Repository:** Getting the source code.
