@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('projects.urls')),
     path('', include('samples.urls')),
     path('forms/', include('dynforms.urls')),
+    path('reports/', include('reportcraft.urls')),
     path('messages/', include('notifier.urls')),
     path('', include('weather.urls')),
     path('', include('surveys.urls')),

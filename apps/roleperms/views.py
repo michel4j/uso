@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 
 ROLEPERMS_DEBUG = getattr(settings, "ROLEPERMS_DEBUG", False)
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
+USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ["staff"])
 
 
 class LoginRequiredMixin(object):
@@ -139,5 +140,12 @@ class AdminRequiredMixin(RolePermsViewMixin):
     """
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
+
+
+class StaffRequiredMixin(RolePermsViewMixin):
+    """
+    Mixin to ensure that the user has staff permissions.
+    """
+    allowed_roles = USO_STAFF_ROLES
 
 

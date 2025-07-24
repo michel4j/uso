@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     "crisp_modals",
     'dynforms',
+    'reportcraft',
     'users',
     'roleperms',
     'notifier',
@@ -232,6 +233,20 @@ DYNFORMS_MIXINS = {
     'VIEW': ['roleperms.views.AdminRequiredMixin'],
     'EDIT': ['roleperms.views.AdminRequiredMixin'],
 }
+REPORTCRAFT_MIXINS = {
+    'VIEW': ['roleperms.views.StaffRequiredMixin'],
+    'EDIT': ['roleperms.views.AdminRequiredMixin'],
+}
+
+REPORTCRAFT_APPS = [
+    'proposals',
+    'projects',
+    'samples',
+    'publications',
+    'scheduler',
+    'surveys',
+    'users',
+]
 
 # -----------------------------------------------------------------------------
 # Load local settings if available

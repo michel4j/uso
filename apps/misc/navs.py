@@ -18,3 +18,10 @@ class FormDesigner(BaseNav):
     label = 'Form Designer'
     roles = USO_ADMIN_ROLES
     url = reverse('dynforms-list')
+
+
+class ReportBuilder(BaseNav):
+    parent = Admin
+    label = 'Report Builder'
+    roles = USO_ADMIN_ROLES
+    url = reverse('report-editor-root')
