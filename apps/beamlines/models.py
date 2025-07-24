@@ -186,6 +186,8 @@ class FacilityTag(TimeStampedModel):
     description = models.CharField(max_length=200, blank=True, null=True)
     category = models.CharField(max_length=20, choices=CATEGORIES)
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
+    color = models.CharField(max_length=10, blank=True, null=True)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

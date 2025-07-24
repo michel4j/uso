@@ -10,7 +10,7 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 from misc.models import GenericContentMixin
-from collections import defaultdict
+
 
 User = getattr(settings, "AUTH_USER_MODEL")
 

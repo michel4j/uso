@@ -5,7 +5,7 @@
     <table class="table-hover table-ruled table">
         <tr>
             <th class="">Project</th>
-            <th class="text-end">Scores</th>
+            <th class="text-end">Score</th>
             <th class="text-end">Previous<span class="d-none d-sm-inline"> Beamtime</span></th>
             <th class="text-end" title="Requested Shifts">Request</th>
             <th class="text-end" title="Allocated Shifts">Award</th>
@@ -33,24 +33,26 @@
                         <i class="bi-collection text-body-secondary icon-fw" title="Multi-Beamline Project"></i>
                     {% endif %}
                     {% if alloc.project.leader_is_new %}
-                        <i class="bi-person-plus text-body-secondary icon-fw" title="Legacy Project"></i>
+                        <i class="bi-person-plus text-body-secondary icon-fw" title="New PI"></i>
                     {% endif %}
                     </div>
                 </td>
-                <td class="text-end" data-bs-toggle="scores-popover">
-                    {{ alloc.score|floatformat:2 }}
+                <td class="text-end font-monospace" data-bs-toggle="scores-popover">
+                    {{ alloc.score|floatformat:1 }}
                 </td>
-                <td class="text-end">
+                <td class="text-end font-monospace">
                     {{ alloc.previous_beamtime|floatformat:0 }}
                 </td>
-                <td class="text-end">{{ alloc.shift_request }}</td>
-                <td class="hover-edit text-end">
-                    <a title="Edit Allocation" style="cursor: pointer;" data-modal-url="{% url 'edit-allocation' alloc.pk %}">
-                        <text class="text-primary pool-{{ alloc.key }}-item fw-bold">{{ alloc.shifts }}</text>
-                    </a>
+                <td class="text-end font-monospace">{{ alloc.shift_request }}</td>
+                <td class="hover-edit text-end font-monospace text-primary fw-bold">
+                    <a title="Edit Allocation"
+                       class="ps-3"
+                       style="cursor: pointer;"
+                       data-modal-url="{% url 'edit-allocation' alloc.pk %}"
+                    >{{ alloc.shifts }}</a>
                 </td>
-                <td>
-                    <text class="pull-right">{% store alloc.name alloc.shifts %}</text>
+                <td class="text-end  font-monospace">
+                    {% store alloc.name alloc.shifts %}
                 </td>
             </tr>
         {% endfor %}

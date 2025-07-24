@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Case, Avg, When, F, Q, StdDev, Max, Count
+from django.db.models.functions import Round
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
@@ -164,6 +165,22 @@ class Proposal(CodeModelMixin, BaseFormModel):
 
 
 class SubmissionQuerySet(QuerySet):
+
+    def with_score(self):
+        """
+        Annotate the queryset with the average score of all reviews for each submission.
+        """
+        return self.annotate(
+            score=Round(Avg(
+                Case(
+                    When(
+                        reviews__state__gte=Review.STATES.submitted,
+                        then=F('reviews__score') * F('reviews__stage__weight')
+                    ),
+                    output_field=models.FloatField()
+                )
+            ), 2)
+        ).distinct()
 
     def with_scores(self):
         """

@@ -33,7 +33,7 @@ from . import forms
 from . import models
 from . import utils
 from .filters import CycleFilterFactory
-from .models import ReviewType
+from .models import ReviewType, Submission
 from .templatetags import proposal_tags
 
 USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
@@ -1207,10 +1207,14 @@ class UserSubmissionList(RolePermsViewMixin, ItemListView):
     paginate_by = 25
 
     def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
         user = self.request.user
-        flt = Q(proposal__leader_username=user.username) | Q(proposal__spokesperson=user) | Q(proposal__delegate_username=user.username)
-        return queryset.filter(flt).distinct()
+        flt = (
+            Q(proposal__leader_username=user.username)
+            | Q(proposal__spokesperson=user)
+            | Q(proposal__delegate_username=user.username)
+        )
+        self.queryset = self.model.objects.filter(flt).distinct()
+        return super().get_queryset(*args, **kwargs)
 
 
 class CycleSubmissionList(SubmissionList):
@@ -1222,19 +1226,18 @@ class CycleSubmissionList(SubmissionList):
 
 class TrackSubmissionList(CycleSubmissionList):
     def get_queryset(self, *args, **kwargs):
-        qset = super().get_queryset(*args, **kwargs)
-        qset = qset.filter(track__acronym=self.kwargs['track'])
-        return qset
+        self.queryset = models.Submission.objects.filter(track__acronym=self.kwargs['track']).with_score()
+        return super().get_queryset(*args, **kwargs)
 
 
 class FacilitySubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
-    list_columns = ['code', 'title', 'spokesperson', 'cycle', 'pool', 'facilities', 'state']
-    list_filters = ['created', 'state', 'track', 'pool']
-    list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
+    list_columns = ['code', 'title', 'spokesperson', 'score', 'pool', 'cycle', 'state']
+    list_filters = ['created', 'state', 'track', 'pool', 'cycle']
+    list_search = ['proposal__title', 'code', 'proposal__spokesperson__last_name', 'proposal__keywords']
     link_url = "submission-detail"
-    order_by = ['-cycle_id']
+    order_by = ['score', 'cycle', 'code']
     list_title = 'Proposal Submissions'
     list_transforms = {
         'facilities': _fmt_beamlines,
@@ -1242,13 +1245,12 @@ class FacilitySubmissionList(RolePermsViewMixin, ItemListView):
         'proposal__spokesperson': utils.user_format
 
     }
-
     list_styles = {'title': 'col-sm-2'}
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
     def get_list_title(self):
-        return '{} Submissions'.format(self.facility.acronym)
+        return f'{self.facility.acronym} Submissions'
 
     def check_allowed(self):
         from beamlines.models import Facility
@@ -1263,7 +1265,7 @@ class FacilitySubmissionList(RolePermsViewMixin, ItemListView):
         queryset = queryset.filter(
             techniques__config__facility__acronym=self.kwargs['slug']
         ).order_by().distinct()
-        self.queryset = queryset
+        self.queryset = queryset.with_score()
         return super().get_queryset(*args, **kwargs)
 
 
@@ -1278,7 +1280,7 @@ def _acronym_list(l, obj=None):
 def _adjusted_score(val, obj=None):
     if val:
         col = "progress-bar-success" if val > 0 else "progress-bar-danger"
-        return '<span class="label {}">{:+}</span>'.format(col, val)
+        return f'<span class="label {col}">{val:+}</span>'
     else:
         return ""
 
@@ -1287,7 +1289,7 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
     list_filters = ['created', 'pool', 'techniques__config__facility']
-    list_search = ['proposal__title', 'proposal__id', 'proposal__team', 'proposal__keywords']
+    list_search = ['proposal__title', 'proposal__code', 'proposal__team', 'proposal__keywords']
     link_url = "submission-detail"
     order_by = ['proposal__id', '-cycle_id', '-stdev']
     list_title = 'Review Evaluation'
@@ -1319,10 +1321,12 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
         return transforms
 
     def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        queryset = queryset.filter(state__gte=models.Submission.STATES.reviewed)
-        queryset = queryset.filter(cycle_id=self.kwargs['cycle'], track__acronym=self.kwargs['track']).with_scores()
-        return queryset
+        self.queryset = Submission.objects.filter(
+            state__gte=models.Submission.STATES.reviewed,
+            cycle_id=self.kwargs['cycle'],
+            track__acronym=self.kwargs['track']
+        ).with_scores()
+        return super().get_queryset(*args, **kwargs)
 
 
 class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
