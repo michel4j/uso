@@ -1,3 +1,0 @@
-
-Allocating Beam Time
-====================

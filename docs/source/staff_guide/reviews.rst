@@ -9,8 +9,17 @@ define the progression of reviews.
 Review Types
 ------------
 ReviewTypes are the fundamental building blocks of the review process. They define the nature of the review,
-the criteria for evaluation, and the roles of the reviewers involved. Each ReviewType is characterized by
-the following attributes:
+the criteria for evaluation, and the roles of the reviewers involved. ReviewTypes can be added/modified by
+accessing the :menuselection:`Admin --> Review Types` section of the USO system menu.
+
+.. figure:: review-types-form.png
+    :alt: Review Types Form
+    :align: center
+
+    A screenshot of the Review Types form.
+
+
+Each ReviewType is characterized by the following attributes:
 
 - **Code**: A unique identifier for the review type.
 - **Kind**: The type of review being conducted, such as "Safety", "Technical", "Scientific", etc.
@@ -26,10 +35,18 @@ Review Tracks
 -------------
 A review track is a collection of related reviews that share a common theme or goal. Additionally, each track
 can specify a set of reviewers, the committee, who are responsible for conducting the reviews. In some cases,
-the track may also include a set of reviewers who are not part of the committee but are invited to participate
-in the review process.
+the track may also access a set of reviewers who are not part of the committee but are invited to participate
+in the review process. Review tracks can be added/modified by accessing the :menuselection:`Admin --> Review Tracks`
+section of the USO system menu. Review Track parameters can also be modified on Cycle detail pages.
+
+... figure:: review-tracks-form.png
+    :alt: Review Tracks Form
+    :align: center
+
+    A screenshot of the Review Tracks form.
 
 Each review track is defined by the following attributes:
+
 - **Name**: A unique identifier for the review track.
 - **Description**: A brief overview of the track's purpose and scope.
 - **Committee**: A list of reviewers who are part of the committee for this track.

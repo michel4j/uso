@@ -9,5 +9,4 @@
    facilities
    cycles
    reviews
-   allocation
    experiments
