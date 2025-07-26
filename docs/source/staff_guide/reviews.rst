@@ -12,7 +12,7 @@ ReviewTypes are the fundamental building blocks of the review process. They defi
 the criteria for evaluation, and the roles of the reviewers involved. ReviewTypes can be added/modified by
 accessing the :menuselection:`Admin --> Review Types` section of the USO system menu.
 
-.. figure:: review-types-form.png
+.. figure:: review-type-form.png
     :alt: Review Types Form
     :align: center
 
@@ -39,7 +39,7 @@ the track may also access a set of reviewers who are not part of the committee b
 in the review process. Review tracks can be added/modified by accessing the :menuselection:`Admin --> Review Tracks`
 section of the USO system menu. Review Track parameters can also be modified on Cycle detail pages.
 
-... figure:: review-tracks-form.png
+.. figure:: review-track-form.png
     :alt: Review Tracks Form
     :align: center
 
@@ -59,6 +59,26 @@ Review Stages
 Each review track is divided into stages, which represent the different phases of the review process. The stages
 are designed to guide the review from initial submission to final approval. Each stage specifies the type
 of review that is conducted, the reviewers involved, and any specific requirements or criteria that must be met.
+
+The details of each review stage are shown within the cycle detail page, under the relevant Review Track tab.
+The tools within the Review Track tab allow User Office Administrators to manage the stages of the review track.
+
+.. figure:: review-stage-tools.png
+    :alt: Managing Review Stages
+    :align: center
+
+    A screenshot of the Review Track details under a given cycle showing review stages for the track, and
+    tools for managing review stages.
+
+
+Click the :icon:`bi bi-plus-square;Add Stage` tool to add a new stage to the track. Click the stage title to edit
+an existing review stage.
+
+.. figure:: review-stage-form.png
+    :alt: Review Stage Form
+    :align: center
+
+    A screenshot of the Review Stage form.
 
 Each review stage is defined by the following attributes:
 

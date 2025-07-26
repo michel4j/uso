@@ -30,7 +30,7 @@ Reviews of materials containing previously reviewed samples may be expedited.
     :align: center
 
     A screenshot of the materials overview page showing the list of samples. Amendments can be made by using the
-    :guilabel:`Amend` tool.
+    :icon:`bi bi-pencil;Amend` tool.
 
 
 Beamtime Allocation
@@ -50,13 +50,13 @@ during the cycle. Users can decline to use the allocated beam time at any time, 
     :align: center
 
     A screenshot of the allocation overview page showing the number of allocated, scheduled and used shifts and
-    the :guilabel:`Decline` tool.
+    the :icon:`bi bi-x; Decline` tool.
 
 
 On beamlines (and other facilities) which do not allocate beam time in advance (flexible scheduling),
 shifts are not reserved. The allocation section on the project page will therefore not show any allocated
 shifts on these beamlines. Instead, beam time can be booked as needed throughout the period of validity by using
-:guilabel:`Book Shifts` tool.
+:icon:`bi bi-calendar2-week;Book Shifts` tool.
 
 .. figure:: book-shifts.png
     :alt: Book Shifts Tool
@@ -76,7 +76,7 @@ for projects which got zero shifts during the previous cycle. On beamlines (and 
 allocate beam time in advance, renewals are not required. Instead beam time can be booked as needed throughout the
 period of validity.
 
-Renewals are done through the :guilabel:`Renew` tool on the project page. Only one renewal can be submitted each
+Renewals are done through the :icon:`bi bi-recycle;Renew` tool on the project page. Only one renewal can be submitted each
 cycle, and it must be submitted during the *Call for Proposals*. You can save the renewal request for submission
 later by using the :guilabel:`Save` button on the form instead of the :guilabel:`Submit` button.
 
@@ -108,8 +108,8 @@ reviewed but only members who meet all required qualifications will be able to p
 
     A screenshot of the team list on the project page showing the team members and their qualifications/permissions.
 
-The :guilabel:`Edit Team` tool can be use to add or remove team members.  All team members must be registered users
-of the system. Use the :guilabel:`Update Team` tool to refresh the list of team members if any of the team
+The :icon:`bi bi-pencil;Edit Team` tool can be use to add or remove team members.  All team members must be registered users
+of the system. Use the :icon:`bi bi-person-check;Update Team` tool to refresh the list of team members if any of the team
 members have registered since the last update. These tools are only available to the spokesperson, delegate,
 or project leader.
 

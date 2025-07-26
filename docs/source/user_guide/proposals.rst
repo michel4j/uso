@@ -48,9 +48,8 @@ section. All highlighted issues must be addressed prior to submitting the propos
 
    A screenshot showing validation warnings in the proposal form.
 
-Clicking the :guilabel:`Preview`
-button saves the proposal and redirects to the preview page where you can see the content of the proposal in a
-formatted document for reading.
+Clicking the :guilabel:`Preview` button saves the proposal and redirects to the preview page where you can see the
+content of the proposal in a formatted document for reading.
 
 .. figure:: proposal-preview.png
    :alt: Proposal Preview
@@ -60,14 +59,14 @@ formatted document for reading.
 
 The proposal preview page also includes a toolbar with several icons that allow you to perform actions on the proposal:
 
-* Add an **Attachment**: This allows you to upload additional files related to the proposal, such as supporting
-  documents.
-* **Clone**: duplicates the proposal, creating a new proposal with the same content. This is useful if you want to
+- :icon:`bi bi-paperclip` **Attachments** Manage attachments, this displays a modal dialog for uploading additional files related to the
+  proposal, such as supporting documents.
+- :icon:`bi bi-copy` **Clone** duplicates the proposal, creating a new proposal with the same content. This is useful if you want to
   create a similar proposal without starting from scratch.
-* **Edit**: returns you to the proposal form for editing.
-* **Delete**: removes the proposal from the system. Only available for draft proposals. This action is irreversible,
+- :icon:`bi bi-pencil` **Edit** returns you to the proposal form for editing.
+- :icon:`bi bi-trash` **Delete** removes the proposal from the system. Only available for draft proposals. This action is irreversible,
   and once a proposal is deleted, it cannot be recovered,
-* **Submit**: submits the proposal for review. This action is only available when the proposal is complete and valid.
+- :icon:`bi bi-arrow-right-circle` **Submit** submits the proposal for review. This action is only available when the proposal is complete and valid.
   Once submitted, the proposal cannot be edited, but you can respond to reviewer comments if the proposal is accepted
   or under review.
 
@@ -77,7 +76,7 @@ All proposals you have created, or which include you as a team member, are liste
 Submitting a Proposal
 ---------------------
 Proposals can only be submitted from the preview page. Once the proposal form is complete, users can submit it
-for review by clicking the :guilabel:`Submit` icon on the proposal preview page.
+for review by clicking the :icon:`bi bi-arrow-right-circle; Submit` tool on the proposal preview page.
 Select the appropriate ReviewTracks and Access Pool for submissions.
 
 .. figure:: proposal-submit-form.png

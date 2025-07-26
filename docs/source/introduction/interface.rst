@@ -59,8 +59,8 @@ is responsive and adapts to small screens by hiding the text labels and showing 
 
 Icon Tool
 ---------
-An icon with a descriptive text to the right or underneath. Single-clicking on the tool initiates
-an action such as opening a form or a pop-up, or redirecting to another page. On
+An icon with a descriptive text to the right or underneath. For example, :icon:`bi bi-arrow-right-circle;Submit`
+Single-clicking on the tool initiates an action such as opening a form or a pop-up, or redirecting to another page. On
 small screens, or when more space is needed on the screen, only the icon is shown. Multiple icon tools are
 sometimes grouped together in a tool bar, on the top-right corner of a page or parts of a page to provide
 a collection of actions that a user may perform in the given context.  such as the "Proposals" panel on the dashboard.

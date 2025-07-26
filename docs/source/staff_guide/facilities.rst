@@ -5,7 +5,7 @@ Facility Management
 Creating and Editing Facilities
 -------------------------------
 Beamlines and instruments can be created by a User Office Administrator. To create new facilities, navigate to the
-:menuselection:`Facilities --> All Facilities` list page and use the :guilabel:`Add Facility` tool to create a new
+:menuselection:`Facilities --> All Facilities` list page and use the :icon:`bi bi-plus;Add Facility` tool to create a new
 Facility.  On the Create Facility form that appears, you can enter the details of the facility, including its name,
 description, and any other relevant information:
 
@@ -35,7 +35,7 @@ The following fields are available on the Create Facility form:
 - **Allocation Required**: Indicates whether the facility requires allocation, or uses flexible scheduling and does not
   allocate shifts to projects.
 
-Existing facilities can be edited by clicking on the :guilabel:`Edit Facility` tool on the beamline/instrument detail
+Existing facilities can be edited by clicking on the :icon:`bi bi-pencil;Edit Facility` tool on the beamline/instrument detail
 page. The detail page can be accessed by clicking the facility acronym in the
 :menuselection:`Facilities --> All Facilities` list. In addition to User Office Administrators,  beamline/instrument
 administrators can also edit the details of their facilities.
@@ -77,10 +77,10 @@ Within each cycle panel, various tools are available to manage the facilities re
 Facility Settings
 -----------------
 The facility settings page allows you to configure various aspects of the facility, such as techniques, review tracks,
-and access pool allotments. To access the settings page, click on the :guilabel:`Settings` tool on the facility detail
+and access pool allotments. To access the settings page, click on the :icon:`bi bi-sliders2-vertical;Settings` tool on the facility detail
 page. At the top of the settings page, you can see the facility name, acronym, and description. Below that,
 the current access pool allotments are displayed, showing the percentage of shifts available for each access pool.
-You can edit the access pool allotments by clicking on the :guilabel:`Access Pools` tool at the top of the page.
+You can edit the access pool allotments by clicking on the :icon:`bi bi-diagram-3;Access Pools` tool at the top of the page.
 
 .. figure:: facility-settings.png
     :alt: Facility Settings Page
@@ -90,7 +90,7 @@ You can edit the access pool allotments by clicking on the :guilabel:`Access Poo
     and access pools and available techniques.
 
 The facility settings page also includes cards for displaying available techniques and review tracks. Changes to
-the techniques and review tracks can be made by clicking on the :guilabel:`Add Config` tool at the top of the page.
+the techniques and review tracks can be made by clicking on the :icon:`bi bi-plus;Add Config` tool at the top of the page.
 
 .. figure:: add-config-form.png
     :alt: Facility Techniques Form
@@ -108,7 +108,7 @@ indicate that the facility will not be accepting proposals for the cycle.
 Scheduling User Support
 -----------------------
 User support can be scheduled for the facility during the cycle. To schedule user support, click on the
-:guilabel:`Support` tool for the relevant cycle on the facility detail page. This will take you to the user support
+:icon:`bi bi-person-plusSupport` tool for the relevant cycle on the facility detail page. This will take you to the user support
 scheduling page, where you can assign facility staff member to shifts. The user support scheduling page displays a
 calendar view of the shifts available for user support color-coded based on the overall schedule modes of the
 organization. A sidebar on the right displays all the available staff members who can be assigned to user support.
@@ -122,8 +122,8 @@ organization. A sidebar on the right displays all the available staff members wh
 Select a staff member by clicking on their row from the sidebar, then repeatedly click the starting and ending shifts
 to schedule a sequence of shifts to the selected staff member. Press the :guilabel:`Esc` button on the
 keyboard to end a sequence. To delete a scheduled shift, click on the handle at the beginning of the shift to reveal
-the :guilabel:`Delete` tool. Alternatively, you can use the :guilabel:`Delete` tool in the sidebar to delete a
-region of scheduled events. The :guilabel:`Cancel` tool allows marking scheduled events as cancelled without
+the :icon:`bi bi-trash;Delete` tool. Alternatively, you can use the :icon:`bi bi-trash;Erase` tool in the sidebar to delete a
+region of scheduled events. The :icon:`bi bi-ban;Cancel` tool allows marking scheduled events as cancelled without
 removing them from the schedule.
 
 The total number of 8-hour blocks scheduled for each staff member for the current cycle, is displayed next to their
@@ -136,7 +136,7 @@ name in the sidebar.
 Managing Bookings
 -----------------
 On flexible-scheduling beamlines, you can manage booking requests for beam time. To manage bookings, click on the
-:guilabel:`Bookings` tool for the relevant cycle on the facility detail page. This will take you to the list of
+:icon:`bi bi-inbox;Bookings` tool for the relevant cycle on the facility detail page. This will take you to the list of
 booking requests for the facility during the cycle. Clicking the entries on the list will load a modal dialog
 with the details of the booking request, including the project name, requested shifts, comments, and date
 preferences for the request. You can change the status of the booking request by selecting the appropriate
@@ -154,7 +154,7 @@ status from the dropdown menu. The available statuses are:
 Scheduling Beam Time
 --------------------
 Beam time can be scheduled for projects during the cycle similarly to scheduling user support. To schedule beam time,
-click on the :guilabel:`Schedule` tool for the relevant cycle on the facility detail page. This will take you to the
+click on the :icon:`bi bi-calendar-plus;Schedule` tool for the relevant cycle on the facility detail page. This will take you to the
 beam time scheduler page, where you can assign projects to shifts. The beam time scheduling page displays a calendar
 view of the shifts available for beam time color-coded based on the overall schedule modes of the organization. Use the
 arrows at the top to navigate to the month or week of interest. A  sidebar on the right displays all the projects
@@ -166,9 +166,9 @@ project, or if the user specified data preferences when submitting the related p
 will be highlighted with colored badges to indicate favored vs disfavored dates. Then repeatedly click the starting
 and ending shifts to schedule a sequence of shifts to the selected project. Press the :guilabel:`Esc` button on
 the keyboard to end a sequence. To delete a scheduled shift, click on the handle at the beginning of the shift to
-reveal the :guilabel:`Delete` tool. Alternatively, you can use the :guilabel:`Delete` tool in the sidebar to delete a
-series of scheduled events. The :guilabel:`Cancel` tool allows marking scheduled events as cancelled without removing
-them from the schedule. Use the :guilabel:`Reserve` tool to reserve a block of time without assigning it to a project.
+reveal the :icon:`bi bi-trash;Delete`  tool. Alternatively, you can use the :icon:`bi bi-trash;Erase` tool in the sidebar to delete a
+series of scheduled events. The :icon:`bi bi-ban;Cancel`  tool allows marking scheduled events as cancelled without removing
+them from the schedule. Use the :icon:`bi bi-geo-alt;Reserve` tool to reserve a block of time without assigning it to a project.
 
 .. figure:: beam-time-schedule.png
     :alt: Beam Time Scheduling Page
@@ -187,12 +187,12 @@ in the sidebar.
 Allocating Beam Time
 --------------------
 Some beamlines that require allocation, Beam time must allocated to projects after reviews are completed, typically
-on the Allocation Date of the cycle. To allocate beam time, click on the :guilabel:`Allocate` :icon:`bi bi-diagram-3`  tool
+on the Allocation Date of the cycle. To allocate beam time, click on the :icon:`bi bi-diagram-3; Allocate` tool
 for the relevant cycle on the facility detail page.  On the cycle allocation page, you will
 see several sections corresponding to the
 different access pools available. Each section displays the number of shifts available for allocation based on the
 access pool allotments configured for the facility. Pool allotments can be configured either through the
-facility detail page, or by clicking the :guilabel:`Access Pools` :icon:`bi bi-diagram-3` tool at the top of the allocation page.  Each
+facility detail page, or by clicking the :icon:`bi bi-diagram-3;Access Pools` tool at the top of the allocation page.  Each
 facility can specify it's own allotments.
 
 .. figure:: allocation-page.png
@@ -212,10 +212,10 @@ Within each pool section, all projects eligible for allocation are listed. This 
 resulting from approved submissions and projects from previous cycles that submitted renewal requests. The list shows
 the project name, number of shifts requested, the aggregate review score, the number of shifts used during previous
 cycles, and the number of awarded shifts. Icons may be displayed next to the project name to indicate
-aspects of the project that may be of interest during allocation. For example, a Star :icon:`bi bi-star;1.25em` is shown
+aspects of the project that may be of interest during allocation. For example, a Star :icon:`bi bi-star` is shown
 indicate new projects. Projects from new Principal Investigators (PIs) are indicated with a Person icon
-:icon:`bi bi-person-plus;1.25em`,   and multi-beamline projects are indicated with a stacked card
-icon :icon:`bi bi-collection;1.25em`.
+:icon:`bi bi-person-plus`,   and multi-beamline projects are indicated with a stacked card
+icon :icon:`bi bi-collection`.
 
 The projects are sorted by the review score and the table rows are color-coded based on the likelihood of allocation.
 A green background indicates projects that can have all requested shifts allocated based on the number of shifts
