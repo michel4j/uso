@@ -2108,3 +2108,17 @@ class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
         self.object.save()
         return JsonResponse({'url': self.get_success_url()})
 
+
+class CycleTypeList(RolePermsViewMixin, ItemListView):
+    model = models.CycleType
+    template_name = "item-list.html"
+    list_columns = ['name', 'description']
+    list_filters = ['created', 'modified']
+    list_search = ['name', 'description']
+    link_url = "edit-cycle-type"
+    link_attr = 'data-modal-url'
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+    paginate_by = 20
+
+

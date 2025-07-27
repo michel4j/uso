@@ -1,7 +1,7 @@
 import copy
-import uuid
 from collections import defaultdict
 from datetime import date, timedelta, datetime
+from dateutil.relativedelta import relativedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -23,7 +23,6 @@ from misc.fields import StringListField
 from misc.models import Clarification, GenericContentMixin, GenericContentQueryset, CodeModelMixin
 from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
 from publications.models import SubjectArea
-from . import utils
 
 
 User = getattr(settings, "AUTH_USER_MODEL")
@@ -471,6 +470,65 @@ class ReviewTrack(TimeStampedModel):
         ))
 
 
+class CycleType(TimeStampedModel):
+    """
+    A cycle type defines the parameters for a calculating the dates for review cycles. The cycle type
+    encapsulates the period of the year during which the derived cycle is active. For two 6-month cycles
+    per year, define two cycle types, one for each cycle, each with a 6-month duration. For a single cycle per year,
+    define one cycle type, with a duration of 12 months. For a single cycle every two years, define one cycle
+    type with a duration of 24 months. Only one cycle of a given type can start in a given year.
+    """
+    class WeekDay(models.IntegerChoices):
+        MONDAY = 0, _('Monday')
+        TUESDAY = 1, _('Tuesday')
+        WEDNESDAY = 2, _('Wednesday')
+        THURSDAY = 3, _('Thursday')
+        FRIDAY = 4, _('Friday')
+        SATURDAY = 5, _('Saturday')
+        SUNDAY = 6, _('Sunday')
+
+    name = models.CharField(max_length=100, unique=True, help_text="Name of the cycle type")
+    start_date = models.DateField(help_text="Year ignored")
+    duration = models.IntegerField(default=6, help_text="Duration in months")
+    call_offset = models.IntegerField(default=21, help_text="Weeks before start date")
+    call_period = models.IntegerField(default=4, help_text="Duration of call in weeks")
+    review_duration = models.IntegerField(default=6, help_text="Review period in weeks")
+    allocation_offset = models.IntegerField(default=2, help_text="Offset in weeks for allocation")
+    open_on = models.IntegerField(choices=WeekDay.choices, default=WeekDay.WEDNESDAY, help_text="Week day")
+    close_on = models.IntegerField(choices=WeekDay.choices, default=WeekDay.WEDNESDAY, help_text="Week day")
+    active = models.BooleanField(default=True, help_text="Is this cycle type active?")
+
+    def __str__(self):
+        return self.name
+
+    def calculate_dates(self, year: int = None) -> dict:
+        """
+        Calculate the dates for the cycle type for a given year.
+        :param year: Year to calculate for, if None, use the current year
+        :return: Dictionary with keys 'start_date', 'open_date', 'close_date', 'due_date', 'alloc_date', 'end_date'
+        """
+        year = year or timezone.localtime(timezone.now()).year
+        start_date = date(year, self.start_date.month, self.start_date.day)
+
+        open_isodate = (start_date - timedelta(weeks=self.call_offset)).isocalendar()
+        open_date = date.fromisocalendar(open_isodate[0], open_isodate[1], self.open_on + 1)
+
+        close_isodate = (open_date + timedelta(weeks=self.call_period)).isocalendar()
+        close_date = date.fromisocalendar(close_isodate[0], close_isodate[1], self.close_on + 1)
+
+        due_date = close_date + timedelta(weeks=self.review_duration)
+        alloc_date = due_date + timedelta(weeks=self.allocation_offset)
+
+        return {
+            'start_date': start_date,
+            'end_date': start_date + relativedelta(months=self.duration),
+            'open_date': open_date,
+            'close_date': close_date,
+            'due_date': due_date,
+            'alloc_date': alloc_date
+        }
+
+
 class ReviewCycleQuerySet(DateSpanQuerySet):
 
     def archived(self) -> QuerySet:
@@ -536,11 +594,7 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
         active = (6, 'Active')
         archive = (7, 'Archived')
 
-    class TYPES(models.TextChoices):
-        mock = 'mock', _('Mock Cycle')
-        normal = 'normal', _('Normal Cycle')
-
-    kind = models.CharField(_('Cycle Type'), max_length=20, choices=TYPES.choices, default=TYPES.normal)
+    type = models.ForeignKey(CycleType, related_name='cycles', on_delete=models.PROTECT)
     open_date = models.DateField(_("Call Open Date"))
     close_date = models.DateField(_("Call Close Date"))
     alloc_date = models.DateField(_("Allocation Date"))
@@ -593,7 +647,7 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
         return self.end_date - timedelta(days=1)
 
     def name(self):
-        return f"{self.start_date.strftime('%b')}-{self.last_date().strftime('%b')} {self.start_date.strftime('%Y')}"
+        return f"{self.start_date.strftime('%Y')} {self.start_date.strftime('%b')}-{self.last_date().strftime('%b')}"
 
     def __str__(self):
         return self.name()
