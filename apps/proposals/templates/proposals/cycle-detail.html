@@ -57,6 +57,9 @@
 {% block page-status-bar %}
     <span class="status-badge badge bg-info text-condensed">{{ object.get_state_display }}</span>
     <div>
+        <small class="text-wide text-body-secondary">Type:</small><br/>{{ object.type }}
+    </div>
+    <div>
         <small class="text-wide text-body-secondary">Call Open:</small><br/>{{ object.open_date }}
     </div>
     <div>

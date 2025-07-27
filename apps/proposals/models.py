@@ -6,9 +6,9 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Case, Avg, When, F, Q, StdDev, Max, Count
-from django.db.models.functions import Round
+from django.db.models.functions import Round, ExtractYear
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
@@ -496,6 +496,9 @@ class CycleType(TimeStampedModel):
     allocation_offset = models.IntegerField(default=2, help_text="Offset in weeks for allocation")
     open_on = models.IntegerField(choices=WeekDay.choices, default=WeekDay.WEDNESDAY, help_text="Week day")
     close_on = models.IntegerField(choices=WeekDay.choices, default=WeekDay.WEDNESDAY, help_text="Week day")
+    shifts = models.ForeignKey(
+        'scheduler.ShiftConfig', related_name='cycle_types', on_delete=models.PROTECT, default=1,
+    )
     active = models.BooleanField(default=True, help_text="Is this cycle type active?")
 
     def __str__(self):
@@ -528,6 +531,36 @@ class CycleType(TimeStampedModel):
             'alloc_date': alloc_date
         }
 
+    def create_next(self, year: int = None) -> bool:
+        """
+        Create a new review cycle and it's schedule based on this cycle type for the next year.
+        :param year: Year to create the cycle for, if None, use the current year. If an overlapping cycle exists,
+        it will return that cycle instead of creating a new one.
+        :return: boolean indicating if the cycle was created or not,
+        """
+        from scheduler.models import Schedule
+        year = year or timezone.localtime(timezone.now()).year
+        dates = self.calculate_dates(year)
+        overlaps = self.cycles.filter(Q(end_date__gt=dates['start_date'], start_date__lt=dates['end_date']))
+
+        if overlaps.exists():
+            return False
+
+        with transaction.atomic():
+            schedule = Schedule.objects.create(
+                start_date=dates['start_date'],
+                end_date=dates['start_date'],
+                description=f"{dates['start_date']:%Y} {self.name}: Schedule",
+                config=self.shifts
+            )
+            ReviewCycle.objects.create(
+                schedule=schedule,
+                type=self,
+                **dates
+            )
+
+        return True
+
 
 class ReviewCycleQuerySet(DateSpanQuerySet):
 
@@ -539,7 +572,7 @@ class ReviewCycleQuerySet(DateSpanQuerySet):
 
     def pending(self, dt: datetime = None) -> QuerySet:
         """
-        Return the queryset representing all cycles with an start_date in the future
+        Return the queryset representing all cycles with a start_date in the future
         :param dt: Optional date to filter from, defaults to today
         """
         dt = timezone.now().date() if not dt else dt
@@ -559,6 +592,15 @@ class ReviewCycleQuerySet(DateSpanQuerySet):
         """
         dt = timezone.now().date() if not dt else dt
         return self.filter(open_date__gte=dt).first()
+
+    def next_calls(self, dt: datetime = None):
+        """
+        Return the next review cycle that is open or pending, starting from the given date.
+        :param dt: Optional date to filter from, defaults to today
+        :return: ReviewCycle or None if no cycle is found
+        """
+        dt = timezone.now().date() if not dt else dt
+        return self.filter(open_date__gte=dt)
 
     def review(self) -> QuerySet:
         """
@@ -617,9 +659,6 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
         """
         return Technique.objects.filter(pk__in=self.configs().values_list('techniques', flat=True)).distinct()
 
-    # def tracks(self):
-    #     return ReviewTrack.objects.filter(pk__in=self.submissions.values_list('track', flat=True))
-
     def num_submissions(self) -> int:
         """
         Get the number of submissions in this cycle.
@@ -656,7 +695,14 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
     num_facilities.short_description = 'Facilities'
 
     class Meta:
-        unique_together = ("start_date", "open_date")
+        verbose_name = _("Cycle")
+        constraints = [
+            models.UniqueConstraint(
+                "type",
+                ExtractYear('start_date'),
+                name='unique_cycle_type_per_year',
+            )
+        ]
         get_latest_by = "start_date"
 
 

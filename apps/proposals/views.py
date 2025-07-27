@@ -1084,10 +1084,10 @@ class CycleInfo(RolePermsViewMixin, detail.DetailView):
 class ReviewCycleList(RolePermsViewMixin, ItemListView):
     model = models.ReviewCycle
     template_name = "item-list.html"
-    list_columns = ['name', 'state', 'start_date', 'open_date', 'close_date', 'num_submissions', 'num_facilities']
+    list_columns = ['name', 'state', 'type', 'start_date', 'open_date', 'close_date', 'num_facilities']
     list_filters = ['start_date']
     link_url = "review-cycle-detail"
-    list_search = ['start_date', 'open_date', 'close_date', 'alloc_date', 'due_date']
+    list_search = ['start_date', 'open_date', 'close_date', 'alloc_date', 'due_date', 'type__name']
     order_by = ['-start_date']
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
@@ -1422,11 +1422,10 @@ class AddReviewCycles(RolePermsViewMixin, ModalConfirmView):
 
     def confirmed(self, *args, **kwargs):
         current_cycle = self.get_object()
-        utils.create_cycle(current_cycle.end_date)
-        next_cycle = models.ReviewCycle.objects.next(current_cycle.start_date)
+        next_cycle = current_cycle.type.create_next(current_cycle.end_date.year)
 
         ActivityLog.objects.log(
-            self.request, current_cycle, kind=ActivityLog.TYPES.create, description='Cycles created'
+            self.request, current_cycle, kind=ActivityLog.TYPES.create, description='Cycle created'
         )
         self.success_url = reverse('review-cycle-detail', kwargs={'pk': next_cycle.pk})
         return JsonResponse({"url": self.success_url})
@@ -1842,6 +1841,7 @@ class UpdateReviewComments(RolePermsViewMixin, ModalUpdateView):
                 "url": ""
             }
         )
+
 
 class ReviewTypeList(RolePermsViewMixin, ItemListView):
     model = ReviewType

@@ -1,41 +1,49 @@
 from collections import defaultdict
 from datetime import timedelta
 
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, Max
 from django.utils import timezone
 
 from isocron import BaseCronJob
 from notifier import notify
 from . import utils
 
+FUTURE_CYCLES = 2
+
 
 class CreateCycles(BaseCronJob):
     """
     Create next cycles if they do not exist.
-    Ensure there are always 4 future cycles, two years in advance for scheduling.
+    Ensure there are always cycles two years in advance for scheduling.
     """
     run_every = "P2D"
+    pending_types: QuerySet = None
 
-    def do(self):
+    def is_ready(self):
         from proposals import models
         today = timezone.now().date()
-        out = ""
+        in_future_years = today.year + FUTURE_CYCLES
 
-        # if there are no cycles, create the first four.
-        if not models.ReviewCycle.objects.filter().count():
+        # Check if there are cycles for the next two years
+        # the end_date of the latest cycle from each type should be at least 2 years from today
+        self.pending_types = models.CycleType.objects.filter(active=True).annotate(
+            max_year=Max('cycles__end_date__year')
+        ).filter(Q(max_year__isnull=True) | Q(max_year__lt=in_future_years))
 
-            six_months = timedelta(days=6*4*7)
-            dt = today - six_months
-            for i in range(4):
-                out = utils.create_cycle(dt)
-                dt = dt + six_months
+        return self.pending_types.exists()
 
-        # We should always have 4 future cycles, 1 year in advance for schedule
-        if models.ReviewCycle.objects.filter(start_date__gt=today).count() < 4:
-            last_cycle = models.ReviewCycle.objects.latest('start_date')
-            out = utils.create_cycle(last_cycle.start_date)
+    def do(self):
+        logs = []
+        today = timezone.now().date()
+        in_future_years = today.year + FUTURE_CYCLES
+        for pending_type in self.pending_types:
+            max_year = pending_type.max_year or today.year - 1
+            for year in range(max_year + 1, in_future_years + 1):
+                created = pending_type.create_next(year=year)
+                if created:
+                    logs.append(f"Created cycle for {pending_type.name} for year {year}")
 
-        return out
+        return '\n'.join(logs)
 
 
 class CycleStateManager(BaseCronJob):

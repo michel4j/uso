@@ -663,12 +663,16 @@ class SubmitProposalForm(ModalModelForm):
 
 
 class CycleTypeForm(ModalModelForm):
+
     class Meta:
         model = models.CycleType
         fields = [
             'name', 'start_date', 'duration', 'call_offset', 'call_period', 'review_duration',
-            'allocation_offset', 'open_on', 'close_on', 'active'
+            'allocation_offset', 'open_on', 'close_on', 'shifts', 'active'
         ]
+        widgets = {
+            'active': forms.Select(choices=((False, 'No'), (True, 'Yes'))),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -683,6 +687,8 @@ class CycleTypeForm(ModalModelForm):
                 Div('call_offset', css_class="col-sm-4"),
                 Div('review_duration', css_class="col-sm-4"),
                 Div('allocation_offset', css_class="col-sm-4"),
+                Div('shifts', css_class="col-sm-8"),
+                Div('active', css_class="col-sm-4"),
                 css_class="row"
             )
         )

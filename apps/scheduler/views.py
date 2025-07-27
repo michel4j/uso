@@ -490,3 +490,63 @@ class WeekTemplate(TemplateView):
 class ModeStatsAPI(EventStatsAPI):
     model = models.Mode
     group_by = 'kind'
+
+
+def _list_labels(x, obj):
+    """
+    Transform function to display a comma-separated string as a list of labels.
+    """
+    if not x:
+        return ''
+    else:
+        if isinstance(x, str):
+            x = x.split(',')
+        return mark_safe(''.join([f'<span class="badge bg-secondary m-1">{label.strip()}</span>' for label in x]))
+
+
+class ShiftConfigList(RolePermsViewMixin, ItemListView):
+    model = models.ShiftConfig
+    template_name = "item-list.html"
+    paginate_by = 15
+    allowed_roles = USO_ADMIN_ROLES
+    link_url = 'edit-shift-config'
+    link_attr = 'data-modal-url'
+    add_modal_url = 'add-shift-config'
+    list_filters = ['start', 'duration', 'number']
+    list_columns = ['start', 'duration', 'number', 'names']
+    list_search = ['start', 'duration', 'number', 'names']
+
+    list_transforms = {
+        'duration': lambda x, obj: f"{x} hours",
+        'number': lambda x, obj: f"{x} shifts",
+        'names': _list_labels
+    }
+
+
+class AddShiftConfig(RolePermsViewMixin, ModalCreateView):
+    model = models.ShiftConfig
+    form_class = forms.ShiftConfigForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('shift-config-list')
+
+
+class EditShiftConfig(RolePermsViewMixin, ModalUpdateView):
+    model = models.ShiftConfig
+    form_class = forms.ShiftConfigForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_delete_url(self):
+        return reverse('delete-shift-config', kwargs={'pk': self.object.pk})
+
+    def get_success_url(self):
+        return reverse('shift-config-list')
+
+
+class DeleteShiftConfig(RolePermsViewMixin, ModalDeleteView):
+    model = models.ShiftConfig
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('shift-config-list')

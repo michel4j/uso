@@ -63,3 +63,21 @@ class ModeTypeForm(ModalModelForm):
                 css_class="row"
             )
         )
+
+
+class ShiftConfigForm(ModalModelForm):
+    class Meta:
+        model = models.ShiftConfig
+        fields = ['start', 'duration', 'number', 'names']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div('start', css_class="col-sm-6"),
+                Div('duration', css_class="col-sm-6"),
+                Div('number', css_class="col-sm-6"),
+                Div('names', css_class="col-sm-6"),
+                css_class="row"
+            )
+        )

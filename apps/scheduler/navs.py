@@ -32,3 +32,11 @@ class ModeTypes(BaseNav):
     weight = 100
     roles = USO_ADMIN_ROLES
     url = reverse('mode-type-list')
+
+
+class ShiftConfigs(BaseNav):
+    parent = Scheduling
+    label = 'Shift Configurations'
+    weight = 105
+    roles = USO_ADMIN_ROLES
+    url = reverse('shift-config-list')

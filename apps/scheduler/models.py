@@ -22,7 +22,7 @@ class ShiftConfig(TimeStampedModel):
     names = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
-        return "{}-{}HRS x {}".format(self.start.strftime('%X'), self.duration, self.number)
+        return f"{self.start.strftime('%X')}-{self.duration}HRS x {self.number}"
 
     def shifts(self):
         labels = self.names.split(',')
