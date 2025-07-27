@@ -65,12 +65,12 @@ class ScheduleListView(RolePermsViewMixin, ItemListView):
 
 class ModeTypeList(RolePermsViewMixin, ItemListView):
     model = models.ModeType
-    template_name = "tooled-item-list.html"
-    tool_template = "scheduler/mode-type-tools.html"
+    template_name = "item-list.html"
     paginate_by = 15
     allowed_roles = USO_ADMIN_ROLES
     link_url = 'edit-mode-type'
     link_attr = 'data-modal-url'
+    add_modal_url = 'add-mode-type'
     list_filters = ['active', 'is_normal', 'created', 'modified']
     list_columns = ['name', 'acronym', 'color', 'description', 'active', 'is_normal']
     list_search = ['acronym', 'name', 'description']

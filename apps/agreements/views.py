@@ -22,14 +22,14 @@ def dt_display(val, obj=None):
 
 class AgreementList(RolePermsViewMixin, ItemListView):
     model = models.Agreement
-    template_name = "tooled-item-list.html"
-    tool_template = "agreements/list-tools.html"
+    template_name = "item-list.html"
     list_title = "Agreements"
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
     list_columns = ["name", "code", "state", "num_users"]
     list_filters = ["state", "modified", "created"]
     list_transforms = {'created': dt_display, 'modified': dt_display}
     link_url = "edit-agreement"
+    add_url = "add-agreement"
     link_search = ["name", "content", "description"]
     ordering = ["-state", "created", "modified"]
 

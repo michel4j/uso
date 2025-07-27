@@ -282,10 +282,11 @@ class SamplePermissions(RolePermsViewMixin, detail.DetailView):
 
 class SafetyPermissionList(RolePermsViewMixin, ItemListView):
     model = models.SafetyPermission
-    template_name = "tooled-item-list.html"
+    template_name = "item-list.html"
     paginate_by = 15
     link_url = 'edit-safety-permission'
     link_attr = 'data-modal-url'
+    add_modal_url = 'add-safety-permission'
     list_filters = ['created', 'modified', 'review']
     list_columns = ['code', 'description', 'review']
     admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
@@ -321,10 +322,11 @@ class DeleteSafetyPermission(RolePermsViewMixin, ModalDeleteView):
 
 class HazardousSubstanceList(RolePermsViewMixin, ItemListView):
     model = models.HazardousSubstance
-    template_name = "samples/substances-list.html"
+    template_name = "item-list.html"
     paginate_by = 15
     link_url = 'edit-hazardous-substance'
     link_attr = 'data-modal-url'
+    add_modal_url = 'add-hazardous-substance'
     list_filters = ['created', 'modified']
     list_columns = ['name', 'description']
     list_search = ['name', 'description']

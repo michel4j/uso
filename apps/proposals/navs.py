@@ -107,12 +107,20 @@ class PRCAssignments(BaseNav):
         return allowed
 
 
+class CycleTypes(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Cycle Types'
+    roles = USO_ADMIN_ROLES
+    url = reverse('cycle-type-list')
+    separator = True
+    weight = 95
+
+
 class AccessPools(BaseNav):
     parent = 'misc.Admin'
     label = 'Access Pools'
     roles = USO_ADMIN_ROLES
     url = reverse('access-pool-list')
-    separator = True
     weight = 100
 
 

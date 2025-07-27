@@ -660,3 +660,29 @@ class SubmitProposalForm(ModalModelForm):
                 StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
                 StrictButton('Submit Proposal', type='submit', value='submit', css_class="ms-auto btn btn-primary"),
             )
+
+
+class CycleTypeForm(ModalModelForm):
+    class Meta:
+        model = models.CycleType
+        fields = [
+            'name', 'start_date', 'duration', 'call_offset', 'call_period', 'review_duration',
+            'allocation_offset', 'open_on', 'close_on', 'active'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div("name", css_class="col-sm-4"),
+                Div("start_date", css_class="col-sm-4"),
+                Div('duration', css_class="col-sm-4"),
+                Div('open_on', css_class="col-sm-4"),
+                Div('call_period', css_class="col-sm-4"),
+                Div('close_on', css_class="col-sm-4"),
+                Div('call_offset', css_class="col-sm-4"),
+                Div('review_duration', css_class="col-sm-4"),
+                Div('allocation_offset', css_class="col-sm-4"),
+                css_class="row"
+            )
+        )

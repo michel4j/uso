@@ -1843,16 +1843,15 @@ class UpdateReviewComments(RolePermsViewMixin, ModalUpdateView):
             }
         )
 
-
 class ReviewTypeList(RolePermsViewMixin, ItemListView):
     model = ReviewType
-    template_name = "tooled-item-list.html"
-    tool_template = "proposals/review-type-tools.html"
+    template_name = "item-list.html"
     list_columns = ['description', 'code', 'form_type', 'low_better', 'per_facility']
     list_filters = ['created', 'modified']
     list_search = ['name', 'code', 'description']
     link_url = "edit-review-type"
     link_attr = 'data-modal-url'
+    add_modal_url = "add-review-type"
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
     paginate_by = 20
@@ -1899,13 +1898,15 @@ class DeleteReviewType(RolePermsViewMixin, ModalDeleteView):
 
 class TechniqueList(RolePermsViewMixin, ItemListView):
     model = models.Technique
-    template_name = "tooled-item-list.html"
-    tool_template = "proposals/technique-tools.html"
+    template_name = "item-list.html"
     list_columns = ['name', 'acronym', 'description', 'areas']
     list_filters = ['created', 'modified', 'category']
-    list_search = ['name', 'acronym', 'description', 'category', 'parent__name', 'parent__description', 'parent__acronym']
+    list_search = [
+        'name', 'acronym', 'description', 'category', 'parent__name', 'parent__description', 'parent__acronym'
+    ]
     link_url = "edit-technique"
     link_attr = 'data-modal-url'
+    add_modal_url = "add-technique"
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
     paginate_by = 20
@@ -1959,14 +1960,14 @@ class DeleteTechnique(RolePermsViewMixin, ModalDeleteView):
 
 
 class ReviewTrackList(RolePermsViewMixin, ItemListView):
-    template_name = "tooled-item-list.html"
+    template_name = "item-list.html"
     model = models.ReviewTrack
-    tool_template = "proposals/track-list-tools.html"
     list_columns = ['name',  'acronym', 'description', 'duration']
     list_filters = ['created', 'modified', 'require_call']
     list_search = ['acronym', 'name', 'committee__last_name', 'description']
     link_url = "edit-review-track"
     link_attr = 'data-modal-url'
+    add_modal_url = "add-review-track"
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
     paginate_by = 20
@@ -2030,6 +2031,7 @@ class AccessPoolList(RolePermsViewMixin, ItemListView):
     list_search = ['name', 'description', 'role']
     link_url = "edit-access-pool"
     link_attr = 'data-modal-url'
+    add_modal_url = "add-access-pool"
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
     paginate_by = 20
@@ -2112,13 +2114,65 @@ class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
 class CycleTypeList(RolePermsViewMixin, ItemListView):
     model = models.CycleType
     template_name = "item-list.html"
-    list_columns = ['name', 'description']
+    list_columns = ['name', 'start_date', 'duration', 'call_offset', 'call_period', 'active']
     list_filters = ['created', 'modified']
-    list_search = ['name', 'description']
+    list_search = ['name']
     link_url = "edit-cycle-type"
     link_attr = 'data-modal-url'
+    add_modal_url = "add-cycle-type"
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
     paginate_by = 20
+    list_transforms = {
+        'start_date': lambda x, obj: f"{x:%B} {utils.ordinal(x.day)}",
+        'duration': lambda x, obj: f"{obj.duration} months",
+        'call_offset': lambda x, obj: f"{obj.call_offset} weeks before",
+        'call_period': lambda x, obj: f"{obj.call_period} weeks",
+    }
 
 
+class AddCycleType(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.CycleTypeForm
+    model = models.CycleType
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('cycle-type-list')
+
+
+class EditCycleType(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.CycleTypeForm
+    model = models.CycleType
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['delete_url'] = reverse("delete-cycle-type", kwargs=self.kwargs)
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('cycle-type-list')
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        models.CycleType.objects.filter(pk=self.object.pk).update(**data)
+        return JsonResponse({"url": self.get_success_url()})
+
+
+class DeleteCycleType(RolePermsViewMixin,  ModalDeleteView):
+    model = models.CycleType
+    allowed_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('cycle-type-list')
+
+    def confirmed(self, *args, **kwargs):
+        self.object = self.get_object()
+        ActivityLog.objects.log(
+            self.request, self.object, kind=ActivityLog.TYPES.delete, description='Cycle Type Deleted'
+        )
+        self.object.delete()
+        return JsonResponse({"url": self.get_success_url()})

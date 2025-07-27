@@ -14,7 +14,16 @@ Cycle Types
 Cycles are defined by their type, which determines the state date within the year, duration in months, and other
 details such as, how early to open the call, the duration of the call, the duration of the review period, etc.
 
-and schedule of the cycle. The system
+In essence, a cycle type defines the parameters for a calculating the dates for new Cycles. The cycle type
+encapsulates the period of the year during which the derived cycle is active. For two 6-month cycles
+per year, define two cycle types, one for each cycle, each with a 6-month duration. For a single cycle per year,
+define one cycle type, with a duration of 12 months. For a single cycle every two years, define one cycle
+type with a duration of 24 months.
+
+.. note::
+   Only one cycle of a given type can start in a given year, and no two cycles of the same type can overlap.
+   The duration of a cycle should not be confused with the duration of a project. Projects can be valid for multiple
+   cycles.
 
 
 Creating a Cycle

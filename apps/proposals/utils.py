@@ -30,6 +30,15 @@ def truncated_title(title, obj=None):
     )
 
 
+def ordinal(number: int) -> str:
+    """
+    Format an integer with an ordinal suffix.
+    :param number: The number to format
+    """
+    suffixes = {1: 'st', 2: 'nd', 3: 'rd'}
+    return f'{number}th' if (10 <= number % 100 <= 20) else f'{number}{suffixes.get(number % 10, "th")}'
+
+
 def conv_score(num, default=0.0, converter=float):
     try:
         out = converter(num)

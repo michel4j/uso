@@ -1,5 +1,6 @@
 {% extends "page.html" %}
 {% load static %}
+{% load misc %}
 {% load itemlist %}
 {% block page-pretitle %}List of{% endblock %}
 {% block page-title %}{% itemlist_heading %}{% endblock %}
@@ -10,7 +11,22 @@
 
 {% block page-tools %}
     {% block list-tools %}
-    {% if view.tool_template %}{% include view.tool_template %}{% endif %}
+    {% if view.tool_template %}
+        {% include view.tool_template %}
+    {% elif view.add_modal_url %}
+        <a href="#0" data-modal-url="{% url view.add_modal_url %}"
+           class="tool-item"
+           title="Add {{ view.model|verbose_name|title }}"
+        >
+            <i class="bi-plus-lg icon-md icon-fw"></i>
+            <span class="tool-label">Add</span>
+        </a>
+    {% elif view.add_url %}
+        <a href="{% url view.add_url %}" class="tool-item" title="Add {{ view.model|verbose_name|title }}">
+            <i class="bi-plus-lg icon-md icon-fw"></i>
+            <span class="tool-label">Add</span>
+        </a>
+    {% endif %}
     {% endblock %}
 {% endblock %}
 

@@ -72,4 +72,9 @@ urlpatterns = [
     path('access-pools/<int:pk>/delete/', views.DeleteAccessPool.as_view(), name="delete-access-pool"),
     path('access-pools/new/', views.AddAccessPool.as_view(), name="add-access-pool"),
 
+    path('cycle-types/', views.CycleTypeList.as_view(), name="cycle-type-list"),
+    path('cycle-types/<int:pk>/edit/', views.EditCycleType.as_view(), name="edit-cycle-type"),
+    path('cycle-types/<int:pk>/delete/', views.DeleteCycleType.as_view(),  name="delete-cycle-type"),
+    path('cycle-types/new/', views.AddCycleType.as_view(), name="add-cycle-type"),
+
 ]

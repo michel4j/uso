@@ -83,12 +83,13 @@ class NotificationList(RolePermsViewMixin, ItemListView):
 
 class MessageTemplateList(RolePermsViewMixin, ItemListView):
     model = models.MessageTemplate
-    template_name = "notifier/notifier-list.html"
+    template_name = "item-list.html"
     paginate_by = 20
     list_columns = ['name', 'description', 'active', 'created', 'modified']
     list_filters = ['created', 'modified', 'kind', 'active']
-    link_url = "edit-template-modal"
+    link_url = "edit-message-template"
     link_attr = 'data-modal-url'
+    add_modal_url = "add-message-template"
     list_search = ['name', 'description']
     ordering = ['-modified']
     allowed_roles = USO_ADMIN_ROLES
@@ -120,7 +121,7 @@ class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
     allowed_roles = USO_ADMIN_ROLES
 
     def get_delete_url(self):
-        return reverse_lazy('delete-template-modal', kwargs={'pk': self.object.pk})
+        return reverse_lazy('delete-message-template', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -135,3 +136,4 @@ class EditTemplate(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
 
 class DeleteTemplate(RolePermsViewMixin, ModalDeleteView):
     model = models.MessageTemplate
+    allowed_roles = USO_ADMIN_ROLES
