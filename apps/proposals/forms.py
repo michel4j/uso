@@ -596,7 +596,7 @@ class AccessPoolForm(ModalModelForm):
 
 
 class AllocationPoolForm(ModalModelForm):
-    pools = ModelPoolField(model='proposals.AccessPool', required=False, label="Pool Allocations")
+    pools = ModelPoolField(model=models.AccessPool, required=False, label="Pool Allocations")
 
     class Meta:
         fields = ['flex_schedule']

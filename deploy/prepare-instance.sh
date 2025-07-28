@@ -38,7 +38,7 @@ cp "${SCRIPT_DIR}/settings_template.py" "$USONLINE_DIR/local/settings.py" &&
 cp "${SCRIPT_DIR}/custom.css" "$USONLINE_DIR/local/media/css/" &&
 cp "${SCRIPT_DIR}/docker-compose.yml" "$USONLINE_DIR/" &&
 sed -i "s|POSTGRES_PASSWORD\:.*$|POSTGRES_PASSWORD: ${PASSWORD}|g" $USONLINE_DIR/docker-compose.yml
-sed -i "s|'PASSWORD':.*$|'PASSWORD': '${PASSWORD}'|g" $USONLINE_DIR/local/settings.py
+sed -i "s|'PASSWORD':.*$|'PASSWORD': '${PASSWORD}',|g" $USONLINE_DIR/local/settings.py
 sed -i "s|SECRET_KEY = .*$|SECRET_KEY = '${SECRET_KEY}'|g" $USONLINE_DIR/local/settings.py
 echo "Instance directory is ready. Please update 'local/settings.py' and "
 echo "'docker-compose.yml' as needed before starting the instance."

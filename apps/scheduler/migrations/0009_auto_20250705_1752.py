@@ -14,6 +14,17 @@ MODE_COLORS = {
 }
 
 
+def create_shift_configs(apps, schema_editor):
+    ShiftConfig = apps.get_model('scheduler', 'ShiftConfig')
+    if not ShiftConfig.objects.exists():
+        to_create = [
+            ShiftConfig(start='00:00:00', duration=8, number=3, names='AM,DAY,PM'),
+            ShiftConfig(start='00:00:00', duration=4, number=6, names='00,04,08,12,16,20'),
+            ShiftConfig(start='08:00:00', duration=16, number=1, names='DAY'),
+        ]
+        ShiftConfig.objects.bulk_create(to_create, ignore_conflicts=True)
+
+
 def set_normal_mode(apps, schema_editor):
     ModeType = apps.get_model('scheduler', 'ModeType')
     ModeType.objects.filter(acronym__in=['N', 'NS']).update(is_normal=True)
@@ -29,4 +40,5 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(set_normal_mode, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(create_shift_configs, reverse_code=migrations.RunPython.noop),
     ]

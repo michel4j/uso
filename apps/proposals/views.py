@@ -555,7 +555,7 @@ class EditReviewerProfile(RolePermsViewMixin, edit.FormView):
 
 
 class ReviewList(RolePermsViewMixin, ItemListView):
-    queryset = models.Review.objects.all()
+    model = models.Review
     template_name = "item-list.html"
     paginate_by = 25
     list_columns = ['type', 'title', 'stage', 'role', 'reviewer', 'state', 'due_date']
@@ -650,10 +650,14 @@ class ClaimReview(RolePermsViewMixin, ModalConfirmView):
 
 
 class PrintReviewDoc(RolePermsViewMixin, detail.DetailView):
-    queryset = models.Review.objects.exclude(state=models.Review.STATES.closed)
+    model = models.Review
     template_name = "proposals/pdf.html"
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
+
+    def get_queryset(self):
+        self.queryset = models.Review.objects.exclude(state=models.Review.STATES.closed)
+        return super().get_queryset()
 
     def check_allowed(self):
         allowed = super().check_allowed()
@@ -682,7 +686,7 @@ def select_ethics_decision(items):
 
 
 class EditReview(RolePermsViewMixin, DynUpdateView):
-    queryset = models.Review.objects.all()
+    model = models.Review
     form_class = forms.ReviewForm
     template_name = "proposals/review-form.html"
     allowed_roles = USO_ADMIN_ROLES

@@ -6,9 +6,8 @@ from django.db import migrations
 def create_pools(apps, schema_editor):
     Submission = apps.get_model('proposals', 'Submission')
     AccessPool = apps.get_model('proposals', 'AccessPool')
-    Project = apps.get_model('projects', 'Project')
 
-    # Create pools based on existing TYPES and update submissions and projects
+    # Create pools based on existing TYPES and update submissions
     kind_field = Submission._meta.get_field('kind')
     for code, name in kind_field.choices:
         pool, created = AccessPool.objects.get_or_create(
@@ -20,7 +19,6 @@ def create_pools(apps, schema_editor):
             }
         )
         Submission.objects.filter(kind=code).update(pool=pool)
-        Project.objects.filter(kind=code).update(pool=pool)
 
 
 class Migration(migrations.Migration):

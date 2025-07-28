@@ -6,6 +6,7 @@ from django.db import migrations
 def initialize_pools(apps, schema_editor):
     Reservation = apps.get_model('projects', 'Reservation')
     AccessPool = apps.get_model('proposals', 'AccessPool')
+    Project = apps.get_model('projects', 'Project')
 
     # initialize pools TYPES and update Reservations
     kind_field = Reservation._meta.get_field('kind')
@@ -13,6 +14,7 @@ def initialize_pools(apps, schema_editor):
         pool = AccessPool.objects.filter(name=name).first()
         if pool:
             Reservation.objects.filter(kind=code).update(pool=pool)
+            Project.objects.filter(kind=code).update(pool=pool)
 
 
 class Migration(migrations.Migration):

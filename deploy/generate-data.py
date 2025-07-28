@@ -29,6 +29,12 @@ STAGES = {
     1: 1,
     2: 3
 }
+
+TRACKS = {
+    1: 'GA',
+    2: 'RA',
+    3: 'PA'
+}
 CLASSIFICATIONS = [
     'undergraduate', 'masters', 'doctorate', 'postdoc', 'faculty', 'professional', 'faculty', 'faculty', 'faculty'
 ]
@@ -438,7 +444,6 @@ class FakeFacility:
                     'modified': '2024-12-30 20:49:59.049236+00:00',
                     'config': self.config_count,
                     'technique': item,
-                    'state': 'operating',
                     'track': 1,
                 }
             })
@@ -541,6 +546,7 @@ class FakeProposal:
         return {'sample': f'{pk}', 'quantity': f"{quantity} {units}"}
 
     def add_submission(self, proposal, cycle, track, techniques, facility):
+        track_acronym = TRACKS[track]
         info = {
             'model': 'proposals.submission',
             'pk': self.submission_count,
@@ -548,39 +554,16 @@ class FakeProposal:
                 'created': '2025-01-30 20:49:59.049236+00:00',
                 'modified': '2025-01-30 20:49:59.049236+00:00',
                 'proposal': proposal,
+                'code': f"{track_acronym}{proposal:07_}".replace('_', '-'),
                 'cycle': cycle,
                 'track': track,
                 'state': 0,
                 'techniques': techniques,
             }
         }
-        self.add_review(self.submission_count, cycle, facility, track)
+
         self.new_submissions.append(info)
         self.submission_count += 1
-
-    def add_review(self, submission, cycle, facility, track):
-        info = {
-            'model': 'proposals.review',
-            'pk': self.review_count,
-            'fields': {
-                'created': '2025-01-30 20:49:59.049236+00:00',
-                'modified': '2025-01-30 20:49:59.049236+00:00',
-                'state': 1,
-                'form_type': 4,
-                'type': 2,
-                'content_type': 23,
-                'object_id': submission,
-                'due_date': '2025-05-01',
-                'cycle': cycle,
-                'stage': STAGES[track],
-                'role': f'reviewer:{facility["acronym"]}'.lower(),
-                'details': {
-                    'facility': facility["pk"],
-                }
-            }
-        }
-        self.new_reviews.append(info)
-        self.review_count += 1
 
     def add_proposal(self):
         users = random.sample(self.users, random.randint(2, 5))
@@ -616,6 +599,7 @@ class FakeProposal:
                 'created': '2025-01-30 20:49:59.049236+00:00',
                 'modified': '2025-01-30 20:49:59.049236+00:00',
                 'form_type': 2,
+                'code': f"{self.proposal_count:07_}".replace('_', '-'),
                 'is_complete': False,
                 'leader_username': users[0]['fields']['username'],
                 'title': title,
@@ -700,7 +684,6 @@ class FakeProposal:
         with open(self.data_path, 'w') as file:
             yaml.dump(self.new_proposals, file, sort_keys=False)
             yaml.dump(self.new_submissions, file, sort_keys=False)
-            yaml.dump(self.new_reviews, file, sort_keys=False)
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@ from crisp_modals.forms import ModalModelForm, FullWidth, Row, ThirdWidth, TwoTh
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.layout import Layout, Div, HTML, Field
 from django import forms
-from django.db import models
+from django.db import models, ProgrammingError
 from django.core.exceptions import ValidationError
 
 from .models import Clarification, Attachment
@@ -211,7 +211,12 @@ class ModelPoolWidget(forms.MultiWidget):
         # Each pair consists of a TextInput for the key and a NumberInput for the value.
         attrs = attrs or {}
         self.model = model
-        self.entries = self.model.objects.in_bulk()
+        try:
+            self.entries = self.model.objects.in_bulk()
+        except ProgrammingError as e:
+            # If the model does not exist or has no entries, we can still create the widget.
+            # This is useful for cases where the model might not be ready yet
+            self.entries = {}
         self.names = [str(item) for item in self.entries.values()]
         self.items = list(self.entries.values())
         widgets = []
@@ -276,10 +281,15 @@ class ModelPoolField(forms.MultiValueField):
             raise ValueError("ModelPoolField requires a valid Django model.")
 
         # Define a FloatField for each pair.
-        self.entries = model.objects.in_bulk()
         fields = []
-        for name, item in self.entries.items():
-            fields.append(forms.IntegerField(required=False))
+        try:
+            self.entries = model.objects.in_bulk()
+            for name, item in self.entries.items():
+                fields.append(forms.IntegerField(required=False))
+        except ProgrammingError as e:
+            # If the model does not exist or has no entries, we can still create the field.
+            # This is useful for cases where the model might not be ready yet
+            pass
 
         super().__init__(
             fields=tuple(fields),
