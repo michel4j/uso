@@ -36,13 +36,13 @@ class CreateCycles(BaseCronJob):
         logs = []
         today = timezone.now().date()
         in_future_years = today.year + FUTURE_CYCLES
-        for pending_type in self.pending_types:
-            max_year = pending_type.max_year or today.year - 1
-            for year in range(max_year + 1, in_future_years + 1):
-                created = pending_type.create_next(year=year)
-                if created:
+        min_year = min(self.pending_types.values_list('max_year', flat=True))
+        for year in range(min_year + 1, in_future_years + 1):
+            for pending_type in self.pending_types.order_by('start_date__month'):
+                max_year = pending_type.max_year or today.year - 1
+                if max_year < year:
+                    created = pending_type.create_next(year=year)
                     logs.append(f"Created cycle for {pending_type.name} for year {year}")
-
         return '\n'.join(logs)
 
 
