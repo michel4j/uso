@@ -9,6 +9,7 @@
 .~lock*
 .settings
 .idea
+.env
 *.db
 *.rpm
 historical-*.json

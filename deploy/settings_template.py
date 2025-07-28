@@ -5,6 +5,10 @@
 # it should be placed in a directory that is not accessible by anyone other than the web server
 ####################################################################################################
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 DEBUG = True                        # Set to False in production
 SITE_URL = "http://localhost:8080"  # The URL of the site
@@ -12,25 +16,30 @@ ALLOWED_HOSTS = ["localhost", '*']  # The list of allowed hosts
 
 
 # -----------------------------------------------------------------------------
-# SECURITY WARNING: Generate a new key and keep the secret key used in production secret!
+# SECRET_KEY is a crucial security setting used for cryptographic signing within
+# Django applications. It is essential to keep this key secret in production.
+# SECURITY WARNING: the key used in production secret! A random value should be
+# generated and set in the .env variable `SECRET_KEY`. The key below
+#  You can generate a new key using Django's
+# `django-admin shell` command:
+# >>> from django.core.management import utils
+# >>> print(utils.get_random_secret_key())
 # -----------------------------------------------------------------------------
-SECRET_KEY = 'g`0wamAE>-n-mZ<Ukx-A(*No2DSJ%ov1"I+u77|T_="6%c|HhKOd]~+,,f;)[g3p'
-USO_STYLE_OVERRIDES = []    # list of CSS files to override the default styles, place files in local/media/css/
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # -----------------------------------------------------------------------------
 # Configure the weather applet settings
 # Please register at https://openweathermap.org/api to get your own free version 2.5 API key
 # -----------------------------------------------------------------------------
 USO_WEATHER_LOCATION = [52.0936, -106.5552]     # Set your location (lat, lon) for weather data
-USO_OPEN_WEATHER_KEY = ""                       # Open Weather API key for weather data
-
+USO_OPEN_WEATHER_KEY = os.getenv("OPEN_WEATHER_API_KEY")  # OpenWeather API key for weather data
 
 # -----------------------------------------------------------------------------
 # Google API key for Google Maps, Geocoding, and other Google services used
 # in the publications application.
 # Please register at https://developers.google.com/maps/documentation/javascript/get-api-key
 # -----------------------------------------------------------------------------
-# GOOGLE_API_KEY = ""
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 # -----------------------------------------------------------------------------
 # Configure the cache settings
@@ -52,7 +61,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'usonline',
         'USER': 'usonline',
-        'PASSWORD': 'Baev6Aegha&p2iedie#Qu6Jooz5eNg7Z',  # Change this to your database password
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': 'database',
         'PORT': '',
     }
@@ -68,16 +77,21 @@ DATABASES = {
 # Configure email server settings, otherwise email notifications will not work
 # -----------------------------------------------------------------------------
 # EMAIL_HOST_USER = "email@email-server.com"
-# EMAIL_HOST_PASSWORD = "<email-password>"
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD'),
 # EMAIL_PORT = 587
 # EMAIL_HOST = "email-server.com"
-
+# DEFAULT_FROM_EMAIL = "noreply@example.com"    # emails will be sent from this address
+# SERVER_EMAIL = "noreply@example.com"          # source of error emails from USO
+# ADMINS = [
+#     ("John", "john@example.com"),
+#     ("Mary", "mary@example.com")
+# ]                                 # List of admins to receive error emails
 # -----------------------------------------------------------------------------
 # Configure roles
 # -----------------------------------------------------------------------------
-# USO_ADMIN_ROLES = ["admin:uso", "staff"]    # The superuser roles
-# USO_ADMIN_PERMS = []                                                      # The superuser permissions
-# ROLEPERMS_DEBUG = False                                                   # Print permissions and roles debug info
+# USO_ADMIN_ROLES = ["admin:uso", "staff"]  # The superuser roles
+# USO_ADMIN_PERMS = []                      # The superuser permissions
+# ROLEPERMS_DEBUG = False                   # Print permissions and roles debug info
 
 # -----------------------------------------------------------------------------
 # To synchronize roles, permissions, and other user attributes from a remote source like a People Database,

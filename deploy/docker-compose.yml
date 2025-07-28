@@ -17,7 +17,7 @@ services:
     volumes:
       - ./database:/var/lib/postgresql/data:Z
     environment:
-      POSTGRES_PASSWORD: Baev6Aegha&p2iedie#Qu6Jooz5eNg7Z
+      POSTGRES_PASSWORD: $DB_PASSWORD
       POSTGRES_USER: usonline
 
   cache:
@@ -31,15 +31,16 @@ services:
       - cache
       - database
     environment:
-      DJANGO_SUPERUSER_USERNAME: admin
-      DJANGO_SUPERUSER_PASSWORD: usoadmin
-      DJANGO_SUPERUSER_FIRST_NAME: Admin
-      DJANGO_SUPERUSER_LAST_NAME: User
-      DJANGO_SUPERUSER_EMAIL: admin@bespoke.com
+      DJANGO_SUPERUSER_USERNAME: $ADMIN_USERNAME
+      DJANGO_SUPERUSER_PASSWORD: $ADMIN_PASSWORD
+      DJANGO_SUPERUSER_FIRST_NAME: $ADMIN_FIRST_NAME
+      DJANGO_SUPERUSER_LAST_NAME: $ADMIN_LAST_NAME
+      DJANGO_SUPERUSER_EMAIL: $ADMIN_EMAIL
     ports:
       - 8080:80
     volumes:
       - ./local:/usonline/local:Z
+      - ./.env:/usonline/local/.env
     labels:
       deck-chores.isocron.command: /usonline/manage.py runcrons -v3
       deck-chores.isocron.interval: 00:10:00
