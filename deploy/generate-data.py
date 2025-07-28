@@ -585,12 +585,8 @@ class FakeProposal:
         else:
             team = users[2:]
 
-        if self.proposal_count < 50:
-            cycle = 1
-            track = 2
-        else:
-            cycle = 2
-            track = random.choice([1, 1, 1, 2])
+        cycle = random.choice([1, 2, 3, 4])
+        track = random.choice([1, 2, 3])  # GA, RA, PA
 
         info = {
             'model': 'proposals.proposal',
