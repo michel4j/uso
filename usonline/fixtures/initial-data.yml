@@ -520,10 +520,10 @@
           require more detailed inspection before use. Please arrange to have this
           inspection done in advance of your planned experiment.\n"
     actions:
+    - - preview
+      - Preview
     - - save
-      - Save & Preview
-    - - save_continue
-      - Save & Continue
+      - Save
 - model: dynforms.formtype
   pk: 3
   fields:
@@ -846,13 +846,13 @@
         field_type: reviewers
         instructions: Please select the types of additional reviews required, and
           assign them to the appropriate reviewers.
-      - name: section-002
+      - name: section_note
         tags: ''
-        label: Section 002
+        label: 'NOTE:'
         options:
         - nolabel
         field_type: newsection
-        instructions: <strong>NOTE:</strong> Changes to Reviews and Reviewers will
+        instructions: Changes to Reviews and Reviewers will
           be applied once you save the review.
     - name: Final Decision
       fields:

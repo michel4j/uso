@@ -5,8 +5,10 @@ import os
 import random
 import shutil
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 
+import numpy
 import yaml
 from faker import Faker
 from unidecode import unidecode
@@ -122,7 +124,19 @@ SAMPLE_UNITS = {
     'crystal': 'ug',
 }
 
+
+THIS_YEAR = datetime.now().year
+YEAR_WEIGHTS = numpy.random.uniform(0, 1, size=(THIS_YEAR - 2009))
+YEAR_WEIGHTS /= YEAR_WEIGHTS.sum()  # Normalize weights to sum to 1
+YEARS = list(range(2009, THIS_YEAR))
+
+
 fake = Faker()
+
+
+def random_year():
+    """Generate a random year between start and end."""
+    return random.choices(YEARS, weights=YEAR_WEIGHTS)[0]
 
 
 def fake_first_name_female(country):
@@ -167,8 +181,8 @@ class FakeUser:
                 'model': 'users.institution',
                 'pk': 1,
                 'fields': {
-                    'created': '2024-12-30 20:49:59.049236+00:00',
-                    'modified': '2024-12-30 20:49:59.049236+00:00',
+                    'created': '2008-12-30 20:49:59.049236+00:00',
+                    'modified': '2008-12-30 20:49:59.049236+00:00',
                     'name': 'Bespoke Facility',
                     'location': f"Areion Prime, Valles District, The Martian Confederation",
                     'sector': 'academic',
@@ -209,8 +223,8 @@ class FakeUser:
             'model': 'users.address',
             'pk': pk,
             'fields': {
-                'created': '2024-12-30 20:49:59.049236+00:00',
-                'modified': '2024-12-30 20:49:59.049236+00:00',
+                'created': f'{info["year"]}-{info["month"]:02d}-15 20:48:59.049236+00:00',
+                'modified': f'{info["year"]}-{info["month"]:02d}-15 20:49:59.049236+00:00',
                 'address_1': info['department'],
                 'address_2': f"{info['address']}",
                 'city': info['city'],
@@ -251,8 +265,8 @@ class FakeUser:
             'model': 'users.institution',
             'pk': self.institution_count + 1,
             'fields': {
-                'created': '2024-12-30 20:49:59.049236+00:00',
-                'modified': '2024-12-30 20:49:59.049236+00:00',
+                'created': f'{info["year"]}-{info["month"]:02d}-15 20:48:59.049236+00:00',
+                'modified': f'{info["year"]}-{info["month"]:02d}-15 20:49:59.049236+00:00',
                 'name': info['institution'],
                 'location': f"{info['city']}, {info['state']}, {info['country']}",
                 'sector': 'academic',
@@ -327,7 +341,7 @@ class FakeUser:
             'city': city,
             'state': state,
             'address': address,
-            'year': random.randint(2010, 2024),
+            'year': random_year(),
             'month': random.randint(1, 12),
             'zip': zip_code,
             'phone': phone,
@@ -365,13 +379,12 @@ class FakeUser:
         is_reviewer = random.randint(0, 100) < 25 and info['classification'] in ['faculty', 'professional', 'postdoc']
         if is_reviewer:
             pk = self.add_reviewer(self.user_count, info['fields'])
-
         self.new_users.append({
             'model': 'users.user',
             'pk': self.user_count,
             'fields': {
-                'created': '2024-12-30 20:49:59.049236+00:00',
-                'modified': '2024-12-30 20:49:59.049236+00:00',
+                'created': f'{info["year"]}-{info["month"]:02d}-15 20:49:59.049236+00:00',
+                'modified': f'{info["year"]}-{info["month"]:02d}-15 21:49:59.049236+00:00',
                 'password': os.environ.get('DJANGO_FAKE_PASSWORD', ''),
                 'username': info['username'],
                 'institution': institution['pk'],
@@ -413,7 +426,7 @@ class FakeFacility:
         self.facility_count = 1
         self.config_count = 1
         self.config_item_count = 1
-        self.fake = Faker()
+        self.fake = Faker('la')
         self.acronyms = {}
         self.techniques = defaultdict(list)
 
@@ -436,17 +449,19 @@ class FakeFacility:
         }
         self.new_configs.append(info)
         for item in tech['techniques']:
-            self.new_config_items.append({
-                'model': 'proposals.configitem',
-                'pk': self.config_item_count,
-                'fields': {
-                    'created': '2024-12-30 20:49:59.049236+00:00',
-                    'modified': '2024-12-30 20:49:59.049236+00:00',
-                    'config': self.config_count,
-                    'technique': item,
-                    'track': 1,
-                }
-            })
+            for track in [1, 2, 3]:
+                self.new_config_items.append({
+                    'model': 'proposals.configitem',
+                    'pk': self.config_item_count,
+                    'fields': {
+                        'created': '2024-12-30 20:49:59.049236+00:00',
+                        'modified': '2024-12-30 20:49:59.049236+00:00',
+                        'config': self.config_count,
+                        'technique': item,
+                        'track': track,
+                    }
+                })
+
             self.techniques[facility].append(self.config_item_count)
             self.config_item_count += 1
         self.config_count += 1
@@ -479,7 +494,8 @@ class FakeFacility:
                     'shift_size': random.choice([4, 8, 8, 8, 8, 8, 8]),
                     'flex_schedule': random.choice([True, False]),
                     'details': {
-                        'beamtime': {"user": 45, "staff": 10, "beamteam": 10, "purchased": 25, "maintenance": 10}},
+                        'pools': {"1": 45, "2": 10, "3": 10, "4": 25, "5": 10}
+                    },
                     'description': description
                 }
             }
@@ -508,7 +524,7 @@ class FakeProposal:
         self.proposal_count = 1
         self.sample_count = 1
         self.submission_count = 1
-        self.fake = Faker()
+        self.fake = Faker('la')
 
         path = Path(self.name)
         self.data_path = path / 'kickstart' / '003-proposals.yml'
@@ -545,7 +561,7 @@ class FakeProposal:
         self.sample_count += 1
         return {'sample': f'{pk}', 'quantity': f"{quantity} {units}"}
 
-    def add_submission(self, proposal, cycle, track, techniques, facility):
+    def add_submission(self, proposal, cycle, track, techniques):
         track_acronym = TRACKS[track]
         info = {
             'model': 'proposals.submission',
@@ -565,12 +581,27 @@ class FakeProposal:
         self.new_submissions.append(info)
         self.submission_count += 1
 
+    def get_random_facility_req(self):
+        facility = random.choice(list(self.techniques.keys()))
+        techniques = random.sample(self.techniques[facility], random.randint(1, len(self.techniques[facility])))
+        return {
+            'facility': facility,
+            'shifts': random.randint(1, 8),
+            'techniques': techniques,
+            'tags': [],
+            'procedure': self.fake.paragraph(nb_sentences=10),
+            'justification': self.fake.paragraph(nb_sentences=10),
+        }
+
     def add_proposal(self):
         users = random.sample(self.users, random.randint(2, 5))
-        facility = random.choice(list(self.techniques.keys()))
-        acronym = self.facilities[facility]
-        techniques = random.sample(self.techniques[facility], random.randint(1, len(self.techniques[facility])))
         areas = random.sample(SUBJECTS, random.randint(1, 3))
+        facility_reqs = []
+        techniques = []
+        for i in range(random.choices([1, 2, 3], weights=[0.7, 0.2, 0.1])[0]):
+            facility_reqs.append(self.get_random_facility_req())
+            techniques.extend(facility_reqs[-1]['techniques'])
+
         title = self.fake.sentence(nb_words=10)
         delegate = {
             'first_name': users[1]['fields']['first_name'],
@@ -626,16 +657,7 @@ class FakeProposal:
                         for user in team
                     ],
                     'sample_list': self.add_samples(users[0]['pk']),
-                    'beamline_reqs': [
-                        {
-                            'facility': facility,
-                            'shifts': random.randint(1, 8),
-                            'techniques': techniques,
-                            'tags': [],
-                            'procedure': self.fake.paragraph(nb_sentences=10),
-                            'justification': self.fake.paragraph(nb_sentences=10),
-                        }
-                    ],
+                    'beamline_reqs': facility_reqs,
                     'pool': 1,
                     'scientific_merit': (
                             self.fake.paragraph(nb_sentences=15)
@@ -660,11 +682,7 @@ class FakeProposal:
         if random.choice([True, False]):
             info['fields']['is_complete'] = True
             info['fields']['state'] = 1
-            facility_info = {
-                'pk': facility,
-                'acronym': acronym
-            }
-            self.add_submission(self.proposal_count, cycle, track, techniques, facility_info)
+            self.add_submission(self.proposal_count, cycle, track, techniques)
 
         self.new_proposals.append(info)
         self.proposal_count += 1

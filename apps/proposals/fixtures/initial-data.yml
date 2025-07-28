@@ -468,6 +468,20 @@
     low_better: true
     per_facility: false
     role: safety-approver
+- model: proposals.reviewtype
+  pk: 7
+  fields:
+    created: 2025-07-08 19:53:06.766350+00:00
+    modified: 2025-07-08 19:53:06.766350+00:00
+    code: safety-evaluation
+    kind: safety
+    description: Safety Pre-Assessment
+    form_type: 15
+    score_fields:
+      risk_level: 1.0
+    low_better: true
+    per_facility: false
+    role: safety-reviewer
 - model: proposals.reviewtrack
   pk: 1
   fields:
@@ -513,7 +527,9 @@
     max_workload: 0
     blocks: true
     pass_score: 3.0
+    weight: 1.0
     auto_create: true
+    auto_start: true
 - model: proposals.reviewstage
   pk: 2
   fields:
@@ -526,7 +542,9 @@
     max_workload: 0
     blocks: true
     pass_score: 5.0
+    weight: 1.0
     auto_create: true
+    auto_start: true
 - model: proposals.reviewstage
   pk: 3
   fields:
@@ -539,4 +557,66 @@
     max_workload: 0
     blocks: true
     pass_score: 3.0
+    weight: 1.0
     auto_create: true
+    auto_start: true
+- model: proposals.reviewstage
+  pk: 4
+  fields:
+    created: 2025-07-08 03:22:48.743986+00:00
+    modified: 2025-07-08 03:22:48.743986+00:00
+    track: 2
+    kind: 1
+    position: 2
+    min_reviews: 1
+    max_workload: 0
+    blocks: true
+    pass_score: 4.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
+- model: proposals.reviewstage
+  pk: 5
+  fields:
+    created: 2025-07-08 03:23:50.553352+00:00
+    modified: 2025-07-08 03:23:50.553352+00:00
+    track: 2
+    kind: 7
+    position: 3
+    min_reviews: 1
+    max_workload: 0
+    blocks: true
+    pass_score: 4.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
+- model: proposals.reviewstage
+  pk: 6
+  fields:
+    created: 2025-07-28 18:05:41.796191+00:00
+    modified: 2025-07-28 18:05:41.796191+00:00
+    track: 3
+    kind: 2
+    position: 1
+    min_reviews: 1
+    max_workload: 0
+    blocks: true
+    pass_score: 4.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
+- model: proposals.reviewstage
+  pk: 7
+  fields:
+    created: 2025-07-28 18:06:12.082218+00:00
+    modified: 2025-07-28 18:06:12.082218+00:00
+    track: 3
+    kind: 1
+    position: 2
+    min_reviews: 2
+    max_workload: 0
+    blocks: true
+    pass_score: 4.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
