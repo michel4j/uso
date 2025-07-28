@@ -512,7 +512,7 @@
     name: Purchased Access
     acronym: PA
     description: Purchased Access and Fee for Service Projects
-    require_call: true
+    require_call: false
     notify_offset: 1
     duration: 4
 - model: proposals.reviewstage

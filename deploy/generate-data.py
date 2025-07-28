@@ -462,8 +462,8 @@ class FakeFacility:
                     }
                 })
 
-            self.techniques[facility].append(self.config_item_count)
-            self.config_item_count += 1
+                self.techniques[facility].append(self.config_item_count)
+                self.config_item_count += 1
         self.config_count += 1
 
     def add_facilities(self):
