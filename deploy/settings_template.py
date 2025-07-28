@@ -64,7 +64,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'usonline',
         'USER': 'usonline',
-        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
         'HOST': 'database',
         'PORT': '',
     }
