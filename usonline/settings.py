@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
 
 from django.conf import global_settings
 from Crypto.Random import get_random_bytes
@@ -24,10 +23,6 @@ LOCAL_DIR = BASE_DIR / 'local'
 APPS_DIR = BASE_DIR / 'apps'
 [sys.path.append(str(path)) for path in [APPS_DIR, BASE_DIR, LOCAL_DIR] if path not in sys.path]
 
-
-# Load environment variables from .env file
-
-load_dotenv(str(LOCAL_DIR / '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/

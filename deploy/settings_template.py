@@ -7,6 +7,12 @@
 
 import os
 
+# -----------------------------------------------------------------------------
+# in a development environment, place the environment in local/.env and uncomment the next two lines
+# from dotenv import load_dotenv
+# load_dotenv()
+# -----------------------------------------------------------------------------
+
 DEBUG = True                        # Set to False in production
 SITE_URL = "http://localhost:8080"  # The URL of the site
 ALLOWED_HOSTS = ["localhost", '*']  # The list of allowed hosts
