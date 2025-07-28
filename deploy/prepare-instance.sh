@@ -10,7 +10,7 @@ if [ -z "$1" ]; then
 fi
 
 SCRIPT_NAME="$0"
-PARENT_DIR="$1"
+PARENT_DIR="${1%%+(/)}"  # Remove trailing slashes
 USONLINE_DIR="$PARENT_DIR/usonline"
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 
@@ -43,7 +43,7 @@ SECRET_KEY='${SECRET_KEY}'
 
 DB_PASSWORD='${DB_PASSWORD}'
 
-OPENAI_API_KEY=your_openai_api_key_here
+OPEN_WEATHER_API_KEY=your_openai_api_key_here
 GOOGLE_API_KEY=your_google_api_key_here
 
 ADMIN_FIRST_NAME='Admin'
@@ -56,6 +56,6 @@ EMAIL_PASSWORD=your_email_password_here
 EOF
 chmod 600 "$USONLINE_DIR/.env"
 echo "Instance directory is ready! Before starting the instance, ensure you have completed the following steps:"
-echo " 1. Update secrets in local/.env "
-echo " 2. Update 'local/settings.py' to override settings, and"
-echo " 3. Check and update 'docker-compose.yml' as needed."
+echo " 1. Update secrets in $USONLINE_DIR/.env "
+echo " 2. Update '$USONLINE_DIR/local/settings.py' to override settings, and"
+echo " 3. Check and update '$USONLINE_DIR/docker-compose.yml' as needed."

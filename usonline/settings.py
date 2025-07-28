@@ -10,18 +10,28 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 import os
 import sys
+from pathlib import Path
+from dotenv import load_dotenv
+
 from django.conf import global_settings
 from Crypto.Random import get_random_bytes
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-PROJECT_DIR = os.path.dirname(__file__)
-BASE_DIR = os.path.dirname(PROJECT_DIR)
-LOCAL_DIR = os.path.join(BASE_DIR, 'local')
-APPS_DIR = os.path.join(BASE_DIR, 'apps')
-[sys.path.append(path) for path in [APPS_DIR, BASE_DIR, LOCAL_DIR] if path not in sys.path]
+PROJECT_DIR = Path(__file__).parent
+BASE_DIR = PROJECT_DIR.parent
+LOCAL_DIR = BASE_DIR / 'local'
+APPS_DIR = BASE_DIR / 'apps'
+[sys.path.append(str(path)) for path in [APPS_DIR, BASE_DIR, LOCAL_DIR] if path not in sys.path]
+
+
+# Load environment variables from .env file
+
+load_dotenv(str(LOCAL_DIR / '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '5ni&$-wok-8w3_my-#@08s)hcwed^2xy3-m9_0tpt-le4j-926'

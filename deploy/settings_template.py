@@ -6,9 +6,6 @@
 ####################################################################################################
 
 import os
-from dotenv import load_dotenv
-load_dotenv()
-
 
 DEBUG = True                        # Set to False in production
 SITE_URL = "http://localhost:8080"  # The URL of the site

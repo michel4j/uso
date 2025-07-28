@@ -15,7 +15,7 @@ services:
     image: postgres:17-alpine
     restart: always
     volumes:
-      - ./database:/var/lib/postgresql/data:Z
+      - ./database:/var/lib/postgresql/data:z
     environment:
       POSTGRES_PASSWORD: $DB_PASSWORD
       POSTGRES_USER: usonline
@@ -39,8 +39,8 @@ services:
     ports:
       - 8080:80
     volumes:
-      - ./local:/usonline/local:Z
-      - ./.env:/usonline/local/.env
+      - ./local:/usonline/local:z
+      - .env:/usonline/.env:z   # map environment to uso container
     labels:
       deck-chores.isocron.command: /usonline/manage.py runcrons -v3
       deck-chores.isocron.interval: 00:10:00
