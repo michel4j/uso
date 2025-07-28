@@ -54,8 +54,8 @@ ADMIN_PASSWORD='usoadmin'
 
 EMAIL_PASSWORD=your_email_password_here
 EOF
-chmod 600 "$USONLINE_DIR/.env"
+chmod 600 "$USONLINE_DIR/local/.env"
 echo "Instance directory is ready! Before starting the instance, ensure you have completed the following steps:"
-echo " 1. Update secrets in $USONLINE_DIR/.env "
+echo " 1. Update secrets in $USONLINE_DIR/local/.env "
 echo " 2. Update '$USONLINE_DIR/local/settings.py' to override settings, and"
 echo " 3. Check and update '$USONLINE_DIR/docker-compose.yml' as needed."
