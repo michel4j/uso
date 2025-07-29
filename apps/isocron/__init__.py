@@ -43,7 +43,7 @@ class CronJobMeta(type):
 class BaseCronJob(object, metaclass=CronJobMeta):
     keep_logs = KEEP_MESSAGES  # Number of logs to keep in the log
     run_every = None  # Duration or Time in ISO8601 format, if Time, it will run every day at that time.
-    retry_after = None  # Duration in ISO8601 format to retry the job if it fails
+    retry_after = "P1D"  # Duration in ISO8601 format to retry the job if it fails
     run_at = None  # Time string to run at ISO8601 format
 
     def do(self):

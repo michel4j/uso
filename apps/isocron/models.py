@@ -71,9 +71,6 @@ class BackgroundTask(TimeStampedModel):
         :return: The task name as a string.
         """
         return self.name.split('.')[-1]
-    task.sort_field = 'name'
-    task.short_description = 'Task'
-    task.allow_tags = True
 
     def app(self) -> str:
         """
@@ -81,9 +78,6 @@ class BackgroundTask(TimeStampedModel):
         :return: The application name as a string.
         """
         return self.name.split('.')[0]
-    app.sort_field = 'name'
-    app.short_description = 'App'
-    app.allow_tags = True
 
     def last_ran(self):
         """
@@ -92,7 +86,6 @@ class BackgroundTask(TimeStampedModel):
         """
         last_log = self.last_log()
         return "Never" if not last_log else f"{timesince(last_log.modified)} ago"
-    last_ran.sort_field = 'logs__modified'
 
     def clean_logs(self):
         """
@@ -110,6 +103,14 @@ class BackgroundTask(TimeStampedModel):
         :return: The last TaskLog instance or None if no logs exist.
         """
         return self.logs.order_by('-created').first()
+
+    def last_state(self) -> TaskLog.StateType | None:
+        """
+        Get the last state of the task based on the latest log entry.
+        :return: The last state as a TaskLog.StateType or None if no logs exist.
+        """
+        last_log = self.last_log()
+        return last_log.state if last_log else None
 
     def run_job(self, force=False):
         """
@@ -167,6 +168,14 @@ class BackgroundTask(TimeStampedModel):
         elif not last_log:
             return True
         return False
+
+    task.sort_field = 'name'
+    task.short_description = 'Task'
+    task.allow_tags = True
+    app.sort_field = 'name'
+    app.short_description = 'App'
+    app.allow_tags = True
+    last_ran.sort_field = 'logs__modified'
 
     class Meta:
         app_label = 'isocron'
