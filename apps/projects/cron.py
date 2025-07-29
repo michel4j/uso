@@ -160,7 +160,7 @@ class CreateCallProjects(BaseCronJob):
                     alloc_request.cycle,
                     specs=specs,
                     shifts=0,
-                    shift_request=alloc_request.shift_request,
+                    requested_shifts=alloc_request.shift_request,
                 )
                 models.AllocationRequest.objects.filter(pk=alloc_request.pk).update(
                     state=models.AllocationRequest.States.complete,

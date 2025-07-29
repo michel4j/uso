@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 from typing import Any
-
+import numpy
 from django.conf import settings
 from django.db.models import Q, Value, Max, Min
 from django.db.models.functions import Coalesce
@@ -50,7 +50,7 @@ def summarize_scores(scores: dict) -> tuple[float, dict]:
     with entries returned by `Submission.get_facility_scores()`.
     """
 
-    import numpy
+
     if not scores:
         return 0.0, {}
 
@@ -125,7 +125,7 @@ def create_project(submission) -> models.Project | None:
         for facility, details in passing_requests.items():
             project.techniques.add(*details['techniques'].all())
             create_allocation_tree(
-                project, facility, cycle, specs=details, shift_request=details.get('shifts', 0),
+                project, facility, cycle, specs=details, requested_shifts=details.get('shifts', 0),
                 scores=passing_facilities[facility]
             )
 
@@ -174,7 +174,7 @@ def create_allocation_tree(
         cycle: ReviewCycle,
         specs: dict = None,
         shifts: int = 0,
-        shift_request: int = 0,
+        requested_shifts: int = 0,
         scores: dict = None
 ) -> list[models.Allocation]:
     """
@@ -185,12 +185,12 @@ def create_allocation_tree(
     :param cycle: Review cycle for the allocation
     :param specs: Specification dictionary containing justification and experimental procedure information
     :param shifts: Number of shifts allocated to the project, defaults to 0
-    :param shift_request: Requested shifts for the allocation, defaults to 0
+    :param requested_shifts: Requested shifts for the allocation, defaults to 0
     :param scores: Review scores for this facility, defaults to None
     """
 
     specs = specs or {}
-    shift_request = shift_request if shift_request is not None else shifts
+    requested_shifts = requested_shifts if requested_shifts is not None else shifts
 
     # Select facilities based on their type and parent-child relationships.
     # Allocation objects will be created for beamlines and equipment that are children
@@ -203,7 +203,7 @@ def create_allocation_tree(
     for facility in facilities:
         alloc = create_allocation(
             project, facility, cycle, specs=specs, shifts=shifts,
-            shift_request=shift_request, scores=scores,
+            requested_shifts=requested_shifts, scores=scores,
         )
         if alloc:
             created.append(alloc)
@@ -216,7 +216,7 @@ def create_allocation(
         cycle: ReviewCycle,
         specs: dict = None,
         shifts: int = 0,
-        shift_request: int = 0,
+        requested_shifts: int = 0,
         scores: dict = None
 ) -> models.Allocation:
     """
@@ -226,7 +226,7 @@ def create_allocation(
     :param cycle: Review cycle for the allocation
     :param specs: Specification dictionary containing justification and experimental procedure information
     :param shifts: Number of shifts allocated to the project, defaults to 0
-    :param shift_request: Requested shifts for the allocation, defaults to 0
+    :param requested_shifts: Requested shifts for the allocation, defaults to 0
     :param scores: Review scores for this facility, defaults to None
     """
 
@@ -237,7 +237,7 @@ def create_allocation(
 
     alloc, created = models.Allocation.objects.get_or_create(project=project, beamline=facility, cycle=cycle)
     models.Allocation.objects.filter(pk=alloc.pk).update(
-        shift_request=shift_request, shifts=shifts,
+        shift_request=requested_shifts, shifts=shifts,
         procedure=specs.get('procedure'),
         justification=specs.get('justification'),
         score=overall_score,
