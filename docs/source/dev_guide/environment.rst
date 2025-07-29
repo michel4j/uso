@@ -11,32 +11,32 @@ pull requests with your changes if you want to contribute back to the main proje
 
 Follow these steps to set up your development environment:
 
-1. **Clone the Repository:**
-   Use Git to clone the USO repository from GitHub:
+1. Use Git to clone the USO repository from GitHub:
 
-   .. code-block::bash
+   .. code-block:: bash
 
       git clone https://github.com/<my-forked-project>/uso
+
 
 2. **Setup a Virtual environment**
    Setup a Python virtual environment to isolate your development environment from the system Python packages. Based
    on your Python IDE, this can be done in different ways. For example, using the `venv` module, you can create a
    virtual environment by running:
 
-    .. code-block::bash
+    .. code-block:: bash
 
         python3 -m venv .venv
 
     Activate the virtual environment:
 
-    .. code-block::bash
+    .. code-block:: bash
 
         source .venv/bin/activate
 
 3. **Install Dependencies:**
    Install the dependencies within your active virtual environment:
 
-   .. code-block::bash
+   .. code-block:: bash
 
       pip install -r requirements.txt
 
@@ -46,7 +46,7 @@ Follow these steps to set up your development environment:
     is ignored in `.gitignore` so it won't be included in the repository. You can create the required directories
     and configuration files by running the following command:
 
-    .. code-block::bash
+    .. code-block:: bash
 
         ./deploy/prepare-dev.sh
 
@@ -55,7 +55,7 @@ Follow these steps to set up your development environment:
     that the this command will bind the database and cache containers to the host ports 5432 and 11211 respectively, so
     make sure these ports are not in use by other applications on your system. Then start the containers using:
 
-    .. code-block::bash
+    .. code-block:: bash
 
         podman-compose up -d
 
@@ -65,7 +65,7 @@ Follow these steps to set up your development environment:
 
    Change the HOST entry under the `DATABASES` section to point to the PostgreSQL container and port:
 
-   .. code-block::python
+   .. code-block:: python
 
         DATABASES = {
             'default': {
@@ -78,7 +78,7 @@ Follow these steps to set up your development environment:
 
     For the cache settings, you can use the following configuration to connect to the Memcached container:
 
-   .. code-block::python
+   .. code-block:: python
 
         CACHES = {
             'default': {
@@ -92,7 +92,7 @@ Follow these steps to set up your development environment:
    After setting up the database connection, you need to apply the initial database migrations. Run the following
    command from the top-level directory of the USO repository from within your virtual environment:
 
-   .. code-block::bash
+   .. code-block:: bash
 
       ./manage.py migrate
 
@@ -100,28 +100,28 @@ Follow these steps to set up your development environment:
     To access the admin interface and manage the USO system, you need to create a super
     user account. Run the following command and follow the prompts to create a superuser:
 
-    .. code-block::bash
+    .. code-block:: bash
 
         ./manage.py createsuperuser
 
-8 ** Load data fixtures data:**
+8. ** Load data fixtures data:**
    This step is required to load initial data required by the system.  Use the `loaddata` command as follows:
 
-   .. code-block::bash
+   .. code-block:: bash
 
       ./manage.py loaddata initial_data
 
 9. **Load additional data**
-  Use can use the following command to generate fake data for testing purposes.
+   Use can use the following command to generate fake data for testing purposes.
 
-    .. code-block::bash
+   .. code-block:: bash
 
-        ./deploy/generate-data.py -u 1000 -p 200 ./local
+       ./deploy/generate-data.py -u 1000 -p 200 ./local
 
-    This command will generate 1000 users and 200 proposals with random data. within the `local/kickstart` directory.
-    You can load this data into the database using the `loaddata` commands:
+   This command will generate 1000 users and 200 proposals with random data. within the `local/kickstart` directory.
+   You can load this data into the database using the `loaddata` commands:
 
-    .. code-block::bash
+   .. code-block:: bash
 
         ./manage.py loaddata ./local/kickstart/000-facilities.yml
         ./manage.py loaddata ./local/kickstart/001-users.yml
@@ -129,14 +129,14 @@ Follow these steps to set up your development environment:
         ./manage.py loaddata ./local/kickstart/003-proposals.yml
 
 10. **Run the Development Server:**
-    Finally, you can start the development server to test your setup. Run the following command:
+   Finally, you can start the development server to test your setup. Run the following command:
 
-    .. code-block::bash
+   .. code-block:: bash
 
         ./manage.py runserver
 
-    This will start the development server on `http://localhost:8000/`. You can access the USO system in your web
-    browser by navigating to this URL and log in using the superuser account you created earlier.
+   This will start the development server on `http://localhost:8000/`. You can access the USO system in your web
+   browser by navigating to this URL and log in using the superuser account you created earlier.
 
 .. note::
 

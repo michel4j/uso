@@ -33,15 +33,15 @@ The included applications are:
 In addition, several packages we originally developed as part of the USO system have since been released as separate
 open-source projects and are still used as external dependencies. These packages are documented separately. They are:
 
-- `**django-itemlist** <https://github.com/michel4j/django-itemlist>`__: A reusable Django application for managing
+- `django-itemlist <https://github.com/michel4j/django-itemlist>`__: A reusable Django application for managing
   searchable/filterable lists of items. This is used by all list pages in the USO system.
-- `**django-dynforms** <https://github.com/michel4j/django-dynforms>`__: A reusable Django application for designing
+- `django-dynforms <https://github.com/michel4j/django-dynforms>`__: A reusable Django application for designing
   forms. This is use for creating and managing forms in the USO system, including proposal submission forms, review
   forms, and survey forms.
-- `**django-crisp-modals** <https://pypi.org/project/django-crisp-modals>`__: A reusable Django application
+- `django-crisp-modals <https://pypi.org/project/django-crisp-modals>`__: A reusable Django application
   for creating responsive modal forms in web applications using Bootstrap 5. This is the backend for all modal
   forms in the USO system.
-- `**django-reportcraft** <https://michel4j.github.io/django-reportcraft/>`__: A reusable Django application
+- `django-reportcraft <https://michel4j.github.io/django-reportcraft/>`__: A reusable Django application
   for designing and generating reports. The application was not part of the original USO system, but was developed
   by using the same principles and was recently integrated into the USO system.
 
