@@ -61,4 +61,4 @@ Deploying an instance
 
 Documentation
 =============
-Detailed documentation is available at https://michel4j.github.io/uso/introduction/overview.html.
+Detailed documentation is available at https://michel4j.github.io/uso/.
