@@ -11,7 +11,6 @@ from model_utils.models import TimeStampedModel
 from model_utils.managers import InheritanceManager
 from django.conf import settings
 import re
-import itertools
 
 User = getattr(settings, "AUTH_USER_MODEL")
 
@@ -109,6 +108,9 @@ class Publication(TimeStampedModel):
     history = models.JSONField(default=list, blank=True)
     objects = PublicationManager()
 
+    def is_owned_by(self, user):
+        return user in self.users.all()
+
     def description(self):
         return ""
 
@@ -126,7 +128,6 @@ class Publication(TimeStampedModel):
     @property
     def citation(self):
         return Publication.objects.get_subclass(id=self.id).cite()
-
 
     @property
     def short_citation(self):

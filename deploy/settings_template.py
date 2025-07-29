@@ -92,7 +92,7 @@ DATABASES = {
 # -----------------------------------------------------------------------------
 # Configure roles
 # -----------------------------------------------------------------------------
-# USO_ADMIN_ROLES = ["admin:uso", "staff"]  # The superuser roles
+# USO_ADMIN_ROLES = ["admin:uso"]  # The superuser roles
 # USO_ADMIN_PERMS = []                      # The superuser permissions
 # ROLEPERMS_DEBUG = False                   # Print permissions and roles debug info
 
@@ -142,6 +142,6 @@ DATABASES = {
 # Configure css files to override the default styles
 # Place the CSS files in local/media/css/
 # -----------------------------------------------------------------------------
-# USO_STYLE_OVERRIDES = [
-#    'custom.css'
-# ]
+USO_STYLE_OVERRIDES = [
+   'custom.css'
+]

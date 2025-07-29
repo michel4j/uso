@@ -64,9 +64,9 @@ The proposal preview page also includes a toolbar with several icons that allow 
 - :icon:`bi bi-copy` **Clone** duplicates the proposal, creating a new proposal with the same content. This is useful if you want to
   create a similar proposal without starting from scratch.
 - :icon:`bi bi-pencil` **Edit** returns you to the proposal form for editing.
-- :icon:`bi bi-trash` **Delete** removes the proposal from the system. Only available for draft proposals. This action is irreversible,
+- :icon:`bi bi-trash text-danger` **Delete** removes the proposal from the system. Only available for draft proposals. This action is irreversible,
   and once a proposal is deleted, it cannot be recovered,
-- :icon:`bi bi-arrow-right-circle` **Submit** submits the proposal for review. This action is only available when the proposal is complete and valid.
+- :icon:`bi bi-arrow-right-circle text-success` **Submit** submits the proposal for review. This action is only available when the proposal is complete and valid.
   Once submitted, the proposal cannot be edited, but you can respond to reviewer comments if the proposal is accepted
   or under review.
 

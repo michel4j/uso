@@ -31,6 +31,9 @@ of definitions of the key terms and concepts as used within the USO system.
       A period of time, typically 6 months long, during which experiments are scheduled and performed
       at the facility. There are typically two cycles per year Jan 1st - June 30, and July 1st - Dec 31st.
 
+   Cycle Type
+      A template defining the parameters for a cycle, including its start date, duration, and other attributes.
+
    Electronic Permit
       A digital authorization that allows users to access specific facilities or equipment during their scheduled shifts.
 
@@ -96,10 +99,19 @@ of definitions of the key terms and concepts as used within the USO system.
       a day (00:00-08:00, 08:00-16:00, 16:00-24:00).  Individual beamlines may opt to split shifts further into
       four-hour blocks (00:00-04:00, 04:00-08:00 08:00-12:00, 12:00-16:00, 16:00-20:00, 20:00-24:00).
 
+   Shift Configuration
+      A set of parameters that define what shifts mean within a cycle schedule. This includes the number of shifts,
+      their duration, and their names.
+
    Sign-On
       The process by which a research team accepts responsibility for a beam time session, identifies participating
       team members, and declares samples they plan to use during the session. A successful sign-on initiate the
       session and generates an electronic permit for the session.
+
+   Spokesperson
+      The primary contact person for a project or proposal, responsible for managing the project, proposal, team, and
+      experiments. The spokesperson is typically the person who submitted the proposal and is automatically added to the
+      team.
 
    Submission
       Corresponds to a submitted proposal that has been entered into the USO system for review. It includes

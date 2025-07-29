@@ -204,7 +204,7 @@ USO_DEFAULT_CODE_GENERATORS = {
 USO_CODE_GENERATORS = {}   # override this in local.settings.py to add custom code generators for various objects
 
 # ROLES
-USO_ADMIN_ROLES = ["admin:uso", "staff"]
+USO_ADMIN_ROLES = ["admin:uso"]
 USO_CONTRACTS_ROLES = ["staff:contracts"]
 USO_CURATOR_ROLES = ["curator:publications"]
 USO_HSE_ROLES = ["staff:hse"]

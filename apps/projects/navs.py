@@ -4,8 +4,8 @@ from django.conf import settings
 from misc.navigation import BaseNav
 
 USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ["admin:uso"])
-USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ["staff", "employee"])
-USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ["staff:hse", "employee:hse"])
+USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ["staff"])
+USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ["staff:hse"])
 
 
 class Projects(BaseNav):

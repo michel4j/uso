@@ -2,6 +2,8 @@
 
 import argparse
 import os
+import zipfile
+import tempfile
 import random
 import shutil
 from collections import defaultdict
@@ -16,8 +18,6 @@ from unidecode import unidecode
 # This script is used to generate fake data for the Bespoke system. some external data is used to generate the data
 # such as sample photos, universities, country names, and sample types. The data is saved in YAML format
 
-PHOTOS_DIR = Path("~/Stuff/data-gen/avatars")       # Path photos dir, names should be numbers,
-                                                    # 0.webp, 1.webp, etc Odd for female even for male
 DATA_DIR = Path(__file__).parent / 'data'
 
 SUBJECTS = [1, 2, 3, 4, 5, 6, 7]
@@ -76,6 +76,17 @@ with open(DATA_DIR / 'country-names.yml', 'r') as file:
 with open(DATA_DIR / 'samples.yml', 'r') as file:
     SAMPLES = yaml.safe_load(file)
 
+AVATARS_FILE = DATA_DIR / 'avatars.zip'
+
+
+avatar_dir = tempfile.TemporaryDirectory()
+PHOTOS_DIR = Path(avatar_dir.name)
+# Extract avatars from the zip file if it exists
+if AVATARS_FILE.exists():
+    with zipfile.ZipFile(AVATARS_FILE, 'r') as zip_ref:
+        zip_ref.extractall(PHOTOS_DIR)
+NUM_PHOTOS = len(list(PHOTOS_DIR.glob('*.webp')))
+
 print('Loaded all databases ...')
 
 EQUATIONS = [
@@ -88,8 +99,6 @@ EQUATIONS = [
     r'$$ \int_{0}^{\infty} e^{-x^2} \,dx = \frac{\sqrt{\pi}}{2} $$'
     r'$$ \sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6} $$'
 ]
-PHOTOS_DIR = PHOTOS_DIR.expanduser().resolve()
-NUM_PHOTOS = len(list(PHOTOS_DIR.glob('*.webp')))
 
 ROLES = [
     "admin:uso", "staff:contracts", "curator:publications", "staff:hse", "manager:science", "safety-approver",
@@ -702,7 +711,7 @@ class FakeProposal:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Data Generator for USO')
-    parser.add_argument('name', metavar='name', type=str, help='Dataset Name', default='data')
+    parser.add_argument('name', metavar='name', type=str, help='Directory to save data', default='data')
     parser.add_argument('-u', '--users', type=int, help='Number of users', required=True)
     parser.add_argument('-p', '--proposals', type=int, help='Number of proposals', required=True)
     args = parser.parse_args()

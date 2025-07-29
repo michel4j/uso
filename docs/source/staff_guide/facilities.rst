@@ -230,3 +230,4 @@ To allocate shifts to a project, click on the number in the Awarded column for t
 pops up. Enter the number of shifts you wish to allocate to this project. On this form it is also possible to adjust
 the validity period of the project. Once saved, the numbers will be updated and the allocation page will re-calculate
 accordingly.
+

@@ -123,18 +123,18 @@ permissions before starting a session.
 
 Beam Time Session
 -----------------
-A period of time during which a project is using a beamline/facility. A valid session requires
+A contiguous period of time during which a project is using a beamline/facility. A valid session requires
 a few steps to establish:
 
-* **Hand-Over**: An action performed by beamline staff to hand over a beamline to a specific project
+- **Hand-Over**: An action performed by beamline staff to hand over a beamline to a specific project
   for a specific time slot. A hand-over is required before user experiments can start.
-* **Sign-On**: An action performed by the spokesperson to assume responsibility for the beamline during
-  the period prescribed period. The sign-on is only possible after a hand-over. During the sign-on,
+- **Sign-On**: An action performed by the spokesperson to assume responsibility for the beamline during
+  the prescribed period. The sign-on is only possible after a hand-over. During the sign-on,
   the spokesperson must select all participating team members and samples they plan to use during that session.
   Only approved samples may be selected. In addition, the qualifications of each team member will be verified.
   Participating team members and samples can be added at any time during the session, and beamline staff
   can extend the duration of the session at any time during the session.
-* **Sign-Off**: An action performed by a team member to indicate completion of the session and confirm that
+- **Sign-Off**: An action performed by a team member to indicate completion of the session and confirm that
   samples have been removed from the facility. If no sign-off is performed, it will be performed automatically
   by the system and the beamline staff will be notified.
 

@@ -79,11 +79,20 @@
 {% block page-status-bar %}
     {% if object.kind != object.Types.village %}
         <span class="status-badge badge bg-info text-condensed my-2">{{ object.get_state_display }}</span>
-        <div class="my-2">
-            {{ object.description }}
-        </div>
-    {% elif object.description.strip %}
-        <div class="my-2">{{ object.description }}</div>
+    {% endif %}
+    <div>
+        <small class="text-body-secondary">Description:</small><br/>
+        {{ object.description|default:"&mdash;" }}
+    </div>
+    {% if object.children.count %}
+    <div>
+        <small class="text-body-secondary">Sub-Units:</small><br/>
+        {% for fac in object.children.all %}
+            <a href="{% url 'facility-detail' acronym=fac.acronym %}" title="{{ fac.name }}">
+                <span class="badge bg-primary m-1">{{ fac.acronym }}</span>&nbsp;
+            </a>
+        {% endfor %}
+    </div>
     {% endif %}
 {% endblock %}
 
@@ -110,18 +119,6 @@
                     {% include "projects/beamline-cycle.html" %}
                 </div>
             {% endfor %}
-        </div>
-
-        <div class="row g-2">
-            {% if object.children.count %}
-                {% with object.children.count as num_children %}
-                    {% for fac in object.children.all %}
-                        <div class="col-12">
-                            {% include "beamlines/specs.html" with facility=fac %}
-                        </div>
-                    {% endfor %}
-                {% endwith %}
-            {% endif %}
         </div>
     </div>
 {% endblock %}

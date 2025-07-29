@@ -149,6 +149,9 @@ class Facility(TimeStampedModel):
         _roles = self.expand_role(FACILITY_ADMIN_ROLE)
         return user.has_any_role(*_roles)
 
+    def is_owned_by(self, user):
+        return self.is_admin(user)
+
     def staff_list(self):
         user_model = get_user_model()
         return user_model.objects.all_with_roles(*self.expand_role(FACILITY_STAFF_ROLE))

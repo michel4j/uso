@@ -27,6 +27,7 @@ markdown
 requests~=2.32.3
 xlrd
 unicodecsv
+unidecode
 prettytable>=3.16
 isodate~=0.7.2
 lxml~=5.3.0

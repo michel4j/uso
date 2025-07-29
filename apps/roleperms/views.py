@@ -24,62 +24,42 @@ class LoginRequiredMixin(object):
 
 class RolePermsViewMixin(object):
     """
-    Provides the ability to  require a list of permissions.
-    Add a context boolean variable 'admin' based on the view variable 'admin_permissions'.  
+    Provides the ability to require a list of roles.
+    Add a context boolean variable 'admin' based on the view variable 'admin_roles'.
     To be used in template like {% if admin %}.
+    Also ads a context boolean variable 'owner' based on the check_owner method'.
     
     Attributes:
-    * admin_permissions: The list of permissions to recognize as admin.
-    * allowed_permissions: Permissions allowed to access the view.
     * admin_roles: The list of roles to recognize as admin. 
     * allowed_roles: roles allowed to access the view.
     """
-    admin_permissions = []  # list of permissions to recognize as admin
-    admin_roles = []
-    allowed_permissions = []  # list of permissions to recognize as admin
-    allowed_roles = []
 
-    def get_owners(self, obj):
-        return []
+    admin_roles = []
+    allowed_roles = []
+    owner_method = 'is_owned_by'  # Method to check ownership, can be overridden in subclasses should take a user as
+                                  # an argument
 
     def check_owner(self, obj):
-        owners = self.get_owners(obj)
-        return False if not owners else (self.request.user in owners)
-
-    def get_admin_permissions(self):
-        return self.admin_permissions
-
-    def get_admin_roles(self):
-        return self.admin_roles
-
-    def get_allowed_permissions(self):
-        return self.allowed_permissions
-
-    def get_allowed_roles(self):
-        return self.allowed_roles
+        if hasattr(obj, self.owner_method):
+            return obj.is_owned_by(self.request.user)
+        return False
 
     def check_admin(self):
         admin_roles = set(self.get_admin_roles())
-        admin_perms = set(self.get_admin_permissions())
-        if admin_perms and admin_roles:
-            return (len(admin_perms & self.request.user.get_all_permissions()) > 0) | (
-                    len(admin_roles & set(self.request.user.get_all_roles())) > 0)
-        elif admin_perms:
-            return len(admin_perms & self.request.user.get_all_permissions()) > 0
-        elif admin_roles:
+        if admin_roles:
             return len(admin_roles & set(self.request.user.get_all_roles())) > 0
         else:
             return False
 
+    def get_admin_roles(self):
+        return self.admin_roles
+
+    def get_allowed_roles(self):
+        return self.allowed_roles
+
     def check_allowed(self):
         allowed_roles = set(self.get_allowed_roles())
-        allowed_perms = set(self.get_allowed_permissions())
-        if allowed_perms and allowed_roles:
-            return self.request.user.has_any_perm(*allowed_perms) | (
-                    len(set(allowed_roles) & set(self.request.user.get_all_roles())) > 0)
-        elif allowed_perms:
-            return self.request.user.has_any_perm(*allowed_perms)
-        elif allowed_roles:
+        if allowed_roles:
             return self.request.user.has_any_role(*allowed_roles)
         else:
             return True
@@ -104,11 +84,8 @@ class RolePermsViewMixin(object):
 
         if ROLEPERMS_DEBUG:
             print('AUTH USER:  {0}'.format(request.user))
-            print('REQ.PERMS:  {0}'.format(self.get_allowed_permissions()))
             print('REQ.ROLES:  {0}'.format(self.get_allowed_roles()))
-            print('ADM.PERMS:  {0}'.format(set(itertools.chain(self.get_admin_permissions(), settings.USO_ADMIN_PERMS))))
             print('ADM.ROLES:  {0}'.format(set(itertools.chain(self.get_admin_roles(), settings.USO_ADMIN_ROLES))))
-            print('USER PERMS: {0}'.format(request.user.get_all_permissions()))
             print('USER ROLES: {0}'.format(request.user.get_all_roles()))
             print('ALLOWED:    {0}'.format(self.check_allowed()))
             print('ADMIN:      {0}'.format(self.check_admin()))

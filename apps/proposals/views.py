@@ -37,8 +37,8 @@ from .models import ReviewType, Submission
 from .templatetags import proposal_tags
 
 USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
-USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff', 'employee'])
-USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse', 'employee:hse'])
+USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff'])
+USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse'])
 USO_MANAGER_ROLES = getattr(settings, "USO_MANAGER_ROLES", ['manager:science'])
 
 
@@ -202,12 +202,6 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
     form_action: str = 'save_continue'
     slug_field = 'code'
 
-    def check_owner(self, obj):
-        qchain = Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
-            delegate_username=self.request.user.username
-        )
-        self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft).filter(qchain)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_page'] = max(1, context['object'].details.get('active_page', 1))
@@ -224,10 +218,10 @@ class EditProposal(RolePermsViewMixin, DynUpdateView):
         if self.check_admin():
             self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft)
         else:
-            qchain = Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
+            filters = Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
                 delegate_username=self.request.user.username
             )
-            self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft).filter(qchain)
+            self.queryset = models.Proposal.objects.filter(state=models.Proposal.STATES.draft).filter(filters)
         return super().get_queryset()
 
     def form_valid(self, form):
@@ -321,23 +315,24 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         requirements = self.object.details['beamline_reqs']
         cycle = models.ReviewCycle.objects.get(pk=self.object.details['first_cycle'])
         techniques = models.ConfigItem.objects.none()
-        facility_acronyms = set()
+
+        pool_roles = defaultdict(list)
         for req in requirements:
             config = models.FacilityConfig.objects.for_facility(req.get('facility')).get_for_cycle(cycle)
             if config:
-                acronym = config.facility.acronym.lower()
-                facility_acronyms.add(acronym)
                 techniques |= config.items.filter(technique__in=req.get('techniques', []))
+                # store the required facililty roles for each pool, expanding wildcards
+                for pool in models.AccessPool.objects.filter(role__isnull=False):
+                    pool_roles[pool.pk].append(config.facility.expand_role(pool.role))
 
         # Select available pools
-        # A pool is available if it doesn't define any roles, or the user matches one of the defined roles
-        pool_roles = {
-            pool.pk: expand_role(pool.role, list(facility_acronyms))
-            for pool in models.AccessPool.objects.all()
-        }
+        # A pool is available if it doesn't define any roles, or the user matches at least one role from each
+        # facility. For multi-facility submissions, the user must match each requested facility's roles to have
+        # access to the pool
         available_pool_ids = [
-            pk for pk, roles in pool_roles.items() if self.request.user.has_any_role(*roles) or not roles
-        ]
+            pk for pk, facility_roles in pool_roles.items()
+            if all([self.request.user.has_any_role(*roles) for roles in facility_roles])
+        ] + list(models.AccessPool.objects.filter(role__isnull=True).values_list('pk', flat=True))
 
         # Select available tracks based on requested techniques and call status
         if cycle.is_closed():
@@ -452,9 +447,6 @@ class ProposalDetail(RolePermsViewMixin, detail.DetailView):
     allowed_roles = USO_ADMIN_ROLES + USO_STAFF_ROLES
     slug_field = 'code'
 
-    def check_owner(self, obj):
-        return self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username]
-
     def check_allowed(self):
         proposal = self.get_object()
         user = self.request.user
@@ -468,12 +460,10 @@ class ProposalDetail(RolePermsViewMixin, detail.DetailView):
 
 
 class DeleteProposal(RolePermsViewMixin, ModalDeleteView):
+    model = models.Proposal
     success_url = reverse_lazy('user-proposals')
     allowed_roles = USO_ADMIN_ROLES
     slug_field = 'code'
-
-    def check_owner(self, obj):
-        return self.request.user.username in [obj.spokesperson.username, obj.delegate_username, obj.leader_username]
 
     def check_allowed(self):
         proposal = self.get_object()
@@ -481,9 +471,9 @@ class DeleteProposal(RolePermsViewMixin, ModalDeleteView):
 
     def get_queryset(self):
         self.queryset = models.Proposal.objects.filter(
-            Q(leader_username=self.request.user.username) | Q(spokesperson=self.request.user) | Q(
-                delegate_username=self.request.user.username
-            )
+            Q(leader_username=self.request.user.username) |
+            Q(spokesperson=self.request.user) |
+            Q(delegate_username=self.request.user.username)
         )
         return super().get_queryset()
 
@@ -1338,12 +1328,6 @@ class SubmissionDetail(RolePermsViewMixin, detail.DetailView):
     model = models.Submission
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES
-
-    def check_owner(self, obj):
-        return (
-            self.request.user.username in [
-            obj.proposal.spokesperson.username, obj.proposal.delegate_username, obj.proposal.leader_username
-        ])
 
     def get_queryset(self):
         return self.model.objects.with_scores()

@@ -6,5 +6,4 @@
 
    installation
    configuration
-   users
    maintenance

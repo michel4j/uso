@@ -49,6 +49,9 @@ class Proposal(CodeModelMixin, BaseFormModel):
     def is_editable(self) -> bool:
         return self.state == self.STATES.draft
 
+    def is_owned_by(self, user):
+        return user.username in [self.spokesperson.username, self.delegate_username, self.leader_username]
+
     def authors(self) -> str:
         """
         Return a text representing the authors in the format 'Last, First' for each team member
@@ -250,6 +253,9 @@ class Submission(CodeModelMixin, TimeStampedModel):
         return get_user_model().objects.filter(
             pk__in=self.reviews.filter(reviewer__reviewer__committee=self.track).values_list('reviewer', flat=True)
         ).order_by('?').first()
+
+    def is_owned_by(self, user):
+        return self.proposal.is_owned_by(user)
 
     def __str__(self):
         return f'{self.code}~{self.proposal.spokesperson.last_name}'
@@ -1195,6 +1201,14 @@ class Review(BaseFormModel, GenericContentMixin):
 
     def __str__(self):
         return f"{self.reference} - {self.type}"
+
+    def is_owned_by(self, user):
+        """
+        Check if the review is owned by the given user.
+        :param user: User object to check ownership against
+        :return: True if the user is the reviewer or the review is not assigned to a specific reviewer
+        """
+        return self.reviewer == user or (self.role and user.has_any_role(self.role))
 
     def get_absolute_url(self):
         url = reverse('edit-review', kwargs={'pk': self.pk})

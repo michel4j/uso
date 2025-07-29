@@ -14,6 +14,7 @@
 
             {% if owner or admin %}
                 <div class="box-tools d-flex flex-row-reverse ms-auto">
+                    {% if owner %}
                     {% if info.can_renew %}
                         {% if info.renewal %}
                         <a href='{% url "edit-renewal-request" pk=info.renewal.pk %}'>
@@ -38,6 +39,7 @@
                             <i class="bi-calendar2-week icon-md icon-fw"></i>
                             <span class="tool-label">Book Shifts</span>
                         </a>
+                    {% endif %}
                     {% endif %}
                     {% if admin or user|is_staff:facility and project.is_active %}
                         <a href="#0" data-modal-url='{% url 'session-handover' pk=project.pk fac=facility.acronym %}'
@@ -101,12 +103,12 @@
                                 <small class="text-danger">{{ booking.poor_dates|join:", " }}</small>
                             </td>
                             <td class="text-nowrap">
-                                {% if booking.state == booking.States.draft %}
+                                {% if owner and booking.state == booking.States.draft %}
                                 <a href="{% url "edit-booking-request" pk=booking.pk %}">
                                     {{ booking.get_state_display }}&emsp;<i class="bi bi-pencil"></i>
                                 </a>
                                 {% else %}
-                                    <span class="badge bg-{% state_tag booking.state secondary=booking.States.submitted info=booking.States.progress success=booking.States.completed %}">
+                                    <span class="badge bg-{% state_tag booking.state secondary=booking.States.draft primary=booking.States.submitted info=booking.States.progress success=booking.States.completed %}">
                                         {{ booking.get_state_display }}
                                     </span>
                                 {% endif %}
@@ -144,12 +146,12 @@
                                 <small class="text-danger">{{ renewal.poor_dates|join:", " }}</small>
                             </td>
                             <td class="text-nowrap">
-                                {% if renewal.state == renewal.States.draft %}
+                                {% if owner and renewal.state == renewal.States.draft %}
                                 <a href="{% url "edit-renewal-request" pk=renewal.pk %}">
                                     {{ renewal.get_state_display }}&emsp;<i class="bi bi-pencil"></i>
                                 </a>
                                 {% else %}
-                                    <span class="badge bg-{% state_tag renewal.state secondary=renewal.States.submitted primary=renewal.States.complete %}">
+                                    <span class="badge bg-{% state_tag renewal.state secondary=renewal.States.draft primary=renewal.States.submitted success=renewal.States.complete %}">
                                         {{ renewal.get_state_display }}
                                     </span>
                                 {% endif %}

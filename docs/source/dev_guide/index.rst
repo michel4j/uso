@@ -6,6 +6,3 @@
 
    architecture
    environment
-   extending
-   apis
-   contributing

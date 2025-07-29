@@ -184,6 +184,12 @@ class Sample(TimeStampedModel):
     def __str__(self):
         return self.name
 
+    def is_owned_by(self, user):
+        """
+        Check if the sample is owned by the given user.
+        """
+        return self.owner == user
+
     def signal(self):
         for w in ['danger', 'warning']:
             if w in self.hazards.values_list('signal', flat=True).distinct():

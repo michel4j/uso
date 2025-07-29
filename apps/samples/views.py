@@ -22,7 +22,7 @@ MAX_RESULTS = 30
 USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
 USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff'])
 USO_CURATOR_ROLES = getattr(settings, "USO_CURATOR_ROLES", ['curator:publications'])
-USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse', 'employee:hse'])
+USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse'])
 
 
 class HSDBSearch(RolePermsViewMixin, TemplateView):

@@ -43,8 +43,8 @@ from . import models
 from . import serializers
 
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
-USO_HSE_ROLES = getattr(settings, 'USO_HSE_ROLES', ["staff:hse", "employee:hse"])
-USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ["staff", "employee"])
+USO_HSE_ROLES = getattr(settings, 'USO_HSE_ROLES', ["staff:hse"])
+USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ["staff"])
 
 
 def _fmt_beamlines(bls, obj=None):
@@ -379,7 +379,9 @@ class SessionDetail(RolePermsViewMixin, detail.DetailView):
         context = super().get_context_data(**kwargs)
         context['beamlines'] = [self.object.beamline]
         context['samples'] = [(s.sample, s.quantity) for s in self.object.samples.all()]
-        context['can_terminate'] = self.request.user.has_any_role(*self.terminate_roles)
+        context['can_terminate'] = (
+            self.request.user.has_any_role(*self.terminate_roles)
+        )
         return context
 
 
