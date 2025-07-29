@@ -106,3 +106,9 @@ reviewers, and the stage parameters are check to determine if the submission pas
 or if the stage does not block passage, the submission moves to the next stage in the review track and the next set
 of reviews is created automatically if configured as such. For stages that require manual intervention, User Office
 Administrators can manually create the next stage reviews and/or notify reviewers manually.
+
+.. note::
+   :ref:`Background tasks <background-tasks>` are used to automate the creation of reviews and sending of notifications
+   to reviewers, and many other state transitions involved in the workflow. These tasks run periodically. For review
+   stages configured to require manu intervention, User Office Administrators must manually initiate the state
+   transitions through tools available on the Track Stage card within the review track.

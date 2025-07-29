@@ -9,4 +9,6 @@
    facilities
    cycles
    reviews
+   scheduling
    experiments
+   tasks

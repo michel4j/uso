@@ -105,6 +105,8 @@ as column headers, and color coded based on whether they require a call for prop
 If the facility is not available during a cycle, you can answer :guilabel:`No` under "Accepting Proposals?" to
 indicate that the facility will not be accepting proposals for the cycle.
 
+.. _schedule-user-support:
+
 Scheduling User Support
 -----------------------
 User support can be scheduled for the facility during the cycle. To schedule user support, click on the
@@ -150,6 +152,7 @@ status from the dropdown menu. The available statuses are:
   working on the request.
 - **Completed**: The booking request has been processed and the shifts have been scheduled.
 
+.. _schedule-beam-time:
 
 Scheduling Beam Time
 --------------------
