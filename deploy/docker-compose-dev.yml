@@ -1,0 +1,41 @@
+services:
+  cron:
+    image: ghcr.io/funkyfuture/deck-chores:1
+    restart: always
+    privileged: true
+    depends_on:
+      - uso
+    environment:
+        TIMEZONE: America/Regina
+    volumes:
+      - $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock:Z  # for podman
+#      - /var/run/docker.sock:/var/run/docker.sock:Z                 # for docker
+
+  database:
+    image: postgres:17-alpine
+    restart: always
+    volumes:
+      - ./database:/var/lib/postgresql/data:z
+    environment:
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+      POSTGRES_USER: usonline
+
+  cache:
+    image: memcached:latest
+    restart: always
+
+  uso:
+    image: usonline:latest
+    restart: always
+    depends_on:
+      - cache
+      - database
+    env_file:
+      - ./.env
+    ports:
+      - 8080:80
+    volumes:
+      - ./local:/usonline/local:Z
+    labels:
+      deck-chores.isocron.command: /usonline/manage.py runcrons -v3
+      deck-chores.isocron.interval: 00:10:00
