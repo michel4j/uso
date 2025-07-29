@@ -1,0 +1,55 @@
+name: build-pages
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Specify your Python version
+
+      - name: Install dependencies
+        run: pip install -r docs/requirements.txt # Adjust path if needed
+
+      - name: Build Sphinx documentation
+        run: |
+          cd docs # Navigate to your docs directory
+          make html # Or use sphinx-build directly
+          touch build/html/.nojekyll
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
+        with:
+          path: docs/build/html/
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
