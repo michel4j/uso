@@ -198,7 +198,7 @@ class FacilityTag(TimeStampedModel):
 
 class Lab(TimeStampedModel):
     name = models.CharField(max_length=255, unique=True)
-    acronym = models.CharField(max_length=20, unique=True)
+    acronym = models.SlugField(max_length=20, unique=True)
     description = models.TextField(blank=True, null=True)
     admin_roles = StringListField(null=True, blank=True)
     permissions = models.ManyToManyField("samples.SafetyPermission", blank=True)
