@@ -32,6 +32,8 @@ def next_run_time(
         every_duration = every_obj
 
     prev_time = last_time
+    if not prev_time:
+        return current_time
 
     if every_time:
         # If run_every is a time, calculate the next run time for today
