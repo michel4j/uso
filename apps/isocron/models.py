@@ -8,8 +8,7 @@ from django.db.models import TextChoices
 from django.utils.timesince import timesince
 from model_utils.models import TimeStampedModel
 from django.utils import timezone
-from isocron import parse_iso, BaseCronJob
-
+from isocron import parse_iso, BaseCronJob, utils
 
 JOB_TIME_RESOLUTION = 600       # maximum resolution for job times in seconds (10 minutes)
 
@@ -141,60 +140,10 @@ class BackgroundTask(TimeStampedModel):
         :return: A datetime object representing the next run time.
         """
 
-        if not self.run_every and not self.run_at:
-            return None
-
-        current_time = timezone.localtime(timezone.now())
-        at_time = None if not self.run_at else parse_iso(self.run_at)
-        every_obj = None if not self.run_every else parse_iso(self.run_every)
-        every_time = every_duration = None
-
-        if isinstance(every_obj, time):
-            every_time = every_obj
-        else:
-            every_duration = every_obj
-
         last_log = self.last_log()
-        prev_time = current_time if not last_log else timezone.localtime(last_log.created)
+        prev_time = None if not last_log else last_log.created
 
-        if every_time:
-            # If run_every is a time, calculate the next run time for today
-            next_time = current_time.replace(
-                hour=every_time.hour,
-                minute=every_time.minute,
-                second=every_time.second,
-                microsecond=every_time.microsecond
-            )
-            if next_time <= prev_time:
-                next_time += timedelta(days=1)
-        elif every_duration:
-            # If run_every is a duration, add it to previous run time
-            if not prev_time:
-                next_time = current_time
-            else:
-                next_time = prev_time + every_duration
-            if at_time and every_duration > timedelta(days=1):
-                # for durations longer than a day, adjust the time to run at otherwise ignore it
-                next_time = next_time.replace(
-                    hour=at_time.hour,
-                    minute=at_time.minute,
-                    second=at_time.second,
-                    microsecond=at_time.microsecond
-                )
-        elif at_time:
-            # run at this time every day
-            next_time = current_time.replace(
-                hour=at_time.hour,
-                minute=at_time.minute,
-                second=at_time.second,
-                microsecond=at_time.microsecond
-            )
-            if next_time <= prev_time:
-                next_time += timedelta(days=1)
-        else:
-            next_time = None
-
-        return next_time
+        return utils.next_run_time(self.run_every, self.run_at,last_time=prev_time)
 
     def is_due(self) -> bool:
         """
@@ -206,10 +155,10 @@ class BackgroundTask(TimeStampedModel):
         retry_time = parse_iso(self.retry_after)
         if not next_time:
             return False
-        elif retry_time and last_log:
-            return (now - last_log.created) >= retry_time
         elif (now - next_time).total_seconds() >= JOB_TIME_RESOLUTION:
             return True
+        elif retry_time and last_log:
+            return (now - last_log.created) >= retry_time
         elif not last_log:
             return True
         return False

@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.test import TestCase
 from isocron.models import BackgroundTask, TaskLog
 from isocron import autodiscover, BaseCronJob, parse_iso
-
+from isocron.utils import next_run_time
 
 class TestSuccess(BaseCronJob):
     """
@@ -84,3 +84,49 @@ class BackgroundTaskModelTests(TestCase):
         for i in range(3):
             task.save_log(f"Log {i}", TaskLog.StateType.success)
         self.assertEqual(task.logs.count(), 2)
+
+
+class TestNextRunTime(unittest.TestCase):
+    def setUp(self):
+        self.tz = timezone.get_current_timezone()
+        self.fixed_now = datetime(2024, 6, 1, 10, 0, 0, tzinfo=self.tz)
+        patcher = patch('django.utils.timezone.now', return_value=self.fixed_now)
+        self.addCleanup(patcher.stop)
+        self.mock_now = patcher.start()
+
+    def test_no_run_every_no_run_at(self):
+        self.assertIsNone(next_run_time(None, None))
+
+    def test_run_every_time_today(self):
+        result = next_run_time("T12:00", None, last_time=datetime(2024, 6, 1, 9, 0, 0, tzinfo=self.tz))
+        self.assertEqual(result.hour, 12)
+        self.assertEqual(result.day, 1)
+
+    def test_run_every_time_tomorrow_if_past(self):
+        result = next_run_time("T09:00", None, last_time=datetime(2024, 6, 1, 9, 0, 0, tzinfo=self.tz))
+        self.assertEqual(result.hour, 9)
+        self.assertEqual(result.day, 2)
+
+    def test_run_every_duration(self):
+        result = next_run_time("PT1H", None, last_time=self.fixed_now)
+        self.assertEqual(result.hour, 11)
+        self.assertEqual(result.day, 1)
+
+    def test_run_every_duration_no_last_time(self):
+        result = next_run_time("PT1H", None, last_time=None)
+        self.assertEqual(result, self.fixed_now)
+
+    def test_run_at_only_today(self):
+        result = next_run_time(None, "T15:00", last_time=datetime(2024, 6, 1, 9, 0, 0, tzinfo=self.tz))
+        self.assertEqual(result.hour, 15)
+        self.assertEqual(result.day, 1)
+
+    def test_run_at_only_tomorrow_if_past(self):
+        result = next_run_time(None, "T09:00", last_time=datetime(2024, 6, 1, 9, 0, 0, tzinfo=self.tz))
+        self.assertEqual(result.hour, 9)
+        self.assertEqual(result.day, 2)
+
+    def test_run_every_duration_and_run_at_long_duration(self):
+        result = next_run_time("P2D", "T08:00", last_time=datetime(2024, 5, 30, 10, 0, 0, tzinfo=self.tz))
+        self.assertEqual(result.hour, 8)
+        self.assertEqual(result.day, 1)  # 2024-06-01 08:00
