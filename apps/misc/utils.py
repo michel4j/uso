@@ -1,13 +1,14 @@
 
 
 import time
-from collections import defaultdict
 from importlib import import_module
-
+from inspect import getframeinfo, stack
+import yaml
 from django.conf import settings
-from django.db import models
 from django.http.request import HttpRequest
-from django.db.models.deletion import Collector
+
+
+USO_CODE_GENERATORS = getattr(settings, "USO_CODE_GENERATORS", {})
 
 
 class Joiner(object):
@@ -154,3 +155,31 @@ def is_ajax(request: HttpRequest) -> bool:
         request.headers.get('x-requested-with') == 'XMLHttpRequest'
         or request.accepts("application/json")
     )
+
+
+def debug_value(value, name=None):
+    """
+    Returns a string representation of the value for debugging purposes.
+    If 'name' is provided, it will be included in the output.
+    """
+    caller = getframeinfo(stack()[1][0])
+    print('='*80)
+    print(f'Name: {name}\nType: {type(value)}\nFile: {caller.filename}\nLine #: {caller.lineno}')
+    print('-'*80)
+    print(yaml.dump(value))
+    print('='*80)
+    print('\n')
+
+
+def get_code_generator(name):
+    """
+    Returns a generator function by name from the USO_CODE_GENERATORS settings.
+    A code generator is a callable that takes an instance of a model and returns a code string.
+    If the generator does not exist, it raises a KeyError.
+    """
+    name = name.upper()
+    if name not in USO_CODE_GENERATORS:
+        raise KeyError(f"Generator '{name}' not found in USO_CODE_GENERATORS.")
+
+    return load_object(USO_CODE_GENERATORS[name])
+

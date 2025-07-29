@@ -1,7 +1,7 @@
 {% load proposal_tags %}
-<ul class="review-attachments text-condensed">
+<div class="review-attachments d-flex flex-row gap-4 flex-wrap align-items-center justify-content-start">
     {% for att in object.attachments.all %}
-    <li class="attachment-entry pull-left">
+    <div class="attachment-entry">
         <a class="paper" target="_blank" href="{{att.file.url}}">
             <div class="attachment-header">
                 {{att.get_kind_display}}
@@ -13,10 +13,10 @@
                 {{att.file.size|filesizeformat}}<i class="{{att.file|file_icon}} pull-right"></i>
             </div>
         </a>
-    </li>
+    </div>
     {% empty %}
     <li class="empty">
        No Attachments
     </li>
     {% endfor %}
-</ul>
+</div>

@@ -25,7 +25,7 @@
 		<tr><td style="border-top: none;" colspan="5">
 			<h4>{{haz.hazard}}</h4>
 			<ul>{% for prec in haz.precautions.all %}
-				<li><span class="text-muted">{{ prec.code }}: </span>{{prec.text}}</li>
+				<li><span class="text-body-secondary">{{ prec.code }}: </span>{{prec.text}}</li>
 				{% endfor %}
 			</ul>
 			</h4>

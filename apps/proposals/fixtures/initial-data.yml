@@ -420,7 +420,7 @@
   pk: 3
   fields:
     created: 2024-12-13 15:26:19.539592+00:00
-    modified: 2025-02-22 20:42:16.640204+00:00
+    modified: 2025-03-06 21:07:02.781505+00:00
     code: safety
     kind: safety
     description: Safety Review
@@ -468,6 +468,20 @@
     low_better: true
     per_facility: false
     role: safety-approver
+- model: proposals.reviewtype
+  pk: 7
+  fields:
+    created: 2025-07-08 19:53:06.766350+00:00
+    modified: 2025-07-08 19:53:06.766350+00:00
+    code: safety-evaluation
+    kind: safety
+    description: Safety Pre-Assessment
+    form_type: 15
+    score_fields:
+      risk_level: 1.0
+    low_better: true
+    per_facility: false
+    role: safety-reviewer
 - model: proposals.reviewtrack
   pk: 1
   fields:
@@ -476,10 +490,7 @@
     name: General Access
     acronym: GA
     description: General Access through Peer Review
-    special: null
     require_call: true
-    min_reviewers: 1
-    max_workload: 30
     notify_offset: 1
     duration: 4
 - model: proposals.reviewtrack
@@ -490,10 +501,18 @@
     name: Rapid Access
     acronym: RA
     description: Rapid Access Requests received Outside a call
-    special: true
     require_call: false
-    min_reviewers: 0
-    max_workload: 0
+    notify_offset: 1
+    duration: 4
+- model: proposals.reviewtrack
+  pk: 3
+  fields:
+    created: 2025-07-02 17:06:25.952715+00:00
+    modified: 2025-07-02 17:06:25.952715+00:00
+    name: Purchased Access
+    acronym: PA
+    description: Purchased Access and Fee for Service Projects
+    require_call: false
     notify_offset: 1
     duration: 4
 - model: proposals.reviewstage
@@ -505,8 +524,12 @@
     kind: 2
     position: 1
     min_reviews: 1
+    max_workload: 0
     blocks: true
     pass_score: 3.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
 - model: proposals.reviewstage
   pk: 2
   fields:
@@ -516,8 +539,12 @@
     kind: 1
     position: 2
     min_reviews: 3
+    max_workload: 0
     blocks: true
     pass_score: 5.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
 - model: proposals.reviewstage
   pk: 3
   fields:
@@ -527,5 +554,69 @@
     kind: 2
     position: 1
     min_reviews: 1
+    max_workload: 0
     blocks: true
     pass_score: 3.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
+- model: proposals.reviewstage
+  pk: 4
+  fields:
+    created: 2025-07-08 03:22:48.743986+00:00
+    modified: 2025-07-08 03:22:48.743986+00:00
+    track: 2
+    kind: 1
+    position: 2
+    min_reviews: 1
+    max_workload: 0
+    blocks: true
+    pass_score: 4.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
+- model: proposals.reviewstage
+  pk: 5
+  fields:
+    created: 2025-07-08 03:23:50.553352+00:00
+    modified: 2025-07-08 03:23:50.553352+00:00
+    track: 2
+    kind: 7
+    position: 3
+    min_reviews: 1
+    max_workload: 0
+    blocks: true
+    pass_score: 4.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
+- model: proposals.reviewstage
+  pk: 6
+  fields:
+    created: 2025-07-28 18:05:41.796191+00:00
+    modified: 2025-07-28 18:05:41.796191+00:00
+    track: 3
+    kind: 2
+    position: 1
+    min_reviews: 1
+    max_workload: 0
+    blocks: true
+    pass_score: 4.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true
+- model: proposals.reviewstage
+  pk: 7
+  fields:
+    created: 2025-07-28 18:06:12.082218+00:00
+    modified: 2025-07-28 18:06:12.082218+00:00
+    track: 3
+    kind: 1
+    position: 2
+    min_reviews: 2
+    max_workload: 0
+    blocks: true
+    pass_score: 4.0
+    weight: 1.0
+    auto_create: true
+    auto_start: true

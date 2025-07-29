@@ -1,0 +1,18 @@
+services:
+  database:
+    image: postgres:17-alpine
+    restart: always
+    volumes:
+      - ./database:/var/lib/postgresql/data:z
+    environment:
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+      POSTGRES_USER: usonline
+    ports:
+      - '5432:5432'
+      -
+  cache:
+    image: memcached:latest
+    restart: always
+    ports:
+      - '11211:11211'
+

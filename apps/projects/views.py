@@ -3,6 +3,7 @@ import functools
 import itertools
 from datetime import timedelta
 
+from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalConfirmView, ModalDeleteView
 from dateutil import parser
 from django.conf import settings
 from django.contrib import messages
@@ -12,37 +13,37 @@ from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.views.generic import detail, edit, View, TemplateView
+from dynforms.models import FormType
+from dynforms.views import DynFormView
 from itemlist.views import ItemListView
 from rest_framework import generics, permissions
 from rest_framework.parsers import JSONParser
 
 from beamlines.filters import BeamlineFilterFactory
 from beamlines.models import Facility
-from dynforms.models import FormType
 from misc.filters import FutureDateListFilterFactory
 from misc.functions import Shifts
 from misc.models import ActivityLog
-from misc.views import ConfirmDetailView, ClarificationResponse, RequestClarification
+from misc.views import ClarificationResponse, RequestClarification
 from notifier import notify
 from proposals.filters import CycleFilterFactory
-from proposals.models import ReviewCycle, ReviewType
+from proposals.models import ReviewCycle, ReviewType, AccessPool
 from proposals.utils import truncated_title
 from roleperms.views import RolePermsViewMixin
 from samples.models import Sample
 from samples.templatetags.samples_tags import pictogram_url
+from scheduler.models import ModeType
 from scheduler.utils import round_time
 from scheduler.views import EventEditor, EventUpdateAPI, EventStatsAPI
 from users.models import User
 from . import forms
 from . import models
 from . import serializers
-from . import utils
 
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
-USO_HSE_ROLES = getattr(settings, 'USO_HSE_ROLES', ["staff:hse", "employee:hse"])
-USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ["staff", "employee"])
+USO_HSE_ROLES = getattr(settings, 'USO_HSE_ROLES', ["staff:hse"])
+USO_STAFF_ROLES = getattr(settings, 'USO_STAFF_ROLES', ["staff"])
 
 
 def _fmt_beamlines(bls, obj=None):
@@ -51,7 +52,7 @@ def _fmt_beamlines(bls, obj=None):
 
 def _fmt_project_state(state, obj=None):
     if state == 'active':
-        return '<i title="Active" class="bi-check2-square text-success-light icon-fw"></i> Active'
+        return '<i title="Active" class="bi-check2-square text-success icon-fw"></i> Active'
     elif state == 'pending':
         return '<i title="Pending" class="bi-hourglass text-info icon-fw"></i> Pending'
     else:
@@ -78,13 +79,16 @@ class ProjectList(RolePermsViewMixin, ItemListView):
     model = models.Project
     template_name = "item-list.html"
     paginate_by = 50
-    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'facility_codes', 'state']
-    list_filters = ['start_date', 'end_date', FutureDateListFilterFactory.new('end_date'),
-                    CycleFilterFactory.new('cycle'),
-                    'kind',
-                    BeamlineFilterFactory.new("beamlines")]
-    list_search = ['proposal__title', 'proposal__team', 'proposal__keywords', 'id']
-    list_styles = {'title': 'col-xs-3', 'state': 'text-center'}
+    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'pool', 'facility_codes', 'state']
+    list_filters = [
+        'start_date', 'end_date', FutureDateListFilterFactory.new('end_date'),
+        CycleFilterFactory.new('cycle'), 'pool', BeamlineFilterFactory.new("beamlines")
+    ]
+    list_search = [
+        'code', 'proposal__code', 'proposal__title',
+        'proposal__team', 'proposal__keywords', 'submissions__code'
+    ]
+    list_styles = {'title': 'col-sm-3', 'state': 'text-center'}
     list_transforms = {'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
     order_by = ['end_date', 'cycle', '-created']
@@ -99,10 +103,12 @@ class MaterialList(RolePermsViewMixin, ItemListView):
     list_columns = ['code', 'project', 'title', 'state', 'risk_level', 'pictograms']
     list_filters = ['created', 'modified', 'state', 'risk_level']
     list_transforms = {'pictograms': _fmt_pictograms}
-    list_search = ['project__title', 'project__spokesperson__username', 'project__id',
-                   'project__spokesperson__last_name',
-                   'project__spokesperson__first_name', 'id']
-    list_styles = {'title': 'col-xs-6'}
+    list_search = [
+        'project__title', 'project__spokesperson__username', 'project__id',
+        'project__spokesperson__last_name', 'project__spokesperson__first_name', 'id',
+        'code', 'project__code'
+    ]
+    list_styles = {'title': 'col-sm-6'}
     link_url = "material-detail"
     order_by = ['-modified', 'state']
     list_title = 'Materials'
@@ -111,30 +117,36 @@ class MaterialList(RolePermsViewMixin, ItemListView):
 
 
 class SessionList(RolePermsViewMixin, ItemListView):
-    queryset = models.Session.objects.with_shifts()
+    model = models.Session
     template_name = "item-list.html"
     paginate_by = 15
     list_columns = ['project', 'beamline', 'state', 'kind', 'spokesperson', 'start', 'shifts']
     list_filters = ['modified', BeamlineFilterFactory.new("beamline"), 'state', 'kind']
-    list_search = ['project__title', 'project__spokesperson__username', 'project__id',
-                   'project__spokesperson__last_name',
-                   'project__spokesperson__first_name', 'id']
+    list_search = [
+        'project__title', 'project__spokesperson__username', 'project__id',
+        'project__spokesperson__last_name', 'project__spokesperson__first_name', 'id'
+    ]
     list_transforms = {'start': _fmt_localtime}
     link_url = "session-detail"
     order_by = ['-modified', 'state']
     admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
     allowed_roles = USO_STAFF_ROLES
 
+    def get_queryset(self, *args, **kwargs):
+        qset = super().get_queryset(*args, **kwargs)
+        return qset.with_shifts()
+
 
 class LabSessionList(RolePermsViewMixin, ItemListView):
-    queryset = models.LabSession.objects.all()
+    model = models.LabSession
     template_name = "item-list.html"
     paginate_by = 15
     list_columns = ['project', 'lab', 'state', 'spokesperson', 'start', 'end']
     list_filters = ['modified']
-    list_search = ['project__title', 'project__spokesperson__username', 'project__id',
-                   'project__spokesperson__last_name',
-                   'project__spokesperson__first_name', 'id']
+    list_search = [
+        'project__title', 'project__spokesperson__username', 'project__id',
+        'project__spokesperson__last_name', 'project__spokesperson__first_name', 'id'
+    ]
     list_transforms = {'start': _fmt_localtime, 'end': _fmt_localtime}
     link_url = "lab-permit"
     order_by = ['-modified']
@@ -146,11 +158,12 @@ class UserProjectList(RolePermsViewMixin, ItemListView):
     model = models.Project
     template_name = "item-list.html"
     paginate_by = 50
-    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'facility_codes', 'state']
-    list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind',
-                    BeamlineFilterFactory.new("beamlines")]
+    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'pool', 'facility_codes', 'state']
+    list_filters = [
+        'start_date', 'end_date', CycleFilterFactory.new('cycle'), 'pool', BeamlineFilterFactory.new("beamlines")
+    ]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
-    list_styles = {'title': 'col-xs-3', 'state': 'text-center'}
+    list_styles = {'title': 'col-sm-3', 'state': 'text-center'}
     list_transforms = {'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
     order_by = ['-end_date', '-created']
@@ -185,11 +198,12 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
     model = models.Project
     template_name = "item-list.html"
     paginate_by = 50
-    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'kind', 'state']
-    list_filters = ['start_date', 'end_date', CycleFilterFactory.new('cycle'), 'kind',
-                    BeamlineFilterFactory.new("beamlines")]
+    list_columns = ['code', 'title', 'spokesperson', 'end_date', 'pool', 'state']
+    list_filters = [
+        'start_date', 'end_date', CycleFilterFactory.new('cycle'), 'pool', BeamlineFilterFactory.new("beamlines")
+    ]
     list_search = ['id', 'proposal__title', 'proposal__team', 'proposal__keywords']
-    list_styles = {'title': 'col-xs-3'}
+    list_styles = {'title': 'col-sm-3'}
     list_transforms = {'beamlines': _fmt_beamlines, 'state': _fmt_project_state, 'title': truncated_title}
     link_url = "project-detail"
     order_by = ['-cycle__start_date', '-created']
@@ -200,12 +214,12 @@ class BeamlineProjectList(RolePermsViewMixin, ItemListView):
     def get_list_title(self):
         if self.kwargs.get('cycle'):
             cycle = models.ReviewCycle.objects.get(pk=self.kwargs['cycle'])
-            return '{} Projects: {}'.format(self.facility.acronym, cycle)
+            return f'{self.facility.acronym} Projects: {cycle}'
         else:
-            return '{} Projects'.format(self.facility.acronym)
+            return f'{self.facility.acronym} Projects'
 
     def check_allowed(self):
-        self.facility = Facility.objects.get(acronym=self.kwargs['fac'])
+        self.facility = Facility.objects.get(acronym=self.kwargs['slug'])
         allowed = super().check_allowed() or self.facility.is_staff(self.request.user)
         return allowed
 
@@ -287,7 +301,7 @@ class AllocRequestList(RolePermsViewMixin, ItemListView):
                    'project__spokesperson__last_name',
                    'project__spokesperson__first_name', 'id']
     order_by = ['-modified', 'state']
-    list_title = 'Allocation Requests'
+    list_title = 'Renewal Requests'
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
@@ -296,20 +310,20 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
     model = models.ShiftRequest
     template_name = "item-list.html"
     paginate_by = 15
-    list_columns = ['project', 'spokesperson', 'facility', 'shift_request', 'created', 'state']
+    list_columns = ['project', 'facility', 'shift_request', 'created', 'state']
     list_filters = ['created', 'modified', 'state']
     list_search = ['allocation__project__title', 'allocation__project__spokesperson__username', 'project__id',
                    'allocation__project__spokesperson__last_name',
                    'allocation__project__spokesperson__first_name', 'id']
     link_url = "manage-shift-request"
-    link_attr = 'data-url'
+    link_attr = 'data-modal-url'
     order_by = ['-modified', 'state']
-    list_title = 'Shift Requests'
+    list_title = 'Booking Requests'
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
     def get_list_title(self):
-        return f'{self.facility.acronym} Shift Requests: {self.cycle}'
+        return f'{self.facility.acronym} Booking Requests: {self.cycle}'
 
     def check_allowed(self):
         self.facility = Facility.objects.get(pk=self.kwargs['pk'])
@@ -320,7 +334,7 @@ class ShiftRequestList(RolePermsViewMixin, ItemListView):
     def get_queryset(self, *args, **kwargs):
         self.queryset = models.ShiftRequest.objects.filter(
             allocation__beamline=self.kwargs['pk'], allocation__cycle=self.kwargs['cycle']
-        )
+        ).exclude(state=self.model.States.draft)
         return super().get_queryset(*args, **kwargs)
 
 
@@ -339,62 +353,6 @@ class MaterialDetail(RolePermsViewMixin, detail.DetailView):
             fac.is_staff(self.request.user) for fac in material.project.beamlines.all()
         ))
         return allowed
-
-
-class CreateProject(RolePermsViewMixin, edit.CreateView):
-    form_class = forms.ProjectForm
-    model = models.Project
-    template_name = "projects/forms/project_form.html"
-    allowed_roles = USO_ADMIN_ROLES
-
-    def get_initial(self):
-        initial = super().get_initial()
-        initial['spokesperson'] = self.request.user
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form_title'] = "Create Purchased Access Project"
-        return context
-
-    def get_success_url(self):
-        success_url = reverse("project-list")
-        return success_url
-
-    def form_valid(self, form):
-        info = form.cleaned_data
-        info['kind'] = 'purchased'
-        info['spokesperson'] = self.request.user
-        self.object = self.model.objects.create(**info)
-        project = self.object
-        project.refresh_team()
-        messages.add_message(self.request, messages.SUCCESS, 'Project was created successfully')
-
-        # team and allocations
-        for bl in info['details'].get('beamline_reqs', []):
-            utils.create_project_allocations(self.object, bl, self.object.cycle)
-
-        # create materials
-        material = models.Material.objects.get_or_create(project=project)
-        to_create = [models.ProjectSample(material=material, sample_id=sample['sample'], quantity=sample['quantity'])
-                     for sample in
-                     info['details'].get('sample_list', [])]
-        models.ProjectSample.objects.bulk_create(to_create)
-        hazards = material.samples.values_list('sample__hazards__pk', flat=True).distinct()
-        material.hazards.add(*hazards)
-        material.hazards.add(*info['details'].get('sample_hazards', []))
-        models.Material.objects.filter(pk=material.pk).update(
-            procedure=info['details'].get('sample_handling', ''), waste=info['details'].get('waste_generation', []),
-            disposal=info['details'].get('disposal_procedure', ''), equipment=info['details'].get('equipment', []), )
-
-        # Create Material Reviews
-        if material.needs_ethics():
-            ethics = models.Review.objects.create(
-                reference=material, kind="ethics", role="ethics-reviewer",
-                form_type=FormType.objects.get(code="ethics_review")
-            )
-
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class SessionDetail(RolePermsViewMixin, detail.DetailView):
@@ -420,7 +378,9 @@ class SessionDetail(RolePermsViewMixin, detail.DetailView):
         context = super().get_context_data(**kwargs)
         context['beamlines'] = [self.object.beamline]
         context['samples'] = [(s.sample, s.quantity) for s in self.object.samples.all()]
-        context['can_terminate'] = self.request.user.has_any_role(*self.terminate_roles)
+        context['can_terminate'] = (
+            self.request.user.has_any_role(*self.terminate_roles)
+        )
         return context
 
 
@@ -433,10 +393,9 @@ class LabPermit(RolePermsViewMixin, detail.DetailView):
         return obj.is_owned_by(self.request.user)
 
 
-class SessionHandOver(RolePermsViewMixin, edit.CreateView):
+class SessionHandOver(RolePermsViewMixin, ModalCreateView):
     model = models.Session
     form_class = forms.HandOverForm
-    template_name = "forms/modal.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
@@ -467,13 +426,13 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
         start = timezone.localtime(self.beamtime.start) if self.beamtime else timezone.localtime(timezone.now())
         end = timezone.localtime(self.beamtime.end) if self.beamtime else timezone.localtime(timezone.now() + one_shift)
 
+        if start.date() == end.date() and start.time() > end.time():
+            # if start time is after end time, we assume the end time is on the next day
+            end += timedelta(days=1)
         initial['start_date'] = start.date()
         initial['end_date'] = end.date()
         initial['start_time'] = start.strftime('%H:%M')
         initial['end_time'] = end.strftime('%H:%M')
-
-        print(initial, self.beamtime)
-
         return initial
 
     def form_valid(self, form):
@@ -493,9 +452,8 @@ class SessionHandOver(RolePermsViewMixin, edit.CreateView):
         return JsonResponse({"url": ""})
 
 
-class SessionExtend(RolePermsViewMixin, edit.UpdateView):
+class SessionExtend(RolePermsViewMixin, ModalUpdateView):
     model = models.Session
-    template_name = "forms/modal.html"
     form_class = forms.ExtensionForm
     allowed_roles = USO_ADMIN_ROLES
 
@@ -533,9 +491,8 @@ class SessionExtend(RolePermsViewMixin, edit.UpdateView):
         )
 
 
-class SessionSignOn(RolePermsViewMixin, edit.UpdateView):
+class SessionSignOn(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.SessionForm
-    template_name = "forms/modal.html"
     model = models.Session
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
@@ -594,13 +551,13 @@ class SessionSignOn(RolePermsViewMixin, edit.UpdateView):
                 'samples': new_samples - old_samples, 'team': new_team - old_team
             }
         }
-        activities = ['Sign-On updated by {} on {}'.format(self.request.user, now.strftime('%c'))]
+        activities = [f'Sign-On updated by {self.request.user} on {now.isoformat()}']
         for action, subjects in list(changes.items()):
             for object_type, objects in list(subjects.items()):
                 if objects:
                     activities.append(
                         '{} {}: {};'.format(
-                            action, object_type, ", ".join(["'{}'".format(x) for x in objects])
+                            action, object_type, ", ".join([f"'{x}'" for x in objects])
                         )
                     )
         session.log("; ".join(activities))
@@ -618,11 +575,8 @@ class SessionSignOn(RolePermsViewMixin, edit.UpdateView):
 
         # sign-off previous users on beamline if any
         for old_session in session.beamline.sessions.filter(state=session.STATES.live).exclude(pk=session.pk):
-            bl_role = "beamline-admin:{}".format(old_session.beamline.acronym.lower())
-            recipients = [bl_role]
-            for u in {old_session.staff, old_session.spokesperson}:
-                if not u.has_role(bl_role):
-                    recipients.append(u)
+            bl_admins = old_session.admin_list()
+            recipients = {*bl_admins} | {old_session.staff, old_session.spokesperson}
             reason = "Another user has taken control of the beamline"
             notify.send(
                 recipients, 'auto-sign-off', level=notify.LEVELS.important, context={
@@ -630,25 +584,21 @@ class SessionSignOn(RolePermsViewMixin, edit.UpdateView):
                 }
             )
             old_session.log(
-                'Auto Sign-Off on {}, New user on beamline.'.format(now.strftime('%c'))
+                f'Auto Sign-Off on {now.isoformat()}, New user on beamline.'
             )
             old_session.state = session.STATES.complete
             old_session.save()
 
         # cancel outstanding sessions on this beamline
         for old_session in session.beamline.sessions.filter(state=session.STATES.ready, start__lt=now):
-            old_session.log('Cancelled on {}, Users did not sign-on as expected'.format(now.strftime('%c')))
+            old_session.log(f'Cancelled on {now.isoformat()}, Users did not sign-on as expected')
             old_session.state = session.STATES.cancelled
             old_session.save()
 
-        return JsonResponse(
-            {
-                'url': self.get_success_url()
-            }
-        )
+        return JsonResponse({'url': self.get_success_url()})
 
 
-class SessionSignOff(RolePermsViewMixin, ConfirmDetailView):
+class SessionSignOff(RolePermsViewMixin, ModalConfirmView):
     model = models.Session
     template_name = "projects/forms/signoff.html"
     allowed_roles = USO_ADMIN_ROLES
@@ -675,23 +625,18 @@ class SessionSignOff(RolePermsViewMixin, ConfirmDetailView):
     def confirmed(self, *args, **kwargs):
         log = self.session.details.get('history', [])
         now = timezone.localtime(timezone.now())
-        log.append('SignOff by {} on {}'.format(self.request.user, now.strftime('%c')))
+        log.append(f'SignOff by {self.request.user} on {now.isoformat()}')
         self.session.details.update(history=log)
         models.Session.objects.filter(pk=self.session.pk).update(
             state=self.session.STATES.complete, details=self.session.details
         )
         messages.success(self.request, 'Beamline Sign-Off successful')
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": ""})
 
 
-class TerminateSession(RolePermsViewMixin, edit.CreateView):
+class TerminateSession(RolePermsViewMixin, ModalCreateView):
     model = models.Session
     form_class = forms.TerminationForm
-    template_name = "forms/modal.html"
     allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
     def get_form_kwargs(self):
@@ -727,28 +672,19 @@ class TerminateSession(RolePermsViewMixin, edit.CreateView):
         messages.success(self.request, 'Session terminated!')
 
         # Notify relevant parties
-        bl_role = "beamline-admin:{}".format(session.beamline.acronym.lower())
-        recipients = [bl_role]
-        for u in [_f for _f in {session.staff, session.spokesperson} if _f]:
-            if not u.has_role(bl_role):
-                recipients.append(u)
+        recipients = {*session.beamline.admin_list(), session.spokesperson, session.staff}
         notify.send(
             recipients, 'session-terminated', level=notify.LEVELS.important, context={
                 'session': session, 'reason': data['reason'], 'terminator': self.request.user,
             }
         )
 
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": ""})
 
 
-class LabSignOn(RolePermsViewMixin, edit.CreateView):
+class LabSignOn(RolePermsViewMixin, ModalCreateView):
     model = models.LabSession
     form_class = forms.LabSessionForm
-    template_name = "forms/modal.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def get_form_kwargs(self):
@@ -795,76 +731,69 @@ class LabSignOn(RolePermsViewMixin, edit.CreateView):
             session.workspaces.add(*workspaces)
             session.equipment.add(*equipment)
             messages.success(self.request, 'Lab Sign-On successful')
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": "", })
 
 
-class LabSignOff(RolePermsViewMixin, ConfirmDetailView):
+class LabSignOff(RolePermsViewMixin, ModalConfirmView):
     model = models.LabSession
     template_name = "projects/forms/signoff.html"
     allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
     def check_allowed(self):
-        self.session = self.get_object()
-        self.project = self.session.project
-        self.lab = self.session.lab
+        session = self.get_object()
         allowed = (
-                super().check_allowed() or self.check_owner(self.session) or self.session.team.filter(
+                super().check_allowed() or self.check_owner(session) or session.team.filter(
             username=self.request.user.username
         ).exists())
         return allowed
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['facility'] = self.lab
-        context['project'] = self.project
+        project = self.object.project
+        lab = self.object.lab
+        context['facility'] = lab
+        context['project'] = project
         return context
 
     def confirmed(self, *args, **kwargs):
-        log = self.session.details.get('history', [])
+        log = self.object.details.get('history', [])
         now = timezone.localtime(timezone.now())
-        log.append('SignOff by {} on {}'.format(self.request.user, now.strftime('%c')))
-        self.session.details.update(history=log)
-        models.LabSession.objects.filter(pk=self.session.pk).update(details=self.session.details, end=now)
+        log.append(f'SignOff by {self.request.user} on {now.isoformat()}')
+        self.object.details.update(history=log)
+        models.LabSession.objects.filter(pk=self.object.pk).update(details=self.object.details, end=now)
         messages.success(self.request, 'Lab Sign-Off successful')
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": "", })
 
 
-class CancelLabSession(RolePermsViewMixin, ConfirmDetailView):
+class CancelLabSession(RolePermsViewMixin, ModalDeleteView):
     model = models.LabSession
-    template_name = "forms/delete.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
         session = self.get_object()
-        return (session.state() == models.LabSession.STATES.pending and (
-                super().check_allowed() or session.team.filter(username=self.request.user.username).exists()))
-
-    def confirmed(self, *args, **kwargs):
-        obj = self.get_object()
-        project = obj.project
-        obj.delete()
-        messages.info(self.request, "Permit cancelled!")
-        return JsonResponse(
-            {
-                "url": reverse('project-detail', kwargs={'pk': project.pk})
-            }
+        return (
+                session.state() == models.LabSession.STATES.pending and (
+                super().check_allowed() or session.team.filter(username=self.request.user.username).exists())
         )
 
+    def get_success_url(self):
+        return reverse('project-detail', kwargs={'pk': self.object.project.pk})
 
-class UpdateMaterial(RolePermsViewMixin, edit.FormView):
+    def confirmed(self, *args, **kwargs):
+        response = super().confirmed(*args, **kwargs)
+        messages.info(self.request, "Permit cancelled!")
+        return response
+
+
+class UpdateMaterial(RolePermsViewMixin, DynFormView):
     form_class = forms.MaterialForm
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
-    template_name = "projects/forms/project_form.html"
+    template_name = "projects/forms/project-form.html"
+
+    def get_form_type(self) -> FormType:
+        return FormType.objects.filter(code='amendment').first()
 
     def get_object(self):
         self.project = models.Project.objects.get(pk=self.kwargs['pk'])
@@ -906,6 +835,7 @@ class UpdateMaterial(RolePermsViewMixin, edit.FormView):
         info = form.cleaned_data['details']
         obj = self.object
 
+        # clone the object if it is not a new one
         if obj.state != obj.STATES.pending:
             obj.pk = None
             obj.state = obj.STATES.pending
@@ -947,29 +877,50 @@ class UpdateMaterial(RolePermsViewMixin, edit.FormView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class UpdateTeam(RolePermsViewMixin, edit.UpdateView):
+class UpdateTeam(RolePermsViewMixin, DynFormView):
     form_class = forms.TeamForm
-    model = models.Project
-    template_name = "projects/forms/project_form.html"
+    template_name = "proposals/proposal-form.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
+    object: models.Project
+
+    def get_form_type(self) -> FormType:
+        return FormType.objects.filter(code='team').first()
+
+    def get_object(self):
+        self.object = models.Project.objects.get(pk=self.kwargs['pk'])
+        return self.object
+
     def check_allowed(self):
-        self.project = self.get_object()
-        return super().check_allowed() or self.check_owner(self.project)
+        project = self.get_object()
+        return super().check_allowed() or self.check_owner(project)
 
     def check_owner(self, obj):
         return obj.is_owned_by(self.request.user)
 
     def get_initial(self):
         initial = super().get_initial()
-        initial.update(
+        other_members = [
             {
-                'team_members': self.project.team_members(), 'leader': self.project.get_leader(),
-                'delegate': self.project.delegate,
-                'invoice_address': self.project.invoice_address(), 'invoice_email': self.project.invoice_email()
+                'first_name': m.first_name,
+                'last_name': m.last_name,
+                'email': m.email
             }
-        )
+            for m in self.object.team.all()
+            if not m in [self.object.leader, self.object.delegate]
+        ]
+        for m in self.object.details.get('team_members', []):
+            if m.get('email', '').lower().strip() in self.object.pending_team:
+                other_members.append(m)
+
+        initial.update({
+            'team_members': other_members,
+            'leader': self.object.get_leader(),
+            'delegate': self.object.delegate,
+            'invoice_address': self.object.invoice_address(),
+            'invoice_email': self.object.invoice_email()
+        })
         return initial
 
     def get_success_url(self):
@@ -979,16 +930,16 @@ class UpdateTeam(RolePermsViewMixin, edit.UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form_title'] = "Update Research Team Members"
+        context['project'] = self.object
         return context
 
     def form_valid(self, form):
         data = form.cleaned_data['details']
-        for f in ['invoice_address', 'invoice_email', 'leader', 'delegate']:
+        for f in ['invoice_address', 'invoice_email', 'team_members']:
             self.object.details[f] = data.get(f)
-        self.object.details['team_members'] = data.get('team_members', [])
 
         self.object.save()
-        self.object.refresh_team()
+        self.object.refresh_team(request=self.request)
 
         messages.add_message(self.request, messages.SUCCESS, 'Project was updated successfully')
         return HttpResponseRedirect(self.get_success_url())
@@ -1010,7 +961,7 @@ class RefreshTeam(RolePermsViewMixin, detail.View):
         return obj.is_owned_by(self.request.user)
 
     def get(self, *args, **kwargs):
-        self.project.refresh_team()
+        self.project.refresh_team(request=self.request)
         return HttpResponseRedirect(reverse('project-detail', kwargs={'pk': self.project.pk}))
 
 
@@ -1034,7 +985,7 @@ class AllocDecider(object):
         return self
 
     def __str__(self):
-        return '{} [{}:{}]'.format(self.used, self.cutoff, self.decision)
+        return f'{self.used} [{self.cutoff}:{self.decision}]'
 
 
 class AllocateBeamtime(RolePermsViewMixin, TemplateView):
@@ -1059,56 +1010,73 @@ class AllocateBeamtime(RolePermsViewMixin, TemplateView):
         allocations = cycle.allocations.filter(beamline=fac)
 
         total = schedule.normal_shifts()
-        unavailable = reservations.filter(kind__in=['', None]).aggregate(total=Coalesce(Sum('shifts'), 0))
+        unavailable = dict(
+            reservations.values('pool__pk').order_by('pool__pk').annotate(
+                total=Coalesce(Sum('shifts'), 0)
+            ).values_list('pool__pk', 'total')
+        )
+        facility_reserved = unavailable.get(None, 0)
 
-        fac_total = total - unavailable['total']
+        fac_total = total - facility_reserved
         context['facility'] = fac
         context['cycle'] = cycle
         context['discretionary'] = 0
         context['total_shifts'] = total
         context['available_shifts'] = fac_total
-        context['unavailable_shifts'] = unavailable['total']
+        context['unavailable_shifts'] = facility_reserved
         left_over = fac_total
+
         pools = {}
-        for pool_type in models.PROJECT_TYPES:
-            pool = pool_type[0]
-            percent = fac.details.get('beamtime', {}).get(pool) or 0
-            reserved = reservations.filter(kind=pool).aggregate(total=Coalesce(Sum('shifts'), 0))
-            pool_allocations = allocations.filter(project__kind=pool).annotate(
+        default_pool = AccessPool.objects.filter(is_default=True).first()
+        for pool, percent in fac.access_pools():
+
+            pool_allocations = allocations.filter(project__pool=pool).annotate(
                 priority=Case(
-                    When(score=0, then=Value('1')), default=Value('0'), output_field=IntegerField(), )
+                    When(score=0, then=Value(1)), default=Value(0), output_field=IntegerField(),
+                )
             )
 
-            used = pool_allocations.aggregate(total=Coalesce(Sum('shifts'), 0))
             available = int(fac_total * percent / 100.0)
-            left_over -= available
-            unused = available - (used['total'] + reserved['total'])
+            reserved = unavailable.get(pool.pk, 0)
+            used = pool_allocations.aggregate(total=Coalesce(Sum('shifts'), 0))['total']
 
-            if pool != 'user':
+            left_over -= used + reserved
+            unused = available - (used + reserved)
+
+            if pool.is_default:
                 context['discretionary'] += unused
             info = {
-                'shifts': available, 'name': models.PROJECT_TYPES[pool], 'key': pool, 'decision': 0, 'percent': percent,
+                'shifts': available,
+                'decision': 0,
+                'percent': percent,
                 'reserved': reserved,
-                'used': used, 'unused': unused, 'projects': pool_allocations.order_by('priority', 'score').distinct(),
+                'used': used,
+                'unused': unused,
+                'projects': pool_allocations.order_by('priority', 'score').distinct(),
             }
             pools[pool] = info
 
-        context['discretionary'] += left_over
-        if pools.get('user', {}).get('projects', models.Project.objects.none()).count() > 1:
-            decider = AllocDecider(pools['user']['shifts'], extra=context['discretionary'])
-            final = functools.reduce(decider, pools['user']['projects'])
-            pools['user']['decision'] = final.decision
-            pools['user']['cutoff'] = final.cutoff
-            pools['user']['available'] = pools['user']['shifts'] + context['discretionary']
-        context['pools'] = pools
+        context['discretionary'] = left_over
+        if pools[default_pool].get('projects', models.Allocation.objects.none()).count() > 1:
+            shifts = pools[default_pool]['shifts']
+            projects = pools[default_pool]['projects']
+            decider = AllocDecider(shifts, extra=context['discretionary'])
+            final = functools.reduce(decider, projects)
+            pools[default_pool]['decision'] = final.decision
+            pools[default_pool]['cutoff'] = final.cutoff
+            pools[default_pool]['available'] = pools[default_pool]['shifts'] + context['discretionary']
+
+        context['default'] = {
+            'pool': default_pool, 'section': pools[default_pool],
+        }
+        context['sections'] = pools
 
         return context
 
 
-class EditAllocation(RolePermsViewMixin, edit.UpdateView):
+class EditAllocation(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.AllocationForm
     model = models.Allocation
-    template_name = "forms/modal.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1123,7 +1091,7 @@ class EditAllocation(RolePermsViewMixin, edit.UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
+        kwargs['form_action'] = self.request.get_full_path()
         return kwargs
 
     def get_initial(self):
@@ -1144,36 +1112,34 @@ class EditAllocation(RolePermsViewMixin, edit.UpdateView):
             models.Allocation.objects.filter(
                 project=alloc.project, beamline=alloc.beamline, cycle__end_date__gt=data['last_cycle'].end_date
             ).delete()
-        return JsonResponse(
-            {
-                "url": ""
-            }
-        )
+        return JsonResponse({"url": "", })
 
 
-class EditReservation(RolePermsViewMixin, edit.CreateView):
+class EditReservation(RolePermsViewMixin, ModalCreateView):
     form_class = forms.ReservationForm
     model = models.Reservation
-    template_name = "forms/modal.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
-        fac = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
-        return super().check_allowed() or fac.is_admin(self.request.user)
+        self.facility = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
+        return super().check_allowed() or self.facility.is_admin(self.request.user)
 
     def get_success_url(self):
         return reverse('allocate-review-cycle', kwargs={'pk': self.kwargs['cycle'], 'fac': self.kwargs['fac']})
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['facility'] = self.facility
+        context['cycle'] = ReviewCycle.objects.get(pk=self.kwargs['cycle'])
+        context['pool'] = AccessPool.objects.filter(pk=self.kwargs.get('pool', None)).first()
+        return context
 
     def get_initial(self):
         initial = super().get_initial()
         res = models.Reservation.objects.filter(
-            beamline__acronym=self.kwargs['fac'], cycle__pk=self.kwargs['cycle'], kind=self.kwargs.get('pool', None)
+            beamline__acronym=self.kwargs['fac'], cycle__pk=self.kwargs['cycle'],
+            pool=self.kwargs.get('pool', None)
         ).first()
         if res:
             initial.update(
@@ -1185,17 +1151,14 @@ class EditReservation(RolePermsViewMixin, edit.CreateView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        fac = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
+        facility = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
         cycle = ReviewCycle.objects.get(pk=self.kwargs['cycle'])
+        pool = AccessPool.objects.filter(pk=self.kwargs.get('pool', None)).first()
         res, created = models.Reservation.objects.get_or_create(
-            beamline=fac, cycle=cycle, kind=self.kwargs.get('pool', None)
+            beamline=facility, cycle=cycle, pool=pool
         )
         models.Reservation.objects.filter(pk=res.pk).update(**data)
-        return JsonResponse(
-            {
-                "url": self.get_success_url()
-            }
-        )
+        return JsonResponse({"url": self.get_success_url()})
 
 
 class ScheduleBeamTime(EventEditor):
@@ -1226,8 +1189,8 @@ class ScheduleBeamTime(EventEditor):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cycle'] = self.schedule.cycle
-        if self.facility.kind == Facility.TYPES.equipment:
-            facilities = self.facility.utrace(stop=Facility.TYPES.village)
+        if self.facility.kind == Facility.Types.instrument:
+            facilities = self.facility.utrace(stop=Facility.Types.department)
             context['allocations'] = models.Allocation.objects.filter(
                 cycle=context['cycle'], beamline__in=facilities
             ).order_by('-shifts')
@@ -1243,7 +1206,7 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
     template_name = "scheduler/calendar.html"
 
     def get_context_data(self, **kwargs):
-        from scheduler.models import ShiftConfig, Mode
+        from scheduler.models import ShiftConfig
         context = super().get_context_data(**kwargs)
 
         cur_date = self.request.GET.get('date', '')
@@ -1255,7 +1218,7 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
             raise Http404
 
         fac_children = [f.acronym for f in facility.dtrace() if
-                        f.kind not in [facility.TYPES.village, facility.TYPES.sector]]
+                        f.kind not in [facility.Types.department, facility.Types.sector]]
 
         config = ShiftConfig.objects.filter(duration=facility.shift_size).order_by('modified').last()
         shifts = config.shifts()
@@ -1271,8 +1234,8 @@ class BeamlineSchedule(RolePermsViewMixin, TemplateView):
         context['shift_starts'] = [shift['time'] for shift in shifts]
         context['shifts'] = shifts
         context['shift_count'] = len(context['shift_starts'])
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in Mode.TYPES]
-        context['subtitle'] = '{}'.format(facility.acronym)
+        context['mode_types'] = ModeType.objects.all()
+        context['subtitle'] = facility.acronym
         context['show_year'] = False
         context['tag_types'] = facility.tags()
         context['event_sources'] = [
@@ -1411,11 +1374,13 @@ class ShowAttachments(RolePermsViewMixin, detail.DetailView):
     template_name = 'proposals/attachments.html'
 
 
-class DeleteSession(RolePermsViewMixin, ConfirmDetailView):
+class DeleteSession(RolePermsViewMixin, ModalDeleteView):
     model = models.Session
-    template_name = "forms/delete.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('project-detail', kwargs={'pk': self.object.project.pk})
 
     def get_queryset(self):
         return super().get_queryset().filter(state=models.Session.STATES.ready)
@@ -1423,24 +1388,17 @@ class DeleteSession(RolePermsViewMixin, ConfirmDetailView):
     def check_allowed(self):
         session = self.get_object()
         facility = session.beamline
-
         return super().check_allowed() or facility.is_staff(self.request.user)
 
     def confirmed(self, *args, **kwargs):
-        obj = self.get_object()
-        project = obj.project
-        obj.delete()
+        response = super().confirmed(*args, **kwargs)
         messages.info(self.request, "Draft permit deleted!")
-        return JsonResponse(
-            {
-                "url": reverse('project-detail', kwargs={'pk': project.pk})
-            }
-        )
+        return response
 
 
-class TeamMemberDelete(RolePermsViewMixin, ConfirmDetailView):
+class TeamMemberDelete(RolePermsViewMixin, ModalConfirmView):
     model = models.Project
-    template_name = "projects/forms/remove_team.html"
+    template_name = "projects/forms/leave-team.html"
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1479,33 +1437,33 @@ class TeamMemberDelete(RolePermsViewMixin, ConfirmDetailView):
 class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
     model = models.AllocationRequest
     form_class = forms.AllocRequestForm
-    template_name = "projects/forms/request_form.html"
+    template_name = "projects/forms/request-form.html"
     allowed_roles = USO_ADMIN_ROLES
+    allocation: models.Allocation
 
     def check_allowed(self):
-        self.facility = Facility.objects.get(acronym=self.kwargs.get('fac'))
-        self.project = models.Project.objects.get(pk=self.kwargs.get('pk'))
-        return (super().check_allowed() or self.check_owner(self.project))
+        self.allocation = models.Allocation.objects.get(pk=self.kwargs.get('pk'))
+        return super().check_allowed() or self.check_owner(self.allocation.project)
 
     def check_owner(self, obj):
-        return obj.project.is_owned_by(self.request.user)
+        return self.allocation.project.is_owned_by(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['cycle'] = models.ReviewCycle.objects.get(pk=self.kwargs.get('cycle'))
-        context['project'] = models.Project.objects.get(pk=self.kwargs.get('pk'))
-        context['facility'] = self.facility
+        context['cycle'] = ReviewCycle.objects.next(self.allocation.cycle.start_date)
+        context['project'] = self.allocation.project
+        context['facility'] = self.allocation.beamline
+        context['form_title'] = "Request Renewal"
+        context['message'] = (
+            "Please use this form to request a renewal of your project allocation for the next cycle.  "
+            "Your project must be active during the requested period. To book beam time on flexible-scheduling "
+            "beamlines, use the 'Book Shifts' form instead."
+        )
         return context
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['facility'] = Facility.objects.get(acronym=self.kwargs.get('fac'))
-        kwargs['form_title'] = "Allocation Request"
-        return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
-        project = models.Project.objects.get(pk=self.kwargs.get('pk'))
+        project = self.allocation.project
         initial['shift_request'] = 1
         material = project.current_material()
         if material and material.siblings().pending().count():
@@ -1518,22 +1476,22 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
         tags = data.pop('tags', [])
         form_action = data.pop('form_action')
 
-        data['project'] = models.Project.objects.get(pk=self.kwargs.get('pk'))
-        data['cycle'] = models.ReviewCycle.objects.get(pk=self.kwargs.get('cycle'))
-        data['beamline'] = Facility.objects.get(acronym=self.kwargs.get('fac'))
+        data['project'] = self.allocation.project
+        data['cycle'] = ReviewCycle.objects.next(self.allocation.cycle.start_date)
+        data['beamline'] = self.allocation.beamline
 
         if form_action == 'submit':
-            data['state'] = self.model.STATES.submitted
+            data['state'] = self.model.States.submitted
 
         self.object = self.model.objects.create(**data)
         self.object.tags.add(*tags)
 
         if form_action == 'save':
-            success_url = reverse("edit-alloc-request", kwargs={'pk': self.object.pk})
-            msg = 'Allocation Request was saved successfully'
+            success_url = reverse("edit-renewal-request", kwargs={'pk': self.object.pk})
+            msg = 'Renewal Request was saved successfully'
         else:
             success_url = reverse("project-detail", kwargs={'pk': self.object.project.pk})
-            msg = 'Allocation Request submitted'
+            msg = 'Renewal Request submitted'
         messages.add_message(self.request, messages.SUCCESS, msg)
         return HttpResponseRedirect(success_url)
 
@@ -1541,32 +1499,32 @@ class CreateAllocRequest(RolePermsViewMixin, edit.CreateView):
 class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
     model = models.ShiftRequest
     form_class = forms.ShiftRequestForm
-    template_name = "projects/forms/request_form.html"
+    template_name = "projects/forms/request-form.html"
     allowed_roles = USO_ADMIN_ROLES
+    allocation: models.Allocation
 
     def check_allowed(self):
         self.allocation = models.Allocation.objects.get(pk=self.kwargs.get('pk'))
-        return (super().check_allowed() or self.check_owner(self.allocation.project))
+        return super().check_allowed() or self.check_owner(self.allocation.project)
 
     def check_owner(self, obj):
-        return obj.project.is_owned_by(self.request.user)
+        return obj.is_owned_by(self.request.user)
 
     def get_initial(self):
         initial = super().get_initial()
         initial['shift_request'] = 1
         return initial
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['facility'] = self.allocation.beamline
-        kwargs['form_title'] = "Shift Request"
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cycle'] = self.allocation.cycle
         context['project'] = self.allocation.project
         context['facility'] = self.allocation.beamline
+        context['form_title'] = "Book Beam Time"
+        context['message'] = (
+            "Please use this form to book beam time for your project on flexible-scheduling beamlines that do "
+            "not allocate beam time in advance."
+        )
         return context
 
     def form_valid(self, form):
@@ -1576,17 +1534,16 @@ class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
         data['allocation'] = self.allocation
 
         if form_action == 'submit':
-            data['state'] = self.model.STATES.submitted
+            data['state'] = self.model.States.submitted
 
         self.object = self.model.objects.create(**data)
         self.object.tags.add(*tags)
-
         if form_action == 'save':
-            success_url = reverse("edit-shift-request", kwargs={'pk': self.object.pk})
-            msg = 'Shift Request was saved successfully'
+            success_url = reverse("edit-booking-request", kwargs={'pk': self.object.pk})
+            msg = 'Booking saved successfully'
         else:
             success_url = reverse("project-detail", kwargs={'pk': self.object.allocation.project.pk})
-            msg = 'Shift Request submitted'
+            msg = 'Booking submitted'
         messages.add_message(self.request, messages.SUCCESS, msg)
         return HttpResponseRedirect(success_url)
 
@@ -1594,14 +1551,17 @@ class CreateShiftRequest(RolePermsViewMixin, edit.CreateView):
 class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
     model = models.ShiftRequest
     form_class = forms.ShiftRequestForm
-    template_name = "projects/forms/request_form.html"
-    edit_url = "edit-shift-request"
+    template_name = "projects/forms/request-form.html"
+    edit_url = "edit-booking-request"
     allowed_roles = USO_ADMIN_ROLES
 
+    def get_queryset(self):
+        qset = super().get_queryset()
+        return qset.filter(state=models.ShiftRequest.States.draft)
+
     def check_allowed(self):
-        object = self.get_object()
-        self.allocation = object.allocation
-        return (super().check_allowed() or self.check_owner(self))
+        obj = self.get_object()
+        return super().check_allowed() or self.check_owner(obj)
 
     def check_owner(self, obj):
         return obj.allocation.project.is_owned_by(self.request.user)
@@ -1609,17 +1569,16 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
     def get_project(self):
         return self.object.allocation.project
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['facility'] = self.object.allocation.beamline
-        kwargs['form_title'] = "Edit Shift Request"
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cycle'] = self.object.allocation.cycle
         context['project'] = self.object.allocation.project
         context['facility'] = self.object.allocation.beamline
+        context['form_title'] = "Edit Beam Time Booking"
+        context['message'] = (
+            "Please use this form to book beam time for your project on flexible-scheduling beamlines that do "
+            "not allocate beam time in advance."
+        )
         return context
 
     def form_valid(self, form):
@@ -1628,11 +1587,11 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
         form_action = data.pop('form_action', 'save')
         if form_action == 'save':
             success_url = reverse(self.edit_url, kwargs={'pk': self.object.pk})
-            msg = 'Shift Request was saved successfully'
+            msg = 'Booking was saved successfully'
         else:
-            data['state'] = self.model.STATES.submitted
+            data['state'] = self.model.States.submitted
             success_url = reverse("project-detail", kwargs={'pk': self.get_project().pk})
-            msg = 'Shift Request submitted'
+            msg = 'Booking submitted'
 
         self.model.objects.filter(pk=self.object.pk).update(**data)
         self.object.tags.clear()
@@ -1641,19 +1600,58 @@ class EditShiftRequest(RolePermsViewMixin, edit.UpdateView):
         return HttpResponseRedirect(success_url)
 
 
-class AdminShiftRequest(RolePermsViewMixin, edit.UpdateView):
-    model = models.ShiftRequest
-    form_class = forms.RequestAdminForm
-    template_name = "projects/forms/request-admin.html"
+class EditRenewalRequest(RolePermsViewMixin, edit.UpdateView):
+    model = models.AllocationRequest
+    form_class = forms.AllocRequestForm
+    template_name = "projects/forms/request-form.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def check_allowed(self):
-        return super().check_allowed() or self.object.allocation.beamline.is_admin(self.request.user)
+        obj = self.get_object()
+        return super().check_allowed() or self.check_owner(obj)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
+    def check_owner(self, obj):
+        return obj.project.is_owned_by(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cycle'] = self.object.cycle
+        context['project'] = self.object.project
+        context['facility'] = self.object.beamline
+        context['form_title'] = "Edit Renewal Request"
+        context['message'] = (
+            "Please use this form to book beam time for your project on flexible-scheduling beamlines that do "
+            "not allocate beam time in advance."
+        )
+        return context
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        tags = data.pop('tags', [])
+        form_action = data.pop('form_action', 'save')
+        if form_action == 'save':
+            success_url = reverse("edit-renewal-request", kwargs={'pk': self.object.pk})
+            msg = 'Request was saved successfully'
+        else:
+            data['state'] = self.model.States.submitted
+            success_url = reverse("project-detail", kwargs={'pk': self.object.project.pk})
+            msg = 'Request submitted'
+
+        self.model.objects.filter(pk=self.object.pk).update(**data)
+        self.object.tags.clear()
+        self.object.tags.add(*tags)
+        messages.add_message(self.request, messages.SUCCESS, msg)
+        return HttpResponseRedirect(success_url)
+
+
+class AdminShiftRequest(RolePermsViewMixin, ModalUpdateView):
+    model = models.ShiftRequest
+    form_class = forms.RequestAdminForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def check_allowed(self):
+        self.object = self.get_object()
+        return super().check_allowed() or self.object.allocation.beamline.is_admin(self.request.user)
 
     def get_success_url(self):
         cycle = self.object.allocation.cycle
@@ -1661,34 +1659,37 @@ class AdminShiftRequest(RolePermsViewMixin, edit.UpdateView):
 
     def form_valid(self, form):
         super().form_valid(form)
-        return JsonResponse(
-            {
-                "url": self.get_success_url()
-            }
-        )
+        return JsonResponse({"url": self.get_success_url()})
 
 
 class RequestPreferencesAPI(RolePermsViewMixin, View):
-    allowed_roles = ["employee"]
+    allowed_roles = USO_STAFF_ROLES
 
     def get(self, *args, **kwargs):
         facility = Facility.objects.get(acronym__iexact=self.kwargs['fac'])
         project = models.Project.objects.get(pk=self.kwargs['pk'])
-        alloc = models.Allocation.objects.filter(beamline=facility, project=project).last()
+
+        # get dates from the proposal
+        proposal_dates = project.proposal.details.get('date_preferences', '')
+        proposal_dates = proposal_dates.split(',') if proposal_dates else []
+
         start = parser.parse(self.request.GET['start'])
         end = parser.parse(self.request.GET['end'])
 
-        good_dates = []
+        good_dates = [parser.parse(v) for v in proposal_dates if v]
         poor_dates = []
 
         for req in itertools.chain(
-                project.allocation_requests.all(), models.ShiftRequest.objects.filter(allocation__project=project).all()
+                project.renewals.all(), models.ShiftRequest.objects.filter(allocation__project=project).all()
         ):
-            good_dates.extend([parser.parse(v) for v in [_f for _f in req.good_dates.split(',') if _f]])
-            poor_dates.extend([parser.parse(v) for v in [_f for _f in req.poor_dates.split(',') if _f]])
+            good_dates.extend([parser.parse(v) for v in req.good_dates if req.good_dates])
+            poor_dates.extend([parser.parse(v) for v in req.poor_dates if req.poor_dates])
 
-        good_dates = [x for x in good_dates if start <= x <= end]
-        poor_dates = [x for x in poor_dates if start <= x <= end]
+        good_dates = {x for x in good_dates if start <= x <= end}
+        poor_dates = {x for x in poor_dates if start <= x <= end}
+
+        # removes duplicates
+        good_dates -= poor_dates
 
         events = [{
             'start': d.isoformat(), 'end': (d + timedelta(days=1)).isoformat(), 'name': 'Preferred Dates',
@@ -1720,7 +1721,7 @@ class ProjectSchedule(RolePermsViewMixin, detail.DetailView):
         return obj.is_owned_by(self.request.user)
 
     def get_context_data(self, **kwargs):
-        from scheduler.models import ShiftConfig, Mode
+        from scheduler.models import ShiftConfig
         context = super().get_context_data(**kwargs)
         cur_date = self.kwargs.get('date', timezone.now().date().isoformat())
 
@@ -1736,11 +1737,13 @@ class ProjectSchedule(RolePermsViewMixin, detail.DetailView):
         context['shift_starts'] = [shift['time'] for shift in shifts]
         context['shifts'] = shifts
         context['shift_count'] = len(context['shift_starts'])
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in Mode.TYPES]
-        context['subtitle'] = '{} Schedule'.format(self.project)
+        context['mode_types'] = ModeType.objects.all()
+        context['subtitle'] = f'{self.project} Schedule'
         context['show_year'] = False
-        context['event_sources'] = [reverse('facility-modes-api'),
-                                    reverse('project-schedule-api', kwargs={'pk': self.project.pk}), ]
+        context['event_sources'] = [
+            reverse('facility-modes-api'),
+            reverse('project-schedule-api', kwargs={'pk': self.project.pk}),
+        ]
         return context
 
 
@@ -1759,9 +1762,8 @@ class ProjectScheduleAPI(generics.ListAPIView):
         return super().get_queryset()
 
 
-class DeclineAllocation(RolePermsViewMixin, edit.UpdateView):
+class DeclineAllocation(RolePermsViewMixin, ModalUpdateView):
     model = models.Allocation
-    template_name = "forms/modal.html"
     form_class = forms.DeclineForm
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1777,11 +1779,6 @@ class DeclineAllocation(RolePermsViewMixin, edit.UpdateView):
     def check_owner(self, obj):
         return obj.project.is_owned_by(self.request.user)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['allocation'] = self.object
@@ -1789,16 +1786,16 @@ class DeclineAllocation(RolePermsViewMixin, edit.UpdateView):
 
     def form_valid(self, form):
         allocation = self.get_object()
-        comments = "Allocation of {} shifts declined by {} on {}, reason: {}".format(
-            allocation.shifts, self.request.user, timezone.localtime(timezone.now()), form.cleaned_data['comments']
+        comments = (
+            f"Allocation of {allocation.shifts} shifts declined by {self.request.user} on "
+            f"{timezone.localtime(timezone.now())}, reason: {form.cleaned_data['comments']}"
         )
-
         data = {
             'allocation': allocation, 'shifts': allocation.shifts, 'comments': form.cleaned_data['comments'],
         }
 
         notify.send(
-            ["beamline-admin:{}".format(allocation.beamline.acronym.lower())], 'allocation-declined',
+            allocation.beamline.admin_list(), 'allocation-declined',
             level=notify.LEVELS.important, context=data
         )
         models.Allocation.objects.filter(pk=allocation.pk).update(
@@ -1806,11 +1803,7 @@ class DeclineAllocation(RolePermsViewMixin, edit.UpdateView):
         )
 
         messages.warning(self.request, 'Your request to decline the allocation was processed')
-        return JsonResponse(
-            {
-                "url": "",
-            }
-        )
+        return JsonResponse({"url": ""})
 
 
 class Statistics(RolePermsViewMixin, TemplateView):
@@ -1827,14 +1820,17 @@ class InvoicingList(RolePermsViewMixin, ItemListView):
     model = models.Project
     paginate_by = 50
     template_name = "item-list.html"
-    list_columns = ['code', 'kind', 'get_leader', 'invoice_email', 'pretty_invoice_address', 'shifts_allocated',
-                    'shifts_used']
-    csv_fields = ['code', 'kind', 'get_leader', 'invoice_email', 'invoice_place', 'invoice_street', 'invoice_city',
-                  'invoice_region',
-                  'invoice_country', 'invoice_code', 'shifts_allocated', 'shifts_used']
-    list_filters = ['start_date', 'end_date', 'kind', BeamlineFilterFactory.new("beamlines")]
+    list_columns = [
+        'code', 'pool', 'get_leader', 'invoice_email', 'pretty_invoice_address', 'shifts_allocated',
+        'shifts_used'
+    ]
+    csv_fields = [
+        'code', 'pool', 'get_leader', 'invoice_email', 'invoice_place', 'invoice_street', 'invoice_city',
+        'invoice_region', 'invoice_country', 'invoice_code', 'shifts_allocated', 'shifts_used'
+    ]
+    list_filters = ['start_date', 'end_date', 'pool', BeamlineFilterFactory.new("beamlines")]
     list_search = ['proposal__title', 'proposal__team', 'id']
-    list_styles = {'title': 'col-xs-3', 'state': 'text-center', 'beamlines': 'col-xs-2'}
+    list_styles = {'title': 'col-sm-3', 'state': 'text-center', 'beamlines': 'col-sm-2'}
     list_transforms = {
         'beamlines': _fmt_beamlines,
     }

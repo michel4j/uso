@@ -1,12 +1,14 @@
 import hashlib
 import os
+import uuid
 from mimetypes import MimeTypes
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Q, F, Count
+from django.db.models import Q, F, Count, Min, Max, Value
+from django.db.models.functions import Coalesce
 from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -16,6 +18,7 @@ from model_utils.models import TimeStampedModel
 from misc.functions import Age
 from .fields import RestrictedFileField
 from .middleware import get_client_address
+from .utils import get_code_generator
 
 User = getattr(settings, "AUTH_USER_MODEL")
 
@@ -168,7 +171,7 @@ class Clarification(GenericContentMixin, TimeStampedModel):
 
 def attachment_file(instance, filename):
     ext = os.path.splitext(filename)[-1]
-    return os.path.join('attachments', str(instance.content_type), str(instance.object_id), instance.slug + ext)
+    return os.path.join('attachments', instance.content_type.model, str(instance.object_id), instance.slug + ext)
 
 
 class AttachmentQuerySet(QuerySet):
@@ -198,7 +201,7 @@ class Attachment(GenericContentMixin, TimeStampedModel):
         ('other', _('Other')),
     )
     owner = models.ForeignKey(User, related_name='attachments', on_delete=models.CASCADE)
-    description = models.CharField(max_length=100, verbose_name="name")
+    description = models.CharField(max_length=100, verbose_name="Description")
     file = RestrictedFileField(
         upload_to=attachment_file, max_size=2097152,
         file_types=['application/pdf', 'image/png', 'image/jpeg'], verbose_name="Attachment"
@@ -231,6 +234,7 @@ class Attachment(GenericContentMixin, TimeStampedModel):
         mime_type = self.mime_type()
         if mime_type:
             return 'image' in mime_type
+        return False
 
     def exists(self):
         return self.file.storage.exists(self.file.path)
@@ -292,3 +296,60 @@ class ActivityLog(GenericContentMixin, TimeStampedModel):
 
     def __str__(self):
         return f'{self.get_kind_display()},{self.content_type}[{self.object_id}]/{self.created.isoformat()}'
+
+
+class CodeModelMixin(models.Model):
+    """
+    A mixin class that adds the fields, methods and managers necessary to support
+    code models.
+    """
+    code = models.SlugField(unique=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        """
+        Override save method to clear code if pk is None
+        """
+        new_code_needed = (self.pk is None)  # when cloning, for example
+        if new_code_needed:
+            self.code = uuid.uuid4()
+
+        super().save(*args, **kwargs)
+        if new_code_needed:
+            key = self.__class__.__name__.upper()
+            code_func = get_code_generator(key)
+            self.code = code_func(self)
+            self.save(update_fields=['code'])
+
+    def __str__(self):
+        return f"{self.code}"
+
+    def natural_key(self):
+        return self.code,
+
+    def year_index(self) -> int:
+        """
+        Returns the index of this instance within it's creation year. That is, the index of the instance
+        when sorted by creation date within the year it was created.
+        """
+        index = self.__class__.objects.filter(
+            created__year=self.created.year, pk__lte=self.pk
+        ).aggregate(
+            count=Value(1) + Coalesce(Max('pk') - Min('pk'), 0)
+        )['count'] or 1
+        return index
+
+    def month_index(self) -> int:
+        """
+        Returns the index of this instance within it's creation month. That is, the index of the instance
+        when sorted by creation month within the month it was created.
+        """
+        index = self.__class__.objects.filter(
+            created__year=self.created.year, created__month=self.created.month,
+            pk__lte=self.pk
+        ).aggregate(
+            count=Value(1) + Coalesce(Max('pk') - Min('pk'), 0)
+        )['count'] or 1
+        return index

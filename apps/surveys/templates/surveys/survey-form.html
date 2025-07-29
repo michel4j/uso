@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load dynforms %}
+{% block extra_css %}
+    <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'proposals/proposals.min.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block pre_js %}
+        <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
+{% endblock %}
+
+{% block page-title %}{{ form_title }}{% endblock %}
+{% block content %}
+    <div id="proposal-grid" class="bg-secondary-subtle">
+        <div id="proposal-form" class="page">
+            {% include "dynforms/form.html" %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(window).bind('beforeunload', function () {
+            if ($("[data-dynform-dirty]").length) {
+                return 'Form contains unsaved changes.';
+            }
+        });
+    </script>
+{% endblock %}

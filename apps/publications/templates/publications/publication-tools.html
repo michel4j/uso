@@ -1,0 +1,6 @@
+{% if user.is_authenticated %}
+<a href='#0' data-modal-url="{% url 'add-publication' %}" class="pull-right">
+    <i class="bi-plus-lg icon-md icon-fw"></i><br>
+    <span class="tool-label">Add Publication</span>
+</a>
+{% endif %}

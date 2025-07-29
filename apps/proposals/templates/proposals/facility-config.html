@@ -1,42 +1,60 @@
-{% extends 'folio.html' %}
+{% extends 'page.html' %}
 {% load crispy_forms_tags %}
-{% load beamline_tags %}
+{% load beamlines %}
+{% load misc %}
 
-{% block page_heading %}<span class="hidden-xs">Facility &mdash; </span>
-    <span class="text-muted">Configurations</span>{% endblock %}
+{% block page-pretitle %}Facility Settings{% endblock %}
 
-{% block folio-title %}
-    <strong>{{ object.acronym }}</strong> &mdash; Available Techniques
+{% block page-title %}
+    <strong>{{ object.acronym }}</strong> &mdash; Techniques and Pool Allocation
 {% endblock %}
 
-{% block folio-subtitle %}
+{% block page-subtitle %}
     <small>
-        <i class="bi-circle-fill text-success-light"></i>&nbsp;Available &emsp;
-        <i class="bi-circle-fill text-warning-light"></i>&nbsp;Special Request &emsp;
-        <i class="bi-circle-fill" style="color: #ddd;"></i>&nbsp;Not Accepting
+        <i class="bi-circle-fill text-success"></i>&nbsp;Available During Call &emsp;
+        <i class="bi-circle-fill text-warning"></i>&nbsp;Available Outside Call &emsp;
     </small>
 {% endblock %}
 
-{% block folio-tools %}
-    {% if object.kind != 'village' %}
+{% block page-tools %}
+    {% if object.kind != object.Types.village %}
         {% if owner or admin %}
-            <a href='#0' data-url='{% url "add-facility-config" pk=object.pk %}' class="pull-right">
-                <i class="bi-plus-lg icon-2 icon-fw"></i><br/>
+            <a href='#0' data-modal-url='{% url "add-facility-config" slug=object.acronym %}'>
+                <i class="bi-plus-lg icon-md icon-fw"></i><br/>
                 <span class="tool-label">Add Config</span>
+            </a>
+            <a href="#0" data-modal-url="{% url "edit-facility-pools" slug=object.acronym %}">
+                <i class="bi-diagram-3 icon-md icon-fw"></i>
+                <br/>
+                <span class="tool-label">Access&nbsp;Pools</span>
             </a>
         {% endif %}
     {% endif %}
 {% endblock %}
 
-{% block folio-content %}
-    <div class="pagelet-body">
-        {% for config in object.configs.pending %}
-            {% include "proposals/config-box.html" with pending=True %}
+{% block page-status-style %}callout callout-info{% endblock %}
+{% block page-status-bar %}
+    {% with object.active_config as config %}
+        <span class="status-badge badge bg-{% state_tag config.accept success=True warning=False %} text-condensed">
+        {% if config.accept %}Accepting{% else %}Not Accepting{% endif %}
+        </span>
+        {% for pool, percent in object.access_pools %}
+            <div class="col-auto">
+                <small class="text-body-secondary">{{ pool.name }}</small><br/>
+                <span class="stats-number">{{ percent }}%</span>
+            </div>
         {% endfor %}
-        {% include "proposals/config-box.html" with config=object.active_config active=True %}
-        {% for config in object.configs.expired %}
-            {% if forloop.first %}<h3>Previous Configurations</h3>{% endif %}
-             {% include "proposals/config-box.html" %}
-        {% endfor %}
-    </div>
+    {% endwith %}
+{% endblock %}
+
+{% block page-content %}
+    {% for config in object.configs.pending %}
+        {% include "proposals/config-box.html" with pending=True %}
+    {% endfor %}
+    {% include "proposals/config-box.html" with config=object.active_config active=True %}
+    {% for config in object.configs.expired %}
+        {% if forloop.first %}<h3>Previous Configurations</h3>{% endif %}
+        {% include "proposals/config-box.html" %}
+    {% endfor %}
+
 {% endblock %}

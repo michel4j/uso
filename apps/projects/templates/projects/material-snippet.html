@@ -1,11 +1,9 @@
 {% load markup %}
 
 <h5><strong>Samples</strong></h5>
-<hr class="hr-xs"/>
 {% include "projects/samples.html" with samples=material.project_samples.all %}
 {% if equipment %}
     <h5><strong>Equipment</strong></h5>
-    <hr class="hr-xs"/>
     {% include "proposals/equipment-list.html" with equipment=material.equipment%}
 {% endif %}
 

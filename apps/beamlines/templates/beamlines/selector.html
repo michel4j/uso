@@ -1,7 +1,7 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
 {% load itemlist %}
-{% load beamline_tags %}
+{% load beamlines %}
 
 {% block extra_css %}
     <style media="screen">
@@ -13,28 +13,48 @@
             padding-top: 15px;
             padding-bottom: 15px;
         }
+        svg path.beamline {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: none;
+            stroke-opacity: 0.25;
+            transition: all 0.2s ease-in-out;
+        }
+        svg path.active {
+            stroke: #0e84b5;
+            stroke-width: 15;
+            stroke-opacity: 1;
+        }
+        svg path.highlight {
+            stroke: #0e84b5;
+            stroke-opacity: 1;
+        }
     </style>
 {% endblock %}
 
-{% block page_heading %}{% itemlist_heading %}{% endblock %}
-{% block folio-tools %}
+{% block page-title %}{% itemlist_heading %}{% endblock %}
+{% block page-tools %}
     <a href="{% url 'beamline-list' %}" class="pull-right">
-        <i class="bi-list-ol icon-2 icon-fw"></i><br>
+        <i class="bi-list-ol icon-md icon-fw"></i><br>
         <span class="tool-label">Facility List</span>
     </a>
 {% endblock %}
-{% block folio-content %}
-    <div class="pad-wrapper">
+{% block page-content %}
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 {% include "itemlist/filters.html" %}
             </div>
-            <div class="col-xs-7">
+            <hr/>
+            <div class="col-sm-7">
                 {% include "beamlines/beamlines-drawing.svg" %}
             </div>
-            <div class="col-xs-5">
+            <div class="col-sm-5">
                 <div class="beamline-info">
-                    {% include "beamlines/basic_list.html" %}
+                    {% include "beamlines/selector-list.html" %}
                 </div>
             </div>
         </div>
@@ -42,71 +62,20 @@
 {% endblock %}
 
 {% block extra_js %}
+    {{ block.super }}
     <script type="application/javascript">
-        {{ block.super }}
-
-        function activate(selector) {
-            $(selector).attr('opacity', '1')
-                .attr('stroke-width', '18')
-                .attr('stroke', '#428bca')
-                .attr('highlight', 'true');
-        }
-
-        function deactivate(selector) {
-            $(selector).each(function (i, el) {
-                $(el).attr('stroke-width', '15')
-                    .attr('stroke', $(el).attr('stroke-state'))
-                    .removeAttr('highlight');
-            });
-            $("[search-result='true']").attr('opacity', '1');
-        }
-
-        function info(el) {
-            deactivate('.beamline');
-            activate('.beamline[port=' + $(el).attr("port") + ']');
-            $.ajax({
-                url: '/facilities/port/' + $(el).attr('port'),
-                success: function (data) {
-                    $('.beamline-info').html(data);
-                }
-            });
-        }
-
-        function list() {
-            deactivate($('.beamline'));
-            $('.beamline-info').html("{% filter escapejs %}{% include 'beamlines/basic_list.html' with object_list=object_list %}{% endfilter %}");
-        }
-
-        {% for obj in object_list %}{% if obj.port %}
-        $("[port='{{obj.port}}']").attr('title', 'Go to {{obj.acronym}}');
-        $("[port='{{obj.port}}']").attr('pk', '{{obj.pk}}');
-        $("[port='{{obj.port}}']").attr('stroke', '{{obj.state|get_color}}');
-
-        {% endif %}{% endfor %}
-        $('.beamline').each(function (i, el) {
-            $(el).attr('stroke-state', $(el).attr('stroke'));
+        $(document).on('mouseenter', 'tr[data-acronym]', function() {
+            const $row = $(this);
+            $('path.active').removeClass('active');
+            $(`#${$row.data("acronym")}`).addClass('active');
         });
-
-        {% for obj in object_list %}{% if obj.port %}
-        $("[port='{{obj.port}}']").attr('search-result', 'true');
-        {% endif %}{% endfor %}
-        $("[search-result='true']").attr('opacity', '1');
-
-        $(".beamline[search-result='true']").click(
-            function () {
-                window.location.href = "/facilities/" + $(this).attr('pk');
-            }
-        );
-        $(".beamline[search-result='true']").hover(
-            function () {
-                $(this).attr('stroke-width', '18');
-                info(this);
-            },
-            function () {
-                if (!$(this).attr('highlight')) {
-                    deactivate(this);
-                }
-            }
-        );
+        $(document).ready(function() {
+            let highlighted = [];
+            $('tr[data-acronym]').each(function(el){
+                highlighted.push(`#${$(this).data("acronym")}`);
+            });
+            $('path.highlight').removeClass('highlight');
+            $(highlighted.join(',')).addClass('highlight');
+        });
     </script>
 {% endblock %}

@@ -1,6 +1,6 @@
 {% load static %}
-{% load dynforms_tags %}
-{% load beamline_tags %}
+{% load dynforms %}
+{% load beamlines %}
 {% load samples_tags %}
 {% load project_tags %}
 {% load proposal_tags %}
@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div class="pull-left">
-                    <span class="text-condensed text-muted"><strong>
+                    <span class="text-condensed text-body-secondary"><strong>
                         <a href="{{ material.get_absolute_url }}">{{material.code}}</a>
                     </strong></span>
                 </div>
@@ -32,7 +32,7 @@
             </span>
 			{% if not forloop.last %}&middot;{% endif %}
 		{% endfor %}
-		<span class="text-muted">
+		<span class="text-body-secondary">
         {% for member in material.project.extra_team %}
 		{{member.first_name}} {{member.last_name}}
 		{% if not forloop.last %}&middot;{% endif %}
@@ -41,7 +41,7 @@
         {% endwith %}
 		<span class="pull-right">
 		{% for fac in material.project.beamlines.all.distinct %}
-			<span class="label label-info">{{fac.acronym}}</span>&nbsp;
+			<span class="badge bg-info">{{fac.acronym}}</span>&nbsp;
 			{% endfor %}
 		</span>
 	</div>
@@ -69,7 +69,7 @@
 			{% if proposal.details.ancillaries %}
 			{% get_ancillaries data=proposal.details.ancillaries as ancillaries %}
 			<h3>Ancillary Requirements:</h3>
-			<h4>{% for anc in  ancillaries.selected %} <span class="label label-default">{{anc}}</span>{% endfor %}</h4>
+			<h4>{% for anc in  ancillaries.selected %} <span class="badge">{{anc}}</span>{% endfor %}</h4>
 			{% endif %}
 		</div>
 	</div>
@@ -78,7 +78,6 @@
 <div class="row section">
 	<div class="col-sm-12 section-content">
 		<h3>Materials</h3>
-		<hr class="hr-xs">
 		{% include "projects/material-content.html" with material=object %}
 	</div>
 </div>

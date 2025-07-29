@@ -1,0 +1,35 @@
+{% extends "crisp_modals/form.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block modal_assets %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'samples/sample.min.css' %}" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block modal_body %}
+    <div id="flip-toggle">
+        <div id="sample-form">
+            {% crispy form form.body %}
+        </div>
+        <div id="search-results" class="d-none">
+        </div>
+    </div>
+{% endblock %}
+
+{% block modal_scripts %}
+    <script type="text/javascript" defer>
+        $('#search-compound').click(function (e) {
+            e.preventDefault();
+            const name = jQuery.trim($('#id_name').val());
+            if (name !== '') {
+                $('#search-compound').html('<i class="bi-arrow-repeat icon-spin"></i>');
+                const loadUrl = "{% url 'compound-search' %}" + "?q=" + encodeURIComponent($('#modal form input[name="name"]').val());
+                $('#search-results').load(loadUrl, function (e) {
+                    $("#search-compound").html('<i class="bi-search"></i>');
+                    $("#flip-toggle > div").toggleClass("d-none");
+                });
+            }
+        });
+    </script>
+{% endblock %}

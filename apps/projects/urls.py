@@ -6,21 +6,23 @@ from . import views
 
 urlpatterns = [
     path('projects/', views.ProjectList.as_view(), name="project-list"),
-    path('projects/new/', views.CreateProject.as_view(), name="create-project"),
-
     path('projects/reports/', views.Statistics.as_view(), name="project-stats"),
 
-    path('allocations/<int:pk>/request/shift/new/', views.CreateShiftRequest.as_view(), name="create-shift-request"),
-    path('allocations/request/shift/<int:pk>/edit/', views.EditShiftRequest.as_view(), name='edit-shift-request'),
-    path('allocations/request/shift/<int:pk>/manage/', views.AdminShiftRequest.as_view(), name='manage-shift-request'),
-    path('allocations/request/', views.AllocRequestList.as_view(), name="alloc-request-list"),
-    path('allocations/request/shift/<int:pk>/<int:cycle>/', views.ShiftRequestList.as_view(), name='shift-request-list'),
+    path('allocations/<int:pk>/renew/', views.CreateAllocRequest.as_view(), name="create-renewal-request"),
+    path('allocations/renewals/', views.AllocRequestList.as_view(), name="alloc-request-list"),
+    path('allocations/renewals/<int:pk>/edit/', views.EditRenewalRequest.as_view(), name='edit-renewal-request'),
+
+    path('allocations/<int:pk>/book/', views.CreateShiftRequest.as_view(), name="create-booking-request"),
+    path('allocations/bookings/<int:pk>/<int:cycle>/', views.ShiftRequestList.as_view(), name='shift-request-list'),
+    path('allocations/bookings/<int:pk>/manage/', views.AdminShiftRequest.as_view(), name='manage-shift-request'),
+    path('allocations/bookings/<int:pk>/edit/', views.EditShiftRequest.as_view(), name='edit-booking-request'),
+
     path('allocations/<int:pk>/decline/', views.DeclineAllocation.as_view(), name="decline-alloc"),
     path('allocations/cycles/<int:pk>/<str:fac>/', views.AllocateBeamtime.as_view(), name="allocate-review-cycle"),
     path('allocations/<int:pk>/edit/', views.EditAllocation.as_view(), name='edit-allocation'),
 
-    path('facilities/<slug:fac>/projects/<int:cycle>/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
-    path('facilities/<slug:fac>/projects/', views.BeamlineProjectList.as_view(), name="beamline-projects"),
+    path('facilities/<slug:slug>/projects/<int:cycle>/', views.BeamlineProjectList.as_view(), name="facility-cycle-projects"),
+    path('facilities/<slug:slug>/projects/', views.BeamlineProjectList.as_view(), name="facility-projects"),
 
     path('materials/', views.MaterialList.as_view(), name='material-list'),
     path('materials/<int:pk>/', views.MaterialDetail.as_view(), name='material-detail'),
@@ -45,7 +47,7 @@ urlpatterns = [
     path('lab-sessions/<int:pk>/cancel/', views.CancelLabSession.as_view(), name='cancel-lab-session'),
     path('lab-sessions/<int:pk>/', views.LabPermit.as_view(), name='lab-permit'),
 
-    path('reservations/<int:cycle>/<str:fac>/<str:pool>/', views.EditReservation.as_view(), name='edit-reservation'),
-    path('reservations/<int:cycle>/<str:fac>/', views.EditReservation.as_view(), name='edit-reservation'),
+    path('reservations/<int:cycle>/<slug:fac>/<int:pool>/', views.EditReservation.as_view(), name='edit-pool-reservation'),
+    path('reservations/<int:cycle>/<slug:fac>/', views.EditReservation.as_view(), name='edit-reservation'),
 
 ]

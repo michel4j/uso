@@ -1,18 +1,19 @@
-{% load dynforms_tags %}
+{% load dynforms %}
 {% load samples_tags %}
 <div class="controls" id="{{field.name}}-controls" data-field-name="{{field.name}}">
 	<div class="row no-space" id="waste-type-controls">
 		{% get_waste_types as type_groups %}
 		{% for group_name, choices in type_groups %}
 	    <div class="sample-type-group col-sm-6">
-		<h5 >{{group_name|default:"&nbsp;"}}</h5>
+		<h5>{{group_name|default:"&nbsp;"}}</h5>
 			{% for choice, checked in choices|group_sample_choices:data %}
-			<div class="checkbox">
-		       <label for="{{field.name}}_{{forloop.counter}}_{{choice.0}}"><input name="{{field.name}}"
+			<div class="form-check">
+            <input name="{{field.name}}"
 		       	id="{{field.name}}_{{forloop.counter}}_{{choice.0}}"
 		       	value="{{choice.0}}"
 		       	{% if checked %}checked="checked"{% endif %}
-		       	type="checkbox">{{choice.1}}</label>
+		       	type="checkbox" class="form-check-input">
+		       <label class="form-check-label" for="{{field.name}}_{{forloop.counter}}_{{choice.0}}">{{choice.1}}</label>
 		    </div>
 			{% endfor %}
 	    </div>

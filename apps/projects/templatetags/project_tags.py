@@ -1,11 +1,8 @@
-from datetime import datetime
-
-import pytz
 from django import template
 from django.db.models import Q, Sum, Count, Avg
 from django.db.models.functions import Coalesce
-from django.utils.safestring import mark_safe
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from projects import models
 
@@ -41,17 +38,16 @@ def beamline_shifts(project, bl):
 def sample_state_display(sample):
     full_state = sample.full_state()
     prefix = 'Expired' if full_state == sample.STATES.expired else 'Expires'
-    full_display = sample.STATES[full_state] if not sample.expiry else '{} {}'.format(prefix,
-                                                                                       sample.expiry.isoformat())
+    full_display = sample.STATES[full_state] if not sample.expiry else f'{prefix} {sample.expiry.isoformat()}'
 
     if full_state == sample.STATES.approved:
-        return f"<i class='bi-check-circle-fill icon-fw text-success'></i> {full_display}"
+        return f"<i class='bi-check-circle-fill icon-fw text-success'></i>&nbsp;{full_display}"
     elif full_state == sample.STATES.pending:
-        return f"<i class='bi-hourglass  icon-fw text-muted'></i> {full_display}"
+        return f"<i class='bi-hourglass icon-fw text-body-secondary'></i>&nbsp;{full_display}"
     elif full_state == sample.STATES.rejected:
-        return f"<i class='bi-ban  icon-fw text-danger'></i> {full_display}"
+        return f"<i class='bi-ban icon-fw text-danger'></i>&nbsp;{full_display}"
     elif full_state == sample.STATES.expired:
-        return f"<i class='bi-ban  icon-fw text-danger'></i> {full_display}"
+        return f"<i class='bi-ban icon-fw text-danger'></i>&nbsp;{full_display}"
 
 
 @register.filter(name="permission_code")
@@ -86,7 +82,7 @@ def get_time_class(start, end):
         return "text-success"
     elif now < start:
         return "text-info"
-    return "text-muted"
+    return "text-body-secondary"
 
 
 @register.simple_tag(takes_context=True)
@@ -105,7 +101,7 @@ def get_session_types(context):
 
 
 @register.simple_tag(takes_context=True)
-def show_project_roles(context, project, user):
+def show_project_roles(context, project, user, full=False):
     roles = []
     if user == project.spokesperson:
         roles.append(('S', 'Spokesperson'))
@@ -113,9 +109,13 @@ def show_project_roles(context, project, user):
         roles.append(('L', 'Project Leader'))
     if project.delegate and user == project.delegate:
         roles.append(('D', 'Delegate'))
-    role_texts = ['<text title="{1}">{0}</text>'.format(*r) for r in roles]
-    return mark_safe(
-        '&nbsp;(<strong class="text-primary">{}</strong>)'.format(', '.join(role_texts)) if roles else '')
+    if full:
+        role_texts = ['<span>{1}</span>'.format(*r) for r in roles]
+        text = '<br/>'.join(role_texts)
+    else:
+        role_texts = ['<span title="{1}">{0}</span>'.format(*r) for r in roles]
+        text = '<span class="text-body-secondary">{}</span>'.format(', '.join(role_texts))
+    return mark_safe(text)
 
 
 @register.filter
@@ -135,7 +135,7 @@ def no_equipment(beamlines):
 @register.filter
 def risk_background(material):
     return {
-        0: 'bg-white text-muted',
+        0: 'bg-white text-body-secondary',
         1: 'bg-success',
         2: 'bg-info',
         3: 'bg-warning',
@@ -144,7 +144,7 @@ def risk_background(material):
 
 
 @register.inclusion_tag('projects/event-icon.html', takes_context=True)
-def event_icon(context, event_time, icon="bi-calendar2-event", size="icon-3x", description=""):
+def event_icon(context, event_time, icon="bi-calendar2-event", size="icon-lg", description=""):
     return {
         'size': size,
         'icon': icon,
@@ -158,7 +158,7 @@ def get_facility_cycle_stats(facility, cycle):
 
     reservations = models.Reservation.objects.filter(beamline=facility, cycle=cycle)
     total = cycle.schedule.normal_shifts()
-    unavailable = reservations.filter(kind__in=['', None]).aggregate(total=Coalesce(Sum('shifts'), 0))
+    unavailable = reservations.filter(pool__isnull=True).aggregate(total=Coalesce(Sum('shifts'), 0))
 
     aggregations = {
         'total': Count('id', distinct=True),
@@ -181,7 +181,7 @@ def get_facility_cycle_stats(facility, cycle):
 
 @register.simple_tag(takes_context=True)
 def get_equipment_list(context, data=()):
-    if not 'review' in context:
+    if 'review' not in context:
         return []
 
     review = context['review']

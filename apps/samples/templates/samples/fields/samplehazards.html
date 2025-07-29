@@ -1,49 +1,76 @@
 {% load static %}
-{% load dynforms_tags %}
+{% load dynforms %}
 {% load samples_tags %}
+<link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
+
 <div class="controls " id="{{field.name}}-controls" data-field-name="{{field.name}}">
 	<div class="row no-space hazard-controls" id="sample-hazard-controls">
 		{% get_pictograms as pictograms %}
 			{% for pic in pictograms %}
-		    <label class="checkbox pictogram pull-left col-xs-6 col-sm-3 col-lg-2">
 		    	<input name="{{field.name}}"
 		       	id="{{field.name}}_{{forloop.counter}}"
-		       	value="{{pic.pk}}"
+		       	value="{{pic.pk}}" aria-label="{{field.name}}"
 		       	{% if pic.pk in data %}checked="checked"{% endif %}
 		       	type="checkbox">
-		       	<div class="hazard-input media"
-				    data-toggle="popover"
-				    data-placement="bottom"
-				    data-trigger="hover"
-				    data-content="{{pic.description}}">
-					<img class="media-object pull-left" src="{% pictogram_url pic %}" alt="{{pic.code}}">
-					<div class="media-body">{{pic.name}}</div>
-                </div>
-			</label>
+                <label class="checkbox pictogram pull-left col-sm-6 col-md-6 col-lg-4"
+                    for="{{field.name}}_{{forloop.counter}}"
+                >
+		       	<span class="hazard-input">
+					<img src="{% pictogram_url pic %}" alt="{{pic.code}}">
+					<span>{{pic.name}}</span>
+                </span>
+			    </label>
 			{% endfor %}
 	</div>
 </div>
-<script type="text/javascript">	
-	// clear hazards if "not hazardous" selected, and vice-versa
-	var non_hz_pk = "15";
-	var fld_sel = '#{{field.name}}-controls input[name="{{field.name}}"]';
-	var hz_ctrls = ':not(input[value="'+ non_hz_pk +'"])';
-	var non_hz_ctrls = '[value="'+ non_hz_pk +'"]';
-	
-	$(fld_sel).filter(hz_ctrls).change(function(){
-		if (this.checked) {				
-			$(fld_sel).filter(non_hz_ctrls).each(function(){
-				$(this).removeAttr('checked');
-				$(this).prop('checked', false);				
-			});		
-		}
-	});		
-	$(fld_sel).filter(non_hz_ctrls).change(function(){
-		if (this.checked) {
-			$(fld_sel).filter(hz_ctrls).each(function(){
-				$(this).removeAttr('checked');
-				$(this).prop('checked', false);
-			});
-		}
-	});
+<script type="text/javascript">
+
+    $(document).on('uso:samples-changed', function (e, data) {
+        let allHazards = data.hazards || [];
+        //reset all checkboxes
+        $('#{{field.name}}-controls input[type="checkbox"]').removeAttr('checked');
+
+
+        // check new ones
+        $.each([...allHazards], function (index, value) {
+            $(`#{{field.name}}-controls input[value="${value}"]`).attr('checked', 'checked');
+        });
+
+        // manage non-hazard checkbox
+        let $nonHazard = $('{{ field.name }}-controls  input[type="checkbox"][value="15"]');
+        if (jQuery.isEmptyObject(allHazards)) {
+            $nonHazard.removeAttr("disabled");
+        } else {
+            $nonHazard.attr("disabled", "disabled");
+        }
+    });
+
+
+    $(document).ready(function () {
+        // clear hazards if "not hazardous" selected, and vice-versa
+        const nonHazardID = "15";
+        const inputSelector = `#{{field.name}}-controls input[name="{{field.name}}"]`;
+        const hazardSelector = `:not(input[value="${nonHazardID}"])`;
+        const nonHazardSelector = `[value="${nonHazardID}"]`;
+
+        $(inputSelector).filter(hazardSelector).change(function(){
+            if (this.checked) {
+                $(inputSelector).filter(nonHazardSelector).each(function(){
+                    $(this).removeAttr('checked');
+                    $(this).prop('checked', false);
+                });
+            }
+        });
+        $(inputSelector).filter(nonHazardSelector).change(function(){
+            if (this.checked) {
+                $(inputSelector).filter(hazardSelector).each(function(){
+                    $(this).removeAttr('checked');
+                    $(this).prop('checked', false);
+                });
+            }
+        });
+    });
+
+
+
 </script>

@@ -119,7 +119,7 @@
     content: "{% load proposal_tags %}\r\n{% load timeish %}\r\nDear {{user}},\r\n\r\nA
       response has been received for the clarification you requested as part of your
       review of  \"{{title|safe}}\".\r\n\r\n{% for review in reviews %}\r\n{{site}}{%url
-      'edit-review' pk=review.pk %} {%if review.due_date %}, due in {{review.due_date|fromnow
+      'edit-review' pk=review.pk %} {%if review.due_date %}, due in {{review.due_date|from_now
       }}{% endif %}\r\n{% endfor %}\r\nRequest to applicant:\r\n\"{{clarification|safe}}\"\r\n\r\nResponse
       from applicant:\r\n\"{{response|safe}}\"\r\n\r\n\r\n** To avoid delays please
       complete and submit your review before the due date.**\r\n\r\nIf you have any

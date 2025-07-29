@@ -1,3 +1,4 @@
 {% load user_tags %}
-{% get_student_choices as choices %}
-{% include "dynforms/choice_radios.html" %}
+{% load dynforms %}
+{% set_student_choices as choices%}
+{% include "dynforms/fields/multiplechoice.html" %}

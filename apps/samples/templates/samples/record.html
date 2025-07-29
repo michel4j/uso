@@ -3,15 +3,15 @@
 {% block extra_css %}
 <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet" />
 {% endblock %}
-{% block full %}
+{% block content %}
 <div style="margin: 5em;">
-<div class="container">
+<div class="container-fluid">
 	<div class="panel panel-info">
 		<div class="panel-heading">
 			{{record.names}}
 		</div>
 		<div class="panel-body">
-			<ul class="col-xs-9">
+			<ul class="col-sm-9">
 			<li><h4>Reference Codes:</h4>
 				<ul>
 					{% for key, code in record.codes.items %}<li><strong>{{key|upper}}:&nbsp;</strong> {{code}}</li>{% endfor %}
@@ -21,7 +21,7 @@
 					{% for hz in record.hazards %}<li>{{hz}}</li>{% endfor %}
 				</ul>
 			</ul>
-			<div class="col-xs-3">
+			<div class="col-sm-3">
 				{% for sg in record.signal %}
 					<div class="row" style="text-align: center;">
 						<b><img src="{% static 'samples/ghs/' %}{{sg}}.svg" width='75' height="75" alt="{{sg}}"/></b>

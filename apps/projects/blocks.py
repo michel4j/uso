@@ -10,20 +10,21 @@ class ProjectsBlock(BaseBlock):
     template_name = "projects/blocks/projects.html"
     priority = 4
 
-    def check_allowed(self, request):
-        return request.user.is_authenticated
-
-    def render(self, context):
-        ctx = copy.copy(context)
+    def get_context_data(self):
+        ctx = super().get_context_data()
         from projects import models
-        user = context['request'].user
+        user = self.request.user
 
         filters = Q(leader=user) | Q(spokesperson=user) | Q(delegate=user)
         projects = models.Project.objects.filter(filters)
 
-        ctx.update({
-            "projects": projects
-        })
         if not projects:
-            return ""
-        return super().render(ctx)
+            self.visible = False
+
+        ctx["projects"] = projects
+        allocations = []
+        for project in projects:
+            allocations.extend(list(project.beamline_allocations().items()))
+        ctx['beamlines'] = [(bl, alloc) for bl, alloc in allocations if alloc['can_renew']]
+
+        return ctx

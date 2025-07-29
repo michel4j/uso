@@ -1,10 +1,8 @@
 
-
-import json
 import re
 from collections.abc import Sequence
 from datetime import datetime, date
-
+from urllib.parse import quote, unquote
 from django import forms
 from django.core.files.storage import FileSystemStorage
 from django.db import models
@@ -21,11 +19,14 @@ class LocalStorage(FileSystemStorage):
             return 0
 
 
+SAFE_CHARS = ' &:~*!.\'"'
+
+
 class RestrictedFileField(FileField):
     """
     Same as FileField, but you can specify:
         * content_types - list containing allowed content_types. Example: ["application/pdf", "image/jpeg"]
-        * max_upload_size - a number indicating the maximum file size allowed for upload.
+        * max_size - a number indicating the maximum file size allowed for upload.
             2.5MB - 2621440
             5MB - 5242880
             10MB - 10485760
@@ -49,18 +50,18 @@ class RestrictedFileField(FileField):
 
     def clean(self, *args, **kwargs):
         data = super().clean(*args, **kwargs)
-        _file = data.file
-        try:
-            content_type = _file.content_type
-            if content_type in self.file_types:
-                if _file._size > self.max_size:
-                    raise forms.ValidationError(
-                        _("{1} file exceeds maximum of {0}.").format(filesizeformat(self.max_size),
-                                                                     filesizeformat(_file._size)))
-            else:
+
+        if data.file is not None:
+            file = data.file
+            if file.content_type not in self.file_types:
                 raise forms.ValidationError(_("File type not supported."))
-        except AttributeError:
-            pass
+            if file.size > self.max_size:
+                raise forms.ValidationError(
+                    _("{1} file exceeds maximum of {0}.").format(
+                        filesizeformat(self.max_size),
+                        filesizeformat(file.size)
+                    )
+                )
 
         return data
 
@@ -87,7 +88,7 @@ FORM_FIELD_SPLITTER = re.compile(r"\s*[;]\s*")
 
 
 class StringListField(models.TextField):
-    description = "A field to store a list of strings in the database. '<' or '>' not allowed within strings"
+    description = "A field to store a list of strings in the database."
 
     def from_db_value(self, value, expression, connection):
         return self.to_python(value)
@@ -97,11 +98,13 @@ class StringListField(models.TextField):
             return []
         if not isinstance(value, str):
             return value
-        return STRING_LIST_PATTERN.findall(value)
+        return [unquote(v) for v in STRING_LIST_PATTERN.findall(value)]
 
     def get_prep_value(self, value):
         if isinstance(value, list):
-            return "".join(["<{}>".format(v.strip()) for v in value])
+            return "".join([
+                f"<{quote(v.strip(), safe=SAFE_CHARS)}>" for v in value
+            ])
         else:
             return ""
 
@@ -115,17 +118,18 @@ class StringListField(models.TextField):
         elif isinstance(value, str):
             return value.strip()
         else:
-            return "{}".format(value)
+            return f"{value}"
 
     def formfield(self, **kwargs):
-        defaults = {'form_class': DelimitedTextFormField}
+        defaults = {
+            'form_class': DelimitedTextFormField,
+            'widget': forms.TextInput
+        }
         defaults.update(kwargs)
         return super().formfield(**defaults)
 
 
 class DelimitedTextFormField(forms.CharField):
-    widget = forms.TextInput
-
     def to_python(self, value):
         value = super().to_python(value)
         return [_f for _f in [v.strip() for v in FORM_FIELD_SPLITTER.split(value)] if _f]

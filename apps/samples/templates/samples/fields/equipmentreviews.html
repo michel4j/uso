@@ -1,17 +1,17 @@
-{% load dynforms_tags %}
+{% load dynforms %}
 {% load project_tags %}
 
 {% get_equipment_list data=data as equipment %}
 <div class="controls " id="{{field.name}}-controls" data-field-name="{{field.name}}">
         <div id="{{field.name}}-list">
             {% for item in equipment %}
-            <div id="{{field.name}}-{{forloop.counter0}}-equipment-container" class="tinytron bg-white {% if 'rejected' in item.decision %}bg-danger{% endif %}">
-                <div class="row narrow-gutter">
-                    <div class="col-xs-12">
-                        <h5 class="no-vmargin text-condensed"><strong>{{ item.name }}</strong></h5>
-                        Manufacturer: <em class="text-muted">{{ item.manufacturer|default:"N/C" }}</em>&emsp;
-                        Model: <em class="text-muted">{{ item.model|default:"N/C" }}</em>&emsp;
-                        Type: <em class="text-muted">{{ item.type|default:"N/C" }}</em>&emsp;
+            <div id="{{field.name}}-{{forloop.counter0}}-equipment-container" class="p-3 mb-3 bg-white {% if 'rejected' in item.decision %}bg-danger{% endif %}">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h5 class="my-0 text-condensed"><strong>{{ item.name }}</strong></h5>
+                        Manufacturer: <em class="text-body-secondary">{{ item.manufacturer|default:"N/C" }}</em>&emsp;
+                        Model: <em class="text-body-secondary">{{ item.model|default:"N/C" }}</em>&emsp;
+                        Type: <em class="text-body-secondary">{{ item.type|default:"N/C" }}</em>&emsp;
                         {% if item.description %}
                             <hr class="hr-xs"/>
                             {% if item.description %}<strong>Description:</strong> {{item.description}}{% endif %}
@@ -19,7 +19,7 @@
                         <hr class="hr-xs"/>
                     </div>
                 </div>
-                <div class="row narrow-gutter text-condensed" id="{{ field.name }}-{{ forloop.counter0 }}-review">
+                <div class="row text-condensed" id="{{ field.name }}-{{ forloop.counter0 }}-review">
                     <div class="checkbox checkbox-inline">
                        <label for="{{field.name}}-safe-{{ forloop.counter0 }}"><input name="{{field.name}}.{{forloop.counter0 }}.decision" id="{{field.name}}-safe-{{ forloop.counter0 }}"  class="rejection-cmd"
                         value="safe" {% if 'safe' in item.decision %}checked="checked"{% endif %}
@@ -50,7 +50,7 @@
             </div>
             {% empty %}
             <div class="empty">
-                <i class="bi-exclamation-triangle text-warning icon-2x"></i><br/>
+                <i class="bi-exclamation-triangle text-warning icon-md"></i><br/>
                 No equipment requiring Review.
             </div>
             {% endfor %}
@@ -63,7 +63,6 @@ $(document).on('change', 'input[name$=".decision"]', function () {
     if ($(this).is('.rejection-cmd:checked') || $(this).is('.clear-cmd:checked')) {
         siblings.prop('checked', false)
     }
-    console.log($(this), $(this).is('.decision-cmd:checked'));
     if ($(this).is('.decision-cmd:checked')) {
         siblings.filter('.rejection-cmd, .clear-cmd').prop('checked', false);
     }

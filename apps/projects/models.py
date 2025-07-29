@@ -9,6 +9,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -16,27 +17,18 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel, TimeFramedModel
 
 from misc.fields import StringListField
-from misc.models import DateSpanMixin, Attachment, Clarification
+from misc.models import DateSpanMixin, Attachment, Clarification, ActivityLog, CodeModelMixin
 from proposals.models import Review, ReviewCycle
 from scheduler.models import Event, EventQuerySet
 
+
 User = getattr(settings, "AUTH_USER_MODEL")
 
-PROJECT_TYPES = Choices(
-    ('user', 'General Access'),
-    ('staff', 'Staff Access'),
-    ('maintenance', 'Maintenance/Commissioning'),
-    ('purchased', 'Purchased Access'),
-    ('beamteam', 'Beam Team'),
-    ('education', 'Education/Outreach')
-)
 
-
-class Project(DateSpanMixin, TimeStampedModel):
-    TYPES = PROJECT_TYPES
+class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
     proposal = models.ForeignKey('proposals.Proposal', null=True, on_delete=models.SET_NULL, related_name="project")
     submissions = models.ManyToManyField('proposals.Submission', blank=True, related_name="project")
-    kind = models.CharField(_('Type'), max_length=20, choices=TYPES, default=TYPES.user)
+    pool = models.ForeignKey('proposals.AccessPool', related_name='projects', on_delete=models.SET_DEFAULT, default=1)
     spokesperson = models.ForeignKey(User, related_name='+', null=True, on_delete=models.SET_NULL)
     leader = models.ForeignKey(User, related_name='+', null=True, on_delete=models.SET_NULL)
     delegate = models.ForeignKey(User, related_name='+', null=True, on_delete=models.SET_NULL)
@@ -55,24 +47,20 @@ class Project(DateSpanMixin, TimeStampedModel):
     details = models.JSONField(default=dict, null=True, blank=True, editable=False)
 
     def __str__(self):
-        return "{}~{}".format(
-            self.code(),
-            self.get_leader().last_name,
-        )
+        return f"{self.code}~{self.leader_name()}".upper()
 
-    def code(self):
-        return f"{self.cycle.pk:0>2d}{self.get_kind_display()[0].upper()}{self.pk:0>5d}"
-
-    code.sort_field = 'id'
+    def leader_name(self) -> str:
+        """
+        Get the last name of the project leader or spokesperson if the leader is not found.
+        :return:
+        """
+        return self.get_leader().last_name
 
     def is_owned_by(self, user):
         return user in [self.spokesperson, self.leader, self.delegate]
 
     def facility_codes(self):
         return ', '.join([bl.acronym for bl in self.beamlines.distinct()])
-
-    facility_codes.sort_field = 'beamlines__acronym'
-    facility_codes.short_description = 'Facilities'
 
     def get_absolute_url(self):
         return reverse('project-detail', kwargs={'pk': self.pk})
@@ -81,30 +69,40 @@ class Project(DateSpanMixin, TimeStampedModel):
         dt = dt if dt else timezone.localtime(timezone.now()).date()
         return self.start_date > dt
 
+    def is_multi_beamline(self):
+        """
+        Check if the project is allocated to multiple beamlines.
+        :return: True if the project has more than one beamline, False otherwise.
+        """
+        return self.beamlines.count() > 1
+
+    def leader_is_new(self):
+        """
+        Check if the project leader is new, this is their first project.
+        """
+        return self.leader and not self.leader.projects.exclude(pk=self.pk).exists()
+
     def state(self):
         if self.is_pending():
             return 'pending'
         else:
             return {True: 'active', False: 'inactive'}.get(self.is_active(), 'inactive')
 
-    state.sort_field = 'end_date'
-
     def get_leader(self):
         return self.leader or self.spokesperson
-
-    get_leader.short_description = "Team Leader"
 
     def team_members(self):
         return self.details['team_members'] or [{'first_name': '', 'last_name': '', 'email': ''}]
 
     def invoice_address(self):
+        leader = self.get_leader()
         return self.details.get('invoice_address', {}) or {
-            'place': self.get_leader().address.address_1,
-            'street': self.get_leader().address.address_2,
-            'city': self.get_leader().address.city,
-            'region': self.get_leader().address.region,
-            'country': self.get_leader().address.country,
-            'code': self.get_leader().address.postal_code
+            'place': leader.address.address_1,
+            'street': leader.address.address_2,
+            'city': leader.address.city,
+            'region': leader.address.region,
+            'country': leader.address.country,
+            'code': leader.address.postal_code
         }
 
     def invoice_email(self):
@@ -117,8 +115,6 @@ class Project(DateSpanMixin, TimeStampedModel):
             ['place', 'street', 'city', 'code', 'region', 'country']
             if address.get(val, '').strip().replace('-', '')
         ] if _f])
-
-    pretty_invoice_address.short_description = "Invoice Address"
 
     def invoice_place(self):
         return self.invoice_address().get('place', '')
@@ -146,7 +142,7 @@ class Project(DateSpanMixin, TimeStampedModel):
 
     def beamline_allocations(self):
         from proposals.models import Technique
-        allocations = []
+        allocations = {}
         this_cycle = ReviewCycle.objects.current().filter(
             start_date__lte=self.end_date, start_date__gte=self.start_date
         ).order_by('start_date').first()
@@ -157,8 +153,9 @@ class Project(DateSpanMixin, TimeStampedModel):
             if num_allocs == 1:
                 allocation = allocs_for_bl.first()
             elif num_allocs > 1:
-                allocation = allocs_for_bl.filter(cycle__start_date__lte=this_cycle.start_date).order_by(
-                    '-cycle__start_date').first()
+                allocation = allocs_for_bl.filter(
+                    cycle__start_date__lte=this_cycle.start_date
+                ).order_by('-cycle__start_date').first()
             else:
                 continue
             cycle = allocation.cycle
@@ -178,22 +175,20 @@ class Project(DateSpanMixin, TimeStampedModel):
                     Q(config__facility=beamline) | Q(config__facility=beamline.parent)
                 ).values_list('technique', flat=True)
             )
-
-            allocations.append({
-                'facility': beamline,
+            renewal = allocation.renewals().first()
+            allocations[beamline] = {
                 'allocation': allocation,
+                'project': self,
                 'totals': totals,
                 'cycle': cycle,
                 'next_cycle': next_cycle,
-                'can_renew': cycle.is_open() and self.is_active() and self.is_active(
-                    next_cycle.end_date) and not allocation.discretionary,
-                'can_decline': self.cycle.is_pending() and allocation.shifts,
+                'renewal': renewal,
+                'can_renew': allocation.can_renew(),
+                'can_decline': (not beamline.flex_schedule) and allocation.shifts > 0,
                 'techniques': ", ".join([t.short_name() for t in techniques]),
-                'can_request': (self.is_pending() or self.is_active()) and (
+                'can_book': (self.is_pending() or self.is_active()) and (
                         beamline.flex_schedule or allocation.discretionary),
-                'shift_request': allocation.shift_requests.first(),
-                'alloc_request': self.allocation_requests.filter(beamline=beamline, cycle=next_cycle).first(),
-            })
+            }
         return allocations
 
     def active_allocations(self):
@@ -243,8 +238,8 @@ class Project(DateSpanMixin, TimeStampedModel):
 
         any_perms |= {'FACILITY-ACCESS'}
         beamlines = self.beamlines.exclude(kind='equipment')
-        user_perms |= {'{}-USER'.format(bl.acronym) for bl in beamlines}
-        user_perms |= {'{}-REMOTE-USER'.format(bl.acronym) for bl in beamlines}
+        user_perms |= {f'{bl.acronym}-USER' for bl in beamlines}
+        user_perms |= {f'{bl.acronym}-REMOTE-USER' for bl in beamlines}
         return {'all': req_perms, 'any': any_perms, 'user': user_perms}
 
     def scores(self, bl):
@@ -254,47 +249,92 @@ class Project(DateSpanMixin, TimeStampedModel):
         else:
             return {}
 
-    def refresh_team(self, data=None):
+    def refresh_team(self, data: dict = None, request: HttpRequest = None):
+        """
+        Extract team members from the project details and update the team field and assign spokesperson, leader, and
+        delegate fields.
+
+        :param data: Optional data to use instead of self.details.
+        :param request: Optional request object to log activity.
+
+        """
+        User = get_user_model()
         data = data if data else self.details
 
-        team_data = [_f for _f in [tm for tm in data.get('team_members', [])] if _f]
-        team_emails = set([_f for _f in {tm.get('email', '').lower().strip() for tm in team_data} if _f])
+        team_members = data.get('team_members', [])
+        team_emails = {member.get('email', '').lower().strip() for member in team_members}
 
+        registered_users = User.objects.none()
         if team_emails:
-            query = functools.reduce(
+            query_flt = functools.reduce(
                 operator.__or__,
                 [Q(email__iexact=email) | Q(alt_email__iexact=email) for email in team_emails], Q()
             )
-            registered_users = set(get_user_model().objects.filter(query))
-        else:
-            registered_users = set()
+            registered_users = User.objects.filter(query_flt)
 
-        extras = {}
-        for f in ['leader', 'delegate']:
-            extras[f] = None
-            if not data.get(f): continue
-            email = data[f].get('email', '').lower().strip()
-            if email:
-                team_emails.add(email)
-                user = get_user_model().objects.filter(Q(email__iexact=email) | Q(alt_email__iexact=email)).first()
-                if user:
-                    extras[f] = user
-                    registered_users.add(user)
-        registered_users.add(self.spokesperson)
-        pending_emails = team_emails - {u.email.lower() for u in registered_users}
+        self.team.set(registered_users)     # update the team with registered users
 
+        # Create a mapping of email to user for registered users, select out unregistered emails
+        email_to_member = {
+            user.email.lower().strip(): user
+            for user in registered_users
+        }
+        pending_team = list(set(team_emails) - set(email_to_member.keys()))
+
+        # Update leadership
+        current_roles = {
+            'delegate': self.delegate,
+            'leader': self.leader,
+            'spokesperson': self.spokesperson
+        }
+        # by default spokesperson is also the leader
+        updated_roles = {
+            'delegate': None,
+            'leader': self.spokesperson,
+            'spokesperson': self.spokesperson
+        }
+        for member in team_members:
+            email = member.get('email', '').lower().strip()
+            if not email or email not in email_to_member:
+                # skip unregistered or blank emails
+                continue
+
+            # if multiple members have the role, only the last one counts
+            user = email_to_member[email]
+            for role in member.get('roles', []):
+                updated_roles[role] = user
+
+        # Update the project roles and pending team
         Project.objects.filter(pk=self.pk).update(
-            pending_team=pending_emails, **extras
+            **updated_roles, pending_team=pending_team, modified=timezone.localtime(timezone.now())
         )
-        self.team.set(registered_users)
 
-        # Add User Role to all register team members who do have the role
+        # Update activity log
+        if request:
+            leadership_changes = ", ".join([
+                f'{role.title()} -> {user}'
+                for role, user in
+                set(updated_roles.items()) - set(current_roles.items())
+            ])
+            ActivityLog.objects.log(
+                request, self, kind=ActivityLog.TYPES.modify,
+                description=f"Project team updated: {leadership_changes}"
+            )
+
+        # Add User Role to all registered team members who do not have the role
         for user in self.team.all():
             user.fetch_profile()
             roles = user.get_all_roles()
             if 'user' not in roles:
                 roles |= {'user'}
                 user.update_profile(data={'extra_roles': list(roles)})
+
+    # Display attributes for itemlist
+    facility_codes.sort_field = 'beamlines__acronym'
+    facility_codes.short_description = 'Facilities'
+    state.sort_field = 'end_date'
+    get_leader.short_description = "Team Leader"
+    pretty_invoice_address.short_description = "Invoice Address"
 
 
 class MaterialQueryset(models.QuerySet):
@@ -308,7 +348,7 @@ class MaterialQueryset(models.QuerySet):
         return self.exclude(state='denied')
 
 
-class Material(TimeStampedModel):
+class Material(CodeModelMixin, TimeStampedModel):
     STATES = Choices(
         ('pending', 'Pending'),
         ('approved', 'Approved'),
@@ -337,6 +377,9 @@ class Material(TimeStampedModel):
     class Meta:
         get_latest_by = 'modified'
 
+    def __str__(self):
+        return self.code
+
     def is_owned_by(self, user):
         return user in [self.project.spokesperson, self.project.leader, self.project.delegate]
 
@@ -353,29 +396,67 @@ class Material(TimeStampedModel):
                 return True
         return False
 
+    def get_samples(self):
+        """
+        Returns a list of samples associated with this material.
+        """
+        from samples.models import Sample
+        return Sample.objects.filter(pk__in=self.samples.values_list('pk', flat=True))
+
+    def get_document(self):
+        """
+        Returns a dictionary of review content for this submission.
+        """
+        author_list = []
+        for member in self.project.team.all():
+            roles = set()
+            if member == self.project.spokesperson:
+                roles.add('S')
+            if member == self.project.leader:
+                roles.add('L')
+            if member == self.project.delegate:
+                roles.add('D')
+            if roles:
+                author_list.append(f'{member.get_full_name()} ({", ".join(roles)})')
+            else:
+                author_list.append(member.get_full_name())
+
+        authors = ", ".join(author_list)
+        return {
+            'title': self.project.title,
+            'authors': authors,
+            'science': self.project.proposal.details,
+            'safety': {
+                'samples': [
+                    {'sample': s.sample.pk, 'quantity': s.quantity}
+                    for s in self.project_samples.all()
+                ],
+                'equipment': self.equipment,
+                'handling': self.procedure,
+                'waste': self.waste,
+                'disposal': self.disposal,
+            },
+            'attachments': self.project.attachments,
+        }
+
     def pictograms(self):
-        from samples.models import Pictogram, Hazard
+        from samples.models import Pictogram
         from samples import utils
-        hazards = Hazard.objects.filter(pk__in=self.samples.values_list('hazards__pk', flat=True))
+        hazards = self.hazards()
         hazard_types = Pictogram.objects.filter(
             pk__in=self.samples.filter(is_editable=True).values_list('hazard_types__pk', flat=True))
-        return utils.summarize_pictograms(hazards, hazard_types)
+        return utils.summarize_pictograms(hazards, types=hazard_types)
+
+    def hazards(self):
+        from samples.models import Hazard
+        hazards = Hazard.objects.filter(pk__in=self.samples.values_list('hazards__pk', flat=True))
+        return hazards
 
     def title(self):
         return self.project.title
 
-    @property
-    def code(self):
-        return "M{}/{}".format(self.project.code(), self.project.pk, )
-
-    def __str__(self):
-        return self.code
-
     def get_absolute_url(self):
         return reverse('material-detail', kwargs={'pk': self.pk})
-
-    def update_state(self):
-        pass
 
     def update_due_dates(self):
         beamtime = self.project.beamtimes.filter(start__gte=timezone.now().date()).first()
@@ -421,7 +502,7 @@ class Session(TimeStampedModel, TimeFramedModel):
     objects = SessionQueryset.as_manager()
 
     def __str__(self):
-        return "{}{}".format(self.beamline.acronym, timezone.localtime(self.start).strftime('%Y%m%dT%H'))
+        return f"{self.beamline.acronym}{timezone.localtime(self.start).strftime('%Y%m%dT%H')}"
 
     class Meta:
         get_latest_by = 'modified'
@@ -445,10 +526,10 @@ class Session(TimeStampedModel, TimeFramedModel):
 
         # Local access needs 'FACILITY-ACCESS' permissions and different USER type from Remote
         if self.kind == self.TYPES.remote:
-            user_perms |= {'{}-REMOTE-USER'.format(self.beamline.parent.acronym)}
+            user_perms |= {f'{self.beamline.acronym}-REMOTE-USER'}
         else:
             req_perms |= {'FACILITY-ACCESS'}
-            user_perms |= {'{}-USER'.format(self.beamline.acronym)}
+            user_perms |= {f'{self.beamline.acronym}-USER'}
 
         for s in self.samples.all():
             req_perms |= {k for k, v in list(s.sample.permissions().items()) if v == 'all'}
@@ -460,18 +541,22 @@ class Session(TimeStampedModel, TimeFramedModel):
         return [{'sample': s.sample.pk, 'quantity': s.quantity} for s in self.samples.all()]
 
     def get_full_team(self):
-        project_roles = [('spokesperson', self.project.spokesperson.username),
-                         ('leader', self.project.leader.username),
-                         ('delegate', self.project.delegate.username)]
+        project_roles = [
+            ('spokesperson', self.project.spokesperson.username),
+            ('leader', self.project.leader.username),
+            ('delegate', self.project.delegate.username)
+        ]
         full_team = {}
         registered = list(self.team.all())
         for t in set(registered):
-            full_team[t.email] = {'name': t.get_full_name(),
-                                  'registered': True,
-                                  'classification': t.get_classification_display(),
-                                  'roles': [k for k, v in project_roles if v == t.username],
-                                  'photo': t.get_photo(),
-                                  'permissions': {p['code']: p for p in t.permissions}}
+            full_team[t.email] = {
+                'name': t.get_full_name(),
+                'registered': True,
+                'classification': t.get_classification_display(),
+                'roles': [k for k, v in project_roles if v == t.username],
+                'photo': t.get_photo(),
+                'permissions': {p['code']: p for p in t.permissions}
+            }
         return OrderedDict(
             sorted(iter(full_team.items()), key=lambda x: (x[1]['roles'], x[1]['classification']), reverse=True))
 
@@ -548,26 +633,45 @@ class LabSession(TimeStampedModel, TimeFramedModel):
             self.save()
 
 
+class AllocRequestQueryset(models.QuerySet):
+    def complete(self):
+        return self.filter(state='completed')
+
+    def pending(self):
+        return self.filter(state__in=['submitted'])
+
+    def incomplete(self):
+        return self.filter(state__in=['draft', 'submitted']).order_by('state')
+
+    def draft(self):
+        return self.filter(state='draft')
+
+
 class AllocationRequest(TimeStampedModel):
-    STATES = Choices(
-        ('draft', 'Draft'),
-        ('submitted', 'Submitted'),
-        ('complete', 'Completed')
-    )
-    state = models.CharField(max_length=20, choices=STATES, default='draft')
-    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="allocation_requests")
-    cycle = models.ForeignKey('proposals.ReviewCycle', on_delete=models.CASCADE, related_name="allocation_requests")
-    beamline = models.ForeignKey('beamlines.Facility', on_delete=models.CASCADE, related_name="allocation_requests")
-    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="allocation_requests",
-                                  verbose_name='Scheduling Tags')
+
+    class States(models.TextChoices):
+        draft = ('draft', _('Draft'))
+        submitted = ('submitted', _('Submitted'))
+        complete = ('complete', _('Completed'))
+
+    state = models.CharField(max_length=20, choices=States.choices, default=States.draft)
+    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="renewals")
+    cycle = models.ForeignKey('proposals.ReviewCycle', on_delete=models.CASCADE, related_name="renewals")
+    beamline = models.ForeignKey('beamlines.Facility', on_delete=models.CASCADE, related_name="renewals")
+    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="renewals", verbose_name='Tags')
     procedure = models.TextField(blank=True, null=True)
     justification = models.TextField(blank=True, null=True)
     shift_request = models.IntegerField('Shifts Requested', default=0)
-    good_dates = models.TextField(blank=True, null=True)
-    poor_dates = models.TextField(blank=True, null=True)
+    good_dates = models.JSONField(default=list)
+    poor_dates = models.JSONField(default=list)
+    comments = models.TextField(blank=True, null=True)
+    objects = AllocRequestQueryset.as_manager()
+
+    class Meta:
+        verbose_name = 'Renewal Request'
 
     def __str__(self):
-        return '{} {}'.format(self.project, self.cycle)
+        return f'{self.project} {self.cycle}'
 
 
 class Allocation(TimeStampedModel):
@@ -590,14 +694,34 @@ class Allocation(TimeStampedModel):
     def is_new(self):
         return self.cycle == self.project.cycle
 
+    def can_renew(self):
+        next_cycle = ReviewCycle.objects.next(self.cycle.start_date)
+        renewal = self.renewals().first()
+        return (
+            next_cycle.is_open() and
+            self.project.is_active(next_cycle.end_date) and
+            not self.beamline.flex_schedule and
+            not self.discretionary and
+            (renewal is None or renewal.state in [AllocationRequest.States.draft])
+        )
+
     def is_active(self):
         active = self.cycle.STATES.evaluation <= self.cycle.state <= self.cycle.STATES.active
         return active
 
-    def previous(self, num=4):
-        return reversed(
-            [self.project.allocations.filter(cycle_id=self.cycle.pk - i, beamline=self.beamline).first() for i in
-             range(1, num + 1)])
+    def previous_beamtime(self):
+        scheduled = self.project.beamtimes.filter(
+            beamline=self.beamline
+        ).with_shifts().aggregate(total=Sum('shifts'))
+        if scheduled['total'] is None:
+            return 0
+        return scheduled['total']
+
+    def renewals(self):
+        next_cycle = ReviewCycle.objects.next(self.cycle.start_date)
+        return AllocationRequest.objects.filter(
+            project=self.project, cycle=next_cycle, beamline=self.beamline
+        ).order_by('-state', '-created')
 
     def tags(self):
         return self.project.tags.filter(Q(facility=self.beamline) | Q(facility__children=self.beamline) | Q(
@@ -608,7 +732,7 @@ class Allocation(TimeStampedModel):
             Q(start__gte=self.cycle.start_date) & Q(end__lte=self.cycle.end_date))
 
     def __str__(self):
-        return "{}:{}:{}".format(self.project, self.beamline, self.cycle)
+        return f"{self.project}:{self.beamline}:{self.cycle}"
 
 
 class ShiftRequestQueryset(models.QuerySet):
@@ -618,40 +742,40 @@ class ShiftRequestQueryset(models.QuerySet):
     def pending(self):
         return self.filter(state__in=['submitted', 'progress'])
 
+    def incomplete(self):
+        return self.filter(state__in=['draft', 'submitted', 'progress']).order_by('state')
+
     def draft(self):
         return self.filter(state='draft')
 
-    def open(self):
-        return self.exclude(state='completed')
-
 
 class ShiftRequest(TimeStampedModel):
-    STATES = Choices(
-        ('draft', 'Draft'),
-        ('submitted', 'Submitted'),
-        ('progress', 'In Progress'),
-        ('completed', 'Completed')
-    )
-    state = models.CharField(max_length=20, choices=STATES, default='draft')
-    allocation = models.ForeignKey('Allocation', on_delete=models.CASCADE, related_name="shift_requests")
+    class States(models.TextChoices):
+        draft = ('draft', _('Draft'))
+        submitted = ('submitted', _('Submitted'))
+        progress = ('progress', _('In Progress'))
+        completed = ('completed', _('Completed'))
+
+    state = models.CharField(max_length=20, choices=States.choices, default=States.draft)
+    allocation = models.ForeignKey('Allocation', on_delete=models.CASCADE, related_name="bookings")
     comments = models.TextField(blank=True, null=True)
     justification = models.TextField(blank=True, null=True)
-    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="shift_requests",
-                                  verbose_name='Scheduling Tags')
+    tags = models.ManyToManyField('beamlines.FacilityTag', related_name="bookings", verbose_name='Tags')
     shift_request = models.IntegerField("Shifts Requested", default=0)
-    good_dates = models.TextField(blank=True, null=True)
-    poor_dates = models.TextField(blank=True, null=True)
+    good_dates = models.JSONField(default=list)
+    poor_dates = models.JSONField(default=list)
     objects = ShiftRequestQueryset.as_manager()
 
     def __str__(self):
-        return "Request {}, {}".format(self.pk, self.allocation)
+        return f"Booking {self.pk}, {self.allocation}"
 
     def project(self):
         return self.allocation.project
 
     def spokesperson(self):
-        return self.project().spokesperson
+        return self.project.spokesperson
 
+    @property
     def facility(self):
         return self.allocation.beamline
 
@@ -727,12 +851,11 @@ class BeamTime(Event):
 
 
 class Reservation(TimeStampedModel):
-    TYPES = PROJECT_TYPES
     cycle = models.ForeignKey('proposals.ReviewCycle', on_delete=models.CASCADE, related_name="reservations")
     beamline = models.ForeignKey('beamlines.Facility', on_delete=models.CASCADE, related_name="reservations")
     shifts = models.PositiveIntegerField(default=0)
-    kind = models.CharField(max_length=20, choices=TYPES, null=True)
+    pool = models.ForeignKey('proposals.AccessPool', related_name='reservations', on_delete=models.SET_NULL, null=True)
     comments = models.TextField(blank=True, null=True)
 
     class Meta:
-        unique_together = ('beamline', 'cycle', 'kind')
+        unique_together = ('beamline', 'cycle', 'pool')

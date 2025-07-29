@@ -1,11 +1,14 @@
-from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseRedirect, JsonResponse
-from django.utils import timezone
-from django.views.generic import edit, View
+from crisp_modals.views import ModalCreateView, ModalUpdateView
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.http import JsonResponse, Http404
+from django.shortcuts import render
+from django.utils import timezone
+from django.views.generic import View
+
+from roleperms.views import RolePermsViewMixin
 from . import forms
 from . import models
-from roleperms.views import RolePermsViewMixin
 
 USO_ADMIN_ROLES = getattr(settings, 'USO_ADMIN_ROLES', ["admin:uso"])
 
@@ -16,41 +19,22 @@ class JSONResponseMixin(object):
         return JsonResponse(context, safe=False)
 
 
-class ConfirmDetailView(edit.DeleteView):
-    """derived from edit.DeleteView to re-use the same get-confirm-post-execute pattern
-    Sub-classes should implement 'confirmed' method
-    """
-
-    def form_valid(self, form):
-        return self.confirmed(self)
-
-    def delete(self, *args, **kwargs):
-        return self.confirmed(self, *args, **kwargs)
-
-    def confirmed(self, *args, **kwargs):
-        return HttpResponseRedirect(self.get_success_url())
-
-
-class ManageAttachments(RolePermsViewMixin, edit.CreateView):
+class ManageAttachments(RolePermsViewMixin, ModalCreateView):
     template_name = "misc/attachments.html"
     model = models.Attachment
     reference_model = None
     form_class = forms.AttachmentForm
     admin_roles = USO_ADMIN_ROLES
 
-    def get_success_url(self):
-        return self.request.get_full_path()
-
     def get_reference(self, queryset=None):
         if self.reference_model:
-            self.reference = self.reference_model.objects.get(pk=self.kwargs.get('pk'))
-            return self.reference
+            return self.reference_model.objects.get(pk=self.kwargs.get('pk'))
         else:
-            raise ValueError('Reference Model Not Provided')
+            raise Http404('Reference Model Not Provided')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['reference'] = self.reference
+        context['reference'] = self.get_reference()
         return context
 
     def get_initial(self):
@@ -62,15 +46,18 @@ class ManageAttachments(RolePermsViewMixin, edit.CreateView):
         return initial
 
     def form_valid(self, form):
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        context = self.get_context_data()
+        context['form'] = form
+        return render(self.request, self.template_name, context)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
+        kwargs['form_action'] = self.request.get_full_path()
         return kwargs
 
 
-class DeleteAttachment(RolePermsViewMixin, edit.DeleteView):
+class DeleteAttachment(RolePermsViewMixin, View):
     model = models.Attachment
     admin_roles = USO_ADMIN_ROLES
 
@@ -82,35 +69,32 @@ class DeleteAttachment(RolePermsViewMixin, edit.DeleteView):
         self.object = models.Attachment.objects.get(owner=self.request.user, slug=self.kwargs['slug'])
         return self.object
 
-    def get_success_url(self):
-        return self.request.GET.get('next', '/')
+    def post(self, request, *args, **kwargs):
+        if not self.check_allowed():
+            return JsonResponse({"error": "You are not allowed to delete this attachment."}, status=403)
 
-    def delete(self, *args, **kwargs):
         obj = self.get_object()
-        if hasattr(obj.reference, "is_editable") and obj.reference.is_editable():
+        if hasattr(obj.reference, "is_editable") and obj.reference.is_editable() or self.check_admin():
             obj.delete()
-        return HttpResponseRedirect(self.get_success_url())
+            return JsonResponse({"success": True, "message": "Attachment deleted successfully."})
+        else:
+            return JsonResponse({"error": "Attachment cannot be deleted."}, status=400)
 
 
-class RequestClarification(RolePermsViewMixin, edit.CreateView):
-    template_name = 'forms/modal.html'
+class RequestClarification(RolePermsViewMixin, ModalCreateView):
     form_class = forms.ClarificationForm
     model = models.Clarification
     reference_model = None
 
-    def get_success_url(self):
-        return self.request.get_full_path()
-
     def get_reference(self, queryset=None):
         if self.reference_model:
-            self.reference = self.reference_model.objects.get(pk=self.kwargs.get('pk'))
-            return self.reference
+            return self.reference_model.objects.get(pk=self.kwargs.get('pk'))
         else:
-            raise ValueError('Reference Model Not Provided')
+            raise Http404('Reference Not Provided')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
+        kwargs['form_action'] = self.request.get_full_path()
         return kwargs
 
     def get_initial(self):
@@ -121,28 +105,18 @@ class RequestClarification(RolePermsViewMixin, edit.CreateView):
         initial['object_id'] = reference.pk
         return initial
 
-    def form_valid(self, form):
-        super().form_valid(form)
-        return JsonResponse({
-            "url": None
-        })
 
-
-class ClarificationResponse(RolePermsViewMixin, edit.UpdateView):
-    template_name = 'forms/modal.html'
+class ClarificationResponse(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.ResponseForm
     model = models.Clarification
     reference_model = None
+    success_url = "."
 
     def get_reference(self, queryset=None):
         if self.reference_model:
-            self.reference = self.reference_model.objects.get(pk=self.kwargs.get('ref'))
-            return self.reference
+            return self.reference_model.objects.get(pk=self.kwargs.get('ref'))
         else:
-            raise ValueError('Reference Model Not Provided')
-
-    def get_success_url(self):
-        return self.request.get_full_path()
+            raise Http404('Reference Model Not Provided')
 
     def get_initial(self):
         initial = super().get_initial()
@@ -151,14 +125,8 @@ class ClarificationResponse(RolePermsViewMixin, edit.UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
+        kwargs['form_action'] = self.request.get_full_path()
         return kwargs
-
-    def form_valid(self, form):
-        super().form_valid(form)
-        return JsonResponse({
-            "url": ""
-        })
 
 
 class Ping(RolePermsViewMixin, View):
@@ -166,3 +134,4 @@ class Ping(RolePermsViewMixin, View):
         return JsonResponse({
             'server_time': timezone.localtime(timezone.now()).isoformat()
         })
+

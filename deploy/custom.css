@@ -1,0 +1,24 @@
+/*
+:root {
+  --uso-accent-color-0: #b82721;
+  --uso-accent-color-1: #3d3c3c;
+  --uso-accent-color-2: #484747;
+  --uso-accent-color-3: #3d3c3c;
+  --uso-accent-text-0: #fff;
+  --uso-accent-text-1: #b3b3b3;
+  --uso-accent-text-2: #b3b3b3;
+  --uso-accent-text-3: #b3b3b3;
+
+  --bs-border-radius: 0;
+  --bs-border-radius-sm: 0;
+  --bs-border-radius-lg: 0;
+  --bs-border-radius-xl: 0;
+  --bs-border-radius-xxl: 0;
+  --bs-border-radius-2xl: var(--bs-border-radius-xxl);
+  --bs-border-radius-pill: 50rem;
+  --bs-font-sans-serif: "Fira Sans";
+  --bs-font-monospace: "Fira Code";
+  --bs-body-font-size: 11pt;
+  --bs-breadcrumb-font-size: 0.85rem;
+}
+*/

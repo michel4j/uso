@@ -1,0 +1,21 @@
+{% extends "misc/blocks/panel.html" %}
+{% block panel_title %}Recent Activity{% endblock %}
+{% block panel_content %}
+<div class="row">
+    <div class="scroll-box col-12" style="max-height: 300px">
+        <ul class="activity-log list-unstyled text-condensed">
+            {% for log in logs %}
+                <li class=" d-flex flex-row align-items-center {{ log.kind }}-log">
+                    <div class="d-flex flex-column" style="min-width: 0;">
+                        <div>{{ log.description }}</div>
+                        {% if log.reference %}<div class="text-truncate">{{ log.reference }}</div>{% endif %}
+                        <div class="text-body-secondary">by {{ log.user_name }}, {{ log.created|timesince }} ago</div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+

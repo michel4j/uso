@@ -1,6 +1,6 @@
-{% load beamline_tags %}
+{% load beamlines %}
 {% if beamtimes.exists or sessions.exists or lab_sessions.exists  %}
-    <div class="tinytron bg-warning">
+    <div class="p-3 bg-warning-subtle mb-4">
     <table class="table table-condensed">
         <thead>
             <tr>
@@ -22,10 +22,10 @@
                 <td>{{ event.end | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.shifts|floatformat }} shift{{ event.shifts|pluralize:",s" }}</td>
                 <td class="text-center">
-                    {% if user|is_staff:event.beamline %}
+                    {% if admin or user|is_staff:event.beamline %}
                     <a href="#0" title="Hand Over Session"  class="text-danger"
-                        data-url="{% url 'session-handover' pk=event.project.pk fac=event.beamline.acronym event=event.pk %}">
-                        <i class="bi-play-circle icon-2 icon-fw"></i>
+                        data-modal-url="{% url 'session-handover' pk=event.project.pk fac=event.beamline.acronym event=event.pk %}">
+                        <i class="bi-play-circle icon-sm icon-fw"></i>
                     </a>
                     {% else %}
                         Hand-over Pending
@@ -35,13 +35,15 @@
         {% endfor %}
 
         {% for event in sessions %}
-            <tr data-href="{% url 'session-detail' pk=event.pk %}">
+            <tr>
                 <td>{{ event.beamline }} {{ event.beamline.get_kind_display }}</td>
                 <td>{{ event.start | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.end | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.shifts|floatformat }} shift{{ event.shifts|pluralize:",s" }} </td>
-                <td class="text-center text-condensed">
-                    {{ event.get_state_display }}
+                <td class="text-center text-condensed" title="{{ event.get_state_display }}">
+                    <a href="{% url 'session-detail' pk=event.pk %}" title="Manage Session">
+                        <i class="bi-arrow-right-circle icon-md icon-fw"></i>
+                    </a>
                 </td>
             </tr>
         {% endfor %}
@@ -52,8 +54,10 @@
                 <td>{{ event.start | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.end | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.hours|floatformat }} Hr{{ event.hours|pluralize:",s" }}</td>
-                <td class="text-center text-condensed">
-                    {{ event.get_state_display }}
+                <td class="text-center text-condensed" title="{{ event.get_state_display }}">
+                   <a href="{{ event.get_absolute_url }}" title="Manage Session">
+                        <i class="bi-arrow-right-circle icon-md icon-fw"></i>
+                    </a>
                 </td>
             </tr>
         {% endfor %}

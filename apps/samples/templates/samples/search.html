@@ -3,16 +3,16 @@
 {% block extra_css %}
 <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet" />
 {% endblock %}
-{% block full %}
+{% block content %}
 <div style="margin: 5em;">
-<div class="container">
+<div class="container-fluid">
 	<div class="row">
 	    <div class="row toolbar">	        
-			<form method="get" action="." role="search" class="col-xs-6 col-sm-4 pull-left">
+			<form method="get" action="." role="search" class="col-sm-6 col-md-4 pull-left">
 			<div class="input-group input-group-sm">
-			      <input type="text" placeholder="Search " class="form-control" name="q">
-			      <span class="input-group-btn input-group-sm">
-			        <button type="submit" class="btn btn-default"><span class="bi-search"></span></button>
+			      <input type="text" placeholder="Search " class="form-control" name="q" aria-label="Search">
+			       <span class="input-group-btn input-group-sm">
+			        <button type="submit" class="btn btn-secondary"><span class="bi-search"></span></button>
 			      </span>
 			</div>
 			</form>
@@ -20,8 +20,8 @@
 		{% if substances %}
 	    <table class="table table-hover">
 	        <thead><tr class="first">
-	            <th class="col-xs-3">CAS Numbers</th>
-	            <th class="col-xs-9">Name</th>
+	            <th class="col-sm-3">CAS Numbers</th>
+	            <th class="col-sm-9">Name</th>
 	        </tr></thead>
 	        <tbody>
 			{% for substance in substances %}

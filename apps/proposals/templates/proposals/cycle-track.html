@@ -3,35 +3,37 @@
 
 <div class="container-fluid" style="min-height: 400px;">
     <div class="row">
-        <div class="col-xs-12" style="padding-top: 1em">
-            {% if admin %}
-                <div class="box-tools pull-right">
-                    <a href="#0" data-url="{% url 'edit-review-track' pk=track.pk %}" class="pull-right ">
-                        <i class="bi-sliders2 icon-2 icon-fw"></i><br/>
-                        <span class="tool-label">Parameters</span>
-                    </a>
-                    {% if cycle.state >= cycle.STATES.review %}
-                        <a href='{% url "review-evaluation" cycle=cycle.pk track=track.acronym %}'
-                           class="pull-right">
-                            <i class="bi-clipboard icon-2 icon-fw"></i><br/>
-                            <span class="tool-label">Evaluate</span>
-                        </a>
-                    {% endif %}
-                    <a href='{% url "track-submission-list" cycle=cycle.pk track=track.acronym %}'
-                       class="pull-right">
-                        <i class="bi-journal-check icon-2 icon-fw"></i><br/>
-                        <span class="tool-label">Submissions</span>
-                    </a>
+        <div class="col-sm-12 pt-3">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <div class="d-flex flex-column me-auto">
+                    <h3 class="m-0"><strong>{{ track.acronym }}</strong><span class="d-none d-sm-inline"> &mdash; {{ track.name }}</span></h3>
+                    <span class="text-body-secondary">
+                        {% if track.require_call %}Available only while calls are open{% else %}Available at all times{% endif %}
+                    </span>
                 </div>
-            {% endif %}
-            <h3 style="margin: 0.35em 0; padding: 0;">
-                <span class="hidden-xs"><strong>{{ track.acronym }}</strong> &mdash; </span>{{ track.name }}
-            </h3>
-            {% if track.require_call %}
-                <span class="text-muted">Available only while calls are open</span>
-            {% else %}
-                    <span class="text-muted">Available at all times</span>
-            {% endif %}
+                {% if admin %}
+                    <div class="toolbox">
+                        <a href="#0" data-modal-url="{% url 'edit-review-track' pk=track.pk %}">
+                            <i class="bi-sliders2 icon-md icon-fw"></i>
+                            <span class="tool-label">Parameters</span>
+                        </a>
+                        {% if cycle.state >= cycle.STATES.review %}
+                            <a href='{% url "review-evaluation" cycle=cycle.pk track=track.acronym %}'>
+                                <i class="bi-clipboard icon-md icon-fw"></i>
+                                <span class="tool-label">Evaluate</span>
+                            </a>
+                        {% endif %}
+                        <a href='{% url "track-submission-list" cycle=cycle.pk track=track.acronym %}'>
+                            <i class="bi-journal-check icon-md icon-fw"></i>
+                            <span class="tool-label">Submissions</span>
+                        </a>
+                        <a href="#0" data-modal-url="{% url 'add-review-stage' track=track.acronym %}">
+                            <i class="bi-plus-square icon-md icon-fw"></i>
+                            <span class="tool-label">Add&nbsp;Stage</span>
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
     <div class="row">
@@ -39,37 +41,41 @@
         {% show_track_stats cycle track %}
         {% show_track_committee cycle track %}
         {% show_technique_matrix cycle track %}
-        <div class="col-xs-12">
-            <div class="track-stages bg-darken">
+        <div class="col-sm-12">
+            <div class="card-group my-3">
                 {% for stage in track.stages.all %}
-                    <div class="track-stage">
-                        <div class="track-stage-title">
-                            <a href="#/" data-url="{% url 'edit-review-stage' track=track.acronym pk=stage.pk %}"
-                               title="{{ stage.kind }}">
-                                <i class="bi-{{ stage.position }}-square icon-lg"></i>
-                                <span class="hidden-xs">&nbsp;{{ stage.kind }}</span>
-                            </a>
+                    <div class="card bg-darken mb-3">
+                        <div class="card-header d-flex flex-row align-items-center">
+                            <i class="bi-{{ stage.position }}-square icon-md icon-fw"></i>
+                            <a href="#/" data-modal-url="{% url 'edit-review-stage' track=track.acronym pk=stage.pk %}"
+                               title="{{ stage.kind }}"
+                            >{{ stage.kind }}</a>
                             <a href='{% url "stage-review-list" cycle=cycle.pk stage=stage.pk %}'
-                               title="Reviews">
-                                <i class="bi-list-ul icon-2 icon-fw"></i>
+                               title="Reviews" class="ms-auto">
+                                <i class="bi-list-ul icon-md icon-fw"></i>
                             </a>
                             <a href='{% url "assigned-reviewers" cycle=cycle.pk stage=stage.pk %}'
                                title="Assignments">
-                                <i class="bi-people icon-2 icon-fw"></i>
+                                <i class="bi-people icon-md icon-fw"></i>
                             </a>
                         </div>
-                        <div class="track-stage-body">
+                        <div class="card-body">
                             {% stage_stats stage cycle %}
+                        </div>
+                        <div class="card-footer small">
+                            {% if stage.auto_create %}
+                                Reviews created automatically,
+                            {% else %}
+                                Reviews created manually,
+                            {% endif %}
+                            {% if stage.auto_start %}
+                                and started automatically.
+                            {% else %}
+                                and started manually.
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
-                <div class="track-stage hidden-xs">
-                    <div class="track-stage-body">
-                        <a href="#/" data-url="{% url 'add-review-stage' track=track.acronym %}"
-                           title="Add Review Stage"><i class="bi-plus-lg icon-2 icon-fw"></i> Add Review Stage
-                        </a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

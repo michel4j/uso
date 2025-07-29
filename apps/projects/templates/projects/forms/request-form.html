@@ -1,0 +1,53 @@
+{% extends "page.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block extra_css %}
+    <link href="{% static 'dynforms/jquery-bs-datepicker.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block pre_js %}
+    <script src="{% static 'dynforms/dynforms.js' %}"></script>
+{% endblock %}
+
+{% block page-classes %}p-5{% endblock %}
+
+{% block page-pretitle %}Form{% endblock %}
+{% block page-title %}{{ form_title }}{% endblock %}
+
+{% block page-content %}
+    <div class="callout callout-warning">
+        <div class="d-flex flex-row align-items-center gap-3">
+            <i class="bi-exclamation-diamond icon-lg icon-fw"></i> {{ message }}
+        </div>
+    </div>
+    {% if cycle %}
+        <div class="bg-darken my-3 p-3">
+            <h4><strong>Period of Interest</strong> &mdash; Cycle {{ cycle }}</h4>
+            <div class="timeline w-100" id="cycle-timeline" data-bs-toggle="tooltip" title="Timeline"></div>
+        </div>
+    {% endif %}
+    {% crispy form form.helper %}
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
+    <script src="{% static 'dynforms/jquery-bs-datepicker.min.js' %}"></script>
+    {% if cycle %}
+        <script src="{% static 'js/d3-timeline.min.js' %}"></script>
+        {% include "proposals/cycle-timeline.html" with object=cycle %}
+    {% endif %}
+    <script type="text/javascript">
+            // Initialize date inputs
+            $('.dateinput, .date-input').each(function(){
+                console.log($(this).is('[data-multi-date]'));
+                $(this).datePicker({
+                    dateFormat: "YYYY-MM-DD",
+                    multiple: $(this).is('[data-multi-date]') || false,
+                });
+            });
+    </script>
+{% endblock %}

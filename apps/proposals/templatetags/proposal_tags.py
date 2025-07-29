@@ -1,31 +1,27 @@
 import functools
 import operator
-import urllib.parse
+from collections import defaultdict
 from mimetypes import MimeTypes
 
 from django import template
+from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-
 from proposals import models
 from proposals.utils import scale_color, get_techniques_matrix
-from django.conf import settings
 from users.models import User
 from ..models import Proposal, Review
 
 
-USO_SAFETY_REVIEWS = getattr(settings, 'USO_SAFETY_REVIEWS', ['safety', 'ethics'])
-USO_TECHNICAL_REVIEWS = getattr(settings, 'USO_TECHNICAL_REVIEWS', ['technical'])
-
 register = template.Library()
 
 STATE_ICON_CLASSES = {
-    Proposal.STATES.draft: "bi-file-earmark-richtext icon-1x icon-fw text-muted",
-    Proposal.STATES.submitted: "bi-receipt icon-1x icon-fw text-primary",
+    Proposal.STATES.draft: "bi-file-earmark-richtext icon-sm icon-fw text-body-secondary",
+    Proposal.STATES.submitted: "bi-receipt icon-sm icon-fw text-primary",
 }
 
 STATE_CLASSES = {
-    Proposal.STATES.draft: "text-muted",
+    Proposal.STATES.draft: "text-body-secondary",
     Proposal.STATES.submitted: "text-info",
     Review.STATES.closed: "text-info",
     Review.STATES.pending: "text-warning",
@@ -47,6 +43,17 @@ FILE_TYPES = {
     'image/png': 'bi-filetype-png text-success',
     'image/jpg': 'bi-filetype-jpg text-info',
 }
+
+
+def permission_label(permission: str, scope: str) -> str:
+    """
+    Returns the label for a given permission and scope.
+    """
+    name = permission.replace('_', ' ').title()
+    scope_class = SCOPE_LABELS.get(scope, 'secondary')
+    scope_text = SCOPES.get(scope, '')
+    badge_type = f"text-bg-{scope_class}"
+    return f'<span class="m-1 badge {badge_type}">{name}&nbsp;[{scope_text}]</span>'
 
 
 @register.filter
@@ -86,37 +93,28 @@ def display_scores(review):
 
 @register.filter
 def display_state(review):
+    progress = review.get_progress()
+    value = progress.get('total', 0.0)
     if review.is_submitted():
-        params = {
-            'title': 'Complete',
-            'style': 'bg-cat-1',
-        }
-        progress = 100
+        state = "primary"
+        value = progress.get('required', 100.0)
     elif review.is_complete:
-        params = {
-            'title': 'Complete',
-            'style': 'bg-cat-3 striped',
-        }
-        progress = max(5, min(100, review.validate().get('progress', 0.0)))
+        state = "success"
     else:
-        params = {
-            'title': 'Incomplete',
-            'style': 'bg-cat-2 striped',
-        }
-        progress = max(5, min(100, review.validate().get('progress', 0.0)))
-    if review.state == review.STATES.closed:
-        params['style'] = 'bg-cat-8'
-    elif review.state == review.STATES.pending:
-        params['style'] = 'bg-cat-6'
-        progress = 0
-    params['state_display'] = review.get_state_display()
-    params['state'] = 'disabled' if review.state == review.STATES.closed else ''
+        state = "warning"
 
-    params['size'] = "{}%".format(progress)
-
-    state = ('<span class="inline-progress {state}" title="{title}: {state_display}">'
-             '<div class="{style}" style="width: {size};"></div></span>').format(**params)
-    return mark_safe(state)
+    bar = f"""
+        <div class="progress"
+             role="progressbar" aria-label="Review Progress"
+             aria-valuenow="{value}" aria-valuemin="0" aria-valuemax="100"
+             style="height: 1em;">
+            <div class="progress-bar bg-{state}"
+                 style="width: {value}%;">
+                <span class="visually-hidden">{value}% Complete</span>
+            </div>
+        </div>
+        """
+    return mark_safe(bar)
 
 
 @register.filter
@@ -127,6 +125,23 @@ def review_email(review):
         f"I'm writing concerning review {review} at {review.get_absolute_url()}%0D%0A."
         f"...\n"
     ]))
+
+
+@register.filter
+def submission_status(submission):
+    """
+    Returns the status of a submission as a string.
+    """
+    if submission.state == models.Submission.STATES.pending:
+        return "Pending"
+    elif submission.state == models.Submission.STATES.started:
+        return "In Progress"
+    elif submission.state == models.Submission.STATES.complete:
+        return "Complete"
+    elif submission.state == models.Submission.STATES.rejected:
+        return "Rejected"
+    else:
+        return "Unknown"
 
 
 @register.simple_tag(takes_context=True)
@@ -145,7 +160,7 @@ def get_approval_reviews(context):
 
     rev_list = []
     for r in reviews:
-        if r.type.code in USO_TECHNICAL_REVIEWS:
+        if r.type.is_technical:
             rev_list.append(
                 {
                     "review": r,
@@ -160,9 +175,10 @@ def get_approval_reviews(context):
             )
             risk_text = RISK_LEVELS.get(r.details.get('risk_level', 0), '')
             permissions = ''.join([
-                f'<span class="label label-{SCOPE_LABELS[scope]}">{perm.title()}&nbsp;[{SCOPES[scope]}]</span>'
+                permission_label(perm, scope)
                 for perm, scope in r.details.get('requirements', {}).items()
             ])
+
             rev_list.append(
                 {
                     "review": r,
@@ -205,6 +221,70 @@ def file_icon(file):
     mime = MimeTypes()
     mt = mime.guess_type(file.path)[0]
     return FILE_TYPES.get(mt, 'bi-file-earmark')
+
+
+MIME_TYPES = {
+    'application/pdf': (
+        '<svg'
+        '  xmlns="http://www.w3.org/2000/svg"'
+        '  width="100%"'
+        '  viewBox="0 0 24 24"'
+        '  fill="none"'
+        '  stroke="currentColor"'
+        '  stroke-width="0.5"'
+        '  stroke-linecap="round"'
+        '  stroke-linejoin="round"'
+        '>'
+        '  <path d="M14 3v4a1 1 0 0 0 1 1h4" />'
+        '  <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />'
+        '  <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />'
+        '  <path d="M17 18h2" />'
+        '  <path d="M20 15h-3v6" />'
+        '  <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" />'
+        '</svg>'
+    ),
+    'image/png': (
+        '    <svg'
+        '  xmlns="http://www.w3.org/2000/svg"'
+        '  width="100%"'
+        '  viewBox="0 0 24 24"'
+        '  fill="none"'
+        '  stroke="currentColor"'
+        '  stroke-width="0.5"'
+        '  stroke-linecap="round"'
+        '  stroke-linejoin="round"'
+        '>'
+        '  <path d="M14 3v4a1 1 0 0 0 1 1h4" />'
+        '  <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />'
+        '  <path d="M20 15h-1a2 2 0 0 0 -2 2v2a2 2 0 0 0 2 2h1v-3" />'
+        '  <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />'
+        '  <path d="M11 21v-6l3 6v-6" />'
+        '</svg>'
+    ),
+    'image/jpg': (
+        '<svg'
+        '  xmlns="http://www.w3.org/2000/svg"'
+        '  width="100%"'
+        '  viewBox="0 0 24 24"'
+        '  fill="none"'
+        '  stroke="currentColor"'
+        '  stroke-width="0.5"'
+        '  stroke-linecap="round"'
+        '  stroke-linejoin="round"'
+        '>'
+        '  <path d="M14 3v4a1 1 0 0 0 1 1h4" />'
+        '  <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />'
+        '  <path d="M11 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />'
+        '  <path d="M20 15h-1a2 2 0 0 0 -2 2v2a2 2 0 0 0 2 2h1v-3" />'
+        '  <path d="M5 15h3v4.5a1.5 1.5 0 0 1 -3 0" />'
+        '</svg>'
+    )
+}
+
+
+@register.filter
+def mime_icon(attachment):
+    return mark_safe(MIME_TYPES.get(attachment.mime_type()))
 
 
 @register.filter(name='state_icon')
@@ -252,9 +332,15 @@ def verbose_name_plural(value):
 
 
 @register.simple_tag(takes_context=True)
-def get_options(context, data={}):
-    data = {} if not isinstance(data, dict) else data
-    sel_techs = [0] + data.get('techniques', [])
+def get_options(context, data=None):
+    data = {} if not data else data
+    techniques = data.get('techniques')
+    if techniques and isinstance(techniques, list):
+        sel_techs = [0] + [int(t) for t in techniques if t]
+    elif isinstance (techniques, (int, str)):
+        sel_techs = [0] + [int(techniques)]
+    else:
+        sel_techs = [0]
     sel_fac = 0 if not data.get('facility') else int(data.get('facility'))
     cycle = models.ReviewCycle.objects.next()
     technique_matrix = get_techniques_matrix(cycle, sel_techs=sel_techs, sel_fac=sel_fac)
@@ -272,9 +358,10 @@ def get_cycle_options(context):
         selected_cycle = models.ReviewCycle.objects.filter(pk=data).first()
 
     context['selected_cycle'] = selected_cycle
+    context['techniques_matrix'] = get_techniques_matrix(selected_cycle)
     return [
         (c.pk, c, c == context.get('selected_cycle'))
-        for c in models.ReviewCycle.objects.filter(end_date__gt=today).order_by('end_date')[:2]
+        for c in models.ReviewCycle.objects.filter(end_date__gt=today).order_by('end_date')[:3]
     ]
 
 
@@ -386,13 +473,16 @@ def get_all_tracks(context):
 
 
 @register.simple_tag(takes_context=True)
-def get_technique_options(context, settings):
-    if not settings:
-        settings = {}
+def get_technique_options(context, configs):
+    print(configs)
+    configs = configs or set()
+    config_groups = defaultdict(list)
+    for tech, track in configs:
+        config_groups[tech].append(track)
     groups = {}
     for group in sorted(models.Technique.TYPES, reverse=True):
         groups[group[-1]] = [
-            (technique, settings.get(technique.pk, ""))
+            (technique, config_groups[technique.pk])
             for technique in models.Technique.objects.filter(category=group[0]).order_by('name')
         ]
     return groups

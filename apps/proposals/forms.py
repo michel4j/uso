@@ -1,24 +1,22 @@
-import functools
 import itertools
-import operator
-import time
 from itertools import chain
 
+from crisp_modals.forms import ModalModelForm
 from crispy_forms.bootstrap import StrictButton, AppendedText, InlineCheckboxes, FormActions, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
-from crispy_forms.templatetags.crispy_forms_field import css_class
 from django import forms
-from django.urls import reverse
-from django.db.models import Case, When, Q, IntegerField, Sum, Value, Count
+from django.db.models import Q, Count
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from dynforms.forms import DynModelForm
+from dynforms.utils import DotExpandedDict
 
+from beamlines.models import Facility
+from misc.forms import JSONDictionaryField, ModelPoolField
 from . import models
 from . import utils
-from dynforms.forms import DynFormMixin
-from dynforms.utils import DotExpandedDict
 from .models import get_user_model
 
 
@@ -27,33 +25,37 @@ class DateField(AppendedText):
         super().__init__(field_name, mark_safe('<i class="bi-calendar"></i>'), *args, **kwargs)
 
 
-class ProposalForm(DynFormMixin, forms.ModelForm):
-    type_code = 'proposal'
-
+class ProposalForm(DynModelForm):
     class Meta:
         model = models.Proposal
         fields = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.init_fields()
 
     def clean(self):
-        User = get_user_model()
+        user_model = get_user_model()
         data = super().clean()
         data['title'] = data['details'].get('title')
         if not data['title']:
             self._errors['title'] = "You must add a title before you can save the proposal "
-        data['keywords'] = data['details'].get('subject', {}).get('keywords')
+
+        subjects = data['details'].get('subject', {})
+        if isinstance(subjects, list) and len(subjects) == 1:
+            subjects = subjects[0]
+        else:
+            subjects = subjects or {}
+
+        data['keywords'] = subjects.get('keywords', '').strip()
         team_members = data['details'].get('team_members', [])[:]  # make a copy to avoid modifying in-place
         existing_emails = []
         for k in ['leader', 'delegate']:
             if k in data['details']:
                 m = data['details'][k]
                 user_email = m.get('email', 'xxx')
-                user = User.objects.filter(Q(email__iexact=user_email) | Q(alt_email__iexact=user_email)).first()
+                user = user_model.objects.filter(Q(email__iexact=user_email) | Q(alt_email__iexact=user_email)).first()
                 if user:
-                    data["{}_username".format(k)] = user.username
+                    data[f"{k}_username"] = user.username
                 existing_emails.append(user_email)
                 team_members.append(m)
 
@@ -66,20 +68,10 @@ class ProposalForm(DynFormMixin, forms.ModelForm):
         return data
 
 
-class ReviewForm(DynFormMixin, forms.ModelForm):
+class ReviewForm(DynModelForm):
     class Meta:
         model = models.Review
         fields = []
-
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-        if self.instance:
-            self.form_type = self.instance.form_type
-        self.init_fields()
-
-    def clean(self):
-        return DynFormMixin.clean(self)
 
 
 class ReviewerForm(forms.Form):
@@ -99,8 +91,7 @@ class ReviewerForm(forms.Form):
         required=False
     )
 
-    def __init__(self, *args, **kwargs):
-        admin = kwargs.pop('admin', False)
+    def __init__(self, admin=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         techs = {}
@@ -116,24 +107,25 @@ class ReviewerForm(forms.Form):
                 techs[kind] = qs.count()
                 if 'techniques' in self.initial:
                     self.fields[kind].initial = self.initial['techniques'].filter(category=kind)
+
         self.fields['areas'].queryset = models.SubjectArea.objects.filter(category__isnull=True).order_by('name')
         self.fields['sub_areas'].queryset = models.SubjectArea.objects.exclude(category__isnull=True).order_by('name')
         tech_fields = Div(
             Div(
                 HTML(
-                    '<h3>Techniques</h3>'
+                    '<h3 class="mt-4">Techniques</h3>'
                     '<hr class="hr-xs"/>'
                 ),
-                css_class="col-xs-12"
+                css_class="col-sm-12"
             ),
-            css_class="row narrow-gutter"
+            css_class="row"
         )
 
         for tech, count in sorted(list(techs.items()), key=lambda v: v[1], reverse=True):
             tech_fields.append(
                 Div(
                     tech,
-                    css_class="col-xs-12 field-w2"
+                    css_class="col-sm-12 field-w2"
                 )
             )
 
@@ -160,14 +152,13 @@ class ReviewerForm(forms.Form):
                     'Opt Out', type='submit', name="submit", value='suspend',
                     css_class="btn btn-secondary"
                 )
-            extra_btns = Div(
+            extra_btns = [
                 disable_btn,
                 suspend_btn,
-                css_class="pull-left"
-            )
+            ]
 
         else:
-            extra_btns = Div(css_class="pull-left")
+            extra_btns = []
 
         self.helper = FormHelper()
         if reviewer:
@@ -178,29 +169,27 @@ class ReviewerForm(forms.Form):
             Div(
                 Div(
                     HTML(
-                        '<h3>Subject Areas</h3>'
+                        '<h3 class="mt-4">Subject Areas</h3>'
                         '<hr class="hr-xs"/>'
                     ),
-                    css_class="col-xs-12"
-                ),
-
-                Div(Field('areas', css_class="chosen"), css_class="col-sm-12"),
-                Div(
-                    InlineCheckboxes('sub_areas', template="proposals/fields/%s/groupedcheckboxes.html"),
                     css_class="col-sm-12"
                 ),
-                css_class="row narrow-gutter"
+                Div(
+                    InlineCheckboxes('sub_areas', template="proposals/fields/grouped-checkboxes.html"),
+                    css_class="col-sm-12"
+                ),
+                css_class="row"
             ),
 
             tech_fields,
             FormActions(
                 HTML("<hr/>"),
-                extra_btns,
                 Div(
-                    StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                    *extra_btns,
+                    StrictButton('Revert', type='reset', value='Reset', css_class="ms-auto btn btn-secondary"),
                     StrictButton('Save', type='submit', name="submit", value='save', css_class='btn btn-primary'),
-                    css_class='pull-right'
-                ),
+                    css_class='d-flex justify-content-end align-items-center gap-2'
+                )
             )
         )
 
@@ -213,14 +202,13 @@ class ReviewerForm(forms.Form):
         cleaned_data['areas'] = list(
             chain(
                 cleaned_data.get('areas', []),
-                [sa for sa in cleaned_data.get('sub_areas', []) if sa.category in cleaned_data.get('areas', [])]
+                cleaned_data.get('sub_areas', [])
             )
         )
         return cleaned_data
 
 
-class OptOutForm(forms.ModelForm):
-
+class OptOutForm(ModalModelForm):
     class Meta:
         model = models.Reviewer
         fields = ['comments']
@@ -231,38 +219,26 @@ class OptOutForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.title = "We're sorry to miss you this time around!"
-        self.helper.form_class = "call-form"
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
+        self.body.title = "We're sorry to miss you this time around!"
+        self.body.form_class = "call-form"
+        self.body.form_action = self.request.get_full_path()
+        self.body.append(
             Div(
                 Div(
                     Div(
                         HTML("{% include 'proposals/forms/optout-header.html' %}"),
-                        css_class="col-xs-12"
+                        css_class="col-sm-12"
                     ),
-                    Div('comments', css_class="col-xs-12"),
-                    css_class="col-xs-12 narrow-gutter"
+                    Div('comments', css_class="col-sm-12"),
+                    css_class="col-sm-12 gap-2"
                 ),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Opt Out', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
         )
 
 
-class FacilityConfigForm(forms.ModelForm):
-    settings = forms.Field(required=False)
+class FacilityConfigForm(ModalModelForm):
+    configs = forms.Field(required=False)
     accept = forms.TypedChoiceField(
         label="Accepting Proposals?",
         coerce=lambda x: x == 'True',
@@ -270,7 +246,7 @@ class FacilityConfigForm(forms.ModelForm):
 
     class Meta:
         model = models.FacilityConfig
-        fields = ['comments', 'facility', 'accept', 'cycle', 'settings']
+        fields = ['comments', 'facility', 'accept', 'cycle', 'configs']
         widgets = {
             'comments': forms.Textarea(attrs={'rows': 3, }),
             'facility': forms.HiddenInput(),
@@ -282,54 +258,48 @@ class FacilityConfigForm(forms.ModelForm):
         today = timezone.now().date()
         self.fields['cycle'].queryset = models.ReviewCycle.objects.filter(open_date__gt=today)
         if self.instance and self.instance.pk:
-            self.fields['cycle'].queryset |= models.ReviewCycle.objects.filter(pk=self.instance.cycle.pk)
-            if self.instance.cycle.open_date <= today:
+            if self.instance.cycle is None:
                 self.fields['cycle'].disabled = True
+            elif self.instance.cycle.start_date < today:
+                self.fields['cycle'].disabled = True
+                self.fields['cycle'].queryset |= models.ReviewCycle.objects.filter(pk=self.instance.cycle.pk)
 
-        self.helper = FormHelper()
-        self.helper.title = 'Configure Technique Availability'
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
+        self.body.title = 'Configure Technique Availability'
+        self.body.form_action = self.request.get_full_path()
+        self.body.append(
             Div(
                 Div(
-                    Field('cycle', css_class='chosen'),
+                    'cycle',
                     css_class="col-sm-6"
                 ),
                 Div(
                     InlineRadios('accept'),
                     css_class="col-sm-6"
                 ),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             'facility',
             Div(
-                Field('settings', template="proposals/fields/%s/facilityconfig.html"),
+                Field('configs', template="proposals/fields/facilityconfig.html"),
                 style="margin-top: 0.5em;"
             ),
             'comments',
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
-            )
         )
 
     def clean(self):
         data = super().clean()
-        raw_settings = DotExpandedDict(self.data).with_lists().get('settings', {})
-        settings = list(zip(raw_settings.get('technique', []), raw_settings.get('value', [])))
-        data['settings'] = {int(k): v for k, v in settings if v}
+        raw_configs = DotExpandedDict(dict(self.data.lists())).with_lists().get('configs', {})
+        configs = {
+            (int(item['technique'][0]), int(v))
+            for item in raw_configs if 'value' in item and 'technique' in item
+            for v in item['value']
+        }
+        data['configs'] = list(configs)
         data['start_date'] = data['cycle'].start_date
         return data
 
 
-class ReviewCycleForm(forms.ModelForm):
+class ReviewCycleForm(ModalModelForm):
     class Meta:
         model = models.ReviewCycle
         fields = ('start_date', 'open_date', 'close_date', 'end_date', 'due_date', 'alloc_date')
@@ -337,12 +307,10 @@ class ReviewCycleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = "review-cycle-form"
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.title = "Configure Review Cycle"
+        self.body.form_action = self.request.get_full_path()
+        self.body.title = "Configure Review Cycle"
 
-        self.helper.layout = Layout(
+        self.body.append(
             Div(
                 Div(DateField("start_date"), css_class="col-sm-6"),
                 Div(DateField("end_date"), css_class="col-sm-6"),
@@ -350,67 +318,41 @@ class ReviewCycleForm(forms.ModelForm):
                 Div(DateField("close_date"), css_class="col-sm-6"),
                 Div(DateField("due_date"), css_class="col-sm-6"),
                 Div(DateField("alloc_date"), css_class="col-sm-6"),
-                css_class="row narrow-gutter"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
+                css_class="row"
             )
         )
 
 
-class ReviewTrackForm(forms.ModelForm):
+class ReviewTrackForm(ModalModelForm):
     committee = forms.ModelMultipleChoiceField(queryset=models.Reviewer.objects.all(), required=False)
 
     class Meta:
         model = models.ReviewTrack
-        fields = ('name', 'acronym', 'description',
-                  'min_reviewers', 'max_workload', 'committee')
+        fields = (
+            'name', 'acronym', 'description', 'require_call',
+            'committee', 'duration'
+        )
         widgets = {
             'description': forms.Textarea(attrs={'rows': 2, }),
         }
         help_texts = {
-            'min_reviewers': 'Committee members per proposal',
-            'max_workload': 'Maximum reviewer workload',
+            'duration': 'Duration of resulting Project in cycles',
         }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = "review-track-form"
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.title = "Edit Review Track Information"
-
-        self.helper.layout = Layout(
+        self.body.form_class = "review-track-form"
+        self.body.append(
             Div(
                 Div("name", css_class="col-sm-8"),
                 Div("acronym", css_class="col-sm-4"),
                 Div("description", css_class="col-sm-12"),
-                Div("min_reviewers", css_class="col-sm-6"),
-                Div("max_workload", css_class="col-sm-6"),
-                Div(Field("committee", css_class="chosen"), css_class="col-sm-12"),
-                css_class="row narrow-gutter"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
+                Div("duration", css_class="col-sm-12"),
+                Div("committee", css_class="col-sm-12"),
+                Div("require_call", css_class="col-sm-12"),
+                css_class="row"
             )
-
         )
 
 
@@ -426,28 +368,28 @@ class ReviewCyclePoolForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "review-cycle-form"
-        self.helper.title = "Edit Reviewer Pool for Cycle {0}".format(self.instance)
+        self.helper.title = f"Edit Reviewer Pool for Cycle {self.instance}"
 
         self.helper.layout = Layout(
             Div(
                 Div(InlineCheckboxes('reviewers'), css_class="col-sm-12"),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(
                     Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
+                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-secondary"),
                         StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
                         css_class='pull-right'
                     ),
-                    css_class="col-xs-12"
+                    css_class="col-sm-12"
                 ),
                 css_class="modal-footer row"
             )
         )
 
 
-class ReviewerAssignmentForm(forms.ModelForm):
+class ReviewerAssignmentForm(ModalModelForm):
     reviewers = forms.ModelMultipleChoiceField(
         label="Add Reviewer", queryset=models.Reviewer.objects.none(),
         help_text="Select Reviewers to add to the above proposal. "
@@ -459,15 +401,14 @@ class ReviewerAssignmentForm(forms.ModelForm):
         fields = []
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
+        stage = kwargs.pop('stage')
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
 
-        self.helper.title = "Edit Reviewer Assignment"
-        self.helper.form_action = self.request.get_full_path()
+        self.body.title = "Edit Reviewer Assignment"
 
         cycle = self.instance.cycle
-        track = self.instance.track
+        track = stage.track
 
         prop_info = utils.get_submission_info(self.instance)
         tech_filter = Q(techniques__in=prop_info['techniques'])
@@ -478,90 +419,28 @@ class ReviewerAssignmentForm(forms.ModelForm):
             num_reviews=Count('user__reviews', filter=Q(user__reviews__cycle=cycle), distinct=True)
         )
 
-        if track.max_workload > 0:
-            reviewers = reviewers.exclude(num_reviews__gt=track.max_workload)
+        if stage.max_workload > 0:
+            reviewers = reviewers.exclude(num_reviews__gt=stage.max_workload)
 
         available = models.Reviewer.objects.filter(pk__in=list(
             itertools.chain(reviewers.values_list('pk', flat=True), track.committee.values_list('pk', flat=True))
         )).order_by('committee')
 
         self.fields['reviewers'].queryset = available
-        self.helper.title = 'Add Reviewers'
-        self.helper.layout = Layout(
+        self.body.title = 'Add Reviewers'
+        self.body.append(
             Div(
                 HTML("{% include 'proposals/submission-snippet.html' with submission=form.instance %}"),
                 css_class=""
             ),
             Div(
-                Div(Field('reviewers', css_class="chosen"), css_class='col-sm-12'),
-                css_class="row narrow-gutter"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Revert', type='reset', value='Reset', css_class="btn btn-default"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
+                Div(Field('reviewers', css_class="selectize"), css_class='col-sm-12'),
+                css_class="row"
             )
         )
 
 
-class AdjustmentForm(forms.ModelForm):
-    VALUE_TYPES = (
-        (-1, '-1.0'),
-        (-0.5, '-0.5'),
-        (0.5, '+0.5'),
-        (1, '+1.0'),
-    )
-    value = forms.TypedChoiceField(
-        choices=VALUE_TYPES, empty_value=0, coerce=float)
-
-    class Meta:
-        model = models.ScoreAdjustment
-        fields = ('value', 'reason')
-
-        widgets = {
-            'reason': forms.Textarea(attrs={'rows': 4, }),
-        }
-
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
-        self.submission = kwargs.pop('submission')
-        super().__init__(*args, **kwargs)
-
-        self.fields['reason'].help_text = 'Please provide an explanation justifying the score adjustment'
-
-        self.helper = FormHelper()
-        self.helper.title = "Adjust Score"
-
-        delete_url = reverse("remove-score-adjustment", kwargs={'pk': self.submission.pk})
-
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
-            Div(
-                Div(Field('value', css_class="chosen"), css_class="col-sm-12"),
-                Div("reason", css_class="col-sm-12"),
-                css_class="row narrow-gutter"
-            ),
-            Div(
-                Div(
-                    StrictButton('Delete', id="delete-object", css_class="btn btn-danger pull-left",
-                                 data_url=delete_url),
-                    StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-right"),
-
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
-            ),
-        )
-
-
-class ReviewCommentsForm(forms.ModelForm):
+class ReviewCommentsForm(ModalModelForm):
     class Meta:
         model = models.Submission
         fields = ['comments']
@@ -571,83 +450,245 @@ class ReviewCommentsForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
         self.fields['comments'].help_text = 'Please update the comments which the applicants will see.'
-
-        self.helper = FormHelper()
-        self.helper.title = "Update Comments for Applicants"
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
+        self.body.title = "Update Comments for Applicants"
+        self.body.append(
             Div(
                 Div("comments", css_class="col-sm-12"),
-                css_class="row narrow-gutter"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default"),
-                        StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
+                css_class="row"
             ),
         )
 
 
-class ReviewStageForm(forms.ModelForm):
+class ReviewStageForm(ModalModelForm):
     class Meta:
         model = models.ReviewStage
-        fields = ['track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score']
-        widgets ={
+        fields = [
+            'track', 'kind', 'position', 'min_reviews', 'blocks', 'pass_score',
+            'auto_create', 'auto_start', 'weight'
+        ]
+        widgets = {
             'track': forms.HiddenInput(),
-            'kind': forms.Select(attrs={'class': 'chosen'}),
-            'blocks': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'chosen'},),
+            'kind': forms.Select(attrs={'class': 'select'}),
+            'blocks': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'}, ),
+            'auto_create': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'}, ),
+            'auto_start': forms.Select(choices=((False, 'No'), (True, 'Yes')), attrs={'class': 'select'}, ),
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
-        if self.instance and self.instance.pk:
-            track = self.instance.track
-            self.helper.title = "Edit Review Stage Information"
-            delete_url = reverse(
-                "delete-review-stage", kwargs={'pk': self.instance.pk, 'track': track.acronym}
-            )
-            buttons = Div(
-                StrictButton('Delete', id="delete-object", css_class="btn btn-danger pull-left", data_url=delete_url),
-                StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-right"),
-                css_class="col-xs-12"
-            )
-        else:
+        if not (self.instance and self.instance.pk):
             track = self.initial['track']
             self.fields['kind'].queryset = models.ReviewType.objects.exclude(stages__track=track)
-            self.helper.title = "Add Review Stage"
-            buttons = Div(
-                StrictButton('Save', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-right"),
-                css_class="col-xs-12"
+
+        self.body.append(
+            Div(
+                Div("position", css_class="col-sm-3"),
+                Div("kind", css_class="col-sm-6"),
+                Div("weight", css_class="col-sm-3"),
+                Div("min_reviews", css_class="col-sm-6"),
+                Div("pass_score", css_class="col-sm-6"),
+                Div("blocks", css_class="col-sm-4"),
+                Div("auto_create", css_class="col-sm-4"),
+                Div("auto_start", css_class="col-sm-4"),
+                css_class="row"
+            ),
+            Field('track'),
+        )
+
+
+class ReviewTypeForm(ModalModelForm):
+    score_fields = JSONDictionaryField(label=_("Score Fields"), required=False)
+
+    class Meta:
+        model = models.ReviewType
+        fields = [
+            'code', 'kind', 'description', 'form_type', 'low_better', 'per_facility', 'role',
+            'score_fields'
+        ]
+        widgets = {
+            'description': forms.TextInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div("code", css_class="col-sm-4"),
+                Div("kind", css_class="col-sm-4"),
+                Div("form_type", css_class="col-sm-4"),
+                Div("description", css_class="col-sm-8"),
+                Div("role", css_class="col-sm-4"),
+                css_class="row"
+            ),
+            Div(
+
+                Div("score_fields", css_class="col-sm-12"),
+                css_class="row"
+            ),
+            Div(
+                Div('low_better', css_class="col-sm-4"),
+                Div('per_facility', css_class="col-sm-4"),
+                css_class="row align-items-end"
+            )
+        )
+
+    def clean(self):
+        data = super().clean()
+        score_field_names = set(data.get('score_fields', {}).keys())
+        form_field_names = set([
+            field['name']
+            for page in data['form_type'].pages
+            for field in page.get('fields', [])
+        ])
+        missing_fields = score_field_names - form_field_names
+        if missing_fields:
+            missing_text = ', '.join(f'"{field}"' for field in missing_fields)
+            raise forms.ValidationError(
+                f"Score fields {missing_text} not defined in {data['form_type']}."
+            )
+        return data
+
+
+class TechniqueForm(ModalModelForm):
+    class Meta:
+        model = models.Technique
+        fields = ['name', 'category', 'description', 'acronym', 'parent']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2, }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div("name", css_class="col-sm-6"),
+                Div("acronym", css_class="col-sm-6"),
+                Div("category", css_class="col-sm-6"),
+                Div("parent", css_class="col-sm-6"),
+                Div("description", css_class="col-sm-12"),
+                css_class="row"
+            )
+        )
+
+
+class AccessPoolForm(ModalModelForm):
+    class Meta:
+        model = models.AccessPool
+        fields = ['name', 'description', 'role']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2, }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Div(
+                Div("name", css_class="col-sm-6"),
+                Div("role", css_class="col-sm-6"),
+                Div("description", css_class="col-sm-12"),
+                css_class="row"
+            )
+        )
+
+
+class AllocationPoolForm(ModalModelForm):
+    pools = ModelPoolField(model=models.AccessPool, required=False, label="Pool Allocations")
+
+    class Meta:
+        fields = ['flex_schedule']
+        model = Facility
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.title = f"Pool Allocations - {self.instance.acronym}"
+        self.body.append(
+            Div(
+                Div('flex_schedule', css_class="col-sm-12"),
+                Div('pools', css_class="col-sm-12"),
+                css_class="row"
+            )
+        )
+
+
+class SubmitProposalForm(ModalModelForm):
+    access_pool = forms.ModelChoiceField(
+        queryset=models.AccessPool.objects.none(), required=True, label="Access Pool",
+    )
+    tracks = forms.ModelMultipleChoiceField(
+        queryset=models.ReviewTrack.objects.none(), required=True, label="Review Tracks",
+    )
+
+    class Meta:
+        model = models.Proposal
+        fields = ['access_pool', 'tracks']
+
+    def __init__(self, submit_info=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.title = "Submit Proposal"
+        self.body.append(
+            Div(
+                Div(
+                    HTML("{% include 'proposals/forms/submit-header.html' %}"),
+                    css_class="col-sm-12"
+                ),
+                Div('tracks', css_class="col-sm-6"),
+                Div('access_pool', css_class="col-sm-6"),
+                css_class="row"
+            )
+        )
+        self.fields['access_pool'].initial = submit_info['pools'].filter(is_default=True).first()
+        valid_tracks = submit_info['valid_tracks']
+        self.fields['access_pool'].queryset = submit_info['pools']
+        self.fields['tracks'].queryset = models.ReviewTrack.objects.filter(pk__in=valid_tracks)
+        if len(valid_tracks) == 1:
+            self.fields['tracks'].initial = models.ReviewTrack.objects.filter(pk__in=valid_tracks)
+            self.fields['tracks'].disabled = True
+        if len(submit_info['pools']) == 1:
+            self.fields['access_pool'].disabled = True
+
+        self.footer.clear()
+        if len(valid_tracks) == 0:
+            self.footer.append(
+                StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+            )
+        else:
+            self.footer.append(
+                StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+                StrictButton('Submit Proposal', type='submit', value='submit', css_class="ms-auto btn btn-primary"),
             )
 
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.layout = Layout(
+
+class CycleTypeForm(ModalModelForm):
+
+    class Meta:
+        model = models.CycleType
+        fields = [
+            'name', 'start_date', 'duration', 'call_offset', 'call_period', 'review_duration',
+            'allocation_offset', 'open_on', 'close_on', 'shifts', 'active'
+        ]
+        widgets = {
+            'active': forms.Select(choices=((False, 'No'), (True, 'Yes'))),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
             Div(
-                Div("kind", css_class="col-sm-6"),
-                Div("position", css_class="col-sm-6"),
-                Div("min_reviews", css_class="col-sm-4"),
-                Div("pass_score", css_class="col-sm-4"),
-                Div("blocks", css_class="col-sm-4"),
-                css_class="row narrow-gutter"
-            ),
-            Div(
-                'track',
-                buttons,
-                css_class="modal-footer row"
-            ),
+                Div("name", css_class="col-sm-4"),
+                Div("start_date", css_class="col-sm-4"),
+                Div('duration', css_class="col-sm-4"),
+                Div('open_on', css_class="col-sm-4"),
+                Div('call_period', css_class="col-sm-4"),
+                Div('close_on', css_class="col-sm-4"),
+                Div('call_offset', css_class="col-sm-4"),
+                Div('review_duration', css_class="col-sm-4"),
+                Div('allocation_offset', css_class="col-sm-4"),
+                Div('shifts', css_class="col-sm-8"),
+                Div('active', css_class="col-sm-4"),
+                css_class="row"
+            )
         )

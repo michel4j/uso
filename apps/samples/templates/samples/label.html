@@ -1,35 +1,30 @@
 {% load samples_tags %}
 {% load static %}
 {% load markup %}
-<div class="row">
-    <div class="col-xs-12">
-        <h3 class="text-condensed" style="background-color: #333; color: #fff; padding: 0.25em; font-weight: 900 !important;">
-            {{ sample.name }}
-        </h3>
-        <div class="row">
-            <div class="col-xs-8 text-condensed">
-                <p>{{ sample.description }}</p>
-                <div class="text-condensed">
-                    <p style="font-weight: 900; font-size: 200%; margin-bottom: 0;">{{ sample.signal|upper }}</p>
-                    <p style="font-size:110%;"><strong>{{sample.hazards_text}}</strong></p>
+<div class="col-sm-6">
+    <div class="card my-2">
+        <div class="card-header">
+            <h4 class="text-condensed my-1">{{ sample.name }}</h4>
+            <p class="text-body-secondary">{{ sample.description }}</p>
+        </div>
+        <div class="card-body">
+            <div class="text-condensed">
+                <p style="font-weight: 900; font-size: 150%; margin-bottom: 0;">{{ sample.signal|upper }}</p>
+                <p><strong>{{ sample.hazards_text }}</strong></p>
+                <div>{{ sample.precautions_text|markdown }}</div>
+            </div>
 
-                    <div>{{sample.precautions_text|markdown}}</div>
+            <div class="text-center">
+                <div class="pictogram-box">
+                    {% for hz in sample.pictograms %}
+                        <img src="{% pictogram_url hz %}" title="{{ hz.name }}">
+                    {% endfor %}
                 </div>
             </div>
-            <div class="col-xs-4">
-                <div class="row">
-                    <div class="col-xs-12 text-center">
-                        <div class="pictogram-box">
-                            {% for hz in sample.pictograms %}
-                                <img src="{% pictogram_url hz %}" title="{{ hz.name }}">
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
+            <hr/>
+            <div class="text-condensed text-body-secondary">
+                See Safety Data Sheet for further information. Contact Health and Safety Department with questions
             </div>
         </div>
-    </div>
-    <div class="col-xs-12 text-condensed">
-        See Safety Data Sheet for further information. Contact Health and Safety Department with questions
     </div>
 </div>

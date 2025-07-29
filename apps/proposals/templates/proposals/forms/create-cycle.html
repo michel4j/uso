@@ -1,16 +1,7 @@
-{% extends "forms/modal.html" %}
-{% load proposal_tags %}
-{% block form_title %}Add Cycle?{% endblock %}
-{% block form_body %}
-<h5>Are you sure you want to add a new Cycle?</h5>
+{% extends "crisp_modals/confirm.html" %}
+
+{% block modal_title %}Add Cycle?{% endblock %}
+{% block modal_body %}
+<p class="lead">Are you sure you want to add a new Cycle?</p>
 <div class="alert alert-warning">Cycles should normally be added automatically by background tasks.</div>
-<div class="row">
-	<div class="modal-footer">
-  			<form action="{% url 'add-review-cycles' object.pk %}" method="post">{% csrf_token %}
-   			<input type="hidden" name="post" value="yes" />
-			<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
-			<button type="submit" value="Submit" class="btn btn-info">Yes, I'm sure</button>
-		</form>
-	</div>
-</div>
 {% endblock %}

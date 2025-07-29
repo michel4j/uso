@@ -1,51 +1,54 @@
 import json
 
+from crisp_modals.views import ModalUpdateView, ModalCreateView, ModalDeleteView
 from django import http
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.admin.utils import NestedObjects
 from django.contrib.messages.views import SuccessMessageMixin
-from django.urls import reverse, reverse_lazy
-from django.db import DEFAULT_DB_ALIAS
 from django.db.models import When, Case, Value, BooleanField, Q
-from django.utils.text import capfirst
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, View, detail
-from django.views.generic.edit import CreateView, UpdateView
+from itemlist.views import ItemListView
 
+from misc.models import ActivityLog
+from misc.utils import is_ajax
+from misc.views import JSONResponseMixin
+from roleperms.views import RolePermsViewMixin
 from . import forms
 from . import models
-from misc.utils import is_ajax
-from misc.views import ConfirmDetailView
-from misc.views import JSONResponseMixin
-from itemlist.views import ItemListView
-from roleperms.views import RolePermsViewMixin
 
 MAX_RESULTS = 30
 
 USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
 USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff'])
 USO_CURATOR_ROLES = getattr(settings, "USO_CURATOR_ROLES", ['curator:publications'])
-USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse', 'employee:hse'])
+USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse'])
 
 
 class HSDBSearch(RolePermsViewMixin, TemplateView):
     template_name = 'samples/inline-search.html'
 
     def get_context_data(self, **kwargs):
+        try:
+            from fuzzywuzzy import process
+        except ImportError:
+            process = None
+
         context = super().get_context_data(**kwargs)
         search_string = self.request.GET.get('q')
-        choices = {h.pk: h.name for h in models.HazardousSubstance.objects.all()}
+
         if search_string:
-            # results = models.HazardousSubstance.objects.filter(Q(name__icontains=search_string)|Q(description__icontains=search_string))[:15]
-            results = models.HazardousSubstance.objects.filter(Q(name__icontains=search_string))[:MAX_RESULTS]
-            """
-            # fuzzy search
-            hits = process.extract(search_string, choices, limit=MAX_RESULTS)
-            hit_ids = [v[-1] for v in hits]
-            samples = models.HazardousSubstance.objects.in_bulk(hit_ids)
-            results = filter(None, [samples.get(pk) for pk in hit_ids])
-            """
-            context['results'] = results
+            if not process:
+                substances = models.HazardousSubstance.objects.filter(Q(name__icontains=search_string))[:MAX_RESULTS]
+            else:
+                # Use fuzzywuzzy to find the best matches
+                choices = dict(models.HazardousSubstance.objects.values_list('pk', 'name'))
+                hits = process.extract(search_string, choices, limit=MAX_RESULTS)
+                id_list = [v[-1] for v in hits]
+                results = models.HazardousSubstance.objects.in_bulk(id_list)
+                substances = filter(None, [results.get(pk) for pk in id_list])
+
+            context['results'] = substances
             context['search_string'] = search_string
         return context
 
@@ -124,7 +127,7 @@ class SampleListView(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     paginate_by = 15
     link_url = 'sample-edit-modal'
-    link_attr = 'data-url'
+    link_attr = 'data-modal-url'
     list_filters = ['kind', 'state']
     list_columns = ['name', 'description', 'kind', 'state']
     list_search = ['name', 'description', 'state', 'kind']
@@ -143,42 +146,35 @@ class UserSampleListView(SampleListView):
         return super().get_queryset()
 
 
-class SampleCreate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
+class SampleCreate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
     form_class = forms.SampleForm
-    template_name = "samples/forms/modal.html"
+    template_name = "samples/sample-forml.html"
     model = models.Sample
     success_url = reverse_lazy('sample-list')
     success_message = "Sample '%(name)s' has been created."
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['submit_url'] = reverse_lazy('add-sample-modal')
-        return context
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update(form_action=self.request.get_full_path())
+        return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
         initial['owner'] = self.request.user.pk
         return initial
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs.update(request=self.request)
-        return kwargs
-
     def form_valid(self, form):
-        response = super().form_valid(form)
-        if is_ajax(self.request):
-            return http.JsonResponse({
-                'pk': self.object.pk,
-                'name': str(self.object),
-            })
-        else:
-            return response
+        super().form_valid(form)
+        return http.JsonResponse({
+            'pk': self.object.pk,
+            'name': str(self.object),
+            'event': 'uso:sample-created'
+        })
 
 
-class EditSample(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
+class EditSample(SuccessMessageMixin, RolePermsViewMixin, ModalUpdateView):
     form_class = forms.SampleForm
-    template_name = "samples/forms/modal.html"
+    template_name = "samples/sample-forml.html"
     model = models.Sample
     success_url = reverse_lazy('sample-list')
     success_message = "Sample '%(name)s' has been updated."
@@ -189,33 +185,31 @@ class EditSample(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update(request=self.request)
+        kwargs.update(
+            form_action=self.request.get_full_path(),
+            delete_url=reverse('sample-delete', kwargs={'pk': self.object.pk})
+        )
         return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['submit_url'] = reverse_lazy('sample-edit-modal', kwargs={'pk': self.object.pk})
-        return context
 
     def form_valid(self, form):
         if self.object.is_editable:
             response = super().form_valid(form)
         else:
-            messages.error(self.request, "The sample '{}' is no longer editable!".format(self.object.name))
+            messages.error(self.request, f"The sample '{self.object.name}' is no longer editable!")
             response = http.HttpResponseRedirect(self.request.get_full_path())
 
         if is_ajax(self.request):
             return http.JsonResponse({
                 'pk': self.object.pk,
                 'name': str(self.object),
+                'event': 'uso:sample-updated',
             })
         else:
             return response
 
 
-class SampleDelete(RolePermsViewMixin, ConfirmDetailView):
+class SampleDelete(RolePermsViewMixin, ModalDeleteView):
     model = models.Sample
-    template_name = "samples/forms/delete.html"
 
     def get_success_url(self):
         return reverse('user-sample-list')
@@ -224,75 +218,54 @@ class SampleDelete(RolePermsViewMixin, ConfirmDetailView):
         self.queryset = self.model.objects.filter(owner=self.request.user, is_editable=True)
         return super().get_queryset()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)  # database name
-        collector.collect([context['object']])  # list of objects. single one won't do
-        context['related'] = collector.nested(lambda x: '{}: {}'.format(capfirst(x._meta.verbose_name), x))
-        return context
 
-    def confirmed(self, *args, **kwargs):
-        obj = self.get_object()
-        msg = f'Sample "{obj}" deleted'
-        obj.delete()
-        messages.success(self.request, msg)
-        return http.JsonResponse({"url": self.get_success_url()})
+def get_hazard_categories(active_type: str = None) -> list:
+    """
+    Returns a list of hazard categories with their associated hazards and pictograms.
+
+    :param active_type: The code of the active hazard type to highlight in the list.
+    :return:
+    """
+
+    groups = []
+    for p in models.Pictogram.objects.exclude(code__in=['RG1', 'RG2', 'RG3', 'RG4', '000']):
+        hazards = p.hazards
+
+        groups.append({
+            'name': p.name,
+            'active': p.code == active_type,
+            'description': p.description,
+            'hazards': hazards.order_by('hazard__code'),
+            'image': f"/static/samples/pictograms/{p.code}.svg",
+        })
+    groups.append({
+        'name': "Biohazardous infectious materials",
+        'active': active_type in ['RG1', 'RG2', 'RG3', 'RG4'],
+        'description': (
+            "Materials which are or may contain microorganisms, nucleic acids or proteins that "
+            "cause or are a probable cause of infection, with or without toxicity, in humans or animals."
+        ),
+        'hazards': models.Hazard.objects.filter(hazard__code__startswith='RG').order_by('hazard__code'),
+        'image': "/static/samples/pictograms/RG.svg",
+    })
+
+    return groups
 
 
 class SampleHazards(RolePermsViewMixin, detail.DetailView):
-    template_name = "samples/forms/hazards.html"
+    template_name = "samples/forms/hazards-review.html"
     model = models.Sample
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        hazard_pks = json.loads(self.request.GET.get('hazards', '[]')) or [0]
         context['field_name'] = self.kwargs['field_name']
 
         selected_types = (
-                set(self.object.hazard_types.all().values_list('code', flat=True)) |
-                set(self.object.hazards.values_list('pictograms__code', flat=True))
+            set(self.object.hazard_types.all().values_list('code', flat=True)) |
+            set(self.object.hazards.values_list('pictograms__code', flat=True))
         )
         active_type = 'GHS03' if not selected_types else list(selected_types)[0]
-        annotation = {
-            'selected': Case(When(pk__in=hazard_pks, then=Value(True)), default=Value(False),
-                             output_field=BooleanField())
-        }
-
-        groups = []
-        for p in models.Pictogram.objects.exclude(code__in=['RG1', 'RG2', 'RG3', 'RG4', '000']):
-            if p.code == 'GHS09':
-                hazards = models.Hazard.objects.filter(hazard__code__startswith='H4')
-            elif p.code == 'GHS08':
-                hazards = p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H36')
-            elif p.code == 'GHS01':
-                hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H20'))
-            elif p.code == 'GHS02':
-                hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H22'))
-            elif p.code == 'GHS04':
-                hazards = (p.hazards.filter() | models.Hazard.objects.filter(hazard__code__startswith='H28'))
-            else:
-                hazards = p.hazards
-
-            groups.append({
-                'name': p.name,
-                'active': p.code == active_type,
-                'description': p.description,
-                'hazards': hazards.annotate(**annotation).order_by('hazard__code'),
-                'image': "/static/samples/pictograms/{}.svg".format(p.code),
-            })
-        groups.append({
-            'name': "Biohazardous infectious materials",
-            'active': active_type in ['RG1', 'RG2', 'RG3', 'RG4'],
-            'description': (
-                "Materials which are or may contain microorganisms, nucleic acids or proteins that "
-                "cause or are a probable cause of infection, with or without toxicity, in humans or animals."
-            ),
-            'hazards': models.Hazard.objects.filter(hazard__code__startswith='RG').annotate(**annotation).order_by(
-                'hazard__code'),
-            'image': "/static/samples/pictograms/RG.svg",
-        })
-
-        context['categories'] = groups
+        context['categories'] = get_hazard_categories(active_type)
         return context
 
 
@@ -305,3 +278,126 @@ class SamplePermissions(RolePermsViewMixin, detail.DetailView):
         context['field_name'] = self.kwargs['field_name']
         context['field'] = {"name": 'sample_permission'}
         return context
+
+
+class SafetyPermissionList(RolePermsViewMixin, ItemListView):
+    model = models.SafetyPermission
+    template_name = "item-list.html"
+    paginate_by = 15
+    link_url = 'edit-safety-permission'
+    link_attr = 'data-modal-url'
+    add_modal_url = 'add-safety-permission'
+    list_filters = ['created', 'modified', 'review']
+    list_columns = ['code', 'description', 'review']
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+
+class EditSafetyPermission(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.SafetyPermissionForm
+    model = models.SafetyPermission
+    success_url = reverse_lazy('safety-permission-list')
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+    def get_delete_url(self):
+        if self.check_admin():
+            return reverse('delete-safety-permission', kwargs={'pk': self.object.pk})
+        return None
+
+
+class AddSafetyPermission(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.SafetyPermissionForm
+    model = models.SafetyPermission
+    success_url = reverse_lazy('safety-permission-list')
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
+
+
+class DeleteSafetyPermission(RolePermsViewMixin, ModalDeleteView):
+    model = models.SafetyPermission
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
+
+
+class HazardousSubstanceList(RolePermsViewMixin, ItemListView):
+    model = models.HazardousSubstance
+    template_name = "item-list.html"
+    paginate_by = 15
+    link_url = 'edit-hazardous-substance'
+    link_attr = 'data-modal-url'
+    add_modal_url = 'add-hazardous-substance'
+    list_filters = ['created', 'modified']
+    list_columns = ['name', 'description']
+    list_search = ['name', 'description']
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+
+class EditHazardousSubstance(RolePermsViewMixin, ModalUpdateView):
+    form_class = forms.HazardousSubstanceForm
+    model = models.HazardousSubstance
+    template_name = "samples/forms/hazards-form.html"
+    success_url = reverse_lazy('hazardous-substance-list')
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['saved_hazards'] = list(self.object.hazards.values_list('pk', flat=True))
+        selected_types = set(self.object.hazards.values_list('pictograms__code', flat=True))
+        active_type = 'GHS03' if not selected_types else list(selected_types)[0]
+        context['categories'] = get_hazard_categories(active_type)
+        context['sample'] = self.object
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['saved_hazards'] = json.dumps(list(self.object.hazards.values_list('pk', flat=True)))
+        return initial
+
+    def get_delete_url(self):
+        if self.check_admin():
+            return reverse('delete-hazardous-substance', kwargs={'pk': self.object.pk})
+        return None
+
+    def form_valid(self, form):
+        hazards = form.cleaned_data.pop('hazard_list', models.Hazard.objects.none())
+        super().form_valid(form)
+        self.object.hazards.set(hazards)
+        ActivityLog.objects.log(
+            self.request, self.object, kind=ActivityLog.TYPES.modify, description='Hazardous Substance Modified',
+        )
+        return http.JsonResponse({'message': "Hazardous substance has been updated."})
+
+
+class AddHazardousSubstance(RolePermsViewMixin, ModalCreateView):
+    form_class = forms.HazardousSubstanceForm
+    model = models.HazardousSubstance
+    template_name = "samples/forms/hazards-form.html"
+    success_url = reverse_lazy('hazardous-substance-list')
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = get_hazard_categories()
+        return context
+
+    def form_valid(self, form):
+        hazards = form.cleaned_data.pop('hazard_list', models.Hazard.objects.none())
+        super().form_valid(form)
+        self.object.hazards.set(hazards)
+        ActivityLog.objects.log(
+            self.request, self.object, kind=ActivityLog.TYPES.add, description='Hazardous Substance Added',
+        )
+        return http.JsonResponse({'message': "Hazardous substance has been added."})
+
+
+class DeleteHazardousSubstance(RolePermsViewMixin, ModalDeleteView):
+    model = models.HazardousSubstance
+    admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+    allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
+
+    def get_success_url(self):
+        return reverse('hazardous-substance-list')

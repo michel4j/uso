@@ -1,0 +1,21 @@
+{% spaceless %}
+    {% for name, widget, item in widget.subwidgets %}
+        <div class="input-group mb-2 pool-entry {% if item.is_default %}default-entry{% endif %}">
+            <div class="input-group-text col-4">{{ name }}</div>
+            {% include widget.template_name %}
+            <div class="input-group-text">%</div>
+        </div>
+    {% endfor %}
+{% endspaceless %}
+<script>
+    $(document).ready(function(){
+        // Update the pool entries to ensure the total is always 100%
+        $('.pool-entry input').on('change', function(){
+            let total = 100;
+            $('.pool-entry:not(.default-entry) input').each( function() {
+                total -= parseInt($(this).val()) || 0;
+            });
+            $('.default-entry input').val(total);
+        });
+    });
+</script>

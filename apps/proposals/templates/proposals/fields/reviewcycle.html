@@ -1,47 +1,35 @@
-{% load dynforms_tags %}
+{% load dynforms %}
+{% load static %}
 {% load proposal_tags %}
 {% get_cycle_options as cycles %}
 
-<div class="controls {{repeatable}} row narrow-gutter" id="{{field.name}}-controls">
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="col-sm-3">
-                <select name="{{field.name}}" id="{{field.name}}" class="chosen select form-control">
-                    {% for value, cycle, selected in cycles %}
-                    <option value="{{value}}" {% if selected %}selected="selected" {% endif %}>{{cycle}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-           <span id="{{field.name}}-extras">
-                 {% with selected_cycle as object %}
-                    {% include "proposals/fields/cycleinfo.html" %}
-                 {% endwith %}
-           </span>
-        </div>
+<div class="controls {{ repeatable }} row" id="{{ field.name }}-controls">
+    <div class="field-group-item col-12">
+        <select name="{{ field.name }}" id="{{ field.name }}" class="form-select" aria-label="{{ field.label }}">
+            {% for value, cycle, selected in cycles %}
+                <option value="{{ value }}" data-url="{% url 'cycle-info' pk=value %}"
+                        {% if selected %}selected="selected" {% endif %}>{{ cycle }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field-group-item col-12" id="{{ field.name }}-extras">
+        {% with selected_cycle as object %}
+            {% include "proposals/fields/cycle-info.html" %}
+        {% endwith %}
+    </div>
+    <div class="field-group-item col-12">
+        <div class="w-100 timeline" id="cycle-timeline"></div>
     </div>
 </div>
+<script src="{% static 'js/d3-timeline.min.js' %}"></script>
 <script>
-    $(function(){
-        window.setTimeout(function(){
-            $("#{{field.name}}-controls .chosen").chosen({
-                placeholder_text_single: "{{field.label}}",
-                disable_search_threshold: 5,
-                search_contains: true,
-            });
-        }, 0);
+    $(document).on('change', '#{{field.name}}', function () {
+        const selected_cycle = $(this).val();
+        $.getJSON(`{% url "techniques-matrix" %}?cycle=${selected_cycle}`, function (data) {
+            $(document).trigger('cycle-changed', data);
+        });
+        const info_url = $(this).find('option:selected').data('url');
+        $("#{{field.name}}-extras").load(info_url);
     });
-
-    $(document).on('change', '#{{field.name}}', function(){
-		var cycle_id = $(this).val();
-    	var info_url = "{% url 'cycle-info' %}" + cycle_id + "/";
-    	$("#{{field.name}}-extras").load(info_url, function(){
-    		$("[data-cycle-update]").each(function(){
-    			$(this).val(cycle_id);
-    			$(this).trigger('change');
-    		});
-    	});
-    });
-
     $("#{{field.name}}").trigger('change');
-
 </script>

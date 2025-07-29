@@ -1,15 +1,15 @@
 {% extends "publications/base.html" %}
 {% load pubstats %}
 
-{% block page_heading %}Publication Quality Metrics{% endblock %}
-{% block full %}
+{% block page-title %}Publication Quality Metrics{% endblock %}
+{% block content %}
 <div class="row-fluid">
-	<div class="pagelet col-xs-12">
-		<div class="pagelet-heading">
+	<div class="page col-sm-12">
+		<div class="page-heading">
 		<h3>{{ institution }}<br/>
 		<strong>Publication Quality Metrics</strong></h3>
 		</div>
-		<div class="pagelet-body">
+		<div class="page-body">
 			{% for tbl in metrics %}
 			{% if forloop.first %}
 				<div class="row data-reports">

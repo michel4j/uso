@@ -1,22 +1,15 @@
-{% extends 'projects/base.html' %}
+{% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
 
 
 {% block extra_css %}
-    <link href="{% static 'css/datetimepicker.css' %}" rel="stylesheet"/>
     <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
     {% endblock %}
 {% block pre_js %}
         <script type="text/javascript">
         $(document).ready(function () {
-            $(".chosen").chosen({
-                placeholder_text_single: "Select an option",
-                search_contains: true,
-                allow_single_deselect: true,
-            });
-
             $('.chosen-container-multi').change(function () {
                 var tech_field = $(this);
                 var fac_field = tech_field.closest('.controls').find('[name^="{{field.name}}.facility"]');
@@ -32,7 +25,7 @@
                 }
 
                 fac_field.load(opt_url, function () {
-                    fac_field.trigger("chosen:updated");
+                    {#fac_field.trigger("chosen:updated");#}
                     var facs = [];
                     fac_field.find('option').filter(function () {
                         return this.value ? true : false;
@@ -52,10 +45,10 @@
         });
     </script>
 {% endblock %}
-{% block page_heading %}{{ form.helper.title }}{% endblock %}
-{% block full %}
-    <div class="pagelet">
-        <div class="pagelet-body">
+{% block page-title %}{{ form.helper.title }}{% endblock %}
+{% block content %}
+    <div class="page">
+        <div class="page-body">
             {% crispy form form.helper %}
         </div>
     </div>

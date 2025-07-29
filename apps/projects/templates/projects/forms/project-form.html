@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+
+{% load static %}
+{% load dynforms %}
+{% block extra_css %}
+    <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
+    {% endblock %}
+
+{% block pre_js %}
+        <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="proposal-form" class="page col-12">
+        {% include "dynforms/form.html" %}
+    </div>
+{% endblock %}

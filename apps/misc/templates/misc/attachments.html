@@ -1,91 +1,108 @@
-{% extends "forms/modal.html" %}
+{% extends "crisp_modals/form.html" %}
 {% load static %}
 {% load crispy_forms_tags %}
 {% load proposal_tags %}
-{% block form_body %}
-		<h4><strong>Attachments for {{reference|verbose_name|title}}: </strong>{{reference}}</h4>
-        <div class="tinytron bg-info text-info">
-            <dl>
-                <dt>Scientific</dt>
-                <dd>Supporting information for Scientific Review,
-                (<em>Maximum of Two Pages</em>).</dd>
-                <dt>Safety</dt>
-                <dd>Supporting information for Safety Review
-                (eg. Safety Data Sheets, Standard Operating Procedures,
-                    License to Possess Radioactive Material,etc).</dd>
-                <dt>Ethics</dt>
-                <dd>Supporting information for Ethics Review
-                (eg. Ethics Certificates, Animal Use Protocol - AUP, etc).</dd>
-                <dt>Other</dt>
-                <dd>Supporting information that does not fall into the above categories.</dd>
-            </dl>
-        </div>
-		{% crispy form form.helper %}
-		<table class="table table-hover">
-		<thead>
-			<tr><th>File</th><th>Type</th><th>Size</th><th>Added</th><th></th></tr>
-		</thead>
-		<tbody>
-		{% for att in reference.attachments.all %}
-		<tr>
-            {% if att.exists %}
-                <td><i class="bi-filetype-pdf icon-fw"></i>&nbsp;<a href="{{att.file.url}}" download>{{att.description}}</a></td>
-                <td>{{att.get_kind_display}}</td>
-                <td>{{att.file.size|filesizeformat}}</td>
+{% block modal_title %}Attachments{% endblock %}
+{% block modal_body %}
+    <p class="lead"><strong>{{ reference|verbose_name|title }} Attachments:</strong> {{ reference }}</p>
+    <hr class="hr-xs"/>
+    {% crispy form form.body %}
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>File</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Added</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for att in reference.attachments.all %}
+            <tr >
+                {% if att.exists %}
+                    <td><i class="bi-filetype-pdf icon-fw"></i>&nbsp;
+                        <a href="{{ att.file.url }}" download>{{ att.description }}</a></td>
+                    <td>{{ att.get_kind_display }}</td>
+                    <td>{{ att.file.size|filesizeformat }}</td>
                 {% else %}
-                <td><i class="bi-filetype-pdf icon-fw"></i>&nbsp;{{att.description}}</td>
-                <td>{{att.get_kind_display}}</td>
-                <td class="text-center">&hellip;</td>
+                    <td><i class="bi-filetype-pdf icon-fw"></i>&nbsp;{{ att.description }}</td>
+                    <td>{{ att.get_kind_display }}</td>
+                    <td class="text-center">&hellip;</td>
                 {% endif %}
-			<td>{{att.created}}</td>
-			<td width="5%"
-                {%  if att.is_editable or admin %}
+                <td>{{ att.created }}</td>
+                <td {% if att.is_editable or admin %}
                     class="hidden-delete text-right"
                     title="Delete Attachment"
-                    data-command-url="{% url 'del-attachment' slug=att.slug %}?next={{form.helper.form_action}}"
-                {%  else %}
+                    id="{{ att.slug }}"
+                    data-command-url="{% url 'del-attachment' slug=att.slug %}?next={{ form.helper.form_action }}"
+                        {% else %}
                     title="Deleting attachments is not permitted at this stage"
-                {%  endif %}
-            ><i class="bi-x-lg text-danger cursor-pointer"></i>
-            </td>
-		</tr>
-		{% empty %}
-		<tr><td colspan="10" class="text-center text-muted" style="padding: 2em;">No attachments</td></tr>
-		{% endfor %}
-		</tbody>
-		</table>
-		<div class="row">
-		    <div class="modal-footer">
-       		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-       		</div>
-     	</div>
+                        {% endif %}
+                ><i class="bi-x-lg text-danger cursor-pointer"></i>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="10" class="text-center text-body-secondary" style="padding: 2em;">No attachments</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
 
-{% block form_init %}
-<script type="text/javascript">
-function initForm() {
-	$("#modalForm").on('click', '.hidden-delete:not(.active)', function(){
-		var el = $(this);
-		el.addClass('active');
-		el.popover({
-			title: 'Are you sure?',
-			placement: 'bottom',
-			content: "Click again while icon is active to delete."
-		});
-		el.popover('show');
-	    setTimeout(function(){el.removeClass('active'); el.popover('hide');}, 3000);
-	});
-	$("#modalForm").on('click', '.hidden-delete.active', function(){
-		var csrftoken = $.cookie('csrftoken');
-		$.ajax({
-			type: 'POST',
-			url: $(this).attr('data-command-url'),
-			beforeSend: function(xhr, settings){
-				xhr.setRequestHeader("X-CSRFToken", csrftoken);
-			},
-			success: showResponse
-		});
-	});
-}
-</script>
+{% block modal_scripts %}
+    <script type="text/javascript">
+    function manageDeleteButtons(selector) {
+        $(selector).on('click', '.hidden-delete', function () {
+            const el = $(this);
+            const commandID = el.attr('id');
+
+            const popover = new bootstrap.Popover(this, {
+                trigger: 'manual',
+                html: true,
+                placement: 'right',
+                sanitize: false,
+                title: "Remove Attachment?",
+                content: `<div class="w-100 d-flex flex-row">
+                            <button class="btn btn-xs btn-secondary" role="button">Cancel</button>
+                            <button data-confirmed="1" class="btn btn-xs btn-danger ms-auto" role="button">Delete</button>
+                          </div>`,
+
+            });
+            popover.show();
+            $(document).one('click', '.popover button', function () {
+                if ($(this).is('[data-confirmed]')) {
+                    const confirmedUrl = el.attr('data-command-url');
+                    $.ajax({
+                        type: 'POST',
+                        url: confirmedUrl,
+                        beforeSend: function (xhr, settings) {
+                            const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        },
+                        success: function (response) {
+                            el.closest('tr').remove();
+                            dfToasts.success({
+                                message: "Attachment deleted!",
+                                title: "Success",
+                            });
+                        },
+                        error: function (xhr, status, error, data) {
+                            let response = xhr.responseJSON || {};
+                            dfToasts.error({
+                                message: `${response.error || 'Unknown error'}`,
+                                title: "Error",
+                            });
+                        }
+                    });
+                }
+                popover.dispose();
+
+
+            });
+        });
+    }
+    manageDeleteButtons('#modal .table');
+    </script>
 {% endblock %}

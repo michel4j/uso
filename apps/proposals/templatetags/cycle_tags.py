@@ -17,12 +17,12 @@ register = template.Library()
 from proposals.models import ReviewCycle
 
 CYCLE_STATE_STYLES = {
-    ReviewCycle.STATES.pending: 'text-info-light',
+    ReviewCycle.STATES.pending: 'text-info-emphasis',
     ReviewCycle.STATES.open: 'text-info',
     ReviewCycle.STATES.review: 'text-warning',
     ReviewCycle.STATES.schedule: 'text-primary',
     ReviewCycle.STATES.active: "text-success",
-    ReviewCycle.STATES.archive: "text-muted",
+    ReviewCycle.STATES.archive: "text-body-secondary",
 }
 
 
@@ -267,7 +267,7 @@ def active_reviews(cycle, reviewer):
     next_cycle = cycle.get_next_by_open_date()
     dt = datetime.today().date()
 
-    qra = Q(track__special=True) & Q(cycle__start_date__lte=dt, cycle__end_date__gte=dt)
+    qra = Q(track__require_call=False) & Q(cycle__start_date__lte=dt, cycle__end_date__gte=dt)
     qgu = Q(cycle__close_date__lt=dt) & Q(cycle__due_date__gte=dt) | Q(cycle__due_date__isnull=True)
     qchain = Q(proposal__in=cycle.submissions.filter(qra))
     qchain |= Q(proposal__in=next_cycle.submissions.filter(qgu))
@@ -292,23 +292,17 @@ def cycle_comments(cycle):
         return ""
     if cycle.state > cycle.STATES.open:
         txt = (
-            "<span class='text-danger'>The submission deadline for the selected period elapsed on "
-            "<em>{close_date}</em>. Regular submissions will be considered for discretionary time only,"
-            "until the next call for proposals, at which time you must resubmit to be considered "
-            "for additional beam time. </span>"
+            "<span class='text-danger'>The call for proposals closed on "
+            "<em>{close_date}</em>.</span>"
         )
     elif cycle.state == cycle.STATES.open:
         txt = (
-            "<span class='text-info'>The call for proposals to be scheduled during the selected period will close"
-            "on <em>{close_date}</em>. Note that the earliest beam time for the selected "
-            "scheduling period is in {start_duration}.</span>"
+            "<span class='text-info'>The call for proposals will close on <em>{close_date}</em>.</span>"
         )
     else:
         txt = (
-            "<span class='text-muted'>The call for proposals to be scheduled during the selected period "
-            "will open in {open_duration} on <em>{open_date}</em>. The list of available techniques and beamlines "
-            "may change before that date. Note that the earliest beam time for the selected scheduling period is "
-            "in {start_duration}.</span>"
+            "<span class='text-body-secondary'>The call for proposals will open in {open_duration} "
+            "on <em>{open_date}</em>.</span>"
         )
     out = txt.format(
         close_date=cycle.close_date.strftime("%b %d, %Y"),

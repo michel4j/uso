@@ -1,42 +1,38 @@
-import io
-from typing import Any
+from __future__ import annotations
 
+import datetime
+from typing import Any
+import numpy
 from django.conf import settings
-from django.db.models import F, Q, Avg
-from django.http import HttpResponse
-from django.template import Context
-from django.template.loader import get_template
-from xhtml2pdf import pisa
+from django.db.models import Q, Value, Max, Min
+from django.db.models.functions import Coalesce
+from django.utils import timezone
 
 from beamlines.models import Facility
-from proposals.models import ReviewType
+from misc.utils import get_code_generator
+from proposals.models import ReviewType, ReviewCycle
 from . import models
 
-USO_SCORE_VETO_FUNCTION = getattr(settings, "USO_SCORE_VETO_FUNCTION", lambda score: score > 4)
-USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
-USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", "approval")
 
-
-def render_to_pdf(template_src, context_dict):
-    template = get_template(template_src)
-    context = Context(context_dict)
-    html = template.render(context)
-    result = io.StringIO()
-
-    pdf = pisa.pisaDocument(io.StringIO(html.encode("ISO-8859-1")), result)
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return HttpResponse(f'We had some errors<pre>{html}</pre>')
-
-
-def to_int(val, default=0):
+def to_int(value: Any, default: int = 0) -> int:
+    """
+    Convert a value to an integer, returning a default value if conversion fails.
+    :param value:  The value to convert to an integer
+    :param default: The default value to return if conversion fails, defaults to 0
+    """
     try:
-        return int(val)
+        return int(value)
     except ValueError:
         return default
 
 
-def calculate_end_date(start_date, duration):
+def calculate_end_date(start_date, duration) -> datetime.date:
+    """
+    Calculate the end date of a project based on the start date and duration in 6-month increments.
+    :param start_date:
+    :param duration: Number of 6-month increments to add to the start date
+    :return:
+    """
     year = start_date.year
     year_offset, month_offset = divmod(start_date.month - 1 + duration * 6, 12)
     end_year = year + year_offset
@@ -44,150 +40,240 @@ def calculate_end_date(start_date, duration):
     return start_date.replace(year=end_year, month=end_month)
 
 
-def compress_scores(scores: dict, key: Any) -> dict:
+def summarize_scores(scores: dict) -> tuple[float, dict]:
     """
-    Takes an optionally nested dictionary in which some values are dictionaries
-    keyed with the provided key and replace the nested dictionary with the value of the key
-    :param scores: nested dictionary
-    :param key: key to extract
-    :return: dictionary
+    Takes a dictionary mapping review stages to score information and returns a tuple containing
+    the average score and a dictionary with the average score for each stage, keyed by the stage name.
+
+    :param scores: dictionary mapping review stages to score information, score information should be a dictionary
+    containing 'score_avg' for example {<ReviewStage>: {'score_avg': 2.5, ...} ...}. This function is compatible
+    with entries returned by `Submission.get_facility_scores()`.
     """
-    first_pass = {
-        k: (v.get(key, 'INVALID') if isinstance(v, dict) else v)
-        for k, v in scores.items()
+
+
+    if not scores:
+        return 0.0, {}
+
+    score_data = numpy.array(
+        [
+            (stage.kind.code, details['score_avg'], stage.weight)
+            for stage, details in scores.items()
+        ], dtype=numpy.dtype([('stage', 'U64'), ('average', 'f4'), ('weight', 'f4')])
+    )
+
+    # Calculate the average score weighted by the stage weight
+    weighted_avg = 0.0
+    if not numpy.isclose(sum(score_data['weight']), 0):
+        weighted_avg = numpy.average(score_data['average'], weights=score_data['weight'])
+
+    # Create a dictionary with the average score for each stage
+    stage_scores = {
+        stage: float(average) for stage, average, weight in score_data
+        if weight > 0.0
     }
-    return {k: v for k, v in first_pass.items() if v != 'INVALID'}
+
+    return float(weighted_avg), stage_scores
 
 
-def create_project(submission):
+def create_project(submission) -> models.Project | None:
+    """
+    Create a project from approved submissions.
+    :param submission: Submission instance to create a project from
+    :return: Project instance if created, None otherwise
+    """
+
+    if not submission.approved:
+        # If the submission is not approved, do not create a project
+        return None
+
     proposal = submission.proposal
     cycle = submission.cycle
     track = submission.track
-
-    if submission.kind == submission.TYPES.user:
-        expiry = calculate_end_date(cycle.end_date, track.duration - 1)
-    else:
-        expiry = None
-
+    expiry = calculate_end_date(cycle.end_date, track.duration - 1)
     info = {
-        'proposal': proposal,
-        'kind': submission.kind,
+        'pool': submission.pool,
         'spokesperson': proposal.spokesperson,
+        'delegate': proposal.get_delegate(),
+        'leader': proposal.get_leader(),
         'title': proposal.title,
         'cycle': cycle,
         'start_date': cycle.start_date,
         'end_date': expiry,
         'details': {
-            'delegate': proposal.details.get('delegate', {}),
-            'leader': proposal.details.get('leader', {}),
-            'team_members': proposal.details['team_members'],
+            'team_members': proposal.get_members(),
             'invoice_address': proposal.details.get('invoice_address', {})
         }
     }
 
-    scores = dict(
-        submission.reviews.complete().values('stage').order_by('stage').annotate(
-            score=Avg('score')
-        ).values_list('stage__kind__code', 'score')
-    )
-    passes_review = False
-    check_facilities = False
-    valid_facilities = set()
-    for stage in track.stages.all():
-        stage_code = stage.kind.code
-        if stage.kind.per_facility:
-            check_facilities = True  # check passage for each facility independently
-            facility_scoring = submission.reviews.complete().filter(stage=stage).annotate(
-                facility=F('details__facility')
-            ).values('facility').annotate(
-                score=Avg('score')
-            ).values_list('facility', 'score')
+    # get passing facility scores and corresponding requests
+    passing_facilities = submission.get_facility_scores(passing_only=True)
+    passing_requests = {
+        facility: details
+        for facility, details in submission.get_requests().items()
+        if facility in passing_facilities
+    }
 
-            if stage.kind.low_better:
-                stage_scores = dict(facility_scoring.filter(score__lte=stage.pass_score))
-            else:
-                stage_scores = dict(facility_scoring.filter(score__gte=stage.pass_score))
+    if passing_requests:
+        # create the project if needed (only one per proposal), and allocations
+        project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
+        if created:
+            # if the project was created, generate a unique code for it
+            code_func = get_code_generator("PROJECT")
+            project.code = code_func(project)
+            project.save()
 
-            passes_review = len(stage_scores) > 0
-            if passes_review and stage.blocks:
-                valid_facilities = set(stage_scores.keys())  # only these facilities can be valid
-            elif passes_review:
-                valid_facilities |= set(stage_scores.keys())  # add any valid ones from this stage to the set
-            scores[stage_code] = stage_scores
-        else:
-            score = scores[stage_code]
-            passes_review = (
-                score <= stage.pass_score
-                if stage.kind.low_better else
-                score >= stage.pass_score
+        for facility, details in passing_requests.items():
+            project.techniques.add(*details['techniques'].all())
+            create_allocation_tree(
+                project, facility, cycle, specs=details, requested_shifts=details.get('shifts', 0),
+                scores=passing_facilities[facility]
             )
 
-        if not passes_review and stage.blocks:
-            break
-
-    if passes_review:
-        requirements = {
-            entry['facility']: entry
-            for entry in proposal.details.get('beamline_reqs', [])
-            if (to_int(entry['facility']) in valid_facilities or not check_facilities)
-        }
-        project, created = models.Project.objects.get_or_create(proposal=proposal, defaults=info)
-        project.techniques.add(*submission.techniques.all())
         project.submissions.add(submission)
-        for facility, spec in requirements.items():
-            scores = compress_scores(scores, facility)
-            create_project_allocations(project, spec, cycle, scores=scores)
-
         project.refresh_team()
 
         # create materials
+        document = submission.get_document()
         material, created = models.Material.objects.get_or_create(
             project=project, defaults={
-                'procedure': proposal.details.get('sample_handling', ''),
-                'waste': proposal.details.get('waste_generation', []),
-                'disposal': proposal.details.get('disposal_procedure', ''),
-                'equipment': proposal.details.get('equipment', []),
+                'procedure': document['safety']['handling'],
+                'waste': document['safety']['waste'],
+                'disposal': document['safety']['disposal'],
+                'equipment': document['safety']['equipment'],
             }
         )
-        for sample in proposal.details.get('sample_list', []):
-            p_sample, created = models.ProjectSample.objects.get_or_create(
+        if created:
+            # if the material was created, generate a unique code for it
+            code_func = get_code_generator("MATERIAL")
+            material.code = code_func(material)
+            material.save()
+
+        # add samples to the material
+        for sample in document['safety']['samples']:
+            models.ProjectSample.objects.get_or_create(
                 material=material, sample_id=sample['sample'],
                 defaults={'quantity': sample.get('quantity', '')}
             )
 
         # Create MaterialReviews
-        approval_type = ReviewType.objects.get(code=USO_SAFETY_APPROVAL)
+        # FIXME: This should be done in a signal or background task to allow for customization
+        approval_type = ReviewType.objects.filter(kind=ReviewType.Types.approval).last()
         if approval_type:
-            approval, created = material.reviews.get_or_create(
+            material.reviews.get_or_create(
                 type=approval_type, form_type=approval_type.form_type, defaults={
                     'cycle': cycle, 'state': models.Review.STATES.open, 'role': approval_type.role
                 }
             )
+        return project
+    return None
 
 
-def create_project_allocations(project, spec, cycle, shifts=0, shift_request=None, scores=None):
-    if shift_request is None:
-        shift_request = spec.get('shifts', 0)
+def create_allocation_tree(
+        project: models.Project,
+        facility: Facility,
+        cycle: ReviewCycle,
+        specs: dict = None,
+        shifts: int = 0,
+        requested_shifts: int = 0,
+        scores: dict = None
+) -> list[models.Allocation]:
+    """
+    Create facility allocation objects for a project based on the provided specifications. Takes
+    into account the facility type and creates allocations for all relevant sub-facilities.
+    :param project: Target project for the allocation
+    :param facility: the facility to allocate
+    :param cycle: Review cycle for the allocation
+    :param specs: Specification dictionary containing justification and experimental procedure information
+    :param shifts: Number of shifts allocated to the project, defaults to 0
+    :param requested_shifts: Requested shifts for the allocation, defaults to 0
+    :param scores: Review scores for this facility, defaults to None
+    """
+
+    specs = specs or {}
+    requested_shifts = requested_shifts if requested_shifts is not None else shifts
+
+    # Select facilities based on their type and parent-child relationships.
+    # Allocation objects will be created for beamlines and equipment that are children
+    # of the given facility or the facility itself if it is a beamline
     facilities = Facility.objects.filter(
-        Q(kind=Facility.TYPES.beamline, parent__pk=spec['facility'])
-        | Q(kind=Facility.TYPES.beamline, pk=spec['facility'])
-        | Q(kind=Facility.TYPES.equipment, parent__pk=spec['facility'])
+        Q(kind__in=[Facility.Types.beamline, Facility.Types.instrument], parent__pk=facility.pk) |
+        Q(kind=Facility.Types.beamline, pk=facility.pk)
     )
+    created = []
     for facility in facilities:
-        create_allocation(
-            project, facility, cycle, shift_request=shift_request, shifts=shifts, procedure=spec.get('procedure'),
-            justification=spec.get('justification'), scores=scores,
+        alloc = create_allocation(
+            project, facility, cycle, specs=specs, shifts=shifts,
+            requested_shifts=requested_shifts, scores=scores,
         )
+        if alloc:
+            created.append(alloc)
+    return created
 
 
-def create_allocation(project, facility, cycle, procedure='', justification='', shifts=0, shift_request=0, scores=None):
-    import numpy
-    scores = scores or {}
-    scores = {k: v for k, v in list(scores.items()) if not numpy.isnan(v)}
+def create_allocation(
+        project: models.Project,
+        facility: Facility,
+        cycle: ReviewCycle,
+        specs: dict = None,
+        shifts: int = 0,
+        requested_shifts: int = 0,
+        scores: dict = None
+) -> models.Allocation:
+    """
+    Create a single allocation objects for a project.
+    :param project: Target project for the allocation
+    :param facility: the facility to allocate
+    :param cycle: Review cycle for the allocation
+    :param specs: Specification dictionary containing justification and experimental procedure information
+    :param shifts: Number of shifts allocated to the project, defaults to 0
+    :param requested_shifts: Requested shifts for the allocation, defaults to 0
+    :param scores: Review scores for this facility, defaults to None
+    """
+
+    if scores:
+        overall_score, scores = summarize_scores(scores)
+    else:
+        overall_score, scores = 0.0, {}
+
     alloc, created = models.Allocation.objects.get_or_create(project=project, beamline=facility, cycle=cycle)
     models.Allocation.objects.filter(pk=alloc.pk).update(
-        shift_request=shift_request, shifts=shifts,
-        procedure=procedure,
-        justification=justification, scores=scores
+        shift_request=requested_shifts, shifts=shifts,
+        procedure=specs.get('procedure'),
+        justification=specs.get('justification'),
+        score=overall_score,
+        scores=scores,
+        modified=timezone.localtime(timezone.now())
     )
     return alloc
+
+
+def generate_project_code(project: models.Project) -> str:
+    """
+    Generate a unique code for a submission
+    :param project: Proposal instance
+    :return: Unique code string
+    """
+
+    # count the number of projects that have been created in the same cycle, including this one
+    count = project.__class__.objects.filter(
+        cycle=project.cycle, pk__lte=project.pk
+    ).aggregate(
+        count=Value(1) + Coalesce(Max('pk') - Min('pk'), 0)
+    )['count'] or 1
+    return f"{project.cycle.pk:0>3d}{project.pool.name[0]}-{count:0>5x}".upper()
+
+
+def generate_material_code(material: models.Material) -> str:
+    """
+    Generate a unique code for a material
+    :param material: Material instance
+    :return: Unique code string
+    """
+
+    # count the number of materials that have been created in the same project, including this one
+    count = material.__class__.objects.filter(
+        project=material.project, pk__lte=material.pk
+    ).aggregate(
+        count=Value(1) + Coalesce(Max('pk') - Min('pk'), 0)
+    )['count'] or 1
+    return f"{material.project.code}M{count:0>3d}".upper()

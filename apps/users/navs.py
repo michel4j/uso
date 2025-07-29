@@ -74,8 +74,3 @@ class Logout(BaseNav):
     url = "#logout-action"
 
 
-class Agreements(BaseNav):
-    parent = People
-    label = 'Agreements'
-    roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
-    url = reverse('agreement-list')

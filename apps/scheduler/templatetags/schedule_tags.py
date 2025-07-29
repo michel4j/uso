@@ -4,6 +4,7 @@ from django.utils import timezone
 import calendar
 
 from beamlines.models import Facility
+from ..models import ModeType
 
 register = template.Library()
 
@@ -29,15 +30,9 @@ def get_mode_color(mode):
     return MODE_COLORS[mode]
 
 
-@register.filter
-def get_shifts(start, end):
-    s = {}
-    for sh in Shift.objects.filter(start_time__date__gte=start).filter(start_time__date__lte=end):
-        d = datetime.strftime(sh.start_time, "%Y-%m-%d")
-        if d not in s:
-            s[d] = ['', '', '']
-        s[d][TIME[sh.start_time.hour]] = str(sh.mode.mode_type)
-    return s
+@register.simple_tag
+def get_mode_types():
+    return ModeType.objects.all()
 
 
 @register.filter

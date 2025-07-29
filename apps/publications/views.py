@@ -4,6 +4,7 @@ import json
 import math
 import operator
 
+from crisp_modals.views import ModalDeleteView
 from django.contrib import messages
 from django.conf import settings
 from django.contrib.admin.utils import NestedObjects
@@ -55,7 +56,8 @@ def _fmt_citations(citation, obj=None):
 
 class PublicationList(RolePermsViewMixin, ItemListView):
     queryset = models.Publication.objects.filter(reviewed=True).select_subclasses()
-    template_name = "publications/publication-list.html"
+    template_name= "tooled-item-list.html"
+    tool_template = "publications/publication-tools.html"
     paginate_by = 25
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
     list_title = "All Publications"
@@ -92,7 +94,6 @@ class PublicationList(RolePermsViewMixin, ItemListView):
 
 class PublicationAdminList(SuccessMessageMixin, PublicationList):
     queryset = models.Publication.objects.all().select_subclasses()
-    template_name = "publications/publication-list.html"
     allowed_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
     admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
     list_title = 'Modify Publications'
@@ -105,7 +106,6 @@ class PublicationAdminList(SuccessMessageMixin, PublicationList):
 class PublicationReviewList(PublicationAdminList):
     list_title = 'Pending Publications'
     queryset = models.Publication.objects.filter(reviewed=False).select_subclasses()
-    template_name = "publications/publication-list.html"
     paginate_by = 50
     list_columns = ['title', 'kind', 'code', 'facility_codes', 'date']
     list_transforms = {'cite': _fmt_citations, 'areas': _format_areas}
@@ -114,7 +114,8 @@ class PublicationReviewList(PublicationAdminList):
 
 
 class UserPublicationList(RolePermsViewMixin, ItemListView):
-    template_name = "publications/publication-list.html"
+    template_name= "tooled-item-list.html"
+    tool_template = "publications/publication-tools.html"
     paginate_by = 15
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
     list_columns = ['cite', 'facility_codes', 'kind']
@@ -153,7 +154,7 @@ class ClaimPublicationList(RolePermsViewMixin, ItemListView):
     list_transforms = {'cite': _fmt_citations, 'beamlines': _format_beamlines}
     list_search = ['authors', 'title', 'date']
     ordering = ['kind', '-year', 'authors']
-    list_styles = {'cite': 'col-xs-10', }
+    list_styles = {'cite': 'col-sm-10', }
     list_title = 'Matched Publications'
 
     def get_queryset(self, *args, **kwargs):
@@ -272,7 +273,9 @@ class PublicationReview(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
         key = self.object.__class__.__name__
 
         return {
-            'Article': forms.ArticleReviewForm, 'Book': forms.BookReviewForm, 'PDBDeposition': forms.PDBReviewForm,
+            'Article': forms.ArticleReviewForm,
+            'Book': forms.BookReviewForm,
+            'PDBDeposition': forms.PDBReviewForm,
         }.get(key, forms.PublicationReviewForm)
 
     def form_valid(self, form):
@@ -282,32 +285,20 @@ class PublicationReview(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
         return super().form_valid(form)
 
 
-class PublicationDelete(RolePermsViewMixin, DeleteView):
+class PublicationDelete(RolePermsViewMixin, ModalDeleteView):
     admin_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
     allowed_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
     queryset = models.Publication.objects.select_subclasses()
     success_url = reverse_lazy('publication-review-list')
-    template_name = "publications/forms/confirm_delete.html"
 
-    def _delete_formater(self, obj):
-        opts = obj._meta
-        return f'{capfirst(opts.verbose_name)}: {force_str(obj)}'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        collector = NestedObjects(using=DEFAULT_DB_ALIAS)  # database name
-        collector.collect([context['object']])  # list of objects. single one won't do
-        context['related'] = collector.nested(self._delete_formater)
-        return context
-
-    def delete(self, request, *args, **kwargs):
+    def confirmed(self, request, *args, **kwargs):
         self.object = self.get_object()
         msg = 'Publication deleted'
         ActivityLog.objects.log(
             self.request, self.object, kind=ActivityLog.TYPES.delete, description=msg
         )
         messages.success(self.request, msg)
-        return super().delete(request, *args, **kwargs)
+        return super().confirmed(request, *args, **kwargs)
 
 
 MODELS = {
@@ -373,8 +364,8 @@ class PublicationWizard(SessionWizardView):
             model.objects.filter(pk=obj.pk).update(**info)
 
         if data.get('beamlines'):
-            bls = {bl for bl in data['beamlines'] if not bl.kind == bl.TYPES.sector}
-            for bl in [x for x in data['beamlines'] if (x.kind == x.TYPES.sector)]:
+            bls = {bl for bl in data['beamlines'] if not bl.kind == bl.Types.sector}
+            for bl in [x for x in data['beamlines'] if (x.kind == x.Types.sector)]:
                 bls.update(bl.children.all())
             data['beamlines'] = bls
             obj.beamlines.add(*data['beamlines'])

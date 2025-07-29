@@ -6,46 +6,42 @@
 {% load markup %}
 
 
-{% block page_heading %}Schedule<span class="hidden-xs text-muted"> &mdash; {{subtitle}}</span>{% endblock %}
+{% block page-title %}Schedule<span class="d-none d-sm-inline text-body-secondary"> &mdash; {{subtitle}}</span>{% endblock %}
 
-{% block full %}
-<div id="calendar-container" class="pagelet">
+{% block content %}
+<div id="calendar-container" class="page p-3">
 
-	<div class="pad-wrapper">
+	<div class="container-fluid">
         <div class="row">
 		<div id="calendar" class="col-sm-12 slot-{{ shift_duration }}-hrs">
-            <div id="spinner"></div>
         </div>
 		<div id="src-panel" class="col-sm-12">
 			<div class="row">
-				<div class="col-xs-11">
-					<ul class="row narrow-gutter list-unstyled">
+				<div class="col-12">
+					<ul class="row list-unstyled">
 						{% for m in mode_types %}
-						<li class="col-xs-3">
+						<li class="col-sm-3">
 							<span class="label {{m.code}}">{{m.code}}</span>
 							<span class="text-condensed">{{m.name}}</span>
 						</li>
 						{% endfor %}
-						<li class="col-xs-3">
+						<li class="col-sm-3">
 							<span class="label tentative">&emsp;</span>
 							<span class="text-condensed">Tentative</span>
 						</li>
-						<li class="col-xs-3">
+						<li class="col-sm-3">
 							<span class="label Can">&emsp;</span>
 							<span class="text-condensed">Cancelled</span>
 						</li>
 						{% if tag_types %}
-						<li class="col-xs-12"><hr class="hr-xs"></li>
+						<li class="col-sm-12"><hr class="hr-xs"></li>
 							{% for tag in tag_types %}
-							<li id="tag-{{tag.pk}}" class="col-xs-3 tag cat-fg-{{forloop.counter0}}" data-tag="{{tag}}" data-cat="{{forloop.counter0}}">
+							<li id="tag-{{tag.pk}}" class="col-sm-3 tag cat-fg-{{forloop.counter0}}" data-tag="{{tag}}" data-cat="{{forloop.counter0}}">
 								<i class="bi-tag icon-fw"></i>&nbsp;{{tag}}
 							</li>
 							{% endfor %}
 						{% endif %}
 					</ul>
-				</div>
-				<div class="col-xs-1 spinner-container text-center">
-					<i id="spinner" class="icon-2x icon-fw pull-right"></i>
 				</div>
 			</div>
 		</div>
@@ -57,7 +53,7 @@
 {% block extra_js %}
 <script type="text/javascript">
 $(document).ready(function() {
-	setupAjax('#spinner', '{{ csrf_token }}');
+	setupAjax('{{ csrf_token }}');
     setupCalendar('#calendar', {
         multiView: {{ show_year | jsonify }},
 		defaultDate: '{{default_date}}',

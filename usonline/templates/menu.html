@@ -1,0 +1,25 @@
+{% load static %}
+{% load menu %}
+{% show_sidebar_menu %}
+
+<script>
+    function getSubMenu() {
+        return $(this).next('.sub-menu-content').html();
+    }
+    // Enable popovers
+    $(document).ready(function () {
+        const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="menu-popover"]'));
+        popoverTriggerList.forEach(function (popoverTriggerEl) {
+            new bootstrap.Popover(popoverTriggerEl, {
+                html: true,
+                container: 'body',
+                trigger: 'focus',
+                placement: 'right',
+                delay: {"hide": 250 },
+                customClass: 'sub-menu',
+                content: getSubMenu
+            });
+        });
+    });
+</script>
+ 

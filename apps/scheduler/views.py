@@ -1,24 +1,25 @@
 import calendar
 import collections
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 
+from crisp_modals.views import ModalConfirmView, ModalCreateView, ModalUpdateView, ModalDeleteView
 from dateutil import parser
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+from django.db.models import Sum
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.views.generic import detail, edit, TemplateView, View
+from django.utils.timezone import make_aware
+from django.views.generic import detail, TemplateView, View
 from itemlist.views import ItemListView
 from rest_framework import generics, status, permissions
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from misc.views import ConfirmDetailView
+from misc.utils import debug_value
 from roleperms.views import RolePermsViewMixin
-from . import forms
-from . import models
+from . import models, forms
 from . import serializers
 from . import utils
 
@@ -28,14 +29,29 @@ USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ["admin:uso"])
 
 def _fmt_states(state, obj=None):
     return {
-        STATES.draft: mark_safe(f'<span class="text-muted"><i class="bi-calendar-week icon-fw"></i> {STATES[state]}</span>'),
+        STATES.draft: mark_safe(f'<span class="text-body-secondary"><i class="bi-calendar-week icon-fw"></i> {STATES[state]}</span>'),
         STATES.tentative: mark_safe(f'<span class="text-info"><i class="bi-calendar-check icon-fw"></i> {STATES[state]}</span>'),
         STATES.live: mark_safe(f'<span class="text-success"><i class="bi-calendar-heart icon-fw"></i> {STATES[state]}</span>'),
     }.get(state, state)
 
 
+def parse_date(date_str: str) -> datetime:
+    """
+    Parse a date string into a timezone date for the local time. Returns the current date if the string is empty or invalid.
+    :param date_str: the date string to parse
+    """
+    now = timezone.localtime(timezone.now())
+    if not date_str:
+        return now
+    try:
+        dt = make_aware(parser.parse(date_str), timezone=timezone.get_current_timezone())
+        return dt
+    except ValueError:
+        return now
+
+
 class ScheduleListView(RolePermsViewMixin, ItemListView):
-    queryset = models.Schedule.objects.all()
+    model = models.Schedule
     template_name = "item-list.html"
     paginate_by = 15
     allowed_roles = USO_ADMIN_ROLES
@@ -47,12 +63,59 @@ class ScheduleListView(RolePermsViewMixin, ItemListView):
     ordering = ['-start_date', '-state']
 
 
+class ModeTypeList(RolePermsViewMixin, ItemListView):
+    model = models.ModeType
+    template_name = "item-list.html"
+    paginate_by = 15
+    allowed_roles = USO_ADMIN_ROLES
+    link_url = 'edit-mode-type'
+    link_attr = 'data-modal-url'
+    add_modal_url = 'add-mode-type'
+    list_filters = ['active', 'is_normal', 'created', 'modified']
+    list_columns = ['name', 'acronym', 'color', 'description', 'active', 'is_normal']
+    list_search = ['acronym', 'name', 'description']
+    list_transforms = {
+        'active': lambda x, obj: mark_safe('<i class="bi-check2 icon-fw"></i>') if x else '',
+        'is_normal': lambda x, obj: mark_safe('<i class="bi-check2 icon-fw"></i>') if x else '',
+        'color': lambda x, obj: mark_safe(f'<span class="badge" style="background-color: {x};">&nbsp;</span>'),
+    }
+
+
+class AddModeType(RolePermsViewMixin, ModalCreateView):
+    model = models.ModeType
+    form_class = forms.ModeTypeForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('mode-type-list')
+
+
+class EditModeType(RolePermsViewMixin, ModalUpdateView):
+    model = models.ModeType
+    form_class = forms.ModeTypeForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_delete_url(self):
+        return reverse('delete-mode-type', kwargs={'pk': self.object.pk})
+
+    def get_success_url(self):
+        return reverse('mode-type-list')
+
+
+class DeleteModeType(RolePermsViewMixin,  ModalDeleteView):
+    model = models.ModeType
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('mode-type-list')
+
+
 class Calendar(RolePermsViewMixin, TemplateView):
     template_name = "scheduler/calendar.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        today = timezone.now().date()
+        today = timezone.localtime(timezone.now()).date()
         cur_date = self.kwargs.get(
             'month', date(int(self.kwargs.get('year', today.year)), today.month, today.day).isoformat()
         )
@@ -74,7 +137,7 @@ class Calendar(RolePermsViewMixin, TemplateView):
         context['shift_starts'] = [shift['time'] for shift in shifts]
         context['shifts'] = shifts
         context['shift_count'] = len(context['shift_starts'])
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
+        context['mode_types'] = models.ModeType.objects.all()
         context['subtitle'] = 'Current Schedule'
         context['show_year'] = True
         context['event_sources'] = [reverse('facility-modes-api'), ]
@@ -107,8 +170,9 @@ class EventEditor(RolePermsViewMixin, detail.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        today = timezone.localtime(timezone.now()).date()
+
         if not self.kwargs.get('date'):
-            today = timezone.now().date()
             if context['schedule'].end_date < today or context['schedule'].start_date > today:
                 show_date = context['schedule'].start_date
             else:
@@ -117,10 +181,10 @@ class EventEditor(RolePermsViewMixin, detail.DetailView):
         else:
             cur_date = self.kwargs.get('date')
         context['default_date'] = cur_date
-        context['today'] = timezone.now().date()
+        context['today'] = today
         context['default_view'] = 'monthshift'
         context['timezone'] = settings.TIME_ZONE
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
+        context['mode_types'] = models.ModeType.objects.filter(active=True)
         context['subtitle'] = context['schedule'].description
 
         config = self.get_shift_config()
@@ -149,14 +213,13 @@ class EventStatsAPI(RolePermsViewMixin, View):
         return self.queryset.filter(schedule__pk=self.kwargs['pk']).all()
 
     def get(self, request, *args, **kwargs):
-        stats = collections.defaultdict(float)
-        for event in self.get_queryset().with_shifts():
-            stats[getattr(event, self.group_by)] += event.shifts
-        return JsonResponse(
-            [{
-                'id': k, 'count': v
-            } for k, v in list(stats.items())], safe=False
+        raw_stats = self.get_queryset().with_shifts().values(self.group_by).order_by(self.group_by).annotate(
+            count=Sum('shifts')
         )
+        return JsonResponse([
+            {'id': item[self.group_by], 'count': item['count']}
+            for item in raw_stats
+        ], safe=False)
 
 
 class ModeEditor(EventEditor):
@@ -182,11 +245,12 @@ class FacilityModeListAPI(generics.ListAPIView):
         queryset = models.Mode.objects.filter(
             schedule__state__in=[models.Schedule.STATES.live, models.Schedule.STATES.tentative]
         )
+        today = timezone.localtime(timezone.now()).date()
         if self.request.GET.get('start') and self.request.GET.get('end'):
             start = timezone.make_aware(parser.parse(self.request.GET.get('start')))
             end = timezone.make_aware(parser.parse(self.request.GET.get('end')))
         else:
-            start = timezone.now().date().replace(day=1)
+            start = today.replace(day=1)
             end = start + timedelta(days=calendar.monthrange(start.year, start.month)[1])
         return queryset.filter(start__lte=end, end__gte=start).all()
 
@@ -197,7 +261,7 @@ class EventUpdateAPI(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     parser_classes = (JSONParser,)
     creation_key = 'id'
-    allowed_schedule_states = [models.Schedule.STATES.live]
+    allowed_schedule_states = [models.Schedule.STATES.live, models.Schedule.STATES.tentative]
 
     def get_queryset(self, *args, **kwargs):
         self.schedule = models.Schedule.objects.filter(pk=self.kwargs['pk']).first()
@@ -269,59 +333,24 @@ class ModeListAPI(EventUpdateAPI):
 
     def get_data(self, info):
         return {
-            'start': parser.parse(info['start']), 'end': parser.parse(info['end']), 'kind': info['kind'], 'tags': info.get('tags', []),
+            'start': parser.parse(info['start']),
+            'end': parser.parse(info['end']),
+            'kind': models.ModeType.objects.filter(pk=info['kind']).first(),
+            'tags': info.get('tags', []),
             'comments': info.get('comments', '')
         }
 
 
-class CreateSchedule(RolePermsViewMixin, edit.CreateView):
-    template_name = 'forms/modal.html'
-    form_class = forms.ScheduleForm
-    model = models.Schedule
-    reference_model = None
-
-    def get_success_url(self):
-        return self.request.get_full_path()
-
-    def get_reference(self, queryset=None):
-        if self.reference_model:
-            self.reference = self.reference_model.objects.get(pk=self.kwargs.get('pk'))
-            return self.reference
-        else:
-            raise ValueError('Reference Model Not Provided')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
-    def get_initial(self):
-        initial = super().get_initial()
-        reference = self.get_reference()
-        initial['content_type'] = ContentType.objects.get_for_model(reference)
-        initial['object_id'] = reference.pk
-        initial['config'] = models.ShiftConfig.objects.order_by('modified').last()
-        return initial
-
-    def form_valid(self, form):
-        super().form_valid(form)
-        return JsonResponse(
-            {
-                "url": ""
-            }
-        )
-
-
-class PromoteSchedule(RolePermsViewMixin, ConfirmDetailView):
+class PromoteSchedule(RolePermsViewMixin, ModalConfirmView):
     model = models.Schedule
     template_name = "scheduler/forms/switch.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def get_context_data(self, **kwargs):
-        STATE_INDEX = {models.Schedule.STATES.draft: 0, models.Schedule.STATES.tentative: 1, self.model.STATES.live: 2}
+        state_index = {models.Schedule.STATES.draft: 0, models.Schedule.STATES.tentative: 1, self.model.STATES.live: 2}
         context = super().get_context_data(**kwargs)
         context['state'] = self.kwargs.get('state')
-        context['action'] = 'promote' if STATE_INDEX.get(self.object.state) < STATE_INDEX.get(
+        context['action'] = 'promote' if state_index.get(self.object.state) < state_index.get(
             self.kwargs.get('state')
         ) else 'demote'
         return context
@@ -331,12 +360,7 @@ class PromoteSchedule(RolePermsViewMixin, ConfirmDetailView):
         if self.kwargs.get('state') in models.Schedule.STATES:
             obj.state = self.kwargs.get('state')
             obj.save()
-
-        return JsonResponse(
-            {
-                "url": ""
-            }
-        )
+        return JsonResponse({"url": ""})
 
 
 class YearTemplate(RolePermsViewMixin, TemplateView):
@@ -349,14 +373,15 @@ class YearTemplate(RolePermsViewMixin, TemplateView):
         config = models.ShiftConfig.objects.filter(duration=slot).order_by('modified').last()
         shifts = config.shifts()
 
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
-        context['shift_duration'] = "{}".format(timedelta(hours=config.duration)).zfill(8)
+        context['mode_types'] = models.ModeType.objects.all()
+        context['shift_duration'] = f"{timedelta(hours=config.duration)}".zfill(8)
         context['shift_minutes'] = config.duration * 60
         context['shift_starts'] = [shift['time'] for shift in shifts]
         context['shifts'] = shifts
         context['shift_count'] = len(context['shift_starts'])
 
-        year = int(self.request.GET.get('year', timezone.now().year))
+        today = timezone.localtime(timezone.now()).date()
+        year = int(self.request.GET.get('year', today.year))
         cal = calendar.Calendar(6)
         context['year'] = year
         max_width = 1 + max([(r[0] % 6) + r[1] for r in [calendar.monthrange(year, m) for m in range(1, 13)]])
@@ -379,12 +404,12 @@ class CycleTemplate(RolePermsViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        now = timezone.localtime(timezone.now())
         date_str = self.request.GET.get('date', '')
         if date_str:
             d = parser.parse(date_str).date()
         else:
-            d = timezone.now().date()
+            d = now.date()
 
         slot = int(self.kwargs.get('slot', 8))
         config = models.ShiftConfig.objects.filter(duration=slot).order_by('modified').last()
@@ -393,14 +418,14 @@ class CycleTemplate(RolePermsViewMixin, TemplateView):
         cycle_start = (d.month // 7 * 6) + 1
         cycle_end = (d.month // 7 * 6) + 7
         cal = calendar.Calendar(calendar.SUNDAY)
-        context['mode_types'] = [{'code': k, 'name': v} for k, v in models.Mode.TYPES]
+        context['mode_types'] = models.ModeType.objects.all()
         context['shifts'] = shifts
         context['shift_count'] = len(shifts)
         context['headers'] = [calendar.day_abbr[x][0].upper() for x in cal.iterweekdays()]
         context['months'] = [{
             'name': calendar.month_name[m], 'weeks': cal.monthdatescalendar(d.year, m), 'index': m
         } for m in range(cycle_start, cycle_end)]
-        context['current'] = utils.round_time(timezone.localtime(timezone.now()), timedelta(hours=config.duration))
+        context['current'] = utils.round_time(now, timedelta(hours=config.duration))
         return context
 
 
@@ -410,10 +435,11 @@ class MonthTemplate(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         date_str = self.request.GET.get('date', '')
+        now = timezone.localtime(timezone.now())
         if date_str:
             d = parser.parse(date_str).date()
         else:
-            d = timezone.now().date()
+            d = now.date()
 
         if 'start' in self.request.GET and 'end' in self.request.GET:
             context['range_start'] = parser.parse(self.request.GET.get('start')).date()
@@ -429,7 +455,7 @@ class MonthTemplate(TemplateView):
         context['headers'] = ['Week {}'.format(d.isocalendar()[1]) for d in context['month']['dates'][1][1:]]
         context['shifts'] = shifts
         context['shift_count'] = len(shifts)
-        context['current'] = utils.round_time(timezone.localtime(timezone.now()), timedelta(hours=config.duration))
+        context['current'] = utils.round_time(now, timedelta(hours=config.duration))
         return context
 
 
@@ -440,10 +466,11 @@ class WeekTemplate(TemplateView):
         context = super().get_context_data(**kwargs)
         date_str = self.request.GET.get('date', '')
         sections = self.request.GET.get('sections', '').split(',')
+        now = timezone.localtime(timezone.now())
         if date_str:
             d = parser.parse(date_str).date()
         else:
-            d = timezone.now().date()
+            d = now.date()
         cal = calendar.Calendar(calendar.SUNDAY)
         names = [calendar.day_abbr[x] for x in cal.iterweekdays()]
         dates = [x for x in cal.monthdatescalendar(d.year, d.month) if d in x][0]
@@ -456,10 +483,70 @@ class WeekTemplate(TemplateView):
         context['sections'] = sections
         context['shifts'] = shifts
         context['shift_count'] = len(shifts)
-        context['current'] = utils.round_time(timezone.localtime(timezone.now()), timedelta(hours=config.duration))
+        context['current'] = utils.round_time(now, timedelta(hours=config.duration))
         return context
 
 
 class ModeStatsAPI(EventStatsAPI):
     model = models.Mode
     group_by = 'kind'
+
+
+def _list_labels(x, obj):
+    """
+    Transform function to display a comma-separated string as a list of labels.
+    """
+    if not x:
+        return ''
+    else:
+        if isinstance(x, str):
+            x = x.split(',')
+        return mark_safe(''.join([f'<span class="badge bg-secondary m-1">{label.strip()}</span>' for label in x]))
+
+
+class ShiftConfigList(RolePermsViewMixin, ItemListView):
+    model = models.ShiftConfig
+    template_name = "item-list.html"
+    paginate_by = 15
+    allowed_roles = USO_ADMIN_ROLES
+    link_url = 'edit-shift-config'
+    link_attr = 'data-modal-url'
+    add_modal_url = 'add-shift-config'
+    list_filters = ['start', 'duration', 'number']
+    list_columns = ['start', 'duration', 'number', 'names']
+    list_search = ['start', 'duration', 'number', 'names']
+
+    list_transforms = {
+        'duration': lambda x, obj: f"{x} hours",
+        'number': lambda x, obj: f"{x} shifts",
+        'names': _list_labels
+    }
+
+
+class AddShiftConfig(RolePermsViewMixin, ModalCreateView):
+    model = models.ShiftConfig
+    form_class = forms.ShiftConfigForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('shift-config-list')
+
+
+class EditShiftConfig(RolePermsViewMixin, ModalUpdateView):
+    model = models.ShiftConfig
+    form_class = forms.ShiftConfigForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_delete_url(self):
+        return reverse('delete-shift-config', kwargs={'pk': self.object.pk})
+
+    def get_success_url(self):
+        return reverse('shift-config-list')
+
+
+class DeleteShiftConfig(RolePermsViewMixin, ModalDeleteView):
+    model = models.ShiftConfig
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_success_url(self):
+        return reverse('shift-config-list')

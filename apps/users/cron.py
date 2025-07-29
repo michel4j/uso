@@ -13,6 +13,9 @@ USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER', None)
 
 
 class CleanRegistrations(BaseCronJob):
+    """
+    Remove old registrations that are not confirmed after a certain period.
+    """
     run_every = "P1D"
 
     def do(self):
@@ -22,15 +25,21 @@ class CleanRegistrations(BaseCronJob):
 
 
 class SyncStaff(BaseCronJob):
+    """
+    Sync staff members from the USO profile manager.
+    """
     run_every = "P1D"
 
     def do(self):
         staff_list = USO_PROFILE_MANAGER.fetch_new_users()
         updated = utils.create_users(staff_list)
-        return "{} new staff members saved".format(updated)
+        return f"{updated} new staff members saved"
 
 
 class NotifyNewInstitutions(BaseCronJob):
+    """
+    Notify administrators about new institutions that have been created or are pending approval.
+    """
     run_every = "P1D"
 
     def do(self):

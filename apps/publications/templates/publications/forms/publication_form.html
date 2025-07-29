@@ -1,63 +1,80 @@
-{% extends "forms/modal.html" %}
+{% extends "crisp_modals/form.html" %}
 {% load crispy_forms_tags %}
 
-{% block form_title %}{{ form.helper.title }}{% endblock %}
-{% block form_body %}
-<div class="progress-xs progress" style="margin: 0.5em 0;">
-    <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar"
-         aria-valuenow="{{wizard.steps.step1}}"
-         aria-valuemin="0" aria-valuemax="{{wizard.steps.count}}"
-         style="width: {% widthratio wizard.steps.step0 wizard.steps.count 100 %}%"></div>
-</div>
-<div id="error_div" class="alert alert-danger hide" role="alert"><button type="button" class="close" data-dismiss="alert"><i class="bi-x"></i></button>
-</div>
-<form id="wizard" action="{{form.helper.form_action}}" method="post">
+{% block pre_content %}
+    <form id="wizard" action="{{ form.body.form_action }}" method="post">
+{% endblock %}
+{% block modal_body %}
+    <div class="progress" role="progressbar" aria-label="Basic example"
+         aria-valuenow="{{ wizard.steps.step0 }}"
+         aria-valuemin="0"
+         aria-valuemax="{{ wizard.steps.count }}"
+         style="margin: 1em 0;">
+        <div class="progress-bar" style="width: {% widthratio wizard.steps.step0 wizard.steps.count 100 %}%"></div>
+    </div>
+    {% if form.errors %}
+        <div class="modal-alert text-danger bg-danger-subtle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" class="text-danger"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                 stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M19.875 6.27c.7 .398 1.13 1.143 1.125 1.948v7.284c0 .809 -.443 1.555 -1.158
+            1.948l-6.75 4.27a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27a2.225 2.225 0 0 1 -1.158
+            -1.948v-7.285c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98a2.33 2.33 0 0 1 2.25
+            0l6.75 3.98h-.033z"/>
+                <path d="M12 8v4"/>
+                <path d="M12 16h.01"/>
+            </svg>
+            {{ form.errors }}
+        </div>
+    {% endif %}
     {{ wizard.management_form }}
-    {% crispy wizard.form %}
-</form>
+    {% crispy wizard.form wizard.form.body %}
 {% endblock %}
-
-{% block form_init %}
-<script type="text/javascript">
-function initForm() {
-	var FORMATS = {
-			'doi': "eg. 10.10.1038/nphys1170",
-			'isbn': "eg. 978-3-16-148410-0",
-			'patent': "eg. CA2458971",
-			'none': "Not Required"
-	}
-	var HELP_TEXT = {
-			'doi': "Digital Object Identifier for articles or conference proceedings",
-			'isbn': "International Standard Book Number for books, chapters, or theses",
-			'patent': "Patent Number",
-			'none': "Thesis with no ISBN available"
-	}
-	var FIELDS = {
-			'chapter': ['main_title','editor','date'],
-			'patent': ['title','authors','date'],
-			'msc_thesis': ['title','authors','publisher','date','address'],
-			'phd_thesis': ['title','authors','publisher','date','address'],
-	}
-    $('#hint_id_0-reference').text(HELP_TEXT[$('select[name="0-reference"]').val()]);
-    $('input[name="0-code"]').attr('placeholder', FORMATS[$('select[name="0-reference"]').val()]);
-    $('input[name="0-code"]').attr('required', true);
-    $(".modal-update").change(function(e) {
-        $('#hint_id_0-reference').text(HELP_TEXT[$('select[name="0-reference"]').val()]);
-        $('input[name="0-code"]').attr('placeholder', FORMATS[$('select[name="0-reference"]').val()]);
-        if ($('select[name="0-reference"]').val() != 'none') {
-            $('input[name="0-code"]').attr('required', true);
-            $('input[name="0-code"]').attr('readonly', false);
-        } else {
-            $('input[name="0-code"]').removeAttr('required');
-            $('input[name="0-code"]').attr('readonly', true);
+{% block modal_footer %}{% crispy wizard.form wizard.form.footer %}{% endblock %}
+{% block modal_scripts %}
+    <script type="text/javascript">
+        function initForm() {
+            const FORMATS = {
+                'doi': "eg. 10.10.1038/nphys1170",
+                'isbn': "eg. 978-3-16-148410-0",
+                'patent': "eg. CA2458971",
+                'url': "https://... URL to the thesis",
+            };
+            const HELP_TEXT = {
+                'doi': "Digital Object Identifier for articles or conference proceedings",
+                'isbn': "International Standard Book Number for books, chapters, or theses",
+                'patent': "Patent Number",
+                'url': "Thesis"
+            };
+            const FIELDS = {
+                'chapter': ['main_title', 'editor', 'date'],
+                'patent': ['title', 'authors', 'date'],
+                'msc_thesis': ['title', 'authors', 'publisher', 'date', 'address'],
+                'phd_thesis': ['title', 'authors', 'publisher', 'date', 'address'],
+            };
+            $('#hint_id_0-reference').text(HELP_TEXT[$('select[name="0-reference"]').val()]);
+            $('input[name="0-code"]').attr('placeholder', FORMATS[$('select[name="0-reference"]').val()]);
+            //$('input[name="0-code"]').attr('required', true);
+            $(".modal-update").change(function (e) {
+                $('#hint_id_0-reference').text(HELP_TEXT[$('select[name="0-reference"]').val()]);
+                $('input[name="0-code"]').attr('placeholder', FORMATS[$('select[name="0-reference"]').val()]);
+                if ($('select[name="0-reference"]').val() != 'none') {
+                    //$('input[name="0-code"]').attr('required', true);
+                    $('input[name="0-code"]').attr('readonly', false);
+                } else {
+                    $('input[name="0-code"]').removeAttr('required');
+                    $('input[name="0-code"]').attr('readonly', true);
+                }
+            });
+            const kind = $('input[name="1-kind"]').val() || $('select[name="1-kind"]').val();
+            if (kind && kind in FIELDS) {
+                for (var i = 0, f; f = FIELDS[kind][i]; i++) {
+                    //$('input[name="1-' + f + '"]').attr('required', true);
+                }
+            }
         }
-    });
-    var kind = $('input[name="1-kind"]').val() || $('select[name="1-kind"]').val();
-    if (kind && kind in FIELDS) {
-        for (var i=0, f; f = FIELDS[kind][i]; i++) {
-            $('input[name="1-'+f+'"]').attr('required', true);
-        }
-    }
-}
-</script>
+        initForm();
+    </script>
 {% endblock %}
+{% block post_content %}</form>{% endblock %}

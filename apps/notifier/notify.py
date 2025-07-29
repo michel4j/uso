@@ -8,7 +8,8 @@ from . import models
 LEVELS = models.Notification.LEVELS
 
 
-def send(users, label, level=LEVELS.info, context={}, send_on=None):
+def send(users, label, level=LEVELS.info, context=None, send_on=None):
+    context = context if context is not None else {}
     from users.models import User
 
     message_template = models.MessageTemplate.objects.latest_for(label)

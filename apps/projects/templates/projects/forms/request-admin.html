@@ -1,14 +1,5 @@
-{% extends "forms/modal.html" %}
-{% load crispy_forms_tags %}
-
-{% load timeish %}
-{% load roleperms %}
-{% load cycle_tags %}
-{% load misc %}
-{% block form_title %}Manage Shift Request{% endblock %}
-{% block form_body %}
-<div class="row narrow-gutter">
-	<div class="col-xs-12">
+<div class="row">
+	<div class="col-12">
 		<table class="profile table">
 			<tbody>
 			<tr>
@@ -29,16 +20,14 @@
 			</tr>
 			<tr>
 				<th class="item">Preferred Dates</th>
-				<td>{{object.good_dates}}</td>
+                <td>{% for date in object.good_dates %}<span class="badge bg-success m-1">{{ date }}</span>{% endfor %}</td>
 			</tr>
 			<tr>
 				<th class="item">Undesirable Dates</th>
-				<td>{{object.bad_dates}}</td>
+				<td>{% for date in object.poor_dates %}<span class="badge bg-danger m-1">{{ date }}</span>{% endfor %}</td>
 			</tr>
 			</tbody>
 		</table>
 	</div>
 </div>
 
-{% crispy form form.helper %}
-{% endblock %}

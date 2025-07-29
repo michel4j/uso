@@ -1,59 +1,30 @@
-{% load dynforms_tags %}
+{% load dynforms %}
 {% load samples_tags %}
+{% get_permissions data=data as info %}
 
-<div class="controls" id="{{field.name}}-controls" data-field-name="{{field.name}}">
-	{% get_permissions data=data as permissions %}
-	<table class="permission-list table table-hover table-condensed">
-		<tr>
-			<th>Permission</th>
-			<th>Require Any</th>
-			<th>Require All</th>
-			<th>Recommend</th>
-			<th>Not Required</th>
-		</tr>
-		{% for permission, kind in permissions %}
-		<tr class="permission-row perm-{{ permission.code }}" data-counter="{{forloop.counter0}}">
-			<td>
-				{{permission.description}}
-				<input type="hidden" name="{{field.name}}.{{forloop.counter0}}.code" value="{{permission.code}}" >
-			</td>
-			<td>
-				<div class="radio" style="margin: 0 !important;">
-					<label for="{{field.name}}_{{forloop.counter}}.any"><input name="{{field.name}}.{{forloop.counter0}}.kind"
-						id="{{field.name}}_{{forloop.counter}}.any"
-						value="any"
-						{% if kind == "any" %}checked="checked"{% endif %}
-						type="radio">&nbsp;</label>
-				</div>
-			</td>
-			<td>
-				<div class="radio" style="margin: 0 !important;">
-					<label for="{{field.name}}_{{forloop.counter}}.all"><input name="{{field.name}}.{{forloop.counter0}}.kind"
-						id="{{field.name}}_{{forloop.counter}}.all"
-						value="all"
-						{% if kind == "all" %}checked="checked"{% endif %}
-						type="radio">&nbsp;</label>
-				</div>
-			</td>
-			<td>
-				<div class="radio" style="margin: 0 !important;">
-					<label for="{{field.name}}_{{forloop.counter}}.optional"><input name="{{field.name}}.{{forloop.counter0}}.kind"
-						id="{{field.name}}_{{forloop.counter}}.optional"
-						value="optional"
-						{% if kind == "optional" %}checked="checked"{% endif %}
-						type="radio">&nbsp;</label>
-				</div>
-			</td>
-			<td>
-				<div class="radio" style="margin: 0 !important;">
-					<label for="{{field.name}}_{{forloop.counter}}.none"><input name="{{field.name}}.{{forloop.counter0}}.kind"
-						id="{{field.name}}_{{forloop.counter}}.none"
-						value="none"
-						{% if not kind %}checked="checked"{% endif %}
-						type="radio">&nbsp;</label>
-				</div>
-			</td>
-		</tr>
-		{% endfor %}
-	</table>
+<div class="controls" id="{{ field.name }}-controls" data-field-name="{{ field.name }}">
+    <table class="permission-list table table-hover table-condensed">
+        <tr>
+            <th>Permission</th>
+            {% for req_name in info.requirements.values %}
+                <th>{{ req_name }}</th>
+            {% endfor %}
+        </tr>
+        {% for permission, kind in info.permissions %}
+            <tr>
+                <td class="text-left">{{ permission.description }}</td>
+                {% for value, requirement in info.requirements.items %}
+                    <td class="text-center">
+                        <div class="form-check">
+                            <input type="radio" aria-label="{{ requirement }}"
+                                   class="form-check-input permission-input {{ required }}" type="radio"
+                                   name="{{ field.name }}__{{ permission.code }}" value="{{ value }}"
+                                   {% if kind == value %}checked{% endif %}
+                            />
+                        </div>
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
 </div>

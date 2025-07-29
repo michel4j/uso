@@ -1,57 +1,69 @@
-{% extends "forms/modal.html" %}
+{% extends "crisp_modals/modal.html" %}
 {% load misc %}
-{% block form_title %}Edit Sample Permissions{% endblock %}
-{% block modal_size %}modal-md{% endblock %}
-{% block form_body %}
-
-    <div class="modal-body row">
-        <div class="tinytron bg-info">
-            <h5 class="no-vmargin text-condensed"><strong>{{ sample.name }}</strong></h5>
-            Type: <em class="text-muted">{{ sample.get_kind_display }}</em>&emsp;
-            State: <em class="text-muted">{{ sample.get_state_display }}</em>&emsp;
-            Source: <em class="text-muted">{{ sample.source|default:"N/C" }}</em>&emsp;
-            {% if sample.description or sample.source or sample.extra %}
-                <hr class="hr-xs"/>
-                {% if sample.description %}{{ sample.description|default:"" }}<br/>{% endif %}
-                {% if sample.source %}<strong>Source of material:</strong>
-                    {{ sample.source|default:"" }}{% endif %}
-            {% endif %}
-        </div>
-        {% include "samples/fields/permissions.html" %}
+{% block modal_title %}Edit Sample Permissions{% endblock %}
+{% block modal_body %}
+    <div class="alert alert-info">
+        <h5 class="my-0 text-condensed"><strong>{{ sample.name }}</strong></h5>
+        Type: <em class="text-body-secondary">{{ sample.get_kind_display }}</em>&emsp;
+        State: <em class="text-body-secondary">{{ sample.get_state_display }}</em>&emsp;
+        Source: <em class="text-body-secondary">{{ sample.source|default:"N/C" }}</em>&emsp;
+        {% if sample.description or sample.source or sample.extra %}
+            <hr class="hr-xs"/>
+            {% if sample.description %}{{ sample.description|default:"" }}<br/>{% endif %}
+            {% if sample.source %}<strong>Source of material:</strong>
+                {{ sample.source|default:"" }}{% endif %}
+        {% endif %}
     </div>
-    <div class="modal-footer row">
-        <div class="col-xs-12">
-            <button class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
-            <button type="button" data-command="approve" class="apply-command btn btn-primary">Apply</button>
-        </div>
-    </div>
+    <form id="permission-form">
+    {% include "samples/fields/permissions.html" %}
+    </form>
+{% endblock %}
+{% block modal_footer %}
 
+    <button class="btn btn-secondary pull-left" type="button" data-bs-dismiss="modal">Cancel</button>
+    <button id="apply-permissions" type="button" class="btn btn-primary">Apply</button>
+
+{% endblock %}
+{% block modal_scripts %}
     <script>
-        Array.prototype.diff = function(a) {
-            return this.filter(function(i) {return a.indexOf(i) < 0;});
-        };
+        $(document).ready(function () {
+            const $form = $("#permission-form");
+            const $permsInput = $('#permissions-{{ sample.pk }}'); // Input field to store permissions as JSON
+            const permissions = JSON.parse($permsInput.val()) || {};
 
-        $("button.apply-command").click(function(event){
-            var perms = {};
-            var perm_input = $("#{{ field_name }}-{{ sample.pk }}-hazards-container input.permissions-field");
-            var cmd = $("#{{ field_name }}-{{ sample.pk }}-hazards-container a.edit-permission-command");
-            $('.permission-row').each(function(){
-                var index = $(this).data('counter');
-                var value = $("input[name='sample_permission."+index+".kind']:checked").val();
-                var name = $("input[name='sample_permission."+index+".code']").val();
-                if (value) {
-                    perms[name] = value;
+            // Initialize the radio buttons based on saved permissions
+            $form.find("input.permission-input").each(function () {
+                let $input = $(this);   // current radio input
+                let permissionName = $input.attr('name').split('__').at(-1); // Extract permission name
+                let permissionValue = permissions[permissionName] || null; // Get saved value
+
+                if (permissionValue) {
+                    $input.filter(`[value="${permissionValue}"]`).prop('checked', true);
+                } else {
+                    $input.prop('checked', false);
                 }
             });
-            if (Object.keys(perms).length) {
-                cmd.addClass('highlighted');
-            } else {
-                cmd.removeClass('highlighted');
-            }
-            perm_input.val(JSON.stringify(perms));
-		    $("#modalForm").modal('hide');
+
+            $("#apply-permissions").click(function (event) {
+                const cmd = $('#permission-command-{{ sample.pk }}');
+                let newPermissions = {};
+
+                for (const [key, value] of Object.entries($form.serializeObject())) {
+                    let permissionName = key.split('__').at(-1); // Extract permission name
+                    if (value) {
+                        newPermissions[permissionName] = value; // Store the permission value
+                    }
+                }
+                $permsInput.val(JSON.stringify(newPermissions));
+                if (Object.keys(newPermissions).length) {
+                    cmd.addClass('highlighted');
+                } else {
+                    cmd.removeClass('highlighted');
+                }
+                $("#modal").modal('hide');
+            });
         });
-        //update_permisisons();
+
     </script>
 {% endblock %}
 

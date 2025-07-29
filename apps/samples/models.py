@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 
 from django.conf import settings
@@ -49,13 +51,36 @@ class HStatement(TimeStampedModel):
         return self.code,  # tuple
 
 
+class PrecautionManager(CodeManager):
+    def for_hazards(self, hazards: list | models.QuerySet) -> models.QuerySet:
+        """
+        Return precautions for a list of hazards.
+        """
+
+        if isinstance(hazards, list):
+            hazards = Hazard.objects.filter(pk__in=hazards)
+
+        # select precautions from the hazards
+        precautions = self.filter(
+            pk__in=hazards.values_list('precautions__pk', flat=True)
+        ).distinct().order_by('code')
+
+        # remove precautions already present in combined codes
+        removed_codes = {
+            code
+            for codes in precautions.filter(code__contains="+").values_list('code', flat=True)
+            for code in codes.split('+')
+        }
+        return precautions.exclude(code__in=removed_codes).distinct()
+
+
 class PStatement(TimeStampedModel):
     code = models.CharField(max_length=20, unique=True, db_index=True)
     text = models.CharField(max_length=255)
-    objects = CodeManager()
+    objects = PrecautionManager()
 
     def __str__(self):
-        return "{}: {}".format(self.code, self.text)
+        return f"{self.code}: {self.text}"
 
     def natural_key(self):
         return self.code,  # tuple
@@ -150,7 +175,7 @@ class Sample(TimeStampedModel):
     kind = models.CharField("Type", max_length=100, choices=TYPES, default=None)
     state = models.CharField(max_length=100, choices=STATES, default=None)
     hazard_types = models.ManyToManyField(Pictogram, verbose_name="Hazard Types", related_name='samples')
-    hazards = models.ManyToManyField(Hazard, verbose_name="Hazards", related_name='samples')
+    hazards = models.ManyToManyField(Hazard, verbose_name="Hazards", related_name='samples', blank=True)
     description = models.TextField(null=True, blank=True)
     is_editable = models.BooleanField(default=True)
 
@@ -158,6 +183,12 @@ class Sample(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    def is_owned_by(self, user):
+        """
+        Check if the sample is owned by the given user.
+        """
+        return self.owner == user
 
     def signal(self):
         for w in ['danger', 'warning']:
@@ -167,17 +198,19 @@ class Sample(TimeStampedModel):
 
     def pictograms(self):
         if self.is_editable:
-            return utils.summarize_pictograms(self.hazards, self.hazard_types)
+            return utils.summarize_pictograms(self.hazards, types=self.hazard_types)
         else:
             return utils.summarize_pictograms(self.hazards)
 
+    def all_hazards(self):
+        """
+        Return all hazards for this sample, including a guess from the hazard types.
+        """
+        hazards = self.hazards.all() | Hazard.objects.filter(pictograms__in=self.hazard_types.all())
+        return hazards.distinct()
+
     def precautions(self):
-        precautions = PStatement.objects.filter(
-            pk__in=[p.pk for hz in self.hazards.all() for p in hz.precautions.all()]).order_by('code')
-        remove_statements = []
-        for p in precautions.filter(code__contains="+"):
-            remove_statements.append(p.code.split("+"))
-        return precautions.exclude(code__in=[code for codes in remove_statements for code in codes]).distinct()
+        return PStatement.objects.for_hazards(self.hazards.all())
 
     def permissions(self):
         perms = {
@@ -206,7 +239,7 @@ class Sample(TimeStampedModel):
         return txt
 
 
-class HazardousSubstance(models.Model):
+class HazardousSubstance(TimeStampedModel):
     name = models.CharField("Name", max_length=255, unique=True)
     description = models.TextField()
     hazards = models.ManyToManyField(Hazard, verbose_name="Hazards", related_name='substances')
@@ -216,7 +249,7 @@ class HazardousSubstance(models.Model):
 
 
 class SafetyPermission(TimeStampedModel):
-    code = models.CharField(max_length=50)
+    code = models.SlugField(max_length=50)
     description = models.CharField(max_length=100, blank=True, null=True)
     review = models.BooleanField(_('Show in Review'), default=True)
 

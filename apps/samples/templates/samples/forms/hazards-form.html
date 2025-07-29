@@ -1,0 +1,12 @@
+{% extends "crisp_modals/form.html" %}
+{% load jsonify %}
+{% load samples_tags %}
+{% load crispy_forms_tags %}
+{% block modal_styles %}hazards-editor modal-xl{% endblock %}
+{% block modal_body %}
+    {% crispy form form.body %}
+    <div class="col-12 mb-2">
+    <legend class="form-label">Hazards:</legend>
+    {% include "samples/forms/hazards-editor.html" %}
+    </div>
+{% endblock %}

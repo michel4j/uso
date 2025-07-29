@@ -1,0 +1,51 @@
+
+<div id="beamline-info-box" class="row">
+    <div class="{% if hide_description %}col-12{% else %}col-md-6{% endif %}">
+        <table class="table table-condensed">
+            <tr>
+                <th>Source</th>
+                <td>{{ object.source }}</td>
+            </tr>
+            <tr>
+                <th>Spectral Range</th>
+                <td>{{ object.range }}</td>
+            </tr>
+            <tr>
+                <th>Resolution</th>
+                <td>{{ object.resolution }}</td>
+            </tr>
+            <tr>
+                <th>Spot Sizes</th>
+                <td>{{ object.spot_size }}</td>
+            </tr>
+            <tr>
+                <th>Photon Flux</th>
+                <td>{{ object.flux }}</td>
+            </tr>
+            {% if contacts %}
+                <tr>
+                    <th>Facility Contacts</th>
+                    <td>
+                        {% for contact in contacts %}
+                            <a href="#0" data-bs-toggle="popover" data-bs-placement="bottom"
+                               tabindex="0"  role="button" data-bs-container="body"
+                               data-bs-content="{{ contact.email }} {{ contact.address.phone }}" data-bs-trigger="focus">
+                                {{ contact }}
+                            </a> {% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+    {% if not hide_description %}
+        <div class="col-md-6">
+            <p class="lead">{{ object.acronym }}</p>
+            <p>{{ object.description }}</p>
+            {% if config and config.comments %}
+                <div class="alert alert-warning"><span
+                        class="text-body-secondary">NOTE</span>: {{ config.comments }}</div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

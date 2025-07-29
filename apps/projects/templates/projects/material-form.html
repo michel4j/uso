@@ -1,9 +1,8 @@
-{% extends "projects/base.html" %}
+{% extends "base.html" %}
 
 {% load static %}
-{% load dynforms_tags %}
+{% load dynforms %}
 {% block extra_css %}
-    <link href="{% static 'css/datetimepicker.css' %}" rel="stylesheet"/>
     <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
     {% endblock %}
@@ -15,9 +14,9 @@
     <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
 {% endblock %}
 
-{% block page_heading %}Materials Amendment{% endblock %}
-{% block full %}
-    <div id="proposal-form" class="pagelet col-xs-12">
+{% block page-title %}Materials Amendment{% endblock %}
+{% block content %}
+    <div id="proposal-form" class="page col-sm-12">
         <div class="row">
             {% include "dynforms/form.html" %}
         </div>

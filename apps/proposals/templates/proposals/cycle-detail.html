@@ -1,24 +1,24 @@
-{% extends "folio.html" %}
-{% load beamline_tags %}
+{% extends "page.html" %}
+{% load beamlines %}
 {% load cycle_tags %}
+{% load static %}
+{% block page-pretitle %}Cycle{% endblock %}
 
-{% block page_heading %}Cycle{% endblock %}
-
-{% block folio-title %}
+{% block page-title %}
     <strong>{{ object }}</strong>
 {% endblock %}
 
-{% block folio-subtitle %}Cycle &mdash; {{ object.pk }}{% endblock %}
+{% block page-subtitle %}Cycle &mdash; {{ object.pk }}{% endblock %}
 
-{% block folio-tools %}
+{% block page-tools %}
     {% if next_cycle %}
         <a class="pull-right" href='{% url "review-cycle-detail" pk=next_cycle.pk %}'>
-            <i class="bi-chevron-right icon-2 icon-fw"></i><br/>
+            <i class="bi-chevron-right icon-md icon-fw"></i><br/>
             <span class="tool-label">Next</span>
         </a>
     {% else %}
-        <a class="pull-right" href='#0!' data-url='{% url "add-review-cycles" pk=object.pk %}'>
-            <i class="bi-plus-lg icon-2 icon-fw"></i><br/>
+        <a class="pull-right" href='#0!' data-modal-url='{% url "add-review-cycles" pk=object.pk %}'>
+            <i class="bi-plus-lg icon-md icon-fw"></i><br/>
             <span class="tool-label">Add</span>
         </a>
     {% endif %}
@@ -26,76 +26,68 @@
        {% if prev_cycle %}href='{% url "review-cycle-detail" pk=prev_cycle.pk %}'
        {% else %}href='#0' disabled{% endif %}
     >
-        <i class="bi-chevron-left icon-2 icon-fw"></i><br/>
+        <i class="bi-chevron-left icon-md icon-fw"></i><br/>
         <span class="tool-label">Previous</span>
     </a>
     {% if admin or owner %}
         {% if object.state < object.STATES.active %}
-            <a href='#0' data-url='{% url "edit-review-cycle" pk=object.pk %}' class="pull-right">
-                <i class="bi-pencil icon-2 icon-fw"></i><br/>
+            <a href='#0' data-modal-url='{% url "edit-review-cycle" pk=object.pk %}' class="pull-right">
+                <i class="bi-pencil icon-md icon-fw"></i><br/>
                 <span class="tool-label">Edit</span>
             </a>
         {% endif %}
         <a href='{% url "reviewer-list" %}' class="pull-right">
-            <i class="bi-people icon-2 icon-fw"></i><br/>
+            <i class="bi-people icon-md icon-fw"></i><br/>
             <span class="tool-label">Reviewers</span>
         </a>
         <a href="{% url "schedule-modes-edit" pk=object.schedule.pk %}" class="pull-right">
-            <i class="bi-calendar-plus icon-2 icon-fw"></i><br/>
+            <i class="bi-calendar-plus icon-md icon-fw"></i><br/>
             <span class="tool-label">Schedule</span>
         </a>
-        {% if object.state == object.STATES.assign %}
-            <a href="#0" data-url="{% url "start-reviews" pk=object.pk %}" class="pull-right">
-                <i class="bi-skip-forward icon-2 icon-fw"></i><br/>
-                <span class="tool-label">Start&nbsp;Reviews</span>
-            </a>
-        {% elif object.state >= object.STATES.schedule %}
+        {% if object.state >= object.STATES.schedule %}
             <a href='{% url "cycle-invoicing" pk=object.pk %}' class="pull-right">
-                <i class="bi-credit-card icon-2 icon-fw"></i><br/>
+                <i class="bi-credit-card icon-md icon-fw"></i><br/>
                 <span class="tool-label">Invoicing</span>
-            </a>
-        {% endif %}
-        {% if object.feedback.exists %}
-            <a href='{% url "review-cycle-feedback" pk=object.pk %}' class="pull-right">
-                <i class="bi-chat-right-text icon-fw icon-2"></i><br/>
-                <span class="tool-label">Feedback</span>
             </a>
         {% endif %}
     {% endif %}
 {% endblock %}
 
-{% block folio-statusbar-style %}bg-darken{% endblock %}
-{% block folio-statusbar %}
-    <h3 class="no-vmargin"><span class="label label-info text-condensed">{{ object.get_state_display }}</span></h3>
+{% block page-status-style %}callout{% endblock %}
+{% block page-status-bar %}
+    <span class="status-badge badge bg-info text-condensed">{{ object.get_state_display }}</span>
     <div>
-        <small class="text-wide text-muted">Call Open:</small><br/>{{ object.open_date }}
+        <small class="text-wide text-body-secondary">Type:</small><br/>{{ object.type }}
     </div>
     <div>
-        <small class="text-wide text-muted">Call Close:</small><br/>{{ object.close_date }}
+        <small class="text-wide text-body-secondary">Call Open:</small><br/>{{ object.open_date }}
     </div>
     <div>
-        <small class="text-wide text-muted">Start Date:</small><br/>{{ object.start_date }}
+        <small class="text-wide text-body-secondary">Call Close:</small><br/>{{ object.close_date }}
     </div>
     <div>
-        <small class="text-wide text-muted">End Date:</small><br/>{{ object.end_date }}
+        <small class="text-wide text-body-secondary">Start Date:</small><br/>{{ object.start_date }}
+    </div>
+    <div>
+        <small class="text-wide text-body-secondary">End Date:</small><br/>{{ object.end_date }}
     </div>
 {% endblock %}
 
-{% block folio-content %}
-    <div class="folio-status bg-darken">
-        <div style="width: 100%; padding: 0.5em 0;" id="timeline" data-toggle="tooltip" title="Cycle Timeline"></div>
+{% block page-content %}
+    <div class="callout pt-0">
+        <div style="width: 100%; padding: 0.5em 0;" id="cycle-timeline" data-bs-toggle="tooltip" title="Cycle Timeline"></div>
     </div>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-sm-12">
             <ul id="#track-tabs" class="nav nav-tabs" style="margin-top: 1em;">
                 {% for track in tracks  %}
-                    <li class="{% if forloop.first %}active{% endif %}">
+                    <li class="nav-item">
                         <a href="#nav-track-{{ forloop.counter }}"
-                           data-toggle="tab"
-                           class="bg-track-{{ forloop.counter }}"
-                           {% if forloop.first %}aria1-expanded="true"{% endif %}
+                            data-bs-toggle="tab"
+                            class="nav-link bg-track-{{ forloop.counter }} {% if forloop.first %}active{% endif %}"
+                           {% if forloop.first %}aria-expanded="true"{% endif %}
                         >
-                            <strong>{{ track.acronym }}</strong><span class="hidden-xs">&nbsp;&ndash;&nbsp;{{ track.name }}</span>
+                            <strong>{{ track.acronym }}</strong><span class="d-none d-sm-inline">&nbsp;&ndash;&nbsp;{{ track.name }}</span>
                         </a>
                     </li>
                 {% endfor %}
@@ -114,25 +106,19 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="{% static 'js/d3-timeline.min.js' %}"></script>
     {% include "proposals/cycle-timeline.html" %}
     <script>
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            let target = $(e.target).attr('href');
-            if (history.pushState) {
-                history.pushState(null, null, target);
-            } else {
-                location.hash = target;
-            }
+        $(document).on('shown.bs.tab', 'a[data-bs-toggle="tab"]', function (e) {
+            const activeTab = $(e.target).attr('href');
+            localStorage.setItem('activeTrackTab', activeTab);
+        })
+
+        $(document).ready(function(){
+            const activeTab = localStorage.getItem('activeTrackTab') || '#nav-track-1';
+            $(`a[href="${activeTab}"]`).tab('show');
         });
 
-        let hash = window.location.hash;
-        hash = hash.replace('#', '');
-        if (hash) {
-            setTimeout(function() {
-                window.scrollTo(0, 0);
-            }, 0);
-            $(`a[href="#${hash}"]`).tab('show');
-        }
         function plot_reviewer_bars(plot_element, data, domain) {
             var margin = {
                     top: 0,
@@ -207,7 +193,7 @@
                 .attr("x2", x(0))
                 .attr("y2", height);
 
-            var text = svg.selectAll("text")
+            const text = svg.selectAll("text")
                 .data(data)
                 .enter()
                 .append("text")

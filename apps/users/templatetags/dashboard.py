@@ -1,4 +1,4 @@
-import copy
+
 
 from django import template
 
@@ -11,7 +11,10 @@ register = template.Library()
 
 @register.inclusion_tag('users/dashboard.html', takes_context=True)
 def show_dashboard(context):
-    ctx = copy.copy(context)
-    blocks = blocktypes.BaseBlock.get_plugins(blocktypes.BLOCK_TYPES.dashboard)
-    ctx.update({'blocks': blocks})
-    return ctx
+    blocks = [
+        block(context) for block in
+        blocktypes.BaseBlock.get_plugins(blocktypes.BLOCK_TYPES.dashboard)
+    ]
+    return {
+        'blocks': blocks,
+    }

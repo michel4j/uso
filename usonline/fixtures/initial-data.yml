@@ -1,0 +1,1783 @@
+- model: dynforms.formtype
+  pk: 1
+  fields:
+    created: 2014-04-09 16:14:48+00:00
+    modified: 2025-06-24 21:38:10.286448+00:00
+    name: Registration
+    code: registration
+    description: You will receive an email immediately upon submitting this form with
+      instructions to complete your registration. User Office.
+    header: false
+    help_bar: false
+    wizard: true
+    pages:
+    - name: Tell us about yourself
+      fields:
+      - name: names
+        tags: ''
+        label: Your Names
+        options:
+        - required
+        field_type: fullname
+        instructions: ''
+      - name: contact
+        tags: ''
+        label: Contact Information
+        options:
+        - required
+        field_type: contactinfo
+        instructions: Please provide your institutional email address and Phone number
+      - name: research_field
+        tags: ''
+        label: Field of Research
+        options: []
+        field_type: researcharea
+        instructions: Select all that apply
+      - name: student
+        tags: ''
+        label: Are you a student or post-doctoral fellow?
+        choices:
+        - 'Yes'
+        - 'No'
+        default: []
+        options:
+        - required
+        - inline
+        field_type: multiplechoice
+        instructions: ''
+        default_choices: []
+      - name: category_1
+        tags: ''
+        label: Under what category do you belong?
+        rules:
+        - field: student
+          value: 'Yes'
+          action: show
+          operator: exact
+        - field: student
+          value: 'Yes'
+          action: require
+          operator: exact
+        width: full
+        default: []
+        options:
+        - hide
+        - inline
+        field_type: students
+        instructions: Do you have your own research project with independent funding?
+      - name: category_2
+        tags: ''
+        label: Under what category do you belong?
+        rules:
+        - field: student
+          value: 'No'
+          action: show
+          operator: exact
+        width: full
+        default: []
+        options:
+        - hide
+        - inline
+        field_type: staff
+        instructions: Do you have your own research project with independent funding?
+    - name: Where do you work?
+      fields:
+      - name: institution
+        tags: institution-input
+        label: Organisation
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options:
+        - required
+        field_type: singlelinetext
+        instructions: ''
+      - name: sector
+        tags: ''
+        label: Type of Institution
+        width: full
+        options:
+        - required
+        - inline
+        field_type: sector
+        instructions: Select the sector that most closely matches that of your institution.
+      - name: department
+        tags: ''
+        label: Department
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options:
+        - required
+        field_type: singlelinetext
+        instructions: ''
+      - name: address
+        tags: ''
+        label: Work Address
+        options:
+        - required
+        - labels
+        field_type: address
+        instructions: ''
+    - name: Almost Done!
+      fields:
+      - name: final_information
+        tags: p-3
+        label: Declaration
+        width: full
+        options: []
+        field_type: newsection
+        instructions: "By submitting this registration, you are agreeing that:\r\n\r\n*
+          The details provide are accurate and complete to the best of your knowledge.\r\n*
+          We may contact you by email or phone about matters concerning your registration
+          and eventual, possible or actual use of the facility.\r\n* The registration
+          has been completed by the person identified in the registration, and not
+          a third party."
+    actions:
+    - - submit
+      - Submit
+- model: dynforms.formtype
+  pk: 2
+  fields:
+    created: 2014-04-09 16:14:48+00:00
+    modified: 2025-07-07 15:18:16.375021+00:00
+    name: Proposal
+    code: proposal
+    description: Form for creating and editing project proposals to be submitted for
+      peer review
+    header: true
+    help_bar: true
+    wizard: false
+    pages:
+    - name: Description
+      fields:
+      - name: title
+        tags: ''
+        label: Title
+        rules: []
+        units: chars
+        width: full
+        default: Please enter your title
+        maximum: null
+        minimum: null
+        options:
+        - required
+        field_type: singlelinetext
+        instructions: Provide a descriptive title of your experiment
+      - name: abstract
+        size: medium
+        tags: ''
+        label: Abstract
+        units: words
+        width: full
+        default: Please enter your abstract
+        maximum: 200
+        minimum: 50
+        options:
+        - required
+        - counter
+        field_type: paragraphtext
+        instructions: "The abstract should be written for a more general audience,
+          avoiding the use of domain-specific jargon.  The following elements should
+          be addressed briefly:   \r\n\r\n  1. A statement of the question to be addressed;
+          \r\n  2. the anticipated major outcomes and \r\n  3. the potential impact
+          to society and the field.  \r\n\r\nPlease limit your response to ~200 words."
+      - name: subject
+        tags: ''
+        label: Research Area & Keywords
+        width: full
+        options:
+        - required
+        field_type: subjectarea
+        instructions: "Please select the subject areas which best describe  the proposed
+          research.  Select all that apply. Additionally, provide up to 5 descriptive
+          keywords (separated by commas or semi-colons).\r\n\r\nNote that the selected
+          subject areas will be used to match your proposals with appropriate reviewers."
+      - name: scientific_merit
+        size: large
+        tags: ''
+        label: Scientific Description
+        units: words
+        default: ''
+        maximum: 800.0
+        minimum: 50.0
+        options:
+        - required
+        - counter
+        field_type: richtext
+        instructions: "Please provide a clear statement of the work to be undertaken
+          and including the specific objectives, the expected significance, the relationship
+          of this work to the present state of knowledge in the field, as well as
+          to work in progress by the Principal Investigator. \n\nYour description
+          should outline the general work plan, including the broad design of activities
+          to be undertaken. You should address what you want to do, why you want to
+          do it, how you plan to do it, how you will know if you succeed, and what
+          benefits could accrue if successful."
+      - name: societal_impact
+        size: small
+        tags: ''
+        label: Societal, Economic and Industrial Relevance
+        units: words
+        default: ''
+        maximum: 200.0
+        minimum: null
+        options:
+        - counter
+        field_type: paragraphtext
+        instructions: Please describe how the results of the project could reasonably
+          result in economic, social, and/or environmental benefits to society. Also
+          highlight any applicable industrial,  scientific or technical innovations
+          that may result from the project.
+    - name: Research Team
+      fields:
+      - name: leader
+        tags: ''
+        label: Principal Investigator
+        options:
+        - required
+        field_type: nameemail
+        instructions: 'If you are not the principal investigator (for example, if
+          you are a student or Post-Doctoral fellow) please identify your Scientific
+          Project Leader.  '
+      - name: team_members
+        tags: ''
+        label: Other Team Members
+        options:
+        - repeat
+        field_type: nameemail
+        instructions: Please identify additional team members not already listed above.
+          The email address must match the one used by the team member during registration,
+          otherwise they won't be able to view the proposal.
+      - name: invoice_address
+        tags: ''
+        label: Invoice Address
+        width: full
+        options:
+        - department
+        - labels
+        field_type: address
+        instructions: "Proposals awarded beam time require an appropriate address
+          for invoicing purposes. If the invoice address is different from that of
+          the Principal Investigator identified above, please provide it below.  \r\n\r\nInvoices
+          will be generated for an access fee of $1 per eight hour shift, plus fees
+          for other items where application, such as shipping/receiving of samples
+          and/or materials and supplies signed out by you or a member of your team
+          during your experiments."
+      - name: funding
+        tags: ''
+        label: Funding Sources
+        width: full
+        values:
+        - NSERC
+        - CIHR
+        - SSHRC
+        - Industrial Partner
+        choices:
+        - NSERC
+        - CIHR
+        - SSHRC
+        - Industrial Partner
+        default: []
+        options:
+        - required
+        - other
+        field_type: checkboxes
+        instructions: Please indicate which funding sources support the proposed research
+        default_choices: []
+      - name: team_capability
+        size: medium
+        tags: ''
+        label: Capability & Productivity of Team
+        units: chars
+        default: ''
+        maximum: 1000.0
+        minimum: null
+        options:
+        - required
+        - counter
+        field_type: paragraphtext
+        instructions: If you are a new user to CLS, please comment on your research
+          team's recent synchrotron experience and evidence of capability. If you
+          have no synchrotron experience, give evidence of productivity in other fields.
+      - name: inappropriate_reviewers
+        tags: ''
+        label: Inappropriate Reviewers
+        options:
+        - repeat
+        field_type: fullname
+        instructions: Please Identify any reviewers you believe would have a conflict
+          of interest in your proposal. You do not have to identify members of your
+          team here.
+    - name: Beamlines
+      fields:
+      - name: first_cycle
+        tags: tinytron
+        label: Earliest Scheduling Period
+        width: full
+        options:
+        - required
+        field_type: reviewcycle
+        instructions: "Select the time period during which you are proposing to carry
+          out the experiments.   This should correspond to the earliest time frame
+          you would like the proposal to be scheduled if approved.  \r\n\r\nThe call
+          for proposals is open twice a year, usually about 5 months prior to the
+          start of the scheduling period. Approved projects will remain active for
+          two years from the start date of the selected period. However, proposals
+          submitted after the close of the submission deadline  for the selected period
+          will be considered as special requests for discretionary time only. Such
+          projects will expire at the end of the selected scheduling period."
+      - name: beamline_reqs
+        tags: ''
+        label: Facility Requirements
+        width: full
+        options:
+        - required
+        - repeat
+        - justification
+        field_type: beamlinereqs
+        max_repeat: null
+        instructions: "Please identify all the techniques and beamlines you plan to
+          use during your project.  Note that you can now submit a single proposal
+          for multiple-beamline projects -- simply use the [+] button to add additional
+          sections as required.  \r\n\r\nFor each facility, complete the following
+          fields:  \r\n\r\n*  _Techniques_ -- select all the techniques you plan to
+          use on that beamline.  \r\n*  _Facility_ -- select the facility. The available
+          techniques and facilities will auto-update based on your selections.  \r\n*
+          \ _Shifts_ -- Enter the number of shifts being requested for period identified
+          above. **NOT the total amount of time requested over the lifetime of the
+          project.**  \r\n*  _Experimental Procedure_ --  describe the experimental
+          procedure to be followed at the selected facility specifically.  \r\n*  _Justification
+          of Suitability_ --  Explain why this particular facility is suitable for
+          the planned experiments. Also explain the rational for the amount of beam
+          time requested above.\r\n\r\nFor each facility you plan to use, you are
+          advised to discuss your experiment with the beamline scientist to confirm
+          its suitability."
+      - name: ancillaries
+        tags: ''
+        label: Ancillaries Requirements
+        width: full
+        options:
+        - multiple
+        field_type: ancillary
+        instructions: 'Select any other ancillary requirements (labs, equipment, etc)
+          you will need for your experiment on-site.
+
+
+          Note that you will still be able to use a lab or equipment if you fail to
+          select it at this stage. However, some labs and equipment require special
+          training before use. By selecting them in advance, you will be provided
+          with more accurate information about all the training requirements needed
+          for your planned experiment.
+
+
+          Note that some ancillaries and/or labs may be beamline specific. Please
+          discuss with the relevant beamline scientist if in doubt.'
+      - name: date_preferences
+        tags: ''
+        label: Date Preferences
+        width: full
+        options:
+        - list
+        field_type: date
+        instructions: Please select your preferred dates
+    - name: Materials
+      fields:
+      - name: safety-instructions
+        tags: ''
+        label: Instructions
+        options:
+        - nolabel
+        field_type: newsection
+        instructions: "You are required to provide as much detail as possible about
+          the types of samples and materials you will be **bringing or using**, potential
+          hazards, and your planned activities . Projects  with outstanding safety,
+          or ethics issues will not be permitted beam time. \n\nApproved projects
+          can be amended prior to  scheduled beam time, to add samples or materials.
+          Amendments must be  reviewed and approved prior to use.  To guarantee that
+          materials will be approved in time, please submit amendments at least two
+          weeks prior to the planned experiment. **Only approved materials will be
+          allowed at the facility.**"
+      - name: sample_list
+        tags: ''
+        label: List of Samples
+        rules: []
+        options: []
+        field_type: samples
+        instructions: "If you have detailed information about your samples, add them
+          here. \n\nAdd previously defined samples by selecting  them from the  drop-down
+          list. New samples can be created by clicking the [+] button. You can update
+          entries by clicking on the sample name.\n\nThe quantity of each sample must
+          be specified, including number of items and units. For example:  \n\n *
+          \  \"20 x 10 ml\"  \n *   \"0.3 Kg\" \n *   \"15 slides\" "
+      - name: sample_types
+        tags: ''
+        label: What types of samples will be used at the CLS
+        options:
+        - required
+        field_type: sampletypes
+        instructions: "If you have added all your samples above, this field will be
+          completed automatically based on the properties of individual samples. \n
+          \n\nHowever, if you do not have all your sample information at this time,
+          you are required to select all the categories of samples types applicable
+          to the planned experiments.  \n\n"
+      - name: sample_hazards
+        tags: ''
+        label: Hazards associated with experiment
+        options:
+        - required
+        field_type: samplehazards
+        instructions: "If you have added all your samples above, this field will be
+          completed automatically based on the hazards identified for individual samples.
+          \n\nHowever, if you do not have all your sample information at this time,
+          you are required to select all the hazard classes applicable to the planned
+          experiments. "
+      - name: sample_handling
+        size: medium
+        tags: ''
+        label: Sample Handling Procedure
+        units: chars
+        default: ''
+        maximum: 500.0
+        minimum: null
+        options:
+        - required
+        - counter
+        field_type: paragraphtext
+        instructions: 'You are required to disclose any sample handling procedures
+          which will be performed on-site, regardless of simplicity (e.g.  transferring
+          a few milligrams of material into a sample holder, etc).
+
+
+          The following areas should be addressed in your description:
+
+
+          a) How will the samples will be transported to the facility. For large animals,
+          describe how they will be moved in/out of the experimental enclosure. For
+          radioactive materials, describe the sample holder/containment.
+
+
+          b) Describe how they will be manipulated on site. For live animal work,
+          describe the methods of anaesthesia, monitoring of anaesthetized animals,
+          and animal restraint methods.
+
+
+          c) Include details about any standard operating procedures which will be
+          followed and any safety controls and personal protection equipment or exposure
+          control plans which will be used.
+
+          '
+      - name: waste_generation
+        tags: ''
+        label: Waste Generation
+        options: []
+        field_type: wastetypes
+        instructions: Please identify all types of wastes which will be generated
+          during your experiment
+      - name: disposal_procedure
+        size: small
+        tags: ''
+        label: Description, Decontamination & Disposal Procedure
+        rules:
+        - field: waste_generation
+          value: ''
+          action: show
+          operator: notnull
+          subfield: ''
+        - field: waste_generation
+          value: ''
+          action: require
+          operator: notnull
+          subfield: ''
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options:
+        - hide
+        field_type: paragraphtext
+        instructions: Provide additional descriptions of the types of waste identified
+          above, as well as any decontamination and disposal procedures which will
+          be followed.
+      - name: equipment
+        tags: ''
+        label: Equipment
+        options:
+        - repeat
+        field_type: equipment
+        instructions: "Provide details of any equipment you will be bringing to assist
+          you with the experiment (e.g. pressure chambers, gas manifolds, heating
+          apparatus,  lasers --specify laser classes, cooling apparatus, cryogenic
+          equipment, etc). Be sure to describe the electrical/mechanical requirements.\n\nAll
+          electrical equipment brought into the facility shall conform to electrical
+          safety standards and bear a mark from a Nationally Recognized Testing Laboratory
+          (NRTL), recognized by <a href=\"http://www.saskpower.com/wp-content/uploads/electric_certification.pdf\">SaskPower</a>.
+          The equipment will be checked to confirm that it meets the appropriate electrical
+          standard before it can be used on-site. \n\nNon-commercial electronics will
+          require more detailed inspection before use. Please arrange to have this
+          inspection done in advance of your planned experiment.\n"
+    actions:
+    - - preview
+      - Preview
+    - - save
+      - Save
+- model: dynforms.formtype
+  pk: 3
+  fields:
+    created: 2015-03-26 19:04:20+00:00
+    modified: 2024-12-05 05:43:24.485590+00:00
+    name: Scientific Review
+    code: scientific-review
+    description: Form to be filled by reviewer during Scientific Peer Review
+    header: false
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Scientific Merit
+      fields:
+      - name: scientific_merit
+        tags: ''
+        label: Scientific Quality of the Research in the context of the field
+        values:
+        - Highly innovative research of great importance which will significantly
+          advance knowledge in the field.
+        - Research is of very high quality and will likely make a significant contribution
+          to a specific scientific discipline.
+        - Research is likely to produce publishable results in a specialized journal.
+        - ' Research is of limited scope and will not significantly impact a specific
+          field and may not result in a publication.'
+        - Research is either not well planned, is not feasible, unlikely to result
+          in publishable results, or is too poorly described to permit proper judgement
+          of its merit.
+        choices:
+        - Exceptional
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        default:
+        - Poor
+        options:
+        - required
+        field_type: scorechoices
+        instructions: Does the proposal describe what will be studied, its importance,
+          the hypotheses, how the results will impact the field, and what is the likelihood
+          of success?
+        default_choices:
+        - 5
+      - name: comments
+        size: small
+        tags: ''
+        label: Comments for applicant
+        rules:
+        - field: scientific_merit
+          value: '1'
+          action: require
+          operator: exact
+          subfield: ''
+        - field: scientific_merit
+          value: '5'
+          action: require
+          operator: exact
+          subfield: ''
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options:
+        - required
+        field_type: paragraphtext
+        instructions: Please provide comments about your review to the applicant
+      - name: comments_committee
+        size: small
+        tags: ''
+        label: Comments for Committee
+        rules:
+        - field: scientific_merit
+          value: '1'
+          action: require
+          operator: exact
+          subfield: ''
+        - field: scientific_merit
+          value: '5'
+          action: require
+          operator: exact
+          subfield: ''
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: 'Please provide comments to the commitee justifying your  merit,
+          suitability and capability ratings. '
+    - name: Suitability
+      fields:
+      - name: suitability
+        tags: ''
+        label: Suitability of Requested Facilities
+        values:
+        - There is no other way to answer the scientific question posed without using
+          the CLS beamline requested. The experiment represents optimal use of the
+          beamline
+        - ' Synchrotron radiation from a third generation source is required for this
+          project, and the CLS beamline requested is well suited for this type of
+          research.'
+        - Synchrotron radiation is required to accomplish the intended goals of the
+          research, but either another CLS beamline is a better match, the experiment
+          is not taking advantage of the capabilities of a third generation source
+          or the experiment is not well suited for the capabilities of the beamline
+          at this time
+        - The proposal has not adequately justified that a synchrotron experiment
+          is required to answer the scientific question. In some cases the proposal
+          may be improved by first performing experiments using more conventional
+          techniques.
+        - There are non-synchrotron methods which should be used to answer this scientific
+          question. This is not appropriate use of CLS resources.
+        choices:
+        - Exceptional
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        default: []
+        options:
+        - required
+        field_type: scorechoices
+        instructions: Does the proposed research require the resources being requested?
+          Does it constitute good use of the sources?
+        default_choices: []
+    - name: Capability
+      fields:
+      - name: capability
+        tags: ''
+        label: Quality, Capability and Track record of the Research Team
+        values:
+        - The applicants have demonstrated a highly productive track record of publishing
+          their CLS results in top-tier journals. In the case of researchers new to
+          the CLS, they show exceptional potential.
+        - ' The applicants have consistently published their CLS results, sometimes
+          in top-tier journals. In the case of researchers new to the CLS, there is
+          a very high likelihood that these researchers will become highly productive
+          users '
+        - 'The applicants have a reasonable record of publishing their CLS results
+          but rarely in top-tier journals, or they are potentially productive past
+          users who have demonstrated that they should be given more time. In the
+          case of researchers new to the CLS, they have demonstrated potential for
+          becoming productive users. '
+        - The researchers have only been marginally productive with previous CLS beamtime
+          and there is need for improvement. In the case of researchers new to the
+          CLS, their proposal reveals a lack of knowledge of synchrotron experiments,
+          and they could benefit from more training and/or mentoring.
+        - 'Researchers have received significant beamtime at CLS with an unacceptable
+          publication record. '
+        choices:
+        - Exceptional
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        default: []
+        options:
+        - required
+        field_type: scorechoices
+        instructions: Does the research team have recent synchrotron and/or other
+          relevant experience? If they are a previous user, they should have clearly
+          demonstrated their track record and productivity in the proposal.
+        default_choices: []
+    actions:
+    - - submit
+      - Submit
+    - - save
+      - Save
+- model: dynforms.formtype
+  pk: 4
+  fields:
+    created: 2015-03-26 19:10:13+00:00
+    modified: 2025-07-08 20:58:02.317424+00:00
+    name: Technical Review
+    code: technical-review
+    description: Technical review form to be completed by reviewers
+    header: true
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Technical Review
+      fields:
+      - name: suitability
+        tags: ''
+        label: Suitability of Resources Requested
+        values:
+        - There is no other way to answer the scientific question posed without using
+          the requested resources
+        - Synchrotron radiation from a third-generation source is required for this
+          project, and the CLS beamline requested is well suited for this type of
+          research.
+        - Synchrotron radiation is required but either the requested beamline is not
+          optimal or the experiment does not take full advantage of the capabilities
+          of a third generation source.
+        - The proposal has not adequately justified that a synchrotron experiment
+          is required to answer the scientific question.
+        - The scientific question is better answered using other non-synchrotron techniques
+          and does not constitute appropriate  use of CLS resources.
+        choices:
+        - Exceptional
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        default: []
+        options:
+        - required
+        field_type: scorechoices
+        instructions: ''
+        default_choices: []
+      - name: comments
+        size: small
+        tags: ''
+        label: Comments
+        rules: []
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options:
+        - required
+        field_type: paragraphtext
+        instructions: Please provide any comments for the applicant and committee
+          about the proposal and your assigned score.
+      - name: comments_committee
+        size: small
+        tags: ''
+        label: Comments for the committee only
+        rules: []
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Provide any comments to the peer-review committee only
+      - name: facility
+        tags: ''
+        label: Facility
+        options:
+        - hide
+        - nolabel
+        field_type: technicaltags
+        instructions: Facility ID
+    - name: Safety Check
+      fields:
+      - name: risk_level
+        tags: ''
+        label: Risk Level of Proposed Experiment
+        width: full
+        values:
+        - The samples/sample handling procedures are recognized as being of minimal
+          risk.
+        - The experiment may require additional controls and/or HSE attention before
+          commencing.
+        - HSE involvement/confirmation of controls will likely be required for this
+          experient to proceed.
+        - This experiment appears to be too risky to be performed at the CLS.
+        - It is unclear what level of risk is presented in this proposal.
+        choices:
+        - Low
+        - Medium
+        - High
+        - Unacceptable
+        - Not Sure
+        default: []
+        options:
+        - required
+        field_type: scorechoices
+        instructions: Estimate the risk level for the proposed experiment based on
+          the samples and procedures described.  Note that a final safety review will
+          be performed by HSE before any experiment proceeds.
+        default_choices: []
+      - name: comments_safety
+        size: small
+        tags: ''
+        label: Safety Comments
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide any comments to the safety approver about the
+          safety of the proposed experiment if applicable
+    actions:
+    - - submit
+      - Submit
+    - - save
+      - Save
+- model: dynforms.formtype
+  pk: 5
+  fields:
+    created: 2015-03-26 19:10:54+00:00
+    modified: 2025-07-08 20:57:45.283715+00:00
+    name: Safety Approval
+    code: safety-approval
+    description: Final Safety Approval Form to be completed by the safety approver
+      after all safety reviews have been complete. Can also be used to create new
+      safety reviews.
+    header: true
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Assign Reviewers
+      fields:
+      - name: reviews
+        tags: ''
+        label: Assigned  Reviews
+        options:
+        - required
+        field_type: reviewsummary
+        instructions: ''
+      - name: additional_reviews
+        tags: ''
+        label: Additional Reviews
+        options:
+        - repeat
+        field_type: reviewers
+        instructions: Please select the types of additional reviews required, and
+          assign them to the appropriate reviewers.
+      - name: section_note
+        tags: ''
+        label: 'NOTE:'
+        options:
+        - nolabel
+        field_type: newsection
+        instructions: Changes to Reviews and Reviewers will
+          be applied once you save the review.
+    - name: Final Decision
+      fields:
+      - name: risk_level
+        tags: ''
+        label: Risk Level of Proposed Experiment
+        values:
+        - The samples/sample handling procedures are recognized as being of minimal
+          risk.
+        - The experiment may require additional controls of HSE attention before commencing.
+        - HSE involvement/confirmation of controls is required for this experient
+          to proceed.
+        - This experiment is too risky to be performed at the CLS.
+        choices:
+        - Low
+        - Medium
+        - High
+        - Unacceptable
+        default: []
+        options:
+        - required
+        field_type: scorechoices
+        instructions: ''
+        default_choices: []
+      - name: comments
+        size: medium
+        tags: ''
+        label: Provide additional comments if applicable
+        rules:
+        - field: ''
+          value: ''
+          action: ''
+          operator: ''
+          subfield: ''
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: These comments will be visible to the users.
+    actions:
+    - - submit
+      - Submit
+    - - save
+      - Save
+- model: dynforms.formtype
+  pk: 6
+  fields:
+    created: 2015-03-26 19:13:32+00:00
+    modified: 2025-07-08 20:57:51.992044+00:00
+    name: Ethics Review
+    code: ethics-review
+    description: Ethics review form
+    header: true
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Ethics Review
+      fields:
+      - name: samples
+        tags: ''
+        label: Samples and Materials
+        options:
+        - required
+        field_type: sampleethicsreviews
+        instructions: For each sample listed below, please complete the ethics review.
+    - name: Comments
+      fields:
+      - name: comments
+        size: medium
+        tags: ''
+        label: Comments
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide any comments about your review and recommendations
+      - name: comments_committee
+        size: medium
+        tags: ''
+        label: Comments for Approver
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide any confidential comments to the approver about
+          your review
+    actions:
+    - - submit
+      - Submit
+    - - save
+      - Save
+- model: dynforms.formtype
+  pk: 7
+  fields:
+    created: 2015-10-16 18:40:18+00:00
+    modified: 2025-07-16 13:01:12.403990+00:00
+    name: Safety Review
+    code: safety-review
+    description: Safety review form to be completed by safety reviewers
+    header: true
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Samples
+      fields:
+      - name: samples
+        tags: ''
+        label: Sample Hazards and Precautions
+        options: []
+        field_type: samplehazardreviews
+        instructions: Please update the hazards for each sample. The associated precautions
+          will be automatically selected.
+    - name: Permissions & Controls
+      fields:
+      - name: requirements
+        tags: ''
+        label: Permission Requirements
+        options: []
+        field_type: permissions
+        instructions: ''
+    - name: Recommendation
+      fields:
+      - name: risk_level
+        tags: ''
+        label: Risk Level of Experiment
+        values:
+        - The samples/sample handling procedures are recognized as being of minimal
+          risk.
+        - The experiment may require additional controls of HSE attention before commencing.
+        - HSE involvement/confirmation of controls is required for this experient
+          to proceed.
+        - This experiment is too risky to be performed at the CLS.
+        choices:
+        - Low
+        - Medium
+        - High
+        - Unacceptable
+        default: []
+        options:
+        - required
+        field_type: scorechoices
+        instructions: ''
+        default_choices: []
+      - name: comments
+        size: medium
+        tags: ''
+        label: Comment on safety of experiment
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide comments about the safety of the experiment for
+          the applicants
+      - name: comments_committee
+        size: medium
+        tags: ''
+        label: Comments for Approver
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide any confidential comments to the approver about
+          your review
+    actions:
+    - - submit
+      - Submit
+    - - save
+      - Apply & Save
+- model: dynforms.formtype
+  pk: 8
+  fields:
+    created: 2015-11-06 22:21:38+00:00
+    modified: 2024-11-30 16:50:46.559933+00:00
+    name: New Project
+    code: project
+    description: Form for creating projects
+    header: false
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Basic Information
+      fields:
+      - name: title
+        tags: ''
+        label: Title
+        units: chars
+        width: full
+        default: Please enter your title
+        maximum: null
+        minimum: null
+        options:
+        - required
+        field_type: singlelinetext
+        instructions: ''
+      - name: contract
+        tags: ''
+        label: Contract Number
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: singlelinetext
+        instructions: Only one project can be created for each contract.
+      - name: invoice_address
+        tags: ''
+        label: Invoice Address
+        options:
+        - required
+        - department
+        - labels
+        field_type: address
+        instructions: ''
+    - name: Team
+      fields:
+      - name: leader
+        tags: ''
+        label: Principal Investigator
+        options:
+        - required
+        field_type: nameemail
+        instructions: ''
+      - name: delegate
+        tags: ''
+        label: Delegate
+        options: []
+        field_type: nameemail
+        instructions: ''
+      - name: team_members
+        tags: ''
+        label: Team Members
+        options:
+        - repeat
+        field_type: nameemail
+        instructions: ''
+    - name: Beamline & Equipment
+      fields:
+      - name: first_cycle
+        tags: tinytron
+        label: Earliest Scheduling Period
+        options:
+        - required
+        field_type: reviewcycle
+        instructions: "Select the time period during which you are proposing to carry
+          out the experiments.   This should correspond to the earliest time frame
+          you would like the proposal to be scheduled if approved.  \n\nThe call for
+          proposals is open twice a year, usually about 5 months prior to the start
+          of the scheduling period. Approved projects will remain active for two years
+          from the start date of the selected period. However, proposals submitted
+          after the close of the submission deadline  for the selected period will
+          be considered as special requests for discretionary time only. Such projects
+          will expire at the end of the selected scheduling period."
+      - name: beamline_reqs
+        tags: ''
+        label: Facility Requirements
+        options:
+        - required
+        - repeat
+        - tags
+        field_type: beamlinereqs
+        instructions: "Please identify all the techniques and beamlines you plan to
+          use during your project.  Note that you can now submit a single proposal
+          for multiple-beamline projects -- simply use the [+] button to add additional
+          sections as required.  \n\nFor each facility, complete the following fields:
+          \ \n\n*  _Techniques_ -- select all the techniques you plan to use on that
+          beamline.  \n*  _Facility_ -- select the facility. The available techniques
+          and facilities will auto-update based on your selections.  \n*  _Shifts_
+          -- Enter the number of shifts being requested for period identified above.
+          **NOT the total amount of time requested over the lifetime of the project.**
+          \ \n*  _Experimental Procedure_ --  describe the experimental procedure
+          to be followed at the selected facility specifically.  \n*  _Justification
+          of Suitability_ --  Explain why this particular facility is suitable for
+          the planned experiments. Also explain the rational for the amount of beam
+          time requested above.\n\nFor each facility you plan to use, you are advised
+          to discuss your experiment with the beamline scientist to confirm its suitability.\n"
+      - name: ancillaries
+        tags: ''
+        label: Ancillary Requirements
+        width: full
+        options:
+        - multiple
+        field_type: ancillary
+        instructions: Select any other ancillary requirements you will need for your
+          experiment on-site.
+    - name: Materials Declaration
+      fields:
+      - name: sample_list
+        tags: ''
+        label: List of Samples
+        options: []
+        field_type: samples
+        instructions: "If you have detailed information about your samples, add them
+          here. \n\nAdd previously defined samples by selecting  them from the  drop-down
+          list. New samples can be created by clicking the [+] button. You can update
+          entries by clicking on the sample name.\n\nThe quantity of each sample must
+          be specified, including number of items and units. For example:  \n\n *
+          \  \"20 x 10 ml\"  \n *   \"0.3 Kg\" \n *   \"15 slides\" "
+      - name: sample_handling
+        size: medium
+        tags: ''
+        label: Sample Handling Procedure
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options:
+        - required
+        field_type: paragraphtext
+        instructions: 'You are required to disclose any sample handling procedures
+          which will be performed on-site, regardless of simplicity (e.g.  transferring
+          a few milligrams of material into a sample holder, etc).
+
+
+          The following areas should be addressed in your description:
+
+
+          a) How will the samples will be transported to the facility. For large animals,
+          describe how they will be moved in/out of the experimental enclosure. For
+          radioactive materials, describe the sample holder/containment.
+
+
+          b) Describe how they will be manipulated on site. For live animal work,
+          describe the methods of anaesthesia, monitoring of anaesthetized animals,
+          and animal restraint methods.
+
+
+          c) Include details about any standard operating procedures which will be
+          followed and any safety controls and personal protection equipment or exposure
+          control plans which will be used.
+
+          '
+      - name: waste_generation
+        tags: ''
+        label: Waste Generation
+        options: []
+        field_type: wastetypes
+        instructions: Please identify all types of wastes which will be generated
+          during your experiment
+      - name: disposal_procedure
+        size: small
+        tags: ''
+        label: Description, Decontamination & Disposal Procedure
+        rules:
+        - field: waste_generation
+          value: ''
+          action: require
+          operator: notnull
+          subfield: ''
+        - field: ''
+          value: ''
+          action: ''
+          operator: ''
+          subfield: ''
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options:
+        - hide
+        field_type: paragraphtext
+        instructions: Provide addition descriptions of the types of waste identified
+          above, as well as any decontamination and disposal procedures which will
+          be followed.
+      - name: equipment
+        tags: ''
+        label: Equipment
+        options:
+        - repeat
+        field_type: equipment
+        instructions: "Provide details of any equipment you will be bringing to assist
+          you with the experiment (e.g. pressure chambers, gas manifolds, heating
+          apparatus,  lasers --specify laser classes, cooling apparatus, cryogenic
+          equipment, etc). Be sure to describe the electrical/mechanical requirements.\n\nAll
+          electrical equipment brought into the facility shall conform to electrical
+          safety standards and bear a mark from a Nationally Recognized Testing Laboratory
+          (NRTL), recognized by <a href=\"http://www.saskpower.com/wp-content/uploads/electric_certification.pdf\">SaskPower</a>.
+          The equipment will be checked to confirm that it meets the appropriate electrical
+          standard before it can be used on-site. \n\nNon-commercial electronics will
+          require more detailed inspection before use. Please arrange to have this
+          inspection done in advance of your planned experiment.\n"
+    actions:
+    - - submit
+      - Submit
+- model: dynforms.formtype
+  pk: 9
+  fields:
+    created: 2015-11-18 19:51:18+00:00
+    modified: 2025-07-16 14:22:19.643562+00:00
+    name: Materials Amendment
+    code: amendment
+    description: Form for submitting changes in a project's samples, equipment, and/or
+      procedures for safety/ethics review.
+    header: true
+    help_bar: true
+    wizard: false
+    pages:
+    - name: Project Materials
+      fields:
+      - name: sample_list
+        tags: ''
+        label: List of Samples
+        options: []
+        field_type: samples
+        instructions: If you have detailed information about your samples, add them
+          here. Previously defined samples can be added to the proposal from the drop-down
+          list. New samples can be created by clicking the [+] button.
+      - name: sample_handling
+        size: small
+        tags: ''
+        label: Sample Handling Procedure
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options:
+        - required
+        field_type: paragraphtext
+        instructions: Please describe how the samples will be transported and all
+          sample handling procedures to be  followed on-site. Your description should
+          include any spill-response procedures and protective equipment to be used.
+      - name: waste_generation
+        tags: ''
+        label: Waste Generation
+        options: []
+        field_type: wastetypes
+        instructions: Please identify all types of wastes which will be generated
+          during your experiment
+      - name: disposal_procedure
+        size: small
+        tags: ''
+        label: Waste Description & Disposal Procedure
+        rules:
+        - field: waste_generation
+          value: ''
+          action: show
+          operator: notnull
+          subfield: ''
+        - field: waste_generation
+          value: ''
+          action: require
+          operator: notnull
+          subfield: ''
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options:
+        - hide
+        field_type: paragraphtext
+        instructions: Please describe all waste disposal procedures which will be
+          followed
+      - name: equipment
+        tags: ''
+        label: Equipment
+        width: full
+        options:
+        - repeat
+        field_type: equipment
+        max_repeat: null
+        instructions: Provide details of any equipment you will be bringing to assist
+          you with the experiment. Be sure to describe the electrical/mechanical requirements
+    actions:
+    - - submit
+      - Submit
+- model: dynforms.formtype
+  pk: 10
+  fields:
+    created: 2015-11-20 19:54:39+00:00
+    modified: 2025-07-13 18:02:19.080405+00:00
+    name: Team Amendment
+    code: team
+    description: Form for changing team members, delegate, or leader of a project
+    header: true
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Team
+      fields:
+      - name: leader
+        tags: ''
+        label: Principal Investigator
+        options:
+        - required
+        field_type: nameemail
+        instructions: If you are not the principal investigator (for example, if you
+          are a student or Post-Doctoral fellow) please identify your Scientific Project
+          Leader.  The email address must match the one used by the PI during registration.
+      - name: delegate
+        tags: ''
+        label: Delegate
+        options: []
+        field_type: nameemail
+        instructions: Please identify another person in your team who should be contacted
+          in the absence of the principal investigator.  The email address must match
+          the one used by the delegate during registration.
+      - name: team_members
+        tags: ''
+        label: Other Team Members
+        options:
+        - repeat
+        field_type: nameemail
+        instructions: Please identify additional team members not already listed above.
+          The email address must match the one used by the team member during registration,
+          otherwise they won't be able to join the project.
+      - name: invoice_address
+        tags: ''
+        label: Invoice Address
+        options:
+        - labels
+        field_type: address
+        instructions: "Proposals awarded beam time require an appropriate address
+          for invoicing purposes. If the invoice address is different from that of
+          the Principal Investigator identified above, please provide it below.  \n\nInvoices
+          will be generated for an access fee of $1 per eight hour shift, plus fees
+          for other items where application, such as shipping/receiving of samples
+          and/or materials and supplies signed out by you or a member of your team
+          during your experiments."
+    actions:
+    - - save
+      - Submit
+- model: dynforms.formtype
+  pk: 12
+  fields:
+    created: 2015-12-10 17:47:19+00:00
+    modified: 2025-07-15 17:32:38.648799+00:00
+    name: User Feedback
+    code: feedback
+    description: Form to capture user feedback following beamtime.
+    header: true
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Operations
+      fields:
+      - name: section-005
+        tags: ''
+        label: Storage Ring Operations
+        options: []
+        field_type: newsection
+        instructions: ''
+      - name: machine
+        tags: ''
+        label: Storage Ring Operations
+        width: full
+        values:
+        - Reliability
+        - Beam Stability
+        - Communication
+        - Availability
+        choices:
+        - Reliability
+        - Beam Stability
+        - Communication
+        - Availability
+        default: []
+        options: []
+        field_type: likert
+        instructions: Please rate the machine operations during your session according
+          to the following categories.
+        default_choices: []
+      - name: amenities_desires
+        size: small
+        tags: ''
+        label: What amenities would you like made available?
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: ''
+      - name: section-006
+        tags: ''
+        label: Beamline and End Station
+        options: []
+        field_type: newsection
+        instructions: ''
+      - name: beamline
+        tags: ''
+        label: Beamline Operations
+        width: full
+        values:
+        - Personnel
+        - Environment
+        - End-station
+        - Equipment Quality
+        - Beam Quality
+        - Software
+        - Hardware
+        - Data Transfer
+        - Availability
+        choices:
+        - Personnel
+        - Environment
+        - End-station
+        - Equipment Quality
+        - Beam Quality
+        - Software
+        - Hardware
+        - Data Transfer
+        - Availability
+        default: []
+        options: []
+        field_type: likert
+        instructions: Please rate beamline operations during your session according
+          to the following categories.
+        default_choices: []
+      - name: beamline_comments
+        size: small
+        tags: ''
+        label: Comments on Beamtime and Beamline/End Station
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: ''
+    - name: Administrative Support
+      fields:
+      - name: administration
+        tags: ''
+        label: Administrative and Communications
+        width: full
+        values:
+        - Registration
+        - Administrative Support
+        - Check-In Procedure
+        - User Information / Web Pages
+        - Parking
+        - Sign-in / Safety
+        - Training
+        choices:
+        - Registration / Proposals
+        - Administrative Support
+        - Check-In Procedure
+        - User Information / Web Pages
+        - Parking
+        - Sign-in / Safety
+        - Training
+        default: []
+        options: []
+        field_type: likert
+        instructions: ''
+        default_choices: []
+      - name: administration_comments
+        size: small
+        tags: ''
+        label: Comments
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide any additional comments on Administrative Support
+          and User Communications
+    - name: User Amenities
+      fields:
+      - name: amenities_overall
+        tags: ''
+        label: User Amenities
+        width: full
+        values:
+        - Excellent
+        - Good
+        - Average
+        - Fair
+        - Poor
+        - N/A
+        choices:
+        - Excellent
+        - Good
+        - Average
+        - Fair
+        - Poor
+        - N/A
+        default: []
+        options: []
+        field_type: multiplechoice
+        instructions: ''
+        default_choices: []
+      - name: amenities_comments
+        size: small
+        tags: ''
+        label: Comments on Facility User Amenities
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: ''
+      - name: amenities_desires
+        size: small
+        tags: ''
+        label: What amenities would you like made available?
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: ''
+      - name: amenities_lodging
+        tags: ''
+        label: If you are not from Saskatoon, where did you stay during your visit?
+        width: full
+        values:
+        - Guest House
+        - Hotel
+        - Bed & Breakfast
+        - Friends or Family
+        choices:
+        - Guest House
+        - Hotel
+        - Bed & Breakfast
+        - Friends or Family
+        default: []
+        options:
+        - other
+        field_type: multiplechoice
+        instructions: ''
+        default_choices: []
+      - name: amenities_lodging_comments
+        size: small
+        tags: ''
+        label: Comments
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: ''
+      - name: amenities_lodging_reason
+        tags: ''
+        label: What was the basis for your decision on where to stay?
+        width: full
+        values:
+        - Location
+        - Price
+        choices:
+        - Location
+        - Price
+        default: []
+        options:
+        - other
+        field_type: checkboxes
+        instructions: ''
+        default_choices: []
+      - name: amenities_lodging_reason_comments
+        size: small
+        tags: ''
+        label: Comments
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: ''
+    actions:
+    - - submit
+      - Submit
+- model: dynforms.formtype
+  pk: 13
+  fields:
+    created: 2016-02-03 19:16:06+00:00
+    modified: 2025-05-26 01:34:42.557257+00:00
+    name: Form For testing
+    code: test-form
+    description: Just an example playground form for testing
+    header: false
+    help_bar: false
+    wizard: false
+    pages:
+    - name: First Page
+      fields:
+      - name: sector-000
+        tags: ''
+        label: Sector 000
+        options: []
+        field_type: sector
+        instructions: ''
+      - name: sample-types-002
+        tags: ''
+        label: Sample Types 002
+        options: []
+        field_type: sampletypes
+        instructions: ''
+      - name: date-002
+        tags: ''
+        label: Date 002
+        options: []
+        field_type: date
+        instructions: ''
+    actions:
+    - - submit
+      - Submit
+- model: dynforms.formtype
+  pk: 14
+  fields:
+    created: 2017-01-11 17:24:08.538421+00:00
+    modified: 2024-11-30 16:50:46.541038+00:00
+    name: Equipment Review
+    code: equipment-review
+    description: For used for reviewing equipment
+    header: false
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Equipment Review
+      fields:
+      - name: equipment
+        tags: ''
+        label: List of Equipment
+        options:
+        - required
+        field_type: equipmentreviews
+        instructions: Please review each applicable piece of equipment below and identify
+          further actions that will be required before the experiment can proceed.
+    - name: Comments
+      fields:
+      - name: comments
+        size: small
+        tags: ''
+        label: Comment for applicant
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide additional comments or instructions for the applicants
+      - name: comments_committee
+        size: small
+        tags: ''
+        label: Comments for Approver
+        units: chars
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide any confidential comments to the approver about
+          your review
+    actions:
+    - - submit
+      - Submit
+    - - save
+      - Apply & Save
+- model: dynforms.formtype
+  pk: 15
+  fields:
+    created: 2025-07-08 19:46:33.767639+00:00
+    modified: 2025-07-08 23:55:14.010784+00:00
+    name: Safety Pre-Assessment
+    code: safety-assessment
+    description: "A preliminary safety review that is performed at the Proposal stage.
+      More detailed\r\nsafety review and approval is performed later."
+    header: true
+    help_bar: false
+    wizard: false
+    pages:
+    - name: Safety Assessment
+      fields:
+      - name: risk_level
+        tags: ''
+        label: Risk Level of Proposed Experiment
+        width: full
+        values:
+        - The samples/sample handling procedures are recognized as being of minimal
+          risk.
+        - The experiment may require additional controls and/or HSE attention before
+          commencing.
+        - HSE involvement/confirmation of controls will likely be required for this
+          experient to proceed.
+        - This experiment appears to be too risky to be performed at the CLS.
+        - It is unclear what level of risk is presented in this proposal.
+        choices:
+        - Low
+        - Medium
+        - High
+        - Unacceptable
+        - Not Sure
+        default: []
+        options:
+        - required
+        field_type: scorechoices
+        instructions: Estimate the risk level for the proposed experiment based on
+          the samples and procedures described.  Note that a final safety review will
+          be performed by HSE before any experiment proceeds.
+        default_choices: []
+      - name: comments
+        size: small
+        tags: ''
+        label: Safety Comments
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: Please provide any comments to the safety approver about the
+          safety of the proposed experiment if applicable
+    actions:
+    - - save
+      - Save
+    - - submit
+      - Submit

@@ -1,8 +1,8 @@
 import sys
 
 from django.core.management.base import BaseCommand
-
-from isocron import autodiscover, BaseCronJob
+from isocron.models import BackgroundTask
+from isocron import autodiscover
 
 autodiscover()
 
@@ -21,18 +21,22 @@ class Command(BaseCommand):
         parser.add_argument('jobs', nargs='*', type=str)
 
     def handle(self, *args, **options):
-        jobs = BaseCronJob.get_all().items()
-        out = ""
-        for name, cron_job in jobs:
-            if options.get('jobs') and name not in options.get('jobs', []):
-                continue
-            code = cron_job.run(force=options.get('force'))
+        tasks = BackgroundTask.objects.all()
+        if options.get('jobs'):
+            tasks = tasks.filter(name__in=options.get('jobs'))
 
-            if options.get('verbosity', 1) > 0:
-                if code == 0:
-                    out += f'{cron_job.job_log.code} (Skipped)\n'
-                elif code == 1:
-                    out += f'{cron_job.job_log.code} (Success)\n'
+        out = ""
+        for task in tasks:
+            if task.is_due() or options.get('force', False):
+                result = task.run_job(force=options.get('force', False))
+            else:
+                result = 0
+
+            if options.get('verbosity', 0) > 0:
+                if result == 0:
+                    out += f'{task.name:30s} ...Skipped\n'
+                elif result == 1:
+                    out += f'{task.name:30s} ...Success\n'
                 else:
-                    out += f'{cron_job.job_log.code} (Failed)\n'
+                    out += f'{task.name:30s} ...Failed\n'
                 sys.stdout.write(out)

@@ -4,9 +4,11 @@ from datetime import date, timedelta, datetime
 from typing import Literal
 
 from django.conf import settings
-from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField, F
+from django.db.models import Case, When, BooleanField, Value, Q, Sum, IntegerField, F, Avg, Count
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.functions import Concat, Lower
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from docutils.nodes import entry
 from model_utils import Choices
@@ -19,10 +21,6 @@ ALLOC_OFFSET_WEEKS = 2  # When must all committee evaluations be completed, 2 we
 DUE_WEEKS = 6  # Number of weeks from close of call to reviews due date
 
 USO_REVIEW_ASSIGNMENT = getattr(settings, "USO_REVIEW_ASSIGNMENT", "BRUTE_FORCE")
-USO_TECHNICAL_REVIEWS = getattr(settings, "USO_TECHNICAL_REVIEWS", [])
-USO_SCIENCE_REVIEWS = getattr(settings, "USO_SCIENCE_REVIEWS", [])
-USO_SAFETY_REVIEWS = getattr(settings, "USO_SAFETY_REVIEWS", [])
-USO_SAFETY_APPROVAL = getattr(settings, "USO_SAFETY_APPROVAL", "approval")
 
 
 def truncated_title(title, obj=None):
@@ -30,6 +28,15 @@ def truncated_title(title, obj=None):
         f'<span class="overflow ellipsis" style="max-width: 250px;"'
         f' data-placement="bottom" title="{title}">{title}</span>'
     )
+
+
+def ordinal(number: int) -> str:
+    """
+    Format an integer with an ordinal suffix.
+    :param number: The number to format
+    """
+    suffixes = {1: 'st', 2: 'nd', 3: 'rd'}
+    return f'{number}th' if (10 <= number % 100 <= 20) else f'{number}{suffixes.get(number % 10, "th")}'
 
 
 def conv_score(num, default=0.0, converter=float):
@@ -49,87 +56,6 @@ def isodate(year, week, day):
     return d + timedelta(weeks=(week - 1), days=(day - d.weekday()))
 
 
-def create_cycle(today=None):
-    from proposals import models
-    from scheduler.models import Schedule, ShiftConfig
-    log = []
-    if not today:
-        today = date.today()
-
-    if today.month > 6:
-        start_date = date(today.year + 1, 1, 1)
-        end_date = date(today.year + 1, 7, 1)
-        open_year = today.year
-        open_week = 31
-    else:
-        start_date = date(today.year, 7, 1)
-        end_date = date(today.year + 1, 1, 1)
-        open_year = today.year
-        open_week = 5
-
-    open_date = isodate(open_year, open_week, OPEN_WEEKDAY)
-    close_date = isodate(open_year, open_week + 4, CLOSE_WEEKDAY)
-    due_date = close_date + timedelta(weeks=DUE_WEEKS)
-    alloc_date = due_date + timedelta(weeks=ALLOC_OFFSET_WEEKS)
-    existing = models.ReviewCycle.objects.filter(start_date=start_date, open_date=open_date)
-    if not existing.count():
-        description = f"{start_date.strftime('%b')}-{end_date.strftime('%b')} {end_date.strftime('%Y')}: Schedule"
-        config = ShiftConfig.objects.first()
-        schedule = Schedule.objects.create(
-            start_date=start_date, end_date=end_date, description=description, config=config
-        )
-        last_cycle = models.ReviewCycle.objects.filter(
-            start_date__lt=start_date,
-            kind=models.ReviewCycle.TYPES.normal
-        ).order_by(
-            'start_date'
-        ).last()
-        next_pk = 1 if not last_cycle else last_cycle.pk + 1
-        cycle = models.ReviewCycle.objects.create(
-            pk=next_pk,
-            schedule=schedule,
-            start_date=start_date,
-            end_date=end_date,
-            open_date=open_date,
-            close_date=close_date,
-            due_date=due_date,
-            alloc_date=alloc_date
-        )
-        log.append(f'Review Cycle {cycle} missing, created.')
-    else:
-        log.append(f'Review Cycle {existing[0]} already exists, skipping.')
-    return '\n'.join(log)
-
-
-def create_mock(start_date, end_date, open_date, close_date, due_date, alloc_date):
-    from proposals import models
-    from scheduler.models import Schedule, ShiftConfig
-
-    existing = models.ReviewCycle.objects.filter(start_date=start_date, open_date=open_date)
-    if not existing.count():
-        description = f"{start_date.strftime('%b')}-{end_date.strftime('%b')} {end_date.strftime('%Y')}: Schedule"
-        config = ShiftConfig.objects.latest('created')
-        schedule = Schedule.objects.create(
-            start_date=start_date, end_date=end_date, description=description, config=config
-        )
-        last_cycle = models.ReviewCycle.objects.filter(
-            start_date__lt=start_date,
-            kind=models.ReviewCycle.TYPES.mock
-        ).order_by('start_date').last()
-        next_pk = 9991 if not last_cycle else last_cycle.pk + 1
-        models.ReviewCycle.objects.create(
-            pk=next_pk,
-            kind=models.ReviewCycle.TYPES.mock,
-            schedule=schedule,
-            start_date=start_date,
-            end_date=end_date,
-            open_date=open_date,
-            close_date=close_date,
-            due_date=due_date,
-            alloc_date=alloc_date
-        )
-
-
 def get_submission_info(submission):
     """
     Get submission information for matching
@@ -140,7 +66,7 @@ def get_submission_info(submission):
     return {
         'techniques': set(submission.techniques.values_list('technique__pk', flat=True)),
         'areas': set(proposal.areas.values_list('pk', flat=True)),
-        'emails': {user.get('email', '') for user in proposal.get_full_team()},
+        'emails': {user.get('email', '') for user in proposal.get_members()},
         'conflicts': {
             f'{r["fist_name"]},{r["last_name"]}'.strip().lower()
             for r in proposal.details.get('inappropriate_reviewers', [])
@@ -520,14 +446,12 @@ def assign_mip(cycle, stage, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tu
     reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()
     proposals = cycle.submissions.filter(track=track).order_by('?').distinct()
     results = {}
-    max_workload = track.max_workload
 
     print(f"Assigning {proposals.count()} proposals to {reviewers.count()} reviewers.")
-
     assigner = Assigner(proposals, reviewers, stage, cycle)
 
     success = []
-    prop_results, solver, status = mip_optimize(assigner, stage.min_reviews, max_workload, method=method)
+    prop_results, solver, status = mip_optimize(assigner, stage.min_reviews, stage.max_workload, method=method)
     print('External Reviewers:')
     print(f"Objective : {solver.Objective().Value()}")
     print(f"Duration  : {solver.WallTime():0.2f} ms")
@@ -607,11 +531,10 @@ def assign_brute_force(cycle, stage) -> tuple[dict, bool]:
     track = stage.track
     reviewers = Reviewer.objects.available(cycle).order_by('?').distinct()
     proposals = cycle.submissions.filter(track=track).order_by('?').distinct()
-    max_workload = track.max_workload
 
     print(f"Assigning {proposals.count()} proposals to {reviewers.count()} reviewers.")
     assigner = Assigner(proposals, reviewers, stage, cycle)
-    assignments = optimize_brute_force(assigner, stage.min_reviews, max_workload)
+    assignments = optimize_brute_force(assigner, stage.min_reviews, stage.max_workload)
 
     committee = track.committee.order_by('?')
     if committee.count():
@@ -676,40 +599,50 @@ def get_techniques_matrix(cycle=None, sel_techs=(), sel_fac=None):
     the sel_techs or sel_fac.
     """
     from proposals import models
-    tech_facs = defaultdict(list)
-    fac_techs = defaultdict(list)
+    tech_facilities = defaultdict(list)
+    fac_techniques = defaultdict(list)
 
-    if not cycle:
-        return {'techniques': [], 'facilities': []}
+    start_date = cycle.start_date if cycle else date.today()
 
     if not sel_techs:
         sel_techs = [0]
 
-    for conf in models.FacilityConfig.objects.active(d=cycle.start_date).accepting():
+    for conf in models.FacilityConfig.objects.active(d=start_date).accepting():
         for t in conf.items.values_list('technique', flat=True):
-            tech_facs[t].append(conf.facility.pk)
-            fac_techs[conf.facility.pk].append(t)
+            tech_facilities[t].append(conf.facility.pk)
+            fac_techniques[conf.facility.pk].append(t)
 
-    techs = models.Technique.objects.filter(pk__in=list(tech_facs.keys())).annotate(
+    techs = models.Technique.objects.filter(pk__in=list(tech_facilities.keys())).annotate(
         selected=Case(
             When(pk__in=sel_techs, then=Value(1)),
             default=Value(0), output_field=BooleanField()
         )
     ).order_by('name')
 
-    facilities = models.Facility.objects.filter(pk__in=list(fac_techs.keys())).annotate(
+    facilities = models.Facility.objects.filter(pk__in=list(fac_techniques.keys())).annotate(
         selected=Case(
             When(pk=sel_fac, then=Value(1)),
             default=Value(0), output_field=BooleanField()
         )
     ).order_by('name')
     matrix = {
+        'cycle': cycle.pk if cycle else None,
         'techniques': [
-            (t.pk, str(t), t.selected, tech_facs[t.pk])
+            {
+                'id': t.pk,
+                'name': str(t),
+                'selected': t.selected,
+                'facilities': tech_facilities[t.pk]
+            }
             for t in techs
         ],
         'facilities': [
-            (f.pk, str(f), f.selected, fac_techs[f.pk])
+            {
+                'id': f.pk,
+                'name': str(f),
+                'selected': f.selected,
+                'techniques': fac_techniques[f.pk]
+            }
             for f in facilities
         ]
     }
@@ -742,6 +675,208 @@ def notify_reviewers(reviews):
     return count
 
 
+def notify_submission(proposal, cycle):
+    """
+    Notify all team members of a proposal about the submission
+    :param proposal: The proposal instance
+    :param cycle: The review cycle instance
+    """
+
+    success_url = reverse('proposal-detail', kwargs={'slug': proposal.code})
+    full_url = f"{getattr(settings, 'SITE_URL', '')}{success_url}"
+
+    others = []
+    registered_members = []
+    for member in proposal.get_members():
+        user = proposal.get_registered_member(member)
+        if not member.get('roles'):
+            others.append(member.get('email', '') if not user else user)
+            continue
+        if user:
+            registered_members.append(user)
+            recipients = [user]
+        else:
+            recipients = [member.get('email', '')]
+        data = {
+            'name': "{first_name} {last_name}".format(**member) if not user else user.get_full_name(),
+            'proposal_title': proposal.title, 'is_delegate': 'delegate' in member.get('roles', []),
+            'is_leader': 'leader' in member.get('roles', []),
+            'is_spokesperson': 'spokesperson' in member.get('roles', []), 'proposal_url': full_url, 'cycle': cycle,
+            'spokesperson': proposal.spokesperson,
+        }
+        notify.send(recipients, 'proposal-submitted', context=data)
+
+    # notify others
+    notify.send(
+        others, 'proposal-submitted', context={
+            'name': "Research Team Member", 'proposal_title': proposal.title, 'is_delegate': False,
+            'is_leader': False, 'is_spokesperson': False, 'proposal_url': full_url, 'cycle': cycle,
+            'spokesperson': proposal.spokesperson,
+        }
+    )
+
+
 def user_format(value, obj):
     return str(obj.proposal.spokesperson)
 
+
+def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
+    """
+    Create a review stage for a submission
+    :param submission: instance
+    :param stage: ReviewStage instance
+    :param due_weeks: Number of weeks from now to set the due date if the cycle due date is in the past
+    :return: number of reviews created
+    """
+    from . import models
+    to_create = []
+
+    due_date = min(submission.cycle.due_date, timezone.now().date() + timedelta(weeks=due_weeks))
+
+    # create review objects for the requested stage
+    if stage and stage.auto_create:
+        review_type = stage.kind
+        if review_type.per_facility:
+            # create min_reviews reviews for each facility
+            to_create.extend([
+                models.Review(
+                    role=review_type.role.format(facility.acronym),  # assume role as a placeholder for the facility acronym
+                    cycle=submission.cycle,
+                    reference=submission,
+                    type=review_type,
+                    form_type=review_type.form_type,
+                    state=models.Review.STATES.pending,
+                    stage=stage,
+                    due_date=due_date, details={'facility': facility.pk}
+                )
+                for facility in submission.facilities()
+                for _ in range(stage.min_reviews)
+            ])
+        else:
+            to_create.extend([
+                models.Review(
+                    role=review_type.role,
+                    cycle=submission.cycle,
+                    reference=submission,
+                    type=review_type,
+                    form_type=review_type.form_type,
+                    state=models.Review.STATES.pending,
+                    stage=stage,
+                    due_date=due_date,
+                )
+                for _ in range(stage.min_reviews)
+            ])
+
+    # create review objects in bulk
+    models.Review.objects.bulk_create(to_create)
+    return len(to_create)
+
+
+def advance_review_workflow(submission) -> list[str]:
+    """
+    Advance the review workflow for a submission
+    :param submission: Submission instance
+    :return: List of messages indicating the workflow actions taken
+    """
+    from . import models
+
+    if submission.state >= submission.STATES.reviewed:
+        # If the submission is already beyond the reviewed state no further action is needed
+        return []
+
+    logs = []
+    track = submission.track
+    stage_scores = submission.reviews.complete().values('stage__position').order_by('stage__position').annotate(
+        score=Avg('score'), position=F('stage__position'), completed=Count('pk', distinct=True)
+    ).values('position', 'score', 'completed').order_by('position')
+    stage_reviews = submission.reviews.values('stage__position').order_by('stage__position').annotate(
+        position=F('stage__position'), num_reviews=Count('pk', distinct=True)
+    ).values('position', 'num_reviews').order_by('position')
+
+    scores = {
+        s['position']: s for s in stage_scores
+    }
+    stage_status = {
+        s['position']: {
+            'score': scores.get(s['position'], {}).get('score', 0),
+            'completed': scores.get(s['position'], {}).get('completed', 0),
+            'num_reviews': s['num_reviews']
+        }
+        for s in stage_reviews
+    }
+
+    num_facilities = submission.facilities().count()
+    # Iterate through stages in the track and check if the submission passes each stage based on the scores
+    # If a stage has blocks, it will stop the workflow
+    review_failed = False
+    for stage in track.stages.all():
+        num_required = stage.min_reviews if not stage.kind.per_facility else num_facilities * stage.min_reviews
+        reviews_created = stage_status.get(stage.position, {}).get('num_reviews', 0) >= num_required
+        reviews_completed = stage_status.get(stage.position, {}).get('completed', 0) >= num_required
+        stage_passed = (
+            (not stage.blocks) or
+            (stage.kind.low_better and stage_status.get(stage.position, {}).get('score', 0) <= stage.pass_score) or
+            (not stage.kind.low_better and stage_status.get(stage.position, {}).get('score', 0) >= stage.pass_score)
+        )
+
+        if not reviews_created:
+            new = create_reviews_for_stage(submission, stage)
+            if new:
+                logs.append(f'Submission {submission}: Created {new} review(s) for stage-{stage.position}')
+            break
+        elif reviews_created and not reviews_completed:
+            # If reviews are created but are not completed, stop processing
+            break
+        elif reviews_completed and not stage_passed:
+            # Reviews are complete but failed, we cannot advance
+            num_closed = submission.reviews.filter(
+                stage=stage, state__lt=models.Review.STATES.closed
+            ).update(state=models.Review.STATES.closed)
+            if num_closed:
+                logs.append(f'Submission {submission}: {num_closed} stage-{stage.position} review(s) closed.')
+            logs.append(f'Submission {submission}: failed at stage-{stage.position} and is now rejected.')
+            review_failed = True
+            break
+        elif stage_passed:
+            # If the stage is passed, we can advance to the next stage
+            num_closed = submission.reviews.filter(
+                stage=stage, state__lt=models.Review.STATES.closed
+            ).update(state=models.Review.STATES.closed)
+            if num_closed:
+                logs.append(f'Submission {submission}: {num_closed} stage-{stage.position} review(s) closed.')
+            continue
+    else:
+        # If we reached here, all stages passed, we can mark the submission as approved
+        submission.state = submission.STATES.reviewed
+        submission.approved = True
+        submission.comments = submission.get_comments()
+        submission.save()
+        logs.append(f'Submission {submission}: passed all stages and is now approved.')
+
+    if review_failed:
+        # If any stage failed, we mark the submission as rejected
+        submission.state = submission.STATES.reviewed
+        submission.approved = False
+        submission.comments = submission.get_comments()
+        submission.save()
+    return logs
+
+
+def generate_proposal_code(proposal):
+    """
+    Generate a unique code for a proposal
+    :param proposal: Proposal instance
+    :return: Unique code string
+    """
+
+    return f"{proposal.pk:07_}".replace('_', '-')
+
+
+def generate_submission_code(submission):
+    """
+    Generate a unique code for a submission
+    :param submission: Proposal instance
+    :return: Unique code string
+    """
+    proposal_code = generate_proposal_code(submission.proposal)
+    return f"{submission.track.acronym[:2]}{proposal_code}".upper()

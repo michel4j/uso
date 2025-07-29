@@ -1,5 +1,6 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse_lazy
 from django.utils import timesince
 from django.views.generic import edit
@@ -16,24 +17,25 @@ USO_CONTRACTS_ROLES = getattr(settings, 'USO_CONTRACTS_ROLES', ["contracts-admin
 
 
 def dt_display(val, obj=None):
-    return '{} ago'.format(timesince.timesince(val))
+    return f'{timesince.timesince(val)} ago'
 
 
 class AgreementList(RolePermsViewMixin, ItemListView):
     model = models.Agreement
-    template_name = "agreements/agreement-list.html"
+    template_name = "item-list.html"
     list_title = "Agreements"
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
     list_columns = ["name", "code", "state", "num_users"]
     list_filters = ["state", "modified", "created"]
     list_transforms = {'created': dt_display, 'modified': dt_display}
     link_url = "edit-agreement"
+    add_url = "add-agreement"
     link_search = ["name", "content", "description"]
     ordering = ["-state", "created", "modified"]
 
 
 class AgreementFormMixin:
-    template_name = "agreements/form.html"
+    template_name = "form.html"
     form_class = forms.AgreementForm
     success_url = reverse_lazy("agreement-list")
 
@@ -60,14 +62,14 @@ class EditAgreement(RolePermsViewMixin, AgreementFormMixin, edit.UpdateView):
             response = HttpResponseRedirect(self.get_success_url())
         elif self.request.POST.get('submit') == "delete":
             obj = self.get_object()
-            obj_repr = '{}'.format(obj)
+            obj_repr = f'{obj}'
             if obj.state == models.Agreement.STATES.disabled:
                 obj.delete()
-                messages.success(self.request, 'Agreement {} has been deleted'.format(obj_repr))
+                messages.success(self.request, f'Agreement {obj_repr} has been deleted')
             else:
                 messages.error(
                     self.request,
-                    'Active agreement {} can not be deleted. Must be disabled or archived'.format(obj_repr)
+                    f'Active agreement {obj_repr} can not be deleted. Must be disabled or archived'
                 )
             response = HttpResponseRedirect(self.get_success_url())
         else:
@@ -78,18 +80,26 @@ class EditAgreement(RolePermsViewMixin, AgreementFormMixin, edit.UpdateView):
 
 class AcceptAgreement(RolePermsViewMixin, edit.CreateView):
     model = models.Acceptance
-    template_name = "agreements/acceptance.html"
+    template_name = "form.html"
     form_class = forms.AcceptanceForm
     success_url = reverse_lazy("user-dashboard")
 
+    def get_agreement(self):
+        try:
+            agreement = models.Agreement.objects.filter(state="enabled").get(code=self.kwargs['code'])
+        except (models.Agreement.DoesNotExist, ValidationError):
+            messages.error(self.request, "Invalid Agreement!")
+            raise Http404("Agreement not found")
+        return agreement
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
+        kwargs['agreement'] = self.get_agreement()
         return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["agreement"] = models.Agreement.objects.filter(state="enabled").get(pk=self.kwargs['pk'])
+        context["agreement"] = self.get_agreement()
         return context
 
     def form_valid(self, form):
@@ -101,9 +111,10 @@ class AcceptAgreement(RolePermsViewMixin, edit.CreateView):
                     "Your acceptance was rejected because your computer could not be identified!"
                 )
             else:
+                agreement = self.get_agreement()
                 data = {
                     "user": self.request.user,
-                    "agreement_id": self.kwargs['pk'],
+                    "agreement_id": agreement.pk,
                     "host": ip_num
                 }
                 self.model.objects.create(**data)

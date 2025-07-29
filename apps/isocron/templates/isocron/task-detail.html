@@ -1,0 +1,37 @@
+{% extends "crisp_modals/modal.html" %}
+{% load markup %}
+{% load misc %}
+{% block modal_title %}<span style="opacity: 40%;">{{ task.app|upper }}</span> | {{ task }}{% endblock %}
+{% block pre_content %}<form method="POST" action="{% url 'task-run' pk=task.pk %}">{% csrf_token %}{% endblock %}
+{% block modal_body %}
+    {% with last_log=task.last_log next_run=task.next_run %}
+        <div class="alert alert-info">{{ task.description }}</div>
+        <table class="table table-condensed w-100">
+            <tr>
+                <th>Last Run Time</th>
+                <td>{% if last_log %}{{ last_log.created|date:"D F jS/Y H:i" }}{% else %}Never ran{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Next Run Time</th>
+                <td>{% if next_run %}{{next_run|date:"D F jS/Y H:i" }}{% else %}Never{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Last Status</th>
+                <td>{% if last_log %}
+                    <span class="badge text-bg-{% state_tag last_log.state success=last_log.StateType.success danger=last_log.StateType.failed secondary=last_log.StateType.running %}">{{ last_log.get_state_display }}</span>
+                    {% else %}&mdash;{% endif %}
+                </td>
+            </tr>
+        </table>
+        <div class="w-100">
+        <pre class="small scroll-box" style="height: 200px; overflow-y: auto; overflow-x: auto;" >{{ last_log.message|markdown }}</pre>
+        </div>
+    {% endwith %}
+{% endblock %}
+
+{% block modal_footer %}
+
+    <button type="submit" class="btn btn-danger">Run Now</button>
+    <button type="button" class="ms-auto btn btn-secondary" data-bs-dismiss="modal">Close</button>
+{% endblock %}
+{% block post_content %}</form>{% endblock %}

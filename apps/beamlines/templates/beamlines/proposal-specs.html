@@ -1,0 +1,5 @@
+{% if facility %}
+    <div class="alert alert-info my-3">
+        {% include "beamlines/fields/beamline-info.html" with object=facility %}
+    </div>
+{% endif %}

@@ -1,0 +1,21 @@
+{% load beamlines %}
+
+<table class="table table-hover">
+    <tr>
+        <th>Name</th>
+        <th>Acronym</th>
+        <th></th>
+    </tr>
+    {% for obj in object_list %}
+        <tr data-acronym="{{ obj.acronym }}">
+            <td>{{ obj.name }}</td>
+            <td>{{ obj.acronym }}</td>
+            <td><i class="bi-circle-fill" title="{{ obj.get_state_display }}" data-bs-toggle="tooltip"
+                   style="color: {{ obj.state|get_color }};"></i></td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan=3>No results</td>
+        </tr>
+    {% endfor %}
+</table>

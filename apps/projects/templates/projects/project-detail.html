@@ -1,4 +1,4 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
 {% load folio %}
 {% load breadcrumbs %}
@@ -7,42 +7,40 @@
 {% load samples_tags %}
 
 {% block extra_css %}
-    <link href="{% static 'proposals/reviews.css' %}" rel="stylesheet"/>
+    <link href="{% static 'proposals/reviews.scss' %}" rel="stylesheet"/>
 {% endblock %}
 
-{% block page_heading %}
-    <span class="hidden-xs">Project &mdash; </span><span class="text-muted text-narrow">{{ project }}</span>
+{% block page-pretitle %}
+    Project
 {% endblock %}
 
-{% block folio-title %}{{ project.title }}{% endblock %}
-{% block folio-subtitle %}
-    {{ project.get_kind_display }} Project {% for review in project.submissions.all %}[
-    <a href="{% url 'submission-detail' pk=review.pk %}"> Submission {{ review.code }}</a>]{% endfor %}
+{% block page-title %}
+    {{ project.code }}
+    <div class="d-none d-md-block fs-5 text-body-secondary border-start text-wrap ps-3">{{ project.title | truncatewords:30 }}</div>
 {% endblock %}
 
-{% block folio-tools %}
+{% block page-tools %}
     {% if project.is_active and owner %}
         <a href='{% url "user-feedback" %}' class="pull-right">
-            <i class="bi-chat-left-text icon-2 icon-fw"></i><br/>
+            <i class="bi-chat-left-text icon-md icon-fw"></i><br/>
             <span class="tool-label">Feedback</span>
         </a>
-        <a href='#0' data-url='{% url "lab-signon" pk=project.pk %}' class="pull-right">
-            <i class="bi-paint-bucket icon-2 icon-fw"></i><br/>
+        <a href='#0' data-modal-url='{% url "lab-signon" pk=project.pk %}' class="pull-right">
+            <i class="bi-paint-bucket icon-md icon-fw"></i><br/>
             <span class="tool-label">Use Lab</span>
         </a>
     {% endif %}
 
-
     <a href='{% url "project-history" pk=project.pk %}' class="pull-right">
-        <i class="bi-clock-history icon-2 icon-fw"></i><br/>
+        <i class="bi-clock-history icon-md icon-fw"></i><br/>
         <span class="tool-label">History</span>
     </a>
     <a href='{% url "project-schedule" pk=project.pk %}' class="pull-right">
-        <i class="bi-calendar2-range icon-2 icon-fw"></i><br/>
+        <i class="bi-calendar2-range icon-md icon-fw"></i><br/>
         <span class="tool-label">Calendar</span>
     </a>
-    <a data-url='{% url "project-attachments" pk=project.pk %}' id="attachments" href='#0' class="pull-right">
-        <i class="bi-paperclip icon-2 icon-fw"></i><br/>
+    <a data-modal-url='{% url "project-attachments" pk=project.pk %}' id="attachments" href='#0' class="pull-right">
+        <i class="bi-paperclip icon-md icon-fw"></i><br/>
         <span class="tool-label">Attachments</span>
         {% if project.attachments.exists %}
             <div class="bubble progress-bar-warning">
@@ -52,9 +50,9 @@
     </a>
     {% if project.clarifications.exists %}
         <a href='#project-clarifications' class="pull-right"
-           data-toggle="collapse" title="Clarifications"
+           data-bs-toggle="collapse" title="Clarifications"
            aria-expanded="false" aria-controls="project-clarifications">
-            <i class="bi-chat-right-text icon-2 icon-fw"></i><br/>
+            <i class="bi-chat-right-text icon-md icon-fw"></i><br/>
             <span class="tool-label">Clarifications</span>
             <div class="bubble progress-bar-warning">
                 <div>{{ project.clarifications.count }}</div>
@@ -65,38 +63,44 @@
 
 {% endblock %}
 
-{% block folio-statusbar-style %}
-    {% folio_status object.state draft='pending' success='active' danger='inactive' %}{% endblock %}
+{% block page-status-style %}
+    callout {% folio_status object.state draft='pending' success='active' danger='inactive' %}{% endblock %}
 
-{% block folio-statusbar %}
-    <h3 class="no-vmargin"><span class="label label-info text-condensed">{{ project.state.title }}</span></h3>
+{% block page-status-bar %}
+    <span class="status-badge badge bg-info text-condensed">{{ project.state.title }}</span>
     <div>
-        <small class="text-wide text-muted">Project Leader:</small><br/>
+        <small class="text-wide text-body-secondary">Review Results:</small><br/>
+        {% for submission in project.submissions.all %}
+        <a href="{% url 'submission-detail' pk=submission.pk %}">{{ submission.code }}</a>{% if not forloop.last %}<br/>{% endif %}
+        {% endfor %}
+    </div>
+    <div>
+        <small class="text-wide text-body-secondary">Project Leader:</small><br/>
         {{ project.get_leader|default:"&hellip;" }}<br/>
         {{ project.get_leader.institution|default:"" }}
     </div>
-    <div>
-        <small class="text-wide text-muted">Spokesperson:</small><br/>
+    <div class="d-none d-md-block">
+        <small class="text-wide text-body-secondary">Spokesperson:</small><br/>
         {{ project.spokesperson|default:"&hellip;" }}<br/>
         {{ project.spokesperson.institution|default:"&hellip;" }}
     </div>
     <div>
-        <small class="text-wide text-muted">Delegate:</small><br/>
+        <small class="text-wide text-body-secondary">Delegate:</small><br/>
         {{ project.delegate|default:"&hellip;" }}<br/>
         {{ project.delegate.institution|default:"&hellip;" }}
     </div>
     <div>
-        <small class="text-wide text-muted">Validity:</small><br/>{{ project.start_date|date:"" }}
+        <small class="text-wide text-body-secondary">Validity:</small><br/>{{ project.start_date|date:"" }}
         &ndash; {{ project.end_date|default:"Never Expires" }}
     </div>
 {% endblock %}
-{% block folio-content %}
+{% block page-content %}
     {% if object.clarifications.count %}
         <div class="row collapse {% if project.clarifications.pending.exists %}in{% endif %}"
              id="project-clarifications">
-            <div class="col-xs-12">
-                <div class="tinytron bg-notes-warning">
-                    <h4 class="no-vmargin">Clarification Requests</h4>
+            <div class="col-sm-12">
+                <div class="p-3 bg-notes-warning">
+                    <h4 class="my-0">Clarification Requests</h4>
                     <hr class="hr-xs"/>
                     {% include "proposals/clarifications.html" with response_url_name='project-clarification-response' %}
                 </div>
@@ -104,29 +108,29 @@
         </div>
     {% endif %}
 
-    <div class="minitron bg-transparent">
+    <div class="mt-3">
         {% with object.beamline_allocations as allocations %}
-            <div class="row narrow-gutter">
-                {% for falloc in allocations %}
-                    <div class="col-xs-12 {% if allocations|length > 1 %}col-sm-6 {% elif allocations|length > 3 %} col-md-4{% endif %}">
-                        {% include "projects/allocation.html" %}
+            <div class="row">
+                {% for facility, info in allocations.items %}
+                    <div class="{% if allocations|length > 1 %}col-sm-6{% elif allocations|length > 3 %}col-md-4{% else %}col-sm-12{% endif %}">
+                        {% include "projects/allocation.html" with allocation=info.allocation %}
                     </div>
                 {% endfor %}
             </div>
         {% endwith %}
 
-        <div class="row narrow-gutter">
+        <div class="row">
             <div class="col-sm-12">
                 {% include "projects/sessions-summary.html" with sessions=project.sessions.relevant.with_shifts beamtimes=project.beamtimes.relevant.with_shifts lab_sessions=project.lab_sessions.relevant.with_hours %}
             </div>
         </div>
 
-        <div class="row narrow-gutter">
+        <div class="row">
             <div class="col-sm-12">
                 {% include "projects/project-team.html" with beamlines=object.beamlines.distinct permissions=object.permissions %}
             </div>
         </div>
-        <div class="row narrow-gutter">
+        <div class="row">
             <div class="col-sm-12">
                 {% include "projects/project-materials.html" with material=object.current_material %}
             </div>

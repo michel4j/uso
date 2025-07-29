@@ -9,13 +9,11 @@ class Ancillary(FieldType):
     template_theme = "beamlines/fields"
     options = ['required', 'hide', 'multiple']
     settings = ['label', 'options', 'width']
-    multi_valued = True
 
-    def coerce(self, val):
-        return val
-
-    def clean(self, val, multi=True, validate=False):
-        return val
+    def is_multi_valued(self, subfield: str = None) -> bool:
+        if subfield in ['labs', 'equipment']:
+            return True
+        return False
 
 
 class TechnicalTags(FieldType):
@@ -25,8 +23,5 @@ class TechnicalTags(FieldType):
     options = ['required', 'hide', 'nolabel']
     settings = ['label', 'options']
 
-    def clean(self, val, multi=False, validate=True):
-        val = super().clean(val, multi=multi, validate=validate)
-        if isinstance(val, str):
-            val = int(val.strip())
-        return val
+    def clean(self, value):
+        return int(value) if value else None

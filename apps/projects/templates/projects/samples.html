@@ -8,7 +8,7 @@
 			<th>Type/State</th>
 			<th>Quantity</th>
 			<th>Hazards</th>
-			<th>Review Status</th>
+			<th class="text-nowrap">Review Status</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -24,10 +24,9 @@
 				<img width="24" height="24" src="{% pictogram_url pic %}" title="{{pic.name}}">
 				{% endfor %}
 			</td>
-			<td>
+			<td class="text-nowrap">
 				{{sample|sample_state_display|safe}}
 			</td>
-
 		</tr>
 	{% empty %}
 		<tr><td colspan="4" class="empty-row">No Samples</td></tr>

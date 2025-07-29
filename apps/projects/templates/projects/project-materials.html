@@ -1,3 +1,4 @@
+{% load misc %}
 {% load static %}
 {% load samples_tags %}
 {% load project_tags %}
@@ -5,82 +6,80 @@
 {% load markup %}
 
 {% if material %}
-    <div class="cycle-box tinytron bg-white">
-        <div class="row">
-            <div class="col-xs-12">
-                {% if owner or admin %}
-                    <span class="box-tools pull-right text-center">
+    <div class="bg-darken rounded-1">
+        <div class="p-3 d-flex flex-row justify-content-start align-items-center">
+            <div class="fs-4 my-0 d-flex flex-row align-items-center ">
+                <i class="{{ material|material_state_icon }} icon-lg me-3"></i>
+                <div class="d-flex flex-column justify-content-center">
+                    <span class="fs-3 text-condensed fw-light lh-sm d-none d-sm-block">Samples &amp; Materials</span>
+                    <div class="fs-5">
+                        <span class="text-body-secondary fw-light">{{ material }}</span> &mdash;
+                        {% if material.siblings.pending.count %}
+                            <span class="text-warning"><strong>Amended!</strong></span>
+                        {% elif material.state == 'pending' %}
+                            <span class="text-warning"><strong>Not approved!</strong></span>
+                        {% elif material.state == 'denied' %}
+                            <span class="text-danger"><strong>Rejected!</strong></span>
+                        {% elif material.state == 'approved' %}
+                            <span class="text-success"><strong>Approved!</strong></span>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            {% if owner or admin %}
+                <span class="box-tools ms-auto">
 					<a href="{% url 'material-detail' pk=material.pk %}" title="View Details" class="pull-right">
-						<i class="bi-card-text icon-2 icon-fw"></i><br/>
+						<i class="bi-card-text icon-md icon-fw"></i><br/>
                         <span class="tool-label">Details</span>
 					</a>
-                        {% if project.state != 'inactive' %}
-                            <a href='{% url "edit-materials" pk=project.pk %}' title="Amend Materials"
-                               class="pull-right">
-						<i class="bi-pencil icon-2 icon-fw"></i><br/>
+                    {% if owner and project.state != 'inactive' %}
+                        <a href='{% url "edit-materials" pk=project.pk %}' title="Amend Materials"
+                           class="pull-right">
+						<i class="bi-pencil icon-md icon-fw"></i><br/>
                         <span class="tool-label">Amend</span>
 					</a>
-                        {% endif %}
-                </span>
-                {% endif %}
-                <i class="{{ material|material_state_icon }} pull-left icon-2x" style="padding: 0.25em;"></i>
-                <h3 class="no-vmargin">
-                    <span class="hidden-xs">Samples &amp; Materials &mdash; </span>{{ material }}
-                </h3>
-                {% if material.siblings.pending.count %}
-                    <small class="text-warning"><strong>Amended materials have not been approved!</strong></small>
-                {% elif material.state == 'pending' %}
-                    <small class="text-warning"><strong>These materials have not been approved!</strong></small>
-                {% elif material.state == 'denied' %}
-                    <small class="text-danger"><strong>These materials have been rejected!</strong></small>
-                {% elif material.state == 'approved' %}
-                    <small class="text-success"><strong>Materials and procedures approved!</strong></small>
-                {% endif %}
-            </div>
-        </div>
-        <hr class="hr-xs"/>
-
-        <div class="row narrow-gutter">
-            <div class="col-xs-2">
-                <h3 class="no-vmargin"><span
-                        class="label label-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
-                </h3>
-            </div>
-            <div class="col-xs-6">
-                <div class="row narrow-gutter">
-                    <div class="col-xs-6">
-                        <span class="stats-number pull-left">{{ material.project_samples.approved.count }}/{{ material.project_samples.count }}</span>
-                        <span class="stats-title pull-left">Samples<br/>Approved</span>
-                    </div>
-                    {% if material.siblings.pending.exists %}
-                    <div class="col-xs-6">
-                        Pending Amendment {% for mat in material.siblings.pending %}
-			<a href="{% url "material-detail" pk=mat.pk %}">{{mat}} [{{ mat.get_state_display }}]</a>&nbsp;
-        {% endfor %}
-                    </div>
                     {% endif %}
-                </div>
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="d-flex flex-row gap-3 justify-items-between align-items-center callout callout-{% state_tag material.state success='approved' secondary='pending' danger='rejected' %}">
+            <h3 class="my-0">
+                <span class="status-badge badge bg-risk{{ material.risk_level }} text-condensed">{{ material.get_risk_level_display }}</span>
+            </h3>
+            <div class="align-self-center d-flex flex-row justify-content-center align-items-center">
+                <span class="stats-number">{{ material.project_samples.approved.count }}/{{ material.project_samples.count }}</span>
+                <span class="stats-title">Samples<br/>Approved</span>
             </div>
-            <div class="col-xs-4 text-right">
-                {% for hz in material.pictograms %}
-                    {% with 'samples/pictograms/'|add:hz.code|add:'.svg' as pictogram_svg %}
-                    <img width="32" src="{%  static pictogram_svg %}" title="{{ hz.name }}">
-                    {% endwith %}
+            {% if material.siblings.exists %}
+            <div>
+                <small class="text-body-secondary">Related Materials:</small><br/>
+                {% for mat in material.siblings.all %}
+                    <a href="{% url "material-detail" pk=mat.pk %}">{{ mat }} [{{ mat.get_state_display }}]</a>&nbsp;
+                {% empty %}
+                    &mdash;
                 {% endfor %}
             </div>
+            {% endif %}
+            <div>
+                <small class="text-body-secondary">Date:</small><br/>
+                {{ material.created|date:"Y/m/d" }}
+            </div>
+            <div class="ms-auto">
+            {% show_pictograms material.hazards size="md"%}
+            </div>
         </div>
-
-        <hr class="hr-xs"/>
-
+        <div class="p-3">
         {% with material.warnings as warnings %}
             {% if warnings %}
                 <div class="row">
-                    <div class="col-xs-12">
+                    <div class="col-sm-12">
                         <div class="alert alert-danger">
                             <ul class="list-ruled">
-                            {% for warning in warnings %}
-                                <li>{{ warning|markdown }}</li>
-                            {% endfor %}
+                                {% for warning in warnings %}
+                                    <li>{{ warning|markdown }}</li>
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>
@@ -89,7 +88,7 @@
         {% endwith %}
         {% if material.controls.count %}
             <div class="row text-wide">
-                <div class="col-xs-12">
+                <div class="col-sm-12">
                     <div class="alert alert-warning">
                         <ul class="list-ruled">
                             {% for control in material.controls.all %}
@@ -102,5 +101,6 @@
         {% endif %}
 
         {% include "projects/material-snippet.html" %}
+        </div>
     </div>
 {% endif %}

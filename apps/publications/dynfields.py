@@ -2,29 +2,23 @@ from dynforms.fields import FieldType
 from django.utils.translation import gettext as _
 
 
-class SubjectArea(FieldType):
-    name = _("Subject Area")
-    icon = "bi-briefcase"
-    options = ['required', 'hide', 'multiple', 'keywords']
-    settings = ['label', 'options', ]
-    template_theme = "publications/fields"
-
-    def coerce(self, val):
-        if isinstance(val.get('keywords'), list):
-            val['keywords'] = "; ".join(val['keywords'])
-            val['areas'] = [int(v) for v in val.get('areas', [])]
-        return val
-
-
 class ResearchArea(FieldType):
     name = _("Research Area")
-    icon = "bi-briefcase"
     options = ['required', 'hide', 'inline']
-    settings = ['label', 'options', ]
-    template_theme = "publications/fields"
+    template_name = "publications/fields/researcharea.html"
 
-    def clean(self, val, multi=False, validate=True):
-        if isinstance(val, list):
-            return list(map(int, val))
-        else:
-            return []
+
+class SubjectArea(FieldType):
+    name = _("Subject Area")
+    options = ['required', 'hide', 'multiple']
+    template_name = "publications/fields/subjectarea.html"
+    required_subfields = ['areas', 'keywords']
+
+    def is_multi_valued(self, subfield: str = None) -> bool:
+        if subfield in ['areas']:
+            return True
+        return False
+
+    @staticmethod
+    def clean_areas(value):
+        return [int(val) for val in value]

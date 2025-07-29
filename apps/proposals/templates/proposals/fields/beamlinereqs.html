@@ -1,177 +1,190 @@
-{% load dynforms_tags %}
+{% load dynforms %}
 {% load jsonify %}
 {% load proposal_tags %}
 {% get_options data=data as options %}
-<div class="controls {{repeatable}}" id="{{field.name}}-controls{{repeat_index}}" data-field-name="{{field.name}}" data-repeat-index="{{repeat_index}}">
-    <div class="row no-space">
-	    <span class="field-group-item col-xs-7">
-		   <label for="{{field.name}}-techniques{{repeat_index}}">Techniques:<span class="text-danger">∗</span></label>
-		   <select name="{{field.name}}.techniques" id="{{field.name}}-techniques{{repeat_index}}" multiple="multiple"
-                   class="chosen select form-control" data-placeholder="Select techniques">
-               {% for tech_id, tech, selected, tech_facs in options.techniques %}
-               <option value="{{tech_id}}" data-related="{{tech_facs|jsonify}}" class="option-technique-{{tech_id}}"
-                       {% if selected %}selected="selected" {% endif %}>{{tech}}
-               </option>
-               {% endfor %}
-           </select>
-	    </span>
-        <span class="field-group-item col-xs-3">
-			<label for="{{field.name}}-facility{{repeat_index}}">Facility:<span class="text-danger">∗</span></label>
-            <select name="{{field.name}}.facility" id="{{field.name}}-facility{{repeat_index}}"
-                    class="chosen select form-control" data-placeholder="Select facility">
-                <option value=""></option>
-                {% for bl_id, bl, selected, bl_techs in options.facilities %}
-                <option value="{{bl_id}}" data-related="{{bl_techs|jsonify}}" class="option-facility-{{bl_id}}"
-                        {% if selected %}selected="selected" {% endif %}
-                >{{bl}}
-                </option>
+<div class="controls {{ repeatable }}" id="{{ field.name }}__controls"
+     data-repeat-name="{{ repeat_name }}__controls"
+     data-field-name="{{ field.name }}"
+>
+    <div class="callout mb-3">
+    <div class="d-flex justify-content-between gap-3 mb-3">
+        <h3>Facility <span class="repeat-html-count">{{ repeat_index|add:1 }}</span></h3>
+        <div class="">
+            {% if "repeat" in field.options %}
+                <button type="button"
+                        title="Delete {{ field.label }} item."
+                        class="btn btn-danger remove-repeat"
+                >
+                    <i class="bi-x-lg"></i>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="field-group-item col-7">
+            <label for="{{ field.name }}__techniques"
+                   class="form-label {% subfield_require 'techniques' %}"
+                   data-repeat-for="{{ repeat_name }}__techniques">
+                Techniques
+            </label>
+            <select name="{{ field.name }}__techniques" id="{{ field.name }}__techniques"
+                    data-repeat-name="{{ repeat_name }}__techniques"
+                    multiple
+                    class="form-select-multiple {% subfield_require 'techniques' %}"
+                    data-placeholder="Select techniques">
+                {% for technique in options.techniques %}
+                    <option value="{{ technique.id }}" data-related="{{ technique.facilities|jsonify }}"
+                            class="option-technique-{{ technique.id }}"
+                            {% if technique.selected %}selected="selected" {% endif %}>{{ technique.name }}
+                    </option>
                 {% endfor %}
             </select>
-        </span>
-        <span class="field-group-item col-xs-2">
-			<label for="{{field.name}}-shifts{{repeat_index}}">Shifts:
-                <i class="df-info bi-info-circle text-primary" data-toggle="popover" data-placement="bottom"
-                   data-trigger="hover"
-                   data-content="Specify the number of shifts you are requesting for the first cycle."></i>
+        </div>
+        <div class="field-group-item col-3">
+            <label for="{{ field.name }}__facility"
+                   class="form-label {% subfield_require 'facility' %}"
+                   data-repeat-for="{{ repeat_name }}__facility">
+                Facility
             </label>
-            {% if "repeat" in field.options %}
-            <div class="input-group">
-                <input id="{{field.name}}-shifts" name="{{field.name}}.shifts" class="form-control" min="0"
-                       value="{{data.shifts}}">
-                <span class="input-group-btn"><button type="button" title="Delete facility, techniques, justification and procedure from {{field.label}}"
-                                                  class="btn btn-white remove-repeat"><i class="bi-dash-lg text-danger"></i>
-                </button></span>
-            </div>
-            {% else %}
-            <input id="{{field.name}}-shifts{{repeat_index}}" name="{{field.name}}.shifts" class="form-control" type="number"
-                       value="{{data.shifts}}" placeholder="No. of shifts">
-            {% endif %}
-        </span>
+            <select name="{{ field.name }}__facility" id="{{ field.name }}__facility"
+                    data-repeat-name="{{ repeat_name }}__facility"
+                    class="form-select {% subfield_require 'facility' %}"
+                    data-placeholder="Select facility">
+                <option value=""></option>
+                {% for facility in options.facilities %}
+                    <option value="{{ facility.id }}" data-related="{{ facility.techniques|jsonify }}"
+                            class="option-facility-{{ facility.id }}"
+                            {% if facility.selected %}selected="selected" {% endif %}
+                    >{{ facility.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field-group-item col-2">
+            <label for="{{ field.name }}__shifts"
+                   class="form-label {% subfield_require 'shifts' %}"
+                   data-repeat-for="{{ repeat_name }}__shifts">Shifts</label>
+            <input id="{{ field.name }}__shifts" name="{{ field.name }}__shifts"
+                   data-repeat-name="{{ repeat_name }}__shifts" aria-label="{{ field.label }} shifts"
+                   class="form-control {% subfield_require 'shifts' %}" type="number" min="0"
+                   value="{{ data.shifts }}" placeholder="No. of shifts"
+            >
+        </div>
     </div>
-    <div class="row no-space">
-	    <div class="field-group-item col-xs-12 beamline-info"></div>
+    <div class="row">
+        <div class="field-group-item col-12 beamline-info repeat-html-clear"></div>
     </div>
-    <div class="row no-space">
-	    <span class="field-group-item col-xs-12">
-			<label for="{{field.name}}-procedure">Experimental Procedure:<span class="text-danger">∗</span>
-               <i class="df-info bi-info-circle text-primary" data-toggle="popover" data-placement="bottom"
-                  data-trigger="hover"
-                  data-content="Describe the experimental procedure for this beamline."></i>
-			</label>
-			<textarea cols="40" name="{{field.name}}.procedure" id="{{field.name}}-procedure"
-                      rows="5"  class="textarea form-control">{{data.procedure}}</textarea>
-	    </span>
+    <div class="row">
+        <div class="field-group-item col-12">
+            <label for="{{ field.name }}__procedure"
+                   class="form-label {% subfield_require 'procedure' %}"
+                   data-repeat-for="{{ repeat_name }}__procedure">
+                Experimental Procedure
+            </label>
+            <textarea cols="40" name="{{ field.name }}__procedure"
+                      id="{{ field.name }}__procedure"
+                      data-repeat-name="{{ repeat_name }}__procedure"
+                      rows="3"
+                      class="textarea form-control {% subfield_require 'procedure' %}"
+            >{{ data.procedure }}</textarea>
+        </div>
     </div>
 
     {% if "justification" in field.options %}
-   <div class="row no-space">
-       <span class="field-group-item col-xs-12">
-		   <label for="{{field.name}}-justification">Justification of Suitability:<span class="text-danger">∗</span>
-               <i class="df-info bi-info-circle text-primary" data-toggle="popover" data-placement="bottom"
-                  data-trigger="hover"
-                  data-content="Please justify the suitability of this beamline and the corresponding number of shifts requested."></i>
-		   </label>
-	       <textarea cols="40" name="{{field.name}}.justification" id="{{field.name}}-justification"
-                     rows="5" class="textarea form-control">{{data.justification}}</textarea>
-
-	   </span>
-    </div>
-    {% endif %}
-    {% if "tags" in field.options %}
-    <div class="row no-space" id="{{field.name}}-tags-selector">
-    </div>
+        <div class="row">
+            <div class="field-group-item col-12">
+                <label for="{{ field.name }}__justification"
+                       class="form-label {% subfield_require 'justification' %}"
+                       data-repeat-for="{{ repeat_name }}__justification"
+                >Justification of Suitability
+                </label>
+                <textarea cols="40" name="{{ field.name }}__justification"
+                          data-repeat-name="{{ repeat_name }}__justification"
+                          id="{{ field.name }}__justification"
+                          rows="5"
+                          class="textarea form-control {% subfield_require 'procedure' %}"
+                >{{ data.justification }}</textarea>
+            </div>
+        </div>
     {% endif %}
 </div>
-<hr/>
-<script>
-    $(function(){
-        window.setTimeout(function(){
-            $('[data-field-name="{{field.name}}"] .chosen').chosen({
-                allow_single_deselect: true,display_disabled_options: false, search_contains: true
-            });
-        }, 0);
-    });
+    <script>
+        function updateMatrix(techField, facField, data) {
+            const $techniquesField = $(techField);
+            const $facilitiesField = $(facField);
 
-
-    $('#{{field.name}}-techniques{{repeat_index}}, #{{field.name}}-facility{{repeat_index}}').change(function(){
-    	var tech_field = $(this).closest('.controls').find('[name^="{{field.name}}.techniques"]');
-    	var facs_field = tech_field.closest('.controls').find('[name^="{{field.name}}.facility"]');
-    	var cycle_field = $('#first_cycle');
-    	var tech_url = "{% url 'techniques-beamlines' %}?";
-        var tags_field = facs_field.closest('.controls').find('[name^="{{field.name}}.tags"]');
-        var tags_container = facs_field.closest('.controls').find("#{{field.name}}-tags-selector");
-        var tags_url = "{% url 'facility-tags' %}";
-        if (cycle_field.val()) {
-			tech_url += "&cycle=" + cycle_field.val();
-		}
-        $.get(tech_url, function(data) {
-            $.each(data.techniques, function(i, row){
-                var option = tech_field.find("[value='"+ row[0]+"']");
+            $.each(data.techniques, function (i, row) {
+                let option = $techniquesField.find(`option[value='${row[0]}']`);
                 option.data('related', row[3]);
             });
-            $.each(data.facilities, function(i, row){
-                var option = facs_field.find("[value='"+ row[0]+"']");
+            $.each(data.facilities, function (i, row) {
+                let option = $facilitiesField.find(`option[value='${row[0]}']`);
                 option.data('related', row[3]);
             });
-        });
-        var good_techs = [];
-        var good_facs = [];
+        }
 
-        facs_field.find('option').removeAttr('disabled');
-        tech_field.find('option').removeAttr('disabled');
-        if (tech_field.val()) {
-            var sel_techs = [];
-            $.each(tech_field.val(), function(i, val){
-                sel_techs.push('option[value='+val+']');
+        function updateRelated(target, related) {
+            const $field = $(target);
+            const selected = new Set(related);
+            $field.find('option').removeAttr('disabled');
+            console.log(target, related)
+            if (selected.size) {
+                $field.find('option').each(function () {
+                    let related = new Set($(this).data('related') || []);
+                    if (related.size === 0) {
+                        $(this).removeAttr('disabled');
+                    } else if (selected.intersection(related).size === 0) {
+                        $(this).attr('disabled', 'disabled');
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function () {
+            new SlimSelect({
+                select: "#{{ field.name }}__controls select[multiple]",
+                placeholder: "Select techniques",
+                showSearch: true,
+                searchPlaceholder: "Search techniques",
+                allowDeselect: true,
             });
-            tech_field.find(sel_techs.join()).each(function(){
-                $.each($(this).data('related'), function(i, val){
-                    good_facs.push('[value='+val+']');
+
+            $(document).on('cycle-changed', function (event, data) {
+                localStorage.setItem('techniquesMatrix', JSON.stringify(data));
+                $("[name$='__techniques']").each(function () {
+                    const $techField = $(this);
+                    const $facilityField = $techField.closest('.controls').find('[name$="__facility"]');
+                    updateMatrix($techField, $facilityField, data);
                 });
             });
-
-            facs_field.find('option').not(good_facs.join()).attr('disabled', 'disabled');
-        }
-        if (facs_field.val()) {
-
-            $.each(facs_field.find('option[value='+facs_field.val()+']').data('related'), function(i, val){
-                good_techs.push('[value='+val+']');
+            $(document).on('change', '[name$="__techniques"]', function () {
+                const selected = $(this).val() || [];
+                const $target = $(this).closest('.controls').find('[name$="__facility"]');
+                updateRelated($target, selected.map(Number));
             });
-            tech_field.find('option').not(good_techs.join()).attr('disabled', 'disabled');
 
-            // tags field
-            var tags = [];
-            var repeat_index = facs_field.closest('.controls').attr('data-repeat-index');
-            tags_url += facs_field.val() + '/{{field.name}}.tags__' + repeat_index + '/?';
-            tags_field.find('option').filter(function(){return this.value ? true: false;}).each(function(){
-                    tags.push($(this).attr('value'));
+            $(document).on('change', '[name$="__facility"]', function () {
+                const facility = $(this).val() || '';
+                const selected = facility ? [facility] : [];
+                const $target = $(this).closest('.controls').find('[name$="__techniques"]');
+                updateRelated($target, selected.map(Number));
+
+                // beamline information
+                if (facility) {
+                    const infoUrl = `{% url 'beamline-info-root' %}${ facility }/`;
+                    const $facilityInfo = $(this).closest('.controls').find('div.beamline-info');
+                    $facilityInfo.load(infoUrl);
+                } else {
+                    $(this).closest('.controls').find('div.beamline-info').empty();
+                }
             });
-            if (tags) {
-                tags_url += '&tags=' + "{{data.tags|join:','}}";
-            }
-            tags_container.load(tags_url);
+
+            // Initialize the techniques and facilities based on the current cycle
+            $('[name$="__facility"]').trigger('change');
+            $('[name$="__techniques"]').trigger('change');
+
+        });
+    </script>
+</div>
 
 
-
-
-        } else {
-            tags_container.empty();
-        }
-        // beamline information
-        var bl_url = "{% url 'beamline-info' %}";
-        var fac_info = facs_field.closest('.controls').find('div.beamline-info');
-        var fac_val = facs_field.val() || '';
-        fac_info.load(bl_url + fac_val);
-
-        tech_field.trigger("chosen:updated");
-        facs_field.trigger("chosen:updated");
-    });
-
-    $('#first_cycle').change(function(){
-    	$('#{{field.name}}-facility{{repeat_index}}').trigger('change');
-    });
-    $(document).ready(function(){
-    	$('#{{field.name}}-facility{{repeat_index}}').trigger('change');
-    });
-
-</script>

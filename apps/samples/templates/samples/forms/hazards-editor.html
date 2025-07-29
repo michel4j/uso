@@ -1,0 +1,111 @@
+{% load samples_tags %}
+{% load static %}
+{% load misc %}
+
+<div id="hazard-editor" class="d-flex flex-column justify-content-start align-items-stretch w-100">
+    <ul class="nav nav-tabs pt-2">
+        {% for group in categories %}
+            <li class="nav-item me-1">
+                <a href="#hazard-tab{{ forloop.counter }}"
+                   class="nav-link position-relative px-2 {% if forloop.first %}active{% endif %}"
+                   {% if forloop.first %}aria-current="page"{% endif %}
+                   role="tab" data-bs-toggle="tab">
+                    <img width="28" height="28" src="{{ group.image }}" title="{{ group.name }}"
+                         alt="{{ group.name }}"
+                    />
+                    <span class="visually-hidden">{{ group.name }}</span>
+                    <span class="position-absolute top-75 start-75 translate-middle badge rounded-pill bg-primary category-count"></span>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content" style="max-height: 300px; height: 300px; overflow-y: auto;">
+        {% for group in categories %}
+            <div class="tab-pane {% if forloop.first %}active{% endif %} p-3" id="hazard-tab{{ forloop.counter }}">
+                <p><strong>{{ group.name }}</strong>&mdash;{{ group.description }}</p>
+                <hr class="hr-xs"/>
+                <ul class="list-group list-group-flush">
+                    {% with forloop.counter as group_number %}
+                        {% for hz in group.hazards %}
+                            <li class="list-group-item">
+                                <div class="form-check">
+                                    <input name="hazard_list" class="form-check-input"
+                                           id="hazards-{{ group_number }}-{{ hz.pk }}"
+                                           value="{{ hz.pk }}"
+                                           {% if hz.selected %}checked="checked"{% endif %}
+                                           data-hazard-code="{{ hz.hazard.code }}"
+                                           type="checkbox"
+                                    >
+                                    <label for="hazards-{{ group_number }}-{{ hz.pk }}" class="form-check-label d-flex">
+                                        {{ hz.hazard.code }}&nbsp;{% if hz.signal %}
+                                        <strong>{{ hz.signal.title }}:</strong>&ensp;{% endif %}
+                                        {{ hz.hazard.text }}
+                                        {% for pic in hz.pictograms.all %}
+                                            <img class="media-object ms-auto" alt="{{ pic.name }}"
+                                                 width="24" height="24"
+                                                 src="{% pictogram_url pic %}"
+                                                 title="{{ pic.name }}" data-sample-hazard="{{ pic.pk }}"
+                                            />
+                                        {% endfor %}
+                                    </label>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    {% endwith %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    function updateHazardCounts() {
+        // Update the hazard counts in the tab headers
+        $("#hazard-editor .nav-tabs .nav-link").each(function () {
+            let tabId = $(this).attr('href');
+            let numSelected = $(`${tabId} input:checked`).length;
+            $(this).find('.category-count').html(numSelected ? `${numSelected}` : "");
+        });
+
+        // Update the hidden input field with the selected hazards if available
+        $("#id_saved_hazards").val(
+            JSON.stringify(
+                $("#hazard-editor input[name='hazard_list']:checked")
+                    .map(function () { return Number($(this).val()); })
+                    .get()
+            )
+        );
+    }
+
+    $(document).ready(function () {
+        const $editor = $("#hazard-editor");
+        const hazards = JSON.parse($("#saved-hazards-{{ sample.pk }}, #id_saved_hazards").val() || "[]");  // Get saved hazards from the input field
+
+        // Initialize the checkboxes based on saved hazards
+        $editor.find("input[name='hazard_list']").each(function () {
+            let $input = $(this);   // current checkbox input
+            let hazardId = Number($input.val());
+            if (hazards.includes(hazardId)) {
+                $input.prop('checked', true);
+            } else {
+                $input.prop('checked', false);
+            }
+        });
+
+        updateHazardCounts();   // Initial count update
+        $editor.on('click', 'input', function () {
+            const $input = $(this);
+            // Some hazards appear on multiple tabs, so we need to ensure that when one is clicked,
+            // all inputs with the same hazard code are checked or unchecked accordingly.
+            $editor.find(`input[data-hazard-code="${$input.data('hazard-code')}"]`).each(function () {
+                $(this).prop('checked', $input.is(':checked'));
+            });
+            updateHazardCounts();
+        });
+    });
+</script>
+
+
+
+
+

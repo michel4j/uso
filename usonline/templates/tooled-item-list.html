@@ -1,35 +1,39 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
+{% load misc %}
 {% load itemlist %}
+{% block page-pretitle %}List of{% endblock %}
+{% block page-title %}{% itemlist_heading %}{% endblock %}
 
+{% block extra_css %}
+    {{ block.super }}
+{% endblock %}
 
-{% block page_heading %}{% itemlist_heading %}{% endblock %}
-{% block folio-no-header %}{% endblock %}
-{% block folio-content %}
-    <div class="pad-wrapper">
-        <div class="row">
-            <div class="list-tools">
-                <span>
-                    {% include "itemlist/filters.html" %}
-                </span>
-                <span class="box-tools">
-                    {% block list-tools %}
-                    {% endblock %}
-                </span>
-            </div>
-        </div>
+{% block page-tools %}
+    {% block list-tools %}
+    {% if view.tool_template %}
+        {% include view.tool_template %}
+    {% elif view.add_modal_url %}
+        <a href="#0" data-modal-url="{% url view.add_modal_url %}"
+           class="tool-item"
+           title="Add {{ view.model|verbose_name|title }}"
+        >
+            <i class="bi-plus-lg icon-md icon-fw"></i>
+            <span class="tool-label">Add</span>
+        </a>
+    {% elif view.add_url %}
+        <a href="{% url view.add_url %}" class="tool-item" title="Add {{ view.model|verbose_name|title }}">
+            <i class="bi-plus-lg icon-md icon-fw"></i>
+            <span class="tool-label">Add</span>
+        </a>
+    {% endif %}
+    {% endblock %}
+{% endblock %}
 
-        <div class="row">
-        {% block list-content %}
-            <div class="list-content col-xs-12">
-                {% include "itemlist/list.html" %}
-            </div>
-        {% endblock %}
-        </div>
-        <div class="row">
-            <div class="col-xs-12">
-                {% include "itemlist/pagination.html" %}
-            </div>
+{% block page-content %}
+    <div class="row">
+        <div class="col">
+        {% include "itemlist/embed_list.html" %}
         </div>
     </div>
 {% endblock %}

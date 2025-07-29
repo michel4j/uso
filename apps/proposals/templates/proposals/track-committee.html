@@ -1,10 +1,10 @@
 {% load cycle_tags %}
 {% if cycle.state >= cycle.STATES.assign %}
-<div class="col-xs-12">
+<div class="col-sm-12">
     <h5>Committee Assignments</h5>
     <hr class="hr-xs"/>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-sm-12">
             <div class="count-list">
                 {% for reviewer in track.committee.all %}
                     <div class="count-list-item">
@@ -23,14 +23,14 @@
     </div>
 </div>
 {% else %}
-<div class="col-xs-12">
+<div class="col-sm-12">
     <h5>Committee Members</h5>
     <hr class="hr-xs"/>
 </div>
-<div class="col-xs-12">
+<div class="col-sm-12">
     <div class="row">
         {% for reviewer in track.committee.all %}
-            <div class="col-xs-6 col-sm-4 photo-card">
+            <div class="col-sm-6 col-sm-4 photo-card">
                     <img class="photo-image" src="{{reviewer.user.get_photo}}"
                          onerror="this.src='/static/img/blank-profile.png';"
                          alt="{{ reviewer.user }} Photo"

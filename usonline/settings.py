@@ -10,19 +10,23 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 import os
 import sys
+from pathlib import Path
+
 from django.conf import global_settings
 from Crypto.Random import get_random_bytes
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-PROJECT_DIR = os.path.dirname(__file__)
-BASE_DIR = os.path.dirname(PROJECT_DIR)
-LOCAL_DIR = os.path.join(BASE_DIR, 'local')
-APPS_DIR = os.path.join(BASE_DIR, 'apps')
-[sys.path.append(path) for path in [APPS_DIR, BASE_DIR, LOCAL_DIR] if path not in sys.path]
+PROJECT_DIR = Path(__file__).parent
+BASE_DIR = PROJECT_DIR.parent
+LOCAL_DIR = BASE_DIR / 'local'
+APPS_DIR = BASE_DIR / 'apps'
+[sys.path.append(str(path)) for path in [APPS_DIR, BASE_DIR, LOCAL_DIR] if path not in sys.path]
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '5ni&$-wok-8w3_my-#@08s)hcwed^2xy3-m9_0tpt-le4j-926'
@@ -51,7 +55,11 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'formtools',
     "itemlist",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "crisp_modals",
     'dynforms',
+    'reportcraft',
     'users',
     'roleperms',
     'notifier',
@@ -62,8 +70,6 @@ INSTALLED_APPS = [
     'django_cas_ng',
     'proxy',
     'rest_framework',
-    'crispy_forms',
-    'crispy_bootstrap3',
 
     'beamlines',
     'samples',
@@ -72,7 +78,6 @@ INSTALLED_APPS = [
     'weather',
     'surveys',
     'agreements',
-    'schema_graph',
     'dynamic_breadcrumbs',
 ]
 
@@ -90,6 +95,10 @@ AUTHENTICATION_BACKENDS = global_settings.AUTHENTICATION_BACKENDS + [
 ]
 AUTH_USER_MODEL = 'users.User'
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+FIXTURE_DIRS = [
+    os.path.join(PROJECT_DIR, 'fixtures'),
+]
 
 TEMPLATES = [
     {
@@ -162,22 +171,23 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = '/logout/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-DEFAULT_FROM_EMAIL = "noreply@usonline.clsi"
-SERVER_EMAIL = "noreply@usonline.clsi"
+DEFAULT_FROM_EMAIL = "noreply@example.com"
+SERVER_EMAIL = "noreply@example.com"
 ADMINS = (
-    ('Michel', 'michel.fodje@lightsource.ca'),
+    ('Admin', 'admin@example.com'),
 )
 EMAIL_SUBJECT_PREFIX = '[USO] '
 
 
 SITE_URL = "http://localhost:8080"
-CAS_SERVER_URL = "https://cas.lightsource.ca/cas/"
+CAS_SERVER_URL = "https://cas.example.com/cas/"
 CAS_SERVICE_DESCRIPTION = "User Services Online"
 CAS_LOGOUT_COMPLETELY = True
 CAS_SINGLE_SIGN_OUT = True
 CAS_VERSION = 3
 CAS_CREATE_USER = False
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 from django.core.serializers import register_serializer
@@ -185,8 +195,16 @@ register_serializer('yml', 'django.core.serializers.pyyaml')
 
 from users.profiles import ExternalProfileManager
 
+USO_DEFAULT_CODE_GENERATORS = {
+    'PROPOSAL': 'proposals.utils.generate_proposal_code',
+    'PROJECT': 'projects.utils.generate_project_code',
+    'SUBMISSION': 'proposals.utils.generate_submission_code',
+    'MATERIAL': 'projects.utils.generate_material_code',
+}
+USO_CODE_GENERATORS = {}   # override this in local.settings.py to add custom code generators for various objects
+
 # ROLES
-USO_ADMIN_ROLES = ["admin:uso", "staff"]
+USO_ADMIN_ROLES = ["admin:uso"]
 USO_CONTRACTS_ROLES = ["staff:contracts"]
 USO_CURATOR_ROLES = ["curator:publications"]
 USO_HSE_ROLES = ["staff:hse"]
@@ -197,31 +215,58 @@ USO_STUDENT_ROLES = ["student"]
 USO_USER_ROLES = ["user"]
 USO_FACILITY_ADMIN_ROLE = 'admin:-'     # role templates '-' means propagate down subunits, '*' means don't propagate
 USO_FACILITY_STAFF_ROLE = 'staff:-'     # '+' means propagate up subunits
+USO_ONSITE_USER_PERMISSION = '{}-USER'
+USO_REMOTE_USER_PERMISSION = '{}-REMOTE-USER'
+USO_FACILITY_ACCESS_PERMISSION = 'FACILITY-ACCESS'
 
-
+USO_STYLE_OVERRIDES = []
 USO_THROTTLE_KEY = get_random_bytes(16)
 USO_ADMIN_PERMS = []
-USO_OPEN_WEATHER_KEY = "fc083799c6457d859764913163f6b584"
+USO_OPEN_WEATHER_KEY = ""
+USO_WEATHER_LOCATION = [52.14, -106.63]  # Default to CLSI
 USO_PROFILE_MANAGER = ExternalProfileManager
-USO_REVIEW_ASSIGNMENT = "MIP"    # or either "MIP" or  "CMACRA" or "BRUTE_FORCE"
+USO_REVIEW_ASSIGNMENT = "MIP"    # or either "MIP" or "CMACRA" or "BRUTE_FORCE"
 USO_PDB_FACILITIES = {
     "CLSI08B1-1": ["CMCF-ID"],
     "CLSI08ID-1": ["CMCF-BM"],
 }
+
 ROLEPERMS_DEBUG = False
-
-USO_TECHNICAL_REVIEWS = ["technical"]             # technical review type
-USO_SAFETY_APPROVAL = "approval"                 # safety approval review type
 GOOGLE_API_KEY = ""
-
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
+DYNFORMS_MIXINS = {
+    'VIEW': ['roleperms.views.AdminRequiredMixin'],
+    'EDIT': ['roleperms.views.AdminRequiredMixin'],
+}
+REPORTCRAFT_MIXINS = {
+    'VIEW': ['roleperms.views.StaffRequiredMixin'],
+    'EDIT': ['roleperms.views.AdminRequiredMixin'],
+}
 
+REPORTCRAFT_APPS = [
+    'proposals',
+    'projects',
+    'samples',
+    'publications',
+    'scheduler',
+    'surveys',
+    'users',
+]
+
+# -----------------------------------------------------------------------------
+# Load local settings if available
 try:
     from local.settings import *
 except ImportError:
     import logging
-    logging.debug("No settings_local.py, using settings.py only.")
+    logging.debug("No local/settings.py, using settings.py only.")
 
 # version number
 with open(os.path.join(BASE_DIR, 'VERSION'), 'r') as fobj:
     VERSION = fobj.read().strip()
+
+# Register custom code generators
+USO_CODE_GENERATORS = {
+    **USO_DEFAULT_CODE_GENERATORS,
+    **USO_CODE_GENERATORS
+}

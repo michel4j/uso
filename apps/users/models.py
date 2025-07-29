@@ -3,20 +3,20 @@ import hashlib
 import json
 import operator
 import os
+import uuid
 from datetime import timedelta
-from functools import lru_cache
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
-from django.db.models import Q, Count
+from django.db.models import Q
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from dynforms.models import BaseFormModel
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
-from dynforms.models import DynEntryMixin
 from misc.fields import StringListField
 from misc.models import DateSpanMixin
 from roleperms.models import RolePermsUserMixin
@@ -146,7 +146,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     username = models.SlugField(unique=True)
     institution = models.ForeignKey(
         'Institution', null=True, blank=True, related_name='users',
-        on_delete=models.SET_NULL
+        on_delete=models.PROTECT
     )
     address = models.OneToOneField(Address, null=True, blank=True, on_delete=models.SET_NULL)
     research_field = models.ManyToManyField("publications.SubjectArea", blank=True)
@@ -161,7 +161,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     last_name = models.CharField(max_length=100, null=True, blank=True)
     preferred_name = models.CharField(_("Preferred First Name"), max_length=100, null=True, blank=True)
     other_names = models.CharField(max_length=100, null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
+    email = models.EmailField(unique=True, default=uuid.uuid4)
     photo = models.URLField(null=True, blank=True)
     emergency_contact = models.CharField(_("Emergency Contact (Full Name)"), max_length=100, null=True, blank=True)
     emergency_phone = models.CharField(max_length=20, null=True, blank=True)
@@ -179,7 +179,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
 
     def can_review(self):
         return (
-            self.classification in [self.STAFF.faculty, self.STAFF.professional]
+                self.classification in [self.STAFF.faculty, self.STAFF.professional]
         ) and not self.has_any_role(*USO_STAFF_ROLES)
 
     def is_reviewer(self):
@@ -305,7 +305,7 @@ class Institution(DateSpanMixin, TimeStampedModel):
         return self.name
 
 
-class Registration(DynEntryMixin):
+class Registration(BaseFormModel):
     hash = models.CharField(max_length=50, unique=True)
     email = models.CharField(max_length=250)
 

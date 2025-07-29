@@ -8,12 +8,14 @@ class Sector(FieldType):
     icon = "bi-box"
     options = ['required', 'hide', 'inline']
     settings = ['label', 'options', ]
-    template_theme = "users/fields"
+    template_name = "users/fields/sector.html"
 
 
 class Staff(Sector):
     name = _("Staff Classes")
+    template_name = "users/fields/staff.html"
 
 
 class Students(Sector):
     name = _("Student Classes")
+    template_name = "users/fields/students.html"

@@ -1,41 +1,41 @@
 {% load cycle_tags %}
 {% with object as submission %}
-<div class="tinytron bg-transparent">
-    <div  class="row narrow-gutter">
-        <div class="col-xs-12 col-sm-8">
+<div class="p-3 bg-transparent">
+    <div  class="row">
+        <div class="col-sm-12 col-md-8">
             {% include "proposals/submission-snippet.html" %}
         </div>
-        <div class="col-xs-12 col-sm-4">
+        <div class="col-sm-12 col-md-4">
             <div class="row no-space bg-transparent">
                 {% for review in submission.reviews|for_stage:stage %}
-                <div class="col-xs-12 grid-reviewer">
-                {% if stage.kind.is_scientific %}
-                    <a href="#/" class="col-xs-8" data-url="{% url  'show-compatibility' pk=review.pk %}">
+                <div class="col-sm-12 grid-reviewer">
+                {% if not stage.kind.is_scientific %}
+                    <a href="#/" class="col-sm-8" data-modal-url="{% url  'show-compatibility' pk=review.pk %}">
                         {% if review.reviewer.reviewer.committee %}
                             {{review.assigned_to}} <i class="bi-award text-warning"></i>
                         {% else %}
                             {{review.assigned_to}}
                         {% endif %}
                     </a>
-                    <span class="text-muted">
+                    <span class="text-body-secondary">
                         {{review.reviewer|review_compat:submission}}
                     </span>
                 {% else %}
                     {{review.assigned_to}}
                 {% endif %}
-                    {% if stage.kind.is_scientific and review.state == review.STATES.pending and not review.reviewer.committee %}
-                        <a href="#/" title="Remove Reviewer" data-url="{% url 'delete-review' pk=review.pk %}"
-                           class="pull-right text-danger"><i class="bi-x icon-lg"></i>
+                    {% if not stage.auto_create and review.state == review.STATES.pending %}
+                        <a href="#/" title="Remove Reviewer" data-modal-url="{% url 'delete-review' pk=review.pk %}"
+                           class="pull-right text-danger"><i class="bi-x-lg"></i>
                         </a>
                     {% else %}
-                        <a href="#/"><i class="bi-lock text-muted icon-fw pull-right"></i></a>
+                        <a href="#/"><i class="bi-lock text-body-secondary icon-fw pull-right"></i></a>
                     {% endif %}
                 </div>
                 {% endfor %}
-                {%  if cycle.state == cycle.STATES.assign and stage.kind.is_scientific %}
-                    <div class="col-xs-12 grid-reviewer">
-                        <a href="#/" title="Add Reviewer" data-url="{% url 'add-reviewer-assignment' pk=submission.pk stage=stage.pk %}"
-                           class="text-success pull-right"><i class="bi-plus-circle icon-lg"></i>
+                {%  if cycle.state > cycle.STATES.open and cycle.state < cycle.STATES.archived and not stage.auto_create %}
+                    <div class="col-sm-12 grid-reviewer">
+                        <a href="#/" title="Add Reviewer" data-modal-url="{% url 'add-reviewer-assignment' pk=submission.pk stage=stage.pk %}"
+                           class="text-success pull-right"><i class="bi-plus-circle"></i>
                         </a>
                     </div>
                 {% endif %}

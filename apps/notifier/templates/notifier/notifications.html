@@ -1,38 +1,31 @@
 {% load static %}
 {% load humanize %}
-<ul class="dropdown-menu notifications">
+<ul class="dropdown-menu dropdown-menu-end">
     <li>
-        <div class="title">Notifications</div>
-        <div class="list">
-            <div class="scroller scroll-box">
-                <div class="content scroll-content" style="right: -15px;">
-                    <ul>
-                        {% for note in notifications.relevant.prioritize %}
-                        <li class="{% if note.is_active %}active{% endif %}">
-                            <a href="#0" data-note-url="{% url 'notification-detail' pk=note.pk %}">
-                            <div class="user-content text-wide overflow ellipsis">
-                                {{note.title}}<br/>
-                                <small style="font-weight: 300;">{{note.modified|naturaltime}}</small>
-                            </div>
-                            </a>
-                        </li>
-                        {% empty %}
-                        <li><a href="#0">
-                            <div class="user-content">No notifications</div>
-                        </a></li>
-                        {% endfor %}
-                    </ul>
+        <div class="dropdown-item title">Notifications</div>
+    </li>
+    <li>
+        <hr class="dropdown-divider">
+    </li>
+    {% for note in notifications.relevant.prioritize %}
+        <li>
+            <a class="dropdown-item d-flex align-items-center" href="#0"
+               data-modal-url="{% url 'user-notification-detail' pk=note.pk %}">
+                <div class="overflow ellipsis">
+                    {{ note.title }}&nbsp;<span class="text-body-secondary">{{ note.modified|naturaltime }}</span>
                 </div>
-            </div>
-        </div>
-        <div class="footer"><a href="{% url 'notification-list' %}">View all ({{ notifications.count }})</a></div>
+            </a>
+        </li>
+    {% empty %}
+        <li>
+            <div class="dropdown-item d-flex align-items-center">No notifications</div>
+        </li>
+    {% endfor %}
+    <li>
+        <hr class="dropdown-divider">
+    </li>
+    <li>
+        <a class="dropdown-item d-flex align-items-center" href="{% url 'user-notification-list' %}">View all
+            ({{ notifications.count }})</a>
     </li>
 </ul>
-
-<script>
-$(document).ready(function(){
-    $('a[data-note-url]').click(function(){
-        $('#modal-form').load($(this).attr('data-note-url'));
-    });
-});
-</script>

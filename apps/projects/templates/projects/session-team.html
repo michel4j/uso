@@ -1,74 +1,78 @@
 {% load project_tags %}
-{% load beamline_tags %}
+{% load beamlines %}
 {% load roleperms %}
 
 {% for member in object.team.all|dictsort:"get_full_name" %}
-<div class="grid-cell col-sm-6 col-md-4 col-lg-3">
-    <div class="tinytron bg-white" style="margin-bottom: 0;">
-        <div class="row text-condensed">
-            <div class="col-xs-12">
-                <img class="team-img pull-left" src="{{member.get_photo}}" onerror="this.src='/static/img/blank-profile.png';">
-                <div style="height: 5em;">
-                    <h4 class="no-vmargin"><strong>{{member}}</strong> {% show_project_roles object.project  member %}</h4>
-                    <span style="font-size: 110%;">
+    <div class="d-flex flex-row justify-content-start flex-wrap">
+        <div class="card">
+            <div class="row text-condensed">
+                <div class="col-12 d-flex align-items-center justify-content-start">
+                    <img class="permit-img" src="{{ member.get_photo }}" alt="{{ member }}"
+                         onerror="this.src='/static/img/blank-profile.png';">
+                    <div class="flex-grow-1 p-2">
+                        <strong class="my-0"><strong>{{ member }}</strong> {% show_project_roles object.project member %}
+                        </strong>
                         <span class="overflow ellipsis">{{ member.email.lower }}</span>
-                        <span class="text-muted overflow ellipsis">{{ member.get_classification_display }}, {{member.institution|default:"No Institution Specified"}}</span>
-                    </span>
+                        <span class="text-body-secondary overflow ellipsis">{{ member.get_classification_display }}, {{ member.institution|default:"No Institution Specified" }}</span>
+                        {% if object.is_current or object.state == 'live' or object.state == 'pending' or object.state == 'ready' %}
+                            <hr class="hr-xs"/>
+                            {% for perm_code in permissions.all %}
+                                {% if member|has_perm:perm_code %}
+                                    <small class="col-sm-6">
+                                        <strong class="text-success overflow ellipsis">{{ perm_code }}&nbsp;<i
+                                                class="bi-check2 icon-fw"></i></strong>
+                                    </small>
+                                {% else %}
+                                    <small class="col-sm-6">
+                                        <strong class="text-danger overflow ellipsis">{{ perm_code }}&nbsp;<i
+                                                class="bi-ban icon-fw"></i></strong>
+                                    </small>
+                                {% endif %}
+                            {% endfor %}
+                            {% for perm_code in permissions.any %}
+                                {% if member|has_perm:perm_code %}
+                                    <small class="col-sm-6">
+                                        <strong class="text-success overflow ellipsis">{{ perm_code }}&nbsp;<i
+                                                class="bi-check2 icon-fw"></i></strong>
+                                    </small>
+                                {% else %}
+                                    <small class="col-sm-6">
+                                        <strong class="text-warning overflow ellipsis">{{ perm_code }}&nbsp;<i
+                                                class="bi-ban icon-fw"></i></strong>
+                                    </small>
+                                {% endif %}
+                            {% endfor %}
+                            {% if permissions.user %}
+                                {% if object.kind == object.TYPES.remote %}
+                                    {% if member|is_remote_user:object.beamline %}
+                                        <small class="col-sm-6">
+                                            <strong class="text-success overflow ellipsis">{{ object.beamline.acronym }}-REMOTE-USER&nbsp;<i
+                                                    class="bi-check2 icon-fw"></i></strong>
+                                        </small>
+                                    {% else %}
+                                        <small class="col-sm-6">
+                                            <strong class="text-danger overflow ellipsis">{{ object.beamline.acronym }}-REMOTE-USER&nbsp;<i
+                                                    class="bi-ban icon-fw"></i></strong>
+                                        </small>
+                                    {% endif %}
+                                {% else %}
+                                    {% if member|is_user:object.beamline %}
+                                        <small class="col-sm-6">
+                                            <strong class="text-success overflow ellipsis">{{ object.beamline.acronym }}-USER&nbsp;<i
+                                                    class="bi-check2 icon-fw"></i></strong>
+                                        </small>
+                                    {% else %}
+                                        <small class="col-sm-6">
+                                            <strong class="text-danger overflow ellipsis">{{ object.beamline.acronym }}-USER&nbsp;<i
+                                                    class="bi-ban icon-fw"></i></strong>
+                                        </small>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            {% if object.is_current or object.state == 'live' or object.state == 'pending' or object.state == 'ready' %}
-            <div class="col-xs-12">
-                <hr class="hr-xs"/>
-                <div class="row narrow-gutter">
-                {% for perm_code in permissions.all %}
-                    {% if member|has_perm:perm_code %}
-                    <small class="col-xs-6">
-                        <strong class="text-success overflow ellipsis">{{perm_code}}&nbsp;<i class="bi-check2 icon-fw"></i></strong>
-                    </small>
-                    {% else %}
-                    <small class="col-xs-6">
-                        <strong class="text-danger overflow ellipsis">{{perm_code}}&nbsp;<i class="bi-ban icon-fw"></i></strong>
-                    </small>
-                    {% endif %}
-                {% endfor %}
-                {% for perm_code in permissions.any %}
-                    {% if member|has_perm:perm_code %}
-                    <small class="col-xs-6">
-                        <strong class="text-success overflow ellipsis">{{perm_code}}&nbsp;<i class="bi-check2 icon-fw"></i></strong>
-                    </small>
-                    {% else %}
-                    <small class="col-xs-6">
-                        <strong class="text-warning overflow ellipsis">{{perm_code}}&nbsp;<i class="bi-ban icon-fw"></i></strong>
-                    </small>
-                    {% endif %}
-                {% endfor %}
-                {%  if permissions.user %}
-                    {% if object.kind == object.TYPES.remote %}
-                        {% if member|is_remote_user:object.beamline %}
-                        <small class="col-xs-6">
-                            <strong class="text-success overflow ellipsis">{{object.beamline.acronym}}-REMOTE-USER&nbsp;<i class="bi-check2 icon-fw"></i></strong>
-                        </small>
-                        {% else %}
-                        <small class="col-xs-6">
-                            <strong class="text-danger overflow ellipsis">{{object.beamline.acronym}}-REMOTE-USER&nbsp;<i class="bi-ban icon-fw"></i></strong>
-                        </small>
-                        {% endif %}
-                    {% else %}
-                        {% if member|is_user:object.beamline %}
-                        <small class="col-xs-6">
-                            <strong class="text-success overflow ellipsis">{{object.beamline.acronym}}-USER&nbsp;<i class="bi-check2 icon-fw"></i></strong>
-                        </small>
-                        {% else %}
-                        <small class="col-xs-6">
-                            <strong class="text-danger overflow ellipsis">{{object.beamline.acronym}}-USER&nbsp;<i class="bi-ban icon-fw"></i></strong>
-                        </small>
-                        {% endif %}
-                    {% endif %}
-                {% endif %}
-                </div>
-            </div>
-            {% endif %}
         </div>
     </div>
-</div>
 {% endfor %}

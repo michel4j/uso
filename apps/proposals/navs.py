@@ -3,8 +3,8 @@ from django.conf import settings
 from misc.navigation import BaseNav
 
 USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
-USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff', 'employee'])
-USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse', 'employee:hse'])
+USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff'])
+USO_HSE_ROLES = getattr(settings, "USO_HSE_ROLES", ['staff:hse'])
 
 
 class Proposals(BaseNav):
@@ -105,3 +105,44 @@ class PRCAssignments(BaseNav):
         if not allowed and hasattr(request.user, "reviewer"):
             allowed = request.user.reviewer.committee is not None
         return allowed
+
+
+class CycleTypes(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Cycle Types'
+    roles = USO_ADMIN_ROLES
+    url = reverse('cycle-type-list')
+    separator = True
+    weight = 95
+
+
+class AccessPools(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Access Pools'
+    roles = USO_ADMIN_ROLES
+    url = reverse('access-pool-list')
+    weight = 100
+
+
+class ReviewTracks(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Review Tracks'
+    roles = USO_ADMIN_ROLES
+    url = reverse('review-track-list')
+    weight = 101
+
+
+class ReviewTypes(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Review Types'
+    roles = USO_ADMIN_ROLES
+    url = reverse('review-type-list')
+    weight = 105
+
+
+class Techniques(BaseNav):
+    parent = 'misc.Admin'
+    label = 'Techniques'
+    roles = USO_ADMIN_ROLES
+    url = reverse('technique-list')
+    weight = 110

@@ -1,126 +1,128 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
-{% load folio %}
-{% load dynforms_tags %}
-{% load beamline_tags %}
+{% load misc %}
+{% load dynforms %}
+{% load beamlines %}
 {% load samples_tags %}
 {% load proposal_tags %}
 {% load markup %}
 
 
-{% block page_heading %}
-    <span class="hidden-xs">Proposal</span><span class="text-muted text-narrow"> Preview</span>
+{% block page-pretitle %}
+    Proposal
 {% endblock %}
 
-{% block folio-title %}Proposal &mdash; {{ proposal.code }}{% endblock %}
-{% block folio-subtitle %}
+{% block page-title %}{{ proposal.code }}{% endblock %}
+{% block page-subtitle %}
     Created: {{ proposal.created | date }} &ensp; Last Modified: {{ proposal.modified | date }}
 {% endblock %}
-{% block folio-tools-class %}
+{% block page-tools-class %}
     {% if not owner and not admin %}hidden{% endif %}
 {% endblock %}
 
-{% block folio-tools %}
+{% block extra_css %}
+    <link href="{% static 'proposals/proposals.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'proposals/reviews.min.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block page-tools %}
     {% if owner %}
         {% if proposal.state == proposal.STATES.draft %}
             {% if validation.pages %}
                 <a href='#0' title='Incomplete Proposal' disabled class="pull-right">
-                    <i class="bi-exclamation-triangle icon-2 icon-fw"></i><br/>
+                    <i class="bi-exclamation-triangle icon-md icon-fw"></i><br/>
                     <span class="tool-label">Submit</span>
                 </a>
             {% else %}
-                <a href='#0' data-url='{% url "submit-proposal" pk=object.pk %}' class="pull-right">
-                    <i class="bi-arrow-right-circle icon-2 icon-fw text-success"></i><br/>
+                <a href='#0' data-modal-url='{% url "submit-proposal" slug=object.code %}' class="pull-right">
+                    <i class="bi-arrow-right-circle icon-md icon-fw text-success"></i><br/>
                     <span class="tool-label">Submit</span>
                 </a>
             {% endif %}
-            <a href='{% url "edit-proposal" pk=object.pk %}' class="pull-right">
-                <i class="bi-pencil icon-2 icon-fw "></i><br/>
+            <a href='{% url "edit-proposal" slug=object.code %}' class="pull-right">
+                <i class="bi-pencil icon-md icon-fw "></i><br/>
                 <span class="tool-label">Edit</span>
             </a>
-            <a href='#0' data-url='{% url "delete-proposal" pk=object.pk %}' class="pull-right">
-                <i class="bi-trash icon-2 text-danger icon-fw"></i><br/>
+            <a href='#0' data-modal-url='{% url "delete-proposal" slug=object.code %}' class="pull-right">
+                <i class="bi-trash icon-md text-danger icon-fw"></i><br/>
                 <span class="tool-label">Delete</span>
             </a>
         {% endif %}
-        <a href='#0' data-url='{% url "clone-proposal" pk=object.pk %}' class="pull-right">
-            <i class="bi-copy icon-2 icon-fw"></i><br/>
+        <a href='#0' data-modal-url='{% url "clone-proposal" slug=object.code %}' class="pull-right">
+            <i class="bi-copy icon-md icon-fw"></i><br/>
             <span class="tool-label">Clone</span>
         </a>
-        <a href='#0' data-url='{% url "proposal-attachments" pk=object.pk %}' class="pull-right">
-            <i class="bi-paperclip icon-2 icon-fw"></i>
+        <a href='#0' data-modal-url='{% url "proposal-attachments" pk=object.pk %}' class="pull-right">
+            <i class="bi-paperclip icon-md icon-fw"></i>
             {% if proposal.attachments.exist %}
-                <span class="label label-primary text-condensed">{{ proposal.attachments.count }}</span>
+                <span class="badge bg-primary text-condensed">{{ proposal.attachments.count }}</span>
             {% endif %}<br/>
             <span class="tool-label">Attachments</span>
         </a>
         {% if proposal.clarifications.exists %}
             <a href='#proposal-clarifications' class="pull-right"
-               data-toggle="collapse" title="Clarifications"
+               data-bs-toggle="collapse" title="Clarifications"
                aria-expanded="false" aria-controls="proposal-clarifications">
-                <i class="bi-chat-right-text icon-2 icon-fw"></i><span
-                    class="label label-warning text-condensed">{{ proposal.clarifications.count }}</span><br/>
+                <i class="bi-chat-right-text icon-md icon-fw"></i><span
+                    class="badge rounded-circle bg-warning text-condensed">{{ proposal.clarifications.count }}</span><br/>
                 <span class="tool-label">Clarifications</span>
             </a>
         {% endif %}
     {% endif %}
     {% for submission in proposal.submissions.all %}
-        <a href='{{ submission.get_absolute_url }}' class="pull-right"
+        <a href='{{ submission.get_absolute_url }}'
            title="{{ submission.track.acronym }} Submission">
-        <span class="icon-stack icon-3x" style="font-size: 73%;">
-            <i class="bi-journal icon-2x"></i>
-            <strong class="icon-stack-1x icon-stack-text text-condensed"
-                    style="top: 0;">{{ submission.track.acronym }}</strong>
-        </span><br/>
+            <span class="icon-stack">
+                <i class="bi-journal icon-md"></i>
+                <small class="text-condensed">{{ submission.track.acronym }}</small>
+            </span><br/>
             <span class="tool-label">{{ submission.code }}</span>
         </a>
     {% endfor %}
 {% endblock %}
 
 
-{% block folio-statusbar-style %}
-    {% folio_status proposal.state draft=proposal.STATES.draft success=proposal.STATES.submitted %}{% endblock %}
+{% block page-status-style %}callout callout-{% state_tag proposal.state secondary=proposal.STATES.draft success=proposal.STATES.submitted %}{% endblock %}
 
-{% block folio-statusbar %}
-    <h3 class="no-vmargin"><span class="label label-info text-condensed">{{ proposal.get_state_display }}</span>
-    </h3>
+{% block page-status-bar %}
+    <span class="status-badge badge bg-{% state_tag proposal.state secondary=proposal.STATES.draft success=proposal.STATES.submitted %} text-condensed">{{ proposal.get_state_display }}</span>
     <div>
-        <small class="text-wide text-muted">Spokesperson:</small><br/>{{ proposal.spokesperson|default:"&hellip;" }}<br/>
-        <small class="text-wide text-muted">Delegate:</small><br/>{{ proposal.get_delegate|default:"&hellip;" }}
+        <small class="text-wide text-body-secondary">Spokesperson:</small><br/>{{ proposal.spokesperson|default:"&hellip;" }}<br/>
+        <small class="text-wide text-body-secondary">Delegate:</small><br/>{{ proposal.get_delegate|default:"&hellip;" }}
     </div>
     <div>
-        <small class="text-wide text-muted">Address:</small><br/>
-        {% if proposal.spokesperson.address %}
-            {% with proposal.spokesperson.address as address %}
-                <p class="text-muted text-condensed">
-                    {{ address.address_1 }},<br/> {{ address.address_2 }}, {{ address.city }},<br/>
-                    {{ address.region }}, {{ address.postal_code }}, {{ address.country }}
-                </p>
-            {% endwith %}
-        {% else %}
-            &hellip;
+        <small class="text-wide text-body-secondary">Address:</small><br/>
+        {% if proposal.details.invoice_address %}
+        {% with proposal.details.invoice_address as address %}
+            <p class="text-condensed">
+                {% if address.place %}{{ address.place }},<br/> {% endif %}
+                {{ address.street }},<br/>
+                {{ address.city }}, {{ address.code }},<br/> {{ address.region }}, {{ address.country }}
+            </p>
+        {% endwith %}
+        {% elif proposal.spokesperson.address %}
+        {% with proposal.spokesperson.address as address %}
+            <p class="text-condensed">
+                {{ address.address_1 }},<br/> {{ address.address_2 }}, {{ address.city }},<br/>
+                {{ address.region }}, {{ address.postal_code }}, {{ address.country }}
+            </p>
+        {% endwith %}
         {% endif %}
     </div>
     <div>
-        <small class="text-wide text-muted">Hazards:</small><br/>
-        <div class="pictogram-box">
-            {% for hz in  proposal.details.sample_hazards|fetch_hazards %}
-                {% with 'samples/pictograms/'|add:hz.code|add:'.svg' as pictogram_svg %}
-                    <img src="{% static pictogram_svg %}" title="{{ hz.name }}">
-                {% endwith %}
-            {% empty %}
-                &emsp;&hellip;&emsp;
-            {% endfor %}
+        <small class="text-wide text-body-secondary">Hazards:</small><br/>
+        <div class="">
+            {% show_pictograms proposal.hazards size="md" %}
         </div>
     </div>
 {% endblock %}
 
-{% block folio-content %}
+{% block page-content %}
     {% if proposal.state == proposal.STATES.draft and validation.pages %}
-        <div class="minitron bg-warning">
-        <div class="row narrow-gutter">
-            <i class="bi-exclamation-triangle icon-4 col-xs-1 text-warning"></i>
-            <div class="col-xs-11">Please edit and fix the following issues before submitting:<br/>
+        <div class="callout callout-warning">
+        <div class="d-flex flex-row align-items-center gap-3">
+            <i class="bi-exclamation-triangle icon-lg flex-shrink-0"></i>
+            <div class="flex-grow-1">Please edit and fix the following issues before submitting:<br/>
                 <ul class="list-unstyled">
                     {% for page in object.form_type.pages %}
                         {% with validation|page_errors:forloop.counter0 as errors %}{% if errors %}
@@ -139,19 +141,18 @@
     {% if proposal.clarifications.count %}
         <div class="row collapse {% if proposal.clarifications.pending.count %}in{% endif %}"
              id="proposal-clarifications">
-            <div class="col-xs-12">
-                <div class="tinytron bg-notes-warning">
-                    <h4 class="no-vmargin">Clarification Requests</h4>
+            <div class="col-sm-12">
+                <div class="p-3 bg-notes-warning">
+                    <h4 class="my-0">Clarification Requests</h4>
                     <hr class="hr-xs"/>
                     {% include "proposals/clarifications.html" with response_url_name='proposal-clarification-response' %}
                 </div>
             </div>
         </div>
     {% endif %}
-    <div class="miditron bg-transparent">
-        {% include "proposals/proposal-content.html" %}
+    <div class="p-5">
+        {% include "proposals/proposal-content.html" with proposal=proposal.get_document %}
     </div>
-
 {% endblock %}
 
 

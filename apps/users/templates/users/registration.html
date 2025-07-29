@@ -1,23 +1,23 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block body_class %}registration{% endblock %}
+{% block body_class %}registration no-sidebar{% endblock %}
 {% block body %}
-    <div class="aligner">
-        <div class="page">
-            <header>
+    <div class="aligner d-flex flex-column justify-content-center align-items-center">
+        <div class="card">
+            <div class="card-header text-white p-3">
                 <a href="/" class="pull-left"><img alt="Logo" src="/media/logos/logo-horiz-white.png"
                  onerror="this.onerror=null;this.src='{% static 'img/logo-horiz-white.svg' %}';"></a>
                 <h3 class="pull-right text-condensed">
                     {% block main-title %}Registration{% endblock %}
                 </h3>
-            </header>
+            </div>
             {%  block article-and-footer %}
-            <article class="main">
-                <div class="form-page tab-content">
+            <div class="card-body p-0">
+                <div class="form-page">
                     {% block main-form %}{% endblock %}
                 </div>
-            </article>
+            </div>
             {% endblock %}
         </div>
     </div>

@@ -1,93 +1,153 @@
 from collections import defaultdict
 from datetime import timedelta
 
-from django.db.models import Min, F
+from django.db.models import Q, QuerySet, Max
 from django.utils import timezone
 
 from isocron import BaseCronJob
 from notifier import notify
 from . import utils
 
+FUTURE_CYCLES = 2
+
 
 class CreateCycles(BaseCronJob):
+    """
+    Create next cycles if they do not exist.
+    Ensure there are always cycles two years in advance for scheduling.
+    """
     run_every = "P2D"
+    pending_types: QuerySet = None
 
-    def do(self):
+    def is_ready(self):
         from proposals import models
         today = timezone.now().date()
-        out = ""
+        in_future_years = today.year + FUTURE_CYCLES
 
-        # if there are no cycles, create the first four.
-        if not models.ReviewCycle.objects.filter().count():
+        # Check if there are cycles for the next two years
+        # the end_date of the latest cycle from each type should be at least 2 years from today
+        self.pending_types = models.CycleType.objects.filter(active=True).annotate(
+            max_year=Max('cycles__end_date__year')
+        ).filter(Q(max_year__isnull=True) | Q(max_year__lt=in_future_years))
 
-            six_months = timedelta(days=6*4*7)
-            dt = today - six_months
-            for i in range(4):
-                out = utils.create_cycle(dt)
-                dt = dt + six_months
+        return self.pending_types.exists()
 
-        # We should always have 4 future cycles, 1 year in advance for schedule
-        if models.ReviewCycle.objects.filter(start_date__gt=today).count() < 4:
-            last_cycle = models.ReviewCycle.objects.latest('start_date')
-            out = utils.create_cycle(last_cycle.start_date)
-
-        return out
+    def do(self):
+        logs = []
+        today = timezone.now().date()
+        in_future_years = today.year + FUTURE_CYCLES
+        for year in range(today.year, in_future_years + 1):
+            for pending_type in self.pending_types.order_by('start_date__month'):
+                max_year = pending_type.max_year or today.year - 1
+                if max_year < year:
+                    pending_type.create_next(year=year)
+                    logs.append(f"Created cycle for {pending_type.name} for year {year}")
+        return '\n'.join(logs)
 
 
 class CycleStateManager(BaseCronJob):
+    """
+    Manage the state of review cycles based on their dates.
+    """
     run_every = "PT2H"
 
     def do(self):
         from . import models
         today = timezone.localtime(timezone.now()).date()
-
+        logs = []
         # check and switch to open
-        models.ReviewCycle.objects.filter(
+        opened = models.ReviewCycle.objects.filter(
             open_date__lte=today, state=models.ReviewCycle.STATES.pending
         ).update(state=models.ReviewCycle.STATES.open)
+        if opened:
+            logs.append(f"{opened} review cycle(s) opened")
 
         # check and switch to assign
-        models.ReviewCycle.objects.filter(
+        assigned = models.ReviewCycle.objects.filter(
             close_date__lte=today, state=models.ReviewCycle.STATES.open,
         ).update(
             state=models.ReviewCycle.STATES.assign
         )
+        if assigned:
+            logs.append(f"{assigned} review cycle(s) switched to assign state")
+
+        # check and switch to review based on dates and if submissions are started
+        reviewing = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.review).filter(
+            start_date__lte=today, end_date__gte=today, state=models.ReviewCycle.STATES.assign,
+            submissions__state__gte=models.Submission.STATES.started
+        ).update(state=models.ReviewCycle.STATES.review)
+        if reviewing:
+            logs.append(f"{reviewing} review cycle(s) switched to review state")
+
+        # check and switch to evaluation
+        evaluating = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.evaluation).filter(
+            due_date__lte=today, alloc_date__gte=today,
+        ).update(state=models.ReviewCycle.STATES.evaluation)
+        if evaluating:
+            logs.append(f"{evaluating} review cycle(s) switched to evaluation state")
+
+        # check and switch to scheduling
+        scheduling = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.schedule).filter(
+            alloc_date__lte=today, start_date__gt=today,
+        ).update(state=models.ReviewCycle.STATES.schedule)
+        if scheduling:
+            logs.append(f"{scheduling} review cycle(s) switched to scheduling state")
 
         # check and switch to active
-        models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.active).filter(
+        active = models.ReviewCycle.objects.exclude(state=models.ReviewCycle.STATES.active).filter(
             start_date__lte=today, end_date__gte=today
         ).update(state=models.ReviewCycle.STATES.active)
+        if active:
+            logs.append(f"{active} review cycle(s) switched to active state")
 
         # check and switch to archive
-        models.ReviewCycle.objects.exclude(
+        archived = models.ReviewCycle.objects.exclude(
             state=models.ReviewCycle.STATES.archive
         ).filter(end_date__lt=today).update(
             state=models.ReviewCycle.STATES.archive
         )
+        if archived:
+            logs.append(f"{archived} review cycle(s) archived")
+
+        return '\n'.join(logs)
 
 
-class NotifyReviewers(BaseCronJob):
+class StartReviews(BaseCronJob):
+    """
+    Open pending reviews and notify reviewers, once daily. Only reviews from auto-start stages
+    are processed. Non auto-start reviews can be opened through the cycle management interface.
+    """
     run_every = "P1D"
 
     def do(self):
         from . import models
-        cycle = models.ReviewCycle.objects.next()
-        today = timezone.localtime(timezone.now())
-        yesterday = today - timedelta(days=1)
-        if cycle:
-            # Notify technical reviews one day later to avoid spamming
-            reviews = models.Review.objects.technical().filter(
-                state=models.Review.STATES.pending, created__lte=yesterday
-            )
-            count = utils.notify_reviewers(reviews)
-            reviews.update(state=models.Review.STATES.open)
-            if count:
-                return f"{count} reviewer notification(s) sent"
+        logs = []
+
+        # reviews one day later to avoid spamming
+        reviews = models.Review.objects.filter(
+            state=models.Review.STATES.pending, stage__auto_start=True, due_date__isnull=False
+        )
+        count = utils.notify_reviewers(reviews)
+        reviews.update(state=models.Review.STATES.open)
+
+        if count:
+            logs.append(f"{count} reviewer notification(s) sent")
+
+        submissions = models.Submission.objects.filter(
+            state=models.Submission.STATES.pending, reviews__state=models.Review.STATES.open
+        )
+        if submissions.count():
+            submissions.update(state=models.Submission.STATES.started)
+            logs.append(f"{submissions.count()} submission(s) started review process")
+
+        return '\n'.join(logs)
 
 
 class RemindReviewers(BaseCronJob):
-    run_every = "P1D"
-    run_at = ['02:00']
+    """
+    Remind reviewers about reviews that are due tomorrow.
+    """
+    run_every = "T02:00"    # every day at 2 AM local time
 
     def do(self):
         from proposals import models
@@ -112,44 +172,32 @@ class RemindReviewers(BaseCronJob):
                 })
 
             if len(list(info.values())):
-                return "{} reviewer reminders sent".format(len(list(info.values())))
+                return f"{len(list(info.values()))} reviewer reminders sent"
+        return ''
 
 
-class CloseReviews(BaseCronJob):
-    run_every = "PT15M"
+class AdvanceReviewWorkflow(BaseCronJob):
+    """
+    Manage Submission State based on completion of reviews, creates reviews for next stages.
+    """
+    run_every = "PT30M"
+    submissions: QuerySet
+
+    def is_ready(self):
+        from proposals import models
+        now = timezone.localtime(timezone.now())
+        self.submissions = models.Submission.objects.filter(
+            Q(cycle__due_date__lt=now, cycle__end_date__gt=now, track__require_call=True) |
+            Q(cycle__start_date__lte=now, cycle__end_date__gt=now, track__require_call=False),
+            state__lt=models.Submission.STATES.reviewed,
+        )
+        return self.submissions.exists()
 
     def do(self):
-        from proposals import models
-        cycle = models.ReviewCycle.objects.review().first()
         logs = []
-        today = timezone.localtime(timezone.now()).date()
-        if cycle and cycle.due_date < today:
-            # Do not process Rapid Access Track
-            for track in cycle.tracks().filter(require_call=True):
-                revs = models.Review.objects.filter(
-                    cycle=cycle, stage__track=track,
-                    state=models.Review.STATES.submitted
-                )
-                if revs.exists():
-                    revs.update(state=models.Review.STATES.closed, modified=timezone.now())
-                    logs.append(f"{revs.count()} {track} Reviews closed")
-
-                for submission in cycle.submissions.filter(track=track):
-                    submission.close()
-
-        # Close RA reviews if they are complete
-        cycle = models.ReviewCycle.objects.filter(open_date__lt=today, end_date__gt=today).first()
-        for track in cycle.tracks().filter(require_call=False):
-            revs = models.Review.objects.filter(cycle=cycle, stage__track=track, state=models.Review.STATES.submitted)
-            if revs.exists():
-                revs.update(state=models.Review.STATES.closed, modified=timezone.now())
-                logs.append(f"{revs.count()} {track} Reviews closed")
-
-        ra_subs = cycle.submissions.filter(track__require_call=False).exclude(state=models.Submission.STATES.complete)
-        to_close = ra_subs.annotate(min_state=Min('reviews__state')).values('id', 'min_state').filter(min_state=models.Review.STATES.closed)
-        if to_close:
-            for submission in cycle.submissions.filter(pk__in=[s['id'] for s in to_close]):
-                submission.close()
-            logs.append(f"{len(to_close)} RA Reviews closed")
+        for submission in self.submissions:
+            sub_logs = utils.advance_review_workflow(submission)
+            logs.extend(sub_logs)
 
         return '\n'.join(logs)
+

@@ -2,7 +2,7 @@
 {% load proposal_tags %}
 
 {% if reviews.exists %}
-    <table class="table table-condensed">
+    <table class="table">
         <thead>
         <tr>
             <th colspan="2">Review</th>
@@ -19,7 +19,7 @@
         <tbody>
         {% for rev in reviews.by_completeness %}
         <tr>
-            <td width="10%">{{ rev | display_state }}</td>
+            <td style="width: 10%; vertical-align: middle;">{{ rev | display_state }}</td>
             <td>{{ rev.type }}</td>
             {%  if admin or committee_member %}
                 <td>
@@ -33,34 +33,38 @@
                 </td>
             {% endif %}
             <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.modified|date }}{% elif rev.due_date %}Due {{ rev.due_date|date }}{% else %}&hellip;{% endif %}</td>
-            <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.score|floatformat:1 }}{% else %}<em class="text-muted">incomplete</em>{%  endif %}</td>
-            <td>{% if rev.state >= rev.STATES.submitted %}{{ rev|display_scores }}{% else %}<em class="text-muted">incomplete</em>{%  endif %}</td>
+            <td>{% if rev.state >= rev.STATES.submitted %}{{ rev.score|floatformat:1 }}{% else %}<em class="text-body-secondary">incomplete</em>{%  endif %}</td>
+            <td>{% if rev.state >= rev.STATES.submitted %}{{ rev|display_scores }}{% else %}<em class="text-body-secondary">incomplete</em>{%  endif %}</td>
             <td>
                 {% if rev.state >= rev.STATES.submitted and rev.comments %}
                 <a title="Show/Hide Comments" href='#comments-{{rev.pk}}'
                    role="button"
                    aria-expanded="false"
                    aria-controls="comments-{{rev.pk}}"
-                   data-toggle="collapse"><i class="bi-chat-left-dots icon-fw"></i>
+                   data-bs-target="#comments-{{rev.pk}}"
+                   data-bs-toggle="collapse"><i class="bi-chat-left-dots icon-fw"></i>
                 </a>
                 {% endif %}
             </td>
             {% if admin %}
             <td>
                 {% if rev.state >= rev.STATES.submitted %}
-                <i class="bi-lock icon-fw text-muted"></i>
+                <i class="bi-lock icon-fw text-body-secondary"></i>
                 {% else %}
-                <a href="{% url 'edit-review' pk=rev.pk %}"><i class="bi-pencil icon-fw"></i></a>
+                <a href="{% url 'edit-review' pk=rev.pk %}" title="Edit Review" class="btn btn-xs btn-light"><i class="bi-pencil icon-fw"></i></a>
                 {% endif %}
-                </td>
+            </td>
             {% endif %}
         </tr>
         {% if rev.comments %}
-        <tr class="merge-up hidden-row">
-            <td colspan=6">
-                <ul id="comments-{{rev.pk}}" class="tinytron bg-info collapse list-unstyled" style="padding: 0.5em;">
-                    <strong>Comments:</strong>{{ rev.comments|default:"&hellip;"|markdown }}
-                </ul>
+        <tr>
+            <td colspan="{% if admin %}8{% elif committee_member %}7{% else %}6{% endif %}" class="p-0">
+                <div id="comments-{{rev.pk}}" class="collapse">
+                    <div class="bg-info-subtle p-2">
+                        <strong>Comments:</strong>
+                        {{ rev.comments|default:"&hellip;"|markdown }}
+                    </div>
+                </div>
             </td>
         </tr>
         {% endif %}

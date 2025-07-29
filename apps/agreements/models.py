@@ -48,7 +48,7 @@ class Agreement(DateSpanMixin, TimeStampedModel):
     objects = AgreementQuerySet.as_manager()
 
     def __str__(self):
-        return self.name + "" if self.state == self.STATES.enabled else "{}".format(self.get_state_display())
+        return self.name + "" if self.state == self.STATES.enabled else self.get_state_display()
 
     def num_users(self):
         return self.acceptances.filter(active=True).count()
@@ -64,4 +64,4 @@ class Acceptance(TimeStampedModel):
     active = models.BooleanField(default=True)
 
     def __str__(self):
-        return "{}-{}".format(self.agreement, self.user)
+        return f"{self.agreement}-{self.user}"

@@ -1,58 +1,77 @@
-{% extends "folio.html" %}
-{% load beamline_tags %}
+{% extends "page.html" %}
+{% load beamlines %}
 
 
-{% block page_heading %}<span class="hidden-xs">Laboratory &mdash; </span>
-    <span class="text-muted">{{ object.acronym }}</span>{% endblock %}
+{% block page-title %}<span class="text-body-secondary">{{ object.acronym }}</span>{% endblock %}
 
-{% block folio-title %}
-    {{ object.name }}
+{% block page-pretitle %}
+    Laboratory
 {% endblock %}
 
-{% block folio-subtitle %}
-    {{ object.acronym }}
+{% block page-subtitle %}
+    {{ object.description }}
 {% endblock %}
 
-{% block folio-tools %}
-    <a href="{% url 'lab-history' pk=object.pk %}" class="pull-right">
-        <i class="bi-clock icon-2 icon-fw"></i><br/>
-        <span class="tool-label">History</span>
-    </a>
+{% block page-tools %}
+    {% if admin or owner %}
+        <a href="#0" data-modal-url="{% url 'edit-lab' acronym=object.acronym %}">
+            <i class="bi-pencil icon-md icon-fw"></i><br/>
+            <span class="tool-label">Edit</span>
+        </a>
+        <a href="#0" data-modal-url="{% url 'add-workspace' acronym=object.acronym %}">
+            <i class="bi-plus-square icon-md icon-fw"></i><br/>
+            <span class="tool-label">Add Workspace</span>
+        </a>
+        <a href="{% url 'lab-history' acronym=object.acronym %}">
+            <i class="bi-clock icon-md icon-fw"></i><br/>
+            <span class="tool-label">History</span>
+        </a>
+    {% endif %}
 {% endblock %}
 
-{% block folio-statusbar-style %}{% if object.available %}bg-success{% else %}bg-darken{% endif %}{% endblock %}
+{% block page-status-style %}callout {% if object.available %}callout-success{% endif %}{% endblock %}
 
-{% block folio-statusbar %}
-    <h3 class="no-vmargin"><span class="label label-info text-condensed">{% if object.available %}Available{% else %}Not
+{% block page-status-bar %}
+    <span class="status-badge badge bg-info text-condensed">{% if object.available %}Available{% else %}Not
         Available{% endif %}</span>
-    </h3>
     <div>
-        <small class="text-wide text-muted">Workspaces:</small>
+        <small class="text-wide text-body-secondary">Workspaces:</small>
         <br/>{% for ws in lab.workspaces.all %}{{ ws.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
     </div>
     <div>
-        <small class="text-wide text-muted">Required Permissions:</small>
-        <br/>{% for perm in lab.permissions.all %}{{ perm.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        <small class="text-wide text-body-secondary">Required Permissions:</small>
+        <br/>
+        {% for perm in lab.permissions.all %}
+            {{ perm.code }}{% if not forloop.last %}, {% endif %}
+        {% empty %}
+            &nbsp;
+        {% endfor %}
     </div>
-
 {% endblock %}
 
-{% block folio-content %}
-    <div class="minitron bg-transparent">
-        <div class="row narrow-gutter">
-            <div class="col-xs-12">
-                {{ object.description }}
-                <hr class="hr-xs"/>
-            </div>
-        </div>
-        <div class="row narrow-gutter">
-            {% for workspace in lab.workspaces.all %}
-                <div class="col-xs-6 col-sm-4">
-                    <div class="tinytron border-3d {% if not workspace.available %}bg-danger{% endif %}"
-                         style="min-height: 200px;">
-                        <h5 class="no-vmargin">{{ workspace.name }}</h5>
-                        <div class="text-condensed" style="font-size: 90%;">{{ workspace.description }}</div>
-                        <hr class="hr-xs"/>
+{% block page-content %}
+    <div class="row my-3">
+        {% for workspace in lab.workspaces.all %}
+            <div class="col-sm-6 col-lg-4">
+                <div class="card mb-3 {% if not workspace.available %}bg-danger-subtle{% endif %}"
+                     style="min-height: 200px;">
+                    <div class="card-header d-flex flex-row justify-content-start align-items-center">
+                        <i class="bi-beaker{% if workspace.available %}-fill text-success{% endif %} icon-md me-3"></i>
+                        <h5 class="m-0">{{ workspace.name }} {% if not workspace.available %}Not {% endif %}Available</h5>
+                        {% if admin or owner %}
+                        <div class="ms-auto">
+                            <a href="#0" data-modal-url='{% url "edit-workspace" pk=workspace.pk %}'
+                               title="Edit Workspace">
+                                <i class="bi-pencil icon-sm icon-fw"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body border-bottom text-body-secondary">
+                        {{ workspace.description }}
+                    </div>
+                    <div class="card-body">
+
                         {% with workspace.sessions.active.all as sessions %}
                             {% if not sessions.exists %}
                                 <div class="empty">
@@ -64,7 +83,7 @@
                         {% endwith %}
                     </div>
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+        {% endfor %}
     </div>
 {% endblock %}

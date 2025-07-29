@@ -1,0 +1,8 @@
+{% spaceless %}
+
+    {% for pair in widget.subwidgets %}
+        <div class="input-group mb-2">
+            {% include pair.key.template_name with widget=pair.key %}{% include pair.value.template_name with widget=pair.value %}
+        </div>
+    {% endfor %}
+{% endspaceless %}

@@ -15,9 +15,9 @@ services:
     image: postgres:17-alpine
     restart: always
     volumes:
-      - ./database:/var/lib/postgresql/data:Z
+      - ./database:/var/lib/postgresql/data:z
     environment:
-      POSTGRES_PASSWORD: Baev6Aegha&p2iedie#Qu6Jooz5eNg7Z
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
       POSTGRES_USER: usonline
 
   cache:
@@ -30,12 +30,8 @@ services:
     depends_on:
       - cache
       - database
-    environment:
-      DJANGO_SUPERUSER_USERNAME: admin
-      DJANGO_SUPERUSER_PASSWORD: usoadmin
-      DJANGO_SUPERUSER_FIRST_NAME: Admin
-      DJANGO_SUPERUSER_LAST_NAME: User
-      DJANGO_SUPERUSER_EMAIL: admin@bespoke.com
+    env_file:
+      - ./.env
     ports:
       - 8080:80
     volumes:

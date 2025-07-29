@@ -1,72 +1,45 @@
 {% extends "misc/blocks/panel.html" %}
 {% load static %}
+{% load misc %}
 {% load jsonify %}
 {% block panel_title %}Publication Keywords{% endblock %}
-{% block panel_tools %}
-<a href="{% url 'user-publication-list' %}" class="btn btn-xs btn-white pull-right" title="View All My Publications">
-    <i class="bi-list-ol icon-2 icon-fw"></i>
-</a>
-<a href="#0" title="Submit Publication" class="btn btn-xs btn-white pull-right" data-url="{% url 'add-publication' %}">
-    <i class="bi-plus-lg icon-2 icon-fw"></i>
-</a>
-{% if matches %}
-    <a href="{% url 'claim-publication-list' %}" title="Claim Publications" class="btn btn-xs btn-white pull-right">
-        <span class="icon-stack">
-            <i class="icon-stack-2x bi-link icon-2 icon-fw"></i>
-            <span class="icon-stack-1x superscript">
-                <span class="badge progress-bar-info"><div>{{matches}}</div></span>
-            </span>
-        </span>
-    </a>
-{% endif %}
 
+{% block panel_cap %}
+    <div id="word-cloud" style="height: 250px;" class="row-fluid text-center image-cap border-bottom bg-darken p-2"></div>
 {% endblock %}
 {% block panel_content %}
+    <div class="d-flex flex-row align-items-center justify-content-start">
+        {% for name, count in stats.items %}
+            {% stat_card description=name value=count style="stat-card-xs" %}
+        {% endfor %}
+        <div class="ms-auto">
+            <a href="{% url 'user-publication-list' %}" class="pull-right" title="View All My Publications">
+                <i class="bi-list-ol icon-md icon-fw"></i>
+            </a>
+            <a href="#0" title="Submit Publication" class="pull-right" data-modal-url="{% url 'add-publication' %}">
+                <i class="bi-plus-lg icon-md icon-fw"></i>
+            </a>
+            {% if matches %}
+                <a href="{% url 'claim-publication-list' %}" title="Claim Publications" class="pull-right">
+                    <i class="bi-link icon-md icon-fw"></i>
+                </a>
+            {% endif %}
+        </div>
+
+    </div>
     {% if words %}
-<div id="word-cloud" class="row-fluid text-center"></div>
-<script>
-const cloudData = {{words|jsonify}};
-function make_word_cloud(data, element) {
-    var fill = d3.scale.category20();
-    var w = Math.min($(element).width()*0.95, 1000),  h = 0.45*w;
-    var fscale = w < 600 ? 0.85 : 1;
-
-    d3.layout.cloud().size([w, h])
-        .words({{words|jsonify}})
-        .rotate(function() { return ~~(Math.random() * 2) * 90; })
-        .fontSize(function(d) { return d.size*fscale; })
-        .on("end", draw)
-        .start();
-
-    function draw(words) {
-      d3.select(element).append("svg")
-          .attr("width", w)
-          .attr("height", h)
-        .append("g")
-          .attr("transform", "translate(" + [w >> 1, h >> 1] + ")")
-        .selectAll("text")
-          .data(words)
-        .enter().append("text")
-          .style("font-size", function(d) { return d.size*fscale + "px"; })
-          .on("click", function(d) {
-              window.location.href = '{% url "user-publication-list" %}?search=' + d.text;
-          })
-          .style("cursor", "pointer")
-          .style("text-transform", "lowercase")
-          .style("fill", function(d, i) { return fill(i); })
-          .attr("text-anchor", "middle")
-          .attr("transform", function(d) {
-            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-          })
-          .text(function(d) { return d.text; });
-    }
-}
-$(document).ready(function() {
-    make_word_cloud(cloudData, '#word-cloud');
-});
-</script>
+        <script src="{% static 'publications/word-clouds.js' %}"></script>
+        <script>
+            $(document).ready(function () {
+                const data = {{words|jsonify}};
+                wordCloud(data, '#word-cloud', {
+                    searchURL: '{% url "user-publication-list" %}',
+                    searchParam: 'search',
+                });
+            });
+        </script>
     {% else %}
-        <div class="empty" style="line-height: auto;">
+        <div class="empty" style="line-height: 5em;">
             No publications claimed yet
         </div>
     {% endif %}

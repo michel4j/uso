@@ -6,36 +6,31 @@
 {% load markup %}
 
 
-{% block page_heading %}Scheduling <span class="text-muted">&mdash; {{ subtitle }}</span>{% endblock %}
+{% block page-title %}Scheduling <span class="text-body-secondary">&mdash; {{ subtitle }}</span>{% endblock %}
 
-{% block full %}
-    <div id="calendar-container" class="pagelet">
-        <div class="pad-wrapper">
-        <div class="row narrow-gutter">
+{% block content %}
+    <div id="calendar-container" class="page py-3">
+        <div class="container-fluid">
+        <div class="row">
             <div id="calendar" class="col-sm-9 slot-{{ shift_duration }}-hrs">
-                <div id="spinner"></div>
             </div>
             <div id="src-panel" class="col-sm-3">
-                <div class="row narrow-gutter">
-                    <div class="col-xs-12 calendar-tools">
+                <div class="row">
+                    <div class="col-sm-12 calendar-tools">
                         {% if admin and editor_type == 'mode' %}
-                            <div class="btn-group pull-right" data-toggle="buttons">
-                                <label {% if schedule.state != 'draft' %}data-url='{% url "switch-schedule" pk=schedule.pk state='draft' %}'{% endif %}
-                                        class="btn btn-sm {% if schedule.state == "draft" %}btn-warning active{% else %}btn-white{% endif %}">
-                                    <input type="radio" name="options" id="opt-draft" autocomplete="off" checked>
+                            <div class="btn-group w-100">
+                                <a href="#0" data-modal-url='{% url "switch-schedule" pk=schedule.pk state='draft' %}'
+                                   class="btn {% if schedule.state == "draft" %}btn-warning{% endif %} border">
                                     {{ schedule.STATES.draft }}
-                                </label>
-                                <label {% if schedule.state != 'tentative' %}data-url='{% url "switch-schedule" pk=schedule.pk state='tentative'  %}'{% endif %}
-                                        class="btn btn-sm {% if schedule.state == "tentative" %}btn-info active{% else %}btn-white{% endif %}">
-                                    <input type="radio" name="options" id="opt-tentative" autocomplete="off">
+                                </a>
+                                <a href="#0" data-modal-url='{% url "switch-schedule" pk=schedule.pk state='tentative'  %}'
+                                   class="btn {% if schedule.state == "tentative" %}btn-info{% endif %} border">
                                     {{ schedule.STATES.tentative }}
-                                </label>
-                                <label {% if schedule.state != 'live' %}data-url='{% url "switch-schedule" pk=schedule.pk state='live'  %}'{% endif %}
-                                        class="btn btn-sm {% if schedule.state == "live" %}btn-success active{% else %}btn-white{% endif %}">
-                                    <input type="radio" name="options" id="opt-live" autocomplete="off">
+                                </a>
+                                <a href="#0" data-modal-url='{% url "switch-schedule" pk=schedule.pk state='live'  %}'
+                                   class="btn {% if schedule.state == "live" %}btn-success active{% endif %} border">
                                     {{ schedule.STATES.live }}
-                                </label>
-
+                                </a>
                             </div>
                         {% endif %}
                     </div>
@@ -46,15 +41,15 @@
 
             </div>
         </div>
-        <div class="row narrow-gutter">
-            <div class="col-xs-12">
+        <div class="row">
+            <div class="col-sm-12">
                 {% if tag_types %}
                     <h4 style="margin-top: 0.25em;"><i class="bi-tags icon-fw"></i> Select all tags that apply</h4>
                     <hr class="hr-xs"/>
                     <div id="src-tags">
                         {% for tag in tag_types %}
                             <span id="tag-{{ tag.pk }}"
-                                  class="label label-primary pull-left tag cat-{{ forloop.counter0 }}"
+                                  class="badge bg-primary pull-left tag cat-{{ forloop.counter0 }}"
                                   data-tag="{{ tag.pk }}" data-cat="{{ forloop.counter0 }}">{{ tag }}</span>
                         {% endfor %}
                     </div>
@@ -68,7 +63,7 @@
 {% block extra_js %}
 <script type="text/javascript">
     $(document).ready(function() {
-        setupAjax('#spinner', '{{ csrf_token }}');
+        setupAjax('{{ csrf_token }}');
         setupCalendar('#calendar', {
             multiView: {{ show_year | jsonify }},
             editor: true,

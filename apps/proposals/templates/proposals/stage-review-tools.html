@@ -1,0 +1,14 @@
+{% if not stage.auto_create %}
+    <a href="#0" data-modal-url='{% url "assign-reviewers" pk=cycle.pk stage=stage.pk %}'
+       class="pull-right">
+        <i class="bi-diagram-3 icon-md icon-fw"></i><br/>
+        <span class="tool-label">Auto&nbsp;Assign</span>
+    </a>
+{% endif %}
+{% if not stage.auto_start %}
+    <a href="#0" data-modal-url='{% url "start-reviews" cycle=cycle.pk pk=stage.pk %}'
+       class="pull-right">
+        <i class="bi-play-circle icon-md icon-fw"></i><br/>
+        <span class="tool-label">Start&nbsp;Reviews</span>
+    </a>
+{% endif %}

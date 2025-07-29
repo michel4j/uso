@@ -1,18 +1,35 @@
-<div id="{{block.code}}" class="block border-3d {% block panel_classes%}bg-paper{% endblock %}">
-    <div class="pagelet-header">
-        <span class="pagelet-title">{% block panel_title%}{% endblock %}</span>
-        {% block panel_tools %}{% endblock %}
-    </div>
-    <div class="pagelet-body">
-    {% block panel_content %}
-    {% endblock %}
+<div id="{{block.code}}" class="block {{ width_classes }} py-2">
+    <div class="card {{ style_classes}}">
+        {% block panel_cap %}
+        <div class="card-header d-flex flex-row align-items-center justify-content-between">
+            <h5 class="card-title m-0">{% block panel_title%}{% endblock %}</h5>
+            <div class="toolbox">
+            {% block panel_tools %}{% endblock %}
+            </div>
+        </div>
+        {% endblock %}
+        {% block panel_body %}
+        <div class="card-body">{% block panel_content %}{% endblock %}{% block bottom_tools %}{% endblock %}</div>
+        {% endblock %}
+        {% block panel_footer %}{% endblock %}
     </div>
 </div>
-{% if block.reload_freq > 0 and block.src_url %}
+{% if reload_freq > 0 and src_url %}
 <script>
 	setInterval( function(){
-        $("#{{block.code}} > .pagelet-body").load('{% url block.src_url %}');
-		}, {{block.reload_freq}} * 6000
-    );
+        $.ajax({
+            type: 'GET',
+            url: "{{ src_url }}",
+            dataType: 'text',
+            success: function(data) {
+                const $object = $('<div/>').html(data).contents();
+                const $source = $object.find('.card');
+                const $target = $("#{{ block.code }} > .card");
+                if ($source.length) {
+                    $target.html($source.html());
+                }
+            }
+        });
+    }, {{block.reload_freq}} * 1000);
 </script>
 {% endif %}

@@ -1,7 +1,7 @@
-
-from datetime import timedelta, date, time, datetime
-
-from crispy_forms.bootstrap import StrictButton, PrependedText, AppendedText, InlineCheckboxes, InlineRadios
+from datetime import datetime
+from django.conf import settings
+from crisp_modals.forms import ModalModelForm, Row, FullWidth
+from crispy_forms.bootstrap import StrictButton, PrependedText, AppendedText, InlineCheckboxes
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
 from django import forms
@@ -9,13 +9,17 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q, TextChoices
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from dynforms.forms import DynFormMixin, DynForm
 
-from . import models
-from beamlines.models import FacilityTag, Lab, LabWorkSpace
-from dynforms.forms import DynFormMixin
+from beamlines.models import Lab, LabWorkSpace
 from misc.utils import Joiner
 from proposals.models import ReviewCycle
-from scheduler.utils import round_time
+
+from . import models
+
+ONSITE_USER_PERMISSION = getattr(settings, "USO_ONSITE_USER_PERMISSION", "{}-USER")
+REMOTE_USER_PERMISSION = getattr(settings, "USO_REMOTE_USER_PERMISSION", "{}-REMOTE-USER")
+FACILITY_ACCESS_PERMISSION = getattr(settings, "USO_FACILITY_ACCESS_PERMISSION", "FACILITY-ACCESS")
 
 
 class DateField(AppendedText):
@@ -23,8 +27,25 @@ class DateField(AppendedText):
         super().__init__(field_name, mark_safe('<i class="bi-calendar"></i>'), *args, **kwargs)
 
 
+class CommaSeparatedListField(forms.CharField):
+    def to_python(self, value):
+        """
+        Converts the incoming string value to a Python list.
+        """
+        if not value:
+            return []
+        return [item.strip() for item in value.split(',') if item.strip()]
+
+    def prepare_value(self, value):
+        """
+        Converts a Python list back to a comma-separated string for display in the form.
+        """
+        if isinstance(value, list):
+            return ','.join(value)
+        return value
+
+
 class ProjectForm(DynFormMixin, forms.ModelForm):
-    type_code = 'project'
 
     class Meta:
         model = models.Project
@@ -44,16 +65,11 @@ class ProjectForm(DynFormMixin, forms.ModelForm):
         return data
 
 
-class MaterialForm(DynFormMixin, forms.Form):
-    type_code = 'amendment'
-
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance', None)
-        super().__init__(*args, **kwargs)
-        self.init_fields()
+class MaterialForm(DynForm):
+    pass
 
 
-class ExtensionForm(forms.ModelForm):
+class ExtensionForm(ModalModelForm):
     shifts = forms.IntegerField(label="Additional Number of Shifts", required=True)
 
     class Meta:
@@ -69,11 +85,9 @@ class ExtensionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields['shifts'].initial = 1
-        self.helper = FormHelper()
-        self.helper.title = "Extend Session"
-        self.helper.form_action = self.request.path
-        self.helper.layout = Layout(
-            Div(
+        self.body.title = "Extend Session"
+        self.body.append(
+
                 Div(
                     HTML(
                         "<div class='alert alert-info'>"
@@ -82,17 +96,11 @@ class ExtensionForm(forms.ModelForm):
                     ),
                 ),
                 Field("shifts", css_class="col-sm-12"),
-                css_class="row modal-body"
-            ),
-            Div(css_class="modal-body"),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
-                    StrictButton('Extend', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
-                ),
-                css_class="row modal-footer"
-            )
+        )
+        self.footer.clear()
+        self.footer.append(
+            StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Extend', type='submit', value='Save', css_class='btn btn-primary ms-auto'),
         )
 
 
@@ -102,14 +110,14 @@ def shift_choices(name="Shifts", size=8, show_now=False):
 
     if show_now:
         now = timezone.localtime(timezone.now())
-        choices["NOW"] = (now.strftime('%H:%M'), now.strftime('Now %H:%M'))
+        choices["NOW"] = ("now", now.strftime('Now %H:%M'))
     for h in times:
         choices[f"T{h:02d}"] = (f'{h:02d}:00', f'{h:02d}:00')
 
     return TextChoices(name, choices)
 
 
-class HandOverForm(forms.ModelForm):
+class HandOverForm(ModalModelForm):
     start_date = forms.DateField(required=True)
     end_date = forms.DateField(required=True)
     start_time = forms.ChoiceField(required=True, choices=shift_choices(show_now=False))
@@ -128,9 +136,7 @@ class HandOverForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         self.facility = kwargs.pop('facility', None)
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.title = "Hand-over Beamtime"
-        self.helper.form_action = self.request.path
+        self.body.title = "Hand-over Beamtime"
         self.fields['kind'].help_text = (
             "<em>On-Site:</em>  Users will be physically present at the facility, <br/>"
             "<em>Remote:</em>  Users will perform the experiments by connecting through the internet,<br/>"
@@ -144,18 +150,20 @@ class HandOverForm(forms.ModelForm):
         self.fields['start_time'].choices = start_choices.choices
         self.fields['end_time'].choices = end_choices.choices
 
-        self.helper.layout = Layout(
+        self.body.append(
             Div(
                 HTML(
-                    "<div class='tinytron'>\n"
-                    "    <h4 class='overflow ellipsis'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></h4>\n"
-                    "    <h4>Facility: {{facility.acronym}}&mdash;<strong class='text-condensed'>{{facility.name}}</strong></h4>\n"
+                    "<div class='callout callout-primary mb-3'>\n"
+                    "<h5 class='overflow ellipsis'>Project: {{project}}&mdash;"
+                    "<strong class='text-condensed'>{{project.title}}</strong></h5>\n"
+                    "<p class='lead'>Facility: {{facility.acronym}}&mdash;"
+                    "<strong class='text-condensed'>{{facility.name}}</strong></p>\n"
                     "	{% if tags %}\n"
                     "	<div class=\"row\">\n"
                     "		<div class='col-sm-12 text-right' style='line-height: 1.6;'>\n"
                     "		{% for tag in facility.tags.all %}\n"
                     "			{% if tag in tags %}\n"
-                    "			<span id='tag-{{tag.pk}}' class='label bg-cat-{{forloop.counter}}'>{{tag}}</span>\n"
+                    "			<span id='tag-{{tag.pk}}' class='badge bg-color-{{forloop.counter0}}'>{{tag}}</span>\n"
                     "			{% endif %}\n"
                     "		{% endfor %}\n"
                     "		</div>\n"
@@ -163,24 +171,20 @@ class HandOverForm(forms.ModelForm):
                     "	{% endif %}\n"
                     "</div>\n"
                 ),
-                css_class="row modal-body"
             ),
             Div(
                 Div(DateField('start_date'), css_class='col-sm-6'),
                 Div(DateField('end_date'), css_class='col-sm-6'),
-                Div(Field('start_time', css_class="chosen"), css_class='col-sm-6'),
-                Div(Field('end_time', css_class="chosen"), css_class='col-sm-6'),
-                Div(Field("kind", css_class="chosen"), css_class="col-xs-12"),
+                Div(Field('start_time', css_class="selectize"), css_class='col-sm-6'),
+                Div(Field('end_time', css_class="selectize"), css_class='col-sm-6'),
+                Div(Field("kind", css_class="selectize"), css_class="col-sm-12"),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
-                    StrictButton('Hand-Over', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
-                ),
-                css_class="row modal-footer"
             )
+        )
+        self.footer.clear()
+        self.footer.append(
+            StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Hand-Over', type='submit', value='Save', css_class='btn btn-primary ms-auto'),
         )
 
     def clean(self):
@@ -191,6 +195,10 @@ class HandOverForm(forms.ModelForm):
                 continue
 
             elif field in ['start_time', 'end_time']:
+                if cleaned_data[field] == 'now':
+                    cleaned_data[field] = timezone.localtime(timezone.now()).strftime('%H:%M')
+
+                # Convert to time object
                 cleaned_data[field] = datetime.strptime(cleaned_data[field], '%H:%M').time()
 
         for name in ['start', 'end']:
@@ -213,7 +221,7 @@ class HandOverForm(forms.ModelForm):
         return cleaned_data
 
 
-class LabSessionForm(forms.ModelForm):
+class LabSessionForm(ModalModelForm):
     class Meta:
         model = models.LabSession
         fields = ['lab', 'workspaces', 'equipment', 'start', 'end', 'team']
@@ -228,9 +236,8 @@ class LabSessionForm(forms.ModelForm):
         self.request = kwargs.pop('request', None)
         self.project = kwargs.pop('project')
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.title = "Lab Sign-On"
-        self.helper.form_action = self.request.path
+        self.body.title = "Lab Sign-On"
+
         self.fields['team'].queryset = self.project.team.filter()
         self.fields['team'].help_text = (
             "Select all team members who will be using the lab during this session. "
@@ -255,44 +262,43 @@ class LabSessionForm(forms.ModelForm):
 
         self.fields['team'].required = True
 
-        self.helper.layout = Layout(
-            Div(
+        self.body.append(
+            Div(Div(
                 HTML(
-                    "<div class='tinytron'>\n"
-                    "    <h4 class='overflow ellipsis'>Project: {{project}}&mdash;<strong class='text-condensed'>{{project.title}}</strong></h4>\n"
+                    "<div class='alert alert-info'>\n"
+                    "   <p class='lead'>Project: {{project}}&mdash;"
+                    "   <strong class='text-condensed'>{{project.title}}</strong></p>\n"
                     "</div>\n"
                 ),
-                css_class="row modal-body"
+                css_class="row"),
+                css_class="col-12"
             ),
             Div(
-                Div(Field("lab", css_class="chosen"), css_class="col-sm-5"),
+                Div(Field("lab", css_class="selectize"), css_class="col-sm-5"),
                 Div(
                     Div(
                         Div('start', css_class='col-sm-6'),
                         Div('end', css_class='col-sm-6'),
-                        css_class="row narrow-gutter"
+                        css_class="row"
                     ),
                     css_class="col-sm-7"
                 ),
-                Div(Field("equipment", css_class="chosen"), css_class="col-sm-12"),
-                css_class="row narrow-gutter"
-            ),
-            Div(
-                Div(InlineCheckboxes("workspaces"), css_class="col-xs-12"),
+                Div(Field("equipment", css_class="selectize"), css_class="col-sm-12"),
                 css_class="row"
             ),
             Div(
-                Div(InlineCheckboxes("team"), css_class="col-xs-12"),
+                Div(InlineCheckboxes("workspaces"), css_class="col-sm-12"),
                 css_class="row"
             ),
             Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
-                    StrictButton('Sign-On', type='submit', value='Save', css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
-                ),
-                css_class="row modal-footer"
+                Div(InlineCheckboxes("team"), css_class="col-sm-12"),
+                css_class="row"
             )
+        )
+
+        self.footer.layout = Layout(
+            StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Sign-On', type='submit', value='Save', css_class='btn btn-primary ms-auto'),
         )
 
     def clean(self):
@@ -396,7 +402,7 @@ class LabSessionForm(forms.ModelForm):
         return cleaned_data
 
 
-class SessionForm(forms.ModelForm):
+class SessionForm(ModalModelForm):
     class Meta:
         model = models.Session
         fields = ['samples', 'team', 'staff']
@@ -436,12 +442,10 @@ class SessionForm(forms.ModelForm):
         self.fields['staff'].help_text = (
             "Select the staff member who will be present during this session. "
         )
-        self.helper = FormHelper()
-        self.helper.title = "Beamtime Sign-On"
-        self.helper.form_action = self.request.path
-        submit_class = "btn-default disabled" if not self.fields['team'].queryset.exists() else "btn-primary"
+        self.body.title = "Beamtime Sign-On"
+        submit_class = "btn-secondary disabled" if not self.fields['team'].queryset.exists() else "btn-primary"
 
-        self.helper.layout = Layout(
+        self.body.append(
             Div(
                 Div(
                     HTML(
@@ -453,22 +457,18 @@ class SessionForm(forms.ModelForm):
                         Div(InlineCheckboxes('samples', template="projects/fields/%s/sample-selection.html"),
                             css_class="col-sm-12 sample-list"),
                         Div(InlineCheckboxes("team"), css_class="col-sm-12"),
-                        Div(Field("staff", css_class="chosen"), css_class="col-sm-12"),
-                        css_class="row narrow-gutter"
+                        Div(Field("staff", css_class="selectize"), css_class="col-sm-12"),
+                        css_class="row"
                     ),
-                    css_class="col-xs-12"
+                    css_class="col-sm-12"
                 ),
                 css_class="row modal-scroll-body"
-            ),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
-                    StrictButton('Sign-On', type='submit', value='Save',
-                                 css_class='btn pull-right {}'.format(submit_class)),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
+        )
+        self.footer.clear()
+        self.footer.append(
+            StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Sign-On', type='submit', value='Save', css_class='btn ms-auto {}'.format(submit_class)),
         )
 
     def clean(self):
@@ -497,11 +497,11 @@ class SessionForm(forms.ModelForm):
 
         # Local access needs 'FACILITY-ACCESS' permissions and different USER type from Remote
         if self.session.kind != self.session.TYPES.remote:
-            req_perms |= {'FACILITY-ACCESS'}
-            user_perms |= {'{}-USER'.format(self.session.beamline)}
+            req_perms |= {FACILITY_ACCESS_PERMISSION}
+            user_perms |= {ONSITE_USER_PERMISSION.format(self.session.beamline)}
             remote = False
         else:
-            user_perms |= {'{}-REMOTE-USER'.format(self.session.beamline)}
+            user_perms |= {REMOTE_USER_PERMISSION.format(self.session.beamline)}
             remote = True
 
         # fetch per sample permissions and check ethics for each sample
@@ -512,7 +512,7 @@ class SessionForm(forms.ModelForm):
             if s.expiry and s.expiry < self.session.end.date():
                 ethics_problems.append(s)
         if ethics_problems:
-            self.add_error('Ethics expires before session.')
+            self.add_error('end', 'Ethics expires before session.')
             msg = (
                 'All samples requiring ethics must have valid certificates for the duration of the session. '
                 'The following samples will expire during the session: {}'.format(joiner(ethics_problems))
@@ -525,9 +525,9 @@ class SessionForm(forms.ModelForm):
                 f'{member}'
                 for member in team
                 if (
-                    Agreement.objects.pending_for_user(member).exists()
-                    and member.institution
-                    and not member.institution.state == member.institution.STATES.exempt
+                        Agreement.objects.pending_for_user(member).exists()
+                        and member.institution
+                        and not member.institution.state == member.institution.STATES.exempt
                 )
             ]
 
@@ -546,7 +546,7 @@ class SessionForm(forms.ModelForm):
                 if member.has_role('high-school-student')
             ]
             # Test if student is signing on to non-education project
-            if students and material.project.kind != material.project.TYPES.education:
+            if students and material.project.kind != material.project.Types.education:
                 msg = (
                     "High school students are not allowed on non-education projects. "
                     "The following users are affected: {}.".format(
@@ -587,26 +587,31 @@ class SessionForm(forms.ModelForm):
         return data
 
 
-class TeamForm(DynFormMixin, forms.ModelForm):
-    type_code = 'team'
-    details = forms.Field(required=False)
+class TeamForm(DynForm):
+    def clean(self):
+        cleaned_data = super().clean()
+        data = cleaned_data.get('details', {})
+        team_members = data.get('team_members', [])
 
-    class Meta:
-        model = models.Project
-        fields = []
+        new_team = [*team_members]  # copy existing team members
+        for role in ['leader', 'delegate']:
+            if data.get(role):
+                new_team.append({**data.pop(role), 'roles': [role]})
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.init_fields()
+        # check that each member only occurs once
+        member_emails = [member.get('email') for member in new_team if member.get('email')]
+        if len(member_emails) != len(set(member_emails)):
+            raise forms.ValidationError("Each team member must have a unique email address and must not be repeated.")
 
-    def _custom_clean(self, data):
-        data['active_page'] = '1'
-        return super()._custom_clean(data)
+        cleaned_data['details']['team_members'] = new_team
+        return cleaned_data
 
 
-class AllocationForm(forms.ModelForm):
-    last_cycle = forms.ModelChoiceField(label="Expiry Cycle", queryset=ReviewCycle.objects.all(), required=False,
-                                        help_text="Change this to limit the project duration")
+class AllocationForm(ModalModelForm):
+    last_cycle = forms.ModelChoiceField(
+        label="Expiry Cycle", queryset=ReviewCycle.objects.all(), required=False,
+        help_text="Change this to limit the project duration"
+    )
 
     class Meta:
         model = models.Allocation
@@ -619,39 +624,27 @@ class AllocationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
         self.fields['last_cycle'].queryset = ReviewCycle.objects.filter(pk__gte=self.initial['cycle'])
 
-        self.helper = FormHelper()
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.title = 'Allocate Beamtime'
-        self.helper.layout = Layout(
+        self.body.title = 'Allocate Beamtime'
+        self.body.append(
             Div(
                 Div(
                     'cycle', 'beamline', 'project',
                     Div('shifts', css_class="col-sm-12"),
-                    Div('comments', css_class="col-xs-12"),
-                    Div(Field('last_cycle', css_class="chosen"), css_class="col-sm-12"),
-                    css_class="col-xs-12 narrow-gutter"
+                    Div('comments', css_class="col-sm-12"),
+                    Div(Field('last_cycle', css_class="selectize"), css_class="col-sm-12"),
+                    css_class="col-sm-12 gap-2"
                 ),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Submit', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
         )
 
 
-class ReservationForm(forms.ModelForm):
+class ReservationForm(ModalModelForm):
+
     class Meta:
         model = models.Reservation
         fields = ['shifts', 'comments']
@@ -660,30 +653,27 @@ class ReservationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_action = self.request.get_full_path()
-        self.helper.title = 'Reserve Beamtime'
-        self.helper.layout = Layout(
+        self.body.title =  'Reserve Beam Time'
+        self.body.append(
             Div(
+                Div(
+                    HTML(
+                        "<div class='callout callout-info'>\n"
+                        "    <div class='lead'>Facility: {{facility.acronym}}&mdash;"
+                        "    <strong class='text-condensed'>{{facility.name}}</strong></div>\n"
+                        "    {% if pool %}\n"
+                        "    <div class='lead'>Beam Time Pool: <strong>{{pool.name}}</strong></div>\n"
+                        "    {% endif %}\n"
+                        "</div>\n"
+                    ),
+                ),
                 Div(
                     Div('shifts', css_class="col-sm-12"),
-                    Div('comments', css_class="col-xs-12"),
-                    css_class="col-xs-12 narrow-gutter"
+                    Div('comments', css_class="col-sm-12"),
+                    css_class="col-sm-12 gap-2"
                 ),
                 css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(
-                        StrictButton('Submit', type='submit', value='Save', css_class='btn btn-primary'),
-                        css_class='pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
             )
         )
 
@@ -705,33 +695,26 @@ class ShiftRequestForm(forms.ModelForm):
                   "Use the scheduling tags above for more general requirements",
         widget=forms.Textarea(attrs={'rows': 4, })
     )
-    tags = forms.ModelMultipleChoiceField(label="Scheduling Tags", required=False, queryset=FacilityTag.objects)
-    good_dates = forms.CharField(required=False, label="Preferred Dates")
-    poor_dates = forms.CharField(required=False, label="Undesirable Dates")
+    good_dates = CommaSeparatedListField(required=False, label="Preferred Dates")
+    poor_dates = CommaSeparatedListField(required=False, label="Undesirable Dates")
 
     class Meta:
         model = models.ShiftRequest
-        fields = ['shift_request', 'justification', 'comments', 'tags',
-                  'good_dates', 'poor_dates']
+        fields = ['shift_request', 'justification', 'comments', 'good_dates', 'poor_dates']
 
     def __init__(self, *args, **kwargs):
-        self.facility = kwargs.pop('facility', None)
-        title = kwargs.pop('form_title', "Edit Request")
         super().__init__(*args, **kwargs)
-        self.fields['tags'].queryset = self.facility.tags()
         self.helper = FormHelper()
-        self.helper.title = title
         self.helper.layout = Layout(
             Div(
-                Div('shift_request', css_class="col-sm-6"),
-                Div(Field('tags', css_class="chosen"), css_class="col-sm-6"),
-                Div('justification', css_class="col-xs-12"),
-                Div('comments', css_class="col-xs-12"),
+                Div('shift_request', css_class="col-sm-12"),
+                Div('justification', css_class="col-sm-12"),
+                Div('comments', css_class="col-sm-12"),
                 Div(
                     PrependedText(
                         "good_dates",
                         mark_safe('<i class="bi-calendar-check-fill text-success"></i>'),
-                        css_class="dateinput",
+                        css_class="date-input", data_multi_date="true",
                         data_date_container="#div_id_good_dates"
                     ),
                     css_class="col-sm-6"
@@ -740,23 +723,25 @@ class ShiftRequestForm(forms.ModelForm):
                     PrependedText(
                         "poor_dates",
                         mark_safe('<i class="bi-calendar-minus text-danger"></i>'),
-                        css_class="dateinput",
+                        css_class="date-input",
+                        data_multi_date="true",
                         data_date_container="#div_id_poor_dates"
                     ),
                     css_class="col-sm-6"
                 ),
-                css_class="row narrow-gutter"
+                css_class="row"
             ),
             Div(
                 Div(
-                    Div(
-                        StrictButton('Save', name="form_action", type='submit', value='save',
-                                     css_class='btn btn-default'),
-                        StrictButton('Submit', name="form_action", type='submit', value='submit',
-                                     css_class='btn btn-primary'),
-                        css_class='pull-right'
+                    StrictButton(
+                        'Save', name="form_action", type='submit', value='save',
+                        css_class='ms-auto btn btn-secondary'
                     ),
-                    css_class="col-xs-12"
+                    StrictButton(
+                        'Submit', name="form_action", type='submit', value='submit',
+                        css_class='btn btn-primary'
+                    ),
+                    css_class="col-12 d-flex justify-content-end gap-2"
                 ),
                 css_class="modal-footer row"
             )
@@ -768,32 +753,19 @@ class ShiftRequestForm(forms.ModelForm):
         return data
 
 
-class RequestAdminForm(forms.ModelForm):
+class RequestAdminForm(ModalModelForm):
     class Meta:
         model = models.ShiftRequest
         fields = ['state']
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.title = "Process Request"
-        self.helper.form_action = self.request.path
-        self.helper.layout = Layout(
+        self.body.title = "Manage Booking Request"
+        self.body.append(
+            HTML("<div class='callout callout-info'>{% include 'projects/forms/request-admin.html' %}</div>"),
             Div(
-                Div(Field('state', css_class='chosen'), css_class="col-xs-12"),
-                css_class="row narrow"
-            ),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
-                    StrictButton(
-                        'Save', type='submit', value='decline',
-                        css_class='btn btn-primary pull-right'
-                    ),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
+                Div('state', css_class="col-sm-12"),
+                css_class="row"
             )
         )
 
@@ -801,11 +773,10 @@ class RequestAdminForm(forms.ModelForm):
 class AllocRequestForm(ShiftRequestForm):
     class Meta:
         model = models.AllocationRequest
-        fields = ['shift_request', 'justification', 'comments', 'tags',
-                  'good_dates', 'poor_dates']
+        fields = ['shift_request', 'justification', 'comments', 'good_dates', 'poor_dates']
 
 
-class DeclineForm(forms.ModelForm):
+class DeclineForm(ModalModelForm):
     comments = forms.CharField(
         label="Please explain why you are declining the allocated shifts",
         widget=forms.Textarea(attrs={'rows': 3, }),
@@ -816,45 +787,23 @@ class DeclineForm(forms.ModelForm):
         fields = ['comments']
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
-        self.helper.title = "Decline Allocation"
-        self.helper.form_action = self.request.path
-        self.helper.layout = Layout(
+        self.body.title = "Decline Allocation"
+        self.body.append(
             Div(
-                Div(
-                    HTML(
-                        "<div class='minitron bg-danger text-default'>"
-                        "<h3>Are you sure?</h3>"
-                        "<p>By declining this allocation, you are declaring you do not intend to use any of "
-                        "your remaining allocated shifts for project <strong>{{allocation.project.code}}</strong> on "
-                        "beamline <strong>{{allocation.beamline}}</strong> during the {{allocation.cycle}} cycle.</p> "
-                        "<p><strong>NOTE:</strong> (1) All outstanding scheduled beamtime on <strong>{{allocation.beamline}}</strong> "
-                        "will be cancelled. (2) Declined shifts will be reallocated and it may not be possible to reclaim them."
-                        "(3) You will be able to renew the project by requesting another allocation on this beamline during the next cycle. "
-                        "However, you will not be entitled to any score bumps for not having used beamtime during the {{allocation.cycle}} cycle. </p>"
-                        "</div>"
-                    ),
-                ),
-                Field("comments", css_class="col-sm-12"),
-                css_class="row modal-body"
+                HTML("{% include 'projects/forms/decline-notice.html' %}"),
             ),
-            Div(css_class="modal-body"),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
-                    StrictButton('Yes, Decline', type='submit', value='decline',
-                                 css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
-            )
+            Field("comments", css_class="col-sm-12"),
+        )
+        self.footer.clear()
+        self.footer.append(
+            StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="auto btn btn-secondary"),
+            StrictButton('Yes, Decline', type='submit', value='submit', css_class='ms-auto btn btn-primary'),
         )
 
 
-class TerminationForm(forms.ModelForm):
+class TerminationForm(ModalModelForm):
     reason = forms.CharField(
         label="Please explain why you are terminating the session",
         widget=forms.Textarea(attrs={'rows': 3, }),
@@ -868,35 +817,27 @@ class TerminationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.title = "Terminate Session?"
-        self.helper.form_action = self.request.path
-        self.helper.layout = Layout(
-            Div(
-                Div(
+
+        self.body.title = "Terminate Session?"
+        self.body.append(
+            Row(
+                FullWidth(
                     HTML(
-                        "<div class='minitron bg-danger text-default'>"
-                        "<h3>Are you sure you want to terminate the session:</h3>"
-                        "<h5><strong>{{session}}</strong>: {{session.start}} &mdash; {{session.end}}</h5>"
+                        "<div class='alert alert-danger text-default'>"
+                        "<p class='lead'><strong>{{session}}</strong>: {{session.start}} &mdash; {{session.end}}</p>"
                         "<p>By terminating the session, you are declaring that the users are no longer "
-                        "permitted to use the beamline and administrative steps have been or will be taken to enforce that. "
-                        "<p><strong>NOTE:</strong> (1) Termination should only be done during extra-ordinary circumstances "
-                        "and should not be used to sign-off users from an active session. "
+                        "permitted to use the beamline and administrative steps have been or will be taken to enforce "
+                        "that. <p><strong>NOTE:</strong> (1) Termination should only be done during extra-ordinary "
+                        "circumstances and should not be used to sign-off users from an active session. "
                         "(2) Beamline Staff will be notified of all terminations. </p>"
                         "</div>"
-                    ),
+                    )
                 ),
-                Field("reason", css_class="col-sm-12"),
-                css_class="row modal-body"
-            ),
-            Div(css_class="modal-body"),
-            Div(
-                Div(
-                    StrictButton('Cancel', type='button', data_dismiss='modal', css_class="btn btn-default pull-left"),
-                    StrictButton('Yes, Terminate', type='submit', value='decline',
-                                 css_class='btn btn-primary pull-right'),
-                    css_class="col-xs-12"
-                ),
-                css_class="modal-footer row"
+                FullWidth("reason"),
             )
+        )
+        self.footer.clear()
+        self.footer.append(
+            StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
+            StrictButton('Yes, Terminate', type='submit', value='decline', css_class='btn btn-danger ms-auto'),
         )

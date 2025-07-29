@@ -2,22 +2,23 @@ import datetime
 import math
 
 import requests
+from crisp_modals.views import ModalUpdateView, ModalCreateView, ModalConfirmView, ModalDeleteView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import DetailView, TemplateView, View
-from django.views.generic.edit import FormView, UpdateView, CreateView
+from django.views.generic.edit import FormView, UpdateView
+from dynforms.models import FormType
+from dynforms.views import DynCreateView
 from itemlist.views import ItemListView
 from proxy.views import proxy_view
 
-from dynforms.views import DynCreateView
 from misc.models import ActivityLog
-from misc.views import JSONResponseMixin, ConfirmDetailView
 from notifier import notify
 from publications import stats
 from roleperms.utils import has_any_items
@@ -84,13 +85,13 @@ class InstitutionList(RolePermsViewMixin, ItemListView):
     list_search = ['name', 'location', 'sector', 'state', 'domains']
     ordering = ['-created']
     link_url = 'edit-institution'
-    link_attr = 'data-url'
+    link_attr = 'data-modal-url'
     link_field = 'name'
-    list_styles = {'num_users': 'text-center', 'name': 'col-xs-4'}
+    list_styles = {'num_users': 'text-center', 'name': 'col-sm-4'}
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
 
 
-class InstitutionDetail(JSONResponseMixin, DetailView):
+class InstitutionDetail(View):
     def get(self, request, *args, **kwargs):
         inst = None
         if 'name' in request.GET:
@@ -101,61 +102,57 @@ class InstitutionDetail(JSONResponseMixin, DetailView):
             for domain in domains:
                 query |= Q(domains__icontains=domain)
             inst = models.Institution.objects.filter(query).first()
-
+        address = {}
         if inst:
-            address = [v.strip() for v in inst.location.split(',')]
-            if len(address) == 3:
-                city, province, country = address
-            elif len(address) == 2:
-                (city, country), province = address, ''
-            elif len(address) == 1:
-                city, province, country = '', '', address[0]
-            else:
-                city = province = country = ''
-            context = {'institution': inst.name,
-                       'sector': inst.sector,
-                       'address.city': city,
-                       'address.country': country,
-                       'address.region': province,
-                       }
+            if hasattr(inst, 'address') and inst.address:
+                address['address.street'] = inst.address
+                address['address.city'] = inst.address.city
+                address['address.country'] = inst.address.country
+                address['address.province'] = inst.address.region
+                address['address.postal_code'] = inst.address.postal_code
+
+            context = {
+               'institution': inst.name,
+               'sector': inst.sector,
+               **address,
+            }
         else:
             context = {}
-        return self.render_to_response(context)
+        return JsonResponse(context)
 
 
-class InstitutionSearch(JSONResponseMixin, DetailView):
+class InstitutionSearch(View):
     def get(self, request, *args, **kwargs):
         found = models.Institution.objects.filter(name__icontains=request.GET['q']).order_by('name')
         if found.count():
             context = list(found.values_list('name', flat=True))
         else:
             context = []
-        return self.render_to_response(context)
+        return JsonResponse(context)
 
 
-class InstitutionNames(JSONResponseMixin, View):
+class InstitutionNames(View):
     def get(self, request, *args, **kwargs):
         context = list(models.Institution.objects.all().values_list('name', flat=True))
-        return self.render_to_response(context)
+        return JsonResponse(context)
 
 
-class InstitutionEdit(RolePermsViewMixin, UpdateView):
+class EditInstitution(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.InstitutionForm
-    template_name = "forms/modal.html"
     model = models.Institution
     success_url = reverse_lazy('institution-list')
     success_message = "Institution '%(name)s' has been updated."
     allowed_roles = USO_ADMIN_ROLES + USO_CONTRACTS_ROLES
 
-    def form_valid(self, form):
-        super().form_valid(form)
-        messages.success(self.request, f"Institution '{self.object}' has been updated.")
-        return JsonResponse({'url': ""})
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update(form_action=self.request.get_full_path())
+        kwargs.update(delete_url=reverse_lazy('delete-institution', kwargs={'pk': self.object.pk}))
+        return kwargs
 
 
-class InstitutionContact(RolePermsViewMixin, UpdateView):
+class InstitutionContact(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.InstitutionContactForm
-    template_name = "forms/modal.html"
     queryset = models.Institution.objects.filter(state=models.Institution.STATES.new)
     allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES + USO_USER_ROLES
 
@@ -182,19 +179,10 @@ class InstitutionContact(RolePermsViewMixin, UpdateView):
         return JsonResponse({'url': ""})
 
 
-class UsersAdmin(RolePermsViewMixin, UpdateView):
+class UsersAdmin(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.UserAdminForm
-    template_name = "users/forms/user-admin.html"
     model = models.User
     allowed_roles = USO_ADMIN_ROLES
-
-    def get_initial(self):
-        initial = super().get_initial()
-        user = self.get_object()
-        user.fetch_profile()
-        initial['username'] = user.username
-        initial['extra_roles'] = user.roles
-        return initial
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -207,11 +195,12 @@ class UsersAdmin(RolePermsViewMixin, UpdateView):
         return obj
 
     def form_valid(self, form):
+        response = super().form_valid(form)
         from proposals.models import Reviewer
         if form.has_changed():
             data = form.cleaned_data
 
-            if has_any_items(USO_REVIEWER_ROLES, data['extra_roles']):
+            if has_any_items(USO_REVIEWER_ROLES, data['roles']):
                 reviewer, created = Reviewer.objects.get_or_create(user=self.object)
                 if created:
                     messages.info(self.request, "Reviewer Profile created")
@@ -231,32 +220,19 @@ class UsersAdmin(RolePermsViewMixin, UpdateView):
         return JsonResponse({'url': ""})
 
 
-class InstitutionCreate(SuccessMessageMixin, RolePermsViewMixin, CreateView):
+class InstitutionCreate(SuccessMessageMixin, RolePermsViewMixin, ModalCreateView):
     form_class = forms.InstitutionForm
-    template_name = "forms/modal.html"
     model = models.Institution
     success_url = reverse_lazy('institution-list')
     success_message = "Institution '%(name)s' has been created."
     allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
 
 
-class InstitutionDelete(RolePermsViewMixin, UpdateView):
+class InstitutionDelete(RolePermsViewMixin, ModalDeleteView):
     model = models.Institution
-    form_class = forms.InstitutionDeleteForm
-    template_name = "forms/modal.html"
     success_url = reverse_lazy('institution-list')
     success_message = "Institution '%(name)s' has been deleted."
     allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
-
-    def form_valid(self, form):
-        data = form.cleaned_data
-        if data['transfer']:
-            data['transfer'].domains += self.object.domains
-            self.object.users.all().update(institution=data['transfer'])
-            data['transfer'].save()
-        messages.success(self.request, f"Institution '{self.object.name}' has been deleted.")
-        self.object.delete()
-        return JsonResponse({'url': ""})
 
 
 class UserList(RolePermsViewMixin, ItemListView):
@@ -272,8 +248,7 @@ class UserList(RolePermsViewMixin, ItemListView):
     list_transforms = {'roles': lambda x, y: ", ".join(x)}
     order_by = ['-created']
     link_url = 'users-admin'
-    link_attr = "data-url"
-    detail_target = "#modal-form"
+    link_attr = 'data-modal-url'
     ordering_proxies = {'get_full_name': 'last_name'}
     allowed_roles = USO_CONTRACTS_ROLES + USO_ADMIN_ROLES
 
@@ -282,7 +257,13 @@ class RegistrationView(DynCreateView):
     template_name = "users/forms/registration-form.html"
     success_url = reverse_lazy("user-profile")
     form_class = forms.RegistrationForm
-    model = models.Registration()
+    model = models.Registration
+
+    def get_form_type(self) -> FormType:
+        form_type = FormType.objects.filter(code='registration').first()
+        if not form_type:
+            raise Http404("Proposal form type not found.")
+        return form_type
 
     def form_valid(self, form):
         reg = models.Registration.objects.create(**form.cleaned_data)
@@ -428,7 +409,7 @@ class VerifyView(PasswordChangeMixin, UpdateView):
             context['name'] = self.object.details['names']['first_name']
             context['title'] = 'Choose a password for your account'
             context[
-                'description'] = 'After submitting the form, you will receive another email with your CLS Account Name.'
+                'description'] = 'After submitting the form, you will receive another email with your Account Name.'
         return context
 
     def form_valid(self, form):
@@ -587,24 +568,31 @@ class UpdateUserProfile(RolePermsViewMixin, UpdateView):
         return HttpResponseRedirect(self.success_url)
 
 
-class ChangePassword(RolePermsViewMixin, View):
-    def get(self, request, *args, **kwargs):
-        user = request.user
-        link = models.SecureLink.objects.create(user=user)
-        data = {
-            'name': user.first_name,
-            'reset_url': f"{SITE_URL}{reverse_lazy('password-reset', kwargs={'hash': link.hash})}",
-        }
-        recipients = [user]
-        if user.alt_email:
-            recipients.append(user.alt_email)
-        notify.send(recipients, 'password-reset', context=data)
-        messages.success(
-            self.request,
-            ("A request to reset {}'s password has been received. "
-             "Please check your email for further instructions.").format(user))
+class ChangePassword(RolePermsViewMixin, ModalConfirmView):
+    model = models.User
 
-        return HttpResponseRedirect(reverse_lazy('user-dashboard'))
+    def get_object(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return self.request.user
+        else:
+            raise Http404("You must be logged in to change your password.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Change Your Password"
+        context['message'] = (
+            "Are you sure you want to reset your password? An "
+            "email will be sent to you with instructions to set a new password."
+        )
+        return context
+
+    def confirmed(self, *args, **kwargs):
+        utils.send_reset(self.request.user, template='password-reset')
+        message = (
+            f"A request to reset {self.request.user}'s password has been received. "
+            "Please check your email for further instructions."
+        )
+        return JsonResponse({"url": "", "message": message})
 
 
 class PhotoView(View):
@@ -624,18 +612,17 @@ class EmailTestView(RolePermsViewMixin, View):
         return HttpResponseRedirect(url)
 
 
-class AdminResetPassword(RolePermsViewMixin, ConfirmDetailView):
+class AdminResetPassword(RolePermsViewMixin, ModalConfirmView):
     model = models.User
     template_name = "users/forms/admin-reset.html"
     allowed_roles = USO_ADMIN_ROLES
 
     def confirmed(self, *args, **kwargs):
-        self.object = self.get_object()
         ActivityLog.objects.log(
             self.request, self.object, kind=ActivityLog.TYPES.modify,
             description='Users Password Reset'
         )
         utils.send_reset(self.object)
-        return JsonResponse({"url": ""})
+        return JsonResponse({"url": "" , "message": "Password reset email sent."})
 
 

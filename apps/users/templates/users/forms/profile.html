@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'page.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
 {% load jsonify %}
@@ -10,8 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" integrity="sha512-qOBWNAMfkz+vXXgbh0Wz7qYSLZp6c14R0bZeVX2TdQxWpuKr6yHjBIM69fcF8Ve4GUX6B6AKRQJqiiAmwvmUmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="{% static 'js/countries.min.js' %}" charset="UTF-8"></script>
 <script type="text/javascript">
-
-
 var $country = $('#id_country');
 var $region = $('#id_region');
 
@@ -50,7 +48,6 @@ $country.bind('typeahead:selected typeahead:autocompleted', function() {
             local: cntry_regions
         });
 
-        console.log(cntry_regions);
         $region.typeahead('destroy');
         $region.typeahead(null, {
             source: regions,
@@ -62,21 +59,13 @@ $country.bind('typeahead:selected typeahead:autocompleted', function() {
     }
 });
 
-
-$(".chosen").chosen({
-		placeholder_text_single: "Type or select an option",
-		search_contains: true,
-		allow_single_deselect: true
-});
-
 // Auto Populate Address if email changes
 $("#id_email, #id_alt_email ").change(function(event){
     if(this.value==this.oldvalue) return; this.oldvalue=this.value; //fix double trigger
     jQuery.getJSON('{% url "institution-detail" %}?email=' + $(this).val(), function(data){
-        var old_data = $('form').serializeObject();
+        const old_data = $('form').serializeObject();
         if ((old_data['address_1']) || (old_data['address_2']) || (old_data['institution_name']) ) {
             // do not overwrite filled data
-            console.log(data);
         } else {
             $("#id_institution_name").val(data['institution']);
             $("#id_city").val(data['address.city']);
@@ -107,13 +96,9 @@ $('.institution-input').typeahead(null, {
 
 </script>
 {% endblock %}
+{% block page-pretitle %}Form{% endblock %}
+{% block page-title %}{{form.helper.title}}{% endblock %}
 
-{% block page_heading %}{{form.helper.title}}{% endblock %}
-
-{% block full %}
-<div class="pagelet">
-	<div class="pagelet-body">
-        {% crispy form form.helper %}
-    </div>
-</div>
+{% block page-content %}
+    {% crispy form form.helper %}
 {% endblock %}

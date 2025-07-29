@@ -2,11 +2,15 @@
 
 import argparse
 import os
+import zipfile
+import tempfile
 import random
 import shutil
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 
+import numpy
 import yaml
 from faker import Faker
 from unidecode import unidecode
@@ -14,8 +18,6 @@ from unidecode import unidecode
 # This script is used to generate fake data for the Bespoke system. some external data is used to generate the data
 # such as sample photos, universities, country names, and sample types. The data is saved in YAML format
 
-PHOTOS_DIR = Path("~/Stuff/data-gen/avatars")       # Path photos dir, names should be numbers,
-                                                    # 0.webp, 1.webp, etc Odd for female even for male
 DATA_DIR = Path(__file__).parent / 'data'
 
 SUBJECTS = [1, 2, 3, 4, 5, 6, 7]
@@ -28,6 +30,12 @@ HAZARDS = [
 STAGES = {
     1: 1,
     2: 3
+}
+
+TRACKS = {
+    1: 'GA',
+    2: 'RA',
+    3: 'PA'
 }
 CLASSIFICATIONS = [
     'undergraduate', 'masters', 'doctorate', 'postdoc', 'faculty', 'professional', 'faculty', 'faculty', 'faculty'
@@ -68,6 +76,17 @@ with open(DATA_DIR / 'country-names.yml', 'r') as file:
 with open(DATA_DIR / 'samples.yml', 'r') as file:
     SAMPLES = yaml.safe_load(file)
 
+AVATARS_FILE = DATA_DIR / 'avatars.zip'
+
+
+avatar_dir = tempfile.TemporaryDirectory()
+PHOTOS_DIR = Path(avatar_dir.name)
+# Extract avatars from the zip file if it exists
+if AVATARS_FILE.exists():
+    with zipfile.ZipFile(AVATARS_FILE, 'r') as zip_ref:
+        zip_ref.extractall(PHOTOS_DIR)
+NUM_PHOTOS = len(list(PHOTOS_DIR.glob('*.webp')))
+
 print('Loaded all databases ...')
 
 EQUATIONS = [
@@ -80,8 +99,6 @@ EQUATIONS = [
     r'$$ \int_{0}^{\infty} e^{-x^2} \,dx = \frac{\sqrt{\pi}}{2} $$'
     r'$$ \sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6} $$'
 ]
-PHOTOS_DIR = PHOTOS_DIR.expanduser().resolve()
-NUM_PHOTOS = len(list(PHOTOS_DIR.glob('*.webp')))
 
 ROLES = [
     "admin:uso", "staff:contracts", "curator:publications", "staff:hse", "manager:science", "safety-approver",
@@ -116,7 +133,19 @@ SAMPLE_UNITS = {
     'crystal': 'ug',
 }
 
+
+THIS_YEAR = datetime.now().year
+YEAR_WEIGHTS = numpy.random.uniform(0, 1, size=(THIS_YEAR - 2009))
+YEAR_WEIGHTS /= YEAR_WEIGHTS.sum()  # Normalize weights to sum to 1
+YEARS = list(range(2009, THIS_YEAR))
+
+
 fake = Faker()
+
+
+def random_year():
+    """Generate a random year between start and end."""
+    return random.choices(YEARS, weights=YEAR_WEIGHTS)[0]
 
 
 def fake_first_name_female(country):
@@ -161,8 +190,8 @@ class FakeUser:
                 'model': 'users.institution',
                 'pk': 1,
                 'fields': {
-                    'created': '2024-12-30 20:49:59.049236+00:00',
-                    'modified': '2024-12-30 20:49:59.049236+00:00',
+                    'created': '2008-12-30 20:49:59.049236+00:00',
+                    'modified': '2008-12-30 20:49:59.049236+00:00',
                     'name': 'Bespoke Facility',
                     'location': f"Areion Prime, Valles District, The Martian Confederation",
                     'sector': 'academic',
@@ -203,8 +232,8 @@ class FakeUser:
             'model': 'users.address',
             'pk': pk,
             'fields': {
-                'created': '2024-12-30 20:49:59.049236+00:00',
-                'modified': '2024-12-30 20:49:59.049236+00:00',
+                'created': f'{info["year"]}-{info["month"]:02d}-15 20:48:59.049236+00:00',
+                'modified': f'{info["year"]}-{info["month"]:02d}-15 20:49:59.049236+00:00',
                 'address_1': info['department'],
                 'address_2': f"{info['address']}",
                 'city': info['city'],
@@ -245,8 +274,8 @@ class FakeUser:
             'model': 'users.institution',
             'pk': self.institution_count + 1,
             'fields': {
-                'created': '2024-12-30 20:49:59.049236+00:00',
-                'modified': '2024-12-30 20:49:59.049236+00:00',
+                'created': f'{info["year"]}-{info["month"]:02d}-15 20:48:59.049236+00:00',
+                'modified': f'{info["year"]}-{info["month"]:02d}-15 20:49:59.049236+00:00',
                 'name': info['institution'],
                 'location': f"{info['city']}, {info['state']}, {info['country']}",
                 'sector': 'academic',
@@ -321,7 +350,7 @@ class FakeUser:
             'city': city,
             'state': state,
             'address': address,
-            'year': random.randint(2010, 2024),
+            'year': random_year(),
             'month': random.randint(1, 12),
             'zip': zip_code,
             'phone': phone,
@@ -359,13 +388,12 @@ class FakeUser:
         is_reviewer = random.randint(0, 100) < 25 and info['classification'] in ['faculty', 'professional', 'postdoc']
         if is_reviewer:
             pk = self.add_reviewer(self.user_count, info['fields'])
-
         self.new_users.append({
             'model': 'users.user',
             'pk': self.user_count,
             'fields': {
-                'created': '2024-12-30 20:49:59.049236+00:00',
-                'modified': '2024-12-30 20:49:59.049236+00:00',
+                'created': f'{info["year"]}-{info["month"]:02d}-15 20:49:59.049236+00:00',
+                'modified': f'{info["year"]}-{info["month"]:02d}-15 21:49:59.049236+00:00',
                 'password': os.environ.get('DJANGO_FAKE_PASSWORD', ''),
                 'username': info['username'],
                 'institution': institution['pk'],
@@ -407,7 +435,7 @@ class FakeFacility:
         self.facility_count = 1
         self.config_count = 1
         self.config_item_count = 1
-        self.fake = Faker()
+        self.fake = Faker('la')
         self.acronyms = {}
         self.techniques = defaultdict(list)
 
@@ -425,24 +453,26 @@ class FakeFacility:
                 'start_date': '2025-01-01',
                 'accept': True,
                 'facility': facility,
+                'cycle': 1,
             }
         }
         self.new_configs.append(info)
         for item in tech['techniques']:
-            self.new_config_items.append({
-                'model': 'proposals.configitem',
-                'pk': self.config_item_count,
-                'fields': {
-                    'created': '2024-12-30 20:49:59.049236+00:00',
-                    'modified': '2024-12-30 20:49:59.049236+00:00',
-                    'config': self.config_count,
-                    'technique': item,
-                    'state': 'operating',
-                    'track': 1,
-                }
-            })
-            self.techniques[facility].append(self.config_item_count)
-            self.config_item_count += 1
+            for track in [1, 2, 3]:
+                self.new_config_items.append({
+                    'model': 'proposals.configitem',
+                    'pk': self.config_item_count,
+                    'fields': {
+                        'created': '2024-12-30 20:49:59.049236+00:00',
+                        'modified': '2024-12-30 20:49:59.049236+00:00',
+                        'config': self.config_count,
+                        'technique': item,
+                        'track': track,
+                    }
+                })
+
+                self.techniques[facility].append(self.config_item_count)
+                self.config_item_count += 1
         self.config_count += 1
 
     def add_facilities(self):
@@ -473,7 +503,8 @@ class FakeFacility:
                     'shift_size': random.choice([4, 8, 8, 8, 8, 8, 8]),
                     'flex_schedule': random.choice([True, False]),
                     'details': {
-                        'beamtime': {"user": 45, "staff": 10, "beamteam": 10, "purchased": 25, "maintenance": 10}},
+                        'pools': {"1": 45, "2": 10, "3": 10, "4": 25, "5": 10}
+                    },
                     'description': description
                 }
             }
@@ -502,7 +533,7 @@ class FakeProposal:
         self.proposal_count = 1
         self.sample_count = 1
         self.submission_count = 1
-        self.fake = Faker()
+        self.fake = Faker('la')
 
         path = Path(self.name)
         self.data_path = path / 'kickstart' / '003-proposals.yml'
@@ -539,7 +570,8 @@ class FakeProposal:
         self.sample_count += 1
         return {'sample': f'{pk}', 'quantity': f"{quantity} {units}"}
 
-    def add_submission(self, proposal, cycle, track, techniques, facility):
+    def add_submission(self, proposal, cycle, track, techniques):
+        track_acronym = TRACKS[track]
         info = {
             'model': 'proposals.submission',
             'pk': self.submission_count,
@@ -547,46 +579,38 @@ class FakeProposal:
                 'created': '2025-01-30 20:49:59.049236+00:00',
                 'modified': '2025-01-30 20:49:59.049236+00:00',
                 'proposal': proposal,
+                'code': f"{track_acronym}{proposal:07_}".replace('_', '-'),
                 'cycle': cycle,
                 'track': track,
                 'state': 0,
                 'techniques': techniques,
             }
         }
-        self.add_review(self.submission_count, cycle, facility, track)
+
         self.new_submissions.append(info)
         self.submission_count += 1
 
-    def add_review(self, submission, cycle, facility, track):
-        info = {
-            'model': 'proposals.review',
-            'pk': self.review_count,
-            'fields': {
-                'created': '2025-01-30 20:49:59.049236+00:00',
-                'modified': '2025-01-30 20:49:59.049236+00:00',
-                'state': 1,
-                'form_type': 4,
-                'type': 2,
-                'content_type': 23,
-                'object_id': submission,
-                'due_date': '2025-05-01',
-                'cycle': cycle,
-                'stage': STAGES[track],
-                'role': f'reviewer:{facility["acronym"]}'.lower(),
-                'details': {
-                    'facility': facility["pk"],
-                }
-            }
+    def get_random_facility_req(self):
+        facility = random.choice(list(self.techniques.keys()))
+        techniques = random.sample(self.techniques[facility], random.randint(1, len(self.techniques[facility])))
+        return {
+            'facility': facility,
+            'shifts': random.randint(1, 8),
+            'techniques': techniques,
+            'tags': [],
+            'procedure': self.fake.paragraph(nb_sentences=10),
+            'justification': self.fake.paragraph(nb_sentences=10),
         }
-        self.new_reviews.append(info)
-        self.review_count += 1
 
     def add_proposal(self):
         users = random.sample(self.users, random.randint(2, 5))
-        facility = random.choice(list(self.techniques.keys()))
-        acronym = self.facilities[facility]
-        techniques = random.sample(self.techniques[facility], random.randint(1, len(self.techniques[facility])))
         areas = random.sample(SUBJECTS, random.randint(1, 3))
+        facility_reqs = []
+        techniques = []
+        for i in range(random.choices([1, 2, 3], weights=[0.7, 0.2, 0.1])[0]):
+            facility_reqs.append(self.get_random_facility_req())
+            techniques.extend(facility_reqs[-1]['techniques'])
+
         title = self.fake.sentence(nb_words=10)
         delegate = {
             'first_name': users[1]['fields']['first_name'],
@@ -601,12 +625,8 @@ class FakeProposal:
         else:
             team = users[2:]
 
-        if self.proposal_count < 50:
-            cycle = 1
-            track = 2
-        else:
-            cycle = 2
-            track = random.choice([1, 1, 1, 2])
+        cycle = random.choice([1, 2, 3, 4])
+        track = random.choice([1, 2, 3])  # GA, RA, PA
 
         info = {
             'model': 'proposals.proposal',
@@ -615,6 +635,7 @@ class FakeProposal:
                 'created': '2025-01-30 20:49:59.049236+00:00',
                 'modified': '2025-01-30 20:49:59.049236+00:00',
                 'form_type': 2,
+                'code': f"{self.proposal_count:07_}".replace('_', '-'),
                 'is_complete': False,
                 'leader_username': users[0]['fields']['username'],
                 'title': title,
@@ -645,17 +666,8 @@ class FakeProposal:
                         for user in team
                     ],
                     'sample_list': self.add_samples(users[0]['pk']),
-                    'beamline_reqs': [
-                        {
-                            'facility': facility,
-                            'shifts': random.randint(1, 8),
-                            'techniques': techniques,
-                            'tags': [],
-                            'procedure': self.fake.paragraph(nb_sentences=10),
-                            'justification': self.fake.paragraph(nb_sentences=10),
-                        }
-                    ],
-                    'proposal_type': 'user',
+                    'beamline_reqs': facility_reqs,
+                    'pool': 1,
                     'scientific_merit': (
                             self.fake.paragraph(nb_sentences=15)
                             + random.choice(EQUATIONS)
@@ -679,11 +691,7 @@ class FakeProposal:
         if random.choice([True, False]):
             info['fields']['is_complete'] = True
             info['fields']['state'] = 1
-            facility_info = {
-                'pk': facility,
-                'acronym': acronym
-            }
-            self.add_submission(self.proposal_count, cycle, track, techniques, facility_info)
+            self.add_submission(self.proposal_count, cycle, track, techniques)
 
         self.new_proposals.append(info)
         self.proposal_count += 1
@@ -699,12 +707,11 @@ class FakeProposal:
         with open(self.data_path, 'w') as file:
             yaml.dump(self.new_proposals, file, sort_keys=False)
             yaml.dump(self.new_submissions, file, sort_keys=False)
-            yaml.dump(self.new_reviews, file, sort_keys=False)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Data Generator for USO')
-    parser.add_argument('name', metavar='name', type=str, help='Dataset Name', default='data')
+    parser.add_argument('name', metavar='name', type=str, help='Directory to save data', default='data')
     parser.add_argument('-u', '--users', type=int, help='Number of users', required=True)
     parser.add_argument('-p', '--proposals', type=int, help='Number of proposals', required=True)
     args = parser.parse_args()

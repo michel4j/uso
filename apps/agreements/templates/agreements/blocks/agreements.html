@@ -1,19 +1,16 @@
 {% extends "misc/blocks/panel.html" %}
-{% block panel_title %}Pending Agreements{% endblock %}
-{% block panel_classes %}bg-paper{% endblock %}
-
-{% block panel_content %}
+{% block panel_cap %}
     {% if agreements %}
-        <ul class="list-unstyled">
+        <ul class="list-unstyled p-4">
             {% for agreement in agreements %}
-                <li class="bg-transparent row">
-                    <div class="col-xs-12">
-                        <div style="padding: 0 1em;">
-                        <h4 class="text-condensed"><strong>{{ agreement.name }}</strong></h4>
+                <li>
+                    <div>
+                        <h4 class="text-condensed">{{ agreement.name }}</h4>
+                        <hr class="hr-xs"/>
                         <div>{{ agreement.description }}</div>
-                        <a href="{% url "accept-agreement" pk=agreement.pk %}"
+                        <a href="{% url "accept-agreement" code=agreement.code %}"
                            class="btn btn-primary btn-sm pull-right">View</a>
-                        </div>
+
                     </div>
                     {% if not forloop.last %}
                         <hr class="hr-xxs"/>
@@ -23,37 +20,33 @@
         </ul>
     {% endif %}
     {% if no_institution %}
-        <div class="tinytron alert-danger">
+        <div class="p-4">
             <h5>Institution Required</h5>
             <hr class="hr-xs"/>
-            <p>In order to use the facility, all users must be affiliated with an institution which has a valid
+            <p>To use the facility, all users must be affiliated with an institution which has a valid
                 Institutional Agreement. You have not selected an institution. Please update your profile.</p>
         </div>
     {% endif %}
     {% if request_contact %}
-        <div class="alert-warning" style="padding: 0.5em;">
-            <div class="row">
-                <div class="col-xs-12">
-                    <h5>Institutional Agreement Required</h5>
-                    <hr class="hr-xs"/>
-                    <p>In order to use the facility, all users must be affiliated with an institution which has a valid
-                        Institutional Agreement. The institution you have selected in your profile
-                        "{{ user.institution }}" does not have
-                        the appropriate agreement.
-                    </p>
-                    <p>
-                        To assist us in initiating the process, please provide the contact information of the person at
-                        your
-                        institution who is responsible for such matters.
-                    </p>
-                    {% if user.institution %}
-                        <a href="#0" data-url="{% url 'request-institution-contact' user.institution.pk %}"
-                           class="btn btn-sm btn-default pull-right">
-                            <i class="bi-pencil icon-fw"></i>&nbsp;Institutional Contact
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="p-4">
+            <h5>Institutional Agreement Required</h5>
+            <hr class="hr-xs"/>
+            <p>To use the facility, all users must be affiliated with an institution which has a valid
+                Institutional Agreement. The institution you have selected in your profile
+                "{{ user.institution }}" does not have
+                the appropriate agreement.
+            </p>
+            <p>
+                To assist us in initiating the process, please provide the contact information of the person at
+                your
+                institution who is responsible for such matters.
+            </p>
+            {% if user.institution %}
+                <a href="#0" data-modal-url="{% url 'request-institution-contact' user.institution.pk %}"
+                   class="btn btn-sm btn-secondary pull-right">
+                    <i class="bi-pencil icon-fw"></i>&nbsp; Contact
+                </a>
+            {% endif %}
         </div>
     {% endif %}
 

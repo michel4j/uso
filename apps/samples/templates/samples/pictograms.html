@@ -1,5 +1,10 @@
 {% load samples_tags %}
-{% for pic in pictograms %}
-<img class="media-object pull-left" width="{{size}}" height="{{size}}" src="{% pictogram_url pic %}" title="{{pic.name}}" data-sample-hazard="{{pic.pk}}">
-{% endfor %}
-&nbsp;<span class="pull-right text-{{signal}}" style="line-height: {{size}}px;">{{signal.upper}}</span>
+<div class="pictogram-box pictogram-{{ size }} {% if stack %}stacked{% endif %}">
+    {% for hz in pictograms %}
+        <img src="{% pictogram_url hz %}"
+             title="{{ hz.name }}" alt="{{ hz.name }}"
+             class="{% if hz.extra %}extra-pictogram{% endif %}"
+             data-sample-hazard="{{ hz.pk }}"
+        />
+    {% endfor %}
+</div>

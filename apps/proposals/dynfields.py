@@ -1,12 +1,5 @@
-
-
-import functools
-import operator
-from collections import OrderedDict
-
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
-
 from dynforms.fields import FieldType
 
 
@@ -20,69 +13,52 @@ def to_int(val, default=0):
 class BeamlineReqs(FieldType):
     name = _("Beamline")
     icon = "bi-sliders"
-    options = ['required', "repeat", "tags", "justification"]
+    options = ['required', "repeat", "justification"]
     settings = ['label', 'options', ]
     template_theme = "proposals/fields"
-    required_subfields = ['techniques', 'facility', 'procedure', 'justification']
+    required_subfields = ['techniques', 'facility', 'procedure']
 
-    def coerce(self, val):
-        if isinstance(val, dict):
-            # clean strings
-            for k in ['justification', 'procedure']:
-                val[k] = val.get(k, '').strip()
-        return val
+    def is_multi_valued(self, subfield: str = None) -> bool:
+        if subfield and subfield in ['techniques']:
+            return True
+        elif subfield:
+            return False
+        return True
 
-    def clean(self, val, multi=True, validate=True):
-        # prepare initial value dict
-        if isinstance(val, dict):
-            val = super().clean(val, multi=multi, validate=validate)
+    @staticmethod
+    def clean_procedure(value):
+        return value.strip()
 
-        # make sure values are clean in prepared list
-        for req in val:
-            techs = req.get('techniques', [])
-            techs = techs if isinstance(techs, list) else [techs]
-            tags = req.get('tags', [])
-            tags = tags if isinstance(tags, list) else [tags]
+    @staticmethod
+    def clean_justification(value):
+        return value.strip()
 
-            req['techniques'] = list(map(to_int, {_f for _f in techs if _f}))
-            req['tags'] = list(map(to_int, {_f for _f in tags if _f}))
-            req['facility'] = to_int(req.get('facility', None), "")
-            req['shifts'] = to_int(req.get('shifts'), "")
-            for k in ['justification', 'procedure']:
-                req[k] = req.get(k, '').strip()
+    @staticmethod
+    def clean_techniques(value):
+        if isinstance(value, list):
+            return [to_int(val) for val in value]
+        elif isinstance(value, str):
+            return [to_int(value)]
+        return [value]
 
-        # combine duplicate facilities
-        groups = OrderedDict([(req.get('facility'), list()) for req in val])
-        for req in val:
-            groups[req.get('facility')].append(req)
+    @staticmethod
+    def clean_facility(value):
+        if isinstance(value, list):
+            return to_int(value[0])
+        elif isinstance(value, str):
+            return to_int(value)
+        return value
 
-        raw_requirements = []
-        for key, group in list(groups.items()):
-            new_req = {
-                'facility': key,
-            }
-            for k in ['tags', 'techniques', 'procedure', 'justification', 'shifts']:
-                new_req[k] = functools.reduce(operator.__add__, [_f for _f in [req[k] for req in group] if _f],
-                                              type(group[0][k])())
-            raw_requirements.append(new_req)
-
-        # delete blank entries:
-        requirements = [req for req in raw_requirements if any(req.values())]
-
-        # validate reqs
-        if validate:
-            from beamlines import models
-            invalid_fields = set()
-            for req in requirements:
-                invalid_fields |= {k for k, v in list(self.check_entry(req).items()) if not v}
-                fac_id = req.get('facility')
-                fac = None if not fac_id else models.Facility.objects.filter(pk=fac_id).first()
-                if fac and not fac.flex_schedule and not req.get('shifts', 0):
-                    raise ValidationError("'shifts' is required for the {} beamline".format(fac))
-            if invalid_fields:
-                raise ValidationError("must complete {} for all selected beamlines".format(', '.join(invalid_fields)))
-
-        return requirements
+    @staticmethod
+    def clean_shifts(value):
+        """
+        Cleans the 'shifts' field to ensure it is an integer.
+        """
+        if isinstance(value, list):
+            return to_int(value[0])
+        elif isinstance(value, str):
+            return to_int(value)
+        return value
 
 
 class ReviewCycle(FieldType):
@@ -99,12 +75,6 @@ class Reviewers(FieldType):
     options = ['required', 'hide', 'repeat']
     settings = ['label', 'options', ]
     template_theme = "proposals/fields"
-    multi_valued = True
-
-    def clean(self, val, multi=True, validate=False):
-        if isinstance(val, dict):
-            val = super().clean(val, multi=multi, validate=validate)
-        return [] if not val else val
 
 
 class ReviewSummary(FieldType):
@@ -114,18 +84,17 @@ class ReviewSummary(FieldType):
     options = ['nolabel', 'required']
     template_theme = "proposals/fields"
     required_subfields = ["review", "completed"]
-    multi_valued = True
 
-    def get_completeness(self, data):
-        data = data if data else []
-        return 0 if not data else len([_f for _f in [v.get('completed') for v in data] if _f]) / float(len(data))
+    def is_multi_valued(self, subfield: str = None) -> bool:
+        return not subfield
 
-    def clean(self, val, multi=True, validate=False):
-        if isinstance(val, dict):
-            val = super().clean(val, multi=multi, validate=validate)
+    @staticmethod
+    def clean_completed(value):
+        """
+        Cleans the 'completed' field to ensure it is a boolean.
+        """
+        try:
+            return int(value)
+        except ValueError:
+            raise ValidationError(_("The review must be 'completed."))
 
-        val = val if val else []
-        if validate:
-            if not all([v.get('completed') for v in val]):
-                raise ValidationError("All assigned reviews must be completed.")
-        return val

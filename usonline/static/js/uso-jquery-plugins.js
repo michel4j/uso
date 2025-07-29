@@ -4,7 +4,7 @@
 
 jQuery.fn.serializeObject = function () {
     const obj = {};
-    this.serializeArray().forEach(({ name, value }) => {
+    this.serializeArray().forEach(({name, value}) => {
         if (obj[name] === undefined) {
             obj[name] = value;
         } else if (Array.isArray(obj[name])) {
@@ -37,7 +37,7 @@ jQuery.fn.serializeObject = function () {
     const rvalue = /^(?:button|color|date|datetime|datetime-local|email|hidden|month|number|password|range|reset|search|submit|tel|text|textarea|time|url|week)$/i;
 
     const getElements = (elements, filter) => {
-        return elements.map(function() {
+        return elements.map(function () {
             return this.elements ? jQuery.makeArray(this.elements) : this;
         }).filter(filter || ":input:not(:disabled)").get();
     };
@@ -55,7 +55,7 @@ jQuery.fn.serializeObject = function () {
         return elementsByName;
     };
 
-    jQuery.fn.deserialize = function(data, options = {}) {
+    jQuery.fn.deserialize = function (data, options = {}) {
         let current, element, elements, elementsForName, i, j, k, key, len, length, name, nameIndex, optionsAndInputs,
             property, type, value,
             change = jQuery.noop,
@@ -81,9 +81,9 @@ jQuery.fn.serializeObject = function () {
         } else if (jQuery.isPlainObject(data)) {
             for (key in data) {
                 if (jQuery.isArray(data[key])) {
-                    push.apply(normalized, jQuery.map(data[key], (v) => ({ name: key, value: v })));
+                    push.apply(normalized, jQuery.map(data[key], (v) => ({name: key, value: v})));
                 } else {
-                    push.call(normalized, { name: key, value: data[key] });
+                    push.call(normalized, {name: key, value: data[key]});
                 }
             }
         } else if (typeof data === "string") {
@@ -149,8 +149,113 @@ jQuery.fn.serializeObject = function () {
         }
 
         complete.call(this);
-
         return this;
     };
 
 });
+
+// Visibility
+function renderWhenVisible(selector, callback) {
+    const element = typeof selector === 'string' ? document.querySelector(selector) : selector;
+    const options = {
+        root: document.documentElement,
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            callback(entry.intersectionRatio > 0);
+        });
+    }, options);
+
+    observer.observe(element);
+}
+
+
+// Ajax Progress
+function setupAjaxProgress() {
+    const $body = $("body");
+
+    // Handle Spinner for all ajax calls
+    $(document).ajaxStart(function (xhr) {
+        $(document).data('xhrProgress', 0);
+        $(document).data('xhrCount', 0);
+        $(document).data('xhrPercent', 0);
+        $body.css({
+            '--uso-progress-percent': 0,
+            '--uso-progress-opacity': 1,
+        });
+    }).ajaxStop(function () {
+        setTimeout(function () {
+            $("body").css({
+                '--uso-progress-opacity': 0
+            });
+        }, 500);
+    });
+
+    // Handle XHR Progress
+    let origOpen = XMLHttpRequest.prototype.open;
+    $(document).data('xhrCount', $(document).data('xhrCount') || 0);
+    $(document).data('xhrProgress', $(document).data('xhrProgress') || 0);
+    $(document).data('xhrPercent', $(document).data('xhrPercent') || 0);
+
+    XMLHttpRequest.prototype.open = function () {
+        $(document).data('xhrCount', $(document).data('xhrCount') + 1);
+        this.addEventListener('load', function () {
+            $(document).data('xhrProgress', $(document).data('xhrProgress') + 1);
+            $(document).data('xhrCount', $(document).data('xhrCount') - 1);
+            if ($(document).data('xhrCount') === 0) {
+                $(document).data('xhrPercent', 100)
+                $("body").css({
+                    '--uso-progress-percent': $(document).data('xhrPercent'),
+                });
+            } else {
+                let percentComplete = 100 * $(document).data('xhrProgress') / $(document).data('xhrCount');
+                $(document).data('xhrPercent', Math.max($(document).data('xhrPercent'), percentComplete));
+                $("body").css({
+                    '--uso-progress-percent': $(document).data('xhrPercent'),
+                });
+            }
+        });
+        origOpen.apply(this, arguments);
+    };
+}
+
+
+// USO Timeline
+function showTimeline(selector, data) {
+    renderWhenVisible(selector, function(visible) {
+        if (!visible) {
+            return; // Do not render if the element is not visible
+        }
+        const $element = $(selector);
+        const width = Math.min(1200, Math.max($element.width(), 576));
+        const height = Math.max(60, width * 90 / 1000);
+        const fontSize = Math.min(0.95, Math.max(0.75, width / 576)); // Scale font size based on width
+
+        $element.empty(); // Clear any existing content
+        const chart = d3.timeline()
+            .margin({left: 0, right: 0, top: height / 5, bottom: height / 5})
+            .width(width) // Default width if not set
+            .height(height)
+            .itemHeight(height / 3.25)
+            .tickFormat({
+                format: d3.time.format("%d %b %Y"),
+                tickTime: d3.time.months,
+                tickInterval: 2,
+                tickSize: height / 14
+            })
+            .showToday()
+            .showTodayFormat({width: 2, marginTop: 2, marginBottom: 0, color: "rgba(239,71,111,0.5)"})
+            .hover(function (d, i, datum) {
+                $element.attr("title", datum.hover);
+            });
+        const svg = d3.select(selector)
+            .append("svg")
+            .attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("width", "100%")
+            .attr('font-size', `${fontSize.toFixed(2)}em`)
+            .datum(data).call(chart);
+    });
+}
+
+

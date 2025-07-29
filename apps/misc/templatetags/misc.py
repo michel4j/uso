@@ -1,5 +1,9 @@
+from datetime import datetime, date
+
 from django import template
+from django.utils import timezone, timesince
 from django.utils.safestring import mark_safe
+
 
 register = template.Library()
 from django.conf import settings
@@ -8,6 +12,11 @@ from django.conf import settings
 @register.filter
 def verbose_name(value):
     return value._meta.verbose_name
+
+
+@register.filter
+def modulo(num, val):
+    return num % val
 
 
 @register.filter
@@ -20,11 +29,16 @@ def version():
     return getattr(settings, 'VERSION', '')
 
 
-@register.simple_tag(takes_context=True)
-def show_block(context, block):
-    request = context['request']
-    if block.check_allowed(request):
-        return mark_safe(block.render(context))
+@register.simple_tag()
+def show_block(block) -> str:
+    """
+    Checks if a dashboard panel block is allowed to be displayed and renders it if so.
+    :param block: instance of a panel block that has a `check_allowed` method and a `render` method.
+    :return: string
+    """
+    if block.check_allowed():
+        content = block.render()
+        return mark_safe(content) if content else ""
     else:
         return ""
 
@@ -51,4 +65,57 @@ def define(context, **kwargs):
 
 @register.inclusion_tag('misc/stat-card.html')
 def stat_card(**kwargs):
+    """
+    Renders a stat card with the provided keyword arguments.
+    """
     return kwargs
+
+
+@register.simple_tag(name='css_overrides')
+def css_overrides():
+    """
+    Returns the CSS overrides for the current theme.
+    """
+    styles = ""
+    for style in getattr(settings, "USO_STYLE_OVERRIDES", []):
+        styles += f"<link rel='stylesheet' href='{settings.MEDIA_URL}css/{style}'>\n"
+    return mark_safe(styles)
+
+
+@register.simple_tag(name='state_tag')
+def state_tag(state, default="", **kwargs) -> str:
+    """
+    Returns the key from kwargs that matches the given state. Can be used to map a state to a specific tag or label.
+    If no match is found, it returns the default value.
+    :param state: value to match against the values in kwargs.
+    :param default: default string to return if no match is found.
+    :param kwargs: key-value pairs where keys are the tags and values are the states.
+    """
+    for key, value in kwargs.items():
+        if value == state:
+            return key
+    return default
+
+
+@register.filter
+def from_now(dt, now: datetime = None) -> str:
+    """
+    Returns a human-readable string indicating how long ago or how long until a given date.
+    If the date is in the past, it returns "X time ago", if it is in the future, it returns "in X time".
+    combined with the `timesince` and `timeuntil` utilities from Django.
+
+    :param dt: Date or datetime object to compare with the current time.
+    :param now:  reference time to compare against; if None, uses the current time.
+    :return: string indicating the time difference.
+    """
+    if now is None:
+        now = timezone.now()
+    if isinstance(dt, date):
+        now = now.date()
+
+    if dt < now:
+        return f"{timesince.timesince(dt, now)} ago"
+    elif dt > now:
+        return f"in {timesince.timeuntil(dt, now)}"
+    else:
+        return 'now'

@@ -16,7 +16,7 @@ admin.site.site_header = "User Services Online"
 urlpatterns = [
     path('', RedirectView.as_view(url=reverse_lazy('user-dashboard'), permanent=False)),
     path('', include('users.urls')),
-    path('', include('notifier.urls')),
+
     path('', include('proposals.urls')),
     path('', include('agreements.urls')),
     path('', include('publications.urls')),
@@ -24,9 +24,12 @@ urlpatterns = [
     path('', include('scheduler.urls')),
     path('', include('projects.urls')),
     path('', include('samples.urls')),
-    path('', include('dynforms.urls')),
+    path('forms/', include('dynforms.urls')),
+    path('reports/', include('reportcraft.urls')),
+    path('messages/', include('notifier.urls')),
     path('', include('weather.urls')),
     path('', include('surveys.urls')),
+    path('', include('isocron.urls')),
 
     path('admin/logout/', LogoutView.as_view()),
     path('admin/', admin.site.urls),
@@ -50,5 +53,5 @@ if settings.DEBUG:
         path('503/', TemplateView.as_view(template_name='503.html'), name='error-503'),
         path('404/', TemplateView.as_view(template_name='404.html'), name='error-404'),
         path('403/', TemplateView.as_view(template_name='403.html'), name='error-403'),
-        path('schema/', Schema.as_view(), name='database-schema'),
+        #path('schema/', Schema.as_view(), name='database-schema'),
     ]

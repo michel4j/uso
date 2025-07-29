@@ -1,20 +1,20 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
 {% load pubstats %}
 {% load plots %}
 
-{% block page_heading %}Publication Quality Metrics{% endblock %}
+{% block page-pretitle %}Quality Metrics{% endblock %}
 
-{% block folio-title %}
+{% block page-title %}
 {% if beamline %}{{beamline.name}}{% else %}All Publications{% endif %}
 {% endblock %}
 
-{% block folio-subtitle %}
+{% block page-subtitle %}
 Publication Quality Metrics
 {% endblock %}
 
 
-{% block folio-tools %}
+{% block page-tools %}
 
 <a
     {% if beamline %}
@@ -24,17 +24,17 @@ Publication Quality Metrics
     {% endif %}
     class="pull-right"
 >
-	<i class="bi-list-ol icon-2 icon-fw"></i><br/>
+	<i class="bi-list-ol icon-md icon-fw"></i><br/>
 	<span class="tool-label">Publications</span>
 </a>
 {% endblock %}
 
-{% block folio-content %}
+{% block page-content %}
 {% get_quality_tables as tables%}
-<div class="pagelet-body">
+<div class="page-body">
 	{% for tbl in tables %}
 		<div class="row data-reports">
-			<div class="col-xs-12">
+			<div class="col-sm-12">
 				{% if forloop.first %}
                     {% render_plot tbl plot_type='stackedAreaChart' %}
                     {% if beamline %}

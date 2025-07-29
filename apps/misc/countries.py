@@ -1,7 +1,5 @@
 # coding=utf-8
 
-
-
 COUNTRIES = [
     'Afghanistan', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla',
     'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria',

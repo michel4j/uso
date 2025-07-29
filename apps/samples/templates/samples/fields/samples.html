@@ -1,175 +1,165 @@
-{% load dynforms_tags %}
+{% load dynforms %}
 {% load samples_tags %}
 
-<div class="controls" id="{{field.name}}-controls" data-field-name="{{field.name}}">
-	{% get_user_samples data=data as samples %}
-	<div class="sample-list">
-		<div class="row no-space header">
-			<span class="col-xs-3">Name</span>
-			<span class="col-xs-2">Type</span>
-			<span class="col-xs-1">State</span>
-			<span class="col-xs-3">Hazards</span>
-			<span class="col-xs-2">Quantity</span>
-			<span class="col-xs-1"></span>
-		</div>
-		<div id="{{field.name}}-list">
-			{% for sample, quantity in samples.selected %}
-			{% include "samples/fields/one_sample.html" with field_name=field.name %}
-			{% endfor %}
-		</div>
-	</div>
-	<div class="row no-space">
-	    <span class="field-group-item col-xs-11">
-		   {% if samples.all %}
-		   <select id="{{field.name}}-search" class="chosen select form-control"
-				   data-placeholder="Select a pre-defined sample to add">
-			   <option value=""></option>
-			   {% for sample, disabled in samples.all %}
-			   <option value="{{sample.pk}}" {% if disabled %}disabled{% endif %}>{{sample}}</option>
-			   {% endfor %}
-		   </select>
-		   {% endif %}
-	    </span>
-	    <span class="field-group-item col-xs-1">
-		 	<div class="btn-group pull-right">
-				<button title="Define New Sample to Add" class="btn btn-success" type="button"
-						id="{{field.name}}-new"><i class="bi-plus-lg icon-1x icon-fw"></i></button>
-			</div>
-	    </span>
-	</div>
+<div class="controls mb-3" id="{{ field.name }}-controls"
+     data-field-name="{{ field.name }}"
+>
+    {% get_user_samples data=data as samples %}
+    <div class="sample-list">
+        <div class="row header">
+            <span class="col-3">Name</span>
+            <span class="col-2">Type</span>
+            <span class="col-1">State</span>
+            <span class="col-3">Hazards</span>
+            <span class="col-2">Quantity</span>
+            <span class="col-1"></span>
+        </div>
+        <div id="{{ field.name }}-list">
+            {% for sample, quantity in samples.selected %}
+                {% include "samples/fields/one_sample.html" with field_name=field.name %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="input-group col-11">
+            {% if samples.all %}
+                <select id="{{ field.name }}-search" class="form-select" aria-label="Select Sample to Add"
+                        data-placeholder="Select a pre-defined sample to add">
+                    <option value=""></option>
+                    {% for sample, disabled in samples.all %}
+                        <option value="{{ sample.pk }}" {% if disabled %}disabled{% endif %}>{{ sample }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+            <a  href="#0" title="Define New Sample to Add" class="btn btn-success"
+                    id="{{ field.name }}-new" data-modal-url="{% url 'add-sample-modal' %}">
+                <i class="bi-plus-lg icon-sm icon-fw"></i>
+            </a>
+        </div>
+    </div>
 </div>
-<script type="text/javascript">	
-function update_{{field.name}}() {
-    // Trigger rule change events
-    $("#{{field.name}}-group").triggerHandler('dynrules:update');
+<script type="text/javascript">
+    function update_{{field.name}}() {
+        // Trigger rule change events
+        $("#{{field.name}}-group").triggerHandler('dynrules:update');
 
-	// find all Hazards classes and sample types
-	var non_haz_pk = "15";
-	var all_hazards =  {};
-	var all_types = {};
-	$("#{{field.name}}-controls img[data-sample-hazard]").each(function(){
-		if ($(this).attr("data-sample-hazard") != non_haz_pk) {
-			all_hazards[$(this).attr("data-sample-hazard")] = 1;
-		}
-	});
-	$("#{{field.name}}-controls [data-sample-type]").each(function(){
-		all_types[$(this).attr("data-sample-type")] = 1;
-	});
-	// This element must be present in the form via a sample hazard field
-	$('#sample-hazard-controls  input[type="checkbox"]').each(function(){
-		if ($(this).val() in all_hazards) {
-			$(this).prop("checked", true);
-			$(this).attr('checked', 'checked');
-			$(this).trigger('change');
-			$(this).attr("disabled", "disabled");
-		} else if ($(this).is('[disabled]')) {
-            $(this).removeAttr("checked");
-            $(this).removeAttr("disabled");
-		}
-	});
+        // find all Hazards classes and sample types
+        let noHazard = "15";
+        let allHazards = new Set();
+        let allTypes = new Set();
 
-	// manage non-hazard checkbox
-	var non_hz = $('#sample-hazard-controls  input[type="checkbox"][value="15"]');
-	if (jQuery.isEmptyObject(all_hazards)) {
-		non_hz.removeAttr("disabled");
-	} else {
-		non_hz.attr("disabled", "disabled");
-	}	
+        // record sample types
+        $("#{{field.name}}-controls img[data-sample-hazard]").each(function () {
+            if ($(this).attr("data-sample-hazard") !== noHazard) {
+                allHazards.add($(this).attr("data-sample-hazard"));
+            }
+        });
+        // record sample hazards
+        $("#{{field.name}}-controls [data-sample-type]").each(function () {
+            allTypes.add($(this).attr("data-sample-type"));
+        });
 
-	// This element must be present in the form via a sample types field
-	$('#sample-type-controls  input[type="checkbox"]').each(function(){
-		if ($(this).val() in all_types) {
-			$(this).prop("checked", true);
-			$(this).attr('checked', 'checked');
-			$(this).attr("disabled", "disabled");
-		} else if ($(this).is('[disabled]')) {
-            $(this).removeAttr("checked");
-            $(this).removeAttr("disabled");
-		}
-		
-	});
-}
-$('#{{field.name}}-search').change(function(){
-	/* Add sample when select changes, then immediately reset select to "" */
-	var tgt_el = $(this);
-	if (tgt_el.val() != "") {
-		var url = "{% url 'sample-field' %}" + tgt_el.val() + "/{{field.name}}/";
-        console.log(url);
-		$.ajax(url).done(function(html){
-			$('#{{field.name}}-list').append(html).slideDown(600);
-			tgt_el.find("option:selected").attr('disabled', 'disabled');
-			tgt_el.val("");
-			tgt_el.trigger('chosen:updated');
-			update_{{field.name}}();
-		});
-	}
-});
-$("#{{field.name}}-controls").on('click', '.hidden-remove:not(.active)', function(){
-	var el = $(this);
-	el.addClass('active');
-	el.popover({
-		title: 'Are you sure?',
-		placement: 'bottom',
-		content: "Click again while icon is active to remove."
-	});
-	el.popover('show');
-    setTimeout(function(){el.removeClass('active'); el.popover('hide');}, 3000);	
-});
-$("#{{field.name}}-controls").on('click', '.hidden-remove.active', function(){
-	var tgt_el = $("#{{field.name}}-search");
-	var el = $(this).parent();
-	var opt_el = tgt_el.find('option[value="' + $(this).attr('data-sample-pk') + '"]');
-	opt_el.removeAttr('disabled');
-	tgt_el.trigger('chosen:updated');
-	el.slideUp(300, function(){
-		el.remove();
-		update_{{field.name}}();
-	});
-});
-$('#{{field.name}}-new').click(function(){
-	$('#modal-form').load("{% url 'add-sample-modal' %}", function(){
-		$("#modalForm").on('hidden.bs.modal', function(){
-			var tgt_el = $("#{{field.name}}-search");
-			
-			if ($(this).attr('data-new-object-pk') != null) {
-				var new_opt = $("<option disabled></option");
-				new_opt.attr('value', $(this).attr('data-new-object-pk'));
-				new_opt.text($(this).attr('data-new-object-name'));
-				tgt_el.append(new_opt);
-				
-				var url = "{% url 'sample-field' %}" + $(this).attr('data-new-object-pk') + "/{{field.name}}/";
-				$.ajax(url).done(function(html){
-					$('#{{field.name}}-list').append(html).slideDown(600);
-					tgt_el.trigger('chosen:updated');
-					update_{{field.name}}();
-				});
-			}
-		});
-	});
-});
-$('#{{field.name}}-controls').on('click', 'a.sample-edit-command', function(){
-	var el = $(this).closest(".sample-list-row");
-	var existing_quantity = el.find('input[name="{{field.name}}.quantity"]').val();
-	$('#modal-form').load($(this).attr('data-edit-url'), function(){
-		$("#modalForm").on('hidden.bs.modal', function(){
-			var tgt_el = $("#{{field.name}}-search");
-			var sample_pk = $(this).attr('data-new-object-pk');
-			if (sample_pk != null) {				
-				var url = "{% url 'sample-field' %}" + sample_pk + "/{{field.name}}/";
-				var qel = el.find('input[name="{{field.name}}.quantity"]');
-				var equant = qel.val();
-				$.ajax(url).done(function(html){					
-					$("#sample-"+ sample_pk+"-row").replaceWith(html);
-					$("#sample-"+ sample_pk+"-row").find('input[name="{{field.name}}.quantity"]').val(equant);
-				});
-			}
-		});
-	});
-});
-$(function(){
-    window.setTimeout(function(){
-        $("#{{field.name}}-search").chosen({search_contains: true});
-        update_{{field.name}}();
-    }, 0);
-});
+        // trigger samples changed event
+        let eventData = {
+            hazards: Array.from(allHazards),
+            types: Array.from(allTypes)
+        };
+        $(document).trigger('uso:samples-changed', eventData);
+    }
+
+    $('#{{field.name}}-search').change(function () {
+        /* Add sample when select changes, then immediately reset select to "" */
+        const $searchInput = $(this);
+        if ($searchInput.val() !== "") {
+            const url = `{% url 'sample-field-root' %}${$searchInput.val()}/{{field.name}}/`;
+            $.ajax(url).done(function (html) {
+                $('#{{field.name}}-list').append(html).slideDown(500);
+                $searchInput.find("option:selected").attr('disabled', 'disabled');
+                $searchInput.val("");
+                update_{{field.name}}();
+            });
+        }
+    });
+
+    $(document).on('uso:sample-created', function(event, data) {
+        // This event is triggered when a new sample is created
+        // It will add the new sample to the list and update the search select
+        const $searchInput = $("#{{field.name}}-search");
+        if (data.pk !== null) {
+            const $newOption = $("<option disabled></option");
+            $newOption.attr('value', data.pk);
+            $newOption.text(data.name);
+            $searchInput.append($newOption);
+
+            let url = `{% url 'sample-field-root' %}${data.pk}/{{field.name}}/`;
+            $.ajax(url).done(function (html) {
+                $('#{{field.name}}-list').append(html).slideDown(500);
+                update_{{field.name}}();
+            });
+        }
+    });
+
+    $(document).on('uso:sample-updated', function(event, data) {
+        // This event is triggered when a sample is edited
+        // It will replace the sample row in the list and update the select option
+        const $searchInput = $("#{{field.name}}-search");
+        if (data.pk !== null) {
+            const $option = $searchInput.find(`option[value="${data.pk}"]`);
+            $option.text(data.name);
+
+            let url = `{% url 'sample-field-root' %}${data.pk}/{{field.name}}/`;
+            let $row = $(`#sample-${data.pk}-row`);
+            let quantity = $row.find(`input[name="{{field.name}}__${data.pk}__quantity"]`).val();
+            $.ajax(url).done(function (html) {
+                $row.replaceWith(html);
+                $row.find(`input[name$="__quantity"]`).val(quantity);
+                update_{{field.name}}();
+            });
+        }
+    });
+
+    $("#{{field.name}}-controls").on('click', ".remove-button", function (e) {
+        let sampleID = $(this).data('sample-pk');
+        let $toDelete = $(this).closest(`#sample-${sampleID}-row`);
+
+
+        // show confirmation popover
+        const popover = new bootstrap.Popover(this, {
+            trigger: 'focus',
+            html: true,
+            placement: 'right',
+            sanitize: false,
+            title: "Remove Item?",
+            content: `
+                <div class="w-100 d-flex flex-row gap-3">
+                    <button class="btn btn-xs btn-secondary" role="button">Cancel</button>
+                    <button data-confirmed-remove="1" class="btn btn-xs btn-danger" role="button">Remove</button>
+                </div>`,
+        });
+        popover.show();
+
+        // single click on popover button removes the item, click outside closes the
+        // popover
+        $(document).one('click', '.popover button', function () {
+            if ($(this).is("[data-confirmed-remove]")) {
+                $toDelete.slideUp('fast', function () {
+                    $toDelete.remove();
+                    let $option = $(`#{{field.name}}-search option[value="${sampleID}"]`);
+                    if ($option.length) {
+                        // re-enable option in select
+                        $option.removeAttr('disabled');
+
+                    }
+                    update_{{field.name}}();
+                });
+            }
+            popover.dispose();
+        });
+    });
+
+    $(function () {
+        window.setTimeout(function () {
+            update_{{field.name}}();
+        }, 0);
+    });
 </script>

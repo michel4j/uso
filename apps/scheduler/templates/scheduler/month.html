@@ -1,8 +1,8 @@
 {% load schedule_tags %}
 
-<table class="cal-month-view table">
+<table class="cal-month-view table table-fixed">
     <tr class="cal-header-row">
-        <th class="cal-header" style="width: 15%;"></th>
+        <th class="cal-header"></th>
         {% for header in headers  %}
             <th class="cal-header text-condensed">{{ header }}</th>
         {% endfor %}
@@ -18,7 +18,7 @@
                         <div class="cal-shift" title="{{shift.description}}"
                              data-shift-time="T{{shift.time}}">
                             <span class="visible-xs">{{shift.label}}</span>
-                            <span class="hidden-xs">{{shift.description}}</span>
+                            <span class="d-none d-sm-inline">{{shift.description}}</span>
                         </div>
                         {% endfor %}
                     </div>

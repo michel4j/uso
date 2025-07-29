@@ -11,7 +11,6 @@ from model_utils.models import TimeStampedModel
 from model_utils.managers import InheritanceManager
 from django.conf import settings
 import re
-import itertools
 
 User = getattr(settings, "AUTH_USER_MODEL")
 
@@ -109,6 +108,9 @@ class Publication(TimeStampedModel):
     history = models.JSONField(default=list, blank=True)
     objects = PublicationManager()
 
+    def is_owned_by(self, user):
+        return user in self.users.all()
+
     def description(self):
         return ""
 
@@ -126,7 +128,6 @@ class Publication(TimeStampedModel):
     @property
     def citation(self):
         return Publication.objects.get_subclass(id=self.id).cite()
-
 
     @property
     def short_citation(self):
@@ -157,7 +158,7 @@ class Patent(Publication):
     def cite(self):
         return (
             f"{self.abbrev_authors()} ({self.date.year}). <em>{self.title}</em>. "
-            "<span class='text-muted'>Patent Number: <a target='blank' "
+            "<span class='text-body-secondary'>Patent Number: <a target='blank' "
             f"href='https://www.google.com/patents/{self.code}'>{self.code}</a>.</span>"
         )
 
@@ -210,7 +211,7 @@ class Book(Publication):
             else:
                 base = None
             if base:
-                txt += ' <span class="text-muted"><a target="blank" href="{0}">{1}</a>.</span>'.format(
+                txt += ' <span class="text-body-secondary"><a target="blank" href="{0}">{1}</a>.</span>'.format(
                     base.format(self.code), self.code)
         else:
             txt += "."
@@ -237,7 +238,7 @@ class Article(Publication):
     def cite(self):
         txt = (
             f"{self.abbrev_authors()} ({self.date.year}). "
-            f"<em>{self.title}</em>. <span class='text-muted'>{self.journal.title} "
+            f"<em>{self.title}</em>. <span class='text-body-secondary'>{self.journal.title} "
         )
         if self.volume:
             txt += self.volume
@@ -247,7 +248,7 @@ class Article(Publication):
             txt += f", {self.pages}"
         txt += '.</span>'
         if self.code:
-            txt += f' <span class="text-muted"><a target="blank" href="https://dx.doi.org/{self.code}">{self.code}</a>.</span>'
+            txt += f' <span class="text-body-secondary"><a target="blank" href="https://dx.doi.org/{self.code}">{self.code}</a>.</span>'
         if hasattr(self, 'pdbs') and self.pdbs.count():
             txt += ' [PDB: '
             txt += ', '.join([
@@ -280,7 +281,7 @@ class PDBDeposition(Publication):
     def cite(self):
         txt = f"{self.abbrev_authors()} ({self.date.year}). <em>{self.title}</em>. "
         txt += (
-            f'Protein Data Bank: <span class="text-muted">'
+            f'Protein Data Bank: <span class="text-body-secondary">'
             f'<a target="blank" href="https://www.rcsb.org/pdb/explore/explore.do?structureId={self.code}">{self.code}</a>.'
             f'</span>'
         )

@@ -1,69 +1,43 @@
 {% extends "proposals/base.html" %}
 
 {% load static %}
-{% load dynforms_tags %}
 {% load markup %}
-{% load crispy_forms_tags %}
 {% block extra_css %}
-    <link href="{% static 'css/datetimepicker.css' %}" rel="stylesheet">
     <link href="{% static 'dynforms/dynforms.min.css' %}" rel="stylesheet"/>
-    <link href="{% static 'proposals/reviews.css' %}" rel="stylesheet"/>
+    <link href="{% static 'proposals/reviews.min.css' %}" rel="stylesheet"/>
     <link href="{% static 'samples/sample.min.css' %}" rel="stylesheet"/>
 {% endblock %}
 {% block pre_js %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"
-            integrity="sha512-BI1itUvyiWbbZ446/8IOccwMPB/xobCTyQTS0r1+k8Pq1VPT3uIJKNCoMH12rKk18J9sH33xQNve7srB0IGYlg=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2/moment.min.js"></script>
-    <script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-form@3.50.0/jquery.form.min.js"></script>
-    <script src="{% static 'dynforms/dynforms.js' %}"></script>
+    <script src="{% static 'dynforms/dynforms.min.js' %}"></script>
 {% endblock %}
-{% block html_class %}no-scroll{% endblock %}
-{% block page_heading %}{{ object }}{% endblock %}
-{% block body_class %}{% endblock %}
+{% block page-title %}{{ object }}{% endblock %}1
+{% block body_class %}toggle-layout-md{% endblock %}
 
-{% block full %}
-    <div id="review-form" class="row narrow-gutter">
-        <div class="col-sm-6 col-md-7 review-col">
-            <div id="proposal-area" class="pagelet scroll-parent">
-                <div class="scroll-box" style="height: 100%; padding: 0.75em;">
-                    <div class="pagelet-body">
-                        {% if review.type.is_safety or review.type.is_approval %}
-                            {% include "projects/safety-detail.html" with material=reference %}
-                        {% else %}
-                            {% include "proposals/proposal-content.html" with proposal=reference.proposal %}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div id="extras-area" class="pagelet bg-notes-warning">
-                <div class="pagelet-content">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <i class="close-command bi-x-lg pull-right" style="padding: 0.75em;"></i>
-                        </div>
-                    </div>
-                    <div id="extra-review-content" class="scroll-box">
-                        Loading ...
-                    </div>
-                </div>
-                <div style="flex: 1;"></div>
+{% block content %}
+    {% with proposal=reference.get_document %}
+    <div id="review-grid" class="bg-secondary-subtle">
+        <div id="review-content" class="page">
+             <div id="review-proposal">
+                 {% include "proposals/proposal-content.html" with content_mode=review.type.kind %}
+             </div>
+            <div id="review-extras" class="bg-notes-warning">
                 {% include "proposals/review-tools.html" %}
+                <div id="extra-review-content" class="p-3 scroll-box"></div>
             </div>
         </div>
-        <div class="col-sm-6 col-md-5 review-col">
-            <div id="form-area" class="pagelet col-xs-12">
-                <div class="row">
-                    {% if object.is_claimable and object.reviewer != user %}
-                        {% include "proposals/review-roles.html" %}
-                    {% else %}
-                        {% include "dynforms/form.html" %}
-                    {% endif %}
-                </div>
+        <div id="review-form" class="page">
+            <div class="">
+                {% if object.is_claimable and object.reviewer != user %}
+                    {% include "proposals/review-roles.html" %}
+                {% elif object.state == object.STATES.closed %}
+                {% include "proposals/review-summary.html" %}
+                {% else %}
+                    {% include "dynforms/form.html" %}
+                {% endif %}
             </div>
         </div>
     </div>
+    {% endwith %}
 {% endblock %}
 
 {% block extra_js %}
@@ -78,18 +52,16 @@
             $(this).closest('.review-col').removeClass('show-comments');
         });
         $('.expand-command').click(function () {
-            var next = $(this).data('expand-name');
+            const next = $(this).data('expand-name');
+            const $extras = $("#review-extras");
             $('#extra-review-content').load($(this).attr('data-extra-url'), function () {
-                if (next == $(this).data('contains')) {
-                    $(this).closest('.review-col').toggleClass('show-comments');
+                if (next === $(this).data('contains')) {
+                    $extras.toggleClass('show-comments');
                 } else {
-                    $(this).closest('.review-col').addClass('show-comments');
+                    $extras.addClass('show-comments');
                 }
                 $(this).data('contains', next);
             });
-        });
-        $('.enlarge-text').click(function () {
-            $("#review-form").toggleClass('larger-text');
         });
 
         $(".df-form-body").niceScroll({

@@ -1,138 +1,140 @@
-{% extends "folio.html" %}
+{% extends "page.html" %}
 {% load static %}
 {% load folio %}
 {% load humanize %}
 {% load proposal_tags %}
 {% load project_tags %}
 
-{% block page_heading %}
-<span class="hidden-xs">Session Permit &mdash; </span><span class="text-muted text-narrow">{{object}}</span>
+{% block page-pretitle %}
+    Session Permit
 {% endblock %}
 
-{% block folio-title %}
-{{object.project.code}} &mdash; {{object.project.title}}
+{% block page-title %}
+    {{ object.project.code }} &mdash; {{ object.project.title }}
 {% endblock %}
 
-{% block folio-subtitle %}
- {{object.beamline.acronym}} {{ session.get_kind_display }} Permit
+{% block page-subtitle %}
+    {{ object.beamline.acronym }} {{ session.get_kind_display }} Permit
 {% endblock %}
 
-{% block folio-statusbar-style %}{% folio_status object.state success='live' info='ready' danger='terminated' draft='complete' default='bg-darken' %}{% endblock %}
+{% block page-status-style %}callout
+    {% folio_status object.state success='live' info='ready' danger='terminated' draft='complete' default='bg-darken' %}{% endblock %}
 
-{% block folio-tools %}
+{% block page-tools %}
     {% if owner or admin %}
-        <a href="#session-log" data-toggle="collapse" aria-expanded="false"
+        <a href="#session-log" data-bs-toggle="collapse" aria-expanded="false"
            aria-controls="session-log" class="pull-left">
-            <i class="icon-2 bi-clock-history icon-fw"></i><br/>
+            <i class="icon-md bi-clock-history icon-fw"></i><br/>
             <span class="tool-label">View Log</span>
         </a>
         {% if object.state == object.STATES.ready %}
-             {% if admin  %}
-                <a href="#0" data-url="{% url 'delete-session' pk=object.pk %}" class="text-danger pull-right">
-                    <i class="ti icon-2 bi-trash icon-fw"></i><br/>
+            {% if admin %}
+                <a href="#0" data-modal-url="{% url 'delete-session' pk=object.pk %}" class="text-danger pull-right">
+                    <i class="ti icon-md bi-trash icon-fw"></i><br/>
                     <span class="tool-label">Delete</span>
                 </a>
             {% endif %}
-            <a href="#0" data-url="{% url 'session-signon' pk=object.pk %}" class="pull-left">
-                <i class="icon-2 bi-power icon-fw"></i><br/>
+            <a href="#0" data-modal-url="{% url 'session-signon' pk=object.pk %}" class="pull-left">
+                <i class="icon-md bi-play-circle icon-fw"></i><br/>
                 <span class="tool-label">Sign-On</span>
             </a>
         {% elif object.state == object.STATES.live %}
             {% if object.is_live %}
-            <a href="#0" data-url="{% url 'session-signoff' pk=object.pk %}" class="pull-left">
-                <i class="icon-2 bi-power icon-fw"></i><br/>
-                <span class="tool-label">Sign-Off</span>
-            </a>
-            {% if can_terminate %}
-                <a href="#0" data-url="{% url 'terminate-session' pk=object.pk %}" class="text-danger pull-right">
-                    <i class="icon-2 bi-stop-circle icon-fw"></i><br/>
-                    <span class="tool-label">Terminate</span>
+                <a href="#0" data-modal-url="{% url 'session-signoff' pk=object.pk %}" class="pull-left">
+                    <i class="icon-md bi-stop-circle icon-fw"></i><br/>
+                    <span class="tool-label">Sign-Off</span>
                 </a>
+                {% if can_terminate %}
+                    <a href="#0" data-modal-url="{% url 'terminate-session' pk=object.pk %}"
+                       class="text-danger pull-right">
+                        <i class="icon-md bi-sign-stop icon-fw"></i><br/>
+                        <span class="tool-label">Terminate</span>
+                    </a>
+                {% endif %}
             {% endif %}
-            {% endif %}
-            <a href="#0" data-url="{% url 'session-signon' pk=object.pk %}" class="pull-left">
-                <i class="icon-2 bi-pencil-square icon-fw"></i><br/>
+            <a href="#0" data-modal-url="{% url 'session-signon' pk=object.pk %}" class="pull-left">
+                <i class="icon-md bi-pencil-square icon-fw"></i><br/>
                 <span class="tool-label">Update</span>
             </a>
             {% if admin %}
-                <a href="#0" data-url="{% url 'session-extend' pk=object.pk %}" class="pull-left">
-                    <i class="icon-2 bi-indent icon-fw"></i><br/>
+                <a href="#0" data-modal-url="{% url 'session-extend' pk=object.pk %}" class="pull-left">
+                    <i class="icon-md bi-arrow-bar-right icon-fw"></i><br/>
                     <span class="tool-label">Extend</span><br/>
                 </a>
             {% endif %}
         {% endif %}
     {% endif %}
     <a href='{% url 'project-detail' object.project.pk %}' class="pull-right">
-        <i class="bi-briefcase icon-2 icon-fw"></i><br/>
+        <i class="bi-briefcase icon-md icon-fw"></i><br/>
         <span class="tool-label">Project</span>
     </a>
 {% endblock %}
 
-{% block folio-statusbar %}
-     <h3 class="no-vmargin"><span class="label label-info text-condensed">{{object.get_state_display}}</span></h3>
-     <div>
-         <small class="text-wide text-muted">Beamline:</small><br/>{{object.beamline.acronym}}
-     </div>
-     <div>
-         <small class="text-wide text-muted">Staff:</small><br/>{{object.staff}}
-     </div>
-     <div>
-         <small class="text-wide text-muted">Representative:</small><br/>{{object.spokesperson|default:"&hellip;"}}
-     </div>
-     <div>
-         {{object.start|date:"F jS/Y H:i"}} &ndash; <br/>
-         {{object.end|date:"F jS/Y H:i"}} ({{ object.start|get_time:object.end|naturaltime }})
-     </div>
+{% block page-status-bar %}
+    <span class="status-badge badge bg-info text-condensed">{{ object.get_state_display }}</span>
+    <div>
+        <small class="text-wide text-body-secondary">Beamline:</small><br/>{{ object.beamline.acronym }}
+    </div>
+    <div>
+        <small class="text-wide text-body-secondary">Staff:</small><br/>{{ object.staff }}
+    </div>
+    <div>
+        <small class="text-wide text-body-secondary">Representative:</small><br/>{{ object.spokesperson|default:"&hellip;" }}
+    </div>
+    <div>
+        {{ object.start|date:"F jS/Y H:i" }} &ndash; <br/>
+        {{ object.end|date:"F jS/Y H:i" }} ({{ object.start|get_time:object.end|naturaltime }})
+    </div>
 {% endblock %}
 
-{% block folio-content %}
-    <div class="col-xs-12 collapse" id="session-log">
-        <div class="row">
-        <div class="minitron bg-warning col-xs-12">
-             <h4 class="no-vmargin">Activity Log</h4>
-             <hr class="hr-xs"/>
-             <ul>
-                {% for log in session.details.history %}
-                <li>{{log|safe}}</li>
-                {% endfor %}
-             </ul>
-        </div>
-        </div>
+{% block page-content %}
+    <div class="callout callout-warning col-12 collapse" id="session-log">
+        <h4 class="my-0">Activity Log</h4>
+        <hr class="hr-xs"/>
+        <ul>
+            {% for log in session.details.history %}
+                <li>{{ log|safe }}</li>
+            {% endfor %}
+        </ul>
     </div>
-    {% include "projects/permit-permissions.html" %}
-    <div class="pagelet-body">
-        <div class="row narrow-gutter">
+    <div class="col-12 mt-2">
+        {% include "projects/permit-permissions.html" %}
+    </div>
+    <div class="col-12 my-4">
         {% include "projects/session-team.html" with project=object.project permissions=object.permissions %}
+    </div>
+    <div class="card my-2 col-12">
+        <div class="card-header">
+            <h4 class="card-title my-1">Samples On Site</h4>
         </div>
-        <div class="row narrow-gutter">
-            <div class="col-sm-12">
-                    <h3>Samples On Site</h3>
-                    <hr class="hr-xs">
-                    {% include "samples/sample_table.html" %}
-
-            </div>
-        </div>
-        <div class="row">
-        {% for sample in samples %}
-            {% if sample.0.hazards.count %}
-                <div class="col-sm-12 no-break">
-                    {% include "samples/label.html" with sample=sample.0 %}
-                </div>
-            {% endif %}
-        {% endfor %}
+        <div class="card-body">
+            {% include "samples/sample_table.html" %}
         </div>
     </div>
+
+    <div class="col-12">
+        <div class="row">
+            {% for sample in samples %}
+                {% if sample.0.hazards.count %}
+                    {% include "samples/label.html" with sample=sample.0 %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    </div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    function initScrollers(sel) {
-        $(sel).niceScroll({
-            cursoropacitymax: 0
+    <script>
+        function initScrollers(sel) {
+            $(sel).niceScroll({
+                cursoropacitymax: 0
+            });
+        }
+
+        $(document).ready(function () {
+            initScrollers(".scroll-child");
         });
-    }
-    $(document).ready(function(){
-        initScrollers(".scroll-child");
-    });
-</script>
+    </script>
 {% endblock %}
