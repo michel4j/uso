@@ -153,11 +153,16 @@ class BackgroundTask(TimeStampedModel):
         last_log = self.last_log()
         now = timezone.localtime(timezone.now())
         retry_time = parse_iso(self.retry_after)
+
+        last_failed = (
+            last_log and last_log.state == TaskLog.StateType.failed
+            if last_log else False
+        )
         if not next_time:
             return False
-        elif (now - next_time).total_seconds() >= JOB_TIME_RESOLUTION:
+        elif next_time < now and not last_failed:
             return True
-        elif retry_time and last_log:
+        elif last_failed and retry_time:
             return (now - last_log.created) >= retry_time
         elif not last_log:
             return True
