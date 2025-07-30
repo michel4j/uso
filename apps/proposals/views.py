@@ -717,7 +717,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
             self.object.state = models.Review.STATES.submitted
             data['state'] = models.Review.STATES.submitted
 
-        self.queryset.filter(pk=self.object.pk).update(**data)
+        queryset = self.get_queryset()
+        queryset.filter(pk=self.object.pk).update(**data)
         messages.success(self.request, activity_description)
         ActivityLog.objects.log(self.request, self.object, kind=activity_type, description=activity_description)
 
