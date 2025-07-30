@@ -55,7 +55,7 @@ def _fmt_citations(citation, obj=None):
 
 
 class PublicationList(RolePermsViewMixin, ItemListView):
-    queryset = models.Publication.objects.filter(reviewed=True).select_subclasses()
+    model = models.Publication
     template_name= "tooled-item-list.html"
     tool_template = "publications/publication-tools.html"
     paginate_by = 25
@@ -68,7 +68,7 @@ class PublicationList(RolePermsViewMixin, ItemListView):
     admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
 
     def get_queryset(self, *args, **kwargs):
-        qset = self.queryset
+        queryset = self.model.objects.filter(reviewed=True)
         acronym = self.kwargs.get('beamline')
         year = self.kwargs.get('year')
         end_year = self.kwargs.get('end_year')
@@ -80,7 +80,7 @@ class PublicationList(RolePermsViewMixin, ItemListView):
             filters &= Q(date__year__gte=year, date__year__lte=end_year)
         elif year:
             filters &= Q(date__year=year)
-        self.queryset = qset.filter(filters).select_subclasses()
+        self.queryset = queryset.filter(filters).select_subclasses()
         return super().get_queryset(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
