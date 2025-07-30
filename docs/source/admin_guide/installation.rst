@@ -79,14 +79,14 @@ To create an initial instance of the USO system, follow these steps:
    If you want to generate some fake test data for your USO instance, you can run the following commands before
    starting the instance. NOTE: Fake data generated after the instance has started will not be loaded automatically.
    This python script needs external dependencies which are listed in the ./deploy/requirements.txt file. Therefore,
-   you need to install the dependencies first, or run the command from your fully setup development environment.
+   you need to install the dependencies first, or run the command from your fully setup development environment::
 
         ./deploy/generate-data.py /path/to/clsi-uso-instance/usonline/local
 
     This will create a set of fake proposals, experiments, and users in the `local/kickstart` directory, and also
     generate fake user profile images in the `local/media` directory.
 
-4. **Start the USO Instance:**
+5. **Start the USO Instance:**
    Navigate to the directory where you created the instance and run the following command to start the USO instance::
 
     cd /path/to/clsi-uso-instance/usonline
@@ -102,7 +102,7 @@ To create an initial instance of the USO system, follow these steps:
 
     podman-compose logs -f
 
-4. **Access the USO Instance:**
+6. **Access the USO Instance:**
    Once the containers are running, you can access the USO instance in your web browser at: http://localhost:8080
    If you are running the instance on a remote server, replace `localhost` with the server's IP address or hostname.
    Check the contents of the `/path/to/clsi-uso-instance/usonline/.env` for login credentials
