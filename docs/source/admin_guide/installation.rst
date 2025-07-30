@@ -11,10 +11,11 @@ the only requirement is a compatible Docker or Podman installation on your serve
 any privileged features of the host operating system and can therefore be run as a non-root user.
 
 The following software is required to run the USO system:
-* **Docker** or **Podman**: Containerization platform for running the USO instance.
-* **Docker Compose**: Tool for defining and running multi-container Docker applications.
-* **Buildah**: [Optional] Tool for building OCI and Docker container images.
-* **Git**: Version control system to clone the USO repository.
+
+- **Docker** or **Podman**: Containerization platform for running the USO instance.
+- **Docker Compose**: Tool for defining and running multi-container Docker applications.
+- **Buildah**: [Optional] Tool for building OCI and Docker container images.
+- **Git**: Version control system to clone the USO repository.
 
 
 Initial Setup
@@ -74,6 +75,17 @@ To create an initial instance of the USO system, follow these steps:
      for running the USO instance in a Docker container. You can edit this file to customize the container settings,
      such as environment variables, ports, and volumes.
 
+4. [OPTIONAL] **Generate fake test data:**
+   If you want to generate some fake test data for your USO instance, you can run the following commands before
+   starting the instance. NOTE: Fake data generated after the instance has started will not be loaded automatically.
+   This python script needs external dependencies which are listed in the ./deploy/requirements.txt file. Therefore,
+   you need to install the dependencies first, or run the command from your fully setup development environment.
+
+        ./deploy/generate-data.py /path/to/clsi-uso-instance/usonline/local
+
+    This will create a set of fake proposals, experiments, and users in the `local/kickstart` directory, and also
+    generate fake user profile images in the `local/media` directory.
+
 4. **Start the USO Instance:**
    Navigate to the directory where you created the instance and run the following command to start the USO instance::
 
@@ -93,4 +105,5 @@ To create an initial instance of the USO system, follow these steps:
 4. **Access the USO Instance:**
    Once the containers are running, you can access the USO instance in your web browser at: http://localhost:8080
    If you are running the instance on a remote server, replace `localhost` with the server's IP address or hostname.
-   Check the contents of the `.env` file for login credentials for the admin account.
+   Check the contents of the `/path/to/clsi-uso-instance/usonline/.env` for login credentials
+   for the admin account.

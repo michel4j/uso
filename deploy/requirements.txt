@@ -1,0 +1,5 @@
+# requirements for generate-data.py
+faker
+unidecode
+PyYAML
+numpy
