@@ -55,7 +55,7 @@ jQuery is used for DOM manipulation and AJAX requests. All JavaScript files are 
 We use the `uglifyjs` command-line tool to minify JavaScript files.
 
 For styling, we use SCSS (Sassy CSS), which is a preprocessor that extends CSS with features like variables, nested
-rules, and mixins and is complied too minified CSS files before including them in the HTML pages. We use the `sassc`
+rules, and mixins and is complied to minified CSS files before including them in the HTML pages. We use the `sassc`
 command-line tool to compile SCSS files into CSS files.
 
 

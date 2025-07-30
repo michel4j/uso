@@ -18,20 +18,19 @@ Follow these steps to set up your development environment:
       git clone https://github.com/<my-forked-project>/uso
 
 
-2. **Setup a Virtual environment**
-   Setup a Python virtual environment to isolate your development environment from the system Python packages. Based
+2. Setup a Python virtual environment to isolate your development environment from the system Python packages. Based
    on your Python IDE, this can be done in different ways. For example, using the `venv` module, you can create a
    virtual environment by running:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        python3 -m venv .venv
+       python3 -m venv .venv
 
-    Activate the virtual environment:
+   Activate the virtual environment:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        source .venv/bin/activate
+       source .venv/bin/activate
 
 3. **Install Dependencies:**
    Install the dependencies within your active virtual environment:
@@ -40,27 +39,26 @@ Follow these steps to set up your development environment:
 
       pip install -r requirements.txt
 
-4. **Prepare the Cache and Database containers**
-    The USO system uses a PostgreSQL database and a Memcached cache. You can use the provided `docker-compose.yml` file to
-    set up these containers. Create a `local` directory inside the top-level of the uso repository.  This directory
-    is ignored in `.gitignore` so it won't be included in the repository. You can create the required directories
-    and configuration files by running the following command:
+4. Prepare the Cache and Database containers. The USO system uses a PostgreSQL database and a Memcached cache.
+   You can use the provided `docker-compose.yml` file to
+   set up these containers. Create a `local` directory inside the top-level of the uso repository.  This directory
+   is ignored in `.gitignore` so it won't be included in the repository. You can create the required directories
+   and configuration files by running the following command:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        ./deploy/prepare-dev.sh
+       ./deploy/prepare-dev.sh
 
 
-    Edit and configuration files to update the database connection settings and other parameters as needed. Note
-    that the this command will bind the database and cache containers to the host ports 5432 and 11211 respectively, so
-    make sure these ports are not in use by other applications on your system. Then start the containers using:
+   Edit and configuration files to update the database connection settings and other parameters as needed. Note
+   that the this command will bind the database and cache containers to the host ports 5432 and 11211 respectively, so
+   make sure these ports are not in use by other applications on your system. Then start the containers using:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        podman-compose up -d
+       podman-compose up -d
 
-5. **Update `local/settings.py`:**
-   The `local/settings.py` file contains the configuration for your local development environment. You will need to
+5. The `local/settings.py` file contains the configuration for your local development environment. You will need to
    update the database connection settings, and cache settings, as follows.
 
    Change the HOST entry under the `DATABASES` section to point to the PostgreSQL container and port:
@@ -76,7 +74,7 @@ Follow these steps to set up your development environment:
             }
         }
 
-    For the cache settings, you can use the following configuration to connect to the Memcached container:
+   For the cache settings, you can use the following configuration to connect to the Memcached container:
 
    .. code-block:: python
 
@@ -88,31 +86,30 @@ Follow these steps to set up your development environment:
         }
 
 
-6. **Run Database Migrations:**
-   After setting up the database connection, you need to apply the initial database migrations. Run the following
-   command from the top-level directory of the USO repository from within your virtual environment:
+6. Run Database Migrations: After setting up the database connection, you need to apply the initial database migrations.
+   Run the following command from the top-level directory of the USO repository from within your virtual environment:
 
    .. code-block:: bash
 
       ./manage.py migrate
 
-7. **Create a Superuser Account:**
-    To access the admin interface and manage the USO system, you need to create a super
-    user account. Run the following command and follow the prompts to create a superuser:
-
-    .. code-block:: bash
-
-        ./manage.py createsuperuser
-
-8. ** Load data fixtures data:**
-   This step is required to load initial data required by the system.  Use the `loaddata` command as follows:
+7. Create a Superuser Account: To access the admin interface and manage the USO system, you need to create a super
+   user account. Run the following command and follow the prompts to create a superuser:
 
    .. code-block:: bash
 
-      ./manage.py loaddata initial_data
+       ./manage.py createsuperuser
 
-9. **Load additional data**
-   Use can use the following command to generate fake data for testing purposes.
+8. Load data fixtures: This step is required to load initial data required by the system.  Use the `loaddata` command
+   as follows:
+
+   .. code-block:: bash
+
+      ./manage.py loaddata initial-data
+
+9. Load additional data [optional]: If you want to generate and load fake data for testing purposes, you can use the
+   `generate-data.py` script provided in the `deploy` directory. This script allows you to generate random data for users,
+   proposals, and other entities in the USO system.
 
    .. code-block:: bash
 
@@ -128,8 +125,7 @@ Follow these steps to set up your development environment:
         ./manage.py loaddata ./local/kickstart/002-samples.yml
         ./manage.py loaddata ./local/kickstart/003-proposals.yml
 
-10. **Run the Development Server:**
-   Finally, you can start the development server to test your setup. Run the following command:
+10. Finally, you can start the development server to test your setup. Run the following command:
 
    .. code-block:: bash
 
