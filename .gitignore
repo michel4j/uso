@@ -22,4 +22,5 @@ temp
 tmp
 build_local.sh
 local/
+local.*/
 docs/build
