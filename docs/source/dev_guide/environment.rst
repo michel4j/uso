@@ -2,8 +2,8 @@ Setting up a Development Environment
 ====================================
 
 To get started developing or contributing to the USO system, you will need to set up a local development environment.
-The only external software required is Git, Python and Docker or Podman. We recommend Python 3.13 although all versions from
-Python 3.10 to 3.13 are currently supported.
+The only external software required is Git, Python and Docker or Podman.
+We recommend Python 3.13 although all versions from Python 3.10 to 3.13 are currently supported.
 
 If you plan to make contributions to the USO system, we recommend that you "fork" the repository on GitHub and
 clone your forked repository to your local machine. This allows you to work on your own copy of the codebase and submit

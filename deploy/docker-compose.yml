@@ -15,7 +15,7 @@ services:
     image: postgres:17-alpine
     restart: always
     volumes:
-      - ./database:/var/lib/postgresql/data:z
+      - ./database:/var/lib/postgresql/data:Z
     environment:
       POSTGRES_PASSWORD: $DATABASE_PASSWORD
       POSTGRES_USER: usonline

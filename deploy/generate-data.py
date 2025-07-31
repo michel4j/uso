@@ -415,8 +415,8 @@ class FakeUser:
     def add_users(self, count):
         for n in range(count):
             self.add_user()
-            if n % 500 == 0:
-                print(f'Added {n} users ...')
+            if (n + 1) % 250 == 0:
+                print(f'Added {n + 1} users ...')
 
     def save(self):
         with open(self.data_path, 'w', encoding='utf-8') as file:

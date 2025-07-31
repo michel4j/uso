@@ -112,7 +112,7 @@
                             </td>
                             <td>
                                 <ul class="my-0">
-                                    {% for item in requested.techniques %}
+                                    {% for item in requested.techniques.distinct %}
                                         <li>{{ item.technique }}</li>
                                     {% endfor %}
                                 </ul>

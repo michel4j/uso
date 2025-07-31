@@ -144,7 +144,7 @@ class BackgroundTask(TimeStampedModel):
         last_log = self.last_log()
         prev_time = None if not last_log else last_log.created
 
-        return utils.next_run_time(self.run_every, self.run_at,last_time=prev_time)
+        return utils.next_run_time(self.run_every, self.run_at, last_time=prev_time)
 
     def is_due(self) -> bool:
         """
@@ -161,7 +161,7 @@ class BackgroundTask(TimeStampedModel):
         )
         if not next_time:
             return False
-        elif next_time < now and not last_failed:
+        elif next_time < (now - timedelta(seconds=JOB_TIME_RESOLUTION/2)) and not last_failed:
             return True
         elif last_failed and retry_time:
             return (now - last_log.created) >= retry_time

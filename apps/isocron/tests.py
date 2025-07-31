@@ -7,10 +7,8 @@ from isocron.models import BackgroundTask, TaskLog
 from isocron import autodiscover, BaseCronJob, parse_iso
 from isocron.utils import next_run_time
 
+
 class TestSuccess(BaseCronJob):
-    """
-    Fetch the latest biosync data from the PDB and update the local database.
-    """
     run_every = "P7D"
     run_at = "12:00"
     keep_logs = 2
@@ -20,9 +18,6 @@ class TestSuccess(BaseCronJob):
 
 
 class TestFailure(BaseCronJob):
-    """
-    Fetch the latest biosync data from the PDB and update the local database.
-    """
     run_every = "P2D"
     retry_after = "PT1H"
     keep_logs = 1
@@ -84,6 +79,10 @@ class BackgroundTaskModelTests(TestCase):
         for i in range(3):
             task.save_log(f"Log {i}", TaskLog.StateType.success)
         self.assertEqual(task.logs.count(), 2)
+
+    def test_never_ran_is_due(self):
+        task = BackgroundTask.objects.get(name="isocron.TestSuccess")
+        self.assertTrue(task.is_due(), "Task should be due if it has never run")
 
 
 class TestNextRunTime(unittest.TestCase):
