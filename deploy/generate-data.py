@@ -716,9 +716,6 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--proposals', type=int, help='Number of proposals', required=True)
     args = parser.parse_args()
 
-    if os.path.exists(args.name):
-        shutil.rmtree(args.name)
-
     fac_gen = FakeFacility(name=args.name)
     fac_gen.add_facilities()
     fac_gen.save()
