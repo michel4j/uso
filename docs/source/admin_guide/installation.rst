@@ -81,9 +81,9 @@ To create an initial instance of the USO system, follow these steps:
    This python script needs external dependencies which are listed in the ./deploy/requirements.txt file. Therefore,
    you need to install the dependencies first, or run the command from your fully setup development environment::
 
-        ./deploy/generate-data.py /path/to/clsi-uso-instance/usonline/local
+        ./deploy/generate-data.py -u 1000 -p 500 /path/to/clsi-uso-instance/usonline/local
 
-    This will create a set of fake proposals, experiments, and users in the `local/kickstart` directory, and also
+    This will create 500 fake proposals, and 1000 fake users in the `local/kickstart` directory, and also
     generate fake user profile images in the `local/media` directory.
 
 5. **Start the USO Instance:**
