@@ -30,7 +30,7 @@ class TaskList(RolePermsViewMixin, ItemListView):
     model = models.BackgroundTask
     template_name = "item-list.html"
     paginate_by = 20
-    list_columns = ['task', 'app', 'run_every', 'run_at', 'retry_after', 'last_ran', 'last_state', 'next_run', 'is_due']
+    list_columns = ['name', 'app', 'run_every', 'run_at', 'retry_after', 'last_ran', 'last_state', 'next_run', 'is_due']
     list_filters = ['created', 'modified']
     link_url = "task-detail"
     link_attr = 'data-modal-url'
@@ -39,6 +39,7 @@ class TaskList(RolePermsViewMixin, ItemListView):
     required_roles = USO_ADMIN_ROLES
     list_transforms = {
         'last_state': _format_state,
+        'name': lambda value, obj: value.split('.')[-1],
     }
 
 

@@ -24,16 +24,18 @@ class CleanRegistrations(BaseCronJob):
             return "{} old registrations removed".format(num)
 
 
-class SyncStaff(BaseCronJob):
+class SyncUsers(BaseCronJob):
     """
-    Sync staff members from the USO profile manager.
+    Sync new users from the USO profile manager.
     """
-    run_every = "P1D"
+    run_every = "PT1H"  # Run every hour
 
     def do(self):
         staff_list = USO_PROFILE_MANAGER.fetch_new_users()
+        if not staff_list:
+            return "No new users to save"
         updated = utils.create_users(staff_list)
-        return f"{updated} new staff members saved"
+        return f"{updated} new users saved"
 
 
 class NotifyNewInstitutions(BaseCronJob):

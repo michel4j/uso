@@ -41,5 +41,36 @@ To run a background task manually, click the :guilabel:`Run Now` button on the t
 
 The following background tasks are available in the USO system:
 
-- **Cycle Lifecycle**: This task manages the lifecycle of cycles, including opening calls, starting and ending cycles
-  based on the defined rules.
+- **AdvanceReviewWorkflow**: This task advances the review workflow for proposals and submissions
+  based on the defined rules. It runs every 15 minutes.
+- **CreateCycles**: This task creates new cycles based on the defined Cycle Types. It runs once a day and ensures
+  new cycles exist for each active Cycle Type for the next 2 years.
+- **CycleStateManager**: This task manages the state transitions of cycles. It runs every hour.
+- **RemindReviewers**: This task sends reminders to reviewers about pending reviews that are due soon. It runs
+  at 02:00 AM every day.
+- **StartReviews**: This task starts the review process for proposals and submissions that are ready for review. While
+  the **AdvanceReviewWorkflow** task creates new reviews, they stay in the pending state until this task runs. It opens
+  pending reviews and notifies reviewers about their assigned reviews. It runs every 6 hours. To minimize the number
+  of emails sent to reviewers. Notifications of multiple reviews to a single reviewer are combined into a single
+  email message.
+- **AutoSignOff**: This task automatically signs off project sessions automatically if users have not signed-off after
+  their session ends. It runs every 4 hours.
+- **CreateCallProjects**: This task creates projects for submissions to Review Tracks that require a call. This
+  task only runs at 00:15 AM on the allocation date of the cycle.
+- **CreateNonCallProjects**: This task creates projects for submissions to Review Tracks that do not require a call.
+  It runs every 15 minutes.
+- **NotifyProjects**: This task sends notifications to users about the result of their submissions and projects,
+  after reviews are completed and allocations have been performed. It runs at 00:30 AM on the day after
+  the allocation date.
+- **FetchBioSync**: This task fetches PDB deposits data from the BioSync Database. Since various PDB APIs have
+  changed recently, this task will soon be replaced. It runs once a week.
+- **UpdateMetrics**: This task fetches fetches Journal Metrics from SciMajor and updates the metrics for
+  publications in the USO system. It runs once a quarter (every 3 months).
+- **FetchCitations**: Fetches citation data from the CrossRef database and updates the
+  publication records in the USO system. It runs once a month.
+- **UpdatePublications**: Update the meta-data for all articles published in the current month. Runs once a week.
+- **CleanRegistrations**: This task cleans up old user registrations that have not been activated. It runs once a day.
+- **NotifyNewInstitutions**: This task sends notifications to administrators about new institutions that have been
+  created and pending approval. It runs once a day.
+- **SyncUsers**: This task synchronizes user data with the external user management system (if configured).
+  It runs once an hour.
