@@ -37,3 +37,9 @@ To run a background task manually, click the :guilabel:`Run Now` button on the t
     be useful for testing or debugging purposes, but should be used with caution in production environments. Also,
     for tasks that run based on an interval, running them manually will change the next scheduled run time, since
     run times are calculated based on the last run time.
+
+
+The following background tasks are available in the USO system:
+
+- **Cycle Lifecycle**: This task manages the lifecycle of cycles, including opening calls, starting and ending cycles
+  based on the defined rules.

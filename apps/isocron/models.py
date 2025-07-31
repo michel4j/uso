@@ -143,30 +143,33 @@ class BackgroundTask(TimeStampedModel):
 
         last_log = self.last_log()
         prev_time = None if not last_log else last_log.created
+        next_time = utils.next_run_time(self.run_every, self.run_at, last_time=prev_time)
+        if not next_time:
+            return None
 
-        return utils.next_run_time(self.run_every, self.run_at, last_time=prev_time)
+        last_failed = (
+            last_log and last_log.state == TaskLog.StateType.failed
+            if last_log else False
+        )
+        retry_time = parse_iso(self.retry_after)
+        if last_failed and retry_time:
+            # If the last run failed, adjust the next run time based on retry_after
+            next_time = min(next_time, last_log.created + retry_time)
+
+        return next_time
 
     def is_due(self) -> bool:
         """
         Check if the task is due to run based on run_every, run_at and last_log.
         """
         next_time = self.next_run()
-        last_log = self.last_log()
-        now = timezone.localtime(timezone.now())
-        retry_time = parse_iso(self.retry_after)
+        now = timezone.localtime(timezone.now()) + timedelta(seconds=JOB_TIME_RESOLUTION/2)
 
-        last_failed = (
-            last_log and last_log.state == TaskLog.StateType.failed
-            if last_log else False
-        )
         if not next_time:
             return False
-        elif next_time < (now - timedelta(seconds=JOB_TIME_RESOLUTION/2)) and not last_failed:
+        elif next_time < now:
             return True
-        elif last_failed and retry_time:
-            return (now - last_log.created) >= retry_time
-        elif not last_log:
-            return True
+
         return False
 
     task.sort_field = 'name'

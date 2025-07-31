@@ -125,6 +125,7 @@ def autodiscover():
         tasks = BaseCronJob.get_all()
         existing = set(BackgroundTask.objects.values_list('name', flat=True))
         new_tasks = set(tasks.keys()) - existing
+
         to_create = [
             BackgroundTask(
                 name=name, run_every=tasks[name].run_every, run_at=tasks[name].run_at,
@@ -133,12 +134,26 @@ def autodiscover():
             )
             for name in new_tasks
         ]
+
         if to_create:
             BackgroundTask.objects.bulk_create(to_create)
 
         to_remove = existing - set(tasks.keys())
         if to_remove:
             BackgroundTask.objects.filter(name__in=list(to_remove)).delete()
+
+        to_update = BackgroundTask.objects.all()
+        for task in to_update:
+            task.run_at = tasks[task.name].run_at
+            task.run_every = tasks[task.name].run_every
+            task.retry_after = tasks[task.name].retry_after
+            task.keep_logs = tasks[task.name].keep_logs
+            task.description = (tasks[task.name].__doc__ or "").replace('\n', ' ').strip()
+
+        # Update the existing tasks with the new parameters
+        BackgroundTask.objects.bulk_update(
+            to_update, ['run_every', 'run_at', 'retry_after', 'keep_logs', 'description']
+        )
 
     except Exception:
         # If there is an error, we do not want to crash the server, just log it
