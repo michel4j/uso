@@ -16,7 +16,7 @@ class CreateCycles(BaseCronJob):
     Create next cycles if they do not exist.
     Ensure there are always cycles two years in advance for scheduling.
     """
-    run_every = "P2D"
+    run_every = "P1D"
     pending_types: QuerySet = None
 
     def is_ready(self):
@@ -49,7 +49,7 @@ class CycleStateManager(BaseCronJob):
     """
     Manage the state of review cycles based on their dates.
     """
-    run_every = "PT2H"
+    run_every = "PT1H"
 
     def do(self):
         from . import models
@@ -117,7 +117,7 @@ class StartReviews(BaseCronJob):
     Open pending reviews and notify reviewers, once daily. Only reviews from auto-start stages
     are processed. Non auto-start reviews can be opened through the cycle management interface.
     """
-    run_every = "P1D"
+    run_every = "PT6H"  # every 6 hours
 
     def do(self):
         from . import models
@@ -180,7 +180,7 @@ class AdvanceReviewWorkflow(BaseCronJob):
     """
     Manage Submission State based on completion of reviews, creates reviews for next stages.
     """
-    run_every = "PT30M"
+    run_every = "PT15M"
     submissions: QuerySet
 
     def is_ready(self):
