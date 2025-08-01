@@ -127,7 +127,6 @@
             const $field = $(target);
             const selected = new Set(related);
             $field.find('option').removeAttr('disabled');
-            console.log(target, related)
             if (selected.size) {
                 $field.find('option').each(function () {
                     let related = new Set($(this).data('related') || []);

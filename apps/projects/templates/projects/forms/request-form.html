@@ -43,10 +43,9 @@
     <script type="text/javascript">
             // Initialize date inputs
             $('.dateinput, .date-input').each(function(){
-                console.log($(this).is('[data-multi-date]'));
                 $(this).datePicker({
-                    dateFormat: "YYYY-MM-DD",
-                    multiple: $(this).is('[data-multi-date]') || false,
+                    format: "yyyy-mm-dd",
+                    multidate: $(this).is('[data-multi-date]') || false,
                 });
             });
     </script>
