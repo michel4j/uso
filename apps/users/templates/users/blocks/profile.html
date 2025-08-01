@@ -7,9 +7,12 @@
 </a>
 {% endblock %}
 {% block panel_content %}
-<h3 class="m-0">{{user}}</h3>
 <table class="profile table table-sm">
     <tbody>
+    <tr>
+        <td class="item"><i class="bi-person icon-fw"></i></td>
+        <td><strong>{{ user }}</strong></td>
+    </tr>
     <tr>
         <td class="item"><i class="bi-briefcase icon-fw"></i></td>
         <td>{{user.get_classification_display|default:""}}</td>

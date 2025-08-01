@@ -157,7 +157,6 @@
                     });
                     // Initialize date inputs
                     $('.dateinput, .date-input').each(function () {
-                        console.log($(this).is('[data-multi-date]'));
                         $(this).datePicker({
                             dateFormat: "YYYY-MM-DD",
                             multiple: $(this).is('[data-multi-date]') || false,
@@ -182,31 +181,6 @@
             const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
             popoverTriggerList.forEach(function (popoverTriggerEl) {
                 new bootstrap.Popover(popoverTriggerEl);
-            });
-
-            // Handle data-url and data-href
-            document.querySelectorAll('[data-href]').forEach(function (el) {
-                el.addEventListener('click', function (e) {
-                    const sel = window.getSelection().toString();
-                    if (!sel) {
-                        window.location.href = el.getAttribute('data-href');
-                    }
-                    e.preventDefault();
-                });
-            });
-
-            document.querySelectorAll('[data-url]').forEach(function (el) {
-                el.addEventListener('click', function (e) {
-                    const sel = window.getSelection().toString();
-                    if (!sel) {
-                        fetch(el.getAttribute('data-url'))
-                            .then(response => response.text())
-                            .then(html => {
-                                document.querySelector('#modal-form').innerHTML = html;
-                            });
-                    }
-                    e.preventDefault();
-                });
             });
 
             // Remove modal content after it is hidden

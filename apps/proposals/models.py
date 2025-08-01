@@ -61,7 +61,7 @@ class Proposal(CodeModelMixin, BaseFormModel):
     def __str__(self):
         title = self.title if self.title else 'No title'
         short_title = title if len(title) <= 52 else title[:52] + '..'
-        return f"{self.pk} - {short_title}"
+        return f"{self.code} - {short_title}"
 
     def get_absolute_url(self):
         reverse('proposal-detail', kwargs={'slug': self.code})

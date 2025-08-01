@@ -49,7 +49,7 @@
         {% endfor %}
 
         {% for event in lab_sessions %}
-            <tr data-href="{{ event.get_absolute_url }}">
+            <tr>
                 <td>{{ event.lab }}</td>
                 <td>{{ event.start | date:"D d M Y, H:i" }}</td>
                 <td>{{ event.end | date:"D d M Y, H:i" }}</td>

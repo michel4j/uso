@@ -9,32 +9,37 @@
     <div class="row">
         <div class="scroll-box col-12" style="max-height: 200px;">
             <table class="table table-sm w-100">
-                <thead>
-                <tr>
-                    <th class="text-nowrap">Submission</th>
-                    <th class="text-nowrap">Track</th>
-                    <th class="text-nowrap">Cycle</th>
-                </tr>
-                </thead>
                 <tbody>
                 {% for submission in submissions %}
                     <tr style="min-width: 0;">
-                        {% if submission.state == submission.STATES.pending %}
-                            <td class="text-truncate">
-                                <a href='{% url "proposal-detail" slug=submission.proposal.code %}'
-                                   data-bs-toggle="tooltip" title="View Proposal">
-                                    {% if submission.proposal.clarifications.pending.count %}
-                                        <i class="bi-chat-right-text text-danger"></i>{% else %}<i class="bi-eye"></i>
+                        <td class="text-body-secondary">
+                            <a href='{% url "submission-detail" pk=submission.pk %}'
+                               data-bs-toggle="tooltip" title="View Submission">
+                                {% if submission.state == submission.STATES.pending %}
+                                    <i class="bi-hourglass text-secondary"></i>
+                                {% elif submission.state <= submission.STATES.reviewed %}
+                                    <i class="bi-hourglass-split"></i>
+                                {% elif submission.state == submission.STATES.complete %}
+                                    {% if submission.approved %}
+                                        <i class="bi-patch-check-fill text-success"></i>
+                                    {% else %}
+                                        <i class="bi-patch-exclamation-fill text-danger"></i>
                                     {% endif %}
-                                    &nbsp;{{ submission.code }}
-                                </a>
-                            </td>
-                        {% else %}
-                            <td class="text-body-secondary"><i class="bi-patch-check text-secondary"></i>
-                                &nbsp; {{ submission.code }}</td>
-                        {% endif %}
-                        <td>{{ submission.track.acronym }}<span class="d-none d-sm-inline"> - {{ submission.track.name }}</span></td>
+                                {% else %}
+                                    {% if submission.proposal.clarifications.pending.count %}
+                                        <i class="bi-patch-question-fill text-warning"></i>
+                                    {% else %}
+                                        <i class="bi-patch-minus"></i>
+                                    {% endif %}
+                                {% endif %}
+                                &nbsp;{{ submission.code }}
+                            </a>
+                        </td>
                         <td>{{ submission.cycle }}</td>
+                        <td>
+                            <span title="{{ submission.proposal.title }}"
+                            >{{ submission.proposal.title| truncatechars:20 }}</span>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>

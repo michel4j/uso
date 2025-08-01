@@ -15,8 +15,7 @@
 {% endblock %}
 
 {% block page-title %}
-    {{ project.code }}
-    <div class="d-none d-md-block fs-5 text-body-secondary border-start text-wrap ps-3">{{ project.title | truncatewords:30 }}</div>
+    {{ project.code }} &ndash; {{ project.title }}
 {% endblock %}
 
 {% block page-tools %}

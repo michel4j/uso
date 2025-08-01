@@ -8,7 +8,7 @@
     </a>
 {% endblock %}
 {% block panel_body %}
-    {% if upcoming_call and reviewer %}
+    {% if upcoming_reviews and reviewer %}
     <div class="card-body bg-info-subtle">
         <p>
             Our next round of reviews will start on <strong>{{ next_call.close_date }}</strong>, and we are counting
@@ -33,34 +33,32 @@
     {% if reviews.pending.count %}
             <div class="row">
                 <div class="col-sm-12">
-                    <h5 class="my-0">
+                    <h6 class="my-0">
                         Review{{ reviews.pending.count|pluralize:",s" }} Needing Attention
-                        <span class="badge bg-info pull-right">{{ reviews.pending.count }} of <span
-                                title="{{ all_reviews.pending.count }} reviews assigned to you, or still unclaimed">{{ all_reviews.pending.count }}</span> </span>
-                    </h5>
+                        <span class="badge bg-primary pull-right">{{ reviews.pending.count }}</span>
+                    </h6>
                 </div>
             </div>
             <hr class="hr-xs bottom-edge"/>
             <div id="review-list" class="row scroll-box" style="max-height: 200px;">
                 <ul class="list-unstyled list-ruled col-sm-12">
                     {% for review in reviews.pending %}
-                        <li class="text-condensed" style="line-height: 1.7;">
+                        <li class="text-condensed lh-lg">
                             <a class="pull-right" href='{% url "edit-review" pk=review.pk %}'
                                data-bs-toggle="tooltip" title="Review Proposal"><i class="bi-pencil-square"></i></a>
-                            <span class="overflow ellipsis"
-                                  title="Due in {{ review.due_date|timeuntil }}">{{ review }} </span>
+                            <span class="overflow ellipsis" data-bs-toggle="tooltip"
+                                  title="Due in {{ review.due_date|timeuntil }}">{{ review }}</span>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
     {% elif user.is_reviewer %}
-            <p>
-                There are currently no reviews needing your immediate attention.
-                Thanks for being a part of our review team!
-            </p>
+        <p>
+            There are currently no reviews needing your immediate attention.
+            Thanks for being a part of our review team!
+        </p>
     {% endif %}
     </div>
-
 
     {% if user.is_reviewer %}
         {% if user.reviewer.committee %}
@@ -78,7 +76,7 @@
         {% endif %}
 
         <div class="card-body bg-warning-subtle techniques">
-            <h5>Expertise</h5>
+            <h6>Expertise</h6>
             {% for tech in user.reviewer.techniques.all %}
                 {% if forloop.first %}
                     <hr class="hr-xs"/>
@@ -94,7 +92,7 @@
         </div>
     {% elif user.can_review %}
         <div class="card-body bg-info-subtle">
-            <h5 class="m-0">Help with the Peer Review Process</h5>
+            <h6 class="m-0">Help with the Peer Review Process</h6>
             <hr class="hr-xs"/>
             As an expert in your field, we would appreciate your help. Tell us where your expertise lies, and we will
             match you with appropriate proposals during the next cycle.

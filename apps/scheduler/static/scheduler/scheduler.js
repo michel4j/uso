@@ -243,7 +243,7 @@ function setupCalendar(sel, options) {
 
                         }
                         if (options.showLinks && event.url) {
-                            shift.find('.event-label').attr('data-href', event.url);
+                            shift.find('.event-label').attr('data-event-href', event.url);
                         }
                     }
                     if (event.cancelled) {
@@ -255,7 +255,7 @@ function setupCalendar(sel, options) {
 		}
 	});
 
-    // Handle data-url and data-href
+    // Handle data-event-href
     $(sel+':not(.starting, .ending)').on('click', '[data-event-href]', function(){
         window.document.location = $(this).attr("data-event-href");
     });

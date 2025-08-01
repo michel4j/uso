@@ -1151,6 +1151,18 @@ class DeleteReviewStage(RolePermsViewMixin, ModalDeleteView):
     allowed_roles = USO_ADMIN_ROLES
 
 
+def _fmt_submission_state(val, obj=None):
+    if obj.state == Submission.STATES.pending:
+        return mark_safe('<i class="bi-hourglass text-secondary"></i> Pending')
+    elif obj.state <= Submission.STATES.reviewed:
+        return mark_safe('<i class="bi-hourglass-split text-info"></i> In Review')
+    else:
+        if obj.approved:
+            return mark_safe('<i class="bi-patch-check-fill text-success"></i> Approved')
+        else:
+            return mark_safe('<i class="bi-patch-exclamation-fill text-danger"></i> Rejected')
+
+
 class SubmissionList(RolePermsViewMixin, ItemListView):
     model = models.Submission
     template_name = "item-list.html"
@@ -1160,22 +1172,16 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
         'proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords',
         'code', 'proposal__details'
     ]
-    link_url = "submission-detail"
     order_by = ['-cycle_id']
     list_title = 'Submitted Proposals'
     list_transforms = {
         'facilities': _fmt_beamlines,
-        'title': utils.truncated_title
+        'title': utils.truncated_title,
+        'state': _fmt_submission_state,
     }
     list_styles = {'title': 'col-sm-2'}
     admin_roles = USO_ADMIN_ROLES
     paginate_by = 20
-
-    def get_queryset(self, *args, **kwargs):
-        qset = super().get_queryset(*args, **kwargs)
-        if not self.check_admin():
-            qset = qset.filter(reviews__reviewer=self.request.user).distinct()
-        return qset
 
     def get_link_url(self, obj):
         if self.check_admin():
@@ -1184,22 +1190,8 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
             return None
 
 
-class UserSubmissionList(RolePermsViewMixin, ItemListView):
-    model = models.Submission
-    template_name = "item-list.html"
-    list_columns = ['title', 'code', 'spokesperson', 'cycle', 'pool', 'facilities', 'state']
-    list_filters = ['created', 'state', 'track', 'pool', 'cycle']
-    list_search = ['proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords']
-    link_url = "submission-detail"
-    order_by = ['-cycle_id']
+class UserSubmissionList(SubmissionList):
     list_title = 'My Submitted Proposals'
-    list_transforms = {
-        'facilities': _fmt_beamlines,
-        'title': utils.truncated_title
-    }
-    list_styles = {'title': 'col-sm-2'}
-    admin_roles = USO_ADMIN_ROLES
-    paginate_by = 25
 
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
@@ -1211,12 +1203,14 @@ class UserSubmissionList(RolePermsViewMixin, ItemListView):
         self.queryset = self.model.objects.filter(flt).distinct()
         return super().get_queryset(*args, **kwargs)
 
+    def get_link_url(self, obj):
+        return reverse("submission-detail", kwargs={'pk': obj.pk})
+
 
 class CycleSubmissionList(SubmissionList):
     def get_queryset(self, *args, **kwargs):
-        qset = super().get_queryset(*args, **kwargs)
-        qset = qset.filter(cycle_id=self.kwargs['cycle'])
-        return qset
+        self.queryset = self.model.objects.filter(cycle_id=self.kwargs['pk'])
+        return super().get_queryset(*args, **kwargs)
 
 
 class TrackSubmissionList(CycleSubmissionList):
@@ -1225,22 +1219,7 @@ class TrackSubmissionList(CycleSubmissionList):
         return super().get_queryset(*args, **kwargs)
 
 
-class FacilitySubmissionList(RolePermsViewMixin, ItemListView):
-    model = models.Submission
-    template_name = "item-list.html"
-    list_columns = ['code', 'title', 'spokesperson', 'score', 'pool', 'cycle', 'state']
-    list_filters = ['created', 'state', 'track', 'pool', 'cycle']
-    list_search = ['proposal__title', 'code', 'proposal__spokesperson__last_name', 'proposal__keywords']
-    link_url = "submission-detail"
-    order_by = ['score', 'cycle', 'code']
-    list_title = 'Proposal Submissions'
-    list_transforms = {
-        'facilities': _fmt_beamlines,
-        'title': utils.truncated_title,
-        'proposal__spokesperson': utils.user_format
-
-    }
-    list_styles = {'title': 'col-sm-2'}
+class FacilitySubmissionList(SubmissionList):
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 

@@ -7,7 +7,7 @@
     <div class="field-group-item col-12">
         <select name="{{ field.name }}" id="{{ field.name }}" class="form-select" aria-label="{{ field.label }}">
             {% for value, cycle, selected in cycles %}
-                <option value="{{ value }}" data-url="{% url 'cycle-info' pk=value %}"
+                <option value="{{ value }}" data-cycle-url="{% url 'cycle-info' pk=value %}"
                         {% if selected %}selected="selected" {% endif %}>{{ cycle }}</option>
             {% endfor %}
         </select>
@@ -28,7 +28,7 @@
         $.getJSON(`{% url "techniques-matrix" %}?cycle=${selected_cycle}`, function (data) {
             $(document).trigger('cycle-changed', data);
         });
-        const info_url = $(this).find('option:selected').data('url');
+        const info_url = $(this).find('option:selected').data('cycle-url');
         $("#{{field.name}}-extras").load(info_url);
     });
     $("#{{field.name}}").trigger('change');

@@ -50,49 +50,28 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-12">
-                    <h5 class="mt-3">
+                    <h6 class="my-0">
                         Draft Proposal{{ drafts.count|pluralize:",s" }}
-                        <span class="badge rounded-circle bg-primary pull-right">{{ drafts.count }}</span>
-                    </h5>
+                        <span class="badge bg-primary pull-right">{{ drafts.count }}</span>
+                    </h6>
                 </div>
             </div>
+            <hr class="hr-xs bottom-edge"/>
             <div class="row">
                 <div class="scroll-box col-12" style="max-height: 200px">
                     <ul class="list-unstyled list-ruled">
                         {% for proposal in drafts %}
-                            <li class="text-condensed py-1">
-                                <a class="overflow ellipsis" href='{% url "edit-proposal" slug=proposal.code %}'
-                                   data-bs-toggle="tooltip" title="Edit proposal">
-                                    <i class="bi-pencil-square"></i>&emsp;{{ proposal.title }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-    {% if submitted.count %}
-        <div class="card-body">
-            <div class="row">
-                <div class="col-12">
-                    <h5 class="mt-3">Proposal{{ submitted.count|pluralize:",s" }} Being Reviewed
-                        <span class="badge rounded-circle bg-primary pull-right">{{ submitted.count }}</span>
-                    </h5>
-                </div>
-            </div>
-            <div class="row">
-                <div class="scroll-box col-12" style="max-height: 200px;">
-                    <ul class="list-unstyled list-ruled">
-                        {% for proposal in submitted %}
-                            <li class="text-condensed py-1">
-                                <a class="overflow ellipsis" href='{% url "proposal-detail" slug=proposal.code %}'
-                                   data-bs-toggle="tooltip" title="View proposal">
-                                    {% if proposal.clarifications.pending.count %}
-                                        <i class="bi-chat-right-text text-danger"></i>{% else %}
-                                        <i class="bi-eye"></i>{% endif %}&emsp;{{ proposal.title }}
-                                </a>
-                            </li>
+                        <li class="text-condensed lh-lg d-flex gap-3">
+                            <span class="overflow ellipsis"
+                                  data-bs-toggle="popover"
+                                  data-bs-content="{{ proposal.title }}"
+                            >{{ proposal }}</span>
+                        <a class="ms-auto"
+                           href='{% url "edit-proposal" slug=proposal.code %}'
+                           data-bs-toggle="tooltip" title="Edit Proposal">
+                            <i class="bi-pencil-square"></i>
+                        </a>
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>

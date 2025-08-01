@@ -98,16 +98,14 @@ class ReviewsBlock(BaseBlock):
             "next_cycle": next_cycle,
         })
 
-        next_call = models.ReviewCycle.objects.next_call()
-        if next_call:
-            reviewer_available_next_call = models.Reviewer.objects.available(next_call).filter(user=user).exists()
+        next_reviews = models.ReviewCycle.objects.filter(close_date__lte=soon).first()
+        if next_cycle:
+            reviewer_available_next_call = models.Reviewer.objects.available(next_reviews).filter(user=user).exists()
             can_review = user.can_review()
             self.visible |= can_review
             ctx.update({
-                "upcoming_call": (
-                    reviewer_available_next_call
-                ),
-                "next_call": next_call,
+                "upcoming_reviews": reviewer_available_next_call,
+                "next_call": next_reviews,
                 "can_review": can_review,
             })
 
