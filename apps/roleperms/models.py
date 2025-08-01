@@ -73,7 +73,7 @@ class RolePermsUserMixin(PermissionsMixin):
         the obj argument is provided to mirror the has_perms of auth.PermissionsMixin
         it is not used at the moment.
         """
-        return role in self.get_all_roles()
+        return role.lower() in self.get_all_roles()
 
     def has_roles(self, role_list, obj=None):
         """
@@ -81,7 +81,7 @@ class RolePermsUserMixin(PermissionsMixin):
         the obj argument is provided to mirror the has_perms of auth.PermissionsMixin
         it is not used at the moment.
         """
-        return self.has_any_role(*role_list)
+        return self.has_any_role(*[role.lower() for role in role_list])
 
     def has_any_role(self, *roles):
         """

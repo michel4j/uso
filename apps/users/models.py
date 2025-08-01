@@ -251,7 +251,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         return set(self.permissions)
 
     def get_all_roles(self):
-        return set(self.roles)
+        return {r.lower().strip() for r in self.roles}
 
     get_full_name.short_description = "Full Name"
     get_full_name.sort_field = 'first_name'
