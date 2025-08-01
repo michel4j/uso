@@ -24,10 +24,6 @@
             {% endif %}
         {% endif %}
         {% if cycle.state >= cycle.STATES.schedule %}
-            <a href='{% url "facility-cycle-projects" slug=facility.acronym cycle=cycle.pk %}' class="pull-right">
-                <i class="bi-briefcase icon-md icon-fw"></i><br/>
-                <span class="tool-label">Projects</span>
-            </a>
             {% if facility.flex_schedule and cycle %}
                 <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}' class="pull-right"
                    style="position: relative;">
@@ -52,12 +48,11 @@
                     </a>
                 {% endif %}
             {% endwith %}
-        {% else %}
-            <a href='{% url "facility-cycle-submissions" slug=facility.acronym cycle=cycle.pk %}' class="pull-right">
-                <i class="bi-journal-check icon-md icon-fw"></i><br/>
-                <span class="tool-label">Submissions</span>
-            </a>
         {% endif %}
+        <a href='{% url "facility-cycle-submissions" slug=facility.acronym cycle=cycle.pk %}' class="pull-right">
+            <i class="bi-journal-check icon-md icon-fw"></i><br/>
+            <span class="tool-label">Submissions</span>
+        </a>
     {% endif %}
 {% endblock %}
 {% block box_content %}

@@ -296,7 +296,6 @@ def update_saved_hazards(context):
         if 'data' in context:
             saved_hazards = context['data'].get('saved_hazards', [])
             saved_hazards = list(map(int, saved_hazards))
-    print("Saved Hazards:", saved_hazards)
     return saved_hazards
 
 

@@ -474,7 +474,6 @@ def get_all_tracks(context):
 
 @register.simple_tag(takes_context=True)
 def get_technique_options(context, configs):
-    print(configs)
     configs = configs or set()
     config_groups = defaultdict(list)
     for tech, track in configs:
