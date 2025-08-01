@@ -59,7 +59,7 @@ urlpatterns = [
 
     path('reviewers/', views.ReviewerList.as_view(), name="reviewer-list"),
     path('reviewers/<int:pk>/edit/', views.EditReviewerProfile.as_view(), name="edit-reviewer-profile"),
-    path('reviewers/edit/', views.EditReviewerProfile.as_view(), name="edit-reviewer-profile"),
+    path('reviewers/edit/', views.EditReviewerProfile.as_view(), name="edit-my-reviewer-profile"),
     path('reviewers/<int:pk>/opt-out/', views.ReviewerOptOut.as_view(), name='reviewer-opt-out'),
 
     path('review-types/', views.ReviewTypeList.as_view(), name="review-type-list"),

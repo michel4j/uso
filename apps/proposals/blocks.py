@@ -67,13 +67,14 @@ class ReviewsBlock(BaseBlock):
         user = self.request.user
 
         from proposals import models
-        from projects.models import Project
 
         next_cycle = models.ReviewCycle.objects.next()
 
         filters = Q(reviewer=user)
         if user.roles:
-            filters |= functools.reduce(operator.__or__, [Q(reviewer__isnull=True, role=r) for r in user.roles], Q())
+            filters |= functools.reduce(
+                operator.or_, [Q(reviewer__isnull=True, role__iexact=r) for r in user.roles], Q()
+            )
 
         reviews = models.Review.objects.filter(filters).filter(
             state__gt=models.Review.STATES.pending, state__lt=models.Review.STATES.submitted,
