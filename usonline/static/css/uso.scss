@@ -2796,3 +2796,38 @@ $position-values: (25, 75);
     right: $position * 1%;
   }
 }
+
+// Typeahead styles
+.tt-menu {
+  background: var(--bs-body-bg);
+  border-color: var(--bs-border-color);
+  border-image: none;
+  border-style: none solid solid;
+  border-width: 0 1px 1px;
+  box-shadow: 0 4px 5px var(--bs-border-color-translucent);
+  left: -9999px;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  z-index: 1010 !important;
+
+  .tt-suggestion {
+    line-height: 15px;
+    display: list-item;
+    list-style: outside none none;
+    margin: 0;
+    padding: 0.25em 0.5em;
+    word-wrap: break-word;
+
+    &:hover {
+      background-color: var(--bs-dropdown-bg);
+      color: var(--bs-dropdown-color);
+    }
+
+    &.tt-selectable {
+      cursor: pointer;
+    }
+  }
+}

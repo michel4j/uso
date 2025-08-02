@@ -128,7 +128,8 @@ class InstitutionSearch(View):
             context = list(found.values_list('name', flat=True))
         else:
             context = []
-        return JsonResponse(context)
+        print(context)
+        return JsonResponse(context, safe=False)
 
 
 class InstitutionNames(View):
