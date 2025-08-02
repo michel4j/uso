@@ -561,6 +561,7 @@ class ReviewList(RolePermsViewMixin, ItemListView):
 
 class StageReviewList(ReviewList):
     list_title = 'Stage Reviews'
+    list_columns = ['title', 'stage', 'role', 'reviewer', 'state', 'due_date']
     template_name = "tooled-item-list.html"
     tool_template = "proposals/stage-review-tools.html"
 
