@@ -2831,3 +2831,9 @@ $position-values: (25, 75);
     }
   }
 }
+
+svg {
+  text {
+    fill: var(--bs-body-color);
+  }
+}

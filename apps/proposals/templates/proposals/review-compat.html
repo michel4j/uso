@@ -6,7 +6,7 @@
 {% block modal_body %}
 <div class="p-3 techniques {% if conflict %} bg-danger-subtle {% else %} bg-success-subtle {% endif %}">
     <h5 style="margin:0;">
-        {%  if admin %}
+        {%  if admin  and reviewer %}
             <strong><a class="next-url" href="{% url 'edit-reviewer-profile' pk=reviewer.pk %}">{{reviewer}}</a></strong>
         {% else %}
             <strong>{{reviewer}}</strong>

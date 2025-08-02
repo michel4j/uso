@@ -1,15 +1,15 @@
 {% load cycle_tags %}
 {% with object as submission %}
-<div class="p-3 bg-transparent">
+<div class="callout my-3">
     <div  class="row">
         <div class="col-sm-12 col-md-8">
             {% include "proposals/submission-snippet.html" %}
         </div>
         <div class="col-sm-12 col-md-4">
-            <div class="row no-space bg-transparent">
+            <div class="p-1">
                 {% for review in submission.reviews|for_stage:stage %}
                 <div class="col-sm-12 grid-reviewer">
-                {% if not stage.kind.is_scientific %}
+                {% if stage.kind.is_scientific %}
                     <a href="#/" class="col-sm-8" data-modal-url="{% url  'show-compatibility' pk=review.pk %}">
                         {% if review.reviewer.reviewer.committee %}
                             {{review.assigned_to}} <i class="bi-award text-warning"></i>
@@ -23,25 +23,23 @@
                 {% else %}
                     {{review.assigned_to}}
                 {% endif %}
-                    {% if not stage.auto_create and review.state == review.STATES.pending %}
-                        <a href="#/" title="Remove Reviewer" data-modal-url="{% url 'delete-review' pk=review.pk %}"
-                           class="pull-right text-danger"><i class="bi-x-lg"></i>
-                        </a>
-                    {% else %}
-                        <a href="#/"><i class="bi-lock text-body-secondary icon-fw pull-right"></i></a>
-                    {% endif %}
+                {% if review.state == review.STATES.pending %}
+                    <a href="#0" title="Remove Reviewer" data-modal-url="{% url 'delete-review' pk=review.pk %}"
+                       class="pull-right text-danger"><i class="bi-x-lg"></i>
+                    </a>
+                {% endif %}
                 </div>
                 {% endfor %}
-                {%  if cycle.state > cycle.STATES.open and cycle.state < cycle.STATES.archived and not stage.auto_create %}
+                {%  if cycle.state < cycle.STATES.archive %}
                     <div class="col-sm-12 grid-reviewer">
-                        <a href="#/" title="Add Reviewer" data-modal-url="{% url 'add-reviewer-assignment' pk=submission.pk stage=stage.pk %}"
-                           class="text-success pull-right"><i class="bi-plus-circle"></i>
+                        <a href="#0" title="Add Reviewer"
+                           data-modal-url="{% url 'add-reviewer-assignment' pk=submission.pk stage=stage.pk %}"
+                           class="text-success"><i class="bi-plus-circle icon-md"></i>
                         </a>
                     </div>
                 {% endif %}
             </div>
         </div>
     </div>
-    <hr class="hr-xxs"/>
 </div>
 {% endwith %}
