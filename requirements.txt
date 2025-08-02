@@ -7,7 +7,7 @@ django-dynamic-breadcrumbs==0.4.3
 django-itemlist>=2025.7.1
 django-crisp-modals>=2025.7.0
 django-dynforms>=2025.7.44
-django-reportcraft>=2025.7.7
+django-reportcraft>=2025.7.14
 django-cas-ng~=5.0.1
 django-shortuuidfield==0.1.3
 django-proxy==1.1.0

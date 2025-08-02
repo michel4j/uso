@@ -399,9 +399,14 @@ class Submission(CodeModelMixin, TimeStampedModel):
         facility_requests = {}
         for facility in self.facilities():
             req = proposal_requests.get(facility.pk, {})
+            techniques = self.techniques.filter(config__facility=facility)
+            basic_techniques = Technique.objects.filter(
+                pk__in=techniques.values_list('technique__pk', flat=True)
+            )
             facility_requests[facility] = {
                 'shifts': req.get('shifts', 0),
-                'techniques': self.techniques.filter(config__facility=facility),
+                'techniques': techniques,
+                'basic_techniques': basic_techniques,
                 'procedure': req.get('procedure', ''),
                 'justification': req.get('justification', ''),
             }
