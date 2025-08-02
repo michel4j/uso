@@ -731,7 +731,11 @@ def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
     from . import models
     to_create = []
 
+    now = timezone.now().date()
     due_date = min(submission.cycle.due_date, timezone.now().date() + timedelta(weeks=due_weeks))
+    if due_date < now:
+        # If the due date is in the past, set it to a future date
+        due_date = timezone.now().date() + timedelta(weeks=due_weeks)
 
     # create review objects for the requested stage
     if stage and stage.auto_create:
