@@ -123,6 +123,6 @@ class StaffRequiredMixin(RolePermsViewMixin):
     """
     Mixin to ensure that the user has staff permissions.
     """
-    allowed_roles = USO_STAFF_ROLES + USO_ADMIN_ROLES
+    allowed_roles = USO_STAFF_ROLES
 
 

@@ -1,5 +1,10 @@
+import operator
+from functools import reduce, lru_cache
+
 from django.contrib.auth.models import PermissionsMixin
 from django.conf import settings
+from django.db.models import Q
+
 from . import utils
 
 
@@ -50,7 +55,7 @@ class RolePermsUserMixin(PermissionsMixin):
         Returns True if the user has any of the specified permissions. For consistency,
         the obj argument is provided to mirror the has_perms of auth.PermissionsMixin
         it is not used at the moment.
-        This method changes the behaviour of standard Django auth.PermissionsMixin in that
+        This method changes the behavior of standard Django auth.PermissionsMixin in that
         it returns True based on ANY. Django returns true only if user has ALL permissions
         """
         return self.has_any_perm(*perm_list)
@@ -59,13 +64,13 @@ class RolePermsUserMixin(PermissionsMixin):
         """
         Returns True if the user has any of the specified permissions.
         """
-        return utils.has_any_items(perms, self.get_all_permissions())
+        return utils.any_perms_match(perms, self.get_all_permissions())
 
     def has_all_perms(self, *perms):
         """
         Returns True if the user has all the specified permissions.
         """
-        return utils.has_all_items(perms, self.get_all_permissions())
+        return utils.all_perms_match(perms, self.get_all_permissions())
 
     def has_role(self, role, obj=None):
         """
@@ -83,19 +88,30 @@ class RolePermsUserMixin(PermissionsMixin):
         """
         return self.has_any_role(*[role.lower() for role in role_list])
 
+    @lru_cache(maxsize=128)
     def has_any_role(self, *roles):
         """
         Returns True if the user has any of the specified roles.
         """
-        return utils.has_any_items(roles, self.get_all_roles())
 
+        if len(roles) == 0:
+            return True
+
+        roles_query = reduce(operator.__or__, [Q(roles__regex=f'<{role}(:.+)?>') for role in roles], Q())
+        return self.__class__.objects.filter(Q(pk=self.pk) & roles_query).exists()
+
+    @lru_cache(maxsize=128)
     def has_all_roles(self, role_list, obj=None):
         """
         Returns True if the user has all the specified roles. For consistency,
         the obj argument is provided to mirror the has_perms of auth.PermissionsMixin
         it is not used at the moment.
         """
-        return utils.has_all_items(role_list, self.get_all_roles())
+        if len(role_list) == 0:
+            return True
+
+        roles_query = reduce(operator.__and__, [Q(roles__regex=f'<{role}(:.+)?>') for role in role_list], Q())
+        return self.__class__.objects.filter(Q(pk=self.pk) & roles_query).exists()
 
     def has_module_perms(self, module):
         return self.has_perm(module)

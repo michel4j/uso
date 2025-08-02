@@ -744,7 +744,7 @@ def create_reviews_for_stage(submission, stage, due_weeks: int = 2) -> int:
             # create min_reviews reviews for each facility
             to_create.extend([
                 models.Review(
-                    role=review_type.role.format(facility.acronym).lower(),  # assume role as a placeholder for the facility acronym
+                    role=review_type.role.format(facility.acronym).lower(),  # assume role has a placeholder for the facility acronym
                     cycle=submission.cycle,
                     reference=submission,
                     type=review_type,

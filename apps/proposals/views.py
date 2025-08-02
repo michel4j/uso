@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import transaction
-from django.db.models import Q, Avg, StdDev, Count, F
+from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.template.defaultfilters import pluralize
 from django.urls import reverse_lazy, reverse
@@ -17,7 +17,6 @@ from django.views.generic import detail, edit, TemplateView, View
 from dynforms.models import FormType
 from dynforms.views import DynUpdateView, DynCreateView
 from itemlist.views import ItemListView
-
 from scipy.stats import percentileofscore
 
 from beamlines.models import Facility
@@ -82,9 +81,9 @@ class UserProposalList(RolePermsViewMixin, ItemListView):
 
     def get_queryset(self, *args, **kwargs):
         flts = (
-            Q(spokesperson=self.request.user) |
-            Q(leader_username=self.request.user.username) |
-            Q(delegate_username=self.request.user.username) 
+                Q(spokesperson=self.request.user) |
+                Q(leader_username=self.request.user.username) |
+                Q(delegate_username=self.request.user.username)
         )
 
         if self.request.user.email:
@@ -330,9 +329,9 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         # facility. For multi-facility submissions, the user must match each requested facility's roles to have
         # access to the pool
         available_pool_ids = [
-            pk for pk, facility_roles in pool_roles.items()
-            if all([self.request.user.has_any_role(*roles) for roles in facility_roles])
-        ] + list(models.AccessPool.objects.filter(role__isnull=True).values_list('pk', flat=True))
+                                 pk for pk, facility_roles in pool_roles.items()
+                                 if all([self.request.user.has_any_role(*roles) for roles in facility_roles])
+                             ] + list(models.AccessPool.objects.filter(role__isnull=True).values_list('pk', flat=True))
 
         # Select available tracks based on requested techniques and call status
         if cycle.is_closed():
@@ -379,7 +378,6 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         num_invalid = len(invalid_techniques)
         num_valid = len(valid_track_techniques)
         if num_invalid > 0:
-
             message += (
                 f" <span class='text-danger'>{num_invalid} requested "
                 f"technique{pluralize(num_invalid, ',s')} can not be submitted</span> "
@@ -688,8 +686,8 @@ class EditReview(RolePermsViewMixin, DynUpdateView):
         if not allowed:
             obj = self.get_object()
             allowed = (
-                obj.state != models.Review.STATES.closed and (
-                obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
+                    obj.state != models.Review.STATES.closed and (
+                    obj.reviewer == self.request.user or self.request.user.has_role(obj.role))
             )
         return allowed
 
@@ -1197,9 +1195,9 @@ class UserSubmissionList(SubmissionList):
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
         flt = (
-            Q(proposal__leader_username=user.username)
-            | Q(proposal__spokesperson=user)
-            | Q(proposal__delegate_username=user.username)
+                Q(proposal__leader_username=user.username)
+                | Q(proposal__spokesperson=user)
+                | Q(proposal__delegate_username=user.username)
         )
         self.queryset = self.model.objects.filter(flt).distinct()
         return super().get_queryset(*args, **kwargs)
@@ -1628,18 +1626,18 @@ class AddReviewAssignment(RolePermsViewMixin, ModalUpdateView):
 
         if stage.kind:
             to_add = [
-                models.Review(
-                    reviewer=reviewer, cycle=self.object.cycle, reference=self.object,
-                    due_date=self.object.cycle.due_date, stage=stage,
-                    type=stage.kind, state=models.Review.STATES.pending, form_type=stage.kind.form_type
-                ) for reviewer in data['reviewers']
-            ] + [
-                models.Review(
-                    role=role, cycle=self.object.cycle, reference=self.object,
-                    due_date=self.object.cycle.due_date, stage=stage,
-                    type=stage.kind, state=models.Review.STATES.pending, form_type=stage.kind.form_type
-                ) for role in data['roles']
-            ]
+                         models.Review(
+                             reviewer=reviewer, cycle=self.object.cycle, reference=self.object,
+                             due_date=self.object.cycle.due_date, stage=stage,
+                             type=stage.kind, state=models.Review.STATES.pending, form_type=stage.kind.form_type
+                         ) for reviewer in data['reviewers']
+                     ] + [
+                         models.Review(
+                             role=role, cycle=self.object.cycle, reference=self.object,
+                             due_date=self.object.cycle.due_date, stage=stage,
+                             type=stage.kind, state=models.Review.STATES.pending, form_type=stage.kind.form_type
+                         ) for role in data['roles']
+                     ]
             models.Review.objects.bulk_create(to_add)
             messages.success(self.request, "Reviews were added")
             ActivityLog.objects.log(
@@ -1797,7 +1795,7 @@ class UpdateReviewComments(RolePermsViewMixin, ModalUpdateView):
     allowed_roles = USO_ADMIN_ROLES
 
     def get_queryset(self):
-        return self.model.objects.filter(state__gte=models.Submission.STATES.complete)
+        return self.model.objects.filter(state__gte=models.Submission.STATES.reviewed)
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -1808,11 +1806,7 @@ class UpdateReviewComments(RolePermsViewMixin, ModalUpdateView):
             self.request, submission, kind=ActivityLog.TYPES.modify, description='Reviewer comments updated'
         )
         messages.success(self.request, 'Reviewer comments updated')
-        return JsonResponse(
-            {
-                "url": ""
-            }
-        )
+        return JsonResponse({"url": ""})
 
 
 class ReviewTypeList(RolePermsViewMixin, ItemListView):
@@ -1894,7 +1888,7 @@ class AddTechnique(RolePermsViewMixin, ModalCreateView):
         return reverse('technique-list')
 
 
-class EditTechnique(RolePermsViewMixin,  ModalUpdateView):
+class EditTechnique(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.TechniqueForm
     model = models.Technique
     allowed_roles = USO_ADMIN_ROLES
@@ -1934,7 +1928,7 @@ class DeleteTechnique(RolePermsViewMixin, ModalDeleteView):
 class ReviewTrackList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     model = models.ReviewTrack
-    list_columns = ['name',  'acronym', 'description', 'duration']
+    list_columns = ['name', 'acronym', 'description', 'duration']
     list_filters = ['created', 'modified', 'require_call']
     list_search = ['acronym', 'name', 'committee__last_name', 'description']
     link_url = "edit-review-track"
@@ -2061,8 +2055,8 @@ class EditFacilityPools(RolePermsViewMixin, ModalUpdateView):
     def check_allowed(self):
         facility = self.get_object()
         return (
-            super().check_allowed() or
-            facility.is_admin(self.request.user)
+                super().check_allowed() or
+                facility.is_admin(self.request.user)
         )
 
     def get_initial(self):
@@ -2133,7 +2127,7 @@ class EditCycleType(RolePermsViewMixin, ModalUpdateView):
         return JsonResponse({"url": self.get_success_url()})
 
 
-class DeleteCycleType(RolePermsViewMixin,  ModalDeleteView):
+class DeleteCycleType(RolePermsViewMixin, ModalDeleteView):
     model = models.CycleType
     allowed_roles = USO_ADMIN_ROLES
     admin_roles = USO_ADMIN_ROLES

@@ -21,7 +21,7 @@ from proxy.views import proxy_view
 from misc.models import ActivityLog
 from notifier import notify
 from publications import stats
-from roleperms.utils import has_any_items
+from roleperms.utils import any_perms_match
 from roleperms.views import RolePermsViewMixin
 from . import forms
 from . import models
@@ -201,7 +201,7 @@ class UsersAdmin(RolePermsViewMixin, ModalUpdateView):
         if form.has_changed():
             data = form.cleaned_data
 
-            if has_any_items(USO_REVIEWER_ROLES, data['roles']):
+            if any_perms_match(USO_REVIEWER_ROLES, data['roles']):
                 reviewer, created = Reviewer.objects.get_or_create(user=self.object)
                 if created:
                     messages.info(self.request, "Reviewer Profile created")

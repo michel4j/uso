@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Sequence
 
 
@@ -33,15 +34,23 @@ def getattr_related_list(obj, field_names, silent=False):
     return [getattr_related(obj, field_name, silent) for field_name in field_names]
 
 
-def has_any_items(target: Sequence, source: Sequence | set) -> bool:
+def any_perms_match(target: Sequence, source: Sequence | set) -> bool:
     """
-    Match any role permissions and permissions.
+    Match any permission.
     """
     return len(target) == 0 or bool(set(target) & set(source))
 
 
-def has_all_items(target: Sequence, source: Sequence | set) -> bool:
+def all_perms_match(target: Sequence, source: Sequence | set) -> bool:
     """
-    Match all role permissions and permissions.
+    Match all permissions.
     """
     return set(source) >= set(target)
+
+
+def all_roles_match(target: Sequence, source: Sequence | set) -> bool:
+    """
+    Match all roles.
+    """
+    return set(source) >= set(target)
+

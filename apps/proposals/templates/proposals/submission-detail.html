@@ -33,7 +33,7 @@
             <span class="tool-label">Project</span>
         </a>
     {% endif %}
-    {% if admin and object.state > object.STATES.reviewed %}
+    {% if admin and object.state == object.STATES.reviewed %}
         <a href='#0' data-modal-url='{% url 'edit-submission-comments' object.pk %}' class="pull-right">
             <i class="bi-chat-right-text icon-md icon-fw"></i><br/>
             <span class="tool-label">Comments</span>
