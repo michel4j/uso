@@ -1,4 +1,4 @@
-{% if not stage.auto_create %}
+{% if stage.kind.is_scientific %}
     <a href="#0" data-modal-url='{% url "assign-reviewers" pk=cycle.pk stage=stage.pk %}'
        class="pull-right">
         <i class="bi-diagram-3 icon-md icon-fw"></i><br/>

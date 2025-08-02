@@ -460,7 +460,7 @@ def assign_mip(cycle, stage, method: str = Literal['SCIP', 'CLP', 'GLOP']) -> tu
     
     committee = assigner.committee
     com_max = 2 + proposals.count() // max(1, committee.count())
-    com_results, solver, status = mip_optimize(assigner, track.min_reviewers, com_max, committee=True, method=method)
+    com_results, solver, status = mip_optimize(assigner, stage.min_reviews, com_max, committee=True, method=method)
     print('Committee Members:')
     print(f"Objective : {solver.Objective().Value()}")
     print(f"Duration  : {solver.WallTime():0.2f} ms")
@@ -880,3 +880,18 @@ def generate_submission_code(submission):
     """
     proposal_code = generate_proposal_code(submission.proposal)
     return f"{submission.track.acronym[:2]}{proposal_code}".upper()
+
+
+def humanize_role(role: str) -> str:
+    """
+    Convert a role string to a human-readable format
+    :param role: Role string
+    :return: Human-readable role string
+    """
+    if not role:
+        return ''
+    name, realm = (role, '') if ':' not in role else role.split(':')
+    if realm:
+        return f"{name.replace('-', ' ').title()} ({realm.upper()})"
+    else:
+        return name.replace('-', ' ').title()

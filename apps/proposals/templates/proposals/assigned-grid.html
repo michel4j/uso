@@ -17,8 +17,10 @@
                             {{review.assigned_to}}
                         {% endif %}
                     </a>
-                    <span class="text-body-secondary">
+                    <span class="text-body-secondary mx-5" title="Compatibility ratio">
+                    {% if review.reviewer %}
                         {{review.reviewer|review_compat:submission}}
+                    {% endif %}
                     </span>
                 {% else %}
                     {{review.assigned_to}}

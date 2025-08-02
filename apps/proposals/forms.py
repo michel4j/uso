@@ -20,6 +20,9 @@ from . import utils
 from .models import get_user_model
 
 
+User = get_user_model()
+
+
 class DateField(AppendedText):
     def __init__(self, field_name, *args, **kwargs):
         super().__init__(field_name, mark_safe('<i class="bi-calendar"></i>'), *args, **kwargs)
@@ -391,53 +394,65 @@ class ReviewCyclePoolForm(forms.ModelForm):
 
 class ReviewerAssignmentForm(ModalModelForm):
     reviewers = forms.ModelMultipleChoiceField(
-        label="Add Reviewer", queryset=models.Reviewer.objects.none(),
+        required=False,
+        label="Add Reviewer", queryset=User.objects.none(),
         help_text="Select Reviewers to add to the above proposal. "
-                  "The list shows compatible reviewers who have room to review more proposals"
+                  "The list shows compatible reviewers"
     )
+    roles = forms.MultipleChoiceField(required=False, choices=())
 
     class Meta:
         model = models.Submission
         fields = []
 
     def __init__(self, *args, **kwargs):
+        from beamlines.models import Facility
         stage = kwargs.pop('stage')
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
 
-        self.body.title = "Edit Reviewer Assignment"
+        self.body.title = "Add Reviewer Assignment"
+        review_type = stage.kind
 
-        cycle = self.instance.cycle
-        track = stage.track
+        if review_type.role:
+            reviewers = User.objects.all_with_roles(review_type.role)
+            roles = {review_type.role}
+        else:
+            reviewers = User.objects.none()
+            roles = set()
 
-        prop_info = utils.get_submission_info(self.instance)
-        tech_filter = Q(techniques__in=prop_info['techniques'])
-        area_filter = Q(areas__in=prop_info['areas'])
+        if review_type.per_facility and review_type.role:
+            roles = {r for facility in Facility.objects.all() for r in facility.expand_role(review_type.role)}
 
-        reviewers = models.Reviewer.objects.available(cycle).filter(tech_filter, area_filter)
-        reviewers = reviewers.annotate(
-            num_reviews=Count('user__reviews', filter=Q(user__reviews__cycle=cycle), distinct=True)
-        )
+        role_choices = [
+            (r, utils.humanize_role(r)) for r in sorted(roles)
+        ]
+        self.fields['roles'].choices = role_choices
 
-        if stage.max_workload > 0:
-            reviewers = reviewers.exclude(num_reviews__gt=stage.max_workload)
+        if not reviewers.exists():
+            attrs = {'disabled': 'disabled'}
+            self.fields['reviewers'].widget.attrs.update(attrs)
 
-        available = models.Reviewer.objects.filter(pk__in=list(
-            itertools.chain(reviewers.values_list('pk', flat=True), track.committee.values_list('pk', flat=True))
-        )).order_by('committee')
-
-        self.fields['reviewers'].queryset = available
+        self.fields['reviewers'].queryset = reviewers
         self.body.title = 'Add Reviewers'
         self.body.append(
             Div(
                 HTML("{% include 'proposals/submission-snippet.html' with submission=form.instance %}"),
-                css_class=""
             ),
             Div(
-                Div(Field('reviewers', css_class="selectize"), css_class='col-sm-12'),
+                Div('reviewers', css_class='col-sm-12'),
+                Div('roles', css_class='col-sm-12'),
                 css_class="row"
             )
         )
+
+    def clean(self):
+        data = super().clean()
+        reviewers = data.get('reviewers', [])
+        roles = data.get('roles', [])
+        if not reviewers and not roles:
+            raise forms.ValidationError("You must select at least one reviewer or one role.")
+        return data
 
 
 class ReviewCommentsForm(ModalModelForm):

@@ -22,6 +22,7 @@ from beamlines.models import Facility
 from misc.fields import StringListField
 from misc.models import Clarification, GenericContentMixin, GenericContentQueryset, CodeModelMixin
 from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
+from proposals.utils import humanize_role
 from publications.models import SubjectArea
 
 
@@ -280,6 +281,13 @@ class Submission(CodeModelMixin, TimeStampedModel):
         Get a queryset of facilities associated with this submission.
         """
         return Facility.objects.filter(pk__in=self.techniques.values_list('config__facility', flat=True)).distinct()
+
+    def basic_techniques(self) -> QuerySet:
+        """
+        Get a queryset of basic techniques associated with this submission.
+        """
+        return Technique.objects.filter(pk__in=self.techniques.values_list('technique__pk')).distinct()
+
 
     def scores(self) -> dict:
         """
@@ -1227,11 +1235,7 @@ class Review(BaseFormModel, GenericContentMixin):
         if self.reviewer:
             return self.reviewer.get_full_name()
         else:
-            name, realm = (self.role, '') if ':' not in self.role else self.role.split(':')
-            if realm:
-                return f"{name.replace('-', ' ').title()} ({realm.upper()})"
-            else:
-                return name.replace('-', ' ').title()
+            return humanize_role(self.role)
 
     def is_claimable(self):
         """

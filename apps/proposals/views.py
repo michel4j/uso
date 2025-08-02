@@ -1419,7 +1419,7 @@ class AssignReviewers(RolePermsViewMixin, ModalConfirmView):
         return context
 
     def confirmed(self, *args, **kwargs):
-        cycle = models.ReviewCycle.objects.filter(state=models.ReviewCycle.STATES.assign).get(pk=self.kwargs.get('pk'))
+        cycle = models.ReviewCycle.objects.get(pk=self.kwargs.get('pk'))
         stage = models.ReviewStage.objects.get(pk=self.kwargs.get('stage'))
 
         # assign reviewers and prc members
@@ -1625,17 +1625,20 @@ class AddReviewAssignment(RolePermsViewMixin, ModalUpdateView):
     def form_valid(self, form):
         data = form.cleaned_data
         stage = models.ReviewStage.objects.get(pk=self.kwargs['stage'])
-        if data['reviewers'].filter(committee__isnull=False).exists():
-            self.object.reviews.filter(stage=stage, reviewer__reviewer__committee__isnull=False).delete()
-            messages.success(self.request, "Committee members were swapped.")
 
         if stage.kind:
             to_add = [
                 models.Review(
-                    reviewer=rev.user, cycle=self.object.cycle, reference=self.object,
+                    reviewer=reviewer, cycle=self.object.cycle, reference=self.object,
                     due_date=self.object.cycle.due_date, stage=stage,
                     type=stage.kind, state=models.Review.STATES.pending, form_type=stage.kind.form_type
-                ) for rev in data['reviewers']
+                ) for reviewer in data['reviewers']
+            ] + [
+                models.Review(
+                    role=role, cycle=self.object.cycle, reference=self.object,
+                    due_date=self.object.cycle.due_date, stage=stage,
+                    type=stage.kind, state=models.Review.STATES.pending, form_type=stage.kind.form_type
+                ) for role in data['roles']
             ]
             models.Review.objects.bulk_create(to_add)
             messages.success(self.request, "Reviews were added")

@@ -60,13 +60,17 @@ def review_count(reviewer, cycle):
 @register.filter(name="review_compat")
 def review_compat(reviewer, submission):
     if hasattr(reviewer, 'reviewer'):
-        techniques = set(
-            submission.techniques.values_list('technique', flat=True)
-        ) & set(reviewer.reviewer.techniques.values_list('pk', flat=True))
-        areas = reviewer.reviewer.areas.all() & submission.proposal.areas.all()
+        sub_techs = set(submission.techniques.values_list('technique', flat=True))
+        user_techs = set(reviewer.reviewer.techniques.values_list('pk', flat=True))
+        matches = sub_techs & user_techs
+
+        sub_areas = set(submission.proposal.areas.values_list('pk', flat=True))
+        user_areas = set(reviewer.reviewer.areas.values_list('pk', flat=True))
+        areas = sub_areas & user_areas
+
         return mark_safe(
-            f"<span class='text-primary'>{len(techniques)}</span>&nbsp;:&nbsp;"
-            f"<span class='text-success'>{areas.count()}</span>"
+            f"<span class='text-primary' title='Techniques'>{len(matches)}/{len(sub_techs)}</span>&nbsp;&mdash;&nbsp;"
+            f"<span class='text-success' title='Fields'>{len(areas)}/{len(sub_areas)}</span>"
         )
     else:
         return mark_safe(
