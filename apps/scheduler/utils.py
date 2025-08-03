@@ -101,7 +101,7 @@ def cancel_event(schedule, queryset, data):
             event.save()
             event.tags.add(*old_tags)
 
-    right = queryset.endswithin(data).exclude(cancelled=True)
+    right = queryset.ends_within(data).exclude(cancelled=True)
     if right.exists():
         for event in right.all():
             old_end = event.end
@@ -114,7 +114,7 @@ def cancel_event(schedule, queryset, data):
             event.save()
             event.tags.add(*old_tags)
 
-    left = queryset.startswithin(data).exclude(cancelled=True)
+    left = queryset.starts_within(data).exclude(cancelled=True)
     if left.exists():
         for event in left.all():
             old_start = event.start
@@ -135,8 +135,8 @@ def clear_event(schedule, queryset, data):
     queryset.within(data).delete()
 
     # Left and right clip
-    queryset.startswithin(data).update(start=data['end'])
-    queryset.endswithin(data).update(end=data['start'])
+    queryset.starts_within(data).update(start=data['end'])
+    queryset.ends_within(data).update(end=data['start'])
 
     # split
     split = queryset.encloses(data)

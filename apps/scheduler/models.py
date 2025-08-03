@@ -8,7 +8,7 @@ from misc.functions import Hours, Shifts
 from misc.models import DateSpanMixin
 from django.conf import settings
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime, date
 from misc.models import GenericContentMixin
 
 
@@ -76,6 +76,16 @@ class EventQuerySet(models.QuerySet):
         return self.filter(
             (Q(start__isnull=True) | Q(start__lte=dt)) & (Q(end__isnull=True) | Q(end__gte=dt)))
 
+    @staticmethod
+    def _clean_event(event):
+        event = event if not isinstance(event, dict) else Struct(**event)
+        current_timezone = timezone.get_current_timezone()
+        if isinstance(event.start, date):
+            event.start = datetime.combine(event.start, datetime.min.time(), tzinfo=current_timezone)
+        if isinstance(event.end, date):
+            event.end = datetime.combine(event.end, datetime.min.time(), tzinfo=current_timezone)
+        return event
+
     def expired(self, dt=None):
         dt = timezone.now() if not dt else dt
         return self.filter(Q(end__isnull=False) & Q(end__lt=dt))
@@ -93,7 +103,8 @@ class EventQuerySet(models.QuerySet):
         dt = timezone.now() if not dt else dt
         return self.filter(start__lt=dt).order_by('-start').first()
 
-    def relevant(self, extras={}):
+    def relevant(self, extras=None):
+        extras = {} if not extras else extras
         yesterday = timezone.now() - timedelta(days=7)
         return self.filter(start__gte=yesterday, start__lte=timezone.now() + timedelta(days=7), **extras)
 
@@ -106,52 +117,52 @@ class EventQuerySet(models.QuerySet):
     def with_shifts(self):
         return self.annotate(shifts=Shifts(F('end'), F('start'), output_field=models.FloatField()))
 
-    def endsbefore(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+    def ends_before(self, event):
+        event = self._clean_event(event)
         return self.filter(end__lt=event.start)
 
-    def endsafter(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+    def ends_after(self, event):
+        event = self._clean_event(event)
         return self.filter(end__gt=event.end)
 
-    def startsbefore(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+    def starts_before(self, event):
+        event = self._clean_event(event)
         return self.filter(start__lt=event.start)
 
-    def startsafter(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+    def starts_after(self, event):
+        event = self._clean_event(event)
         return self.filter(start__gt=event.end)
 
     def within(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+        event = self._clean_event(event)
         return self.filter(start__gte=event.start, end__lte=event.end)
 
     def matches(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+        event = self._clean_event(event)
         return self.filter(start=event.start, end=event.end)
 
-    def startswith(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+    def starts_with(self, event):
+        event = self._clean_event(event)
         return self.filter(start=event.start)
 
-    def endswith(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+    def ends_with(self, event):
+        event = self._clean_event(event)
         return self.filter(end=event.end)
 
-    def startswithin(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+    def starts_within(self, event):
+        event = self._clean_event(event)
         return self.filter(start__gte=event.start, start__lt=event.end)
 
-    def endswithin(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+    def ends_within(self, event):
+        event = self._clean_event(event)
         return self.filter(end__gt=event.start, end__lte=event.end)
 
     def encloses(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+        event = self._clean_event(event)
         return self.filter(start__lt=event.start, end__gt=event.end)
 
     def intersects(self, event):
-        event = event if not isinstance(event, dict) else Struct(**event)
+        event = self._clean_event(event)
         return self.filter(
             Q(start__gte=event.start, start__lte=event.end) |
             Q(end__gt=event.start, end__lte=event.end) |

@@ -204,7 +204,7 @@ class Attachment(GenericContentMixin, TimeStampedModel):
     description = models.CharField(max_length=100, verbose_name="Description")
     file = RestrictedFileField(
         upload_to=attachment_file, max_size=2097152,
-        file_types=['application/pdf', 'image/png', 'image/jpeg'], verbose_name="Attachment"
+        file_types=['application/pdf', 'image/png', 'image/jpeg', 'image/webp'], verbose_name="Attachment"
     )
     slug = models.SlugField(max_length=50, blank=True, unique=True)
     kind = models.CharField(choices=TYPES, max_length=20, verbose_name="Type")

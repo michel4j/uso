@@ -162,7 +162,7 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
 
             next_cycle = ReviewCycle.objects.next(allocation.cycle.start_date)
             totals = self.beamtimes.filter(
-                beamline=beamline, start__gte=cycle.start_date, end__lte=cycle.end_date
+                beamline=beamline, start__date__gte=cycle.start_date, end__date__lte=cycle.end_date
             ).with_shifts().aggregate(scheduled=Coalesce(Sum('shifts'), 0.0))
             used_totals = self.sessions.within(
                 {'start': cycle.start_date, 'end': cycle.end_date}
@@ -459,7 +459,7 @@ class Material(CodeModelMixin, TimeStampedModel):
         return reverse('material-detail', kwargs={'pk': self.pk})
 
     def update_due_dates(self):
-        beamtime = self.project.beamtimes.filter(start__gte=timezone.now().date()).first()
+        beamtime = self.project.beamtimes.filter(start__date__gte=timezone.now().date()).first()
         if beamtime:
             self.reviews.filter(state__lt=Review.STATES.closed, is_complete=False).update(
                 due_date=beamtime.start.date() - timedelta(days=2), state=Review.STATES.open)
@@ -836,7 +836,7 @@ class BeamTime(Event):
     objects = EventQuerySet.as_manager()
 
     def __str__(self):
-        return "{}-{}".format(self.start, self.end)
+        return f"{self.start}-{self.end}"
 
     def sessions(self):
         return Session.objects.filter(project=self.project, beamline=self.beamline).within(self)

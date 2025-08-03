@@ -1,5 +1,6 @@
 
 import re
+import magic
 from collections.abc import Sequence
 from datetime import datetime, date
 from urllib.parse import quote, unquote
@@ -41,9 +42,9 @@ class RestrictedFileField(FileField):
         self.file_types = kwargs.pop("file_types", ["application/pdf", "image/jpeg", "image/png"])
         self.max_size = kwargs.pop("max_size", 2621440)
         kwargs['storage'] = kwargs.get('storage', LocalStorage())
-        kwargs["help_text"] = "Maximum size {0}, Formats: {1}.".format(
-            filesizeformat(self.max_size),
-            ",".join([t.split("/")[-1].upper() for t in self.file_types])
+        kwargs["help_text"] = (
+            f"Maximum size {filesizeformat(self.max_size)}, "
+            f"Formats: {','.join([t.split('/')[-1].upper() for t in self.file_types])}."
         )
         super().__init__(*args, **kwargs)
         # print self.widget
@@ -53,15 +54,22 @@ class RestrictedFileField(FileField):
 
         if data.file is not None:
             file = data.file
-            if file.content_type not in self.file_types:
-                raise forms.ValidationError(_("File type not supported."))
+
             if file.size > self.max_size:
                 raise forms.ValidationError(
-                    _("{1} file exceeds maximum of {0}.").format(
-                        filesizeformat(self.max_size),
-                        filesizeformat(file.size)
-                    )
+                    _(f"{filesizeformat(file.size)} file exceeds maximum of {filesizeformat(self.max_size)}.")
                 )
+
+            mime = magic.Magic(mime=True)
+            try:
+                mime_type = mime.from_buffer(file.read(1024))
+                file.seek(0)  # Reset the pointer after reading
+                file.content_type = mime_type
+            except magic.MagicException as e:
+                raise forms.ValidationError(_("Could not determine file type"))
+
+            if mime_type not in self.file_types:
+                raise forms.ValidationError(_("File type not supported"))
 
         return data
 

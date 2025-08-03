@@ -5,11 +5,11 @@
     <div class="row">
         <div class="col-sm-12 d-flex flex-row">
             <div>
-                <h4 class="text-condensed" style="margin-top:0.25em;">
+                <h4 class="text-condensed mt-2 mb-0">
                     <a href="{% url 'facility-detail' acronym=facility.acronym %}">{{ facility.acronym }}</a>
                     <span class="{% if allocation.cycle == cycle %}text-success{% else %}text-body-secondary{% endif %}"> &mdash; {{ allocation.cycle }}&emsp;</span>
                 </h4>
-                <small>{{ info.techniques }}</small>
+                <small class="text-body-secondary">{{ info.techniques }}</small>
             </div>
 
             {% if owner or admin %}

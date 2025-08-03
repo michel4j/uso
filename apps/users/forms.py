@@ -152,33 +152,30 @@ class RegistrationForm(DynModelForm):
         country = cleaned_data['details'].get('address', {}).get('country', '')
         phone = cleaned_data['details'].get('contact', {}).get('phone', '')
         if not email:
-            self._errors['contact'] = " Please enter a valid email address"
+            self.add_error('contact', "Please enter a valid email address")
 
         elif User.objects.filter(Q(email__iexact=email) | Q(alt_email__iexact=email)).exists():
-            self._errors['contact'] = " You already have an account in our system."
+            self.add_error('contact', "You already have an account in our system")
 
         code = COUNTRY_CODES.get(country.upper(), None)
-        if phone and code:
+        if phone:
             cleaned_phone = re.sub(r'\D', '', phone)
             try:
                 phone_number = phonenumbers.parse(re.sub(r'\D', '', cleaned_phone), code)
-                if code == 'CA':
-                    phone = phonenumbers.format_number(phone_number, phonenumbers.PhoneNumberFormat.NATIONAL)
-                else:
-                    phone = phonenumbers.format_number(phone_number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+                phone = phonenumbers.format_number(phone_number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
                 cleaned_data['details']['contact']['phone'] = phone
-            except:
-                self._errors['contact'] = " Invalid Phone number for {}".format(country)
+            except phonenumbers.phonenumberutil.NumberParseException:
+                self.add_error('contact', f"Invalid Phone number for {country}")
 
-        oldreg = Registration.objects.filter(email__iexact=email).first()
+        old_registration = Registration.objects.filter(email__iexact=email).first()
 
-        if oldreg and (timezone.now().today() - oldreg.created.replace(tzinfo=None)) < timedelta(days=3):
+        if old_registration and (timezone.now().today() - old_registration.created.replace(tzinfo=None)) < timedelta(days=3):
             raise forms.ValidationError(
                 "Your previous registration is still pending. Check your email for instructions"
                 " to complete your registration or wait 3 days for it to lapse."
             )
-        elif oldreg:
-            oldreg.delete()
+        elif old_registration:
+            old_registration.delete()
 
         cleaned_data['email'] = email
 

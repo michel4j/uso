@@ -8,7 +8,10 @@
 import os
 
 # -----------------------------------------------------------------------------
-# in a development environment, place the environment in local/.env and uncomment the next two lines
+# in a development environment, place the environment in local/.env then install dotenv
+# and uncomment the following lines to load the environment variables.
+# $ pip install python-dotenv
+# -----------------------------------------------------------------------------
 # from dotenv import load_dotenv
 # load_dotenv()
 # -----------------------------------------------------------------------------
