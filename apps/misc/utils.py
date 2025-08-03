@@ -183,3 +183,17 @@ def get_code_generator(name):
 
     return load_object(USO_CODE_GENERATORS[name])
 
+
+def humanize_role(role: str) -> str:
+    """
+    Convert a role string to a human-readable format
+    :param role: Role string
+    :return: Human-readable role string
+    """
+    if not role:
+        return ''
+    name, realm = (role, '') if ':' not in role else role.split(':')
+    if realm:
+        return f"{name.replace('-', ' ').title()} ({realm.upper()})"
+    else:
+        return name.replace('-', ' ').title()

@@ -22,7 +22,7 @@ from beamlines.models import Facility
 from misc.fields import StringListField
 from misc.models import Clarification, GenericContentMixin, GenericContentQueryset, CodeModelMixin
 from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
-from proposals.utils import humanize_role
+from misc.utils import humanize_role
 from publications.models import SubjectArea
 
 

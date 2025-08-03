@@ -7,28 +7,30 @@
             {% include "beamlines/fields/beamline-info.html" with object=facility hide_description=True %}
         </div>
         <div class="col-sm-6">
-            {% for item in facility.active_techniques %}
-                <div class="overflow ellipsis text-condensed"
-                     title="{{ item.technique.get_category_display }} ({{ item.track.acronym }} Track)">
-                    {% if item.config.facility != facility %}
-                        <i class="bi-circle-fill text-secondary"></i>
-                    {% elif not item.track.require_call %}
-                        <i class="bi-circle-fill text-warning"></i>
-                    {% else %}
-                        <i class="bi-circle-fill text-success"></i>
-                    {% endif %}
-                    {{ item.technique }} {% if item.config.facility != facility %} &mdash;
-                    {{ item.config.facility.acronym }}{% endif %}
+            {% for technique, items in facility.active_techniques.items %}
+                <div class="text-condensed d-flex flex-row align-items-center"
+                     title="{{ technique.get_category_display }} ({{ item.track.acronym }} Track)"
+                >
+                    <span class="me-auto overflow ellipsis">{{ technique }}</span>
+                    {% for item in items %}
+                        {% if item.config.facility != facility %}
+                            <span class="badge bg-secondary m-1">{{ item.track.acronym }}</span>
+                        {% elif not item.track.require_call %}
+                            <span class="badge bg-warning m-1">{{ item.track.acronym }}</span>
+                        {% else %}
+                            <span class="badge bg-success m-1">{{ item.track.acronym }}</span>
+                        {% endif %}
+                    {% endfor %}
                 </div>
                 {% if forloop.last %}
                     <hr class="hr-xs"/>
                     <span class="text-condensed">
-                        <i class="bi-circle-fill text-success"></i>&nbsp;Only During Calls
-                        <i class="bi-circle-fill text-warning"></i>&nbsp;Only Outside of Calls
+                        <i class="bi-square-fill text-success"></i>&nbsp;During Calls
+                        <i class="bi-square-fill text-warning"></i>&nbsp;Outside of Calls
                     </span>
                 {% endif %}
             {% empty %}
-                <div class="empty" style="padding: 3em 0;">No Techniques Configured</div>
+                <div class="empty p-5">No Techniques Configured</div>
             {% endfor %}
         </div>
     </div>

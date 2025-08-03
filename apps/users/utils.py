@@ -1,25 +1,41 @@
 
 from datetime import timedelta
+from functools import lru_cache
+
 from django.conf import settings
 from django.utils import timezone
 from model_utils import Choices
 
+from misc.utils import humanize_role
 from . import models
 
+ASSIGNABLE_ROLES = getattr(settings, 'USO_ASSIGNABLE_ROLES', [])
 
-def uso_role_choices(extra_choices=[]):
+
+@lru_cache
+def uso_role_choices(extra_choices: list = None):
+    """
+    Returns a Choices object containing the assignable roles in the USO system.
+    :param extra_choices:
+    :return:
+    """
+    extra_choices = extra_choices or []
+
     from beamlines.models import Facility
-    role_choices = [
-                       ('user', 'User'),
-                       ('reviewer', 'Reviewer'),
-                       ('contractor', 'Contractor'),
-                   ] + [
-                       ('beamteam-member:{}'.format(f.acronym.lower()), '{} BeamTeam Member'.format(f.acronym))
-                       for f in
-                       Facility.objects.exclude(kind__in=[Facility.Types.department, Facility.Types.instrument]).exclude(
-                           parent__kind=Facility.Types.sector
-                       ).distinct()
-                   ] + extra_choices
+    roles = {}
+    for item in ASSIGNABLE_ROLES:
+        if isinstance(item, str):
+            roles[item] = humanize_role(item)
+        elif isinstance(item, dict) and 'role' in item:
+            role = str(item['role'])
+            if not item.get('per-facility', False):
+                roles[role] = humanize_role(role)
+            else:
+                for f in Facility.objects.all():
+                    for f_role in f.expand_role(role):
+                        roles[f_role] = humanize_role(f_role)
+
+    role_choices = list(roles.items()) + extra_choices
     return Choices(*sorted(role_choices))
 
 

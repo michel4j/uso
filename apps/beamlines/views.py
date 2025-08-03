@@ -117,12 +117,6 @@ class CreateFacility(RolePermsViewMixin, edit.CreateView):
     success_url = reverse_lazy('beamline-list')
     allowed_roles = USO_ADMIN_ROLES
 
-    def get_initial(self):
-        initial = super().get_initial()
-        for f, v in [('staff', 10), ('maintenance', 10), ('purchased', 25), ('beamteam', 10), ('user', 45)]:
-            initial['time_{}'.format(f)] = v
-        return initial
-
 
 class CreateLaboratory(RolePermsViewMixin, ModalCreateView):
     form_class = forms.LabForm

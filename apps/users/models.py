@@ -100,11 +100,11 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def all_with_roles(self, *roles: str):
-        expr = functools.reduce(operator.or_, [Q(roles__icontains=f'<{role}>') for role in roles])
+        expr = functools.reduce(operator.__or__, [Q(roles__iregex=f'<{role}(:.+)?>') for role in roles], Q())
         return self.filter(expr)
 
     def all_with_permissions(self, *perms: str):
-        expr = functools.reduce(operator.or_, [Q(permissions__icontains=f'<{perm}>') for perm in perms])
+        expr = functools.reduce(operator.__and__, [Q(permissions__icontains=f'<{perm}>') for perm in perms], Q())
         return self.filter(expr)
 
 

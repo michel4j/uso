@@ -196,18 +196,10 @@ class UsersAdmin(RolePermsViewMixin, ModalUpdateView):
         return obj
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        super().form_valid(form)
         from proposals.models import Reviewer
         if form.has_changed():
             data = form.cleaned_data
-
-            if any_perms_match(USO_REVIEWER_ROLES, data['roles']):
-                reviewer, created = Reviewer.objects.get_or_create(user=self.object)
-                if created:
-                    messages.info(self.request, "Reviewer Profile created")
-            else:
-                Reviewer.objects.filter(user=self.object).update(active=False)
-
             photo = data.pop('photo', None)
 
             if data or photo:
@@ -215,7 +207,14 @@ class UsersAdmin(RolePermsViewMixin, ModalUpdateView):
                 if profile:
                     messages.info(self.request, "User Profile was updated.")
                 else:
-                    messages.error(self.request, "Unable to Update User profile in People Directory")
+                    messages.error(self.request, "Unable to Update External Profile. ")
+
+                if self.object.has_any_role(*USO_REVIEWER_ROLES):
+                    reviewer, created = Reviewer.objects.get_or_create(user=self.object)
+                    if created:
+                        messages.info(self.request, "Reviewer Profile created")
+                else:
+                    Reviewer.objects.filter(user=self.object).update(active=False)
         else:
             messages.warning(self.request, "No Changes were applied!")
         return JsonResponse({'url': ""})

@@ -1,5 +1,6 @@
 import itertools
 import re
+from collections import defaultdict
 from functools import lru_cache
 
 from django.conf import settings
@@ -78,7 +79,11 @@ class Facility(TimeStampedModel):
         from proposals import models
         tree = self.dtrace()
         item_ids = models.FacilityConfig.objects.filter(facility__in=tree).active().values_list('items', flat=True)
-        return models.ConfigItem.objects.filter(pk__in=item_ids)
+        techniques = defaultdict(list)
+
+        for item in models.ConfigItem.objects.filter(pk__in=item_ids):
+            techniques[item.technique].append(item)
+        return dict(techniques)
 
     def tags(self):
         return FacilityTag.objects.filter(

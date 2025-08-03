@@ -1,3 +1,5 @@
+from django.utils.safestring import mark_safe
+
 from misc.blocktypes import BaseBlock, BLOCK_TYPES
 import copy
 from django.db.models import Count
@@ -32,7 +34,7 @@ class PublicationsBlock(BaseBlock):
             stats_data = user.publications.values('kind').annotate(count=Count('pk'))
             matches = views.get_author_matches(user)
             stats_info = {entry['kind'].title(): entry['count'] for entry in stats_data}
-            stats_info['New Matches'] = matches
+            stats_info['Matches'] = matches
 
             ctx.update({
                 "words": stats.get_keywords(publications, transform=math.sqrt),

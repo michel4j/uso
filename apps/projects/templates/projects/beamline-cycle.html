@@ -4,18 +4,17 @@
 {% block box_class %}{% if cycle.state < cycle.STATES.schedule %}bg-darken{% elif cycle.state < cycle.STATES.archive %}
     bg-info-subtle{% else %}bg-danger-subtle insensitive{% endif %}{% endblock %}
 {% block box_header %}
-    <h4 class="text-condensed" style="margin-bottom: 0;">{{ cycle }}</h4>
-    <small class="d-none d-sm-inline text-body-secondary">{{ cycle.get_state_display }}</small>
+    <span class="text-body-secondary">{{ cycle }}</span>
 {% endblock %}
-{% block box_tools_style %}{% endblock %}
-{% block box_subheader %}{% endblock %}
-{% block box_tools_class %}{% if owner or admin %}{% else %}hidden{% endif %}{% endblock %}
+
+{% block box_subheader %}{{ cycle.get_state_display }}{% endblock %}
+{% block box_tools_class %}{% if owner or admin %}{% else %}d-none{% endif %}{% endblock %}
 {% block box_tools %}
     {% if owner or admin %}
         {% if facility.kind == 'beamline' or facility.kind == 'equipment' %}
             {% if cycle.state <= cycle.STATES.archive %}
                 {% if cycle.state >= cycle.STATES.evaluation %}
-                    <a href='{% url "allocate-review-cycle" pk=cycle.pk fac=facility.acronym %}' class="pull-right">
+                    <a href='{% url "allocate-review-cycle" pk=cycle.pk fac=facility.acronym %}'>
                         <i class="bi-diagram-3 icon-md icon-fw"></i><br/>
                         <span class="tool-label">Allocate</span>
                     </a>
@@ -25,7 +24,7 @@
         {% endif %}
         {% if cycle.state >= cycle.STATES.schedule %}
             {% if facility.flex_schedule and cycle %}
-                <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}' class="pull-right"
+                <a href='{% url "shift-request-list" pk=facility.pk cycle=cycle.pk %}'
                    style="position: relative;">
                     <i class="bi-inbox icon-md icon-fw"></i><br/>
                     <span class="tool-label">Bookings</span>
@@ -38,18 +37,18 @@
             {% endif %}
             {% with schedule=cycle.schedule %}
                 {% if schedule %}
-                    <a href='{% url "schedule-beamtime" pk=schedule.pk fac=facility.acronym %}' class="pull-right">
+                    <a href='{% url "schedule-beamtime" pk=schedule.pk fac=facility.acronym %}'>
                         <i class="bi-calendar-plus icon-md icon-fw"></i><br/>
                         <span class="tool-label">Schedule</span>
                     </a>
-                    <a href='{% url "schedule-support" pk=schedule.pk fac=facility.pk %}' class="pull-right">
+                    <a href='{% url "schedule-support" pk=schedule.pk fac=facility.pk %}'>
                         <i class="bi-person-plus icon-md icon-fw"></i><br/>
                         <span class="tool-label">Support</span>
                     </a>
                 {% endif %}
             {% endwith %}
         {% endif %}
-        <a href='{% url "facility-cycle-submissions" slug=facility.acronym cycle=cycle.pk %}' class="pull-right">
+        <a href='{% url "facility-cycle-submissions" slug=facility.acronym cycle=cycle.pk %}'>
             <i class="bi-journal-check icon-md icon-fw"></i><br/>
             <span class="tool-label">Submissions</span>
         </a>
@@ -58,7 +57,6 @@
 {% block box_content %}
     {% get_facility_cycle_stats facility cycle as stats %}
     <div class="col-sm-12">
-        <hr class="hr-xs"/>
         <table class="table table-ruled table-transparent">
             <tbody>
             <tr>

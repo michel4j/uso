@@ -1,14 +1,14 @@
-<div class="cycle-box {% block box_class %}bg-darken{% endblock %}">
-    <div class="row">
-        <div class="col-sm-12">
-            <span class="box-tools pull-right {% block box_tools_class %}{% endblock %}">
-                 {% block box_tools %}{% endblock %}
-            </span>
-            {% block box_header %}{% endblock %}
-             <small class="text-body-secondary">{% block box_subheader %}{% endblock %}</small>
+<div class="card {% block box_class %}bg-darken{% endblock %}">
+    <div class="card-header d-flex flex-row justify-content-between align-items-center">
+        <div>
+            <h5 class="text-condensed my-0">{% block box_header %}{% endblock %}</h5>
+            <small class="text-body-secondary">{% block box_subheader %}{% endblock %}</small>
+        </div>
+        <div class="page-tools col-auto ms-auto d-flex flex-row-reverse mb-2 align-items-center {% block box_tools_class %}{% endblock %}">
+            {% block box_tools %}{% endblock %}
         </div>
     </div>
-    <div class="row">
+    <div class="card-body">
         {% block box_content %}{% endblock %}
     </div>
 </div>

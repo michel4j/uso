@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 from dynforms.forms import DynModelForm
 from dynforms.utils import DotExpandedDict
 
+import misc.utils
 from beamlines.models import Facility
 from misc.forms import JSONDictionaryField, ModelPoolField
 from . import models
@@ -425,7 +426,7 @@ class ReviewerAssignmentForm(ModalModelForm):
             roles = {r for facility in Facility.objects.all() for r in facility.expand_role(review_type.role)}
 
         role_choices = [
-            (r, utils.humanize_role(r)) for r in sorted(roles)
+            (r, misc.utils.humanize_role(r)) for r in sorted(roles)
         ]
         self.fields['roles'].choices = role_choices
 

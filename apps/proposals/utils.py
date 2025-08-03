@@ -1,6 +1,6 @@
 
 from collections import defaultdict
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 from typing import Literal
 
 from django.conf import settings
@@ -10,7 +10,6 @@ from django.db.models.functions import Concat, Lower
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from docutils.nodes import entry
 from model_utils import Choices
 
 from notifier import notify
@@ -886,16 +885,3 @@ def generate_submission_code(submission):
     return f"{submission.track.acronym[:2]}{proposal_code}".upper()
 
 
-def humanize_role(role: str) -> str:
-    """
-    Convert a role string to a human-readable format
-    :param role: Role string
-    :return: Human-readable role string
-    """
-    if not role:
-        return ''
-    name, realm = (role, '') if ':' not in role else role.split(':')
-    if realm:
-        return f"{name.replace('-', ' ').title()} ({realm.upper()})"
-    else:
-        return name.replace('-', ' ').title()

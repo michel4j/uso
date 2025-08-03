@@ -70,7 +70,6 @@ INSTALLED_APPS = [
     'django_cas_ng',
     'proxy',
     'rest_framework',
-
     'beamlines',
     'samples',
     'publications',
@@ -83,6 +82,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    #'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -218,6 +219,14 @@ USO_FACILITY_STAFF_ROLE = 'staff:-'     # '+' means propagate up subunits
 USO_ONSITE_USER_PERMISSION = '{}-USER'
 USO_REMOTE_USER_PERMISSION = '{}-REMOTE-USER'
 USO_FACILITY_ACCESS_PERMISSION = 'FACILITY-ACCESS'
+
+USO_ASSIGNABLE_ROLES = [
+    {'role': 'user'},
+    {'role': 'reviewer'},
+    {'role': 'contractor'},
+    {'role': 'beam-team:+', 'per-facility': True},
+]
+
 
 USO_STYLE_OVERRIDES = []
 USO_THROTTLE_KEY = get_random_bytes(16)
