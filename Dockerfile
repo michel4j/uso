@@ -1,4 +1,4 @@
-FROM python:3.13-alpine
+FROM python:3.12-alpine
 
 LABEL maintainer="Kathryn Janzen <kathryn.janzen@lightsource.ca>"
 
