@@ -18,6 +18,7 @@
       <sourceFolder url="file://$MODULE_DIR$/local" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/usonline" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/static" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.13 (uso)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
