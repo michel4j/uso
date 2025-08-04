@@ -86,6 +86,8 @@ venv.bak/
 junk/
 temp/
 deploy/*
+!deploy/*/*.conf
+!deploy/*/*.sh
 !deploy/*.conf
 !deploy/*.sh
 
