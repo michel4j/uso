@@ -6,7 +6,7 @@ from django.utils import timesince
 from django.views.generic import edit
 from itemlist.views import ItemListView
 
-from misc.middleware import get_client_address
+from misc.utils import get_client_address
 from django.conf import settings
 from roleperms.views import RolePermsViewMixin
 from . import forms

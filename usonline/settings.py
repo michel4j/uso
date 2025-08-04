@@ -37,9 +37,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 INTERNAL_IPS = [
     '127.0.0.1/32',
-    '10.52.0.0/16',
-    '10.45.0.0/16',
-    '10.63.0.0/16',
 ]
 
 INTERNAL_URLS = ('^/admin',)
@@ -51,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    #"whitenoise.runserver_nostatic",
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'formtools',
@@ -81,7 +79,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    #'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -154,6 +153,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(PROJECT_DIR, "static"),
 ]
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'local/media')
 

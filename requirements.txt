@@ -31,3 +31,4 @@ PyYAML~=6.0.2
 Faker>=37.4.0
 pycryptodome>=3.23.0
 python-magic>=0.4.27
+whitenoise>=6.9.0

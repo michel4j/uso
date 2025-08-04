@@ -197,3 +197,12 @@ def humanize_role(role: str) -> str:
         return f"{name.replace('-', ' ').title()} ({realm.upper()})"
     else:
         return name.replace('-', ' ').title()
+
+
+def get_client_address(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip

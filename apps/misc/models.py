@@ -17,8 +17,7 @@ from model_utils.models import TimeStampedModel
 
 from misc.functions import Age
 from .fields import RestrictedFileField
-from .middleware import get_client_address
-from .utils import get_code_generator
+from .utils import get_code_generator, get_client_address
 
 User = getattr(settings, "AUTH_USER_MODEL")
 
