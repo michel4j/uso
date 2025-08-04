@@ -95,8 +95,7 @@ class Publication(TimeStampedModel):
     keywords = models.TextField(blank=True, null=True)
     beamlines = models.ManyToManyField(Facility, related_name="publications", blank=True)
     users = models.ManyToManyField(User, related_name="publications", verbose_name="CLS Users", blank=True)
-    funders = models.ManyToManyField(FundingSource, related_name="publications", verbose_name="Funding Sources",
-                                     blank=True)
+    funders = models.ManyToManyField(FundingSource, related_name="publications", verbose_name="Funding Sources", blank=True)
     kind = models.CharField(_('Type'), choices=TYPES, default=TYPES.article, max_length=20)
     citations = models.IntegerField(default=0)
     reviewed = models.BooleanField(_('Reviewed'), default=False)
