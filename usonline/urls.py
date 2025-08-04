@@ -1,15 +1,13 @@
 
 from django.conf import settings
-from django.urls import include, re_path, path
+from django.urls import include, path
 from django.contrib import admin
 from django.contrib.auth.views import LogoutView
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
 from django.urls import reverse_lazy
 from django.views.generic import RedirectView, TemplateView
 from django.conf.urls.static import static
 from misc.utils import iterload
-
-from schema_graph.views import Schema
 
 admin.site.site_header = "User Services Online"
 

@@ -1,4 +1,4 @@
-FROM python:3.12-alpine
+FROM python:3.13-alpine
 
 LABEL maintainer="Kathryn Janzen <kathryn.janzen@lightsource.ca>"
 
@@ -9,7 +9,7 @@ ADD . /usonline
 
 
 RUN set -ex && \
-    apk add --no-cache --virtual libpq apache2-ssl apache2-mod-wsgi openssl bash sed py3-pip && \
+    apk add --no-cache --virtual libpq apache2-ssl apache2-mod-wsgi openssl bash sed libmagic py3-pip && \
     python3 -m venv /venv && source /venv/bin/activate && \
     pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir -r /requirements.txt  && \
