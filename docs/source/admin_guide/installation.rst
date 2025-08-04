@@ -36,9 +36,7 @@ To create an initial instance of the USO system, follow these steps:
 
 3. **Prepare the Instance:**
    Run the `prepare-instance.sh` script from within the uso top-level directory, to set up the initial
-   configuration and create necessary sub-directories. This command will also detect your container
-   environment (Docker or Podman), build an image for the USO application, and set up the `docker-compose.yml`
-   file accordingly::
+   configuration and create necessary sub-directories::
 
     ./deploy/prepare-instance.sh /path/to/clsi-uso-instance
 
@@ -75,7 +73,13 @@ To create an initial instance of the USO system, follow these steps:
      for running the USO instance in a Docker container. You can edit this file to customize the container settings,
      such as environment variables, ports, and volumes.
 
-4. [OPTIONAL] **Generate fake test data:**
+4. Build the image::
+
+    ./deploy/build-image.sh .
+
+   This command will detect your container environment (Docker or Podman), build an image for the USO application.
+
+5. [OPTIONAL] **Generate fake test data:**
    If you want to generate some fake test data for your USO instance, you can run the following commands before
    starting the instance. NOTE: Fake data generated after the instance has started will not be loaded automatically.
    This python script needs external dependencies which are listed in the ./deploy/requirements.txt file. Therefore,
@@ -86,7 +90,7 @@ To create an initial instance of the USO system, follow these steps:
     This will create 500 fake proposals, and 1000 fake users in the `local/kickstart` directory, and also
     generate fake user profile images in the `local/media` directory.
 
-5. **Start the USO Instance:**
+6. **Start the USO Instance:**
    Navigate to the directory where you created the instance and run the following command to start the USO instance::
 
     cd /path/to/clsi-uso-instance/usonline
@@ -102,7 +106,7 @@ To create an initial instance of the USO system, follow these steps:
 
     podman-compose logs -f
 
-6. **Access the USO Instance:**
+7. **Access the USO Instance:**
    Once the containers are running, you can access the USO instance in your web browser at: http://localhost:8080
    If you are running the instance on a remote server, replace `localhost` with the server's IP address or hostname.
    Check the contents of the `/path/to/clsi-uso-instance/usonline/.env` for login credentials

@@ -36,7 +36,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 INTERNAL_IPS = [
-    '127.0.0.1/32',
+    '127.0.0.1/32', '::1/128', 'localhost'  # Allow localhost and IPv6 localhost
 ]
 
 INTERNAL_URLS = ('^/admin',)
@@ -286,3 +286,5 @@ USO_CODE_GENERATORS = {
     **USO_DEFAULT_CODE_GENERATORS,
     **USO_CODE_GENERATORS
 }
+
+CSRF_TRUSTED_ORIGINS = [SITE_URL]

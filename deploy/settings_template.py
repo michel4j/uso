@@ -16,10 +16,9 @@ import os
 # load_dotenv()
 # -----------------------------------------------------------------------------
 
-DEBUG = True                        # Set to False in production
+DEBUG = False                        # Set to False in production
 SITE_URL = "http://localhost:8080"  # The URL of the site
 ALLOWED_HOSTS = ["localhost", '*']  # The list of allowed hosts
-
 
 # -----------------------------------------------------------------------------
 # SECRET_KEY is a crucial security setting used for cryptographic signing within

@@ -712,8 +712,8 @@ class FakeProposal:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Data Generator for USO')
     parser.add_argument('name', metavar='name', type=str, help='Directory to save data', default='data')
-    parser.add_argument('-u', '--users', type=int, help='Number of users', required=True)
-    parser.add_argument('-p', '--proposals', type=int, help='Number of proposals', required=True)
+    parser.add_argument('-u', '--users', type=int, help='Number of users', required=True, default=1000)
+    parser.add_argument('-p', '--proposals', type=int, help='Number of proposals', required=True, default=500)
     args = parser.parse_args()
 
     fac_gen = FakeFacility(name=args.name)

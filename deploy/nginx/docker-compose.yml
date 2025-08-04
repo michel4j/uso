@@ -1,0 +1,65 @@
+services:
+  cron:
+    image: ghcr.io/funkyfuture/deck-chores:1
+    restart: always
+    privileged: true
+    depends_on:
+      - proxy
+      - uso
+    environment:
+        TIMEZONE: America/Regina
+    volumes:
+      - $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock:Z  # for podman
+#      - /var/run/docker.sock:/var/run/docker.sock:Z                 # for docker
+
+  database:
+    image: postgres:17-alpine
+    restart: always
+    volumes:
+      - ./database:/var/lib/postgresql/data:Z
+    environment:
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+      POSTGRES_USER: usonline
+
+  cache:
+    image: memcached:latest
+    restart: always
+
+  uso:
+    image: usonline:latest
+    restart: always
+    depends_on:
+      - cache
+      - database
+    env_file:
+      - ./.env
+    volumes:
+      - ./local:/usonline/local:Z
+      - socket_data:/var/run/gunicorn
+    healthcheck:
+        test: ["CMD", "/health-check.sh"]
+        timeout: 10s
+    labels:
+      deck-chores.isocron.command: /usonline/manage.py runcrons -v3
+      deck-chores.isocron.interval: 00:10:00
+
+  proxy:
+    image: nginx:latest
+    restart: always
+    depends_on:
+      - uso
+    ports:
+      - 8080:80
+    volumes:
+      - ./local/nginx.conf:/etc/nginx/conf.d/default.conf:Z
+      - ./local:/usonline/local:ro
+      - socket_data:/var/run/gunicorn
+    healthcheck:
+        test: ["CMD-SHELL", "wget -O /dev/null http://localhost || exit 1"]
+        timeout: 10s
+    labels:
+      deck-chores.isocron.command: /usr/sbin/nginx -s reload
+      deck-chores.isocron.interval: 01:00:00
+
+volumes:
+  socket_data:

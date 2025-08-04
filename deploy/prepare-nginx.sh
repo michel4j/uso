@@ -14,7 +14,7 @@ PARENT_DIR="${1%%+(/)}"  # Remove trailing slashes
 USONLINE_DIR="$PARENT_DIR/usonline"
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 
-#. "$SCRIPT_DIR/build-image.sh" && echo "Image built successfully."
+#. "$SCRIPT_DIR/nginx/build-image.sh" && echo "Image built successfully."
 
 
 if [ -d "$USONLINE_DIR" ]; then
@@ -36,7 +36,9 @@ DB_PASSWORD=$(openssl rand -base64 32 | tr -d '\n="`')
 SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n="`')
 cp "${SCRIPT_DIR}/settings_template.py" "$USONLINE_DIR/local/settings.py" &&
 cp "${SCRIPT_DIR}/custom.css" "$USONLINE_DIR/local/media/css/" &&
-cp "${SCRIPT_DIR}/docker-compose.yml" "$USONLINE_DIR/" &&
+cp "${SCRIPT_DIR}/robots.txt" "$USONLINE_DIR/local/media/" &&
+cp "${SCRIPT_DIR}/nginx/nginx.conf" "$USONLINE_DIR/local/" &&
+cp "${SCRIPT_DIR}/nginx/docker-compose.yml" "$USONLINE_DIR/" &&
 
 cat <<EOF > "$USONLINE_DIR/.env"
 SECRET_KEY='${SECRET_KEY}'
