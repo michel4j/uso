@@ -3,24 +3,32 @@ from datetime import datetime, date
 
 from crisp_modals.forms import ModalForm
 from crispy_forms.bootstrap import AppendedText, AccordionGroup, Accordion
-from crispy_forms.bootstrap import StrictButton, FormActions
+from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Div, Field, HTML
+from crispy_forms.layout import Layout, Div, Field, HTML
 from django import forms
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from model_utils import Choices
 
+from misc.fields import DelimitedTextFormField
 from . import models
-from . import utils
+from .utils import Fetcher
 from .models import Publication, Facility, FundingSource
 
-PUBLICATION_FIELDS = ['title', 'authors', 'kind', 'tags', 'users', 'areas', 'date', 'funders', 'notes', 'keywords',
-                      'beamlines', 'reviewed']
-PUBLICATION_WIDGETS = {'title': forms.Textarea(attrs={'rows': 2}), 'authors': forms.Textarea(attrs={'rows': 2}),
-                       'editor': forms.TextInput(), 'notes': forms.Textarea(attrs={'rows': 1}),
-                       'keywords': forms.Textarea(attrs={'rows': 2}), 'reviewed': forms.HiddenInput(), }
+PUBLICATION_FIELDS = [
+    'title', 'authors', 'kind', 'tags', 'users', 'areas', 'date', 'funders', 'notes', 'keywords',
+    'beamlines', 'reviewed'
+]
+PUBLICATION_WIDGETS = {
+    'title': forms.Textarea(attrs={'rows': 2}),
+    'main_title': forms.Textarea(attrs={'rows': 2}),
+    'editors': forms.TextInput(),
+    'notes': forms.Textarea(attrs={'rows': 1}),
+    'reviewed': forms.HiddenInput(),
+    'date': forms.DateInput(attrs={'type': 'date'}),
+}
 
 
 def json_default(obj):
@@ -32,6 +40,15 @@ def json_default(obj):
 
 
 class PublicationReviewForm(forms.ModelForm):
+    authors = DelimitedTextFormField(
+        label=_("Authors"), required=True, widget=forms.Textarea(attrs={'rows': 2}),
+        help_text=_("Last, First I.; Separate authors with a semicolon.")
+    )
+    keywords = DelimitedTextFormField(
+        label=_("Keywords"), required=False, widget=forms.Textarea(attrs={'rows': 2}),
+        help_text=_("Separate keywords with a semicolon.")
+    )
+
     class Meta:
         model = models.Publication
         fields = PUBLICATION_FIELDS
@@ -40,6 +57,7 @@ class PublicationReviewForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.attrs = {'novalidate': ''}
         self.fields['reviewed'].initial = True
         self.fields['users'].help_text = ""
         self.fields[
@@ -50,8 +68,7 @@ class PublicationReviewForm(forms.ModelForm):
             Div(
                 Div(
                     Div(
-                        HTML("""{{object.cite|safe}}"""),
-                        css_class="alert alert-info p-3 mb-3"
+                        HTML("{% include 'publications/review-header.html' %}"),
                     ),
                     css_class="col-sm-12"
                 ),
@@ -60,34 +77,25 @@ class PublicationReviewForm(forms.ModelForm):
                 AccordionGroup(
                     "Details",
                     Div(
-                        Div(
-                            Field('kind', css_class="selectize"), css_class='col-sm-12'),
+                        Div('kind', css_class='col-sm-6'),
+                        Div("date", css_class="col-sm-6"),
                         Div('title', css_class='col-sm-12'),
                         Div('authors', css_class='col-sm-12'),
-                        Div(
-                            AppendedText("date", mark_safe('<i class="bi-calendar"></i>')),
-                            css_class="col-sm-12"
-                        ),
+
                         css_class="row"
                     ),
-                    self._extra_fields(),
+                    self.extra_fields(),
                     active=False
                 ),
                 AccordionGroup(
                     "Additional Information",
                     Div(
-                        Div(
-                            Field('tags', css_class="selectize", placeholder="select all that apply"),
-                            css_class='col-sm-6'
-                        ),
-                        Div(
-                            Field('areas', css_class="selectize", placeholder="select all that apply"),
-                            css_class='col-sm-6'
-                        ),
-                        Div(Field('beamlines', css_class="selectize"), css_class='col-sm-6'),
-                        Div(Field('users', css_class="selectize"), css_class='col-sm-6'),
-                        Div(Field('funders', css_class="selectize", placeholder="select funding sources"),
-                            css_class='col-sm-12'), Div('keywords', css_class='col-sm-12'),
+                        Div('areas', css_class='col-sm-6'),
+                        Div('beamlines', css_class='col-sm-6'),
+                        Div('tags', css_class='col-sm-6'),
+                        Div('users', css_class='col-sm-6'),
+                        Div('funders', css_class='col-sm-12'),
+                        Div('keywords', css_class='col-sm-12'),
                         Div('notes', css_class='col-sm-12'),
                         css_class="row"
                     ),
@@ -114,64 +122,75 @@ class PublicationReviewForm(forms.ModelForm):
         data['reviewed'] = True
         return data
 
-    def _extra_fields(self):
+    def extra_fields(self):
         return Div()
 
 
 class ArticleReviewForm(PublicationReviewForm):
     class Meta:
-        model = models.Article
-        fields = PUBLICATION_FIELDS + ['code', 'journal', 'volume', 'number', 'pages']
+        model = models.Publication
+        fields = PUBLICATION_FIELDS + ['code', 'journal', 'volume', 'issue', 'pages']
         widgets = PUBLICATION_WIDGETS
 
-    def _extra_fields(self):
+    def extra_fields(self):
         self.fields['code'].widget.attrs['readonly'] = True
-        return Div(Div(Field('journal', css_class="selectize"), css_class='col-sm-4'),
-                   Div('volume', css_class='col-sm-1'), Div("number", css_class='col-sm-1'),
-                   Div("pages", css_class='col-sm-2'), Div("code", css_class='col-sm-4'), css_class="row")
+        return Div(
+            Div('journal', css_class='col-sm-6'),
+            Div("code", css_class='col-sm-6'),
+            Div('volume', css_class='col-sm-4'),
+            Div("issue", css_class='col-sm-4'),
+            Div("pages", css_class='col-sm-4'),
+            css_class="row"
+        )
 
 
 class BookReviewForm(PublicationReviewForm):
     class Meta:
-        model = models.Book
-        fields = PUBLICATION_FIELDS + ['code', 'main_title', 'editor', 'publisher', 'edition', 'address', 'volume',
-                                       'edition', 'pages']
+        model = models.Publication
+        fields = PUBLICATION_FIELDS + [
+            'code', 'main_title', 'editors', 'publisher', 'edition', 'address', 'volume', 'edition', 'pages'
+        ]
         widgets = PUBLICATION_WIDGETS
 
-    def _extra_fields(self):
-        if 'thesis' in self.initial['kind']:
+    def extra_fields(self):
+        kind = self.instance.kind or self.initial.get('kind', None)
+        if kind in [Publication.TYPES.msc_thesis, Publication.TYPES.phd_thesis]:
             self.fields['code'].label = "ISBN, DOI, or URL"
-            for fld in ['main_title', 'volume', 'edition', 'pages']:
-                self.fields[fld].widget = forms.HiddenInput()
-            self.fields['editor'].label = 'Supervisor(s)'
+            for f in ['main_title', 'volume', 'edition', 'pages']:
+                self.fields[f].widget = forms.HiddenInput()
+
+            self.fields['editors'].label = 'Supervisor(s)'
             self.fields['publisher'].label = 'University'
             self.fields['address'].label = 'Location, Country'
 
-            return Div(Div("code", css_class='col-sm-6'), Div('editor', css_class='col-sm-6'),
-                       Div('publisher', css_class='col-sm-6'), Div('address', css_class='col-sm-6'), css_class="row")
+            return Div(
+                Div("code", css_class='col-sm-6'),
+                Div('editors', css_class='col-sm-6'),
+                Div('publisher', css_class='col-sm-6'),
+                Div('address', css_class='col-sm-6'),
+                css_class="row"
+            )
         else:
-            return Div(Div('main_title', css_class='col-sm-4'), Div('volume', css_class='col-sm-1'),
-                       Div("edition", css_class='col-sm-2'), Div("pages", css_class='col-sm-2'),
-                       Div("code", css_class='col-sm-3'), Div('editor', css_class='col-sm-4'),
-                       Div('publisher', css_class='col-sm-4'), Div('address', css_class='col-sm-4'), css_class="row")
+            return Div(
+                Div('main_title', css_class='col-sm-12'),
+                Div('editors', css_class='col-sm-12'),
+                Div('publisher', css_class='col-sm-6'),
+                Div('address', css_class='col-sm-6'),
+                Div("code", css_class='col-sm-6'),
+                Div('volume', css_class='col-sm-2'),
+                Div("edition", css_class='col-sm-2'),
+                Div("pages", css_class='col-sm-2'),
+
+                css_class="row"
+            )
 
 
-class PDBReviewForm(PublicationReviewForm):
-    class Meta:
-        model = models.PDBDeposition
-        fields = PUBLICATION_FIELDS + ['code', 'reference']
-        widgets = PUBLICATION_WIDGETS
-
-    def _extra_fields(self):
-        self.fields['code'].widget.attrs['readonly'] = True
-        self.fields['kind'].widget.attrs['readonly'] = True
-        self.fields['reference'].queryset = models.Article.objects.all()
-        self.fields['reference'].required = False
-        return Div(Div('code', css_class='col-sm-2'),
-                   Div(Field('reference', css_class="selectize"), css_class='col-sm-10'), css_class="row")
-
-
-REFERENCE_FETCH = {'doi': utils.get_pub, 'isbn': utils.get_book, 'patent': utils.get_patent, 'url': utils.get_thesis, }
+REFERENCE_FETCH = {
+    'doi': Fetcher.get_doi,
+    'isbn': Fetcher.get_book,
+    'patent': Fetcher.get_patent,
+    'url': Fetcher.get_thesis,
+}
 
 
 class PubWizardForm1(ModalForm):
@@ -204,13 +223,19 @@ class PubWizardForm1(ModalForm):
         reference = data.get("reference")
         code = data.get("code")
         if not code:
-            raise forms.ValidationError(_('Provide a reference for the publication'), code='reference-required',
-                                        params={'reference': reference})
+            raise forms.ValidationError(
+                _('Provide a reference for the publication'),
+                code='reference-required',
+                params={'reference': reference}
+            )
         elif reference in ['doi', 'isbn', 'patent', 'url']:
             details = REFERENCE_FETCH[reference](code)
             if not details:
-                raise forms.ValidationError(_('Unable to find %(reference)s with that reference'), code='not-found',
-                                            params={'reference': reference})
+                raise forms.ValidationError(
+                    _('Unable to find %(reference)s with that reference'),
+                    code='not-found',
+                    params={'reference': reference}
+                )
             else:
                 data['details'] = json.dumps(details, default=json_default)
         return data
@@ -219,14 +244,14 @@ class PubWizardForm1(ModalForm):
 class PubWizardForm2(ModalForm):
     details = forms.CharField(required=False, widget=forms.HiddenInput)
     title = forms.CharField(max_length=255, required=False)
-    authors = forms.CharField(max_length=255, required=False)
+    authors = DelimitedTextFormField(required=False)
     date = forms.DateField(label=_('Date Published'), required=False)
-    keywords = forms.CharField(max_length=500, required=False)
-    kind = forms.ChoiceField(choices=Publication.TYPES, required=False)
+    keywords = DelimitedTextFormField(required=False)
+    kind = forms.ChoiceField(choices=Publication.TYPES.choices, required=False)
     code = forms.CharField(label=_("URL"), required=False)
 
     main_title = forms.CharField(max_length=255, required=False)
-    editor = forms.CharField(max_length=255, required=False)
+    editors = forms.CharField(max_length=255, required=False)
     publisher = forms.CharField(max_length=100, required=False)
     address = forms.CharField(label=_('Location (Province, Country)'), max_length=50, required=False)
     edition = forms.CharField(max_length=10, required=False)
@@ -268,19 +293,25 @@ class PubWizardForm2(ModalForm):
                 template_name = name
                 code = "DOI"
                 extras = Div()
-            elif kind in models.Book.TYPES:
+            elif kind in [Publication.TYPES.book, Publication.TYPES.chapter, Publication.TYPES.msc_thesis,
+                          Publication.TYPES.phd_thesis]:
                 name = self.initial.get('kind', 'chapter')
                 template_name = 'book'
                 code = "Reference Code"
-                extras = Div(Div('main_title', css_class="col-sm-12"), Div('editor', css_class="col-sm-12"),
-                             Div('publisher', css_class="col-sm-6"), Div('address', css_class="col-sm-6"),
-                             Div('title', css_class="col-sm-12"),
-                             Div('authors', css_class="col-sm-12", placeholder="Separate with a semicolon"),
-                             Div('edition', css_class="col-sm-4"), Div('volume', css_class="col-sm-4"),
-                             Div('pages', css_class="col-sm-4"),
-                             Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-12"),
-                             Div(Field('keywords', placeholder="Separate with a semicolon"), css_class="col-sm-12"),
-                             css_class="row")
+                extras = Div(
+                    Div('main_title', css_class="col-sm-12"),
+                    Div('editors', css_class="col-sm-12"),
+                    Div('publisher', css_class="col-sm-6"),
+                    Div('address', css_class="col-sm-6"),
+                    Div('title', css_class="col-sm-12"),
+                    Div('authors', css_class="col-sm-12"),
+                    Div('edition', css_class="col-sm-4"),
+                    Div('volume', css_class="col-sm-4"),
+                    Div('pages', css_class="col-sm-4"),
+                    Div("date", css_class="col-sm-12"),
+                    Div('keywords', css_class="col-sm-12"),
+                    css_class="row"
+                )
                 for k in ['edition', 'volume', 'pages']:
                     if self.initial.get(k, None):
                         for k in ['edition', 'volume', 'pages']:
@@ -293,26 +324,30 @@ class PubWizardForm2(ModalForm):
                 self.fields["authors"].label = "Authors (if different than the book editors)"
                 self.fields["title"].label = "Chapter/Section Title (if applicable)"
 
-            elif kind in models.Patent.TYPES:
+            elif kind in [Publication.TYPES.patent]:
                 name = self.initial.get('kind', 'patent')
                 template_name = name
                 code = "Patent Number"
-                extras = Div(Div("title", css_class="col-sm-12"),
-                             Div("authors", css_class="col-sm-12", placeholder="Separate with a semicolon"),
-                             Div(AppendedText("date", mark_safe('<i class="bi-calendar"></i>')), css_class="col-sm-12"),
-                             Div(Field('keywords', placeholder="Separate with a semicolon"), css_class="col-sm-12"),
-                             css_class="row")
-            type_name = dict(Publication.TYPES)[name]
-            self.body.title = "Is this the right {type_name}?".format(type_name=type_name)
-            reference = Div(HTML("""<label class="control-label">{type_name}:</label>
+                extras = Div(
+                    Div("title", css_class="col-sm-12"),
+                    Div("authors", css_class="col-sm-12"),
+                    Div("date", css_class="col-sm-12"),
+                    Div('keywords', css_class="col-sm-12"),
+                    css_class="row"
+                )
+
+            self.body.title = "Is this the right Publication?"
+            type_name = dict(Publication.TYPES.choices)[name]
+            reference = Div(
+                HTML("""<div class="control-label">{type_name}:</div>
                     <div class="highlight">{{% load pubstats %}}
                       {{% autoescape off %}}
                         {{{{ "{template_name}"|get_citation:form.initial.details}}}}
                       {{% endautoescape %}}
                     </div>""".format(type_name=type_name.title(), template_name=template_name)),
-                            HTML(details.get('code', None) and """<label class="control-label">{code_name}:</label>
+                HTML(details.get('code', None) and """<label class="control-label">{code_name}:</label>
                     <div class="highlight">{code}</div>""".format(code_name=code, code=details.get('code', '')) or ""),
-                            HTML(self.initial.get('keywords', None) and """<label class="control-label">Keywords:</label>
+                HTML(self.initial.get('keywords', []) and """<div class="control-label">Keywords:</div>
                     <div class="highlight">{{ form.initial.keywords }}</div><br>""" or ""))
             self.body.append(
                 Accordion(AccordionGroup("Details", reference, active=True)),
@@ -322,13 +357,13 @@ class PubWizardForm2(ModalForm):
         else:
             self.fields["authors"].label = _("Author")
             self.fields["publisher"].label = _("University/Institution")
-            self.fields["editor"].label = _("Supervisor(s)")
+            self.fields["editors"].label = _("Supervisor(s)")
             self.fields["kind"].choices = Choices(('msc_thesis', _('Masters Thesis')),
                                                   ('phd_thesis', _('Doctoral Thesis')))
             self.body.title = "Tell us more about the thesis"
             self.body.append(Div(Div("title", css_class="col-sm-12"),
                                  Div("authors", css_class="col-sm-6", placeholder="Separate with a semicolon"),
-                                 Div(Field('editor', placeholder="Last, First; Last, F.; etc ..."),
+                                 Div(Field('editors', placeholder="Last, First; Last, F.; etc ..."),
                                      css_class="col-sm-6"),
 
                                  Div("publisher", css_class="col-sm-6"), Div("address", css_class="col-sm-6"),
@@ -345,7 +380,7 @@ class PubWizardForm2(ModalForm):
 
 class PubWizardForm3(ModalForm):
     details = forms.CharField(required=False, widget=forms.HiddenInput, initial="{}")
-    obj = forms.ModelChoiceField(queryset=Publication.objects.all().select_subclasses(), widget=forms.HiddenInput,
+    obj = forms.ModelChoiceField(queryset=Publication.objects.all(), widget=forms.HiddenInput,
                                  required=False)
 
     beamlines = forms.ModelMultipleChoiceField(queryset=Facility.objects.all(), required=False)
@@ -408,7 +443,7 @@ class PubWizardForm3(ModalForm):
             name = self.initial.get('kind', 'thesis')
             template_name = (name == 'thesis' and 'book') or 'default'
 
-        type_name = dict(Publication.TYPES).get(name, 'Publication')
+        type_name = dict(Publication.TYPES.choices).get(name, 'Publication')
         reference = Div(HTML("""<label class="control-label">{type_name}:</label>
                 <div class="highlight">{{% load pubstats %}}
                   {{% autoescape off %}}

@@ -76,7 +76,7 @@ def get_publist(qset):
     types = [k for k, _ in Publication.TYPES]
     yrs = sorted({v['date'].year for v in Publication.objects.values("date").order_by("date").distinct()})
     for k in types:
-        plist = [(yr, qset.filter(kind=k, date__year=yr).select_subclasses().order_by('authors')) for yr in
+        plist = [(yr, qset.filter(kind=k, date__year=yr).all().order_by('authors')) for yr in
                  reversed(yrs)]
         stats[Publication.TYPES[k]] = [p for p in plist if p[1].count()]
     stats = {k: v for k, v in list(stats.items()) if v}
@@ -117,16 +117,16 @@ def get_metrics(qset, single=False):
     metric_tables = []
     keys = [
         ('articles', 'Articles'),
-        ('num_cites', 'Citations'),
-        ('avg_cites', 'Mean Citations'),
+        # ('num_cites', 'Citations'),
+        # ('avg_cites', 'Mean Citations'),
         ('avg_sjr', 'Mean SJR Rank'),
         ('avg_ifactor', 'Mean Impact Factor'),
         ('avg_hindex', 'Mean H-Index')
     ]
     aggrs = {
         'articles': Count('pk'),
-        'num_cites': Sum('citations'),
-        'avg_cites': Avg('citations'),
+        # 'num_cites': Sum('citations'),
+        # 'avg_cites': Avg('citations'),
         'avg_sjr': Avg('journal__sjr'),
         'avg_ifactor': Avg('journal__ifactor'),
         'avg_hindex': Avg('journal__hindex')
@@ -193,12 +193,13 @@ SEPARATORS = re.compile(r"([&,:;\s\u3031-\u3035\u309b\u309c\u30a0\u30fc\uff70]+)
 def get_keywords(queryset, transform=float, max_size=60):
     cloud = defaultdict(int)
     txt = " ".join(
-        itertools.chain.from_iterable([p.keywords.split('; ') for p in queryset.all() if p.keywords])).lower()
+        itertools.chain.from_iterable([p.keywords for p in queryset.all() if p.keywords])).lower()
     # txt = u" ".join([p.title for p in queryset.all()]).lower()
     txt = re.sub(STOPWORDS, ' ', txt)
     txt = re.sub(SEPARATORS, ' ', txt)
     for kw in txt.split():
-        if len(kw) < 4: continue
+        if len(kw) < 4:
+            continue
         cloud[kw] += 1
     _mx = cloud and transform(max(cloud.values())) or 0.0
     kwcloud = [{'text': k, 'size': max_size * transform(v) / _mx} for k, v in list(cloud.items())]

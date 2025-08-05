@@ -1,0 +1,17 @@
+{% load pubstats %}
+<div class="alert alert-info">
+    <p>{{ object.cite|safe }}</p>
+    {% with object|get_matches as matches %}
+        {% if matches %}
+            <h5>Duplicates</h5>
+            <ul class="list-unstyled">
+                {% for match in matches %}
+                    <hr class="hr-xs"/>
+                    <li class="highlight">
+                        <strong>{{ match.get_kind_display }}:</strong> {{ match.cite|safe }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</div>

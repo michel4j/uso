@@ -58,13 +58,23 @@ def cite(context, obj):
 
 @register.filter(name="get_citation")
 def get_citation(cls="article", data="{}"):
-    cls = 'article' if cls == 'proceeding' else cls
+    cls = {
+        'msc_thesis': 'book',
+        'phd_thesis': 'book',
+        'chapter': 'book',
+        'pdb': 'pdb',
+        'patent': 'patent',
+        'proceeding': 'article',
+        'magazine': 'article',
+        'article': 'article',
+    }.get(cls, 'default')
+
     pub = json.loads(data)
     if isinstance(pub.get('authors', []), list):
-        pub['authors'] = ', '.join(pub.get('authors', []))
+        pub['authors'] = '; '.join(pub.get('authors', []))
     try:
         pub['date'] = datetime.strptime(pub['date'], "%Y-%M-%d")
-    except:
+    except ValueError:
         pass
     template_name = f'publications/citations/{cls}.html'
     t = template.loader.get_template(template_name)
@@ -122,7 +132,7 @@ def get_quality_tables(context):
         )
         single = True
     else:
-        qset = models.Article.objects.filter(kind='article')
+        qset = models.Publication.objects.filter(kind='article')
         single = False
     return stats.get_metrics(qset.distinct(), single)
 
@@ -176,7 +186,7 @@ def bt_claim_count(context):
     qf |= Q(kind__in=[models.Publication.TYPES.msc_thesis, models.Publication.TYPES.phd_thesis])
     qf &= (Q(beamlines__parent__acronym__iexact=bl.acronym) | Q(beamlines__acronym__iexact=bl.acronym))
     queryset = models.Publication.objects.filter(qf).exclude(
-        pk__in=bl.details.get('beamteam_publications', [])).distinct().select_subclasses()
+        pk__in=bl.details.get('beamteam_publications', [])).distinct().all()
     return queryset.count()
 
 

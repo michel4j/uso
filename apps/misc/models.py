@@ -267,7 +267,6 @@ class ActivityLogManager(models.Manager.from_queryset(ActivityLogQueryset)):
             'user_name': request.user.get_full_name(),
             'address': get_client_address(request),
             'kind': kind,
-            'object_repr': repr(obj),
             'description': description,
             'reference': obj,
         }
@@ -285,7 +284,6 @@ class ActivityLog(GenericContentMixin, TimeStampedModel):
     user_name = models.CharField('User name', max_length=60)
     address = models.GenericIPAddressField('IP Address')
     kind = models.CharField(choices=TYPES, max_length=20, verbose_name="Type")
-    object_repr = models.CharField('Entity', max_length=200, blank=True, null=True)
     description = models.TextField(blank=True)
 
     objects = ActivityLogManager()

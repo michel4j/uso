@@ -1,24 +1,19 @@
 import functools
 import json
-
 import math
 import operator
+from datetime import date
 
 from crisp_modals.views import ModalDeleteView
-from django.contrib import messages
 from django.conf import settings
-from django.contrib.admin.utils import NestedObjects
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db import DEFAULT_DB_ALIAS
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.utils import timezone
-from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
-from django.utils.text import capfirst
 from django.views.generic import TemplateView, View
-from django.views.generic.edit import UpdateView, DeleteView
+from django.views.generic.edit import UpdateView
 from formtools.wizard.views import SessionWizardView
 from itemlist.views import ItemListView
 
@@ -56,7 +51,7 @@ def _fmt_citations(citation, obj=None):
 
 class PublicationList(RolePermsViewMixin, ItemListView):
     model = models.Publication
-    template_name= "tooled-item-list.html"
+    template_name = "tooled-item-list.html"
     tool_template = "publications/publication-tools.html"
     paginate_by = 25
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
@@ -80,7 +75,7 @@ class PublicationList(RolePermsViewMixin, ItemListView):
             filters &= Q(date__year__gte=year, date__year__lte=end_year)
         elif year:
             filters &= Q(date__year=year)
-        self.queryset = queryset.filter(filters).select_subclasses()
+        self.queryset = queryset.filter(filters)
         return super().get_queryset(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -92,25 +87,32 @@ class PublicationList(RolePermsViewMixin, ItemListView):
         return context
 
 
-class PublicationAdminList(SuccessMessageMixin, PublicationList):
-    queryset = models.Publication.objects.all().select_subclasses()
+class PublicationAdminList(SuccessMessageMixin, ItemListView):
+    model = models.Publication
+    template_name = "tooled-item-list.html"
+    tool_template = "publications/publication-tools.html"
     allowed_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
     admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
     list_title = 'Modify Publications'
+    paginate_by = 25
+    list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
     list_columns = ['title', 'kind', 'code', 'facility_codes', 'date', 'reviewed']
     list_transforms = {'cite': _fmt_citations}
     link_url = 'review-publication'
-    paginate_by = 50
 
 
 class PublicationReviewList(PublicationAdminList):
     list_title = 'Pending Publications'
-    queryset = models.Publication.objects.filter(reviewed=False).select_subclasses()
+    model = models.Publication
     paginate_by = 50
-    list_columns = ['title', 'kind', 'code', 'facility_codes', 'date']
+    list_columns = ['title', 'kind', 'code', 'facility_codes', 'created']
     list_transforms = {'cite': _fmt_citations, 'areas': _format_areas}
     list_search = ['authors', 'title', 'keywords']
     ordering = ['-year', 'kind', 'authors']
+
+    def get_queryset(self, *args, **kwargs):
+        self.queryset = self.model.objects.filter(reviewed=False).order_by('-year', 'kind', 'authors')
+        return super().get_queryset(*args, **kwargs)
 
 
 class UserPublicationList(RolePermsViewMixin, ItemListView):
@@ -125,7 +127,7 @@ class UserPublicationList(RolePermsViewMixin, ItemListView):
     list_title = 'My Publications'
 
     def get_queryset(self, *args, **kwargs):
-        self.queryset = self.request.user.publications.select_subclasses()
+        self.queryset = self.request.user.publications.all()
         return super().get_queryset(*args, **kwargs)
 
 
@@ -145,24 +147,45 @@ def get_author_matches(user):
     ).filter(query).count()
 
 
+def _claim_link(claimed, obj):
+    if claimed:
+        url = reverse_lazy("unclaim-publication", kwargs={"pk": obj.pk})
+        return mark_safe(
+            f'<a href="{url}" class="btn btn-xs btn-danger" title="Add"><i class="bi bi-x-lg"></i></a>'
+        )
+    else:
+        url = reverse_lazy("claim-publication", kwargs={"pk": obj.pk})
+        return mark_safe(
+            f'<a href="{url}" class="btn btn-xs btn-success" title="Remove"><i class="bi bi-plus-lg"></i></a>'
+        )
+
+
 class ClaimPublicationList(RolePermsViewMixin, ItemListView):
     model = models.Publication
-    template_name = "publications/claim-publications.html"
+    template_name = "tooled-item-list.html"
     paginate_by = 15
     list_filters = ['kind', 'tags', BeamlineFilterFactory.new("beamlines"), FromYearListFilter, ToYearListFilter]
-    list_columns = ['cite', 'kind']
-    list_transforms = {'cite': _fmt_citations, 'beamlines': _format_beamlines}
+    list_columns = ['cite', 'date', 'claimed']
+    list_transforms = {
+        'cite': _fmt_citations,
+        'claimed': _claim_link
+    }
     list_search = ['authors', 'title', 'date']
     ordering = ['kind', '-year', 'authors']
-    list_styles = {'cite': 'col-sm-10', }
-    list_title = 'Matched Publications'
+    list_styles = {
+        'date': 'text-nowrap',
+        'claimed': 'col-auto text-center'
+    }
+    list_title = 'Matched/Claimed Publications'
 
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
         names = get_author_names(user)
-        query = functools.reduce(operator.or_, [Q(authors__icontains=name) for name in names], Q())
+        query = functools.reduce(operator.__or__, [Q(authors__icontains=name) for name in names], Q())
 
-        self.queryset = models.Publication.objects.filter(query).select_subclasses()
+        self.queryset = models.Publication.objects.annotate(
+            claimed=Q(users__id__exact=user.pk)
+        ).filter(query | Q(users=user)).all().order_by('claimed')
         return super().get_queryset(*args, **kwargs)
 
 
@@ -175,9 +198,6 @@ class ClaimPublication(RolePermsViewMixin, View):
             if q.count():
                 obj = q[0]
                 obj.users.add(self.request.user)
-                if not isinstance(obj.history, list):
-                    obj.history = []
-                obj.history.append('Claimed by {0} on {1}'.format(self.request.user, timezone.now().isoformat()))
                 obj.save()
                 messages.add_message(self.request, messages.SUCCESS, "Publication has been added to your list.")
             else:
@@ -194,9 +214,6 @@ class UnclaimPublication(RolePermsViewMixin, View):
             if q.count():
                 obj = q[0]
                 obj.users.remove(self.request.user)
-                if not isinstance(obj.history, list):
-                    obj.history = []
-                obj.history.append('Unclaimed by {0} on {1}'.format(self.request.user, timezone.now().isoformat()))
                 obj.save()
                 messages.add_message(self.request, messages.SUCCESS, "Publication has been removed from your list.")
             else:
@@ -262,20 +279,24 @@ class PublicationReview(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
     success_url = reverse_lazy('publication-review-list')
     success_message = "Publication has been updated and marked as reviewed."
 
-    def get_object(self):
-        objects = models.Publication.objects.filter(pk=self.kwargs.get('pk')).select_subclasses()
+    def get_object(self, *args, **kwargs):
+        objects = models.Publication.objects.filter(pk=self.kwargs.get('pk')).all()
         if objects:
             return objects[0]
         else:
             raise models.Publication.DoesNotExist
 
     def get_form_class(self):
-        key = self.object.__class__.__name__
+        key = self.object.kind
 
         return {
-            'Article': forms.ArticleReviewForm,
-            'Book': forms.BookReviewForm,
-            'PDBDeposition': forms.PDBReviewForm,
+            'article': forms.ArticleReviewForm,
+            'proceeding': forms.ArticleReviewForm,
+            'phd_thesis': forms.BookReviewForm,
+            'msc_thesis': forms.BookReviewForm,
+            'magazine': forms.ArticleReviewForm,
+            'chapter': forms.BookReviewForm,
+            'book': forms.BookReviewForm,
         }.get(key, forms.PublicationReviewForm)
 
     def form_valid(self, form):
@@ -288,7 +309,7 @@ class PublicationReview(SuccessMessageMixin, RolePermsViewMixin, UpdateView):
 class PublicationDelete(RolePermsViewMixin, ModalDeleteView):
     admin_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
     allowed_roles = USO_ADMIN_ROLES + USO_CURATOR_ROLES
-    queryset = models.Publication.objects.select_subclasses()
+    queryset = models.Publication.objects.all()
     success_url = reverse_lazy('publication-review-list')
 
     def confirmed(self, request, *args, **kwargs):
@@ -301,16 +322,9 @@ class PublicationDelete(RolePermsViewMixin, ModalDeleteView):
         return super().confirmed(request, *args, **kwargs)
 
 
-MODELS = {
-    'article': models.Article, 'msc_thesis': models.Book, 'phd_thesis': models.Book, 'pdb': models.PDBDeposition,
-    "patent": models.Patent,
-    'book': models.Book
-}
-
-
 class PublicationWizard(SessionWizardView):
     form_list = [('0', forms.PubWizardForm1), ('1', forms.PubWizardForm2), ('2', forms.PubWizardForm3)]
-    template_name = "publications/forms/publication_form.html"
+    template_name = "publications/forms/submit-form.html"
 
     def get_success_url(self):
         if self.request.user.is_authenticated:
@@ -320,59 +334,56 @@ class PublicationWizard(SessionWizardView):
         return success_url
 
     def done(self, form_list, **kwargs):
-        """ Create the new publication here, based on the cleaned_data from the forms """
+        """
+        Create the new publication here, based on the cleaned_data from the forms
+        """
         data = form_list[-1].cleaned_data
         details = json.loads(data['details'])
-        if isinstance(details['authors'], str):
-            details['authors'] = [v.strip() for v in details['authors'].split(';')]
-
-        info = {}
-        info.update(
-            {f: details.get(f) for f in ['authors', 'title', 'date', 'keywords', 'kind', 'reviewed', 'code'] if
-             details.get(f)}
-        )
+        info = details
         info.update(notes=data.get('notes'))
-        info.update(history=[f'Added by {self.request.user}'])
 
         if details.get('journal'):
-            model = models.Article
-            if not details.get('journal_id'):
-                j = models.Journal.objects.create(**details['journal'])
+            journal = details['journal']
+            if isinstance(journal, int):
+                j = models.Journal.objects.get(pk=journal)
             else:
-                j = models.Journal.objects.get(pk=details.get('journal_id'))
+                issn = journal.pop('issn', '').strip()
+                j, created = models.Journal.objects.get_or_create(issn=issn, defaults=journal)
             info.update(journal=j)
 
-            info.update({f: details.get(f) for f in ['volume', 'number', 'pages'] if details.get(f)})
-        elif details['kind'] in models.Book.TYPES:
-            model = models.Book
-            info.update(
-                {f: details.get(f) for f in
-                 ['main_title', 'editor', 'publisher', 'edition', 'address', 'volume', 'pages'] if details.get(f)}
-            )
-        elif details['kind'] in models.Patent.TYPES:
-            model = models.Patent
-        else:
-            messages.add_message(self.request, messages.ERROR, "Unable to create publication: Unknown type")
-            return HttpResponseRedirect(self.get_success_url())
-
         obj = data.get('obj', None)
+        funders = details.pop('funders', [])
         if not obj:
-            obj = model.objects.create(**info)
+            obj = models.Publication.objects.create(**info)
+            ActivityLog.objects.log(
+                self.request, obj, kind=ActivityLog.TYPES.create,
+                description=f'Publication Added by {self.request.user}'
+            )
         else:
-            info['history'] = obj.history + [
-                'Re-entered by {0} on {1}'.format(self.request.user, timezone.now().isoformat(' '))]
-            model.objects.filter(pk=obj.pk).update(**info)
+            models.Publication.objects.filter(pk=obj.pk).update(**info)
+            ActivityLog.objects.log(
+                self.request, obj, kind=ActivityLog.TYPES.create,
+                description=f'Publication Re-entered by {self.request.user}'
+            )
 
         if data.get('beamlines'):
-            bls = {bl for bl in data['beamlines'] if not bl.kind == bl.Types.sector}
+            items = {bl for bl in data['beamlines'] if not bl.kind == bl.Types.sector}
             for bl in [x for x in data['beamlines'] if (x.kind == x.Types.sector)]:
-                bls.update(bl.children.all())
-            data['beamlines'] = bls
-            obj.beamlines.add(*data['beamlines'])
+                items.update(bl.children.all())
+            obj.beamlines.add(*items)
+
         if data.get('funders'):
-            funders = [f if isinstance(f, models.FundingSource) else models.FundingSource.objects.create(**f) for f in
-                       data['funders']]
-            obj.funders.add(*funders)
+            known_funders = data['funders']
+            obj.funders.add(*known_funders)
+            new_funders = []
+            for funder in funders:
+                doi = funder.pop('doi', None)
+                if not doi:
+                    continue
+                f, created = models.FundingSource.objects.get_or_create(doi=doi, defaults=funder)
+                new_funders.append(f)
+            obj.funders.add(*new_funders)
+
         if data.get('author'):
             if self.request.user.is_authenticated:
                 obj.users.add(self.request.user)
@@ -392,61 +403,14 @@ class PublicationWizard(SessionWizardView):
             if step == "1" or self.form_list['1'] == form.__class__:
                 cleaned_data = self.get_cleaned_data_for_step(self.steps.first) or {}
                 if cleaned_data['details']:
-                    info = json.loads(cleaned_data['details'])
-                    kind = info.get('kind', None)
-
-                    if info:
-                        details = {
-                            'kind': kind, 'funders': info.get('funders', {}),
-                            'unknown_funders': info.get('unknown_funders', {})
-                        }
-                        if kind in models.Article.TYPES:
-                            journal = None
-                            for issn in info.get('journal', {}).get('issn', '').split(';'):
-                                js = models.Journal.objects.filter(issn__icontains=issn)
-                                if js.count():
-                                    journal = js[0]
-                                    details['journal_id'] = journal.pk
-                                    break
-                            details['journal'] = info.get('journal', None)
-
-                            fields = ['title', 'authors', 'date', 'volume', 'number', 'pages', 'reviewed', 'keywords',
-                                      'journal']
-                            details.update({f: info.get(f, None) for f in fields})
-                            details.update(
-                                {
-                                    'journal_title': journal and journal.title or details.get('journal', {}).get(
-                                        'title', ''
-                                    ), 'code': info.get('code', None)
-                                }
-                            )
-
-                        elif kind in ['msc_thesis', 'phd_thesis', 'chapter']:
-                            details.update(info)
-                        elif kind in models.Book.TYPES:
-                            info['edition'] = info.get('number', None)
-                            fields = [
-                                'main_title', 'editor', 'publisher', 'title', 'authors', 'edition', 'address',
-                                'volume', 'pages', 'keywords', 'date', 'code', 'keywords'
-                            ]
-                            if 'book' in info:
-                                # replace title, publisher and editor from main book
-                                info['main_title'] = info['book'].get('title', None)
-                                info['editor'] = '; '.join(info['book'].get('authors', []))
-                                info['publisher'] = info['book'].get('publisher', None)
-                            details.update({f: info.get(f, None) for f in fields})
-                        elif kind in models.Patent.TYPES:
-                            fields = ['title', 'authors', 'date', 'keywords', 'code']
-                            info['code'] = info.get('number', "").strip()
-                            details.update({f: info.get(f, None) for f in fields})
-                        form_info['details'] = json.dumps(details)
+                    details = json.loads(cleaned_data['details'])
+                    form_info['details'] = json.dumps(details)
 
             elif step == "2" or self.form_list['2'] == form.__class__:
-
                 cleaned_data = self.get_cleaned_data_for_step('1') or {}
                 try:
                     details = json.loads(cleaned_data.get('details', '{}'))
-                except:
+                except json.JSONDecodeError:
                     details = {}
                 kind = details.get('kind', cleaned_data.get('kind', None))
 
@@ -458,29 +422,20 @@ class PublicationWizard(SessionWizardView):
                 matches = models.check_unique(
                     details.get('title', None), details.get('authors', None), details.get('code', None)
                 )
-
-                if 'thesis' in kind:
-                    for f in ['title', 'authors', 'publisher', 'address', 'keywords', 'kind', 'code']:
-                        details.update({f: cleaned_data.get(f, None)})
-
-                    if cleaned_data.get('date', None):
-                        details['date'] = cleaned_data['date'].isoformat()
+                if isinstance(details['date'], date):
+                    details['date'] = details['date'].isoformat()
 
                 form_info = {
-                    'details': json.dumps(details), 'kind': kind, 'obj': matches and matches[0] or None
+                    'details': json.dumps(details),
+                    'kind': kind,
+                    'obj': matches and matches[0] or None
                 }
 
                 funders = []
                 for f in details.get('funders', []):
-                    fs = models.FundingSource.objects.filter(doi__icontains=f['doi'])
-                    if fs.count():
-                        funders.append(fs[0])
-                    else:
-                        funders.append(f)
-                for f in details.get('unknown_funders', []):
-                    fs = models.FundingSource.objects.filter(name__icontains=f['name'])
-                    if fs.count():
-                        funders.append(fs[0])
+                    fs = models.FundingSource.objects.filter(doi__iexact=f['doi']).first()
+                    if fs:
+                        funders.append(fs)
                 form_info['funders'] = funders
 
             if form_info:
@@ -509,7 +464,7 @@ class InstitutionMetrics(RolePermsViewMixin, TemplateView):
 
         institution = Institution.objects.get(pk=self.kwargs.get('pk'))
         context['institution'] = institution
-        authors = {"{}, {}".format(u.last_name.upper(), u.first_name[0]) for u in institution.users.all()}
+        authors = {f"{u.last_name.upper()}, {u.first_name[0]}" for u in institution.users.all()}
         pks = set()
         for p in models.Publication.objects.all():
             pub_authors = {abbrev_author(x) for x in p.authors.upper().split(';') if x}

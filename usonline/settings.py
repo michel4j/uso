@@ -242,13 +242,20 @@ USO_OPEN_WEATHER_KEY = ""
 USO_WEATHER_LOCATION = [52.14, -106.63]  # Default to CLSI
 USO_PROFILE_MANAGER = ExternalProfileManager
 USO_REVIEW_ASSIGNMENT = "MIP"    # or either "MIP" or "CMACRA" or "BRUTE_FORCE"
-USO_PDB_FACILITIES = {
+USO_PDB_SITE = 'CLSI'       # Protein Data Bank site code
+USO_PDB_SITE_MAP = {
     "CLSI08B1-1": ["CMCF-ID"],
     "CLSI08ID-1": ["CMCF-BM"],
 }
 
+OPEN_CITATIONS_API_KEY = None
+CROSSREF_THROTTLE = 1  # time delay between crossref calls
+CROSSREF_BATCH_SIZE = 20
+CROSSREF_API_EMAIL = None
+
+
 ROLEPERMS_DEBUG = False
-GOOGLE_API_KEY = ""
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', None)
 DYNAMIC_BREADCRUMBS_PATH_MAX_DEPTH = 8
 DYNFORMS_MIXINS = {
     'VIEW': ['roleperms.views.AdminRequiredMixin'],
@@ -288,3 +295,4 @@ USO_CODE_GENERATORS = {
 }
 
 CSRF_TRUSTED_ORIGINS = [SITE_URL]
+

@@ -33,7 +33,9 @@ SECRET_KEY='${SECRET_KEY}'
 
 DATABASE_PASSWORD='${DB_PASSWORD}'
 
-OPEN_WEATHER_API_KEY=your_openai_api_key_here
+OPEN_WEATHER_API_KEY=your_open_weather_api_key_here
+CROSSREF_API_KEY=your_crossref_api_key_here
+CROSSREF_API_EMAIL=your_email_here
 GOOGLE_API_KEY=your_google_api_key_here
 
 DJANGO_SUPERUSER_FIRST_NAME='Admin'

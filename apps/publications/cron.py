@@ -91,7 +91,7 @@ class UpdateMetrics(BaseCronJob):
                 }
                 if issn in utils.IFDB:
                     scores['ifactor'] = utils.IFDB[issn][sorted(utils.IFDB[issn].keys())[-4]]
-                models.Journal.objects.filter(issn__icontains=issn).update(**scores)
+                models.Journal.objects.filter(codes__icontains=issn).update(**scores)
             utils.load_metrics()
             out += 'Updated Journal SJR meta-data on {0}'.format(date.today())
         return out

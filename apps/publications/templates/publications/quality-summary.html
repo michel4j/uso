@@ -18,7 +18,7 @@ Publication Quality Metrics
 
 <a
     {% if beamline %}
-    href="{% url 'publication-list' beamline.acronym %}"
+    href="{% url 'facility-publication-list' beamline.acronym %}"
     {% else %}
     href="{% url 'publication-list' %}"
     {% endif %}
