@@ -14,22 +14,23 @@ class FetchBiosync(BaseCronJob):
     run_every = "P7D"
 
     def do(self):
-        utils.fetch_pdbs()
+        utils.fetch_and_update_depositions()
 
 
 class FetchCitations(BaseCronJob):
     """
     Fetch the latest citation counts for articles published in the current month.
     """
-    run_every = "P1M"
+    run_every = "P7D"
 
     def do(self):
         from publications import models
-        out = ""
-        for a in models.Article.objects.filter(date__month=date.today().month):
+        logs = []
+        year = date.today().year - 1
+        for a in models.Publication.objects.filter(date__month=date.today().month, code__regex=r'^10\.'):
             cite_count = utils.get_citedby(a.code)
             if cite_count > 0 and cite_count != a.citations:
-                out += 'Updated citation count for {0}: {1}\n'.format(a.code, cite_count)
+                logs += f'Updated citation count for {a.code}: {cite_count}\n'
                 a.citations = cite_count
                 a.history.append('Citation count updated on {0}'.format(date.today().isoformat()))
                 a.save()
@@ -68,30 +69,14 @@ class UpdateMetrics(BaseCronJob):
 
     def do(self):
         from publications import models
-        out = ""
-        last_year = date.today().year - 1
-        sjrdb_list = list(utils.SJRDB.values())
-
-        if not sjrdb_list and f'Total Docs. ({last_year})' in sjrdb_list[0]:
-            return "SJR database is up-to-date on {0}".format(date.today())
-
-        sjrdb = utils.get_sjr(last_year)
-        if sjrdb:
-            metrics_dir = os.path.join(settings.LOCAL_DIR, 'metrics')
-            os.makedirs(metrics_dir, exist_ok=True)
-            with open(os.path.join(settings.LOCAL_DIR, 'metrics', 'sjr.json'), 'w') as fobj:
-                json.dump(sjrdb, fobj)
-
-            for issn, record in list(sjrdb.items()):
-                scores = {
-                    'sjr': record['SJR'],
-                    'ifactor': record['Cites / Doc. (2years)'],
-                    'hindex': int(record['H index']),
-                    'score_date': date.today()
-                }
-                if issn in utils.IFDB:
-                    scores['ifactor'] = utils.IFDB[issn][sorted(utils.IFDB[issn].keys())[-4]]
-                models.Journal.objects.filter(codes__icontains=issn).update(**scores)
-            utils.load_metrics()
-            out += 'Updated Journal SJR meta-data on {0}'.format(date.today())
+        logs = []
+        year = date.today().year - 1
+        new_jmetrics = utils.fetch_journal_metrics(year)
+        logs.append(f'Fetched {len(new_jmetrics)} journal metrics for year {year}')
+        journal_metrics = utils.update_journal_metrics(year)
+        logs.append(f'Updated {len(journal_metrics)} journal metrics for year {year}')
+        pub_metrics = utils.update_publication_metrics(year)
+        logs.append(f'Updated {len(pub_metrics)} publication metrics for year {year}')
+        utils.update_funders()
+        out = "\n".join(logs)
         return out

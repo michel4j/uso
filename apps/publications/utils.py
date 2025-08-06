@@ -1,6 +1,8 @@
 import json
 import operator
 from io import BytesIO
+
+import pandas as pd
 from lxml import etree
 
 import requests
@@ -14,7 +16,7 @@ import re
 import itertools
 from functools import reduce
 import codecs
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from dateutil import parser
 from collections import defaultdict
 from django.conf import settings
@@ -35,7 +37,7 @@ CROSSREF_THROTTLE = getattr(settings, 'CROSSREF_THROTTLE', 1)  # time delay betw
 CROSSREF_BATCH_SIZE = getattr(settings, 'CROSSREF_BATCH_SIZE', 10)
 GOOGLE_API_KEY = getattr(settings, 'GOOGLE_API_KEY', None)
 
-
+OPEN_CITATIONS_URL = "https://opencitations.net/index/api/v2/"
 CROSSREF_EVENTS_URL = "https://api.eventdata.crossref.org/v1/events/distinct"
 CROSSREF_CITATIONS_URL = "https://www.crossref.org/openurl/"
 PDB_SEARCH_URL = getattr(settings, 'PDB_SEARCH_URL', "https://search.rcsb.org/rcsbsearch/v1/query")
@@ -111,51 +113,101 @@ class CrossRef(Crossref):
     def __init__(self):
         super().__init__(mailto=CROSSREF_API_EMAIL, ua_string='USO')
 
-    def mentions(self, ids, year=None):
-        ids = [ids] if isinstance(ids, str) else ids
-        results = {}
-        for key in ids:
-            doi = key[4:] if key.lower().startswith('doi') else key
-            params = {
-                'mailto': self.mailto,
-                'obj-id': doi,
-                'rows': 0,
-            }
-            if year:
-                params['from-occurred-date'] = f'{year}-01-01'
-                params['until-occurred-date'] = f'{year}-12-31'
+    def mentions(self, doi, year=None):
+        headers = {
+            'Accept': 'application/json',
+        }
+        params = {
+            'mailto': self.mailto,
+            'obj-id': doi,
+            'rows': 1000,
+        }
+        if year:
+            params['from-occurred-date'] = f'{year}-01-01'
+            params['until-occurred-date'] = f'{year}-12-31'
 
-            try:
-                response = requests.get(CROSSREF_EVENTS_URL, params=params)
-                response.raise_for_status()
-            except requests.exceptions.HTTPError:
-                print(f'Error fetching events for {key}')
+        events = []
+        more_results = True
+        while more_results:
+            response = requests.get(CROSSREF_EVENTS_URL, params=params, headers=headers)
+            if response.status_code == 200:
+                result = response.json()
+                message = result.get('message', {})
+                new_events = message.get('events', [])
+                events.extend(new_events)
+                total_events = message.get('total-results', 0)
+                more_results = len(new_events) and (len(events) < total_events)
+                params['cursor'] = message.get('next-cursor', None)
             else:
-                if 'json' in response.headers['Content-Type']:
-                    info = response.json()
-                    results[key] = info['message'].get('total-results', 0)
-        return results
+                more_results = False
+        if not events:
+            return {}
 
-    def citations(self, ids):
-        ids = [ids] if isinstance(ids, str) else ids
-        results = {}
-        for key in ids:
-            params = {
-                'pid': self.mailto,
-                'id': f"doi:{key[4:]}",
-                'noredirect': "true"
+        df = pd.DataFrame(events)
+        df['year'] = df.timestamp.str[:4]
+        mentions = df.groupby('year').size().to_dict()
+
+        if year:
+            # if year is specified, return only that year
+            return mentions.get(str(year), 0)
+        return mentions
+
+
+class OpenCitations:
+    def __init__(self, api_key=None, rate_limit=10):
+        self.rate_limit = rate_limit
+        self.api_key = api_key or OPEN_CITATIONS_API_KEY
+        self.base_url = OPEN_CITATIONS_URL
+        self.headers = {
+            'Accept': 'application/json',
+            'authorization': self.api_key,
+        }
+
+    def citations_list(self, doi, year: int = None) -> list[dict]:
+        """
+        Get the list of citations for a given DOI from OpenCitations API.
+
+        :param doi: The DOI of the publication.
+        :param year: Optional year to filter results by.
+        :return: Citations as a list of dicts
+        """
+        filters = '?filter=creation={year}' if year else ''
+        url = f"{self.base_url}citations/doi:{doi}{filters}"
+        response = requests.get(url, headers=self.headers)
+        if response.status_code == 200:
+            data = response.json()
+            return data
+        else:
+            print(f"Error fetching citations for {doi}: {response.status_code}")
+            return []
+
+    def citations(self, doi, year: int = None) -> dict:
+        """
+        Get the number of citations for a given DOI from OpenCitations API.
+        :param doi: The DOI of the publication.
+        :param year: Optional year to filter results by.
+        :return: dictionary mapping a year to a dictionary containing the number of citations
+        """
+        citations = self.citations_list(doi, year=year)
+        if not citations:
+            return {}
+
+        df = pd.DataFrame(citations)
+        df['year'] = df.creation.str[:4]
+        all_cites = df.groupby('year').size().to_dict()
+        self_cites = df.loc[df['author_sc'] == 'yes'].groupby('year').size().to_dict()
+        years = set(all_cites.keys()).union(set(self_cites.keys()))
+        info = {
+            yr: {
+                'citations': all_cites.get(yr, 0),
+                'self_cites': self_cites.get(yr, 0)
             }
-            try:
-                response = requests.get(CROSSREF_CITATIONS_URL, params=params)
-                response.raise_for_status()
-            except requests.exceptions.HTTPError:
-                print(f'Error fetching events for {key}')
-            else:
-                if 'xml' in response.headers['Content-Type']:
-                    xmldoc = minidom.parseString(response.content)
-                    value = val = xmldoc.getElementsByTagName('query')[0].attributes['fl_count'].value
-                    results[key] = int(value)
-        return results
+            for yr in sorted(years)
+        }
+        if year:
+            # if year is specified, return only that year
+            return info.get(str(year), {'citations': 0, 'self_cites': 0})
+        return info
 
 
 class ObjectParser(object):
@@ -767,7 +819,7 @@ def update_journal_metrics(year=None):
 
     # entries to be created
     to_create = [
-        models.JournalProfile(owner=journal, effective=effective, **metrics[journal.codes])
+        models.JournalMetric(journal=journal, year=yr, **metrics[journal.codes])
         for journal in models.Journal.objects.filter(articles__published__year__lte=yr).distinct()
         if journal.codes in metrics
     ]
@@ -785,53 +837,64 @@ def update_journal_metrics(year=None):
     return {'created': len(to_create), 'deleted': num_existing}
 
 
-def fetch_article_metrics(doi, year=None):
-    """
-    Fetch article metrics for current year or a given year
-    :param doi: Publication doi
-    :param year: target Year or None for current year
-    :return: dictionary of article metrics
-    """
-
-    cr = CrossRef(mailto=CROSSREF_API_EMAIL, ua_string='MxLIVE')
-    mentions = cr.citations(ids=doi)
-    return mentions
-
-
-def update_publication_metrics(year=None):
+def update_publication_metrics(rate_limit=10):
     """
     Fetch and create/or update publication metrics for current year or a given year
-    :param year: target Year or None for current year
+
+    :param rate_limit: maximum number of requests per second
     :return: number of entries created or deleted
     """
 
     # fetch metrics for the year
     now = timezone.localtime(timezone.now())
-    yr = year if year else now.year
+    cr = CrossRef()
+    oc = OpenCitations()
 
-    cr = CrossRef(mailto=CROSSREF_API_EMAIL, ua_string='MxLIVE')
-    publications = models.Publication.objects.filter(published__year=year).in_bulk(field_name='code')
+    last_month = timezone.now() - timedelta(weeks=4)
+    target_publications = models.Publication.objects.filter(code__regex=r'^10\.').filter(
+        Q(metrics__isnull=True) | Q(metrics__modified__lte=last_month)
+    )
 
+    publications = target_publications.distinct('code').in_bulk(field_name='code')
+
+    # Process at most CROSSREF_BATCH_SIZE publications at a time
     doi_list = list(publications.keys())
-    citations = cr.citations(doi_list)
-    mentions = cr.mentions(doi_list)
+    to_create = []
+    update_count = 0
+    for doi in doi_list[:CROSSREF_BATCH_SIZE]:
+        pub = publications.get(doi)
+        citations = oc.citations(doi)
+        mentions = cr.mentions(doi)
+        to_update = models.ArticleMetric.objects.filter(publication=pub).distinct('year')
+        entries = {item.year: item for item in to_update}
+        for yr, count in mentions.items():
+            citations[yr] = citations.get(yr, {'citations': 0, 'self_cites': 0})
+            citations[yr]['mentions'] = count
 
-    to_create = [
-        models.Metric(
-            effective=now,
-            owner=publications[code],
-            citations=citations.get(code, 0),
-            mentions=mentions.get(code, 0)
-        ) for code in citations.keys()
-    ]
+        for yr, info in citations.items():
+            if not yr:
+                continue
 
-    models.Metric.objects.bulk_create(to_create)
+            year = int(yr)
+            if year in entries:
+                metric = entries[year]
+                metric.citations = info['citations']
+                metric.self_cites = info['self_cites']
+                metric.mentions = info['mentions']
+                metric.modified = now
+                update_count += 1
+            else:
+                to_create.append(models.ArticleMetric(publication=pub, year=year, **info))
 
-    # Update publication to point to most recent metrics
-    newest = models.Metric.objects.filter(owner=OuterRef('pk')).order_by('-effective')
-    models.Publication.objects.update(metrics_id=Subquery(newest.values('pk')[:1]))
+        # Update the publication modified date
+        models.ArticleMetric.objects.bulk_update(to_update, fields=['citations', 'self_cites', 'mentions', 'modified'])
+        time.sleep(1/rate_limit)
 
-    return {'created': len(to_create)}
+    # Create new metrics entries
+    if to_create:
+        models.ArticleMetric.objects.bulk_create(to_create)
+
+    return {'created': len(to_create), 'updated': update_count}
 
 
 def update_funders():

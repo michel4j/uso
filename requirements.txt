@@ -34,3 +34,4 @@ python-magic>=0.4.27
 whitenoise>=6.9.0
 habanero>=2.2.0
 python-dotenv>=1.1.1
+pandas>=2.3.1

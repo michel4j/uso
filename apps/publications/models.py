@@ -79,6 +79,9 @@ class JournalMetric(TimeStampedModel):
     h_index = models.IntegerField("H-Index", default=1.0, null=True)
     year = models.IntegerField("Year", default=default_year)
 
+    class Meta:
+        unique_together = ('journal', 'year')
+
     def __str__(self):
         return "{} > {}".format(self.journal, self.year)
 
@@ -207,6 +210,20 @@ class Publication(TimeStampedModel):
             self.abbrev_authors(),
             self.date.year,
             self.title[:70] + (' ...' if len(self.title) > 70 else ''), )
+
+
+class ArticleMetric(TimeStampedModel):
+    publication = models.ForeignKey(Publication, related_name='metrics', on_delete=models.CASCADE)
+    citations = models.IntegerField("Citations", default=0)
+    mentions = models.IntegerField("Mentions", default=0)
+    self_cites = models.IntegerField("Self-Citations", default=0)
+    year = models.IntegerField("Year", default=default_year)
+
+    class Meta:
+        unique_together = ('publication', 'year')
+
+    def __str__(self):
+        return "{} > {}".format(self.publication, self.year)
 
 
 Patent = Publication
