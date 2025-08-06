@@ -9,11 +9,12 @@ class ModeSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     tentative = serializers.SerializerMethodField()
+    color = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Mode
         fields = (
-            'id', 'start', 'end', 'name', 'tags', 'cancelled',
+            'id', 'start', 'end', 'name', 'tags', 'cancelled', 'color',
             'rendering', 'display', 'kind', 'description', 'tentative'
         )
 
@@ -25,6 +26,9 @@ class ModeSerializer(serializers.ModelSerializer):
 
     def get_name(self, obj):
         return obj.kind.acronym
+
+    def get_color(self, obj):
+        return obj.kind.color
 
     def get_display(self, obj):
         return obj.kind.acronym
