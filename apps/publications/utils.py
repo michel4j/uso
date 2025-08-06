@@ -540,8 +540,10 @@ def create_depositions(entries):
         for k in ['diffrn_source', 'diffrn_detector']:
             entry[k] = entry.get(k) and entry.get(k, [])[i] or None
         entry = flatten(entry)
+
         record = PDBParser(entry)
         info = record.dict()
+
         if info['code'] in old_entries:
             # Update citation parameter if citation has changed
             if info['code'] in no_refs and info['citation'] and not no_refs[info['code']].citation:

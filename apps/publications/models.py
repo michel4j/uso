@@ -127,6 +127,8 @@ class Publication(TimeStampedModel):
     tags = models.ManyToManyField(PublicationTag, related_name='publications', verbose_name='Tags', blank=True)
     areas = models.ManyToManyField(SubjectArea, related_name="publications", verbose_name="Subject Areas", blank=True)
     reference = models.ForeignKey('Publication', related_name="pdbs", null=True, on_delete=models.SET_NULL)
+    pdb_doi = models.CharField(max_length=100, blank=True, null=True, verbose_name="PDB DOI")
+
     notes = models.TextField(blank=True, null=True)
     affiliation = models.JSONField(default=dict)
     beamlines = models.ManyToManyField(Facility, related_name="publications", blank=True)
