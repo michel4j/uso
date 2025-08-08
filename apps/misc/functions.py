@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.functions import Cast
 
 
 class Age(models.Func):
@@ -60,21 +61,34 @@ class Year(models.Func):
         return self.as_sql(compiler, connection, function="DATE_PART", template="%(function)s('YEAR', %(expressions)s)")
 
 
-class String(models.Func):
-    """
-    Coerce an expression to a string.
-    """
-    function = 'CAST'
-    template = '%(function)s(%(expressions)s AS varchar)'
-
-    # def as_postgresql(self, compiler, connection):
-    #     # CAST would be valid too, but the :: shortcut syntax is more readable.
-    #     return self.as_sql(compiler, connection, template='%(expressions)s::char')
-
-
 class LPad(models.Func):
     function = 'LPAD'
     template = "%(function)s(%(expressions)s)"
 
     def __init__(self, expression, length, **extra):
         super().__init__(expression, models.Value(length), models.Value('0'), **extra)
+
+
+class JoinArray(models.Func):
+    function = "ARRAY_TO_STRING"
+    template = "%(function)s(%(expressions)s)"
+    allow_distinct = True
+    output_field = models.TextField()
+
+    def __init__(self, expression, delimiter, **extra):
+        if isinstance(delimiter, models.Value):
+            delimiter_expr = delimiter
+        else:
+            delimiter_expr = models.Value(str(delimiter))
+        super().__init__(expression, delimiter_expr, **extra)
+
+
+class String(Cast):
+    """
+    Coerce an expression to a string.
+    """
+    output_field = models.CharField()
+
+    def __init__(self, expression):
+        super().__init__(expression, output_field=self.output_field)
+

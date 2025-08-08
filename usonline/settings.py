@@ -265,7 +265,10 @@ REPORTCRAFT_MIXINS = {
     'VIEW': ['roleperms.views.StaffRequiredMixin'],
     'EDIT': ['roleperms.views.AdminRequiredMixin'],
 }
-
+REPORTCRAFT_FUNCTIONS = [
+    'misc.functions.JoinArray',
+    'misc.functions.String'
+]
 REPORTCRAFT_APPS = [
     'proposals',
     'projects',
