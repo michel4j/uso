@@ -1,6 +1,7 @@
 import json
 import operator
 from io import BytesIO
+from pathlib import Path
 
 import pandas as pd
 from lxml import etree
@@ -10,7 +11,7 @@ import csv
 import time
 import os
 import pickle
-from xml.dom import minidom
+
 from pprint import pprint as print
 import re
 import itertools
@@ -22,25 +23,30 @@ from collections import defaultdict
 from django.conf import settings
 from django.utils import dateparse, timezone
 from django.db import transaction
-from django.db.models import Subquery, OuterRef, Q
+from django.db.models import Subquery, OuterRef, Q, QuerySet
 
 from habanero import Crossref
+
+from docs.source.conf import author
 from misc.utils import MultiKeyDict, debug_value
 from . import models
+
+from rcsbapi.search import search_attributes as attrs
+
 
 PDB_SITE = getattr(settings, 'USO_PDB_SITE', 'CLSI')
 PDB_SITE_MAP = getattr(settings, 'USO_PDB_SITE_MAP', {})
 
 CROSSREF_API_EMAIL = getattr(settings, 'CROSSREF_API_EMAIL', '')
 OPEN_CITATIONS_API_KEY = getattr(settings, 'OPEN_CITATIONS_API_KEY', None)
-CROSSREF_THROTTLE = getattr(settings, 'CROSSREF_THROTTLE', 1)  # time delay between crossref calls
+CROSSREF_THROTTLE = getattr(settings, 'CROSSREF_THROTTLE', 0.025)  # time delay between crossref calls
 CROSSREF_BATCH_SIZE = getattr(settings, 'CROSSREF_BATCH_SIZE', 10)
 GOOGLE_API_KEY = getattr(settings, 'GOOGLE_API_KEY', None)
 
 OPEN_CITATIONS_URL = "https://opencitations.net/index/api/v2/"
 CROSSREF_EVENTS_URL = "https://api.eventdata.crossref.org/v1/events/distinct"
 CROSSREF_CITATIONS_URL = "https://www.crossref.org/openurl/"
-PDB_SEARCH_URL = getattr(settings, 'PDB_SEARCH_URL', "https://search.rcsb.org/rcsbsearch/v1/query")
+PDB_SEARCH_URL = getattr(settings, 'PDB_SEARCH_URL', "https://search.rcsb.org/rcsbsearch/v2/query")
 PDB_REPORT_URL = getattr(settings, 'PDB_REPORT_URL', "https://data.rcsb.org/graphql")
 GOOGLE_BOOKS_API = getattr(settings, 'GOOGLE_BOOKS_API', "https://www.googleapis.com/books/v1/volumes")
 SCIMAGO_URL = getattr(settings, 'SCIMAGO_URL', "https://www.scimagojr.com/journalrank.php")
@@ -70,10 +76,13 @@ REPORT_QUERY = """{{
     }}
     rcsb_accession_info {{
       initial_release_date
+      deposit_date
     }}
-    pdbx_vrpt_summary {{
-      PDB_deposition_date
-      PDB_resolution
+    rcsb_entry_info {{
+      diffrn_resolution_high {{
+        provenance_source
+        value
+      }}
     }}
     diffrn_detector {{
       pdbx_collection_date
@@ -89,6 +98,16 @@ REPORT_QUERY = """{{
     }}
   }}
 }}"""
+
+PDB_QUERY_DATA = [
+    'rcsb_id',
+    'struct.title',
+    'rcsb_primary_citation.rcsb_authors',
+    'rcsb_primary_citation.pdbx_database_id_DOI',
+    'rcsb_accession_info.initial_release_date',
+    'diffrn_source.pdbx_synchrotron_beamline',
+    'diffrn_source.pdbx_synchrotron_site',
+]
 
 
 def flatten(d, parent_key='') -> dict:
@@ -244,7 +263,7 @@ class PDBParser(ObjectParser):
 
     """
     FIELDS = [
-        'code', 'title', 'authors', 'date', 'kind'
+        'code', 'title', 'authors', 'date', 'kind', 'pdb_doi'
     ]
     KEY_MAPS = {
         'code': 'rcsb_id',
@@ -264,7 +283,7 @@ class PDBParser(ObjectParser):
     def get_kind(self):
         return models.Publication.TYPES.pdb
 
-    def get_reference(self):
+    def get_pdb_doi(self):
         if self._entry.get('rcsb_primary_citation.pdbx_database_id_DOI'):
             return self._entry['rcsb_primary_citation.pdbx_database_id_DOI']
 
@@ -274,6 +293,17 @@ class PDBParser(ObjectParser):
             for key in self._entry['diffrn_source.pdbx_synchrotron_beamline'].split()
         ]
 
+def fix_issns(issns: list) ->  list:
+    """
+    Fix issn formatting
+    :param issns: list of strings
+    :return: list of strings with issns formatted correctly
+    """
+
+    return [
+        re.sub(r'(\w{4})(?!$)', r'\1-', issn.replace('-', '').strip())
+        for issn in issns
+    ] or []
 
 class BookParser(ObjectParser):
     """
@@ -288,13 +318,13 @@ class BookParser(ObjectParser):
     }
 
     def get_code(self):
-        return 'ISBN:{}'.format(self._entry['industryIdentifiers'][0]['identifier'])
+        return f'{self._entry["industryIdentifiers"][0]["identifier"]}'
 
     def get_date(self):
-        if len(self._entry['publishDate']) ==4:
-            d = dateparse.parse_date('{}-01-01'.format(self._entry['publishDate']))
+        if len(self._entry['publishDate']) == 4:
+            d = dateparse.parse_date(f'{self._entry["publishDate"]}-01-01')
         elif len(self._entry['publishDate']) == 7:
-            d = dateparse.parse_date('{}-01'.format(self._entry['publishDate']))
+            d = dateparse.parse_date(f'{self._entry["publishDate"]}-01')
         else:
             d = dateparse.parse_date(self._entry['publishDate'])
         return d.isoformat()
@@ -368,12 +398,12 @@ class ArticleParser(ObjectParser):
         else:
             parts = created['date-parts'][0]
 
-        parts = parts + [1]*(3-len(parts))  # sometimes partial dates are given, assume first of month
+        parts = parts + [1] * (3 - len(parts))  # sometimes partial dates are given, assume first of month
         return date(*parts)
 
     def get_authors(self):
         return [
-            '{}, {}'.format(author['family'], author.get('given', ''))
+            f'{author["family"]}, {author.get("given", "")}'
             for author in self._entry['author']
         ]
 
@@ -401,12 +431,11 @@ class ArticleParser(ObjectParser):
         ]
 
     def get_journal(self):
-        issns = tuple(set(self._entry.get('ISSN', [])))
+        issns = tuple(set(fix_issns(self._entry.get('ISSN', []))))
         names = self._entry.get('short-container-title', [])
         names += self._entry.get('container-title', [])
         names.sort(key=lambda v: len(v))
         names = list(filter(None, names))
-        debug_value(self._entry)
         issn_query = reduce(operator.__or__, [Q(codes__icontains=issn) | Q(issn__iexact=issn) for issn in issns], Q())
         journal = models.Journal.objects.filter(issn_query).distinct().first()
         if journal:
@@ -427,6 +456,18 @@ class ArticleParser(ObjectParser):
     def get_isbn(self):
         return self._entry.get('ISBN', [])
 
+    def get_affiliations(self):
+        return list({
+            inst['name']: {
+                'name': inst['name'],
+                'acronym': inst.get('acronym', ''),
+                'place': ', '.join(inst.get('place', [])),
+                'ror': inst.get('ROR', ''),
+            }
+            for auth in self._entry.get('author', [])
+            for inst in auth.get('affiliation', [])
+        }.values())
+
 
 class JournalParser(ObjectParser):
     """
@@ -443,7 +484,7 @@ class JournalParser(ObjectParser):
     ]
 
     def get_codes(self):
-        return tuple(set(self._entry.get('ISSN', [])))
+        return tuple(set(fix_issns(self._entry.get('ISSN', []))))
 
     def get_topics(self):
         return [topic['name'] for topic in self._entry.get('subjects', [])]
@@ -485,19 +526,26 @@ class SCIMagoParser(ObjectParser):
         })
 
 
-def fetch_deposition_codes():
+def fetch_pdb_codes():
     """
-    Retrieve all PDB Codes for the facility as a list of strings
+    Retrieve all revised PDB Codes for the facility as a list of strings
     """
-    response = requests.post(PDB_SEARCH_URL, json=SEARCH_JSON)
+    dt = timezone.localtime(timezone.now() - timedelta(days=180))
 
-    if response.status_code == 200:
-        return [entry['identifier'] for entry in response.json()['result_set']]
-    else:
-        response.raise_for_status()
+    query = (
+        (attrs.rcsb_accession_info.revision_date >= f"{dt:%Y-%m-%d}") &
+        (attrs.diffrn_source.pdbx_synchrotron_site == PDB_SITE)
+    )
+    try:
+        codes = list(query(return_type='entry'))
+    except Exception as e:
+        print(f"Error fetching PDB codes: {e}")
+        return []
+
+    return codes
 
 
-def fetch_depositions(codes):
+def fetch_pdb_entries(codes):
     """
     Fetch the CSV data for all specified PDB codes
     :param codes:  list of strings representing pdbcodes
@@ -505,28 +553,30 @@ def fetch_depositions(codes):
     """
 
     params = REPORT_QUERY
-    params = params.format(', '.join(['"{}"'.format(pdb) for pdb in codes]))
+    params = params.format(', '.join([f'"{pdb}"' for pdb in codes]))
 
     response = requests.post(PDB_REPORT_URL, json={'query': params})
 
     if response.status_code == 200:
-        return response.json()['data']['entries']
+        result = response.json()
+        return result['data']['entries']
     else:
         response.raise_for_status()
 
 
-def create_depositions(entries):
+def create_pdb_entries(entries):
     """
     Create database entries for PDB results
-    :param entries: list of dictionaries returned from PDB search reports
+    :param entries: a list of dictionaries returned from PDB search reports
     :return: a dictionary representing the numbers of entries created or updated
     """
+    from beamlines.models import Facility
 
     no_refs = models.Publication.objects.filter(
-        kind=models.Publication.TYPES.pdb, reference_isnull=True
+        kind=models.Publication.TYPES.pdb, reference__isnull=True
     ).distinct('code').in_bulk(field_name='code')
 
-    old_entries = models.Publication.objects.fitler(kind=models.Publication.TYPES.pdb).values_list('code', flat=True)
+    old_entries = models.Publication.objects.filter(kind=models.Publication.TYPES.pdb).values_list('code', flat=True)
 
     new_entries = {}
     updated_entries = []
@@ -546,13 +596,13 @@ def create_depositions(entries):
 
         if info['code'] in old_entries:
             # Update citation parameter if citation has changed
-            if info['code'] in no_refs and info['citation'] and not no_refs[info['code']].citation:
-                no_refs[info['code']].citation = info['citation']
+            if info['code'] in no_refs and record['reference'] and not no_refs[info['code']].pdb_doi:
+                no_refs[info['code']].pdb_doi = record['reference']
                 updated_entries.append(no_refs[info['code']])
         else:
             # New entries
-            entry_acronyms[info['code']].extend(record['tags'])
-            if not info['code'] in new_entries:   # entry will exist already for multi-beamline entries
+            entry_acronyms[info['code']].extend(record['beamlines'])
+            if not info['code'] in new_entries:  # entry will exist already for multi-beamline entries
                 new_entries[info['code']] = models.Publication(**info)
 
     # update old entries if any changes have happened
@@ -563,21 +613,13 @@ def create_depositions(entries):
     if new_entries:
         models.Publication.objects.bulk_create(new_entries.values())
 
-    # now update tags
-    name_tags = models.Tag.objects.in_bulk(field_name='name')    # maps tag names to tag
-    all_tags = set(itertools.chain.from_iterable(entry_acronyms.values()))
-    new_tags = all_tags - set(name_tags.keys())
-    create_tags = [models.Tag(name=name) for name in new_tags]
-    models.Tag.objects.bulk_create(create_tags)
-
-    # Add new entries to name_tags
-    name_tags.update(models.Tag.objects.in_bulk(new_tags, field_name='name'))
-
-    # finally, add tag relationships to newly created deposition_entries:
+    # finally, add beamline relationships to newly created depositions:
+    target_entries = models.Publication.objects.filter(
+        code__in=entry_acronyms.keys()
+    ).distinct('code').in_bulk(field_name='code')
     with transaction.atomic():
-        for code, deposition in models.Publication.objects.in_bulk(entry_acronyms.keys(), field_name='code').items():
-            deposition.tags.set([name_tags[name] for name in entry_acronyms[code]])
-
+        for code, deposition in target_entries.items():
+            deposition.beamlines.set(Facility.objects.filter(acronym__in=entry_acronyms[code]))
     return {'created': len(new_entries), 'updated': len(updated_entries)}
 
 
@@ -610,10 +652,12 @@ def chunker(iterable, n):
     :param n: number of items in each chunk
     :return: returns an iterable with n items
     """
+
     class Filler(object): pass
+
     return (
         itertools.filterfalse(lambda x: x is Filler, chunk)
-        for chunk in (itertools.zip_longest(*[iter(iterable)]*n, fillvalue=Filler))
+        for chunk in (itertools.zip_longest(*[iter(iterable)] * n, fillvalue=Filler))
     )
 
 
@@ -626,23 +670,23 @@ def create_publications(doi_list):
 
     existing_pubs = set(models.Publication.objects.values_list('code', flat=True))
     existing_journals = MultiKeyDict({
-        codes: pk
+        tuple(codes): pk
         for codes, pk in models.Journal.objects.values_list('codes', 'pk')
     })
-
     # avoid fetching exising entries
-    pending_dois = list(set(doi_list) - existing_pubs)
+    pending_doi_list = list(set(doi_list) - existing_pubs)
 
-    if not pending_dois:
+    if not pending_doi_list:
         return {'journals': 0, 'publications': 0}
 
     # fetch metadata from CrossRef
     cr = CrossRef()
-    results = cr.works(ids=pending_dois)
-    # fix inconsistent json from works
+    results = cr.works(ids=pending_doi_list)
+
+    # fix inconsistent JSON from works
     results = results if isinstance(results, list) else [results]
 
-    new_publications = {}   # details of publications to create indexed by doi code
+    new_publications = {}  # details of publications to create indexed by doi code
     new_journals = MultiKeyDict({})  # journals to create
 
     # first pass to create publication details
@@ -664,7 +708,7 @@ def create_publications(doi_list):
             details.update(book_entry.dict())
         else:
             journal = entry['journal']
-            if journal:
+            if isinstance(journal, dict):
                 codes = journal['codes']
                 if codes in existing_journals:
                     details['journal_id'] = existing_journals[codes]
@@ -674,6 +718,9 @@ def create_publications(doi_list):
 
                 # keep issn for later use to swap for journal_id
                 details['journal_issn'] = codes
+            elif isinstance(journal, int):
+                # journal_id is already set, no need to create a new journal
+                details['journal_id'] = journal
 
         new_publications[details['code']] = details
 
@@ -702,73 +749,93 @@ def create_publications(doi_list):
 
     # update journal_ids
     existing_journals = MultiKeyDict({
-        codes: pk
-        for codes, pk in models.Journal.objects.values_list('codes', 'pk')
+        tuple(j.codes): j
+        for j in models.Journal.objects.all()
     })
 
     # update publication details
     for details in new_publications.values():
         if 'journal_issn' in details:
-            details['journal_id'] = existing_journals[details.pop('journal_issn')]
+            details['journal'] = existing_journals[details.pop('journal_issn')]
+        elif 'journal' in details and isinstance(details['journal'], int):
+            details['journal_id'] = details.pop('journal', None)
 
     # create publication entries
     if new_publications:
-        to_create = [
-            models.Publication(**details)
-            for details in new_publications.values()
-        ]
-        models.Publication.objects.bulk_create(to_create)
+        for details in new_publications.values():
+            beamlines = details.pop('beamlines', [])
+            funders = details.pop('funders', [])
+            obj = models.Publication.objects.create(**details)
+
+            if beamlines:
+                items = {bl for bl in beamlines if not bl.kind == bl.Types.sector}
+                for bl in [x for x in beamlines if (x.kind == x.Types.sector)]:
+                    items.update(bl.children.all())
+                obj.beamlines.add(*items)
+
+            if funders:
+                new_funders = []
+                for funder in funders:
+                    doi = funder.pop('doi', None)
+                    if not doi:
+                        continue
+                    f, created = models.FundingSource.objects.get_or_create(doi=doi, defaults=funder)
+                    new_funders.append(f)
+                obj.funders.add(*new_funders)
+
 
     return {'journals': len(new_journals), 'publications': len(new_publications)}
 
 
-def fetch_and_update_depositions():
+def fetch_and_update_pdbs() -> dict:
     """
     Fetch PDB Codes from RCSB, Create new entries, Update entries, create related
     Publication records and Journals, link everything together
+    :return: a dictionary with the number of entries created and updated
     """
 
+    # create PDB depositions
+    codes = fetch_pdb_codes()
+    entries = fetch_pdb_entries(codes)
+    return create_pdb_entries(entries)
+
+
+def update_pdb_references(pending: QuerySet) -> dict:
+    """
+    Update PDB depositions with references from CrossRef if available
+    :param pending: Queryset of pending depositions
+    :return: dictionary containing number of "pdbs" updated, and number of "references" added
+    """
     now = timezone.now()
 
-    # create PDB depositions
-    codes = fetch_deposition_codes()
-    entries = fetch_depositions(codes)
-    create_depositions(entries)
-
-    # update Publication information creating new ones if necessary
+    # Pending items are PDBs with pdb_doi but no reference
     pending_depositions = defaultdict(list)
-    for deposition in models.Deposition.objects.filter(citation__isnull=False, reference__isnull=True):
-        pending_depositions[deposition.citation].append(deposition)
 
-    dois_pending = (
-        doi[4:]
-        for doi in pending_depositions.keys()
-    )
+    # multiple depositions can exist for the same DOI so group them together
+    for deposition in pending:
+        doi = re.sub(r'^https?://(dx\.)?doi\.org/', '', deposition.pdb_doi)
+        pending_depositions[doi].append(deposition)
 
-    # process dois in chunks of CROSSREF_BATCH_SIZE, to avoid issues with CrossRef rate limits
-    count = 0
-    for chunk in chunker(dois_pending, CROSSREF_BATCH_SIZE):
+    # process doi in chunks of CROSSREF_BATCH_SIZE, to avoid issues with CrossRef rate limits
+    for chunk in chunker(pending_depositions.keys(), CROSSREF_BATCH_SIZE):
         doi_list = list(chunk)
-        count += len(doi_list)
-        print('CREATING PUBLICATIONS: {}'.format(count))
-        print(doi_list)
         create_publications(doi_list)
         time.sleep(CROSSREF_THROTTLE)
 
     # Update references
-    added_references = models.Publication.objects.filter(created__gt=now).in_bulk(
-            pending_depositions.keys(), field_name='code'
+    added_references = models.Publication.objects.filter(
+        kind=models.Publication.TYPES.pdb, created__gt=now
+    ).distinct('code').in_bulk(
+        pending_depositions.keys(), field_name='code'
     )
 
     for code, depositions in pending_depositions.items():
         for deposition in depositions:
             deposition.reference = added_references.get(code)
 
-    models.Deposition.objects.bulk_update([
-        deposition
-        for depositions in pending_depositions.values()
-        for deposition in depositions
-    ], fields=['reference'])
+    models.Publication.objects.bulk_update(pending, fields=['reference'])
+
+    return {'references': len(pending_depositions), 'pdbs': len(pending)}
 
 
 def fetch_journal_metrics(year=None):
@@ -782,8 +849,9 @@ def fetch_journal_metrics(year=None):
         'out': 'xls',
         'year': year if year else timezone.now().year
     }
-
-    file_path = os.path.join(settings.LOCAL_DIR, f'scimago-{params["year"]}.pickle')
+    cache_dir = Path(settings.LOCAL_DIR) / 'cache'
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    file_path = cache_dir / f'scimago-{params["year"]}.pickle'
     if os.path.exists(file_path):
         with open(file_path, 'rb') as handle:
             return pickle.load(handle)
@@ -802,9 +870,6 @@ def fetch_journal_metrics(year=None):
                 pickle.dump(results, handle)
             return results
 
-        else:
-            response.raise_for_status()
-
 
 def update_journal_metrics(year=None):
     """
@@ -816,27 +881,37 @@ def update_journal_metrics(year=None):
     # fetch metrics for the year
     now = timezone.localtime(timezone.now())
     yr = year if year else now.year
-    effective = datetime(yr, 1, 1, 12, 0, tzinfo=now.tzinfo)
-    metrics = MultiKeyDict(fetch_journal_metrics(yr))
+    metrics_data = fetch_journal_metrics(yr)
+    if not metrics_data:
+        return {'created': 0, 'updated': 0}
+
+    metrics = MultiKeyDict(metrics_data)
 
     # entries to be created
+    target_journals = models.Journal.objects.filter(articles__date__year__lte=yr)
     to_create = [
-        models.JournalMetric(journal=journal, year=yr, **metrics[journal.codes])
-        for journal in models.Journal.objects.filter(articles__published__year__lte=yr).distinct()
-        if journal.codes in metrics
+        models.JournalMetric(journal=journal, year=yr, **metrics[tuple(journal.codes)])
+        for journal in target_journals.exclude(metrics__year=yr).distinct()
+        if tuple(journal.codes) in metrics
     ]
+    models.JournalMetric.objects.bulk_create(to_create)
 
-    # remove existing metrics for given year and replace with updated one.
-    existing = models.JournalProfile.objects.filter(effective__year=yr)
-    num_existing = existing.count()
-    existing.delete()
-    models.JournalProfile.objects.bulk_create(to_create)
-
-    # Update Journals to point to latest metric
-    newest = models.JournalProfile.objects.filter(owner=OuterRef('pk')).order_by('-effective')
-    models.Journal.objects.update(metrics_id=Subquery(newest.values('pk')[:1]))
-
-    return {'created': len(to_create), 'deleted': num_existing}
+    # entries to update
+    to_update = models.JournalMetric.objects.filter(year=yr, journal__in=target_journals).distinct('journal')
+    num_updated = 0
+    for metric in to_update:
+        codes = tuple(metric.journal.codes)
+        if codes in metrics:
+            metric.h_index = metrics[codes]['h_index']
+            metric.impact_factor = metrics[codes]['impact_factor']
+            metric.sjr_rank = metrics[codes]['sjr_rank']
+            metric.sjr_quartile = metrics[codes]['sjr_quartile']
+            metric.modified = now
+            num_updated += 1
+    models.JournalMetric.objects.bulk_update(
+        to_update, fields=['h_index', 'impact_factor', 'sjr_rank', 'sjr_quartile', 'modified']
+    )
+    return {'created': len(to_create), 'updated': num_updated}
 
 
 def update_publication_metrics(rate_limit=10):
@@ -890,38 +965,13 @@ def update_publication_metrics(rate_limit=10):
 
         # Update the publication modified date
         models.ArticleMetric.objects.bulk_update(to_update, fields=['citations', 'self_cites', 'mentions', 'modified'])
-        time.sleep(1/rate_limit)
+        time.sleep(1 / rate_limit)
 
     # Create new metrics entries
     if to_create:
         models.ArticleMetric.objects.bulk_create(to_create)
 
     return {'created': len(to_create), 'updated': update_count}
-
-
-def update_funders():
-    publications = models.Publication.objects.filter(
-        kind=models.Publication.TYPES.article, funders__isnull=True
-    ).distinct('code').in_bulk(
-        field_name='code'
-    )
-    cr = CrossRef()
-
-    count = 0
-    total = len(publications)
-
-    for code, pub in publications.items():
-        doi = code[4:]
-        results = cr.works(ids=[doi])
-        entry = ArticleParser(results['message'])
-        funders = entry.get_funders()
-        pub.funders.set([
-            models.Funder.objects.get_or_create(name=funder['name'], defaults={'code': funder['code']})[0]
-            for funder in funders
-        ])
-        time.sleep(CROSSREF_THROTTLE)
-        count += 1
-        print('{:0.2%} {}/{}'.format(count/total, count, total))
 
 
 def get_thesis_kind(field) -> models.Publication.TYPES:
@@ -960,7 +1010,6 @@ SCHEMA_MAP = {
     'keywords': ('subject', list),
 }
 
-
 THESIS_META_MAP = {
     'code': ('identifier', str),
     'title': ('title', str),
@@ -971,7 +1020,7 @@ THESIS_META_MAP = {
 }
 
 
-def get_meta_key(name:str) -> str:
+def get_meta_key(name: str) -> str:
     """
     Extract a metadata key from a meta tag name
     :param name: The name of the meta tag
@@ -994,13 +1043,13 @@ def get_url_meta(url, extras=None) -> dict:
     if r.status_code == requests.codes.ok:
         root = etree.parse(BytesIO(r.content), etree.HTMLParser())
         raw_info = [
-            (get_meta_key(el.get('name', 'junk')), el.get('content'))
-            for el in root.xpath('//meta')
-        ] + [
-            (value, el.text)
-            for prop, value in extras.items()
-            for el in root.xpath(f"//*[@{prop}='{value}']")
-        ]
+                       (get_meta_key(el.get('name', 'junk')), el.get('content'))
+                       for el in root.xpath('//meta')
+                   ] + [
+                       (value, el.text)
+                       for prop, value in extras.items()
+                       for el in root.xpath(f"//*[@{prop}='{value}']")
+                   ]
         schema_info = defaultdict(list)
         for k, v in raw_info:
             schema_info[k].append(v)
@@ -1056,7 +1105,7 @@ class Fetcher:
         raise NotImplementedError("Subclasses should implement this method.")
 
     @staticmethod
-    def get_doi(doi:str) -> dict:
+    def get_doi(doi: str) -> dict:
         """
         Fetch publication metadata from CrossRef using a DOI.
         :param doi: Digital Object Identifier.
@@ -1075,7 +1124,7 @@ class Fetcher:
         return {}
 
     @staticmethod
-    def get_thesis(url:str) -> dict:
+    def get_thesis(url: str) -> dict:
         """
         Fetch thesis metadata from a URL returns results of the first successful method
         :param url: url to fetch
@@ -1096,7 +1145,7 @@ class Fetcher:
         return {}
 
     @staticmethod
-    def get_patent(number:str) -> dict:
+    def get_patent(number: str) -> dict:
         number = number.replace(' ', '').upper()
         url = f'https://patents.google.com/patent/{number}'
         info = get_url_meta(url, extras={'itemprop': 'priorArtKeywords'})
@@ -1113,7 +1162,7 @@ class Fetcher:
         return {}
 
     @staticmethod
-    def get_book(isbn:str) -> dict:
+    def get_book(isbn: str) -> dict:
         """
         Fetch book information by ISBN.
         :param isbn: ISBN number of the book.
