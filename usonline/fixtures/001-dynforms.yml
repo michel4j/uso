@@ -852,8 +852,8 @@
         options:
         - nolabel
         field_type: newsection
-        instructions: Changes to Reviews and Reviewers will
-          be applied once you save the review.
+        instructions: Changes to Reviews and Reviewers will be applied once you save
+          the review.
     - name: Final Decision
       fields:
       - name: risk_level
