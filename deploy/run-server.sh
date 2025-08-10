@@ -33,12 +33,12 @@ done
 
 if [ ! -f /usonline/local/.dbinit ]; then
     echo "Loading app initial data ..."
-    /usonline/manage.py loaddata initial-data &&
+    /usonline/manage.py loaddata initial-data -v2 &&
 
     for f in /usonline/fixtures/*.{yml,json,yaml}; do
       if [[ -e "$f" ]]; then
         echo "Loading data $f ..."
-        /usonline/manage.py loaddata "$f"
+        /usonline/manage.py loaddata "$f" -v2
       fi
     done
 

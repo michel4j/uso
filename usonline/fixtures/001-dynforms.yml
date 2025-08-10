@@ -1032,222 +1032,6 @@
     - - save
       - Apply & Save
 - model: dynforms.formtype
-  pk: 8
-  fields:
-    created: 2015-11-06 22:21:38+00:00
-    modified: 2024-11-30 16:50:46.559933+00:00
-    name: New Project
-    code: project
-    description: Form for creating projects
-    header: false
-    help_bar: false
-    wizard: false
-    pages:
-    - name: Basic Information
-      fields:
-      - name: title
-        tags: ''
-        label: Title
-        units: chars
-        width: full
-        default: Please enter your title
-        maximum: null
-        minimum: null
-        options:
-        - required
-        field_type: singlelinetext
-        instructions: ''
-      - name: contract
-        tags: ''
-        label: Contract Number
-        units: chars
-        width: full
-        default: ''
-        maximum: null
-        minimum: null
-        options: []
-        field_type: singlelinetext
-        instructions: Only one project can be created for each contract.
-      - name: invoice_address
-        tags: ''
-        label: Invoice Address
-        options:
-        - required
-        - department
-        - labels
-        field_type: address
-        instructions: ''
-    - name: Team
-      fields:
-      - name: leader
-        tags: ''
-        label: Principal Investigator
-        options:
-        - required
-        field_type: nameemail
-        instructions: ''
-      - name: delegate
-        tags: ''
-        label: Delegate
-        options: []
-        field_type: nameemail
-        instructions: ''
-      - name: team_members
-        tags: ''
-        label: Team Members
-        options:
-        - repeat
-        field_type: nameemail
-        instructions: ''
-    - name: Beamline & Equipment
-      fields:
-      - name: first_cycle
-        tags: tinytron
-        label: Earliest Scheduling Period
-        options:
-        - required
-        field_type: reviewcycle
-        instructions: "Select the time period during which you are proposing to carry
-          out the experiments.   This should correspond to the earliest time frame
-          you would like the proposal to be scheduled if approved.  \n\nThe call for
-          proposals is open twice a year, usually about 5 months prior to the start
-          of the scheduling period. Approved projects will remain active for two years
-          from the start date of the selected period. However, proposals submitted
-          after the close of the submission deadline  for the selected period will
-          be considered as special requests for discretionary time only. Such projects
-          will expire at the end of the selected scheduling period."
-      - name: beamline_reqs
-        tags: ''
-        label: Facility Requirements
-        options:
-        - required
-        - repeat
-        - tags
-        field_type: beamlinereqs
-        instructions: "Please identify all the techniques and beamlines you plan to
-          use during your project.  Note that you can now submit a single proposal
-          for multiple-beamline projects -- simply use the [+] button to add additional
-          sections as required.  \n\nFor each facility, complete the following fields:
-          \ \n\n*  _Techniques_ -- select all the techniques you plan to use on that
-          beamline.  \n*  _Facility_ -- select the facility. The available techniques
-          and facilities will auto-update based on your selections.  \n*  _Shifts_
-          -- Enter the number of shifts being requested for period identified above.
-          **NOT the total amount of time requested over the lifetime of the project.**
-          \ \n*  _Experimental Procedure_ --  describe the experimental procedure
-          to be followed at the selected facility specifically.  \n*  _Justification
-          of Suitability_ --  Explain why this particular facility is suitable for
-          the planned experiments. Also explain the rational for the amount of beam
-          time requested above.\n\nFor each facility you plan to use, you are advised
-          to discuss your experiment with the beamline scientist to confirm its suitability.\n"
-      - name: ancillaries
-        tags: ''
-        label: Ancillary Requirements
-        width: full
-        options:
-        - multiple
-        field_type: ancillary
-        instructions: Select any other ancillary requirements you will need for your
-          experiment on-site.
-    - name: Materials Declaration
-      fields:
-      - name: sample_list
-        tags: ''
-        label: List of Samples
-        options: []
-        field_type: samples
-        instructions: "If you have detailed information about your samples, add them
-          here. \n\nAdd previously defined samples by selecting  them from the  drop-down
-          list. New samples can be created by clicking the [+] button. You can update
-          entries by clicking on the sample name.\n\nThe quantity of each sample must
-          be specified, including number of items and units. For example:  \n\n *
-          \  \"20 x 10 ml\"  \n *   \"0.3 Kg\" \n *   \"15 slides\" "
-      - name: sample_handling
-        size: medium
-        tags: ''
-        label: Sample Handling Procedure
-        units: chars
-        default: ''
-        maximum: null
-        minimum: null
-        options:
-        - required
-        field_type: paragraphtext
-        instructions: 'You are required to disclose any sample handling procedures
-          which will be performed on-site, regardless of simplicity (e.g.  transferring
-          a few milligrams of material into a sample holder, etc).
-
-
-          The following areas should be addressed in your description:
-
-
-          a) How will the samples will be transported to the facility. For large animals,
-          describe how they will be moved in/out of the experimental enclosure. For
-          radioactive materials, describe the sample holder/containment.
-
-
-          b) Describe how they will be manipulated on site. For live animal work,
-          describe the methods of anaesthesia, monitoring of anaesthetized animals,
-          and animal restraint methods.
-
-
-          c) Include details about any standard operating procedures which will be
-          followed and any safety controls and personal protection equipment or exposure
-          control plans which will be used.
-
-          '
-      - name: waste_generation
-        tags: ''
-        label: Waste Generation
-        options: []
-        field_type: wastetypes
-        instructions: Please identify all types of wastes which will be generated
-          during your experiment
-      - name: disposal_procedure
-        size: small
-        tags: ''
-        label: Description, Decontamination & Disposal Procedure
-        rules:
-        - field: waste_generation
-          value: ''
-          action: require
-          operator: notnull
-          subfield: ''
-        - field: ''
-          value: ''
-          action: ''
-          operator: ''
-          subfield: ''
-        units: chars
-        default: ''
-        maximum: null
-        minimum: null
-        options:
-        - hide
-        field_type: paragraphtext
-        instructions: Provide addition descriptions of the types of waste identified
-          above, as well as any decontamination and disposal procedures which will
-          be followed.
-      - name: equipment
-        tags: ''
-        label: Equipment
-        options:
-        - repeat
-        field_type: equipment
-        instructions: "Provide details of any equipment you will be bringing to assist
-          you with the experiment (e.g. pressure chambers, gas manifolds, heating
-          apparatus,  lasers --specify laser classes, cooling apparatus, cryogenic
-          equipment, etc). Be sure to describe the electrical/mechanical requirements.\n\nAll
-          electrical equipment brought into the facility shall conform to electrical
-          safety standards and bear a mark from a Nationally Recognized Testing Laboratory
-          (NRTL), recognized by <a href=\"http://www.saskpower.com/wp-content/uploads/electric_certification.pdf\">SaskPower</a>.
-          The equipment will be checked to confirm that it meets the appropriate electrical
-          standard before it can be used on-site. \n\nNon-commercial electronics will
-          require more detailed inspection before use. Please arrange to have this
-          inspection done in advance of your planned experiment.\n"
-    actions:
-    - - submit
-      - Submit
-- model: dynforms.formtype
   pk: 9
   fields:
     created: 2015-11-18 19:51:18+00:00
@@ -1638,35 +1422,118 @@
   pk: 13
   fields:
     created: 2016-02-03 19:16:06+00:00
-    modified: 2025-05-26 01:34:42.557257+00:00
-    name: Form For testing
+    modified: 2025-06-05 23:20:15.116322+00:00
+    name: Form Designer Playground Form
     code: test-form
     description: Just an example playground form for testing
-    header: false
-    help_bar: false
-    wizard: false
     pages:
-    - name: First Page
+    - name: Personal Information
       fields:
-      - name: sector-000
+      - field_type: fullname
+        label: Full Name
+        name: full_name
+        instructions: Please enter your full name as it appears on your government
+          issued ID.
+        width: full
         tags: ''
-        label: Sector 000
-        options: []
-        field_type: sector
-        instructions: ''
-      - name: sample-types-002
+        options:
+        - required
+      - field_type: multiplephonenumber
+        label: Phone Numbers
+        name: phone
+        instructions: Please enter your primary and secondary phone numbers
+        width: full
         tags: ''
-        label: Sample Types 002
         options: []
-        field_type: sampletypes
-        instructions: ''
-      - name: date-002
+      - field_type: email
+        label: Email Address
+        name: email
+        instructions: Please provide your work email address
+        width: full
         tags: ''
-        label: Date 002
         options: []
-        field_type: date
-        instructions: ''
+        default: ''
+      - field_type: address
+        label: Home Address
+        name: address
+        instructions: Enter your residential address
+        width: full
+        tags: ''
+        options: []
+    - name: RSVP
+      fields:
+      - field_type: nameaffiliation
+        label: Accompanying Guests
+        name: guests
+        instructions: Please list all individuals you will be bringing to the event
+          as guests, and their affiliations.
+        width: full
+        tags: ''
+        options:
+        - repeat
+      - field_type: richtext
+        label: Prepared Remarks
+        name: remarks
+        size: medium
+        options:
+        - counter
+        instructions: Please summarize the key points of your prepared remarks to
+          be presented at the event
+        width: full
+        tags: ''
+        minimum: null
+        maximum: 500
+        units: words
+        default: ''
+    - name: Dietary Requirements
+      fields:
+      - field_type: multiplechoice
+        label: Dinner Preference
+        name: dinner
+        choices:
+        - Sea Food
+        - Beef/Lamb/Pork
+        - Poultry
+        - Tofu
+        - Beans & Lentils
+        - Quinoa
+        default_choices: []
+        instructions: Select the preference for your dinner menu
+        width: half
+        tags: ''
+        options: []
+        values:
+        - seafood
+        - meets
+        - Chicken
+        - Tofu
+        - pulses
+        - quinoa
+        default: []
+      - field_type: checkboxes
+        label: Dietary Restrictions
+        name: restrictions
+        choices:
+        - Lactose
+        - Vegetarian/Vegan
+        - Nut Allergies
+        - Gluten
+        - Halal
+        default_choices: []
+        instructions: Please mark all dietary restrictions that apply
+        width: half
+        tags: ''
+        options: []
+        values:
+        - First Choice
+        - Second Choice
+        - Second Choice
+        - Second Choice
+        - Second Choice
+        default: []
     actions:
+    - - save
+      - Save
     - - submit
       - Submit
 - model: dynforms.formtype
