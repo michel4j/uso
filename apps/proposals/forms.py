@@ -612,14 +612,13 @@ class AccessPoolForm(ModalModelForm):
 
 
 class AllocationPoolForm(ModalModelForm):
-    pools = ModelPoolField(model=models.AccessPool, required=False, label="Pool Allocations")
-
     class Meta:
         fields = ['flex_schedule']
         model = Facility
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['pools'] = ModelPoolField(model=models.AccessPool, required=False, label="Pool Allocations")
         self.body.title = f"Pool Allocations - {self.instance.acronym}"
         self.body.append(
             Div(

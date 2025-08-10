@@ -2,6 +2,7 @@ from crisp_modals.forms import ModalModelForm, FullWidth, Row, ThirdWidth, TwoTh
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.layout import Layout, Div, HTML, Field
 from django import forms
+from django.apps import apps
 from django.db import models, ProgrammingError
 from django.core.exceptions import ValidationError
 
@@ -211,23 +212,24 @@ class ModelPoolWidget(forms.MultiWidget):
         # Each pair consists of a TextInput for the key and a NumberInput for the value.
         attrs = attrs or {}
         self.model = model
-        try:
-            self.entries = self.model.objects.in_bulk()
-        except ProgrammingError as e:
-            # If the model does not exist or has no entries, we can still create the widget.
-            # This is useful for cases where the model might not be ready yet
-            self.entries = {}
-        self.names = [str(item) for item in self.entries.values()]
-        self.items = list(self.entries.values())
-        widgets = []
-        for item in self.items:
-            item_attrs = {**attrs}
-            if item.is_default:
-                item_attrs['readonly'] = True
-            widgets.append(
-                forms.TextInput(attrs=item_attrs)
-            )
-        super().__init__(widgets, attrs)
+        if apps.ready:
+            try:
+                self.entries = self.model.objects.in_bulk()
+            except ProgrammingError as e:
+                # If the model does not exist or has no entries, we can still create the widget.
+                # This is useful for cases where the model might not be ready yet
+                self.entries = {}
+            self.names = [str(item) for item in self.entries.values()]
+            self.items = list(self.entries.values())
+            widgets = []
+            for item in self.items:
+                item_attrs = {**attrs}
+                if item.is_default:
+                    item_attrs['readonly'] = True
+                widgets.append(
+                    forms.TextInput(attrs=item_attrs)
+                )
+            super().__init__(widgets, attrs)
 
     def decompress(self, value):
         """
@@ -272,31 +274,32 @@ class ModelPoolField(forms.MultiValueField):
 
     def __init__(self, **kwargs):
         model = kwargs.pop('model', None)
-        if isinstance(model, str):
-            # If a string is provided, assume it's a model name and import it.
-            from django.apps import apps
-            model = apps.get_model(model)
 
-        elif not model or not issubclass(model, models.Model):
-            raise ValueError("ModelPoolField requires a valid Django model.")
+        if apps.ready:
+            if isinstance(model, str):
+                # If a string is provided, assume it's a model name and import it.
+                model = apps.get_model(model)
 
-        # Define a FloatField for each pair.
-        fields = []
-        try:
-            self.entries = model.objects.in_bulk()
-            for name, item in self.entries.items():
-                fields.append(forms.IntegerField(required=False))
-        except ProgrammingError as e:
-            # If the model does not exist or has no entries, we can still create the field.
-            # This is useful for cases where the model might not be ready yet
-            pass
+            elif not model or not issubclass(model, models.Model):
+                raise ValueError("ModelPoolField requires a valid Django model.")
 
-        super().__init__(
-            fields=tuple(fields),
-            widget=ModelPoolWidget(model),
-            require_all_fields=False,
-            **kwargs
-        )
+            # Define a FloatField for each pair.
+            fields = []
+            try:
+                self.entries = model.objects.in_bulk()
+                for name, item in self.entries.items():
+                    fields.append(forms.IntegerField(required=False))
+            except ProgrammingError as e:
+                # If the model does not exist or has no entries, we can still create the field.
+                # This is useful for cases where the model might not be ready yet
+                pass
+
+            super().__init__(
+                fields=tuple(fields),
+                widget=ModelPoolWidget(model),
+                require_all_fields=False,
+                **kwargs
+            )
 
     def compress(self, data_list):
         """
