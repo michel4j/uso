@@ -4,6 +4,7 @@ from io import BytesIO
 from pathlib import Path
 
 import pandas as pd
+from charset_normalizer.md import lru_cache
 from lxml import etree
 
 import requests
@@ -12,23 +13,21 @@ import time
 import os
 import pickle
 
-from pprint import pprint as print
 import re
 import itertools
 from functools import reduce
 import codecs
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from dateutil import parser
 from collections import defaultdict
 from django.conf import settings
 from django.utils import dateparse, timezone
 from django.db import transaction
-from django.db.models import Subquery, OuterRef, Q, QuerySet
+from django.db.models import  Q, QuerySet
 
 from habanero import Crossref
 
-from docs.source.conf import author
-from misc.utils import MultiKeyDict, debug_value
+from misc.utils import MultiKeyDict
 from . import models
 
 from rcsbapi.search import search_attributes as attrs
@@ -293,6 +292,7 @@ class PDBParser(ObjectParser):
             for key in self._entry['diffrn_source.pdbx_synchrotron_beamline'].split()
         ]
 
+
 def fix_issns(issns: list) ->  list:
     """
     Fix issn formatting
@@ -304,6 +304,7 @@ def fix_issns(issns: list) ->  list:
         re.sub(r'(\w{4})(?!$)', r'\1-', issn.replace('-', '').strip())
         for issn in issns
     ] or []
+
 
 class BookParser(ObjectParser):
     """
@@ -358,7 +359,7 @@ class ArticleParser(ObjectParser):
 
     FIELDS = [
         'date', 'authors', 'code', 'kind', 'title', 'publisher', 'volume', 'issue', 'pages', 'journal',
-        'funders'
+        'journal_metric', 'funders'
     ]
 
     # map crossref work types to PublicationTypes
@@ -430,6 +431,7 @@ class ArticleParser(ObjectParser):
             for funder in self._entry.get('funder', [])
         ]
 
+    @lru_cache(maxsize=128)
     def get_journal(self):
         issns = tuple(set(fix_issns(self._entry.get('ISSN', []))))
         names = self._entry.get('short-container-title', [])
@@ -443,11 +445,18 @@ class ArticleParser(ObjectParser):
         elif issns:
             return {
                 'title': '; '.join(self._entry.get('container-title', [])),
-                'issn': sorted(issns, key=lambda v: len(v))[0],
                 'codes': tuple(set(issns)),
                 'publisher': self._entry.get('publisher'),
                 'short_name': names[0]
             }
+
+    def get_journal_metric(self):
+        journal = self.get_journal()
+        d = self.get_date()
+
+        if isinstance(journal, int):
+            return models.JournalMetric.objects.filter(journal=journal, year=d.year).order_by('-year').first()
+        return None
 
     def get_main_title(self):
         if self._entry['type'] in ['book-part', 'book-section', 'book-chapter']:
@@ -494,7 +503,7 @@ class JournalParser(ObjectParser):
 
 
 class SCIMagoParser(ObjectParser):
-    FIELDS = ['h_index', 'impact_factor', 'sjr_rank', 'sjr_quartile']
+    FIELDS = ['h_index', 'impact_factor', 'sjr_rank', 'sjr_quartile', 'codes']
 
     @staticmethod
     def make_float(text):
@@ -927,7 +936,7 @@ def update_publication_metrics(rate_limit=10):
     cr = CrossRef()
     oc = OpenCitations()
 
-    last_month = timezone.now() - timedelta(weeks=4)
+    last_month = now - timedelta(hours=4)
     target_publications = models.Publication.objects.filter(code__regex=r'^10\.').filter(
         Q(metrics__isnull=True) | Q(metrics__modified__lte=last_month)
     )
@@ -938,14 +947,14 @@ def update_publication_metrics(rate_limit=10):
     doi_list = list(publications.keys())
     to_create = []
     update_count = 0
-    for doi in doi_list[:CROSSREF_BATCH_SIZE]:
+    for doi in doi_list:
         pub = publications.get(doi)
         citations = oc.citations(doi)
         mentions = cr.mentions(doi)
         to_update = models.ArticleMetric.objects.filter(publication=pub).distinct('year')
         entries = {item.year: item for item in to_update}
         for yr, count in mentions.items():
-            citations[yr] = citations.get(yr, {'citations': 0, 'self_cites': 0})
+            citations[yr] = citations.get(str(yr), {'citations': 0, 'self_cites': 0})
             citations[yr]['mentions'] = count
 
         for yr, info in citations.items():
@@ -957,14 +966,14 @@ def update_publication_metrics(rate_limit=10):
                 metric = entries[year]
                 metric.citations = info['citations']
                 metric.self_cites = info['self_cites']
-                metric.mentions = info['mentions']
+                metric.mentions = info.get('mentions', 0)
                 metric.modified = now
                 update_count += 1
             else:
                 to_create.append(models.ArticleMetric(publication=pub, year=year, **info))
 
         # Update the publication modified date
-        models.ArticleMetric.objects.bulk_update(to_update, fields=['citations', 'self_cites', 'mentions', 'modified'])
+        models.ArticleMetric.objects.bulk_update(entries.values(), fields=['citations', 'self_cites', 'mentions', 'modified'])
         time.sleep(1 / rate_limit)
 
     # Create new metrics entries

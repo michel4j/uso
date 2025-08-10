@@ -1,0 +1,8 @@
+{% extends "print-page.html" %}
+
+{% block page-classes %}{% endblock %}
+{% block page-pretitle %}Report{% endblock %}
+{% block page-title %}{{ report.title }}{% endblock %}
+{% block page-content %}
+    {% include "reportcraft/report-embed.html"  %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "page.html" %}
+{% load icons %}
+{% block page-classes %}p-5{% endblock %}
+{% block page-pretitle %}Report{% endblock %}
+{% block page-title %}{{ report.title }}{% endblock %}
+{% block page-content %}
+    {% include "reportcraft/report-embed.html"  %}
+{% endblock %}
+{% block page-tools %}
+        <a href="{% url 'report-section-print' section=report.section slug=report.slug %}" target="_blank">
+            <i class="bi-printer icon-md"></i>
+            <span class="tool-label">Print Report</span>
+        </a>
+{% endblock %}

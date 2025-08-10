@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block body_class %}print-base{% endblock %}
+{% block html_class %}print-base{% endblock %}
 {% block document %}
+    {% block page-header %}
     <header class="wrapper mb-5" role="banner">
         <div class="container-fluid">
             <div class="row">
@@ -19,18 +20,20 @@
             </div>
         </div>
     </header>
+    {% endblock %}
     <div class="container-fluid">
         <div class="content">
             {% block printed-content %}{% endblock %}
         </div>
     </div>
-    <div id="modal-form"></div>
 {% endblock %}
 
-{% block extra_js %}
+{% block page-scripts %}
     <script>
         $(document).ready(function () {
-            window.print();
+            setTimeout(function () {
+                window.print();
+            }, 1000);
         });
     </script>
 {% endblock %}

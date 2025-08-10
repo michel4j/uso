@@ -3,7 +3,6 @@
 from beamlines.models import Facility
 from django.db import models
 from django.db.models import F
-from misc.fields import StringListField
 from django.utils.translation import gettext as _
 from django.utils import timezone
 from misc.functions import Year
@@ -49,7 +48,7 @@ class PublicationTag(TimeStampedModel):
 
 class PublicationManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().annotate(year=Year(F('date')))
+        return super().get_queryset().annotate(year=F('date__year'))
 
 
 class Journal(TimeStampedModel):
@@ -117,6 +116,7 @@ class Publication(TimeStampedModel):
     publisher = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=50, blank=True, null=True)
     journal = models.ForeignKey(Journal, related_name='articles', on_delete=models.PROTECT, null=True)
+    journal_metric = models.ForeignKey(JournalMetric, related_name='articles', on_delete=models.SET_NULL, null=True, blank=True)
     volume = models.CharField(max_length=100, blank=True, null=True)
     edition = models.CharField(max_length=20, blank=True, null=True)
     issue = models.CharField(max_length=20, blank=True, null=True)

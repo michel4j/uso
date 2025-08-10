@@ -80,7 +80,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    #'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -266,8 +265,9 @@ REPORTCRAFT_MIXINS = {
     'EDIT': ['roleperms.views.AdminRequiredMixin'],
 }
 REPORTCRAFT_FUNCTIONS = [
+    'misc.functions.String',
     'misc.functions.JoinArray',
-    'misc.functions.String'
+    'reportcraft.functions.postgres.Join',
 ]
 REPORTCRAFT_APPS = [
     'proposals',

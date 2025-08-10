@@ -58,7 +58,7 @@ class PublicationList(RolePermsViewMixin, ItemListView):
     list_title = "All Publications"
     list_columns = ['cite', 'facility_codes', 'kind']
     list_transforms = {'cite': _fmt_citations, 'areas': _format_areas}
-    list_search = ['authors', 'title', 'keywords']
+    list_search = ['authors', 'title', 'keywords', 'code', 'journal__title']
     ordering = ['-year', 'kind', 'authors']
     admin_roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
 
@@ -476,3 +476,4 @@ class InstitutionMetrics(RolePermsViewMixin, TemplateView):
         context['queryset'] = queryset
         context['pub_info'] = stats.get_publist(queryset)
         return context
+

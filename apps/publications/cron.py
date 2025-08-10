@@ -1,5 +1,5 @@
 
-from django.db.models import QuerySet, Q, Value, IntegerField
+from django.db.models import QuerySet, Q, Value, IntegerField, F, Max, Min
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.functions import Cast
 from django.utils import timezone
@@ -93,13 +93,37 @@ class UpdateJournalMetrics(BaseCronJob):
         return len(self.missing_years) > 0
 
     def do(self):
-        from publications import utils
+        from publications import utils, models
         logs = []
 
+        # Update the journal metrics for the missing years
         for year in self.missing_years:
             out = utils.update_journal_metrics(year=year)
             logs.extend([
                 f'Created {out["created"]} new journal metrics for year {year}.',
                 f'Updated {out["updated"]} existing journal metrics for year {year}.'
             ])
+
+        # link articles to their journal metrics, that is the journal metric for the year of publication or
+        # the nearest one in time if no metrics are available for that year
+        pub_journal_metrics = models.Publication.objects.exclude(
+            journal_metric__year=F('date__year')        # if journal metric for year is assigned, ignore it
+        ).values(
+            'pk',
+            prev_metric=Max('journal__metrics__pk', filter=Q(journal__metrics__year__lte=F('date__year'))),
+            next_metric=Min('journal__metrics__pk', filter=Q(journal__metrics__year__gt=F('date__year')))
+        ).exclude(
+            Q(prev_metric__isnull=True, next_metric__isnull=True)   # ignore if both are null
+        ).values_list('pk', 'prev_metric', 'next_metric')
+        to_assign = {
+            pk: past if past else future
+            for pk, past, future in pub_journal_metrics
+        }
+        to_update = models.Publication.objects.filter(pk__in=to_assign.keys())
+
+        if to_update.exists():
+            for pub in to_update:
+                pub.journal_metric_id = to_assign[pub.pk]
+            models.Publication.objects.bulk_update(to_update, fields=['journal_metric_id'])
+            logs.append(f'Assigned journal metric for {to_update.count()} publications.')
         return '\n'.join(logs)

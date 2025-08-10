@@ -3,8 +3,10 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse, Http404
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import View
+from reportcraft.views import ReportIndexView, ReportData, DataView, ReportView
 
 from roleperms.views import RolePermsViewMixin
 from . import forms
@@ -135,3 +137,67 @@ class Ping(RolePermsViewMixin, View):
             'server_time': timezone.localtime(timezone.now()).isoformat()
         })
 
+
+class SectionIndex(RolePermsViewMixin, ReportIndexView):
+    """
+    View to handle reporting a section of the site.
+    """
+    required_roles = USO_ADMIN_ROLES
+    link_url = 'report-section-view'
+
+    def get_link_url(self, obj):
+        """
+        Returns the URL for the section report.
+        """
+        return reverse(self.link_url, kwargs={'section': obj.section, 'slug': obj.slug})
+
+    def get_limit_section(self):
+        """
+        Returns the section limit for the report.
+        """
+        return self.kwargs.get('section', 'general')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['section'] = self.get_limit_section().title()
+        return context
+
+
+class SectionData(RolePermsViewMixin, DataView):
+    """
+    View to handle admin reporting a section of the site.
+    """
+
+    required_roles = USO_ADMIN_ROLES
+
+    def get_queryset(self):
+        """
+        Returns the queryset for the report.
+        """
+        section = self.kwargs.get('section', None)
+        return super().get_queryset().filter(section=section)
+
+
+class SectionReport(RolePermsViewMixin, ReportView):
+    """
+    View to handle reporting a section of the site.
+    """
+    template_name = 'misc/report-view.html'
+    required_roles = USO_ADMIN_ROLES
+
+    def get_queryset(self):
+        """
+        Returns the queryset for the report.
+        """
+        section = self.kwargs.get('section', None)
+        return super().get_queryset().filter(section=section)
+
+    def get_data_url(self):
+        """
+        Returns the section limit for the report.
+        """
+        section = self.kwargs.get('section', None)
+        if section:
+            return reverse('report-section-data', kwargs={'section': section, 'slug': self.kwargs.get('slug')})
+        else:
+            raise Http404("Section not specified or does not exist.")

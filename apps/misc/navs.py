@@ -20,8 +20,35 @@ class FormDesigner(BaseNav):
     url = reverse('dynforms-list')
 
 
+class ReportIndex(BaseNav):
+    label = 'Reports'
+    icon = 'bi-file-earmark-richtext'
+    weight = 180
+    roles = USO_ADMIN_ROLES
+
+    def sub_menu(self, request):
+        from reportcraft.models import Report
+        sections = set(Report.objects.values_list('section', flat=True))
+        submenu = super().sub_menu(request)
+        separator = True
+        for section in sorted(sections):
+            if not section.strip():
+                continue
+            submenu.append(
+                RawNav(
+                    label=section.title() or 'General',
+                    roles=self.roles,
+                    separator=separator,
+                    url=reverse('report-section-index', kwargs={'section': section}),
+                )
+            )
+            separator = False
+
+        return submenu
+
+
 class ReportBuilder(BaseNav):
-    parent = Admin
+    parent = ReportIndex
     label = 'Report Builder'
     roles = USO_ADMIN_ROLES
     url = reverse('report-editor-root')

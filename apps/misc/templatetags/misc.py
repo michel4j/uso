@@ -119,3 +119,14 @@ def from_now(dt, now: datetime = None) -> str:
         return f"in {timesince.timeuntil(dt, now)}"
     else:
         return 'now'
+
+
+@register.simple_tag(takes_context=True)
+def report_url(context, report, **kwargs):
+    """
+    Returns the URL for a report with the given context and report object.
+    """
+    view = context.get('view')
+    if not view:
+        raise ValueError("No view found in context to generate report URL.")
+    return view.get_link_url(report)
