@@ -32,12 +32,19 @@ for trial in {1..5}; do
 done
 
 if [ ! -f /usonline/local/.dbinit ]; then
-    echo "Loading app initial data ..."
+    echo "Loading Pre-Application data ..."
+    for f in /usonline/fixtures/pre/*.{yml,json,yaml}; do
+      if [[ -e "$f" ]]; then
+        /usonline/manage.py loaddata "$f" -v2
+      fi
+    done
+
+    echo "Loading Application initial data ..."
     /usonline/manage.py loaddata initial-data -v2 &&
 
+    echo "Loading Post-Application data ..."
     for f in /usonline/fixtures/*.{yml,json,yaml}; do
       if [[ -e "$f" ]]; then
-        echo "Loading data $f ..."
         /usonline/manage.py loaddata "$f" -v2
       fi
     done
