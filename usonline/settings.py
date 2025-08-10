@@ -241,10 +241,8 @@ USO_OPEN_WEATHER_KEY = ""
 USO_WEATHER_LOCATION = [52.14, -106.63]  # Default to CLSI
 USO_PROFILE_MANAGER = ExternalProfileManager
 USO_REVIEW_ASSIGNMENT = "MIP"    # or either "MIP" or "CMACRA" or "BRUTE_FORCE"
-USO_PDB_SITE = 'CLSI'       # Protein Data Bank site code
+USO_PDB_SITE = 'XXXX'       # Protein Data Bank site code
 USO_PDB_SITE_MAP = {
-    "CLSI08B1-1": ["CMCF-ID"],
-    "CLSI08ID-1": ["CMCF-BM"],
 }
 
 OPEN_CITATIONS_API_KEY = None

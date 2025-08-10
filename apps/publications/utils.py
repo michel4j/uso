@@ -936,7 +936,7 @@ def update_publication_metrics(rate_limit=10):
     cr = CrossRef()
     oc = OpenCitations()
 
-    last_month = now - timedelta(hours=4)
+    last_month = now - timedelta(weeks=4)
     target_publications = models.Publication.objects.filter(code__regex=r'^10\.').filter(
         Q(metrics__isnull=True) | Q(metrics__modified__lte=last_month)
     )
@@ -947,7 +947,7 @@ def update_publication_metrics(rate_limit=10):
     doi_list = list(publications.keys())
     to_create = []
     update_count = 0
-    for doi in doi_list:
+    for doi in doi_list[:CROSSREF_BATCH_SIZE]:
         pub = publications.get(doi)
         citations = oc.citations(doi)
         mentions = cr.mentions(doi)

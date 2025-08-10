@@ -48,10 +48,11 @@ class UpdateArticleMetrics(BaseCronJob):
     """
     Fetch the latest citation counts for articles published in the current month.
     """
-    run_every = "P14D"
+    run_every = "P7D"
 
     def do(self):
-        # FIXME: some older metrics may be missed if article was published before the last run but only added recently
+        # FIXME: some older metrics may be missed if article was published before the last run
+        # but only added recently
         from publications import utils
         out = utils.update_publication_metrics()
         logs = [
@@ -85,6 +86,11 @@ class UpdateJournalMetrics(BaseCronJob):
             ),
         )
         article_years = spans['article_years']
+        if not article_years:
+            # no articles, no metrics to update
+            self.missing_years = []
+            return False
+
         min_year = min(article_years)
         max_year = max(article_years)
         all_years = set(range(min_year, max_year + 1))
