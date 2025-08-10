@@ -33,17 +33,17 @@ done
 
 if [ ! -f /usonline/local/.dbinit ]; then
     echo "Loading Pre-Application data ..."
-    for f in /usonline/fixtures/pre/*.{yml,json,yaml}; do
+    for f in /usonline/usonline/fixtures/pre/*.{yml,json,yaml}; do
       if [[ -e "$f" ]]; then
         /usonline/manage.py loaddata "$f" -v2
       fi
     done
 
     echo "Loading Application initial data ..."
-    /usonline/manage.py loaddata initial-data -v2 &&
+    /usonline/manage.py loaddata initial-data -v2
 
     echo "Loading Post-Application data ..."
-    for f in /usonline/fixtures/*.{yml,json,yaml}; do
+    for f in /usonline/usonline/fixtures/post/*.{yml,json,yaml}; do
       if [[ -e "$f" ]]; then
         /usonline/manage.py loaddata "$f" -v2
       fi
