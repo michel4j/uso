@@ -25,7 +25,7 @@ ISO_PARSER = {
 
 KEEP_MESSAGES = 10
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('isocron')
 
 
 class CronJobMeta(type):
@@ -125,10 +125,6 @@ def autodiscover():
     if one does not exist. Also remove any BackgroundTask entries that do not have a corresponding cron job.
 
     """
-
-    if 'backgroundtask' not in connection.introspection.table_names():
-        logger.warning('Skipping cron job autodiscover, before migrations!')
-        return
 
     try:
         from .models import BackgroundTask
