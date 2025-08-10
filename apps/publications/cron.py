@@ -2,7 +2,6 @@
 from django.db.models import QuerySet, Q, Value, IntegerField, F, Max, Min
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models.functions import Cast
-from django.utils import timezone
 
 from isocron import BaseCronJob
 from . import utils
@@ -13,9 +12,16 @@ class FetchPDBEntries(BaseCronJob):
     Fetch the latest Deposition data from the PDB and update the local database.
     """
     run_every = "P10D"
+    pdb_codes: list[str] = []
+
+    def is_ready(self):
+        self.pdb_codes = utils.fetch_pdb_codes()
+        return len(self.pdb_codes) > 0
 
     def do(self):
-        out = utils.fetch_and_update_pdbs()
+        # create PDB depositions
+        entries = utils.fetch_pdb_entries(self.pdb_codes)
+        out = utils.create_pdb_entries(entries)
         logs = [
             f'Fetched {out["created"]} new PDB entries",'
             f'Updated {out["updated"]} existing entries.'

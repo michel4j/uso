@@ -32,8 +32,15 @@ for trial in {1..5}; do
 done
 
 if [ ! -f /usonline/local/.dbinit ]; then
-    echo "Loading initial data ..."
+    echo "Loading app initial data ..."
     /usonline/manage.py loaddata initial-data &&
+
+    for f in /usonline/fixtures/*.{yml,json,yaml}; do
+      if [[ -e "$f" ]]; then
+        echo "Loading data $f ..."
+        /usonline/manage.py loaddata "$f"
+      fi
+    done
 
     # Create superuser if not already created
     if [ -n "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -n "${DJANGO_SUPERUSER_USERNAME}" ]; then

@@ -554,7 +554,7 @@ def fetch_pdb_codes():
     return codes
 
 
-def fetch_pdb_entries(codes):
+def fetch_pdb_entries(codes) -> list[dict]:
     """
     Fetch the CSV data for all specified PDB codes
     :param codes:  list of strings representing pdbcodes
@@ -792,21 +792,7 @@ def create_publications(doi_list):
                     new_funders.append(f)
                 obj.funders.add(*new_funders)
 
-
     return {'journals': len(new_journals), 'publications': len(new_publications)}
-
-
-def fetch_and_update_pdbs() -> dict:
-    """
-    Fetch PDB Codes from RCSB, Create new entries, Update entries, create related
-    Publication records and Journals, link everything together
-    :return: a dictionary with the number of entries created and updated
-    """
-
-    # create PDB depositions
-    codes = fetch_pdb_codes()
-    entries = fetch_pdb_entries(codes)
-    return create_pdb_entries(entries)
 
 
 def update_pdb_references(pending: QuerySet) -> dict:
