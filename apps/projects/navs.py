@@ -62,10 +62,3 @@ class UserBeamTime(BaseNav):
     parent = 'users.Home'
     url = reverse('user-beamtime-list')
 
-
-class Statistics(BaseNav):
-    parent = Projects
-    label = 'Statistics'
-    roles = USO_STAFF_ROLES
-    separator = True
-    url = reverse('project-stats')

@@ -26,29 +26,9 @@ class Keywords(BaseNav):
     url = reverse('keyword-cloud')
 
 
-class Summary(BaseNav):
-    parent = Publications
-    label = 'Facility Summary'
-    roles = USO_STAFF_ROLES
-    url = reverse('activity-summary')
-
-
-class Metrics(BaseNav):
-    parent = Publications
-    label = 'Quality Metrics'
-    roles = USO_STAFF_ROLES
-    url = reverse('quality-summary')
-
-
-class Funding(BaseNav):
-    parent = Publications
-    label = 'Funding Summary'
-    roles = USO_STAFF_ROLES
-    url = reverse('funding-summary')
-
-
 class Manage(BaseNav):
     parent = Publications
+    separator = True
     label = 'Edit Publications'
     roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
     url = reverse('publication-admin-list')

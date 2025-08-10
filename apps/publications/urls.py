@@ -16,11 +16,4 @@ urlpatterns = [
     path('publications/years/<int:year>-<int:end_year>/', views.PublicationList.as_view(), name='publication-list'),
     path('publications/<str:beamline>/<int:year>/', views.PublicationList.as_view()),
     path('publications/<str:beamline>/<int:year>-<int:end_year>/', views.PublicationList.as_view()),
-
-    path('reports/publication/summary/', views.ActivitySummary.as_view(), name='activity-summary'),
-    path('reports/publication/quality/', views.QualitySummary.as_view(), name='quality-summary'),
-    path('reports/publication/quality/<str:beamline>/', views.QualitySummary.as_view(), name='beamline-quality'),
-    path('reports/publication/funding/', views.FundingSummary.as_view(), name='funding-summary'),
-    path('reports/publication/institution/<int:pk>/', views.InstitutionMetrics.as_view(), name='institution-metrics'),
-
 ]

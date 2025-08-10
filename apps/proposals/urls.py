@@ -6,8 +6,6 @@ from misc.views import ManageAttachments
 
 urlpatterns = [
     path('proposals/', views.UserProposalList.as_view(), name="proposal-list"),
-    path('proposals/statistics/', views.Statistics.as_view(), name="proposal-stats"),
-    path('proposals/statistics/data/', views.StatsDataAPI.as_view(), name="proposal-stats-api"),
     path('proposals/inprogress/', views.ProposalList.as_view(), name="proposals-inprogress"),
     path('proposals/new/', views.CreateProposal.as_view(), name="create-proposal"),
 

@@ -6,7 +6,6 @@ from . import views
 
 urlpatterns = [
     path('projects/', views.ProjectList.as_view(), name="project-list"),
-    path('projects/reports/', views.Statistics.as_view(), name="project-stats"),
 
     path('allocations/<int:pk>/renew/', views.CreateAllocRequest.as_view(), name="create-renewal-request"),
     path('allocations/renewals/', views.AllocRequestList.as_view(), name="alloc-request-list"),

@@ -81,14 +81,6 @@ class Reviews(BaseNav):
     url = reverse('review-list')
 
 
-class Statistics(BaseNav):
-    parent = Proposals
-    label = 'Statistics'
-    roles = USO_ADMIN_ROLES
-    separator = True
-    url = reverse('proposal-stats')
-
-
 class UserProposals(BaseNav):
     label = 'My Proposals'
     parent = 'users.Home'
