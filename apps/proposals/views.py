@@ -1773,22 +1773,6 @@ class StartReviews(RolePermsViewMixin, ModalConfirmView):
         return JsonResponse({"url": ""})
 
 
-class StatsDataAPI(RolePermsViewMixin, TemplateView):
-    admin_roles = USO_ADMIN_ROLES
-    allowed_roles = USO_STAFF_ROLES
-
-    def get(self, *args, **kwargs):
-        from . import stats
-        tables = stats.get_proposal_stats()
-        return JsonResponse(tables[1].series())
-
-
-class Statistics(RolePermsViewMixin, TemplateView):
-    admin_roles = USO_ADMIN_ROLES
-    allowed_roles = USO_STAFF_ROLES
-    template_name = "proposals/statistics.html"
-
-
 class UpdateReviewComments(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.ReviewCommentsForm
     model = models.Submission

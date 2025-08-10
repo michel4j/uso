@@ -1,11 +1,6 @@
-from .models import Publication
-from collections import defaultdict, OrderedDict
-from misc.stats import DataTable
-from datetime import date
-from django.utils.safestring import mark_safe
-from django.db.models import Count, Avg, Sum, Q
 import itertools
 import re
+from collections import defaultdict
 
 
 def html2text(html):

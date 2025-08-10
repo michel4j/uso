@@ -62,10 +62,6 @@ class UserDetailView(RolePermsViewMixin, DetailView):
         return context
 
 
-class TemplateDetailView(RolePermsViewMixin, TemplateView):
-    template_name = "users/user-dashboard.html"
-
-
 class SyncProfile(SuccessMessageMixin, RolePermsViewMixin, View):
     success_url = reverse_lazy('user-dashboard')
     success_message = "Profile synchronized"
@@ -593,23 +589,6 @@ class ChangePassword(RolePermsViewMixin, ModalConfirmView):
             "Please check your email for further instructions."
         )
         return JsonResponse({"url": "", "message": message})
-
-
-class PhotoView(View):
-    def get(self, request, path=''):
-        photo_url = USO_PROFILE_MANAGER.get_user_photo_url(path)
-        return proxy_view(request, photo_url)
-
-
-class EmailTestView(RolePermsViewMixin, View):
-    allowed_roles = USO_ADMIN_ROLES
-
-    def get(self, *args, **kwargs):
-        from django.core.mail import mail_admins
-        mail_admins("Email Test", "Testing email system!")
-        messages.info(self.request, "Test Email has been sent, check your inbox.")
-        url = reverse_lazy('user-dashboard')
-        return HttpResponseRedirect(url)
 
 
 class AdminResetPassword(RolePermsViewMixin, ModalConfirmView):

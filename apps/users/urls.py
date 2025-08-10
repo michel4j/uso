@@ -28,6 +28,4 @@ urlpatterns = [
     path('institutions/<int:pk>/edit/', views.EditInstitution.as_view(), name="edit-institution"),
     path('institutions/<int:pk>/delete/', views.InstitutionDelete.as_view(), name="delete-institution"),
     path('institutions/<int:pk>/contact/', views.InstitutionContact.as_view(), name="request-institution-contact"),
-
-    path('photo/<str:path>', views.PhotoView.as_view(), name="user-photo"),
 ]

@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    #"whitenoise.runserver_nostatic",
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'formtools',
@@ -149,13 +148,6 @@ STATICFILES_DIRS = [
     os.path.join(PROJECT_DIR, "static"),
 ]
 
-# STORAGES = {
-#     "staticfiles": {
-#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-#     },
-# }
-
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'local/media')
 
@@ -228,6 +220,7 @@ USO_ASSIGNABLE_ROLES = [
     {'role': 'contractor'},
     {'role': 'beam-team:+', 'per-facility': True},
 ]
+
 
 
 USO_STYLE_OVERRIDES = []

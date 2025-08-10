@@ -1,37 +1,32 @@
+import codecs
+import csv
+import itertools
 import json
 import operator
+import os
+import pickle
+import re
+import time
+from collections import defaultdict
+from datetime import date, timedelta
+from functools import reduce
 from io import BytesIO
 from pathlib import Path
 
 import pandas as pd
-from charset_normalizer.md import lru_cache
-from lxml import etree
-
 import requests
-import csv
-import time
-import os
-import pickle
-
-import re
-import itertools
-from functools import reduce
-import codecs
-from datetime import date, timedelta
+from charset_normalizer.md import lru_cache
 from dateutil import parser
-from collections import defaultdict
 from django.conf import settings
-from django.utils import dateparse, timezone
 from django.db import transaction
-from django.db.models import  Q, QuerySet
-
+from django.db.models import Q, QuerySet
+from django.utils import dateparse, timezone
 from habanero import Crossref
+from lxml import etree
+from rcsbapi.search import search_attributes as attrs
 
 from misc.utils import MultiKeyDict
 from . import models
-
-from rcsbapi.search import search_attributes as attrs
-
 
 PDB_SITE = getattr(settings, 'USO_PDB_SITE', 'CLSI')
 PDB_SITE_MAP = getattr(settings, 'USO_PDB_SITE_MAP', {})

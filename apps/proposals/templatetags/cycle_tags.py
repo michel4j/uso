@@ -1,16 +1,12 @@
-from django import template
-from django.db.models import Q, Count, Avg, StdDev, F, Max, Value
-from datetime import datetime, timedelta
-from calendar import timegm
+from datetime import datetime
 
+from django import template
+from django.db.models import Q, Count, Avg, StdDev, F, Value
 from django.db.models.functions import Coalesce
-from django.utils.translation import gettext as _
-from proposals import models
-from publications import stats
-from collections import defaultdict
-import numpy
+from django.utils import timesince
 from django.utils.safestring import mark_safe
-from django.utils import timezone, timesince
+
+from proposals import models
 
 register = template.Library()
 
@@ -86,7 +82,7 @@ def facility_acronyms(beamlines):
 
 @register.inclusion_tag('proposals/track-stats.html', takes_context=True)
 def show_track_stats(context, cycle, track):
-    #reviewers = models.Reviewer.objects.available(cycle)
+    # reviewers = models.Reviewer.objects.available(cycle)
     if cycle.state < cycle.STATES.open:
         submissions = models.Submission.objects.none()
         techs = cycle.techniques().filter(items__track=track).distinct()
@@ -109,7 +105,7 @@ def show_track_stats(context, cycle, track):
         'total_submissions': submissions.count(),
         'total_facilities': facilities.count(),
         'total_techniques': techs.count(),
-        #'total_reviewers': reviewers.count(),
+        # 'total_reviewers': reviewers.count(),
     }
     return info
 
@@ -188,66 +184,6 @@ def accumulate(iterator):
         yield total
 
 
-def summarize_response(qset):
-    tracks = models.ReviewTrack.objects.all()
-    props = {k.acronym: defaultdict(int) for k in tracks}
-
-    days = list(qset.datetimes('created', 'day').distinct())
-    for d, track in qset.datetimes('created', 'day').values_list('datetimefield', 'track__acronym'):
-        props[track][d] += 1
-
-    cols = ['Review Track'] + [timegm(datetime.combine(d, datetime.max.time()).utctimetuple()) * 1000 for d in days] + [
-        'All']
-    _tbl = [cols]
-    for k, r in list(props.items()):
-        vals = list(accumulate([r[d] for d in days]))
-        r = [k] + vals + [sum(r.values())]
-        _tbl.append(r)
-    r = ['Total'] + [sum(xr[1:]) for xr in zip(*_tbl)[1:]]
-    _tbl.append(r)
-    data_table = stats.DataTable(_tbl)
-    return data_table
-
-
-def summarize_bl_response(qset):
-    tracks = models.ReviewTrack.objects.all()
-    field = 'techniques__config__facility__acronym'
-    bls = qset.values(field).distinct()
-    props = {k[field]: {'total': 0, 'multi': 0, 'track': defaultdict(int)} for k in bls}
-
-    for submission in qset.all():
-        facs = submission.techniques.all().values('config__facility__acronym').distinct()
-        for fac in facs:
-            k = fac['config__facility__acronym']
-            props[k]['track'][submission.track.acronym] += 1
-            if facs.count() > 1:
-                props[k]['multi'] += 1
-
-    tracks = [t.acronym for t in tracks]
-    cols = ['Review Track'] + tracks + ['NIMBLE', 'All']
-    _tbl = [cols]
-    for k in bls:
-        r = [props[k[field]]['track'][t] for t in tracks]
-        n = [props[k[field]]['multi']]
-        if k[field]:
-            r = [k[field]] + r + n + [sum(r)]
-            _tbl.append(r)
-    r = ['Total'] + [sum(xr[1:]) for xr in zip(*_tbl)[1:]]
-    rem_col = []
-    for i, v in enumerate(r):
-        if v == 'Total': continue
-        if v > 0:
-            break
-        else:
-            rem_col.append(i)
-
-    _tbl.append(r)
-
-    data_table = stats.DataTable(_tbl)
-    data_table.remove_columns(rem_col)
-    return data_table
-
-
 @register.simple_tag
 def get_current_cycle():
     return models.ReviewCycle.objects.all().active().last()
@@ -261,7 +197,7 @@ def get_next_cycle(dt=datetime.today()):
 @register.filter(name="reviewer_window")
 def reviewer_window(cycle, reviewer):
     potential = (
-        reviewer.active and not reviewer.is_suspended(cycle.open_date)
+            reviewer.active and not reviewer.is_suspended(cycle.open_date)
     )
     return potential
 

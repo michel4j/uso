@@ -1806,12 +1806,6 @@ class DeclineAllocation(RolePermsViewMixin, ModalUpdateView):
         return JsonResponse({"url": ""})
 
 
-class Statistics(RolePermsViewMixin, TemplateView):
-    admin_roles = USO_ADMIN_ROLES
-    allowed_roles = USO_STAFF_ROLES
-    template_name = "projects/statistics.html"
-
-
 def _fmt_contact(user, obj=None):
     return '{} <br/><small>&lt;{}&gt;</small>'.format(user, user.email)
 
