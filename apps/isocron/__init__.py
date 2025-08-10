@@ -10,7 +10,7 @@ import isodate
 from django.utils import timezone
 from django.apps import apps
 from django.db.utils import ProgrammingError
-from django.db import connection
+from django.db import connection, models
 from django.core.exceptions import ImproperlyConfigured, AppRegistryNotReady
 from misc.utils import load
 
@@ -127,7 +127,7 @@ def autodiscover():
     """
 
     try:
-        from .models import BackgroundTask
+        BackgroundTask = apps.get_model('isocron', 'BackgroundTask')
         load('cron')
         tasks = BaseCronJob.get_all()
         existing = set(BackgroundTask.objects.values_list('name', flat=True))
@@ -150,5 +150,5 @@ def autodiscover():
             BackgroundTask.objects.filter(name__in=list(to_remove)).delete()
     except (AppRegistryNotReady, ProgrammingError) as e:
         # If there is an error, we do not want to crash the server, just log it
-        logger.warning("Cron job autodiscover failed. Please retry after migrations.")
+        logger.info("Cron job autodiscover failed. Please retry after migrations.")
 

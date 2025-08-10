@@ -336,8 +336,10 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         # Select available tracks based on requested techniques and call status
         if cycle.is_closed():
             valid_tracks = models.ReviewTrack.objects.filter(require_call=False)
-        else:
+        elif cycle.is_open():
             valid_tracks = models.ReviewTrack.objects.filter(require_call=True)
+        else:
+            valid_tracks = models.ReviewTrack.objects.none()
 
         available_tracks = set(valid_tracks.values_list('pk', flat=True))
         requests = {
