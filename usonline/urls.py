@@ -31,7 +31,7 @@ urlpatterns = [
 
     path('admin/logout/', LogoutView.as_view()),
     path('admin/', admin.site.urls),
-    path('misc/', include('misc.urls')),
+    path('', include('misc.urls')),
 ]
 
 # API URLS
