@@ -18,7 +18,7 @@ import os
 
 DEBUG = False                        # Set to False in production
 SITE_URL = "http://localhost:8080"  # The URL of the site
-ALLOWED_HOSTS = ["localhost", '*']  # The list of allowed hosts
+ALLOWED_HOSTS = ['*']  # The list of allowed hosts
 
 # -----------------------------------------------------------------------------
 # SECRET_KEY is a crucial security setting used for cryptographic signing within

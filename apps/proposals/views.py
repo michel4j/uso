@@ -1210,7 +1210,7 @@ class UserSubmissionList(SubmissionList):
 
 class CycleSubmissionList(SubmissionList):
     def get_queryset(self, *args, **kwargs):
-        self.queryset = self.model.objects.filter(cycle_id=self.kwargs['pk'])
+        self.queryset = self.model.objects.filter(cycle_id=self.kwargs['cycle'])
         return super().get_queryset(*args, **kwargs)
 
 

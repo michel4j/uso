@@ -13,6 +13,12 @@ if [ ! -f ${APP_DIRECTORY}/local/__init__.py ]; then
     touch ${APP_DIRECTORY}/local/__init__.py
 fi
 
+# Calculate Container Age
+created_epoch=$(stat -c %Y / || echo 0)
+current_epoch=$(date +%s)
+container_age=$((current_epoch - created_epoch))
+max_new_age=180  # seconds
+
 # check of database exists and initialize it if not
 for trial in {1..5}; do
     echo "Migrating database tables ... (attempt $trial)"
@@ -20,9 +26,30 @@ for trial in {1..5}; do
     sleep 5
 done
 
-if [ ! -f ${APP_DIRECTORY}/local/.dbinit ]; then
-    echo "Loading initial data ..."
-    ${APP_DIRECTORY}/manage.py loaddata initial-data &&
+if (( container_age < max_new_age )); then
+    echo "Container is new, collecting static files!"
+    ${APP_DIRECTORY}/manage.py collectstatic --noinput --clear -v2
+    chown -R 33:33 ${APP_DIRECTORY}/static
+    chmod 2775 /usonline/static
+fi
+
+if [ ! -f /usonline/local/.dbinit ]; then
+    echo "Loading Pre-Application data ..."
+    for f in /usonline/usonline/fixtures/pre/*.{yml,json,yaml}; do
+      if [[ -e "$f" ]]; then
+        ${APP_DIRECTORY}/manage.py loaddata "$f" -v2
+      fi
+    done
+
+    echo "Loading Application initial data ..."
+    ${APP_DIRECTORY}/manage.py loaddata initial-data -v2
+
+    echo "Loading Post-Application data ..."
+    for f in /usonline/usonline/fixtures/post/*.{yml,json,yaml}; do
+      if [[ -e "$f" ]]; then
+        ${APP_DIRECTORY}/manage.py loaddata "$f" -v2
+      fi
+    done
 
     # Create superuser if not already created
     if [ -n "${DJANGO_SUPERUSER_PASSWORD}" ] && [ -n "${DJANGO_SUPERUSER_USERNAME}" ]; then
@@ -34,9 +61,9 @@ if [ ! -f ${APP_DIRECTORY}/local/.dbinit ]; then
     echo "Running initial background tasks ..."
     ${APP_DIRECTORY}/manage.py runcrons --force -v3
 
-    if [ -d ${APP_DIRECTORY}/local/kickstart ]; then
+    if [ -d /usonline/local/kickstart ]; then
         echo "Loading kickstart data ..."
-        for f in "${APP_DIRECTORY}"/local/kickstart/*.{yml,json,yaml}; do
+        for f in /usonline/local/kickstart/*.{yml,json,yaml}; do
           if [[ -e "$f" ]]; then
             echo "Loading data from $f ..."
             ${APP_DIRECTORY}/manage.py loaddata "$f"
@@ -55,6 +82,7 @@ fi
 # Launch the server
 tail -n 0 -f ${APP_DIRECTORY}/local/logs/error.log &
 exec /venv/bin/gunicorn usonline.wsgi:application \
+    --chdir ${APP_DIRECTORY} \
     --pid /var/run/gunicorn/gunicorn.pid \
     --forwarded-allow-ips "*" \
     --pythonpath ${APP_DIRECTORY} \
