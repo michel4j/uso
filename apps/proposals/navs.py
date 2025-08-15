@@ -1,6 +1,12 @@
+from datetime import timedelta
+
+from django.db.models import Q
 from django.urls import reverse
 from django.conf import settings
-from misc.navigation import BaseNav
+from django.utils import timezone
+from django.utils.safestring import mark_safe
+
+from misc.navigation import BaseNav, RawNav
 
 USO_ADMIN_ROLES = getattr(settings, "USO_ADMIN_ROLES", ['admin:uso'])
 USO_STAFF_ROLES = getattr(settings, "USO_STAFF_ROLES", ['staff'])
@@ -20,37 +26,34 @@ class Proposals(BaseNav):
             allowed = request.user.reviewer.committee is not None
         return allowed
 
+    def sub_menu(self, request):
+        from .models import ReviewCycle
+        now = timezone.localtime(timezone.now())
+        in_six_months = now + timedelta(weeks=24)
 
-class CurrentCycle(BaseNav):
-    parent = Proposals
-    label = 'Current Cycle'
-    roles = USO_ADMIN_ROLES
+        cycles = ReviewCycle.objects.filter(
+            Q(open_date__lte=in_six_months.date()) & Q(end_date__gte=now.date())
+        ).order_by('open_date')
+        submenu = super().sub_menu(request)
+        dynamic = [
+            RawNav(
+                label=mark_safe(f'Cycle &mdash; {cycle}'),
+                roles=self.roles,
+                separator=False,
+                url=reverse('review-cycle-detail', kwargs={'pk': cycle.pk}),
+            ) for cycle in cycles
+        ]
+        dynamic += [
+            RawNav(
+                label='All Cycles',
+                roles=self.roles,
+                separator=False,
+                url=reverse('review-cycle-list'),
+            )
+        ]
 
-    def get_url(self):
-        from proposals.models import ReviewCycle
-        cycle = ReviewCycle.objects.current().first()
-        if not cycle:
-            cycle = ReviewCycle.objects.next()
-
-        return "" if not cycle else reverse('review-cycle-detail', kwargs={'pk': cycle.pk})
-
-
-class NextCycle(BaseNav):
-    parent = Proposals
-    label = 'Next Cycle'
-    roles = USO_ADMIN_ROLES
-
-    def get_url(self):
-        from proposals.models import ReviewCycle
-        cycle = ReviewCycle.objects.next()
-        return "" if not cycle else reverse('review-cycle-detail', kwargs={'pk': cycle.pk})
-
-
-class Cycle(BaseNav):
-    parent = Proposals
-    label = 'All Cycles'
-    roles = USO_ADMIN_ROLES
-    url = reverse('review-cycle-list')
+        submenu[0].separator = True
+        return dynamic + submenu
 
 
 class InProgress(BaseNav):

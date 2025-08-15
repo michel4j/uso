@@ -2,13 +2,13 @@
   pk: 1
   fields:
     created: 2025-07-24 19:21:30.834172+00:00
-    modified: 2025-07-24 19:31:32.895731+00:00
+    modified: 2025-08-13 16:22:26.099162+00:00
     name: User & Institutions by Year
     description: User information grouped by year and institution
     group_by:
     - year
     - category
-    filters: '{}'
+    filters: Category isnull False
     limit: null
 - model: reportcraft.datasource
   pk: 2
@@ -87,25 +87,27 @@
     - year
     filters: ''
     limit: null
+- model: reportcraft.datasource
+  pk: 9
+  fields:
+    created: 2025-08-11 14:56:51.103487+00:00
+    modified: 2025-08-11 14:57:35.737985+00:00
+    name: Institution List
+    description: Data Source for calculating the number of institutions and their
+      users
+    group_by:
+    - country
+    filters: ''
+    limit: null
 - model: reportcraft.datamodel
   pk: 1
   fields:
     created: 2025-07-24 19:22:03.149068+00:00
-    modified: 2025-08-10 05:17:34.138995+00:00
+    modified: 2025-08-13 16:19:45.274169+00:00
     model:
     - users
     - user
     name: users.User
-    source: 1
-- model: reportcraft.datamodel
-  pk: 2
-  fields:
-    created: 2025-07-24 19:33:57.511013+00:00
-    modified: 2025-08-10 05:17:25.426316+00:00
-    model:
-    - users
-    - institution
-    name: users.Institution
     source: 1
 - model: reportcraft.datamodel
   pk: 3
@@ -207,11 +209,21 @@
     - configitem
     name: proposals.Configitem
     source: 8
+- model: reportcraft.datamodel
+  pk: 17
+  fields:
+    created: 2025-08-11 14:59:29.122256+00:00
+    modified: 2025-08-11 15:00:29.669779+00:00
+    model:
+    - users
+    - user
+    name: users.User
+    source: 9
 - model: reportcraft.datafield
   pk: 1
   fields:
     created: 2025-07-24 19:28:07.163954+00:00
-    modified: 2025-08-10 05:17:34.122385+00:00
+    modified: 2025-08-13 16:19:45.251350+00:00
     name: year
     model: 1
     label: Year
@@ -225,40 +237,12 @@
   pk: 3
   fields:
     created: 2025-07-24 19:32:20.564679+00:00
-    modified: 2025-08-10 05:17:34.132832+00:00
+    modified: 2025-08-13 16:19:45.267333+00:00
     name: category
     model: 1
     label: Category
     default: null
-    expression: Classification
-    precision: null
-    position: 1
-    ordering: null
-    source: 1
-- model: reportcraft.datafield
-  pk: 4
-  fields:
-    created: 2025-07-24 19:33:57.525386+00:00
-    modified: 2025-08-10 05:17:25.409117+00:00
-    name: year
-    model: 2
-    label: Year
-    default: null
-    expression: Created.Year
-    precision: null
-    position: 0
-    ordering: null
-    source: 1
-- model: reportcraft.datafield
-  pk: 5
-  fields:
-    created: 2025-07-24 19:33:57.543346+00:00
-    modified: 2025-08-10 05:17:25.419497+00:00
-    name: category
-    model: 2
-    label: Category
-    default: null
-    expression: Users.Classification
+    expression: Upper(Classification)
     precision: null
     position: 1
     ordering: null
@@ -267,12 +251,12 @@
   pk: 6
   fields:
     created: 2025-07-24 19:34:50.026818+00:00
-    modified: 2025-08-10 05:18:23.684423+00:00
+    modified: 2025-08-13 16:21:24.995607+00:00
     name: users
     model: 1
     label: Users
     default: 0
-    expression: Count(this)
+    expression: Count(this, distinc=True)
     precision: null
     position: 1
     ordering: null
@@ -281,12 +265,12 @@
   pk: 7
   fields:
     created: 2025-07-24 19:35:39.968537+00:00
-    modified: 2025-07-24 19:35:39.968566+00:00
+    modified: 2025-08-13 16:21:12.329810+00:00
     name: institutions
-    model: 2
+    model: 1
     label: Institutions
     default: 0
-    expression: Count(this)
+    expression: Count(Institution, distinct=True)
     precision: null
     position: 2
     ordering: null
@@ -810,6 +794,48 @@
     position: 5
     ordering: null
     source: 8
+- model: reportcraft.datafield
+  pk: 82
+  fields:
+    created: 2025-08-11 14:59:29.151214+00:00
+    modified: 2025-08-11 15:00:29.647062+00:00
+    name: country
+    model: 17
+    label: Country
+    default: null
+    expression: Address.Country
+    precision: null
+    position: 0
+    ordering: null
+    source: 9
+- model: reportcraft.datafield
+  pk: 83
+  fields:
+    created: 2025-08-11 15:01:45.299455+00:00
+    modified: 2025-08-11 15:01:45.299466+00:00
+    name: institutions
+    model: 17
+    label: Institutions
+    default: 0
+    expression: Count(Institution, distinct=True)
+    precision: null
+    position: 1
+    ordering: null
+    source: 9
+- model: reportcraft.datafield
+  pk: 84
+  fields:
+    created: 2025-08-11 15:02:44.859952+00:00
+    modified: 2025-08-11 15:02:44.859962+00:00
+    name: people
+    model: 17
+    label: Users
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 2
+    ordering: null
+    source: 9
 - model: reportcraft.report
   pk: 1
   fields:
@@ -843,16 +869,27 @@
     style: ''
     notes: ''
     section: proposal
+- model: reportcraft.report
+  pk: 4
+  fields:
+    created: 2025-08-11 14:56:14.766741+00:00
+    modified: 2025-08-11 15:12:56.923740+00:00
+    slug: global-user-distribution
+    title: Distribution of Users
+    description: This report presents the distribution of users and institutions globally
+    style: ''
+    notes: ''
+    section: user
 - model: reportcraft.entry
   pk: 1
   fields:
     created: 2025-07-24 19:59:44.215133+00:00
-    modified: 2025-07-24 20:00:16.654239+00:00
+    modified: 2025-08-13 17:01:12.886372+00:00
     title: Users Per Year
     description: ''
     notes: ''
     style: col-md-6
-    kind: bars
+    kind: column
     source: 1
     report: 1
     position: 0
@@ -933,7 +970,7 @@
   pk: 5
   fields:
     created: 2025-07-24 20:30:34.858419+00:00
-    modified: 2025-07-24 23:05:12.682884+00:00
+    modified: 2025-08-15 22:51:54.585435+00:00
     title: Publications by Year
     description: ''
     notes: ''
@@ -943,6 +980,8 @@
     report: 2
     position: 1
     attrs:
+      bars:
+      - publications
       stack:
       - - type
       colors: Live8
@@ -1025,7 +1064,7 @@
   pk: 9
   fields:
     created: 2025-08-09 00:26:49.165726+00:00
-    modified: 2025-08-09 19:33:16.844139+00:00
+    modified: 2025-08-15 22:57:31.815688+00:00
     title: Quality Metrics Plot
     description: ''
     notes: ''
@@ -1036,17 +1075,13 @@
     position: 4
     attrs:
       colors: Live8
-      x_axis: year
-      y_axis:
-      - - total_citations
-        - self_citations
-        - total_mentions
-      - - avg_cites
-        - avg_sjr
-        - avg_impact_factor
-      scatter: false
-      y1_label: ''
-      y2_label: ''
+      groups:
+      - y: total_citations
+      - y: self_citations
+      - y: total_mentions
+      - y: articles
+      x_value: year
+      y_label: Counts
 - model: reportcraft.entry
   pk: 10
   fields:
@@ -1071,10 +1106,18 @@
   pk: 11
   fields:
     created: 2025-08-09 20:05:58.047084+00:00
-    modified: 2025-08-09 20:10:42.545987+00:00
+    modified: 2025-08-11 15:54:58.938918+00:00
     title: Quality Metric Per Facility
     description: ''
-    notes: ''
+    notes: "1. Mentions represent the number of news stories, and social media mentions
+      the reference the publication.\r\n2. The Average Impact Factor is the ratio
+      of citations to the number of citable documents for the journal over the previous
+      two years. This value is calculated based on citations in the SCOPUS database
+      and may be different from the Web Of Science values from the Thomson Reuters
+      database.\r\n3. SJR is the SCIMAGO Journal Rank Metric: https://www.scimagojr.com/.
+      A Journal with an SJR quartile of 1 is in the top 25% of journals in the field
+      when ranked by SJR, and a quartile of 2 is ranked higher than 50% but lower
+      than 25% of journals in the field."
     style: col-md-12
     kind: table
     source: 7
@@ -1140,3 +1183,63 @@
       transpose: false
       total_column: false
       force_strings: false
+- model: reportcraft.entry
+  pk: 14
+  fields:
+    created: 2025-08-11 15:12:51.823772+00:00
+    modified: 2025-08-11 15:13:33.773620+00:00
+    title: Global Distribution of Institutions
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: map
+    source: 9
+    report: 4
+    position: 0
+    attrs:
+      mode: regions
+      value: institutions
+      colors: Blues
+      region: world
+      location: country
+      resolution: countries
+- model: reportcraft.entry
+  pk: 15
+  fields:
+    created: 2025-08-11 15:14:57.049659+00:00
+    modified: 2025-08-11 15:16:14.808482+00:00
+    title: Top 10 Countries by Number of Users
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: list
+    source: 9
+    report: 4
+    position: 1
+    attrs:
+      limit: 10
+      columns:
+      - country
+      - institutions
+      - people
+      order_by: -people
+- model: reportcraft.entry
+  pk: 16
+  fields:
+    created: 2025-08-11 15:15:36.852449+00:00
+    modified: 2025-08-11 15:16:29.999346+00:00
+    title: Top 10 Countries by Number of Institutions
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: list
+    source: 9
+    report: 4
+    position: 2
+    attrs:
+      limit: 10
+      columns:
+      - country
+      - institutions
+      - people
+      order_by: -institutions
