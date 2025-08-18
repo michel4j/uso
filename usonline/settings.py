@@ -254,8 +254,13 @@ REPORTCRAFT_MIXINS = {
 REPORTCRAFT_FUNCTIONS = [
     'misc.functions.String',
     'misc.functions.JoinArray',
+    'misc.functions.ArrayLength',
     'reportcraft.functions.postgres.Join',
+    'django.contrib.postgres.aggregates.ArrayAgg',
+    'django.contrib.postgres.aggregates.JSONBAgg',
+    'misc.functions.ArrayItems',
 ]
+
 REPORTCRAFT_APPS = [
     'proposals',
     'projects',

@@ -86,6 +86,30 @@ class JoinArray(models.Func):
         )
 
 
+class ArrayLength(models.Func):
+    """
+    Calculates the length of a JSONB array.
+    """
+    output_field = models.IntegerField()
+
+    def as_postgresql(self, compiler, connection):
+        return self.as_sql(
+            compiler, connection, function="jsonb_array_length", template="jsonb_array_length(%(expressions)s)"
+        )
+
+
+class ArrayItems(models.Func):
+    """
+    Concatenates JSONB arrays into a single array.
+    """
+    output_field = models.JSONField()
+
+    def as_postgresql(self, compiler, connection):
+        return self.as_sql(
+            compiler, connection, function="jsonb_array_elements", template="jsonb_array_elements(%(expressions)s)"
+        )
+
+
 class JoinIt(models.Func):
     allow_distinct = True
     output_field = models.TextField()

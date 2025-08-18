@@ -42,7 +42,7 @@ class Proposal(CodeModelMixin, BaseFormModel):
     areas = models.ManyToManyField(
         SubjectArea, verbose_name="Research Subject Areas", blank=True, related_name='proposals'
     )
-    team = StringListField(blank=True, null=True)
+    team = models.JSONField(default=list, null=True, blank=True)
     state = models.IntegerField(choices=STATES, default=STATES.draft)
     clarifications = GenericRelation(Clarification)
     attachments = GenericRelation(Attachment)
