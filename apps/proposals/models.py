@@ -19,7 +19,6 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from beamlines.models import Facility
-from misc.fields import StringListField
 from misc.models import Clarification, GenericContentMixin, GenericContentQueryset, CodeModelMixin
 from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
 from misc.utils import humanize_role
@@ -326,6 +325,7 @@ class Submission(CodeModelMixin, TimeStampedModel):
                 summary[stage] = {
                     acronyms[int(item['facility'])]: stage.add_passage(item)
                     for item in stage_scores
+                    if item.get('facility') is not None
                 }
             else:
                 summary[stage] = stage.add_passage(stage_scores[0])

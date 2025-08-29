@@ -35,7 +35,7 @@
 {% block page-status-style %}callout callout-info{% endblock %}
 {% block page-status-bar %}
     {% with object.active_config as config %}
-        <span class="status-badge badge bg-{% state_tag config.accept success=True warning=False %} text-condensed">
+        <span class="status-badge badge bg-{% state_tag config.accept success=True warning=False default='secondary' %} text-condensed">
         {% if config.accept %}Accepting{% else %}Not Accepting{% endif %}
         </span>
         {% for pool, percent in object.access_pools %}
@@ -51,7 +51,9 @@
     {% for config in object.configs.pending %}
         {% include "proposals/config-box.html" with pending=True %}
     {% endfor %}
-    {% include "proposals/config-box.html" with config=object.active_config active=True %}
+    {% for config in object.configs.active %}
+        {% include "proposals/config-box.html" with active=True %}
+    {% endfor %}
     {% for config in object.configs.expired %}
         {% if forloop.first %}<h3>Previous Configurations</h3>{% endif %}
         {% include "proposals/config-box.html" %}
