@@ -123,7 +123,7 @@
   pk: 4
   fields:
     created: 2025-07-24 20:10:59.145139+00:00
-    modified: 2025-08-09 16:01:45.102200+00:00
+    modified: 2025-09-02 22:13:31.965361+00:00
     model:
     - publications
     - publication
@@ -153,10 +153,10 @@
   pk: 10
   fields:
     created: 2025-07-24 23:03:02.782655+00:00
-    modified: 2025-07-24 23:03:45.020952+00:00
+    modified: 2025-09-02 22:20:26.544606+00:00
     model:
-    - samples
-    - pictogram
+    - publications
+    - publication
     name: publications.Publication
     source: 6
 - model: reportcraft.datamodel
@@ -307,7 +307,7 @@
   pk: 10
   fields:
     created: 2025-07-24 20:10:59.161138+00:00
-    modified: 2025-08-09 16:01:45.072921+00:00
+    modified: 2025-09-02 22:13:31.934639+00:00
     name: year
     model: 4
     label: Year
@@ -321,12 +321,12 @@
   pk: 11
   fields:
     created: 2025-07-24 20:10:59.179894+00:00
-    modified: 2025-08-09 16:01:45.080859+00:00
+    modified: 2025-09-02 22:13:31.958480+00:00
     name: type
     model: 4
     label: Type
     default: null
-    expression: Upper(kind)
+    expression: DisplayName(kind)
     precision: null
     position: 1
     ordering: null
@@ -391,12 +391,12 @@
   pk: 32
   fields:
     created: 2025-07-24 23:03:45.002476+00:00
-    modified: 2025-07-24 23:03:45.014034+00:00
+    modified: 2025-09-02 22:20:26.521386+00:00
     name: kind
     model: 10
     label: Kind
     default: null
-    expression: Upper(Kind)
+    expression: DisplayName(Kind)
     precision: null
     position: 0
     ordering: null
@@ -948,7 +948,7 @@
   pk: 4
   fields:
     created: 2025-07-24 20:28:03.589094+00:00
-    modified: 2025-07-24 20:29:53.138139+00:00
+    modified: 2025-09-02 21:20:46.720677+00:00
     title: Overall Activity
     description: All Publications
     notes: ''
@@ -962,37 +962,36 @@
       - type
       values: publications
       columns: year
+      max_cols: 12
       total_row: true
       transpose: false
+      flip_headers: false
       total_column: true
+      wrap_headers: false
       force_strings: false
 - model: reportcraft.entry
   pk: 5
   fields:
     created: 2025-07-24 20:30:34.858419+00:00
-    modified: 2025-08-15 22:51:54.585435+00:00
+    modified: 2025-09-02 21:21:29.172471+00:00
     title: Publications by Year
     description: ''
     notes: ''
     style: col-md-6
-    kind: bars
+    kind: columns
     source: 3
     report: 2
     position: 1
     attrs:
-      bars:
+      scale: linear
+      scheme: Live8
+      values:
       - publications
-      stack:
-      - - type
-      colors: Live8
-      x_axis: year
-      y_axis:
-      - type
-      sort_by: year
-      y_value: publications
-      vertical: true
+      grouped: false
+      color_by: type
       sort_desc: false
-      wrap_x_labels: false
+      categories: year
+      ticks_every: 1
 - model: reportcraft.entry
   pk: 6
   fields:
@@ -1047,7 +1046,7 @@
   pk: 8
   fields:
     created: 2025-07-24 23:00:49.827858+00:00
-    modified: 2025-07-24 23:04:48.063402+00:00
+    modified: 2025-09-02 22:20:47.880322+00:00
     title: Publications by Type
     description: ''
     notes: ''

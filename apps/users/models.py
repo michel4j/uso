@@ -27,13 +27,90 @@ USO_REVIEWER_ROLES = getattr(settings, 'USO_REVIEWER_ROLES', ['reviewer'])
 USO_PROFILE_MANAGER = getattr(settings, 'USO_PROFILE_MANAGER')
 
 
+class CountryManager(models.Manager):
+    def get_by_natural_key(self, code):
+        return self.get(alpha3=code)
+
+
+class Country(models.Model):
+    """
+    Model to store country data based on ISO 3166-1 standard.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text="The common name of the country."
+    )
+    alpha2 = models.CharField(
+        max_length=2,
+        unique=True,
+        verbose_name="ISO 3166-1 alpha-2",
+        help_text="Two-letter country code."
+    )
+    alpha3 = models.CharField(
+        max_length=3,
+        unique=True,
+        verbose_name="ISO 3166-1 alpha-3",
+        help_text="Three-letter country code."
+    )
+    code = models.CharField(
+        max_length=3,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name="ISO 3166-1 numeric code",
+        help_text="Three-digit country code."
+    )
+
+    objects = CountryManager()
+
+    class Meta:
+        verbose_name_plural = "Countries"
+        ordering = ['name']
+
+    def natural_key(self):
+        return (self.alpha3,)
+
+    def __str__(self):
+        return self.name
+
+
+class RegionManager(models.Manager):
+    def get_by_natural_key(self, code):
+        return self.get(code=code)
+
+
+class Region(models.Model):
+    """
+    Model for top-level administrative subdivisions of a country (e.g., state, province).
+    Corresponds to ISO 3166-2.
+    """
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="regions")
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10,  unique=True,  verbose_name="ISO 3166-2 code")
+    lat = models.FloatField(null=True, blank=True, verbose_name="Latitude")
+    lon = models.FloatField(null=True, blank=True, verbose_name="Longitude")
+    objects = RegionManager()
+
+    class Meta:
+        verbose_name_plural = "Regions"
+        unique_together = [['country', 'name']]
+        ordering = ['country__name', 'name']
+
+    def natural_key(self):
+        return (self.code,)
+
+    def __str__(self):
+        return f"{self.name}, {self.country.name}"
+
+
 class Address(TimeStampedModel):
     address_1 = models.CharField(_('Department'), max_length=255)
     address_2 = models.CharField(_('Street'), max_length=255, blank=True)
     address_3 = models.CharField(_('Place'), max_length=255, blank=True)
     city = models.CharField(max_length=100)
-    region = models.CharField(_('Province/State/Region'), max_length=100, blank=True)
     postal_code = models.CharField(_('Postal/Zip Code'), max_length=100, blank=True)
+    region = models.CharField(_('Province/State/Region'), max_length=100, blank=True)
     country = models.CharField(max_length=100)
     phone = models.CharField(_('Phone Number'), max_length=20, blank=True)
 
