@@ -2689,15 +2689,29 @@ $stat-sizes: (
 
 ::-webkit-scrollbar {
   width: 0.65em;
+  height: 0.65em;
 }
 
 ::-webkit-scrollbar-track {
   background: transparent;
+  &:hover {
+    background: var(--bs-border-color-translucent);
+  }
+}
+
+
+::-webkit-scrollbar-track:vertical {
   border-right: 1px solid var(--bs-border-color-translucent);
 
   &:hover {
-    background: var(--bs-border-color-translucent);
     border-right: 1px solid var(--bs-secondary-bg-subtle);
+  }
+}
+::-webkit-scrollbar-track:horizontal {
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+
+  &:hover {
+    border-bottom: 1px solid var(--bs-secondary-bg-subtle);
   }
 }
 
