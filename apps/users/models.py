@@ -9,7 +9,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, ForeignKey
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -110,21 +110,16 @@ class Address(TimeStampedModel):
     address_3 = models.CharField(_('Place'), max_length=255, blank=True)
     city = models.CharField(max_length=100)
     postal_code = models.CharField(_('Postal/Zip Code'), max_length=100, blank=True)
-    region = models.CharField(_('Province/State/Region'), max_length=100, blank=True)
-    country = models.CharField(max_length=100)
+    region = ForeignKey(Region, null=True, blank=True, on_delete=models.SET_NULL)
+    country = ForeignKey(Country, null=True, blank=True, on_delete=models.SET_NULL)
     phone = models.CharField(_('Phone Number'), max_length=20, blank=True)
 
     class Meta:
         verbose_name_plural = _("Addresses")
 
     def __str__(self):
-        return ", ".join(
-            [_f for _f in [
-                a for a in
-                [self.address_2, self.city, self.postal_code, self.region.upper(), self.country.upper()]
-                if a.strip().replace('-', '')
-            ] if _f]
-        )
+        place = ", ".join([a for a in [self.address_1, self.address_2, self.address_3] if a.replace('-', '').strip()])
+        return f"{place}, {self.city}, {self.region}"
 
     def api_format(self):
         address_2 = self.address_2 and f'{"+".join(self.address_2.split())},+' or ''
@@ -352,7 +347,9 @@ class Institution(DateSpanMixin, TimeStampedModel):
         ('expired', _('Expired')),
     )
     name = models.CharField(max_length=200, unique=True)
-    location = models.CharField(max_length=200, null=True, blank=True)
+    country = models.ForeignKey(Country, null=True, blank=True, on_delete=models.SET_NULL)
+    region = models.ForeignKey(Region, null=True, blank=True, on_delete=models.SET_NULL)
+    city = models.CharField(max_length=200, null=True, blank=True)
     sector = models.CharField(null=True, blank=True, max_length=20, choices=SECTORS)
     domains = StringListField(_("Institutional Email Suffixes"), blank=True, null=True)
     state = models.CharField("Agreement", max_length=20, choices=STATES, default=STATES.new)
@@ -368,6 +365,10 @@ class Institution(DateSpanMixin, TimeStampedModel):
 
     num_users.short_description = 'Users'
     num_users.sort_field = 'users__id'
+
+    @property
+    def location(self):
+        return f"{self.city}, {self.region}"
 
     def email_users(self):
         if self.domains:

@@ -58,12 +58,12 @@
   pk: 6
   fields:
     created: 2025-07-24 23:02:32.370894+00:00
-    modified: 2025-07-24 23:03:18.954196+00:00
+    modified: 2025-09-02 23:51:42.356888+00:00
     name: Publication Types
     description: Publication counts by Type
     group_by:
-    - kind
-    filters: '{}'
+    - kind_group
+    filters: ''
     limit: null
 - model: reportcraft.datasource
   pk: 7
@@ -99,6 +99,42 @@
     - country
     filters: ''
     limit: null
+- model: reportcraft.datasource
+  pk: 10
+  fields:
+    created: 2025-08-16 16:51:43.222563+00:00
+    modified: 2025-08-16 16:51:43.222580+00:00
+    name: Proposals by Country
+    description: For counting the number of proposals by country of origin of the
+      spokes person
+    group_by:
+    - country
+    filters: ''
+    limit: null
+- model: reportcraft.datasource
+  pk: 11
+  fields:
+    created: 2025-08-16 17:52:23.222070+00:00
+    modified: 2025-08-16 18:32:21.735874+00:00
+    name: Submissions by Cycle and Track
+    description: Proposal Submissions by Cycle and Review Track
+    group_by:
+    - cycles
+    - tracks
+    filters: ''
+    limit: null
+- model: reportcraft.datasource
+  pk: 12
+  fields:
+    created: 2025-08-16 19:08:42.321209+00:00
+    modified: 2025-08-16 19:19:04.247867+00:00
+    name: Projects Data
+    description: cycle isnull False
+    group_by:
+    - cycles
+    - pools
+    filters: ''
+    limit: null
 - model: reportcraft.datamodel
   pk: 1
   fields:
@@ -108,6 +144,16 @@
     - users
     - user
     name: users.User
+    source: 1
+- model: reportcraft.datamodel
+  pk: 2
+  fields:
+    created: 2025-07-24 19:33:57.511013+00:00
+    modified: 2025-08-30 05:04:29.575672+00:00
+    model:
+    - users
+    - institution
+    name: users.Institution
     source: 1
 - model: reportcraft.datamodel
   pk: 3
@@ -153,7 +199,7 @@
   pk: 10
   fields:
     created: 2025-07-24 23:03:02.782655+00:00
-    modified: 2025-09-02 22:20:26.544606+00:00
+    modified: 2025-09-02 23:55:14.849553+00:00
     model:
     - publications
     - publication
@@ -219,6 +265,46 @@
     - user
     name: users.User
     source: 9
+- model: reportcraft.datamodel
+  pk: 18
+  fields:
+    created: 2025-08-16 16:52:18.073203+00:00
+    modified: 2025-08-16 16:53:25.336831+00:00
+    model:
+    - proposals
+    - submission
+    name: proposals.Submission
+    source: 10
+- model: reportcraft.datamodel
+  pk: 21
+  fields:
+    created: 2025-08-16 18:26:32.414636+00:00
+    modified: 2025-08-16 18:26:32.414668+00:00
+    model:
+    - proposals
+    - submission
+    name: proposals.Submission
+    source: 11
+- model: reportcraft.datamodel
+  pk: 22
+  fields:
+    created: 2025-08-16 19:10:22.480510+00:00
+    modified: 2025-08-16 19:16:22.654679+00:00
+    model:
+    - projects
+    - project
+    name: projects.Project
+    source: 12
+- model: reportcraft.datamodel
+  pk: 23
+  fields:
+    created: 2025-08-16 19:17:31.431483+00:00
+    modified: 2025-08-16 19:17:31.431498+00:00
+    model:
+    - users
+    - user
+    name: users.User
+    source: 12
 - model: reportcraft.datafield
   pk: 1
   fields:
@@ -243,6 +329,34 @@
     label: Category
     default: null
     expression: Upper(Classification)
+    precision: null
+    position: 1
+    ordering: null
+    source: 1
+- model: reportcraft.datafield
+  pk: 4
+  fields:
+    created: 2025-07-24 19:33:57.525386+00:00
+    modified: 2025-08-30 05:04:29.560197+00:00
+    name: year
+    model: 2
+    label: Year
+    default: null
+    expression: Created.Year
+    precision: null
+    position: 0
+    ordering: null
+    source: 1
+- model: reportcraft.datafield
+  pk: 5
+  fields:
+    created: 2025-07-24 19:33:57.543346+00:00
+    modified: 2025-08-30 05:04:29.569896+00:00
+    name: category
+    model: 2
+    label: Category
+    default: null
+    expression: DisplayName(Users.Classification)
     precision: null
     position: 1
     ordering: null
@@ -391,8 +505,8 @@
   pk: 32
   fields:
     created: 2025-07-24 23:03:45.002476+00:00
-    modified: 2025-09-02 22:20:26.521386+00:00
-    name: kind
+    modified: 2025-09-02 23:56:12.861451+00:00
+    name: kind_group
     model: 10
     label: Kind
     default: null
@@ -836,6 +950,258 @@
     position: 2
     ordering: null
     source: 9
+- model: reportcraft.datafield
+  pk: 85
+  fields:
+    created: 2025-08-16 16:46:32.997939+00:00
+    modified: 2025-08-16 16:47:37.870049+00:00
+    name: leaders
+    model: 14
+    label: Investigators
+    default: 0
+    expression: Count(Proposal.LeaderUsername, distinct=True)
+    precision: null
+    position: 6
+    ordering: null
+    source: 8
+- model: reportcraft.datafield
+  pk: 86
+  fields:
+    created: 2025-08-16 16:52:18.090621+00:00
+    modified: 2025-08-16 16:53:25.329323+00:00
+    name: country
+    model: 18
+    label: Country
+    default: null
+    expression: Proposal.Spokesperson.Address.Country
+    precision: null
+    position: 0
+    ordering: null
+    source: 10
+- model: reportcraft.datafield
+  pk: 87
+  fields:
+    created: 2025-08-16 16:54:08.252254+00:00
+    modified: 2025-08-16 16:54:08.252287+00:00
+    name: proposals
+    model: 18
+    label: Proposals
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 1
+    ordering: null
+    source: 10
+- model: reportcraft.datafield
+  pk: 88
+  fields:
+    created: 2025-08-16 17:19:33.369778+00:00
+    modified: 2025-08-16 17:49:28.478206+00:00
+    name: researchers
+    model: 18
+    label: Researchers
+    default: null
+    expression: Sum(ArrayLength(Proposal.Team))
+    precision: null
+    position: 2
+    ordering: null
+    source: 10
+- model: reportcraft.datafield
+  pk: 92
+  fields:
+    created: 2025-08-16 18:01:10.436670+00:00
+    modified: 2025-08-16 18:26:49.716378+00:00
+    name: submissions
+    model: 21
+    label: Submissions
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 2
+    ordering: null
+    source: 11
+- model: reportcraft.datafield
+  pk: 95
+  fields:
+    created: 2025-08-16 18:09:02.760317+00:00
+    modified: 2025-08-16 18:26:58.670732+00:00
+    name: researchers
+    model: 21
+    label: Researchers
+    default: 0
+    expression: Sum(ArrayLength(Proposal.Team))
+    precision: null
+    position: 4
+    ordering: null
+    source: 11
+- model: reportcraft.datafield
+  pk: 96
+  fields:
+    created: 2025-08-16 18:23:58.951852+00:00
+    modified: 2025-08-16 18:27:32.586877+00:00
+    name: cycle_date
+    model: 21
+    label: Cycle Date
+    default: null
+    expression: Cycle.StartDate
+    precision: null
+    position: 4
+    ordering: null
+    source: 11
+- model: reportcraft.datafield
+  pk: 97
+  fields:
+    created: 2025-08-16 18:26:32.434297+00:00
+    modified: 2025-08-16 18:32:32.081619+00:00
+    name: cycles
+    model: 21
+    label: Cycle Group
+    default: null
+    expression: Cycle
+    precision: null
+    position: 0
+    ordering: null
+    source: 11
+- model: reportcraft.datafield
+  pk: 98
+  fields:
+    created: 2025-08-16 18:26:32.455086+00:00
+    modified: 2025-08-16 18:32:37.942789+00:00
+    name: tracks
+    model: 21
+    label: Track Group
+    default: null
+    expression: Track
+    precision: null
+    position: 1
+    ordering: null
+    source: 11
+- model: reportcraft.datafield
+  pk: 99
+  fields:
+    created: 2025-08-16 18:28:21.880908+00:00
+    modified: 2025-08-16 18:32:48.473451+00:00
+    name: cycle_name
+    model: 21
+    label: Cycle
+    default: ''
+    expression: Concat(Cycle.Type.Name, ' ', String(Cycle.StartDate.Year))
+    precision: null
+    position: 7
+    ordering: null
+    source: 11
+- model: reportcraft.datafield
+  pk: 100
+  fields:
+    created: 2025-08-16 18:28:53.638237+00:00
+    modified: 2025-08-16 18:39:05.899745+00:00
+    name: track_name
+    model: 21
+    label: Track
+    default: null
+    expression: Track.Name
+    precision: null
+    position: 8
+    ordering: null
+    source: 11
+- model: reportcraft.datafield
+  pk: 101
+  fields:
+    created: 2025-08-16 19:10:22.500811+00:00
+    modified: 2025-08-16 19:16:22.639386+00:00
+    name: cycles
+    model: 22
+    label: Cycles
+    default: null
+    expression: Cycle
+    precision: null
+    position: 0
+    ordering: null
+    source: 12
+- model: reportcraft.datafield
+  pk: 102
+  fields:
+    created: 2025-08-16 19:10:22.521708+00:00
+    modified: 2025-08-16 19:16:22.648605+00:00
+    name: pools
+    model: 22
+    label: Pools
+    default: null
+    expression: Pool
+    precision: null
+    position: 1
+    ordering: null
+    source: 12
+- model: reportcraft.datafield
+  pk: 103
+  fields:
+    created: 2025-08-16 19:11:08.333476+00:00
+    modified: 2025-08-16 19:11:08.333505+00:00
+    name: projects
+    model: 22
+    label: Projects
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 2
+    ordering: null
+    source: 12
+- model: reportcraft.datafield
+  pk: 105
+  fields:
+    created: 2025-08-16 19:16:45.324996+00:00
+    modified: 2025-08-16 19:16:45.325031+00:00
+    name: cycle_name
+    model: 22
+    label: Cycle Name
+    default: null
+    expression: Concat(String(Cycle.StartDate.Month), '/', String(Cycle.StartDate.Year))
+    precision: null
+    position: 3
+    ordering: null
+    source: 12
+- model: reportcraft.datafield
+  pk: 106
+  fields:
+    created: 2025-08-16 19:17:31.444031+00:00
+    modified: 2025-08-16 19:17:31.451056+00:00
+    name: cycles
+    model: 23
+    label: Cycles
+    default: null
+    expression: Projects.Cycle
+    precision: null
+    position: 0
+    ordering: null
+    source: 12
+- model: reportcraft.datafield
+  pk: 107
+  fields:
+    created: 2025-08-16 19:17:31.459398+00:00
+    modified: 2025-08-16 19:17:31.466116+00:00
+    name: pools
+    model: 23
+    label: Pools
+    default: null
+    expression: Projects.Pool
+    precision: null
+    position: 1
+    ordering: null
+    source: 12
+- model: reportcraft.datafield
+  pk: 108
+  fields:
+    created: 2025-08-16 19:18:03.494502+00:00
+    modified: 2025-08-16 19:18:03.494533+00:00
+    name: researchers
+    model: 23
+    label: Researchers
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 6
+    ordering: null
+    source: 12
 - model: reportcraft.report
   pk: 1
   fields:
@@ -880,6 +1246,17 @@
     style: ''
     notes: ''
     section: user
+- model: reportcraft.report
+  pk: 5
+  fields:
+    created: 2025-08-16 19:07:22.839835+00:00
+    modified: 2025-08-17 03:52:18.194712+00:00
+    slug: project-statistics
+    title: Project Statistics
+    description: Distribution of Projects and Researchers each cycle
+    style: ''
+    notes: ''
+    section: projects
 - model: reportcraft.entry
   pk: 1
   fields:
@@ -996,7 +1373,7 @@
   pk: 6
   fields:
     created: 2025-07-24 22:30:46.205881+00:00
-    modified: 2025-08-09 20:09:59.513263+00:00
+    modified: 2025-09-03 00:01:51.528943+00:00
     title: Quality Metrics by Year
     description: ''
     notes: ''
@@ -1018,9 +1395,12 @@
       - avg_hindex
       - avg_quartile
       columns: year
+      max_cols: 12
       total_row: false
       transpose: false
+      flip_headers: false
       total_column: false
+      wrap_headers: false
       force_strings: false
 - model: reportcraft.entry
   pk: 7
@@ -1046,7 +1426,7 @@
   pk: 8
   fields:
     created: 2025-07-24 23:00:49.827858+00:00
-    modified: 2025-09-02 22:20:47.880322+00:00
+    modified: 2025-09-02 23:56:22.016105+00:00
     title: Publications by Type
     description: ''
     notes: ''
@@ -1056,14 +1436,14 @@
     report: 2
     position: 1
     attrs:
-      label: kind
+      label: kind_group
       value: publications
       colors: Live8
 - model: reportcraft.entry
   pk: 9
   fields:
     created: 2025-08-09 00:26:49.165726+00:00
-    modified: 2025-08-15 22:57:31.815688+00:00
+    modified: 2025-09-03 00:02:53.465880+00:00
     title: Quality Metrics Plot
     description: ''
     notes: ''
@@ -1073,14 +1453,20 @@
     report: 2
     position: 4
     attrs:
-      colors: Live8
       groups:
       - y: total_citations
+        type: line-points
       - y: self_citations
+        type: points
       - y: total_mentions
+        type: points
       - y: articles
+        type: points
+      scheme: Live8
+      x_scale: linear
       x_value: year
       y_label: Counts
+      y_scale: linear
 - model: reportcraft.entry
   pk: 10
   fields:
@@ -1242,3 +1628,91 @@
       - institutions
       - people
       order_by: -institutions
+- model: reportcraft.entry
+  pk: 17
+  fields:
+    created: 2025-08-16 18:16:32.370790+00:00
+    modified: 2025-09-03 00:05:36.549124+00:00
+    title: Submissions by Cycle and Track
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: columns
+    source: 11
+    report: 3
+    position: 2
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - submissions
+      grouped: false
+      color_by: track_name
+      sort_desc: false
+      categories: cycle_name
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 18
+  fields:
+    created: 2025-08-16 18:40:13.521984+00:00
+    modified: 2025-09-03 00:05:07.768748+00:00
+    title: Proposals Per Year
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: columns
+    source: 8
+    report: 3
+    position: 1
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - proposals
+      grouped: false
+      color_by: proposals
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 19
+  fields:
+    created: 2025-08-17 03:47:54.828852+00:00
+    modified: 2025-08-17 03:49:47.435503+00:00
+    title: Projects by Cycle
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source: 12
+    report: 5
+    position: 0
+    attrs:
+      rows:
+      - projects
+      - researchers
+      columns: cycles
+      total_row: false
+      transpose: false
+      total_column: false
+      force_strings: false
+- model: reportcraft.entry
+  pk: 20
+  fields:
+    created: 2025-08-17 03:56:24.190785+00:00
+    modified: 2025-08-17 04:04:25.473573+00:00
+    title: Global Distribution of Proposals
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: map
+    source: 10
+    report: 3
+    position: -4
+    attrs:
+      mode: regions
+      value: proposals
+      colors: RdPu
+      region: world
+      location: country
+      resolution: countries

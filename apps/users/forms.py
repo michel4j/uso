@@ -4,7 +4,7 @@ import re
 from datetime import timedelta
 
 import phonenumbers
-from crisp_modals.forms import ModalModelForm, Row, FullWidth, HalfWidth
+from crisp_modals.forms import ModalModelForm, Row, FullWidth, HalfWidth, ThirdWidth
 from crispy_forms.bootstrap import PrependedText, AccordionGroup, Accordion, StrictButton, FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field, HTML
@@ -29,8 +29,8 @@ blank_choice = ((None, '------'),)
 class InstitutionForm(ModalModelForm):
     class Meta:
         model = Institution
-        fields = ('name', 'location', 'sector', 'state', 'domains', 'parent', 'contact_person', 'contact_email',
-                  'contact_phone')
+        fields = ('name', 'sector', 'state', 'domains', 'parent', 'contact_person', 'contact_email',
+                  'city', 'region', 'country', 'contact_phone')
         widgets = {
             "domains": forms.TextInput(),
         }
@@ -43,7 +43,8 @@ class InstitutionForm(ModalModelForm):
         self.body.append(
             Row(
                 FullWidth('name'),
-                FullWidth(Field('location', placeholder='City, Region, Country')),
+                ThirdWidth('city'), ThirdWidth('region'), ThirdWidth('country'),
+
                 HalfWidth(Field('sector', css_class="selectize")), HalfWidth(Field('state', css_class="selectize")),
                 FullWidth(Field('parent', css_class="selectize")),
                 FullWidth("domains"),
