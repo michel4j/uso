@@ -2671,8 +2671,11 @@ $stat-sizes: (
   --ss-animation-timing: 0.2s;
   --ss-border-radius: var(--bs-border-radius);
   --ss-disabled-color: var(--bs-secondary-bg);
-  font-size: 1rem;
   font-weight: 400;
+}
+
+.form-select, .form-select-multiple {
+  font-size: 0.9rem;
 }
 
 .ss-content .ss-list .ss-option.ss-disabled {

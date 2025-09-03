@@ -237,9 +237,9 @@ class FakeUser:
                 'address_1': info['department'],
                 'address_2': f"{info['address']}",
                 'city': info['city'],
-                'region': info['state'],
+                'region': [info['region']],
                 'postal_code': info['zip'],
-                'country': info['country'],
+                'country': [info['country']],
                 'phone': info['phone'],
             }
         })
@@ -277,7 +277,9 @@ class FakeUser:
                 'created': f'{info["year"]}-{info["month"]:02d}-15 20:48:59.049236+00:00',
                 'modified': f'{info["year"]}-{info["month"]:02d}-15 20:49:59.049236+00:00',
                 'name': info['institution'],
-                'location': f"{info['city']}, {info['state']}, {info['country']}",
+                'city': info['city'],
+                'region': [info['region']],
+                'country': [info['country']],
                 'sector': 'academic',
                 'domains': f"<{info['domain']}>",
                 'state': random.choice(['pending', 'active', 'active', 'active']),
@@ -297,9 +299,9 @@ class FakeUser:
         if is_staff:
             domain = '@bespoke.com'
             institution = 'Bespoke Facility'
-            country = 'Martian Confederation'
+            country = 'CAN'
             city = 'Areion Prime'
-            state = 'Valles District'
+            region = 'CA-SK'
             address = '1 Synchrotron Way'
             department = 'Beamline Operations'
             zip_code = 'AP00-M0001'
@@ -315,20 +317,19 @@ class FakeUser:
             elif random.choice([True, True, False]):
                 roles += '<{}>'.format(random.choice(ROLES))
             if kind == 'male':
-                first_name = fake_first_name_male("Canada")
+                first_name = fake_first_name_male(country)
             else:
-                first_name = fake_first_name_female("Canada")
-            last_name = fake_last_name("Canada")
+                first_name = fake_first_name_female(country)
+            last_name = fake_last_name(country)
         else:
             inst_info = random.choice(UNIVERSITIES)
-            institution = inst_info['university']
-            domain = f"@{inst_info['domain']}"
+            institution = inst_info['name']
+            domain = f"@{inst_info['domains']}"
             roles = '<user>'
             country = inst_info['country']
             city = inst_info['city']
-            full_address = inst_info['address'].split(', ')
-            state = full_address[-1]
-            address = ', '.join(full_address[:-1])
+            region = inst_info['region']
+            address = self.fake.street_address()
             department = random.choice(DEPARTMENTS)
             zip_code = self.fake.postalcode()
             classification = random.choice(CLASSIFICATIONS)
@@ -348,7 +349,7 @@ class FakeUser:
         return {
             'country': country,
             'city': city,
-            'state': state,
+            'region': region,
             'address': address,
             'year': random_year(),
             'month': random.randint(1, 12),

@@ -146,6 +146,25 @@
                 })
             });
 
+            // country region form linking
+
+            $(document).on('change', '#id_country', function() {
+                console.log('country changed', 'fetching regions');
+                let countryId = $(this).val();
+                const $regionSelect = $('#id_region');
+                fetch(`{% url 'country-regions' %}?country=${countryId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        $regionSelect.html('<option value="">Select a Region</option>');
+                        data.forEach(region => {
+                            $regionSelect.append($('<option>', {
+                                value: region.id, // Assuming 'value' is a key in your JSON objects
+                                text: region.name    // Assuming 'text' is a key in your JSON objects
+                            }));
+                        });
+                    });
+            });
+
             setupAjaxProgress(); // Initialize AJAX Progress bar
             $('#modal-target').initModal({
                 setup: function (element) {

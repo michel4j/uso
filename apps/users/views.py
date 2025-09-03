@@ -78,7 +78,7 @@ class InstitutionList(RolePermsViewMixin, ItemListView):
     paginate_by = 25
     list_filters = ['modified', 'sector', 'state']
     list_columns = ['name', 'location', 'sector', 'state', 'num_users']
-    list_search = ['name', 'location', 'sector', 'state', 'domains']
+    list_search = ['name', 'city', 'region__name', 'country__name', 'sector', 'state', 'domains']
     ordering = ['-created']
     link_url = 'edit-institution'
     link_attr = 'data-modal-url'
@@ -121,17 +121,16 @@ class InstitutionSearch(View):
     def get(self, request, *args, **kwargs):
         found = models.Institution.objects.filter(name__icontains=request.GET['q']).order_by('name')
         if found.count():
-            context = list(found.values_list('name', flat=True))
+            context = list(found.values('name', 'id', 'country_id', 'region_id', 'city'))
         else:
             context = []
-        print(context)
         return JsonResponse(context, safe=False)
 
 
-class InstitutionNames(View):
+class InstitutionInfo(View):
     def get(self, request, *args, **kwargs):
-        context = list(models.Institution.objects.all().values_list('name', flat=True))
-        return JsonResponse(context)
+        context = list(models.Institution.objects.all().values('name', 'id', 'country_id', 'region_id', 'city'))
+        return JsonResponse(context, safe=False)
 
 
 class EditInstitution(RolePermsViewMixin, ModalUpdateView):
@@ -238,7 +237,8 @@ class UserList(RolePermsViewMixin, ItemListView):
     list_filters = ['modified', 'classification', 'institution']
     list_columns = ['get_full_name', 'username', 'roles', 'address', 'institution']
     list_search = [
-        'first_name', 'last_name', 'email', 'preferred_name', 'address__city', 'address__country',
+        'first_name', 'last_name', 'email', 'preferred_name', 'address__city',
+        'address__country__name', 'address__region__name',
         'institution__name', 'roles'
     ]
     list_transforms = {'roles': lambda x, y: ", ".join(x)}
@@ -602,6 +602,40 @@ class AdminResetPassword(RolePermsViewMixin, ModalConfirmView):
             description='Users Password Reset'
         )
         utils.send_reset(self.object)
-        return JsonResponse({"url": "" , "message": "Password reset email sent."})
+        return JsonResponse({"url": "", "message": "Password reset email sent."})
 
 
+class CountryRegions(View):
+    def get(self, request, *args, **kwargs):
+        country = request.GET.get('country', '')
+        if country:
+            regions = list(
+                models.Region.objects.filter(
+                    country_id=country
+                ).order_by('name').values('id', 'name')
+            )
+        else:
+            regions = []
+        return JsonResponse(regions, safe=False)
+
+
+class InstitutionAddress(View):
+    def get(self, request, *args, **kwargs):
+        inst = None
+        if 'name' in request.GET:
+            inst = models.Institution.objects.filter(name__iexact=request.GET['name']).first()
+        elif 'email' in request.GET:
+            domains = ["@{}".format(email.split('@')[-1].lower().strip()) for email in request.GET['email'].split(',')]
+            query = Q()
+            for domain in domains:
+                query |= Q(domains__icontains=domain)
+            inst = models.Institution.objects.filter(query).first()
+        address = {}
+        if inst and hasattr(inst, 'address') and inst.address:
+            address['address.street'] = inst.address
+            address['address.city'] = inst.address.city
+            address['address.country'] = inst.address.country
+            address['address.province'] = inst.address.region
+            address['address.postal_code'] = inst.address.postal_code
+
+        return JsonResponse(address)

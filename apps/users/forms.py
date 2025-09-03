@@ -5,7 +5,7 @@ from datetime import timedelta
 
 import phonenumbers
 from crisp_modals.forms import ModalModelForm, Row, FullWidth, HalfWidth, ThirdWidth
-from crispy_forms.bootstrap import PrependedText, AccordionGroup, Accordion, StrictButton, FormActions
+from crispy_forms.bootstrap import PrependedText, StrictButton, FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field, HTML
 from django import forms
@@ -18,7 +18,6 @@ from django.utils.translation import gettext as _
 from dynforms.forms import DynModelForm
 
 from misc.countries import COUNTRY_CODES
-from publications.models import SubjectArea
 from . import models
 from . import utils
 from .models import User, Institution, SecureLink, Registration
@@ -40,10 +39,21 @@ class InstitutionForm(ModalModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if 'country' in self.data:
+            try:
+                country = int(self.data.get('country'))
+                self.fields['region'].queryset = models.Region.objects.filter(country__id=country).order_by('name')
+            except (ValueError, TypeError):
+                pass  # Handle invalid parent_choice gracefully
+        elif self.instance and self.instance.country:  # For initial data in an instance
+            country = self.instance.country
+            self.fields['region'].queryset = country.regions.all().order_by('name')
+
         self.body.append(
             Row(
                 FullWidth('name'),
-                ThirdWidth('city'), ThirdWidth('region'), ThirdWidth('country'),
+                ThirdWidth('country'), ThirdWidth('region'), ThirdWidth('city'),
 
                 HalfWidth(Field('sector', css_class="selectize")), HalfWidth(Field('state', css_class="selectize")),
                 FullWidth(Field('parent', css_class="selectize")),
@@ -170,7 +180,9 @@ class RegistrationForm(DynModelForm):
 
         old_registration = Registration.objects.filter(email__iexact=email).first()
 
-        if old_registration and (timezone.now().today() - old_registration.created.replace(tzinfo=None)) < timedelta(days=3):
+        if old_registration and (timezone.now().today() - old_registration.created.replace(tzinfo=None)) < timedelta(
+                days=3
+        ):
             raise forms.ValidationError(
                 "Your previous registration is still pending. Check your email for instructions"
                 " to complete your registration or wait 3 days for it to lapse."
@@ -303,9 +315,13 @@ class UserProfileForm(forms.ModelForm):
     address_1 = forms.CharField(label="", max_length=255, required=True, help_text="Department")
     address_2 = forms.CharField(label="", max_length=255, required=False, help_text="Street Address")
     city = forms.CharField(label="", max_length=100, required=True, help_text="City")
-    region = forms.CharField(label="", required=False, help_text="Province / State / Region")
+    region = forms.ModelChoiceField(
+        label="", required=False, help_text="Province / State / Region", queryset=models.Region.objects.none()
+    )
+    country = forms.ModelChoiceField(
+        label="", required=False, help_text="Country", queryset=models.Country.objects.all()
+    )
     postal_code = forms.CharField(label="", max_length=100, required=False, help_text="Postal / Zip Code")
-    country = forms.CharField(label="", required=False, help_text="Country")
     phone = forms.CharField(label="Phone Number", max_length=20, required=True)
 
     class Meta:
@@ -321,6 +337,16 @@ class UserProfileForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.title = f"Edit {self.instance}'s  Profile"
+        if 'country' in self.data:
+            try:
+                country = int(self.data.get('country'))
+                self.fields['region'].queryset = models.Region.objects.filter(country__id=country).order_by('name')
+            except (ValueError, TypeError):
+                pass  # Handle invalid parent_choice gracefully
+        elif self.instance and self.instance.address and self.instance.address.country:  # For initial data in an instance
+            country = self.instance.address.country
+            self.fields['region'].queryset = country.regions.all().order_by('name')
+
         self.helper.layout = Layout(
             Fieldset(
                 "Personal Information", Div(
@@ -343,9 +369,9 @@ class UserProfileForm(forms.ModelForm):
                 ), ), Fieldset(
                 "Work Address", Div(
                     Div('address_1', css_class='col-sm-12'), Div('address_2', css_class='col-sm-12'),
-                    Div('city', css_class='col-sm-6'),
-                    Div('country', placeholder="Type your country", css_class='col-sm-6'),
+                    Div(Field('country', css_class='selectize'), placeholder="Type your country", css_class='col-sm-6'),
                     Div('region', placeholder="Type your province/state/territory", css_class='col-sm-6'),
+                    Div('city', css_class='col-sm-6'),
                     Div('postal_code', css_class='col-sm-6'),
                     css_class="address row"
                 ), ), FormActions(
@@ -363,6 +389,9 @@ class UserProfileForm(forms.ModelForm):
         if first_name and preferred_name and first_name.lower() == preferred_name.lower():
             data['preferred_name'] = None
         data['email'] = data['email'].lower().strip()
+        country = data.get('country', None)
+        if country:
+            self.fields['region'].queryset = country.regions.all()
 
         # get address
         data['address_info'] = {

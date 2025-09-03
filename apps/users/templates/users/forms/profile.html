@@ -6,93 +6,39 @@
 {% block extra_css %}
 	{% endblock %}
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js" integrity="sha512-BI1itUvyiWbbZ446/8IOccwMPB/xobCTyQTS0r1+k8Pq1VPT3uIJKNCoMH12rKk18J9sH33xQNve7srB0IGYlg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" integrity="sha512-qOBWNAMfkz+vXXgbh0Wz7qYSLZp6c14R0bZeVX2TdQxWpuKr6yHjBIM69fcF8Ve4GUX6B6AKRQJqiiAmwvmUmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="{% static 'js/countries.min.js' %}" charset="UTF-8"></script>
-<script type="text/javascript">
-var $country = $('#id_country');
-var $region = $('#id_region');
-
-var countries = new Bloodhound({
-  datumTokenizer: Bloodhound.tokenizers.whitespace,
-  queryTokenizer: Bloodhound.tokenizers.whitespace,
-  local: COUNTRIES
-});
-var _regions = new Bloodhound({
-    datumTokenizer: Bloodhound.tokenizers.whitespace,
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: REGIONS["CANADA"]
-});
-
-
-$country.typeahead(null, {
-    source: countries,
-    limit: 20
-});
-
-$region.typeahead(null, {
-    source: _regions,
-    limit: 20
-});
-
-
-$country.bind('typeahead:selected typeahead:autocompleted', function() {
-    var cntry = $country.val();
-    var cntry_regions = REGIONS[cntry.toUpperCase()];
-
-
-    if (cntry  && cntry_regions) {
-        var regions = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.whitespace,
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            local: cntry_regions
-        });
-
-        $region.typeahead('destroy');
-        $region.typeahead(null, {
-            source: regions,
-            limit: 20
-        });
-        if ($.inArray($region.val(), cntry_regions) != -1) {
-            $region.val("")
-        }
-    }
-});
-
-// Auto Populate Address if email changes
-$("#id_email, #id_alt_email ").change(function(event){
-    if(this.value==this.oldvalue) return; this.oldvalue=this.value; //fix double trigger
-    jQuery.getJSON('{% url "institution-detail" %}?email=' + $(this).val(), function(data){
-        const old_data = $('form').serializeObject();
-        if ((old_data['address_1']) || (old_data['address_2']) || (old_data['institution_name']) ) {
-            // do not overwrite filled data
-        } else {
-            $("#id_institution_name").val(data['institution']);
-            $("#id_city").val(data['address.city']);
-            $("#id_country").val(data['address.country']);
-            $("#id_region").val(data['address.region']);
-
-            $("#id_postal_code").val("");
-            $("#id_address_1").val("");
-            $("#id_address_2").val("");
-        }
+<script>
+$(document).ready(function() {
+    let institutions = new Bloodhound({
+      datumTokenizer: function(d) { return Bloodhound.tokenizers.whitespace(d.key);},
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      prefetch: {
+        url: '{% url "institution-entries" %}',
+        cache: true
+      },
+      remote: {
+        url: '{% url "institution-search" %}?q=%QUERY',
+        wildcard: '%QUERY'
+      }
     });
+    const $instInput = $('.institution-input');
+
+    $instInput.typeahead(null, {
+        name: 'institutions',
+        source: institutions,
+        display: 'name',
+        limit: 10
+    });
+
+    $instInput.bind('typeahead:select', function(ev, suggestion){
+        const $countryInput = $('#id_country');
+        const $cityInput = $('#id_city');
+        $countryInput.val(suggestion.country_id).trigger('change');
+        $regionSelect.val(suggestion.region_id).trigger('change');
+        $cityInput.val(suggestion.city).trigger('change');
+    })
 });
 
-var institutions = new Bloodhound({
-  datumTokenizer: function(d) { return Bloodhound.tokenizers.whitespace(d.key);},
-  queryTokenizer: Bloodhound.tokenizers.whitespace,
-  remote: {
-    url: '{% url "institution-search" %}?q=%QUERY',
-    wildcard: '%QUERY'
-  }
-});
-
-$('.institution-input').typeahead(null, {
-    name: 'institutions',
-    source: institutions,
-    limit: 10
-});
 
 </script>
 {% endblock %}
