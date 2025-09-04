@@ -16,11 +16,11 @@ urlpatterns = [
     path('techniques/new/', views.AddTechnique.as_view(), name="add-technique"),
 
 
-    path('submissions/', views.SubmissionList.as_view(), name='submission-list'),
+    path('submissions/', views.AdminSubmissionList.as_view(), name='submission-list'),
     path('submissions/cycle/<int:cycle>/', views.CycleSubmissionList.as_view(), name='cycle-submission-list'),
     path('submissions/cycle/<int:cycle>/<slug:track>/', views.TrackSubmissionList.as_view(), name='track-submission-list'),
-    path('submissions/<int:pk>/', views.SubmissionDetail.as_view(), name='submission-detail'),
-    path('submissions/<int:pk>/comments/', views.UpdateReviewComments.as_view(), name='edit-submission-comments'),
+    path('submission/<int:pk>/', views.SubmissionDetail.as_view(), name='submission-detail'),
+    path('submission/<int:pk>/comments/', views.UpdateReviewComments.as_view(), name='edit-submission-comments'),
     path('submission/<int:pk>/assign/<int:stage>/', views.AddReviewAssignment.as_view(), name='add-reviewer-assignment'),
 
     path('reviews/', views.ReviewList.as_view(), name='review-list'),

@@ -27,20 +27,18 @@
 
     $(document).on('uso:samples-changed', function (e, data) {
         let allHazards = data.hazards || [];
-        //reset all checkboxes
-        $('#{{field.name}}-controls input[type="checkbox"]').removeAttr('checked');
 
-
-        // check new ones
+        // check unchecked hazards
         $.each([...allHazards], function (index, value) {
             $(`#{{field.name}}-controls input[value="${value}"]`).attr('checked', 'checked');
         });
 
         // manage non-hazard checkbox
-        let $nonHazard = $('{{ field.name }}-controls  input[type="checkbox"][value="15"]');
-        if (jQuery.isEmptyObject(allHazards)) {
+        let $nonHazard = $('#{{ field.name }}-controls input[value="15"]');
+        if (allHazards.length === 0) {
             $nonHazard.removeAttr("disabled");
         } else {
+            $nonHazard.removeAttr("checked");
             $nonHazard.attr("disabled", "disabled");
         }
     });

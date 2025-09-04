@@ -1,4 +1,5 @@
 import codecs
+import copy
 import csv
 import itertools
 import json
@@ -23,7 +24,6 @@ from django.db.models import Q, QuerySet
 from django.utils import dateparse, timezone
 from habanero import Crossref
 from lxml import etree
-from rcsbapi.search import search_attributes as attrs
 
 from misc.utils import MultiKeyDict
 from . import models
@@ -45,21 +45,38 @@ PDB_REPORT_URL = getattr(settings, 'PDB_REPORT_URL', "https://data.rcsb.org/grap
 GOOGLE_BOOKS_API = getattr(settings, 'GOOGLE_BOOKS_API', "https://www.googleapis.com/books/v1/volumes")
 SCIMAGO_URL = getattr(settings, 'SCIMAGO_URL', "https://www.scimagojr.com/journalrank.php")
 
+
 SEARCH_JSON = {
-  "query": {
-    "type": "terminal",
-    "service": "text",
-    "parameters": {
-      "operator": "exact_match",
-      "negation": False,
-      "value": f"{PDB_SITE}",
-      "attribute": "diffrn_source.pdbx_synchrotron_site"
+    'query': {
+        'type': 'group',
+        'logical_operator': 'and',
+        'nodes': [
+            {
+                'type': 'terminal',
+                'service': 'text',
+                'parameters': {
+                    'attribute': 'diffrn_source.pdbx_synchrotron_site',
+                    'operator': 'exact_match',
+                    'negation': False,
+                    'value': "CLSI",
+                }
+            },
+            {
+                'type': 'terminal',
+                'service': 'text',
+                'parameters': {
+                    'attribute': 'rcsb_accession_info.revision_date',
+                    'operator': 'greater',
+                    'negation': False,
+                    'value': '2025-01-01'
+                }
+            }
+        ]
+    },
+    "return_type": "entry",
+    "request_options": {
+        "return_all_hits": True
     }
-  },
-  "return_type": "entry",
-  "request_options": {
-    "return_all_hits": True
-  }
 }
 
 REPORT_QUERY = """{{
@@ -288,7 +305,7 @@ class PDBParser(ObjectParser):
         ]
 
 
-def fix_issns(issns: list) ->  list:
+def fix_issns(issns: list) -> list:
     """
     Fix issn formatting
     :param issns: list of strings
@@ -333,10 +350,12 @@ class BookParser(ObjectParser):
 
     def get_title(self):
         return '; '.join(
-            filter(None, [
-                self._entry['title'],
-                self._entry.get('subtitle', '')
-            ])
+            filter(
+                None, [
+                    self._entry['title'],
+                    self._entry.get('subtitle', '')
+                ]
+            )
         )
 
 
@@ -461,16 +480,18 @@ class ArticleParser(ObjectParser):
         return self._entry.get('ISBN', [])
 
     def get_affiliations(self):
-        return list({
-            inst['name']: {
-                'name': inst['name'],
-                'acronym': inst.get('acronym', ''),
-                'place': ', '.join(inst.get('place', [])),
-                'ror': inst.get('ROR', ''),
-            }
-            for auth in self._entry.get('author', [])
-            for inst in auth.get('affiliation', [])
-        }.values())
+        return list(
+            {
+                inst['name']: {
+                    'name': inst['name'],
+                    'acronym': inst.get('acronym', ''),
+                    'place': ', '.join(inst.get('place', [])),
+                    'ror': inst.get('ROR', ''),
+                }
+                for auth in self._entry.get('author', [])
+                for inst in auth.get('affiliation', [])
+            }.values()
+        )
 
 
 class JournalParser(ObjectParser):
@@ -524,10 +545,12 @@ class SCIMagoParser(ObjectParser):
         }.get(self._entry['SJR Best Quartile'])
 
     def get_codes(self):
-        return tuple({
-            re.sub(r'(\w{4})(?!$)', r'\1-', code.strip())
-            for code in self._entry['Issn'].split(',')
-        })
+        return tuple(
+            {
+                re.sub(r'(\w{4})(?!$)', r'\1-', code.strip())
+                for code in self._entry['Issn'].split(',')
+            }
+        )
 
 
 def fetch_pdb_codes():
@@ -535,16 +558,19 @@ def fetch_pdb_codes():
     Retrieve all revised PDB Codes for the facility as a list of strings
     """
     dt = timezone.localtime(timezone.now() - timedelta(days=180))
-
-    query = (
-        (attrs.rcsb_accession_info.revision_date >= f"{dt:%Y-%m-%d}") &
-        (attrs.diffrn_source.pdbx_synchrotron_site == PDB_SITE)
-    )
+    search = copy.deepcopy(SEARCH_JSON)
+    search['query']['nodes'][0]['parameters']['value'] = PDB_SITE
+    search['query']['nodes'][1]['parameters']['value'] = f"{dt:%Y-%m-%d}"
+    codes = []
     try:
-        codes = list(query(return_type='entry'))
+        response = requests.post(PDB_SEARCH_URL, json=search)
+        if response.status_code == 200:
+            result = response.json()
+            codes = [item['identifier'].upper() for item in result.get('result_set', [])]
+        else:
+            response.raise_for_status()
     except Exception as e:
         print(f"Error fetching PDB codes: {e}")
-        return []
 
     return codes
 
@@ -566,6 +592,7 @@ def fetch_pdb_entries(codes) -> list[dict]:
         return result['data']['entries']
     else:
         response.raise_for_status()
+        return []
 
 
 def create_pdb_entries(entries):
@@ -673,10 +700,12 @@ def create_publications(doi_list):
     """
 
     existing_pubs = set(models.Publication.objects.values_list('code', flat=True))
-    existing_journals = MultiKeyDict({
-        tuple(codes): pk
-        for codes, pk in models.Journal.objects.values_list('codes', 'pk')
-    })
+    existing_journals = MultiKeyDict(
+        {
+            tuple(codes): pk
+            for codes, pk in models.Journal.objects.values_list('codes', 'pk')
+        }
+    )
     # avoid fetching exising entries
     pending_doi_list = list(set(doi_list) - existing_pubs)
 
@@ -744,18 +773,22 @@ def create_publications(doi_list):
             break
 
     # now ready to create journals
-    to_create = MultiKeyDict({
-        codes: models.Journal(**details) for codes, details in new_journals.items()
-        if codes
-    })
+    to_create = MultiKeyDict(
+        {
+            codes: models.Journal(**details) for codes, details in new_journals.items()
+            if codes
+        }
+    )
 
     models.Journal.objects.bulk_create(to_create.values())
 
     # update journal_ids
-    existing_journals = MultiKeyDict({
-        tuple(j.codes): j
-        for j in models.Journal.objects.all()
-    })
+    existing_journals = MultiKeyDict(
+        {
+            tuple(j.codes): j
+            for j in models.Journal.objects.all()
+        }
+    )
 
     # update publication details
     for details in new_publications.values():
@@ -954,7 +987,9 @@ def update_publication_metrics(rate_limit=10):
                 to_create.append(models.ArticleMetric(publication=pub, year=year, **info))
 
         # Update the publication modified date
-        models.ArticleMetric.objects.bulk_update(entries.values(), fields=['citations', 'self_cites', 'mentions', 'modified'])
+        models.ArticleMetric.objects.bulk_update(
+            entries.values(), fields=['citations', 'self_cites', 'mentions', 'modified']
+        )
         time.sleep(1 / rate_limit)
 
     # Create new metrics entries

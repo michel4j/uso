@@ -1191,6 +1191,10 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
             return None
 
 
+class AdminSubmissionList(SubmissionList):
+    allowed_roles = USO_ADMIN_ROLES
+
+
 class UserSubmissionList(SubmissionList):
     list_title = 'My Submitted Proposals'
 

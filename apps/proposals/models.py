@@ -1274,7 +1274,7 @@ class Review(BaseFormModel, GenericContentMixin):
         """
         Check if this review is in the submitted state.
         """
-        return self.state == self.STATES.submitted
+        return self.state >= self.STATES.submitted
 
     def comments(self):
         if self.state == self.STATES.pending:

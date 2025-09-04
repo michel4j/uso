@@ -4,106 +4,120 @@ $color_4: #aaa;
 $icon-font-family: bootstrap-icons;
 
 .hazard-input {
-	cursor: pointer;
-	margin: 0 !important;
-	padding: 2px;
-	border: 1px solid transparent;
-	border-radius: 2px;
-	img {
-		opacity: 0.2;
-		height: 2em;
-	}
-	.media-body {
-		display: table-cell;
-		line-height: 1;
-		height: 2em;
-		vertical-align: middle;
-	}
-	.media-heading {
-		margin-bottom: 2px;
-	}
+  cursor: pointer;
+  margin: 0 !important;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+
+  img {
+    opacity: 0.2;
+    height: 2em;
+  }
+
+  .media-body {
+    display: table-cell;
+    line-height: 1;
+    height: 2em;
+    vertical-align: middle;
+  }
+
+  .media-heading {
+    margin-bottom: 2px;
+  }
 }
+
 .hazard-controls {
-	label {
-		font-weight: normal;
-	}
+  label {
+    font-weight: normal;
+  }
 
-	.hazard-input {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: start;
-		gap: 0.5em;
-	}
+  .hazard-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    gap: 0.5em;
+  }
 
-	input {
-		display: none;
-		margin: 0;
-		padding: 0;
+  input {
+    display: none;
+    margin: 0;
+    padding: 0;
 
-		&:checked {
-			+ {
-				label {
-					.hazard-input {
-						font-weight: 600;
+    &:checked {
+      + {
+        label {
+          .hazard-input {
+            font-weight: 600;
 
-						img {
-							opacity: 1.0;
-						}
+            img {
+              opacity: 1.0;
+            }
 
-						&:after {
-							font-family: $icon-font-family;
-							content: "\F633";
-							color: var(--bs-info);
-						}
-					}
-				}
-			}
-		}
+            &:after {
+              font-family: $icon-font-family;
+              content: "\F633";
+              color: var(--bs-info);
+            }
+          }
+        }
+      }
+    }
 
-		&:not(:checked) {
-			+ {
-				label {
-					.hazard-input {
-						font-weight: 400;
+    &:not(:checked) {
+      + {
+        label {
+          .hazard-input {
+            font-weight: 400;
 
-						img {
-							opacity: 0.2;
-						}
-					}
-				}
-			}
-		}
-	}
+            img {
+              opacity: 0.2;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 #search-results {
-	font-size: 95%;
-	.select-result {
-		text-align: right;
-		vertical-align: middle;
-		cursor: pointer;
-	}
+  font-size: 95%;
+
+  .select-result {
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  .result-row {
+    .pictogram-box {
+      justify-content: flex-start;
+    }
+  }
 }
+
 .sample-list {
-	margin-bottom: 0.5em;
-	.header.row {
-		font-weight: 600;
-		border-bottom: 2px solid var(--bs-border-color);
-	}
+  margin-bottom: 0.5em;
+
+  .header.row {
+    font-weight: 600;
+    border-bottom: 2px solid var(--bs-border-color);
+  }
 }
+
 .sample-list-row {
-	padding: 3px 0;
-	border-bottom: 1px solid var(--bs-border-color);
-	display: flex;
-	flex-direction: row;
-	align-items: center;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--bs-border-color);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .hazards-editor {
-	.modal-body {
-		padding: 0 !important;
-	}
+  .modal-body {
+    padding: 0 !important;
+  }
 }
 
 
@@ -166,39 +180,41 @@ $icon-font-family: bootstrap-icons;
 }
 
 .extra-pictogram {
-	opacity: 0.5;
+  opacity: 0.5;
 }
 
 .sample-properties {
-	margin: 0.5em 0;
-	padding: 0.5em 0;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-items: center;
-	border-top: 1px solid var(--bs-border-color-translucent);
-	border-bottom: 1px solid var(--bs-border-color-translucent);
-	> div {
-		display: flex;
-		flex-direction: column;
-		align-items: start;
-		flex-shrink: 1;
-	}
+  margin: 0.5em 0;
+  padding: 0.5em 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--bs-border-color-translucent);
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    flex-shrink: 1;
+  }
 }
+
 .sample-review-commands {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1em;
-	padding: 0.25em 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.25em 0;
 }
 
 .sample-review-toolbar {
-	display: flex;
-	flex-direction: row-reverse;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.5em;
-	font-size: 1.5em;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+  font-size: 1.5em;
 }
