@@ -11,42 +11,35 @@
 {% block page-subtitle %}Cycle &mdash; {{ object.pk }}{% endblock %}
 
 {% block page-tools %}
-    {% if next_cycle %}
-        <a class="pull-right" href='{% url "review-cycle-detail" pk=next_cycle.pk %}'>
-            <i class="bi-chevron-right icon-md icon-fw"></i><br/>
-            <span class="tool-label">Next</span>
-        </a>
-    {% else %}
-        <a class="pull-right" href='#0!' data-modal-url='{% url "add-review-cycles" pk=object.pk %}'>
-            <i class="bi-plus-lg icon-md icon-fw"></i><br/>
-            <span class="tool-label">Add</span>
-        </a>
-    {% endif %}
+    <a class="pull-right" {% if next_cycle %}href='{% url "review-cycle-detail" pk=next_cycle.pk %}'{% endif %}>
+        <i class="bi-chevron-right icon-md icon-fw {% if not next_cycle %}text-secondary{% endif %}"></i><br/>
+        <span class="tool-label">Next</span>
+    </a>
     <a class="pull-right"
        {% if prev_cycle %}href='{% url "review-cycle-detail" pk=prev_cycle.pk %}'
        {% else %}href='#0' disabled{% endif %}
     >
-        <i class="bi-chevron-left icon-md icon-fw"></i><br/>
+        <i class="bi-chevron-left icon-md icon-fw"></i>
         <span class="tool-label">Previous</span>
     </a>
     {% if admin or owner %}
         {% if object.state < object.STATES.active %}
             <a href='#0' data-modal-url='{% url "edit-review-cycle" pk=object.pk %}' class="pull-right">
-                <i class="bi-pencil icon-md icon-fw"></i><br/>
+                <i class="bi-pencil icon-md icon-fw"></i>
                 <span class="tool-label">Edit</span>
             </a>
         {% endif %}
         <a href='{% url "reviewer-list" %}' class="pull-right">
-            <i class="bi-people icon-md icon-fw"></i><br/>
+            <i class="bi-people icon-md icon-fw"></i>
             <span class="tool-label">Reviewers</span>
         </a>
         <a href="{% url "schedule-modes-edit" pk=object.schedule.pk %}" class="pull-right">
-            <i class="bi-calendar-plus icon-md icon-fw"></i><br/>
+            <i class="bi-calendar-plus icon-md icon-fw"></i>
             <span class="tool-label">Schedule</span>
         </a>
         {% if object.state >= object.STATES.schedule %}
             <a href='{% url "cycle-invoicing" pk=object.pk %}' class="pull-right">
-                <i class="bi-credit-card icon-md icon-fw"></i><br/>
+                <i class="bi-credit-card icon-md icon-fw"></i>
                 <span class="tool-label">Invoicing</span>
             </a>
         {% endif %}

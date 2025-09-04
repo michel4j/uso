@@ -14,6 +14,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from dynforms.models import BaseFormModel, FormType
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
@@ -287,7 +289,6 @@ class Submission(CodeModelMixin, TimeStampedModel):
         """
         return Technique.objects.filter(pk__in=self.techniques.values_list('technique__pk')).distinct()
 
-
     def scores(self) -> dict:
         """
         Generate a summary of review scores for this submission. The result is a dictionary with keys
@@ -550,25 +551,39 @@ class CycleType(TimeStampedModel):
             'alloc_date': alloc_date
         }
 
+    def missing_for_year(self, year: int) -> dict:
+        """
+        Calculate dates for missing cycles of the current type or the given year.
+        :param year: Year to check for
+        :return: dictionary of date information for the missing cycle or an empty dictionary if a cycle exists
+        """
+        dates = self.calculate_dates(year)
+        cycle_exists = self.cycles.filter(
+            Q(start_date__lt=dates['end_date'], end_date__gt=dates['start_date'])
+        ).exists()
+
+        if cycle_exists:
+            return {}
+        return dates
+
     def create_next(self, year: int = None) -> bool:
         """
-        Create a new review cycle and it's schedule based on this cycle type for the next year.
+        Create a new review cycle and schedule based on this cycle type for the next year.
         :param year: Year to create the cycle for, if None, use the current year. If an overlapping cycle exists,
-        it will return that cycle instead of creating a new one.
+        it won't create a one.
         :return: boolean indicating if the cycle was created or not,
         """
         from scheduler.models import Schedule
         year = year or timezone.localtime(timezone.now()).year
-        dates = self.calculate_dates(year)
-        overlaps = self.cycles.filter(Q(end_date__gt=dates['start_date'], start_date__lt=dates['end_date']))
+        dates = self.missing_for_year(year)
 
-        if overlaps.exists():
+        if not dates:
             return False
 
         with transaction.atomic():
             schedule = Schedule.objects.create(
                 start_date=dates['start_date'],
-                end_date=dates['start_date'],
+                end_date=dates['end_date'],
                 description=f"{dates['start_date']:%Y} {self.name}: Schedule",
                 config=self.shifts
             )
@@ -723,6 +738,13 @@ class ReviewCycle(DateSpanMixin, TimeStampedModel):
             )
         ]
         get_latest_by = "start_date"
+
+
+@receiver(post_delete, sender=ReviewCycle)
+def delete_schedule(sender, instance, **kwargs):
+    # Check if a related Schedule exists and delete it
+    if instance.schedule:
+        instance.schedule.delete()
 
 
 class Technique(TimeStampedModel):

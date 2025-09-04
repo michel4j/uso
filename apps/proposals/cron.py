@@ -17,31 +17,26 @@ class CreateCycles(BaseCronJob):
     Ensure there are always cycles two years in advance for scheduling.
     """
     run_every = "P1D"
-    pending_types: QuerySet = None
+    pending_types: dict
 
     def is_ready(self):
         from proposals import models
         today = timezone.now().date()
         in_future_years = today.year + FUTURE_CYCLES
+        self.pending_types = defaultdict(list)
+        for year in range(today.year, in_future_years + 1):
+            for cycle_type in models.CycleType.objects.filter(active=True).order_by('start_date__month'):
+                if cycle_type.missing_for_year(year):
+                    self.pending_types[year].append(cycle_type)
 
-        # Check if there are cycles for the next two years
-        # the end_date of the latest cycle from each type should be at least 2 years from today
-        self.pending_types = models.CycleType.objects.filter(active=True).annotate(
-            max_year=Max('cycles__end_date__year')
-        ).filter(Q(max_year__isnull=True) | Q(max_year__lt=in_future_years))
-
-        return self.pending_types.exists()
+        return bool(self.pending_types)
 
     def do(self):
         logs = []
-        today = timezone.now().date()
-        in_future_years = today.year + FUTURE_CYCLES
-        for year in range(today.year, in_future_years + 1):
-            for pending_type in self.pending_types.order_by('start_date__month'):
-                max_year = pending_type.max_year or today.year - 1
-                if max_year < year:
-                    pending_type.create_next(year=year)
-                    logs.append(f"Created cycle for {pending_type.name} for year {year}")
+        for year, cycle_types in self.pending_types.items():
+            for cycle_type in cycle_types:
+                cycle_type.create_next(year=year)
+                logs.append(f"Created cycle for {cycle_type.name} for year {year}")
         return '\n'.join(logs)
 
 
