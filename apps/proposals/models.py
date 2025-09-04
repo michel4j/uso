@@ -52,7 +52,10 @@ class Proposal(CodeModelMixin, BaseFormModel):
         return self.state == self.STATES.draft
 
     def is_owned_by(self, user):
-        return user.username in [self.spokesperson.username, self.delegate_username, self.leader_username]
+        return (
+            (user.username in [self.spokesperson.username, self.delegate_username, self.leader_username]) or
+            (user.email in self.team)
+        )
 
     def authors(self) -> str:
         """
