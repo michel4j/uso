@@ -2,13 +2,13 @@
   pk: 1
   fields:
     created: 2025-07-24 19:21:30.834172+00:00
-    modified: 2025-08-13 16:22:26.099162+00:00
+    modified: 2025-09-05 19:47:57.823509+00:00
     name: User & Institutions by Year
     description: User information grouped by year and institution
     group_by:
     - year
     - category
-    filters: Category isnull False
+    filters: category isnull False
     limit: null
 - model: reportcraft.datasource
   pk: 2
@@ -181,25 +181,27 @@
     - beamline
     filters: ''
     limit: null
+- model: reportcraft.datasource
+  pk: 17
+  fields:
+    created: 2025-09-05 19:53:53.915069+00:00
+    modified: 2025-09-05 20:01:22.938398+00:00
+    name: User counts by Country Region
+    description: Counts users by the level 1 administrative region
+    group_by:
+    - country_code
+    - region_code
+    filters: ''
+    limit: null
 - model: reportcraft.datamodel
   pk: 1
   fields:
     created: 2025-07-24 19:22:03.149068+00:00
-    modified: 2025-08-13 16:19:45.274169+00:00
+    modified: 2025-09-05 19:44:06.003517+00:00
     model:
     - users
     - user
     name: users.User
-    source: 1
-- model: reportcraft.datamodel
-  pk: 2
-  fields:
-    created: 2025-07-24 19:33:57.511013+00:00
-    modified: 2025-08-30 05:04:29.575672+00:00
-    model:
-    - users
-    - institution
-    name: users.Institution
     source: 1
 - model: reportcraft.datamodel
   pk: 3
@@ -371,11 +373,21 @@
     - submission
     name: proposals.Submission
     source: 16
+- model: reportcraft.datamodel
+  pk: 30
+  fields:
+    created: 2025-09-05 19:54:31.458055+00:00
+    modified: 2025-09-05 19:54:31.458066+00:00
+    model:
+    - users
+    - user
+    name: users.User
+    source: 17
 - model: reportcraft.datafield
   pk: 1
   fields:
     created: 2025-07-24 19:28:07.163954+00:00
-    modified: 2025-08-13 16:19:45.251350+00:00
+    modified: 2025-09-05 19:44:36.686521+00:00
     name: year
     model: 1
     label: Year
@@ -389,40 +401,12 @@
   pk: 3
   fields:
     created: 2025-07-24 19:32:20.564679+00:00
-    modified: 2025-08-13 16:19:45.267333+00:00
+    modified: 2025-09-05 19:44:05.994115+00:00
     name: category
     model: 1
     label: Category
     default: null
-    expression: Upper(Classification)
-    precision: null
-    position: 1
-    ordering: null
-    source: 1
-- model: reportcraft.datafield
-  pk: 4
-  fields:
-    created: 2025-07-24 19:33:57.525386+00:00
-    modified: 2025-08-30 05:04:29.560197+00:00
-    name: year
-    model: 2
-    label: Year
-    default: null
-    expression: Created.Year
-    precision: null
-    position: 0
-    ordering: null
-    source: 1
-- model: reportcraft.datafield
-  pk: 5
-  fields:
-    created: 2025-07-24 19:33:57.543346+00:00
-    modified: 2025-08-30 05:04:29.569896+00:00
-    name: category
-    model: 2
-    label: Category
-    default: null
-    expression: DisplayName(Users.Classification)
+    expression: DisplayName(Classification)
     precision: null
     position: 1
     ordering: null
@@ -964,12 +948,12 @@
   pk: 82
   fields:
     created: 2025-08-11 14:59:29.151214+00:00
-    modified: 2025-08-11 15:00:29.647062+00:00
+    modified: 2025-09-05 19:49:32.745861+00:00
     name: country
     model: 17
     label: Country
     default: null
-    expression: Address.Country
+    expression: Address.Country.Alpha3
     precision: null
     position: 0
     ordering: null
@@ -1408,17 +1392,87 @@
     position: 2
     ordering: null
     source: 16
+- model: reportcraft.datafield
+  pk: 129
+  fields:
+    created: 2025-09-05 19:54:31.484362+00:00
+    modified: 2025-09-05 19:54:38.086706+00:00
+    name: country_code
+    model: 30
+    label: Country
+    default: null
+    expression: Address.Country.Alpha3
+    precision: null
+    position: 0
+    ordering: null
+    source: 17
+- model: reportcraft.datafield
+  pk: 130
+  fields:
+    created: 2025-09-05 19:54:31.498947+00:00
+    modified: 2025-09-05 19:54:42.632857+00:00
+    name: region_code
+    model: 30
+    label: Region
+    default: null
+    expression: Address.Region.Code
+    precision: null
+    position: 1
+    ordering: null
+    source: 17
+- model: reportcraft.datafield
+  pk: 131
+  fields:
+    created: 2025-09-05 19:55:17.915797+00:00
+    modified: 2025-09-05 19:55:17.915814+00:00
+    name: users
+    model: 30
+    label: Users
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 2
+    ordering: null
+    source: 17
+- model: reportcraft.datafield
+  pk: 132
+  fields:
+    created: 2025-09-05 19:56:02.703545+00:00
+    modified: 2025-09-05 19:56:02.703555+00:00
+    name: institutions
+    model: 30
+    label: Institutions
+    default: 0
+    expression: Count(Institution,distinct=True)
+    precision: null
+    position: 3
+    ordering: null
+    source: 17
+- model: reportcraft.datafield
+  pk: 133
+  fields:
+    created: 2025-09-05 19:56:56.371680+00:00
+    modified: 2025-09-05 19:56:56.371690+00:00
+    name: region_name
+    model: 30
+    label: Name
+    default: null
+    expression: Address.Region.Name
+    precision: null
+    position: 4
+    ordering: null
+    source: 17
 - model: reportcraft.report
   pk: 1
   fields:
     created: 2025-07-24 18:48:34.419367+00:00
-    modified: 2025-08-10 02:52:19.258807+00:00
+    modified: 2025-09-05 19:52:18.439434+00:00
     slug: user-statistics
     title: User Statistics
     description: Distribution of Users by Year
     style: ''
     notes: ''
-    section: user
+    section: users
 - model: reportcraft.report
   pk: 2
   fields:
@@ -1445,13 +1499,13 @@
   pk: 4
   fields:
     created: 2025-08-11 14:56:14.766741+00:00
-    modified: 2025-08-11 15:12:56.923740+00:00
+    modified: 2025-09-05 19:52:32.239710+00:00
     slug: global-user-distribution
     title: Distribution of Users
     description: This report presents the distribution of users and institutions globally
     style: ''
     notes: ''
-    section: user
+    section: users
 - model: reportcraft.report
   pk: 5
   fields:
@@ -1496,31 +1550,42 @@
     style: ''
     notes: ''
     section: publications
+- model: reportcraft.report
+  pk: 9
+  fields:
+    created: 2025-09-05 19:51:55.938076+00:00
+    modified: 2025-09-05 19:52:25.234704+00:00
+    slug: national-distribution-of-users
+    title: National Distribution of Users
+    description: Distribution of users nationally
+    style: ''
+    notes: ''
+    section: users
 - model: reportcraft.entry
   pk: 1
   fields:
     created: 2025-07-24 19:59:44.215133+00:00
-    modified: 2025-08-13 17:01:12.886372+00:00
-    title: Users Per Year
+    modified: 2025-09-05 19:45:53.370868+00:00
+    title: New Users Per Year
     description: ''
     notes: ''
     style: col-md-6
-    kind: column
+    kind: columns
     source: 1
     report: 1
     position: 0
     attrs:
-      stack:
-      - - category
-      colors: Live8
-      x_axis: year
-      y_axis:
-      - category
+      scale: linear
+      scheme: Live8
+      values:
+      - users
+      - institutions
+      grouped: false
       sort_by: year
-      y_value: users
-      vertical: true
+      color_by: category
       sort_desc: false
-      wrap_x_labels: false
+      categories: year
+      ticks_every: 1
 - model: reportcraft.entry
   pk: 2
   fields:
@@ -1538,28 +1603,6 @@
       label: category
       value: users
       colors: Live8
-- model: reportcraft.entry
-  pk: 3
-  fields:
-    created: 2025-07-24 20:04:28.406797+00:00
-    modified: 2025-07-24 20:05:14.805926+00:00
-    title: Summary of Users by Year
-    description: ''
-    notes: ''
-    style: col-md-12
-    kind: table
-    source: 1
-    report: 1
-    position: 2
-    attrs:
-      rows:
-      - users
-      - institutions
-      columns: year
-      total_row: false
-      transpose: false
-      total_column: false
-      force_strings: false
 - model: reportcraft.entry
   pk: 4
   fields:
@@ -1629,7 +1672,7 @@
   pk: 12
   fields:
     created: 2025-08-10 05:06:32.019154+00:00
-    modified: 2025-08-10 05:07:52.246202+00:00
+    modified: 2025-09-05 19:47:29.335013+00:00
     title: User Types By Year
     description: ''
     notes: ''
@@ -1643,9 +1686,11 @@
       - category
       values: users
       columns: year
-      total_row: false
+      total_row: true
       transpose: false
+      flip_headers: false
       total_column: false
+      wrap_headers: false
       force_strings: false
 - model: reportcraft.entry
   pk: 13
@@ -1678,7 +1723,7 @@
   pk: 14
   fields:
     created: 2025-08-11 15:12:51.823772+00:00
-    modified: 2025-08-11 15:13:33.773620+00:00
+    modified: 2025-09-05 19:50:17.743673+00:00
     title: Global Distribution of Institutions
     description: ''
     notes: ''
@@ -1688,12 +1733,12 @@
     report: 4
     position: 0
     attrs:
-      mode: regions
-      value: institutions
-      colors: Blues
-      region: world
+      map: '001'
+      groups:
+      - type: area
+        value: institutions
+        scheme: Blues
       location: country
-      resolution: countries
 - model: reportcraft.entry
   pk: 15
   fields:
@@ -2139,3 +2184,24 @@
       total_column: false
       wrap_headers: false
       force_strings: false
+- model: reportcraft.entry
+  pk: 35
+  fields:
+    created: 2025-09-05 19:57:50.789526+00:00
+    modified: 2025-09-05 20:02:23.261694+00:00
+    title: Number of Users in each Region
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: map
+    source: 17
+    report: 9
+    position: 0
+    attrs:
+      map: CAN
+      groups:
+      - type: area
+        value: users
+        scheme: Purples
+      location: region_code
+      map_labels: names
