@@ -6,7 +6,7 @@ from django.db import migrations
 def update_dynforms_data(apps, schema_editor):
     FormType = apps.get_model('dynforms', 'FormType')
     forms_to_update = FormType.objects.all()
-
+    db_alias = schema_editor.connection.alias
     for form in forms_to_update:
         updated_actions = []
         for action, label in form.actions:
@@ -21,7 +21,7 @@ def update_dynforms_data(apps, schema_editor):
             else:
                 updated_actions.append((action, label))
         form.actions = updated_actions
-    FormType.objects.bulk_update(forms_to_update, ['actions'])
+    FormType.objects.using(db_alias).bulk_update(forms_to_update, ['actions'])
 
 
 class Migration(migrations.Migration):

@@ -15,16 +15,20 @@ def load_fixture(apps, schema_editor):
         'fixtures',
         '001-reportcraft.yml'
     )
+    db_alias = schema_editor.connection.alias
     with open(fixture_path, 'r') as fixture_file:
         objects = serializers.deserialize('yaml', fixture_file)
         for obj in objects:
-            obj.save()
+            obj.save(using=db_alias)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
         ('misc', '0006_update_dynforms_data'),
+        ('proposals', '0058_fix_cycle_schedules'),
+        ('publications', '0025_publication_journal_metric'),
+        ('users', '0014_rename__city_institution_city_and_more'),
     ]
 
     operations = [
