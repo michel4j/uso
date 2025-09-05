@@ -58,9 +58,9 @@
   pk: 6
   fields:
     created: 2025-07-24 23:02:32.370894+00:00
-    modified: 2025-09-02 23:51:42.356888+00:00
+    modified: 2025-09-05 15:27:42.082548+00:00
     name: Publication Types
-    description: Publication counts by Type
+    description: Total publication counts grouped by Type of publication
     group_by:
     - kind_group
     filters: ''
@@ -133,6 +133,52 @@
     group_by:
     - cycles
     - pools
+    filters: ''
+    limit: null
+- model: reportcraft.datasource
+  pk: 13
+  fields:
+    created: 2025-09-05 02:42:03.693005+00:00
+    modified: 2025-09-05 15:28:12.029228+00:00
+    name: Publications by Topics
+    description: Yearly counts for publications, grouped by top-level field of science
+    group_by:
+    - topic
+    - year
+    filters: topic isnull False
+    limit: null
+- model: reportcraft.datasource
+  pk: 14
+  fields:
+    created: 2025-09-05 15:33:29.450528+00:00
+    modified: 2025-09-05 17:14:36.534723+00:00
+    name: Cumulative Publication Totals
+    description: Yearly Cumulative Sum of Publications
+    group_by:
+    - year
+    filters: ''
+    limit: null
+- model: reportcraft.datasource
+  pk: 15
+  fields:
+    created: 2025-09-05 16:04:23.806957+00:00
+    modified: 2025-09-05 16:04:23.806967+00:00
+    name: Cumulative Citation Totals
+    description: Cumulative total citations by year
+    group_by:
+    - year
+    filters: ''
+    limit: null
+- model: reportcraft.datasource
+  pk: 16
+  fields:
+    created: 2025-09-05 18:46:00.709344+00:00
+    modified: 2025-09-05 18:46:00.709365+00:00
+    name: Facility Submissions by Cycle
+    description: ''
+    group_by:
+    - cycle_name
+    - beamline
     filters: ''
     limit: null
 - model: reportcraft.datamodel
@@ -246,16 +292,6 @@
     name: proposals.Review
     source: 8
 - model: reportcraft.datamodel
-  pk: 16
-  fields:
-    created: 2025-08-10 05:33:56.614726+00:00
-    modified: 2025-08-10 05:33:56.614745+00:00
-    model:
-    - proposals
-    - configitem
-    name: proposals.Configitem
-    source: 8
-- model: reportcraft.datamodel
   pk: 17
   fields:
     created: 2025-08-11 14:59:29.122256+00:00
@@ -269,7 +305,7 @@
   pk: 18
   fields:
     created: 2025-08-16 16:52:18.073203+00:00
-    modified: 2025-08-16 16:53:25.336831+00:00
+    modified: 2025-09-04 21:14:42.054485+00:00
     model:
     - proposals
     - submission
@@ -296,15 +332,45 @@
     name: projects.Project
     source: 12
 - model: reportcraft.datamodel
-  pk: 23
+  pk: 26
   fields:
-    created: 2025-08-16 19:17:31.431483+00:00
-    modified: 2025-08-16 19:17:31.431498+00:00
+    created: 2025-09-05 03:43:59.716060+00:00
+    modified: 2025-09-05 15:29:33.052891+00:00
     model:
-    - users
-    - user
-    name: users.User
-    source: 12
+    - publications
+    - subjectarea
+    name: publications.Subjectarea
+    source: 13
+- model: reportcraft.datamodel
+  pk: 27
+  fields:
+    created: 2025-09-05 15:33:47.981849+00:00
+    modified: 2025-09-05 15:33:47.981858+00:00
+    model:
+    - publications
+    - publication
+    name: publications.Publication
+    source: 14
+- model: reportcraft.datamodel
+  pk: 28
+  fields:
+    created: 2025-09-05 16:06:17.948994+00:00
+    modified: 2025-09-05 16:06:17.949004+00:00
+    model:
+    - publications
+    - articlemetric
+    name: publications.Articlemetric
+    source: 15
+- model: reportcraft.datamodel
+  pk: 29
+  fields:
+    created: 2025-09-05 18:47:21.063010+00:00
+    modified: 2025-09-05 18:58:44.656160+00:00
+    model:
+    - proposals
+    - submission
+    name: proposals.Submission
+    source: 16
 - model: reportcraft.datafield
   pk: 1
   fields:
@@ -491,7 +557,7 @@
   pk: 28
   fields:
     created: 2025-07-24 22:47:16.051847+00:00
-    modified: 2025-08-09 02:27:36.795848+00:00
+    modified: 2025-09-05 17:52:00.565601+00:00
     name: cites
     model: 9
     label: Citations
@@ -673,21 +739,21 @@
   pk: 58
   fields:
     created: 2025-08-09 00:34:46.326471+00:00
-    modified: 2025-08-09 00:42:20.912625+00:00
+    modified: 2025-09-05 18:04:21.461008+00:00
     name: facilities
     model: 9
     label: Facilities
     default: null
     expression: Join(Beamlines.Acronym, ", ", distinct=True)
     precision: null
-    position: 3
+    position: 2
     ordering: null
     source: 5
 - model: reportcraft.datafield
   pk: 59
   fields:
     created: 2025-08-09 00:38:40.677065+00:00
-    modified: 2025-08-09 02:25:01.004716+00:00
+    modified: 2025-09-05 17:51:41.534460+00:00
     name: citation_text
     model: 9
     label: Reference
@@ -695,7 +761,7 @@
     expression: Concat(JoinArray(authors, "; "), " (", String(Date.Year), ") ", String(Title),
       ". ", String(Journal.Title), ". https://doi.org/", Code)
     precision: null
-    position: 2
+    position: 1
     ordering: null
     source: 5
 - model: reportcraft.datafield
@@ -856,11 +922,11 @@
   pk: 76
   fields:
     created: 2025-08-10 05:23:38.820158+00:00
-    modified: 2025-08-10 05:23:38.820177+00:00
+    modified: 2025-09-05 19:00:42.351273+00:00
     name: proposals
     model: 14
     label: Proposals
-    default: null
+    default: 0
     expression: Count(this)
     precision: null
     position: 2
@@ -870,7 +936,7 @@
   pk: 77
   fields:
     created: 2025-08-10 05:24:53.656674+00:00
-    modified: 2025-08-10 05:31:58.140527+00:00
+    modified: 2025-09-05 19:00:55.379900+00:00
     name: reviews
     model: 15
     label: Reviews
@@ -881,24 +947,10 @@
     ordering: null
     source: 8
 - model: reportcraft.datafield
-  pk: 80
-  fields:
-    created: 2025-08-10 05:33:56.631635+00:00
-    modified: 2025-08-10 05:33:56.640817+00:00
-    name: year
-    model: 16
-    label: Year
-    default: null
-    expression: Submissions.Cycle.StartDate.Year
-    precision: null
-    position: 0
-    ordering: null
-    source: 8
-- model: reportcraft.datafield
   pk: 81
   fields:
     created: 2025-08-10 05:35:22.972783+00:00
-    modified: 2025-08-10 05:38:29.363494+00:00
+    modified: 2025-09-05 19:00:51.497528+00:00
     name: facilities
     model: 14
     label: Facilities
@@ -954,7 +1006,7 @@
   pk: 85
   fields:
     created: 2025-08-16 16:46:32.997939+00:00
-    modified: 2025-08-16 16:47:37.870049+00:00
+    modified: 2025-09-05 19:00:48.042557+00:00
     name: leaders
     model: 14
     label: Investigators
@@ -968,12 +1020,12 @@
   pk: 86
   fields:
     created: 2025-08-16 16:52:18.090621+00:00
-    modified: 2025-08-16 16:53:25.329323+00:00
+    modified: 2025-09-04 21:15:08.062603+00:00
     name: country
     model: 18
-    label: Country
+    label: Country Code
     default: null
-    expression: Proposal.Spokesperson.Address.Country
+    expression: Proposal.Spokesperson.Address.Country.Alpha3
     precision: null
     position: 0
     ordering: null
@@ -1161,47 +1213,201 @@
     ordering: null
     source: 12
 - model: reportcraft.datafield
-  pk: 106
+  pk: 109
   fields:
-    created: 2025-08-16 19:17:31.444031+00:00
-    modified: 2025-08-16 19:17:31.451056+00:00
-    name: cycles
-    model: 23
-    label: Cycles
+    created: 2025-09-04 21:14:36.489545+00:00
+    modified: 2025-09-05 18:38:24.217636+00:00
+    name: country_name
+    model: 18
+    label: Country
     default: null
-    expression: Projects.Cycle
+    expression: Proposal.Spokesperson.Address.Country.Name
     precision: null
     position: 0
     ordering: null
-    source: 12
+    source: 10
 - model: reportcraft.datafield
-  pk: 107
+  pk: 115
   fields:
-    created: 2025-08-16 19:17:31.459398+00:00
-    modified: 2025-08-16 19:17:31.466116+00:00
-    name: pools
-    model: 23
-    label: Pools
+    created: 2025-09-05 03:43:59.741226+00:00
+    modified: 2025-09-05 15:29:33.016551+00:00
+    name: topic
+    model: 26
+    label: Topic
     default: null
-    expression: Projects.Pool
+    expression: Category.Name
+    precision: null
+    position: 0
+    ordering: null
+    source: 13
+- model: reportcraft.datafield
+  pk: 116
+  fields:
+    created: 2025-09-05 03:43:59.756115+00:00
+    modified: 2025-09-05 15:29:33.044393+00:00
+    name: year
+    model: 26
+    label: Year
+    default: null
+    expression: Publications.Date.Year
     precision: null
     position: 1
     ordering: null
-    source: 12
+    source: 13
 - model: reportcraft.datafield
-  pk: 108
+  pk: 117
   fields:
-    created: 2025-08-16 19:18:03.494502+00:00
-    modified: 2025-08-16 19:18:03.494533+00:00
-    name: researchers
-    model: 23
-    label: Researchers
+    created: 2025-09-05 03:44:57.580579+00:00
+    modified: 2025-09-05 03:44:57.580588+00:00
+    name: num_pubs
+    model: 26
+    label: Publications
     default: 0
-    expression: Count(this, distinct=True)
+    expression: Count(publications, distinct=True)
+    precision: null
+    position: 2
+    ordering: null
+    source: 13
+- model: reportcraft.datafield
+  pk: 118
+  fields:
+    created: 2025-09-05 15:35:43.163010+00:00
+    modified: 2025-09-05 17:14:50.293785+00:00
+    name: publications
+    model: 27
+    label: Publications
+    default: 0
+    expression: CumCount(this, Year)
+    precision: null
+    position: 0
+    ordering: null
+    source: 14
+- model: reportcraft.datafield
+  pk: 120
+  fields:
+    created: 2025-09-05 15:37:15.544930+00:00
+    modified: 2025-09-05 15:37:15.544944+00:00
+    name: year
+    model: 27
+    label: Year
+    default: null
+    expression: Date.Year
+    precision: null
+    position: 2
+    ordering: null
+    source: 14
+- model: reportcraft.datafield
+  pk: 121
+  fields:
+    created: 2025-09-05 16:06:17.977247+00:00
+    modified: 2025-09-05 16:06:17.986332+00:00
+    name: year
+    model: 28
+    label: Year
+    default: null
+    expression: Year
+    precision: null
+    position: 0
+    ordering: null
+    source: 15
+- model: reportcraft.datafield
+  pk: 122
+  fields:
+    created: 2025-09-05 16:07:30.765908+00:00
+    modified: 2025-09-05 16:07:30.765918+00:00
+    name: total_citations
+    model: 28
+    label: Citations
+    default: 0
+    expression: CumSum(citations, Year)
+    precision: null
+    position: 1
+    ordering: null
+    source: 15
+- model: reportcraft.datafield
+  pk: 123
+  fields:
+    created: 2025-09-05 16:17:52.989494+00:00
+    modified: 2025-09-05 16:17:52.989505+00:00
+    name: total_mentions
+    model: 28
+    label: Media Mentions
+    default: 0
+    expression: CumSum(Mentions, Year)
+    precision: null
+    position: 2
+    ordering: null
+    source: 15
+- model: reportcraft.datafield
+  pk: 124
+  fields:
+    created: 2025-09-05 17:49:07.944036+00:00
+    modified: 2025-09-05 17:52:04.228637+00:00
+    name: mentions
+    model: 9
+    label: Mentions
+    default: 0
+    expression: Sum(Metrics.Mentions, distinct=True)
     precision: null
     position: 6
     ordering: null
+    source: 5
+- model: reportcraft.datafield
+  pk: 125
+  fields:
+    created: 2025-09-05 18:24:44.607404+00:00
+    modified: 2025-09-05 18:24:44.607415+00:00
+    name: researchers
+    model: 22
+    label: Researchers
+    default: 0
+    expression: Count(Team)
+    precision: null
+    position: 4
+    ordering: null
     source: 12
+- model: reportcraft.datafield
+  pk: 126
+  fields:
+    created: 2025-09-05 18:47:21.087896+00:00
+    modified: 2025-09-05 18:58:44.618862+00:00
+    name: cycle_name
+    model: 29
+    label: Cycle_Name
+    default: null
+    expression: Concat(String(Cycle.StartDate.Year), '/', String(Cycle.StartDate.Month))
+    precision: null
+    position: 0
+    ordering: null
+    source: 16
+- model: reportcraft.datafield
+  pk: 127
+  fields:
+    created: 2025-09-05 18:47:21.102645+00:00
+    modified: 2025-09-05 18:58:44.646769+00:00
+    name: beamline
+    model: 29
+    label: Beamline
+    default: null
+    expression: Techniques.Config.Facility.Acronym
+    precision: null
+    position: 1
+    ordering: null
+    source: 16
+- model: reportcraft.datafield
+  pk: 128
+  fields:
+    created: 2025-09-05 18:51:15.236849+00:00
+    modified: 2025-09-05 18:51:15.236858+00:00
+    name: submissions
+    model: 29
+    label: Submissions
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 2
+    ordering: null
+    source: 16
 - model: reportcraft.report
   pk: 1
   fields:
@@ -1217,24 +1423,24 @@
   pk: 2
   fields:
     created: 2025-07-24 20:07:41.546141+00:00
-    modified: 2025-08-10 02:49:15.293479+00:00
+    modified: 2025-09-05 13:56:08.283638+00:00
     slug: publication-statistics
     title: Publication Statistics
     description: Summary of publication statistics for the whole organization
     style: ''
     notes: ''
-    section: publication
+    section: publications
 - model: reportcraft.report
   pk: 3
   fields:
     created: 2025-08-10 05:20:10.388645+00:00
-    modified: 2025-08-10 05:20:10.388682+00:00
+    modified: 2025-09-05 18:36:39.425319+00:00
     slug: proposal-statistics
     title: Proposal Statistics
     description: Statistics about proposals, submissions and reviews
     style: ''
     notes: ''
-    section: proposal
+    section: proposals
 - model: reportcraft.report
   pk: 4
   fields:
@@ -1257,6 +1463,39 @@
     style: ''
     notes: ''
     section: projects
+- model: reportcraft.report
+  pk: 6
+  fields:
+    created: 2025-09-05 03:45:31.948974+00:00
+    modified: 2025-09-05 13:57:55.493787+00:00
+    slug: publications-by-subject-area
+    title: Publications by Subject Area
+    description: Report of yearly publication counts by field of science
+    style: ''
+    notes: ''
+    section: publications
+- model: reportcraft.report
+  pk: 7
+  fields:
+    created: 2025-09-05 14:12:10.597295+00:00
+    modified: 2025-09-05 14:12:17.911864+00:00
+    slug: publication-metrics
+    title: Publication Metrics
+    description: Summary of yearly publication metrics
+    style: ''
+    notes: ''
+    section: publications
+- model: reportcraft.report
+  pk: 8
+  fields:
+    created: 2025-09-05 17:40:16.223808+00:00
+    modified: 2025-09-05 17:40:16.223821+00:00
+    slug: facility-publication-quality-metrics
+    title: Facility Publication Quality Metrics
+    description: Publication quality metrics for each facility
+    style: ''
+    notes: ''
+    section: publications
 - model: reportcraft.entry
   pk: 1
   fields:
@@ -1325,7 +1564,7 @@
   pk: 4
   fields:
     created: 2025-07-24 20:28:03.589094+00:00
-    modified: 2025-09-02 21:20:46.720677+00:00
+    modified: 2025-09-05 17:45:11.683985+00:00
     title: Overall Activity
     description: All Publications
     notes: ''
@@ -1333,7 +1572,7 @@
     kind: table
     source: 3
     report: 2
-    position: 0
+    position: 2
     attrs:
       rows:
       - type
@@ -1350,7 +1589,7 @@
   pk: 5
   fields:
     created: 2025-07-24 20:30:34.858419+00:00
-    modified: 2025-09-02 21:21:29.172471+00:00
+    modified: 2025-09-04 19:09:27.098262+00:00
     title: Publications by Year
     description: ''
     notes: ''
@@ -1358,7 +1597,7 @@
     kind: columns
     source: 3
     report: 2
-    position: 1
+    position: 0
     attrs:
       scale: linear
       scheme: Live8
@@ -1370,63 +1609,10 @@
       categories: year
       ticks_every: 1
 - model: reportcraft.entry
-  pk: 6
-  fields:
-    created: 2025-07-24 22:30:46.205881+00:00
-    modified: 2025-09-03 00:01:51.528943+00:00
-    title: Quality Metrics by Year
-    description: ''
-    notes: ''
-    style: col-md-12
-    kind: table
-    source: 4
-    report: 2
-    position: 2
-    attrs:
-      rows:
-      - articles
-      - total_citations
-      - self_citations
-      - total_mentions
-      - avg_cites
-      - avg_mentions
-      - avg_sjr
-      - avg_impact_factor
-      - avg_hindex
-      - avg_quartile
-      columns: year
-      max_cols: 12
-      total_row: false
-      transpose: false
-      flip_headers: false
-      total_column: false
-      wrap_headers: false
-      force_strings: false
-- model: reportcraft.entry
-  pk: 7
-  fields:
-    created: 2025-07-24 22:50:09.453550+00:00
-    modified: 2025-08-09 19:30:19.633758+00:00
-    title: Top 20 Publications by Citation Count
-    description: ''
-    notes: ''
-    style: col-md-12
-    kind: list
-    source: 5
-    report: 2
-    position: 8
-    attrs:
-      limit: 20
-      columns:
-      - citation_text
-      - facilities
-      - cites
-      order_by: -cites
-- model: reportcraft.entry
   pk: 8
   fields:
     created: 2025-07-24 23:00:49.827858+00:00
-    modified: 2025-09-02 23:56:22.016105+00:00
+    modified: 2025-09-04 19:09:38.622522+00:00
     title: Publications by Type
     description: ''
     notes: ''
@@ -1439,90 +1625,6 @@
       label: kind_group
       value: publications
       colors: Live8
-- model: reportcraft.entry
-  pk: 9
-  fields:
-    created: 2025-08-09 00:26:49.165726+00:00
-    modified: 2025-09-03 00:02:53.465880+00:00
-    title: Quality Metrics Plot
-    description: ''
-    notes: ''
-    style: col-md-8
-    kind: plot
-    source: 4
-    report: 2
-    position: 4
-    attrs:
-      groups:
-      - y: total_citations
-        type: line-points
-      - y: self_citations
-        type: points
-      - y: total_mentions
-        type: points
-      - y: articles
-        type: points
-      scheme: Live8
-      x_scale: linear
-      x_value: year
-      y_label: Counts
-      y_scale: linear
-- model: reportcraft.entry
-  pk: 10
-  fields:
-    created: 2025-08-09 19:29:29.220257+00:00
-    modified: 2025-08-09 19:35:50.019570+00:00
-    title: Explanation
-    description: ''
-    notes: In previous versions, only aggregate quality metrics were kept for each
-      record, skewing the evaluation of impact.
-    style: col-md-4
-    kind: text
-    source: null
-    report: 2
-    position: 5
-    attrs:
-      rich_text: "Citations and Media mentions data for each article is obtained from
-        both Crossref and OpenCitations. Total Counts are maintained for each article
-        per year, reflecting the number of events that occurred on the specified year.\r\n\r\nFor
-        Journal derived metrics like Impact-Factor, SJR, etc, articles are ascribed\r\nthe
-        Journal metric occuring closest in time to the date of publication."
-- model: reportcraft.entry
-  pk: 11
-  fields:
-    created: 2025-08-09 20:05:58.047084+00:00
-    modified: 2025-08-11 15:54:58.938918+00:00
-    title: Quality Metric Per Facility
-    description: ''
-    notes: "1. Mentions represent the number of news stories, and social media mentions
-      the reference the publication.\r\n2. The Average Impact Factor is the ratio
-      of citations to the number of citable documents for the journal over the previous
-      two years. This value is calculated based on citations in the SCOPUS database
-      and may be different from the Web Of Science values from the Thomson Reuters
-      database.\r\n3. SJR is the SCIMAGO Journal Rank Metric: https://www.scimagojr.com/.
-      A Journal with an SJR quartile of 1 is in the top 25% of journals in the field
-      when ranked by SJR, and a quartile of 2 is ranked higher than 50% but lower
-      than 25% of journals in the field."
-    style: col-md-12
-    kind: table
-    source: 7
-    report: 2
-    position: 7
-    attrs:
-      rows:
-      - articles
-      - citations
-      - mentions
-      - self_citations
-      - sjr
-      - quartile
-      - impact_factor
-      - h_index
-      columns: beamline
-      total_row: false
-      transpose: true
-      total_column: false
-      force_strings: false
 - model: reportcraft.entry
   pk: 12
   fields:
@@ -1549,7 +1651,7 @@
   pk: 13
   fields:
     created: 2025-08-10 05:25:33.426797+00:00
-    modified: 2025-08-10 05:35:40.988272+00:00
+    modified: 2025-09-05 19:05:08.314745+00:00
     title: Proposal Statistics by Year
     description: ''
     notes: ''
@@ -1557,16 +1659,20 @@
     kind: table
     source: 8
     report: 3
-    position: 0
+    position: 1
     attrs:
       rows:
       - proposals
       - reviews
       - facilities
+      - leaders
       columns: year
+      max_cols: 12
       total_row: false
       transpose: false
+      flip_headers: false
       total_column: false
+      wrap_headers: false
       force_strings: false
 - model: reportcraft.entry
   pk: 14
@@ -1632,7 +1738,7 @@
   pk: 17
   fields:
     created: 2025-08-16 18:16:32.370790+00:00
-    modified: 2025-09-03 00:05:36.549124+00:00
+    modified: 2025-09-04 21:31:00.087048+00:00
     title: Submissions by Cycle and Track
     description: ''
     notes: ''
@@ -1640,7 +1746,7 @@
     kind: columns
     source: 11
     report: 3
-    position: 2
+    position: 4
     attrs:
       scale: linear
       scheme: Live8
@@ -1655,7 +1761,7 @@
   pk: 18
   fields:
     created: 2025-08-16 18:40:13.521984+00:00
-    modified: 2025-09-03 00:05:07.768748+00:00
+    modified: 2025-09-04 21:31:00.087047+00:00
     title: Proposals Per Year
     description: ''
     notes: ''
@@ -1663,14 +1769,13 @@
     kind: columns
     source: 8
     report: 3
-    position: 1
+    position: 3
     attrs:
       scale: linear
       scheme: Live8
       values:
       - proposals
       grouped: false
-      color_by: proposals
       sort_desc: false
       categories: year
       ticks_every: 1
@@ -1678,7 +1783,7 @@
   pk: 19
   fields:
     created: 2025-08-17 03:47:54.828852+00:00
-    modified: 2025-08-17 03:49:47.435503+00:00
+    modified: 2025-09-05 18:27:05.043335+00:00
     title: Projects by Cycle
     description: ''
     notes: ''
@@ -1691,16 +1796,18 @@
       rows:
       - projects
       - researchers
-      columns: cycles
+      columns: cycle_name
       total_row: false
       transpose: false
+      flip_headers: false
       total_column: false
+      wrap_headers: false
       force_strings: false
 - model: reportcraft.entry
   pk: 20
   fields:
     created: 2025-08-17 03:56:24.190785+00:00
-    modified: 2025-08-17 04:04:25.473573+00:00
+    modified: 2025-09-04 21:40:54.996764+00:00
     title: Global Distribution of Proposals
     description: ''
     notes: ''
@@ -1708,11 +1815,327 @@
     kind: map
     source: 10
     report: 3
-    position: -4
+    position: 0
     attrs:
-      mode: regions
-      value: proposals
-      colors: RdPu
-      region: world
+      map: '001'
+      groups:
+      - type: area
+        value: proposals
+        scheme: Blues
       location: country
-      resolution: countries
+- model: reportcraft.entry
+  pk: 21
+  fields:
+    created: 2025-09-04 21:30:41.048994+00:00
+    modified: 2025-09-05 18:38:04.427218+00:00
+    title: Top 10 Countries by Proposals
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: list
+    source: 10
+    report: 3
+    position: 2
+    attrs:
+      limit: 10
+      columns:
+      - proposals
+      - country_name
+      order_by: proposals
+      order_desc: true
+- model: reportcraft.entry
+  pk: 22
+  fields:
+    created: 2025-09-05 03:45:58.953862+00:00
+    modified: 2025-09-05 03:49:21.094294+00:00
+    title: Publications by Subject Area
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source: 13
+    report: 6
+    position: 0
+    attrs:
+      rows:
+      - topic
+      values: num_pubs
+      columns: year
+      max_cols: 13
+      total_row: false
+      transpose: false
+      flip_headers: false
+      total_column: false
+      wrap_headers: false
+      force_strings: false
+- model: reportcraft.entry
+  pk: 23
+  fields:
+    created: 2025-09-05 04:13:34.913879+00:00
+    modified: 2025-09-05 13:24:28.997243+00:00
+    title: Yearly Publications by Topic
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: plot
+    source: 13
+    report: 6
+    position: 1
+    attrs:
+      groups:
+      - y: num_pubs
+        type: area
+      scheme: Live8
+      x_scale: linear
+      x_value: year
+      y_scale: linear
+      group_by: topic
+- model: reportcraft.entry
+  pk: 24
+  fields:
+    created: 2025-09-05 13:22:23.707703+00:00
+    modified: 2025-09-05 13:25:15.377282+00:00
+    title: Yearly Publications by Topic
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: columns
+    source: 13
+    report: 6
+    position: 2
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - num_pubs
+      grouped: false
+      color_by: topic
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 25
+  fields:
+    created: 2025-09-05 14:21:08.122314+00:00
+    modified: 2025-09-05 17:24:27.333762+00:00
+    title: Publication Metrics By Year
+    description: ''
+    notes: Citations are based on the OpenCitations (https://opencitations.net). Media
+      mentions data is obtained from CrossRef Event Data (https://www.crossref.org/services/event-data/),
+      Journal metrics are obtained from SciMago (https://www.scimagojr.com/journalrank.php)
+    style: col-md-12
+    kind: table
+    source: 4
+    report: 7
+    position: 4
+    attrs:
+      rows:
+      - articles
+      - total_citations
+      - self_citations
+      - total_mentions
+      - avg_cites
+      - avg_mentions
+      - avg_sjr
+      - avg_impact_factor
+      - avg_hindex
+      - avg_quartile
+      columns: year
+      max_cols: 12
+      total_row: false
+      transpose: false
+      flip_headers: false
+      total_column: false
+      wrap_headers: false
+      force_strings: false
+- model: reportcraft.entry
+  pk: 26
+  fields:
+    created: 2025-09-05 15:55:09.809731+00:00
+    modified: 2025-09-05 17:24:27.333757+00:00
+    title: Cumulative Publications
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: plot
+    source: 14
+    report: 7
+    position: 0
+    attrs:
+      groups:
+      - y: publications
+        type: line-points
+      scheme: Live8
+      x_scale: linear
+      x_value: year
+      y_scale: linear
+- model: reportcraft.entry
+  pk: 28
+  fields:
+    created: 2025-09-05 16:03:15.689910+00:00
+    modified: 2025-09-05 17:24:27.333760+00:00
+    title: Cumulative Citations
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: plot
+    source: 15
+    report: 7
+    position: 1
+    attrs:
+      groups:
+      - y: total_citations
+        type: line-points
+      - y: total_mentions
+        type: line-points
+      scheme: Live8
+      x_scale: linear
+      x_value: year
+      y_scale: sqrt
+- model: reportcraft.entry
+  pk: 29
+  fields:
+    created: 2025-09-05 17:21:12.452907+00:00
+    modified: 2025-09-05 17:24:27.333762+00:00
+    title: Yearly Citation Counts
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: plot
+    source: 4
+    report: 7
+    position: 2
+    attrs:
+      groups:
+      - y: total_citations
+        type: line-points
+      - y: self_citations
+        type: line-points
+      scheme: Live8
+      x_scale: linear
+      x_value: year
+      y_scale: linear
+- model: reportcraft.entry
+  pk: 30
+  fields:
+    created: 2025-09-05 17:24:16.767750+00:00
+    modified: 2025-09-05 17:26:20.718949+00:00
+    title: Journal Quality Metrics
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: plot
+    source: 4
+    report: 7
+    position: 3
+    attrs:
+      groups:
+      - y: avg_sjr
+        type: line-points
+      - y: avg_impact_factor
+        type: line-points
+      - y: avg_cites
+        type: line-points
+      - y: avg_mentions
+        type: line-points
+      scheme: Live8
+      x_scale: linear
+      x_value: year
+      y_scale: linear
+- model: reportcraft.entry
+  pk: 31
+  fields:
+    created: 2025-09-05 17:40:57.519898+00:00
+    modified: 2025-09-05 17:58:03.046140+00:00
+    title: Quality Metrics Per Facility
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source: 7
+    report: 8
+    position: 0
+    attrs:
+      rows:
+      - articles
+      - citations
+      - mentions
+      - self_citations
+      - sjr
+      - quartile
+      - impact_factor
+      - h_index
+      columns: beamline
+      max_cols: 8
+      total_row: false
+      transpose: false
+      flip_headers: false
+      total_column: false
+      wrap_headers: false
+      force_strings: false
+- model: reportcraft.entry
+  pk: 32
+  fields:
+    created: 2025-09-05 17:42:44.794339+00:00
+    modified: 2025-09-05 18:04:39.069112+00:00
+    title: Top 10 Publications By Citation
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: list
+    source: 5
+    report: 8
+    position: 1
+    attrs:
+      limit: 10
+      columns:
+      - citation_text
+      - facilities
+      - cites
+      order_by: cites
+      order_desc: true
+- model: reportcraft.entry
+  pk: 33
+  fields:
+    created: 2025-09-05 17:43:19.681692+00:00
+    modified: 2025-09-05 18:04:44.106712+00:00
+    title: Top 10 Publications by Media Mentions
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: list
+    source: 5
+    report: 8
+    position: 2
+    attrs:
+      limit: 10
+      columns:
+      - citation_text
+      - facilities
+      - mentions
+      order_by: mentions
+      order_desc: true
+- model: reportcraft.entry
+  pk: 34
+  fields:
+    created: 2025-09-05 18:55:36.481278+00:00
+    modified: 2025-09-05 18:57:10.369317+00:00
+    title: Total Proposals per Cycle and Facility
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source: 16
+    report: 3
+    position: 5
+    attrs:
+      rows:
+      - beamline
+      values: submissions
+      columns: cycle_name
+      total_row: false
+      transpose: false
+      flip_headers: false
+      total_column: false
+      wrap_headers: false
+      force_strings: false
