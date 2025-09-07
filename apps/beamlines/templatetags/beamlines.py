@@ -120,3 +120,8 @@ def show_facility_details(context, fac_id=0):
         'data': context['data'],
         'field': context['field'],
     }
+
+
+@register.simple_tag
+def get_beamlines():
+    return Facility.objects.all().order_by('name')

@@ -36,6 +36,7 @@ from samples.templatetags.samples_tags import pictogram_url
 from scheduler.models import ModeType
 from scheduler.utils import round_time
 from scheduler.views import EventEditor, EventUpdateAPI, EventStatsAPI
+from surveys.views import UserFeedback
 from users.models import User
 from . import forms
 from . import models

@@ -1,0 +1,15 @@
+{% load dynforms %}
+{% load beamlines %}
+{% get_beamlines as beamlines %}
+<div class="controls row" id="{{field.name}}__controls">
+    <div class="field-group-item col">
+       <select name="{{field.name}}" id="{{field.name}}"
+               aria-label="{{ field.label }}"
+               class="form-select {{ required }}">
+            <option value=""></option>
+            {% for beamline in beamlines %}
+               <option value="{{beamline.pk}}" {% if beamline.pk == data %}selected="selected"{% endif %} >{{beamline.acronym}}</option>
+           {% endfor %}
+       </select>
+    </div>
+</div>

@@ -64,7 +64,7 @@ class BeamlineReqs(FieldType):
 class ReviewCycle(FieldType):
     name = _("Cycle")
     icon = "bi-sliders"
-    options = ['required']
+    options = ['required', 'previous']
     settings = ['label', 'options', ]
     template_theme = "proposals/fields"
 

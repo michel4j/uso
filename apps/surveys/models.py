@@ -13,4 +13,7 @@ class Feedback(BaseFormModel):
     cycle = models.ForeignKey('proposals.ReviewCycle', null=True, on_delete=models.SET_NULL, related_name="feedback")
 
     class Meta:
-        ordering = ["beamline__acronym"]
+        ordering = ["-created"]
+
+    def __str__(self):
+        return f"Feedback #{self.pk} by {self.user} for {self.beamline} ({self.cycle})"

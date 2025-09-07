@@ -25,3 +25,11 @@ class TechnicalTags(FieldType):
 
     def clean(self, value):
         return int(value) if value else None
+
+
+class Beamline(FieldType):
+    name = _("Beamline")
+    icon = "bi-sliders"
+    template_theme = "beamlines/fields"
+    options = ['required', 'hide', 'nolabel']
+    settings = ['label', 'options', 'width']

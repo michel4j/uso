@@ -541,27 +541,28 @@
       - name: scientific_merit
         tags: ''
         label: Scientific Quality of the Research in the context of the field
-        values:
-        - Highly innovative research of great importance which will significantly
-          advance knowledge in the field.
-        - Research is of very high quality and will likely make a significant contribution
-          to a specific scientific discipline.
-        - Research is likely to produce publishable results in a specialized journal.
-        - ' Research is of limited scope and will not significantly impact a specific
-          field and may not result in a publication.'
-        - Research is either not well planned, is not feasible, unlikely to result
-          in publishable results, or is too poorly described to permit proper judgement
-          of its merit.
-        choices:
-        - Exceptional
-        - Excellent
-        - Good
-        - Fair
-        - Poor
+        scores:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
         default:
         - Poor
         options:
         - required
+        rubrics:
+        - 'Exceptional: Highly innovative research of great importance which will
+          significantly advance knowledge in the field.'
+        - 'Excellent: Research is of very high quality and will likely make a significant
+          contribution to a specific scientific discipline.'
+        - 'Good: Research is likely to produce publishable results in a specialized
+          journal.'
+        - 'Fair:  Research is of limited scope and will not significantly impact a
+          specific field and may not result in a publication.'
+        - 'Poor: Research is either not well planned, is not feasible, unlikely to
+          result in publishable results, or is too poorly described to permit proper
+          judgement of its merit.'
         field_type: scorechoices
         instructions: Does the proposal describe what will be studied, its importance,
           the hypotheses, how the results will impact the field, and what is the likelihood
@@ -619,33 +620,33 @@
       - name: suitability
         tags: ''
         label: Suitability of Requested Facilities
-        values:
-        - There is no other way to answer the scientific question posed without using
-          the CLS beamline requested. The experiment represents optimal use of the
-          beamline
-        - ' Synchrotron radiation from a third generation source is required for this
-          project, and the CLS beamline requested is well suited for this type of
-          research.'
-        - Synchrotron radiation is required to accomplish the intended goals of the
-          research, but either another CLS beamline is a better match, the experiment
-          is not taking advantage of the capabilities of a third generation source
-          or the experiment is not well suited for the capabilities of the beamline
-          at this time
-        - The proposal has not adequately justified that a synchrotron experiment
-          is required to answer the scientific question. In some cases the proposal
-          may be improved by first performing experiments using more conventional
-          techniques.
-        - There are non-synchrotron methods which should be used to answer this scientific
-          question. This is not appropriate use of CLS resources.
-        choices:
-        - Exceptional
-        - Excellent
-        - Good
-        - Fair
-        - Poor
+        scores:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
         default: []
         options:
         - required
+        rubrics:
+        - 'Exceptional: There is no other way to answer the scientific question posed
+          without using the CLS beamline requested. The experiment represents optimal
+          use of the beamline'
+        - 'Excellent:  Synchrotron radiation from a third generation source is required
+          for this project, and the CLS beamline requested is well suited for this
+          type of research.'
+        - 'Good: Synchrotron radiation is required to accomplish the intended goals
+          of the research, but either another CLS beamline is a better match, the
+          experiment is not taking advantage of the capabilities of a third generation
+          source or the experiment is not well suited for the capabilities of the
+          beamline at this time'
+        - 'Fair: The proposal has not adequately justified that a synchrotron experiment
+          is required to answer the scientific question. In some cases the proposal
+          may be improved by first performing experiments using more conventional
+          techniques.'
+        - 'Poor: There are non-synchrotron methods which should be used to answer
+          this scientific question. This is not appropriate use of CLS resources.'
         field_type: scorechoices
         instructions: Does the proposed research require the resources being requested?
           Does it constitute good use of the sources?
@@ -655,34 +656,34 @@
       - name: capability
         tags: ''
         label: Quality, Capability and Track record of the Research Team
-        values:
-        - The applicants have demonstrated a highly productive track record of publishing
-          their CLS results in top-tier journals. In the case of researchers new to
-          the CLS, they show exceptional potential.
-        - ' The applicants have consistently published their CLS results, sometimes
-          in top-tier journals. In the case of researchers new to the CLS, there is
-          a very high likelihood that these researchers will become highly productive
-          users '
-        - 'The applicants have a reasonable record of publishing their CLS results
+        scores:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        default: []
+        options:
+        - required
+        rubrics:
+        - 'Exceptional: The applicants have demonstrated a highly productive track
+          record of publishing their CLS results in top-tier journals. In the case
+          of researchers new to the CLS, they show exceptional potential.'
+        - 'Excellent:  The applicants have consistently published their CLS results,
+          sometimes in top-tier journals. In the case of researchers new to the CLS,
+          there is a very high likelihood that these researchers will become highly
+          productive users '
+        - 'Good: The applicants have a reasonable record of publishing their CLS results
           but rarely in top-tier journals, or they are potentially productive past
           users who have demonstrated that they should be given more time. In the
           case of researchers new to the CLS, they have demonstrated potential for
           becoming productive users. '
-        - The researchers have only been marginally productive with previous CLS beamtime
-          and there is need for improvement. In the case of researchers new to the
-          CLS, their proposal reveals a lack of knowledge of synchrotron experiments,
-          and they could benefit from more training and/or mentoring.
-        - 'Researchers have received significant beamtime at CLS with an unacceptable
+        - 'Fair: The researchers have only been marginally productive with previous
+          CLS beamtime and there is need for improvement. In the case of researchers
+          new to the CLS, their proposal reveals a lack of knowledge of synchrotron
+          experiments, and they could benefit from more training and/or mentoring.'
+        - 'Poor: Researchers have received significant beamtime at CLS with an unacceptable
           publication record. '
-        choices:
-        - Exceptional
-        - Excellent
-        - Good
-        - Fair
-        - Poor
-        default: []
-        options:
-        - required
         field_type: scorechoices
         instructions: Does the research team have recent synchrotron and/or other
           relevant experience? If they are a previous user, they should have clearly
@@ -710,28 +711,28 @@
       - name: suitability
         tags: ''
         label: Suitability of Resources Requested
-        values:
-        - There is no other way to answer the scientific question posed without using
-          the requested resources
-        - Synchrotron radiation from a third-generation source is required for this
-          project, and the CLS beamline requested is well suited for this type of
-          research.
-        - Synchrotron radiation is required but either the requested beamline is not
-          optimal or the experiment does not take full advantage of the capabilities
-          of a third generation source.
-        - The proposal has not adequately justified that a synchrotron experiment
-          is required to answer the scientific question.
-        - The scientific question is better answered using other non-synchrotron techniques
-          and does not constitute appropriate  use of CLS resources.
-        choices:
-        - Exceptional
-        - Excellent
-        - Good
-        - Fair
-        - Poor
+        scores:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
         default: []
         options:
         - required
+        rubrics:
+        - 'Exceptional: There is no other way to answer the scientific question posed
+          without using the requested resources'
+        - 'Excellent: Synchrotron radiation from a third-generation source is required
+          for this project, and the CLS beamline requested is well suited for this
+          type of research.'
+        - 'Good: Synchrotron radiation is required but either the requested beamline
+          is not optimal or the experiment does not take full advantage of the capabilities
+          of a third generation source.'
+        - 'Fair: The proposal has not adequately justified that a synchrotron experiment
+          is required to answer the scientific question.'
+        - 'Poor: The scientific question is better answered using other non-synchrotron
+          techniques and does not constitute appropriate  use of CLS resources.'
         field_type: scorechoices
         instructions: ''
         default_choices: []
@@ -775,24 +776,25 @@
         tags: ''
         label: Risk Level of Proposed Experiment
         width: full
-        values:
-        - The samples/sample handling procedures are recognized as being of minimal
-          risk.
-        - The experiment may require additional controls and/or HSE attention before
-          commencing.
-        - HSE involvement/confirmation of controls will likely be required for this
-          experient to proceed.
-        - This experiment appears to be too risky to be performed at the CLS.
-        - It is unclear what level of risk is presented in this proposal.
-        choices:
-        - Low
-        - Medium
-        - High
-        - Unacceptable
-        - Not Sure
+        scores:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
         default: []
         options:
         - required
+        rubrics:
+        - 'Low: The samples/sample handling procedures are recognized as being of
+          minimal risk.'
+        - 'Medium: The experiment may require additional controls and/or HSE attention
+          before commencing.'
+        - 'High: HSE involvement/confirmation of controls will likely be required
+          for this experient to proceed.'
+        - 'Unacceptable: This experiment appears to be too risky to be performed at
+          the CLS.'
+        - 'Not Sure: It is unclear what level of risk is presented in this proposal.'
         field_type: scorechoices
         instructions: Estimate the risk level for the proposed experiment based on
           the samples and procedures described.  Note that a final safety review will
@@ -859,21 +861,22 @@
       - name: risk_level
         tags: ''
         label: Risk Level of Proposed Experiment
-        values:
-        - The samples/sample handling procedures are recognized as being of minimal
-          risk.
-        - The experiment may require additional controls of HSE attention before commencing.
-        - HSE involvement/confirmation of controls is required for this experient
-          to proceed.
-        - This experiment is too risky to be performed at the CLS.
-        choices:
-        - Low
-        - Medium
-        - High
-        - Unacceptable
+        scores:
+        - 1
+        - 2
+        - 3
+        - 4
         default: []
         options:
         - required
+        rubrics:
+        - 'Low: The samples/sample handling procedures are recognized as being of
+          minimal risk.'
+        - 'Medium: The experiment may require additional controls of HSE attention
+          before commencing.'
+        - 'High: HSE involvement/confirmation of controls is required for this experient
+          to proceed.'
+        - 'Unacceptable: This experiment is too risky to be performed at the CLS.'
         field_type: scorechoices
         instructions: ''
         default_choices: []
@@ -984,21 +987,22 @@
       - name: risk_level
         tags: ''
         label: Risk Level of Experiment
-        values:
-        - The samples/sample handling procedures are recognized as being of minimal
-          risk.
-        - The experiment may require additional controls of HSE attention before commencing.
-        - HSE involvement/confirmation of controls is required for this experient
-          to proceed.
-        - This experiment is too risky to be performed at the CLS.
-        choices:
-        - Low
-        - Medium
-        - High
-        - Unacceptable
+        scores:
+        - 1
+        - 2
+        - 3
+        - 4
         default: []
         options:
         - required
+        rubrics:
+        - 'Low: The samples/sample handling procedures are recognized as being of
+          minimal risk.'
+        - 'Medium: The experiment may require additional controls of HSE attention
+          before commencing.'
+        - 'High: HSE involvement/confirmation of controls is required for this experient
+          to proceed.'
+        - 'Unacceptable: This experiment is too risky to be performed at the CLS.'
         field_type: scorechoices
         instructions: ''
         default_choices: []
@@ -1166,13 +1170,13 @@
           and/or materials and supplies signed out by you or a member of your team
           during your experiments."
     actions:
-    - - save
+    - - submit
       - Submit
 - model: dynforms.formtype
   pk: 12
   fields:
     created: 2015-12-10 17:47:19+00:00
-    modified: 2025-07-15 17:32:38.648799+00:00
+    modified: 2025-09-07 00:31:14.643515+00:00
     name: User Feedback
     code: feedback
     description: Form to capture user feedback following beamtime.
@@ -1188,38 +1192,45 @@
         options: []
         field_type: newsection
         instructions: ''
+      - name: cycle
+        tags: ''
+        label: Which Cycle Are you providing feedback for?
+        width: half
+        options:
+        - required
+        - previous
+        field_type: reviewcycle
+        instructions: ''
+      - name: beamline
+        tags: ''
+        label: Which Facility/Instrument?
+        width: half
+        options:
+        - required
+        field_type: beamline
+        instructions: ''
       - name: machine
         tags: ''
         label: Storage Ring Operations
         width: full
         values:
-        - Reliability
-        - Beam Stability
-        - Communication
-        - Availability
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        - Very Poor
         choices:
         - Reliability
         - Beam Stability
         - Communication
         - Availability
         default: []
-        options: []
+        options:
+        - required
         field_type: likert
         instructions: Please rate the machine operations during your session according
           to the following categories.
         default_choices: []
-      - name: amenities_desires
-        size: small
-        tags: ''
-        label: What amenities would you like made available?
-        units: chars
-        width: full
-        default: ''
-        maximum: null
-        minimum: null
-        options: []
-        field_type: paragraphtext
-        instructions: ''
       - name: section-006
         tags: ''
         label: Beamline and End Station
@@ -1231,15 +1242,11 @@
         label: Beamline Operations
         width: full
         values:
-        - Personnel
-        - Environment
-        - End-station
-        - Equipment Quality
-        - Beam Quality
-        - Software
-        - Hardware
-        - Data Transfer
-        - Availability
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        - Very Poor
         choices:
         - Personnel
         - Environment
@@ -1251,7 +1258,8 @@
         - Data Transfer
         - Availability
         default: []
-        options: []
+        options:
+        - required
         field_type: likert
         instructions: Please rate beamline operations during your session according
           to the following categories.
@@ -1274,13 +1282,11 @@
         label: Administrative and Communications
         width: full
         values:
-        - Registration
-        - Administrative Support
-        - Check-In Procedure
-        - User Information / Web Pages
-        - Parking
-        - Sign-in / Safety
-        - Training
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        - Very Poor
         choices:
         - Registration / Proposals
         - Administrative Support
@@ -1290,7 +1296,8 @@
         - Sign-in / Safety
         - Training
         default: []
-        options: []
+        options:
+        - required
         field_type: likert
         instructions: ''
         default_choices: []
@@ -1328,7 +1335,8 @@
         - Poor
         - N/A
         default: []
-        options: []
+        options:
+        - required
         field_type: multiplechoice
         instructions: ''
         default_choices: []
@@ -1371,6 +1379,7 @@
         - Friends or Family
         default: []
         options:
+        - required
         - other
         field_type: multiplechoice
         instructions: ''
@@ -1399,6 +1408,7 @@
         - Price
         default: []
         options:
+        - required
         - other
         field_type: checkboxes
         instructions: ''
@@ -1422,118 +1432,35 @@
   pk: 13
   fields:
     created: 2016-02-03 19:16:06+00:00
-    modified: 2025-06-05 23:20:15.116322+00:00
-    name: Form Designer Playground Form
+    modified: 2025-08-10 18:05:30.131629+00:00
+    name: Form Designer Playground
     code: test-form
     description: Just an example playground form for testing
+    header: false
+    help_bar: false
+    wizard: false
     pages:
-    - name: Personal Information
+    - name: First Page
       fields:
-      - field_type: fullname
-        label: Full Name
-        name: full_name
-        instructions: Please enter your full name as it appears on your government
-          issued ID.
-        width: full
+      - name: sector-000
         tags: ''
-        options:
-        - required
-      - field_type: multiplephonenumber
-        label: Phone Numbers
-        name: phone
-        instructions: Please enter your primary and secondary phone numbers
-        width: full
-        tags: ''
+        label: Sector 000
         options: []
-      - field_type: email
-        label: Email Address
-        name: email
-        instructions: Please provide your work email address
-        width: full
+        field_type: sector
+        instructions: ''
+      - name: sample-types-002
         tags: ''
+        label: Sample Types 002
         options: []
-        default: ''
-      - field_type: address
-        label: Home Address
-        name: address
-        instructions: Enter your residential address
-        width: full
+        field_type: sampletypes
+        instructions: ''
+      - name: date-002
         tags: ''
+        label: Date 002
         options: []
-    - name: RSVP
-      fields:
-      - field_type: nameaffiliation
-        label: Accompanying Guests
-        name: guests
-        instructions: Please list all individuals you will be bringing to the event
-          as guests, and their affiliations.
-        width: full
-        tags: ''
-        options:
-        - repeat
-      - field_type: richtext
-        label: Prepared Remarks
-        name: remarks
-        size: medium
-        options:
-        - counter
-        instructions: Please summarize the key points of your prepared remarks to
-          be presented at the event
-        width: full
-        tags: ''
-        minimum: null
-        maximum: 500
-        units: words
-        default: ''
-    - name: Dietary Requirements
-      fields:
-      - field_type: multiplechoice
-        label: Dinner Preference
-        name: dinner
-        choices:
-        - Sea Food
-        - Beef/Lamb/Pork
-        - Poultry
-        - Tofu
-        - Beans & Lentils
-        - Quinoa
-        default_choices: []
-        instructions: Select the preference for your dinner menu
-        width: half
-        tags: ''
-        options: []
-        values:
-        - seafood
-        - meets
-        - Chicken
-        - Tofu
-        - pulses
-        - quinoa
-        default: []
-      - field_type: checkboxes
-        label: Dietary Restrictions
-        name: restrictions
-        choices:
-        - Lactose
-        - Vegetarian/Vegan
-        - Nut Allergies
-        - Gluten
-        - Halal
-        default_choices: []
-        instructions: Please mark all dietary restrictions that apply
-        width: half
-        tags: ''
-        options: []
-        values:
-        - First Choice
-        - Second Choice
-        - Second Choice
-        - Second Choice
-        - Second Choice
-        default: []
+        field_type: date
+        instructions: ''
     actions:
-    - - save
-      - Save
     - - submit
       - Submit
 - model: dynforms.formtype
@@ -1607,24 +1534,25 @@
         tags: ''
         label: Risk Level of Proposed Experiment
         width: full
-        values:
-        - The samples/sample handling procedures are recognized as being of minimal
-          risk.
-        - The experiment may require additional controls and/or HSE attention before
-          commencing.
-        - HSE involvement/confirmation of controls will likely be required for this
-          experient to proceed.
-        - This experiment appears to be too risky to be performed at the CLS.
-        - It is unclear what level of risk is presented in this proposal.
-        choices:
-        - Low
-        - Medium
-        - High
-        - Unacceptable
-        - Not Sure
+        scores:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
         default: []
         options:
         - required
+        rubrics:
+        - 'Low: The samples/sample handling procedures are recognized as being of
+          minimal risk.'
+        - 'Medium: The experiment may require additional controls and/or HSE attention
+          before commencing.'
+        - 'High: HSE involvement/confirmation of controls will likely be required
+          for this experient to proceed.'
+        - 'Unacceptable: This experiment appears to be too risky to be performed at
+          the CLS.'
+        - 'Not Sure: It is unclear what level of risk is presented in this proposal.'
         field_type: scorechoices
         instructions: Estimate the risk level for the proposed experiment based on
           the samples and procedures described.  Note that a final safety review will

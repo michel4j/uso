@@ -351,17 +351,19 @@ def get_options(context, data=None):
 @register.simple_tag(takes_context=True)
 def get_cycle_options(context):
     data = context.get("data")
-    selected_cycle = None
+    field = context.get("field")
     today = timezone.now().date()
+    selected_cycle = None if not data else models.ReviewCycle.objects.filter(pk=data).first()
+    if 'previous' not in field['options']:
+        context['selected_cycle'] = selected_cycle
+        context['techniques_matrix'] = get_techniques_matrix(selected_cycle)
+        cycles = models.ReviewCycle.objects.filter(end_date__gt=today).order_by('end_date')[:3]
+    else:
+        cycles = models.ReviewCycle.objects.filter(start_date__lt=today).order_by('start_date')
 
-    if data:
-        selected_cycle = models.ReviewCycle.objects.filter(pk=data).first()
-
-    context['selected_cycle'] = selected_cycle
-    context['techniques_matrix'] = get_techniques_matrix(selected_cycle)
     return [
         (c.pk, c, c == context.get('selected_cycle'))
-        for c in models.ReviewCycle.objects.filter(end_date__gt=today).order_by('end_date')[:3]
+        for c in cycles
     ]
 
 

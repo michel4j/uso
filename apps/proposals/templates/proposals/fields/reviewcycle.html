@@ -12,6 +12,7 @@
             {% endfor %}
         </select>
     </div>
+{% if 'previous' not in field.options %}
     <div class="field-group-item col-12" id="{{ field.name }}-extras">
         {% with selected_cycle as object %}
             {% include "proposals/fields/cycle-info.html" %}
@@ -20,7 +21,9 @@
     <div class="field-group-item col-12">
         <div class="w-100 timeline" id="cycle-timeline"></div>
     </div>
+{% endif %}
 </div>
+{% if 'previous' not in field.options %}
 <script src="{% static 'js/d3-timeline.min.js' %}"></script>
 <script>
     $(document).on('change', '#{{field.name}}', function () {
@@ -33,3 +36,4 @@
     });
     $("#{{field.name}}").trigger('change');
 </script>
+{% endif %}

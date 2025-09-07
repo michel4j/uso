@@ -37,6 +37,7 @@ class UserFeedback(RolePermsViewMixin, DynCreateView):
 
     def form_valid(self, form):
         data = form.cleaned_data
+        data['user'] = self.request.user
         obj = self.model(**data)
         obj.save()
         return HttpResponseRedirect(self.get_success_url())
