@@ -51,6 +51,11 @@
                 <br/>
                 <span class="tool-label">Settings</span>
             </a>
+            <a href='{% url "facility-feedback-list" facility=object.acronym %}'>
+                <i class="bi-list-stars icon-md icon-fw"></i>
+                <br/>
+                <span class="tool-label">Feedback</span>
+            </a>
         {% endif %}
         <a href="{% url 'beamline-schedule' object.acronym %}">
             <i class="bi-calendar2-range icon-md icon-fw"></i>

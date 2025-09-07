@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
+from django.views.generic import DetailView
 from dynforms.models import FormType
 from dynforms.views import DynCreateView
+from itemlist.views import ItemListView
 
 from roleperms.views import RolePermsViewMixin
 from . import forms
@@ -41,3 +43,61 @@ class UserFeedback(RolePermsViewMixin, DynCreateView):
         obj = self.model(**data)
         obj.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class AdminFeedbackList(RolePermsViewMixin, ItemListView):
+    model = Feedback
+    template_name = "item-list.html"
+    paginate_by = 25
+    link_url = 'feedback-detail'
+    link_attr = 'data-modal-url'
+    list_columns = ['user', 'beamline', 'cycle', 'created']
+    list_filters = ['beamline', 'cycle', 'created']
+    ordering = ['-created']
+    required_roles = USO_ADMIN_ROLES
+    admin_roles = USO_ADMIN_ROLES
+
+
+class CycleFeedbackList(AdminFeedbackList):
+    def get_queryset(self):
+        self.queryset = self.model.objects.filter(cycle__pk=self.kwargs.get('cycle'))
+        return super().get_queryset()
+
+
+class FacilityFeedbackList(AdminFeedbackList):
+    list_columns = ['details', 'cycle', 'created']
+    list_filters = ['beamline', 'cycle', 'created']
+    list_transforms = {
+        'details': lambda x, obj: ", ".join([f'{key} = {value}' for key, value in x['beamline'].items()]) if x and 'beamline' in x else '',
+    }
+
+    def check_allowed(self):
+        from beamlines.models import Facility
+        facility = Facility.objects.get(acronym__iexact=self.kwargs.get('facility'))
+        return facility.is_admin(self.request.user) or super().check_allowed()
+
+    def get_list_title(self):
+        return f"{self.kwargs.get('facility')} User Feedback"
+
+    def get_queryset(self):
+        self.queryset = self.model.objects.filter(beamline__acronym__iexact=self.kwargs.get('facility'))
+        return super().get_queryset()
+
+
+class FeedbackDetail(RolePermsViewMixin, DetailView):
+    model = Feedback
+    template_name = "surveys/feedback-detail.html"
+    admin_roles = USO_ADMIN_ROLES
+    required_roles = USO_ADMIN_ROLES
+
+    def check_allowed(self):
+        feedback = self.get_object()
+        if feedback.beamline:
+            is_facility_admin =feedback.beamline.is_admin(self.request.user)
+        else:
+            is_facility_admin = False
+        return (
+                super().check_allowed() or
+                self.check_admin() or
+                is_facility_admin
+        )

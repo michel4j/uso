@@ -29,6 +29,11 @@
                 <span class="tool-label">Edit</span>
             </a>
         {% endif %}
+        <a href='{% url "cycle-feedback-list" cycle=object.pk %}'>
+            <i class="bi-list-stars icon-md icon-fw"></i>
+            <br/>
+            <span class="tool-label">Feedback</span>
+        </a>
         <a href='{% url "reviewer-list" %}' class="pull-right">
             <i class="bi-people icon-md icon-fw"></i>
             <span class="tool-label">Reviewers</span>

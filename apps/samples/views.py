@@ -123,7 +123,7 @@ class SampleField(RolePermsViewMixin, TemplateView):
 
 
 class SampleListView(RolePermsViewMixin, ItemListView):
-    queryset = models.Sample.objects.all()
+    model = models.Sample
     template_name = "item-list.html"
     paginate_by = 15
     link_url = 'sample-edit-modal'
