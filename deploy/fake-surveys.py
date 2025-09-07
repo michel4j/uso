@@ -16,6 +16,19 @@ from faker import Faker
 from unidecode import unidecode
 
 
+def random_likert_choice():
+    labels = ['Excellent', 'Good', 'Good', 'Fair', 'Poor', 'Very Poor', 'Excellent']
+    scores = {
+        'Excellent': 5,
+        'Good': 4,
+        'Fair': 3,
+        'Poor': 2,
+        'Very Poor': 1
+    }
+    label = random.choice(labels)
+    return {'label': label, 'value': scores[label]}
+
+
 class FakeSurvey:
 
     def __init__(self):
@@ -29,7 +42,7 @@ class FakeSurvey:
 
     def add_survey(self):
         pk = len(self.new_surveys) + 1
-        likert_choices = ['Excellent', 'Good', 'Good', 'Fair', 'Poor', 'Very Poor', 'Excellent']
+
         info = {
             'model': 'surveys.feedback',
             'pk': pk,
@@ -48,40 +61,48 @@ class FakeSurvey:
                     },
                     'active_page': random.randint(1, 3),
                     'form_action': random.choice(['submit', 'save']),
-                    'machine': {
-                        'Reliability': random.choice(likert_choices),
-                        'Availability': random.choice(likert_choices),
-                        'Communication': random.choice(likert_choices),
-                        'Beam Stability': random.choice(likert_choices),
-                    },
-                    'beamline': {
-                        'Personnel': random.choice(likert_choices),
-                        'Environment': random.choice(likert_choices),
-                        'End-station': random.choice(likert_choices),
-                        'Equipment Quality': random.choice(likert_choices),
-                        'Beam Quality': random.choice(likert_choices),
-                        'Software': random.choice(likert_choices),
-                        'Hardware': random.choice(likert_choices),
-                        'Data Transfer': random.choice(likert_choices),
-                        'Availability': random.choice(likert_choices),
-                    },
+                    'machine': [
+                        {'name': 'Reliability', **random_likert_choice()},
+                        {'name': 'Availability', **random_likert_choice()},
+                        {'name': 'Communication', **random_likert_choice()},
+                        {'name': 'Beam Stability', **random_likert_choice()},
+                    ],
+                    'machine_comments': self.fake.paragraph(nb_sentences=2),
+                    'beamline': [
+                        {'name': 'Personnel', **random_likert_choice()},
+                        {'name': 'Environment', **random_likert_choice()},
+                        {'name': 'End-station', **random_likert_choice()},
+                        {'name': 'Equipment Quality', **random_likert_choice()},
+                        {'name': 'Beam Quality', **random_likert_choice()},
+                        {'name': 'Software', **random_likert_choice()},
+                        {'name': 'Hardware', **random_likert_choice()},
+                        {'name': 'Data Transfer', **random_likert_choice()},
+                        {'name': 'Availability', **random_likert_choice()},
+                    ],
                     'beamline_comments': self.fake.paragraph(nb_sentences=3),
+                    'administration': [
+                        {'name': 'Parking', **random_likert_choice()},
+                        {'name': 'Training', **random_likert_choice()},
+                        {'name': 'Sign-in / Safety', **random_likert_choice()},
+                        {'name': 'Check-In Procedure', **random_likert_choice()},
+                        {'name': 'Administrative Support', **random_likert_choice()},
+                        {'name': 'Registration / Proposals', **random_likert_choice()},
+                        {'name': 'User Information / Web Pages', **random_likert_choice()},
+                    ],
                     'administration_comments': self.fake.paragraph(nb_sentences=2),
-                    'administration': {
-                        'Parking': random.choice(likert_choices),
-                        'Training': random.choice(likert_choices),
-                        'Sign-in / Safety': random.choice(likert_choices),
-                        'Check-In Procedure': random.choice(likert_choices),
-                        'Administrative Support': random.choice(likert_choices),
-                        'Registration / Proposals': random.choice(likert_choices),
-                        'User Information / Web Pages': random.choice(likert_choices),
-                    },
+                    'amenities': [
+                        {'name': 'Food', **random_likert_choice()},
+                        {'name': 'Wi-Fi / Internet', **random_likert_choice()},
+                        {'name': 'Coffee / Vending Machines', **random_likert_choice()},
+                        {'name': 'User Lounges', **random_likert_choice()},
+                        {'name': 'Lodging', **random_likert_choice()},
+                        {'name': 'Showers / Lockers', **random_likert_choice()},
+                        {'name': 'Office / Printing', **random_likert_choice()},
+                    ],
                     'amenities_comments': self.fake.paragraph(nb_sentences=2),
                     'amenities_desires': self.fake.paragraph(nb_sentences=1),
                     'amenities_lodging_comments': self.fake.paragraph(nb_sentences=3),
-                    'amenities_lodging_reason_comments': self.fake.paragraph(nb_sentences=2),
                     'amenities_lodging': random.choice(['Guest House', 'Hotel', 'Bed & Breakfast', 'Friends or Family']),
-                    'amenities_overall': random.choice(likert_choices),
                     'amenities_lodging_reason': random.choice([
                         'Location', 'Price', 'Price', 'Price', 'Convenience', 'Amenities', 'Recommendation'
                     ]),

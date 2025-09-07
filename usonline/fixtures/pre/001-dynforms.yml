@@ -1176,7 +1176,7 @@
   pk: 12
   fields:
     created: 2015-12-10 17:47:19+00:00
-    modified: 2025-09-07 00:31:14.643515+00:00
+    modified: 2025-09-07 18:57:33.468307+00:00
     name: User Feedback
     code: feedback
     description: Form to capture user feedback following beamtime.
@@ -1201,7 +1201,7 @@
         - previous
         field_type: reviewcycle
         instructions: ''
-      - name: beamline
+      - name: facility
         tags: ''
         label: Which Facility/Instrument?
         width: half
@@ -1213,12 +1213,12 @@
         tags: ''
         label: Storage Ring Operations
         width: full
-        values:
-        - Excellent
-        - Good
-        - Fair
-        - Poor
-        - Very Poor
+        scores:
+        - 5
+        - 4
+        - 3
+        - 2
+        - 1
         choices:
         - Reliability
         - Beam Stability
@@ -1227,10 +1227,28 @@
         default: []
         options:
         - required
+        rubrics:
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        - Very Poor
         field_type: likert
         instructions: Please rate the machine operations during your session according
           to the following categories.
         default_choices: []
+      - name: machine_comments
+        size: small
+        tags: ''
+        label: Comments on Storage Ring Operations
+        units: chars
+        width: full
+        default: ''
+        maximum: null
+        minimum: null
+        options: []
+        field_type: paragraphtext
+        instructions: ''
       - name: section-006
         tags: ''
         label: Beamline and End Station
@@ -1241,12 +1259,12 @@
         tags: ''
         label: Beamline Operations
         width: full
-        values:
-        - Excellent
-        - Good
-        - Fair
-        - Poor
-        - Very Poor
+        scores:
+        - 5
+        - 4
+        - 3
+        - 2
+        - 1
         choices:
         - Personnel
         - Environment
@@ -1260,6 +1278,12 @@
         default: []
         options:
         - required
+        rubrics:
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        - Very Poor
         field_type: likert
         instructions: Please rate beamline operations during your session according
           to the following categories.
@@ -1281,12 +1305,12 @@
         tags: ''
         label: Administrative and Communications
         width: full
-        values:
-        - Excellent
-        - Good
-        - Fair
-        - Poor
-        - Very Poor
+        scores:
+        - 5
+        - 4
+        - 3
+        - 2
+        - 1
         choices:
         - Registration / Proposals
         - Administrative Support
@@ -1298,6 +1322,12 @@
         default: []
         options:
         - required
+        rubrics:
+        - Excellent
+        - Good
+        - Fair
+        - Poor
+        - Very Poor
         field_type: likert
         instructions: ''
         default_choices: []
@@ -1316,28 +1346,33 @@
           and User Communications
     - name: User Amenities
       fields:
-      - name: amenities_overall
+      - name: amenties
         tags: ''
-        label: User Amenities
+        label: How do you rate User Amenities
         width: full
-        values:
-        - Excellent
-        - Good
-        - Average
-        - Fair
-        - Poor
-        - N/A
+        scores:
+        - '5'
+        - '4'
+        - '3'
+        - '2'
+        - '1'
         choices:
+        - Food
+        - Wi-Fi / Internet
+        - Coffee / Vending Machines
+        - User Lounges
+        - Lodging
+        - Showers / Lockers
+        - Office / Printers
+        default: []
+        options: []
+        rubrics:
         - Excellent
         - Good
-        - Average
         - Fair
         - Poor
-        - N/A
-        default: []
-        options:
-        - required
-        field_type: multiplechoice
+        - Very Poor
+        field_type: likert
         instructions: ''
         default_choices: []
       - name: amenities_comments
@@ -1384,18 +1419,6 @@
         field_type: multiplechoice
         instructions: ''
         default_choices: []
-      - name: amenities_lodging_comments
-        size: small
-        tags: ''
-        label: Comments
-        units: chars
-        width: full
-        default: ''
-        maximum: null
-        minimum: null
-        options: []
-        field_type: paragraphtext
-        instructions: ''
       - name: amenities_lodging_reason
         tags: ''
         label: What was the basis for your decision on where to stay?
@@ -1413,7 +1436,7 @@
         field_type: checkboxes
         instructions: ''
         default_choices: []
-      - name: amenities_lodging_reason_comments
+      - name: amenities_lodging_comments
         size: small
         tags: ''
         label: Comments
