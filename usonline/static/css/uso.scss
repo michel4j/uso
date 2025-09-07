@@ -891,6 +891,21 @@ $track-colors: (
   }
 }
 
+$score-backgrounds: (
+        1: '#8e0152',
+        2: '#DE77AE',
+        3: 'var(--bs-secondary)',
+        4: '#7FBC41',
+        5: '#276419'
+);
+
+@each $index, $color in $score-backgrounds {
+  .bg-score-#{$index} {
+    background-color: #{$color};
+    color: var(--bs-white);
+  }
+}
+
 .bg-notes-warning {
   background: var(--bs-warning-bg-subtle);
 }
