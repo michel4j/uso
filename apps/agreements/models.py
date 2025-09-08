@@ -43,6 +43,7 @@ class Agreement(DateSpanMixin, TimeStampedModel):
         "Required for users with these roles", blank=True,
         help_text="Separate entries with semi-colons"
     )
+    _roles = models.JSONField(default=list, blank=True)
     users = models.ManyToManyField(User, through="Acceptance", related_name="agreements")
 
     objects = AgreementQuerySet.as_manager()

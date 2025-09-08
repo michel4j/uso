@@ -64,11 +64,20 @@ class CycleFeedbackList(AdminFeedbackList):
         return super().get_queryset()
 
 
+def _fmt_survey_details(details, obj):
+    if not details:
+        return ''
+    parts = []
+    if 'beamline' in details:
+        parts.append(", ".join([f'{entry["name"]}: {entry["label"]}' for entry in details['beamline']]))
+    return ", ".join(parts)
+
+
 class FacilityFeedbackList(AdminFeedbackList):
     list_columns = ['details', 'cycle', 'created']
     list_filters = ['beamline', 'cycle', 'created']
     list_transforms = {
-        'details': lambda x, obj: ", ".join([f'{key} = {value}' for key, value in x['beamline'].items()]) if x and 'beamline' in x else '',
+        'details': _fmt_survey_details,
     }
 
     def check_allowed(self):

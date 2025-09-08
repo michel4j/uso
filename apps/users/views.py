@@ -237,7 +237,7 @@ class UserList(RolePermsViewMixin, ItemListView):
     list_filters = ['modified', 'classification', 'institution']
     list_columns = ['get_full_name', 'username', 'roles', 'address', 'institution']
     list_search = [
-        'first_name', 'last_name', 'email', 'preferred_name', 'address__city',
+        'first_name', 'last_name', 'email', 'preferred_name', 'username', 'address__city',
         'address__country__name', 'address__region__name',
         'institution__name', 'roles'
     ]
