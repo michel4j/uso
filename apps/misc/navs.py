@@ -31,8 +31,10 @@ class ReportIndex(BaseNav):
         sections = set(Report.objects.values_list('section', flat=True))
         submenu = super().sub_menu(request)
         separator = True
-        for section in sorted(sections):
-            if not section.strip():
+        for section in sections:
+            if not section:
+                section = 'general'
+            if section and not section.strip():
                 continue
             submenu.append(
                 RawNav(
