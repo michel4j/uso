@@ -97,7 +97,11 @@ class RolePermsUserMixin(PermissionsMixin):
         if len(roles) == 0:
             return True
 
-        roles_query = reduce(operator.__or__, [Q(roles__iregex=f'<{role}(:.+)?>') for role in roles], Q())
+        regex_set = [
+            {f'roles__iregex': f'"{role}(:.+)?"'}
+            for role in roles
+        ]
+        roles_query = reduce(operator.__or__, [Q(**r) for r in regex_set], Q())
         return self.__class__.objects.filter(Q(pk=self.pk) & roles_query).exists()
 
     @lru_cache(maxsize=128)
@@ -110,7 +114,11 @@ class RolePermsUserMixin(PermissionsMixin):
         if len(role_list) == 0:
             return True
 
-        roles_query = reduce(operator.__and__, [Q(roles__iregex=f'<{role}(:.+)?>') for role in role_list], Q())
+        regex_set = [
+            {f'roles__iregex': f'"{role}(:.+)?"'}
+            for role in role_list
+        ]
+        roles_query = reduce(operator.__and__, [Q(**r) for r in regex_set], Q())
         return self.__class__.objects.filter(Q(pk=self.pk) & roles_query).exists()
 
     def has_module_perms(self, module):

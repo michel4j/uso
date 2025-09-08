@@ -172,11 +172,11 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def all_with_roles(self, *roles: str):
-        expr = functools.reduce(operator.__or__, [Q(roles__iregex=f'<{role}(:.+)?>') for role in roles], Q())
+        expr = functools.reduce(operator.__or__, [Q(roles__iregex=f'"{role}(:.+)?"') for role in roles], Q())
         return self.filter(expr)
 
     def all_with_permissions(self, *perms: str):
-        expr = functools.reduce(operator.__and__, [Q(permissions__icontains=f'<{perm}>') for perm in perms], Q())
+        expr = functools.reduce(operator.__and__, [Q(permissions__icontains=f'"{perm}"') for perm in perms], Q())
         return self.filter(expr)
 
 
@@ -237,10 +237,8 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     photo = models.URLField(null=True, blank=True)
     emergency_contact = models.CharField(_("Emergency Contact (Full Name)"), max_length=100, null=True, blank=True)
     emergency_phone = models.CharField(max_length=20, null=True, blank=True)
-    roles = StringListField(blank=True)
-    permissions = StringListField(blank=True)
-    _roles = models.JSONField(default=list, blank=True)
-    _permissions = models.JSONField(default=list, blank=True)
+    roles = models.JSONField(default=list, blank=True)
+    permissions = models.JSONField(default=list, blank=True)
     last_updated = models.DateTimeField(null=True, blank=True)
 
     @property
@@ -353,8 +351,7 @@ class Institution(DateSpanMixin, TimeStampedModel):
     region = models.ForeignKey(Region, null=True, blank=True, on_delete=models.SET_NULL)
     city = models.CharField(max_length=200, null=True, blank=True)
     sector = models.CharField(null=True, blank=True, max_length=20, choices=SECTORS)
-    domains = StringListField(_("Institutional Email Suffixes"), blank=True, null=True)
-    _domains = models.JSONField(default=list, blank=True)
+    domains = models.JSONField(default=list, blank=True)
     state = models.CharField("Agreement", max_length=20, choices=STATES, default=STATES.new)
     parent = models.ForeignKey(
         "Institution", null=True, blank=True, verbose_name=_('Parent Institution'), on_delete=models.SET_NULL
