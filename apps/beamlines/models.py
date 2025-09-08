@@ -13,7 +13,6 @@ from django.utils.translation import gettext as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
-from misc.fields import StringListField
 from misc.utils import flatten
 from scheduler.models import Event
 

@@ -9,7 +9,6 @@ from django.utils.translation import gettext as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
-from misc.fields import StringListField
 from misc.models import DateSpanMixin, DateSpanQuerySet
 
 User = getattr(settings, "AUTH_USER_MODEL")

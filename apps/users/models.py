@@ -17,7 +17,6 @@ from dynforms.models import BaseFormModel
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
-from misc.fields import StringListField
 from misc.models import DateSpanMixin
 from roleperms.models import RolePermsUserMixin
 
