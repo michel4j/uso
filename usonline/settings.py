@@ -260,6 +260,10 @@ REPORTCRAFT_FUNCTIONS = [
     'django.contrib.postgres.aggregates.ArrayAgg',
     'django.contrib.postgres.aggregates.JSONBAgg',
     'misc.functions.ArrayItems',
+    'misc.functions.JsonAvg',
+    'misc.functions.JsonSum',
+    'misc.functions.JsonMin',
+    'misc.functions.JsonMax',
 ]
 
 REPORTCRAFT_APPS = [
