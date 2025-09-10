@@ -40,8 +40,37 @@ class UserFeedback(RolePermsViewMixin, DynCreateView):
     def form_valid(self, form):
         data = form.cleaned_data
         data['user'] = self.request.user
+        form_type = self.get_form_type()
+        rating_fields = [
+            field.name
+            for page in form_type.get_pages() for field in page.fields
+            if field.field_type == 'likert'
+        ]
+
+        # Extract ratings from details
+        details = data.get('details', {})
+        ratings = {key: details.pop(key) for key in rating_fields if key in details}
+        data['details'] = details  # Update details without ratings
+
+        # Create the Feedback object
         obj = self.model(**data)
         obj.save()
+
+        # Create Rating objects
+        from .models import Rating, Category
+        new_ratings = []
+        for key, items in ratings.items():
+            try:
+                category_name = key.replace('_', ' ').capitalize()
+                category, _ = Category.objects.get_or_create(name=category_name)
+                new_ratings.extend([
+                    Rating(feedback=obj, category=category, **item)
+                    for item in items
+                ])
+            except Exception as e:
+                # Log the error, but continue processing other ratings
+                print(f"Error saving rating {key}: {e}")
+        Rating.objects.bulk_create(new_ratings)
         return HttpResponseRedirect(self.get_success_url())
 
 

@@ -1,5 +1,5 @@
-from django.db import models
-from django.db.models import Expression, OuterRef, F, Subquery
+from django.db import models, connection
+from django.db.models import Expression, OuterRef, F, Subquery, FloatField
 from django.db.models.fields.json import KeyTextTransform
 from django.db.models.functions import Cast
 
@@ -53,6 +53,19 @@ class String(models.Func):
     def as_postgresql(self, compiler, connection):
         # CAST would be valid too, but the :: shortcut syntax is more readable.
         return self.as_sql(compiler, connection, template='%(expressions)s::text')
+
+
+class Float(models.Func):
+    """
+    Coerce an expression to a string.
+    """
+    function = 'CAST'
+    template = '%(function)s(%(expressions)s AS varchar)'
+    output_field = models.FloatField()
+
+    def as_postgresql(self, compiler, connection):
+        # CAST would be valid too, but the :: shortcut syntax is more readable.
+        return self.as_sql(compiler, connection, template='%(expressions)s::float')
 
 
 class LPad(models.Func):
@@ -146,80 +159,102 @@ class JoinIt(models.Func):
         )
 
 
-class JsonArrayAggregate(models.Expression):
+def aggregate_feedback_details_db(queryset):
     """
-    A custom Django Expression to aggregate a value from a list of dictionaries
-    stored in a JSONField.
+    Aggregates feedback details using database-level JSON functions.
 
-    It works by creating a subquery that:
-    1. Un-nests the JSON array using PostgreSQL's `jsonb_array_elements`.
-    2. Extracts the specified `key_name` from each dictionary element.
-    3. Casts the extracted value to the specified `output_field`.
-    4. Applies the provided `aggregator_class` (e.g., Avg, Sum) to the values.
+    This approach pushes the heavy lifting of aggregation to the database,
+    which can be significantly more performant than the pure Python approach
+    for very large datasets, as it avoids loading the entire 'details' JSON
+    object for every row into application memory.
+
+    NOTE: The raw SQL implementation below uses `jsonb_array_elements`, a feature
+    specific to PostgreSQL. It will not work on other database backends like
+    SQLite or MySQL without modification.
+
+    Args:
+        queryset: A Django QuerySet of Feedback objects.
+
+    Returns:
+        A dictionary containing the aggregated sum, count, and average
+        for each category.
     """
-    def __init__(self, json_field, key_name, aggregator_class, output_field=models.FloatField(), **aggregator_kwargs):
-        """
-        Args:
-            json_field (str): The name of the JSONField on the model.
-            key_name (str): The key within each dictionary to aggregate.
-            aggregator_class (Type[Aggregate]): The Django aggregation class (e.g., Avg, Sum, Max).
-            output_field (Field): The Django model field to cast the value to.
-            **aggregator_kwargs: Additional keyword arguments for the aggregator.
-        """
-        super().__init__(output_field=output_field)
+    # In this database-centric approach, it's often simpler to define the
+    # categories you want to aggregate beforehand. Dynamically discovering all
+    # possible keys would require a separate, more complex query.
+    categories = ['machine', 'beamline', 'amenities']
+    final_aggregates = {}
 
-        self.json_field = F(json_field) if isinstance(json_field, str) else json_field
-        self.key_name = key_name
-        self.aggregator_class = aggregator_class
-        self.aggregator_kwargs = aggregator_kwargs
+    # Get the database table name from the model's metadata to make the
+    # query more robust and not dependent on a hardcoded name.
+    table_name = queryset.model._meta.db_table
 
-    def resolve_expression(self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False):
-        """
-        This method is called by Django during the query compilation phase.
-        It constructs and returns a standard Subquery expression, effectively
-        replacing itself with the resolved subquery.
-        """
-        # The model the annotation is being applied to (e.g., Product)
-        model = query.model
+    # We need the primary keys from the queryset to scope the raw SQL query.
+    queryset_pks = list(queryset.values_list('pk', flat=True))
 
-        # Build the subquery that will be executed for each row of the main query.
-        subquery = model.objects.filter(pk=OuterRef('pk')).annotate(
-            # 1. Un-nest the JSON array. Use a unique alias to prevent collisions.
-            _unnested_data=models.Func(self.json_field, function='jsonb_array_elements')
-        ).annotate(
-            # 2. Extract the key's value and cast it to the correct type.
-            _casted_key_value=Cast(
-                KeyTextTransform(self.key_name, '_unnested_data'),
-                output_field=self.output_field
-            )
-        ).values('pk').annotate(
-            # 3. Apply the final aggregation.
-            aggregated_value=self.aggregator_class(
-                '_casted_key_value', **self.aggregator_kwargs
-            )
-        ).values('aggregated_value')
+    # If the queryset is empty, there's nothing to aggregate.
+    if not queryset_pks:
+        return {}
 
-        # The final expression is a Subquery. We resolve it to let Django handle it.
-        return Subquery(subquery, output_field=self.output_field).resolve_expression(
-            query, allow_joins, reuse, summarize, for_save
+    with connection.cursor() as cursor:
+        for category in categories:
+            # This raw SQL query performs the entire aggregation for one category.
+            # - `jsonb_array_elements(details->%s)`: Unnests the JSON array
+            #   for the given category into a set of virtual rows.
+            # - `(item->>'value')::integer`: Extracts the 'value' field as text
+            #   and casts it to an integer for mathematical operations.
+            # - `WHERE id = ANY(%s)`: Filters the aggregation to only include
+            #   records from the provided queryset.
+            # - `COALESCE(..., 0)`: Ensures we get 0 instead of NULL if there's
+            #   no data to aggregate.
+            sql_query = f"""
+                SELECT
+                    COALESCE(SUM((item->>'value')::integer), 0),
+                    COALESCE(COUNT(item), 0)
+                FROM
+                    {table_name},
+                    jsonb_array_elements(details->%s) AS item
+                WHERE
+                    {table_name}.id = ANY(%s)
+            """
+            cursor.execute(sql_query, [category, queryset_pks])
+            row = cursor.fetchone()
+
+            total_sum, total_count = row[0], row[1]
+
+            final_aggregates[category] = {
+                'sum': total_sum,
+                'count': total_count,
+                'average': round(total_sum / total_count, 2) if total_count > 0 else 0
+            }
+
+    return final_aggregates
+
+
+class JSONExpand(models.Func):
+    function = 'jsonb_array_elements'
+    template = '%(function)s(%(expressions)s)'
+    output_field = models.JSONField()
+
+
+class JSONAvg(models.Func):
+    """
+    Joins an array of strings into a single string with a specified separator.
+    """
+
+    output_field = models.FloatField()
+
+    def __init__(self, expressions, array_key, value_key, **extra):
+        self.array_key = str(array_key.value) if isinstance(array_key, models.Value) else str(array_key)
+        self.value_key = str(value_key.value) if isinstance(value_key, models.Value) else str(value_key)
+        super().__init__(expressions, array_key=array_key, value_key=value_key, **extra)
+
+    def as_postgresql(self, compiler, connection):
+        return self.as_sql(
+            compiler,
+            connection,
+            function="jsonb_array_avg",
+            array_key=self.array_key,
+            value_key=self.value_key,
+            template="jsonb_array_avg(%(expressions)s, '%(array_key)s', '%(value_key)s')"
         )
-
-
-class JsonAvg(JsonArrayAggregate):
-    def __init__(self, json_field, key_name, **kwargs):
-        super().__init__(json_field, key_name, models.Avg, output_field=models.FloatField(), **kwargs)
-
-
-class JsonSum(JsonArrayAggregate):
-    def __init__(self, json_field, key_name, **kwargs):
-        super().__init__(json_field, key_name, models.Sum, output_field=models.FloatField(), **kwargs)
-
-
-class JsonMax(JsonArrayAggregate):
-    def __init__(self, json_field, key_name, **kwargs):
-        super().__init__(json_field, key_name, models.Max, output_field=models.FloatField(), **kwargs)
-
-
-class JsonMin(JsonArrayAggregate):
-    def __init__(self, json_field, key_name, **kwargs):
-        super().__init__(json_field, key_name, models.Min, output_field=models.FloatField(), **kwargs)
