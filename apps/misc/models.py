@@ -15,7 +15,6 @@ from django.utils.translation import gettext as _
 from model_utils.choices import Choices
 from model_utils.models import TimeStampedModel
 
-from misc.functions import Age
 from .fields import RestrictedFileField
 from .utils import get_code_generator, get_client_address
 
@@ -67,9 +66,6 @@ class DateSpanQuerySet(QuerySet):
     def current(self):
         """A proxy for current"""
         return self.active()
-
-    def with_duration(self):
-        return self.annotate(duration=Age(F('start_date'), F('end_date')))
 
     def count_by_year(self, **kwargs):
         """Aggregate the object counts by year. returns a list of dictionaries

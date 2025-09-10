@@ -1,17 +1,4 @@
 from django.db import models, connection
-from django.db.models import Expression, OuterRef, F, Subquery, FloatField
-from django.db.models.fields.json import KeyTextTransform
-from django.db.models.functions import Cast
-
-
-class Age(models.Func):
-    function = 'MONTH'
-    template = '%(function)s(%(expressions)s)'
-
-    def as_postgresql(self, compiler, connection):
-        self.arg_joiner = " - "
-        return self.as_sql(compiler, connection, function="EXTRACT",
-                           template="%(function)s(month FROM %(expressions)s)/3600")
 
 
 class Hours(models.Func):
@@ -258,3 +245,76 @@ class JSONAvg(models.Func):
             value_key=self.value_key,
             template="jsonb_array_avg(%(expressions)s, '%(array_key)s', '%(value_key)s')"
         )
+
+
+class Age(models.Func):
+    """
+    Custom database function to calculate the age (as an interval)
+    from a given date or datetime field to now.
+
+    This function is specific to PostgreSQL and uses the AGE() function.
+
+    Returns:
+        models.DurationField: The interval between the field and the current time.
+    """
+    function = 'AGE'
+    template = '%(function)s(%(expressions)s)'
+    output_field = models.DurationField()
+
+
+class AgeYears(models.Func):
+    """
+    Custom database function to calculate the number of full years
+    from a given date or datetime field to now.
+
+    This function is specific to PostgreSQL. It extracts the YEAR
+    component from the result of the AGE() function.
+
+    Returns:
+        models.IntegerField: The total number of years as an integer.
+    """
+    template = "EXTRACT(YEAR FROM AGE(%(expressions)s))::integer"
+    output_field = models.IntegerField()
+
+
+class AgeMonths(models.Func):
+    """
+    Custom database function to calculate the total number of months
+    from a given date or datetime field to now.
+
+    This function is specific to PostgreSQL. It calculates total months by
+    multiplying the years by 12 and adding the months from the AGE() result.
+
+    Returns:
+        models.IntegerField: The total number of months as an integer.
+    """
+    template = "((EXTRACT(YEAR FROM AGE(%(expressions)s)) * 12) + EXTRACT(MONTH FROM AGE(%(expressions)s)))::integer"
+    output_field = models.IntegerField()
+
+
+class Quarter(models.Func):
+    """
+    Custom database function to get the quarter name from a date/datetime field.
+    For example, for a date of '2025-09-10', it returns '2025 Q3'.
+
+    This function is specific to PostgreSQL.
+
+    Returns:
+        models.CharField: The formatted quarter string.
+    """
+    template = "CONCAT(EXTRACT(YEAR FROM %(expressions)s), ' Q', EXTRACT(QUARTER FROM %(expressions)s))"
+    output_field = models.CharField()
+
+
+class YearMonth(models.Func):
+    """
+    Custom database function to get the month name from a date/datetime field.
+    For example, for a date of '2025-09-10', it returns '2025-09'.
+
+    This function is specific to PostgreSQL.
+
+    Returns:
+        models.CharField: The formatted quarter string.
+    """
+    template = "TO_CHAR(%(expressions)s, 'YYYY-MM')"
+    output_field = models.CharField()

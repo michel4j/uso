@@ -8,12 +8,6 @@
 {% block panel_body %}
     {% if beamlines %}
     <div class="card-body bg-warning-subtle">
-        <p>
-            The call for proposals be scheduled during the period {{ open_cycle.start_date|date }}
-            &ndash; {{ open_cycle.end_date|date }} is currently
-            open with a submission deadline of {{ open_cycle.close_date|date }}. The following projects
-            are eligible for renewal.
-        </p>
         {% for beamline, info in beamlines %}
             <div class="d-flex flex-row align-items-center justify-content-between gap-3">
                 <div><a href="{% url 'project-detail' pk=info.project.pk %}">{{ info.project }}</a></div>

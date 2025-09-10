@@ -1,7 +1,3 @@
-Error importing function misc.functions.JSONStd: module 'misc.functions' has no attribute 'JSONStd'
-Error importing function misc.functions.JSONSum: module 'misc.functions' has no attribute 'JSONSum'
-Error importing function misc.functions.JSONMin: module 'misc.functions' has no attribute 'JSONMin'
-Error importing function misc.functions.JSONMax: module 'misc.functions' has no attribute 'JSONMax'
 - model: reportcraft.datasource
   pk: 1
   fields:
@@ -84,11 +80,11 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 8
   fields:
     created: 2025-08-10 05:20:48.243000+00:00
-    modified: 2025-09-07 19:45:37.513000+00:00
+    modified: 2025-09-10 15:24:25.043547+00:00
     name: Proposal Data
     description: ''
     group_by:
-    - year
+    - cycle_name
     filters: ''
     limit: null
 - model: reportcraft.datasource
@@ -189,13 +185,13 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 17
   fields:
     created: 2025-09-05 19:53:53.915000+00:00
-    modified: 2025-09-05 20:01:22.938000+00:00
+    modified: 2025-09-10 17:39:37.839861+00:00
     name: User counts by Country Region
     description: Counts users by the level 1 administrative region
     group_by:
-    - country_code
-    - region_code
-    filters: ''
+    - country
+    - region
+    filters: Country == "CAN"
     limit: null
 - model: reportcraft.datasource
   pk: 18
@@ -912,20 +908,6 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     ordering: null
     source: 7
 - model: reportcraft.datafield
-  pk: 74
-  fields:
-    created: 2025-08-10 05:21:47.023000+00:00
-    modified: 2025-08-10 05:21:47.030000+00:00
-    name: year
-    model: 14
-    label: Year
-    default: null
-    expression: Cycle.StartDate.Year
-    precision: null
-    position: 0
-    ordering: null
-    source: 8
-- model: reportcraft.datafield
   pk: 75
   fields:
     created: 2025-08-10 05:22:22.831000+00:00
@@ -965,20 +947,6 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     expression: Count(this)
     precision: null
     position: 3
-    ordering: null
-    source: 8
-- model: reportcraft.datafield
-  pk: 80
-  fields:
-    created: 2025-08-10 05:33:56.631000+00:00
-    modified: 2025-08-10 05:33:56.640000+00:00
-    name: year
-    model: 16
-    label: Year
-    default: null
-    expression: Submissions.Cycle.StartDate.Year
-    precision: null
-    position: 0
     ordering: null
     source: 8
 - model: reportcraft.datafield
@@ -1122,20 +1090,6 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     ordering: null
     source: 11
 - model: reportcraft.datafield
-  pk: 96
-  fields:
-    created: 2025-08-16 18:23:58.951000+00:00
-    modified: 2025-08-16 18:27:32.586000+00:00
-    name: cycle_date
-    model: 21
-    label: Cycle Date
-    default: null
-    expression: Cycle.StartDate
-    precision: null
-    position: 4
-    ordering: null
-    source: 11
-- model: reportcraft.datafield
   pk: 97
   fields:
     created: 2025-08-16 18:26:32.434000+00:00
@@ -1167,12 +1121,12 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 99
   fields:
     created: 2025-08-16 18:28:21.880000+00:00
-    modified: 2025-08-16 18:32:48.473000+00:00
+    modified: 2025-09-10 15:50:30.812820+00:00
     name: cycle_name
     model: 21
     label: Cycle
     default: ''
-    expression: Concat(Cycle.Type.Name, ' ', String(Cycle.StartDate.Year))
+    expression: YearMonth(Cycle.StartDate)
     precision: null
     position: 7
     ordering: null
@@ -1405,12 +1359,12 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 126
   fields:
     created: 2025-09-05 18:47:21.087000+00:00
-    modified: 2025-09-05 18:58:44.618000+00:00
+    modified: 2025-09-10 16:20:30.308328+00:00
     name: cycle_name
     model: 29
-    label: Cycle_Name
+    label: Cycle
     default: null
-    expression: Concat(String(Cycle.StartDate.Year), '/', String(Cycle.StartDate.Month))
+    expression: YearMonth(Cycle.StartDate)
     precision: null
     position: 0
     ordering: null
@@ -1447,8 +1401,8 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 129
   fields:
     created: 2025-09-05 19:54:31.484000+00:00
-    modified: 2025-09-05 19:54:38.086000+00:00
-    name: country_code
+    modified: 2025-09-10 17:01:30.123206+00:00
+    name: country
     model: 30
     label: Country
     default: null
@@ -1461,8 +1415,8 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 130
   fields:
     created: 2025-09-05 19:54:31.498000+00:00
-    modified: 2025-09-05 19:54:42.632000+00:00
-    name: region_code
+    modified: 2025-09-10 17:01:36.834689+00:00
+    name: region
     model: 30
     label: Region
     default: null
@@ -1503,10 +1457,10 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 133
   fields:
     created: 2025-09-05 19:56:56.371000+00:00
-    modified: 2025-09-05 19:56:56.371000+00:00
+    modified: 2025-09-10 17:02:41.069653+00:00
     name: region_name
     model: 30
-    label: Name
+    label: Region Name
     default: null
     expression: Address.Region.Name
     precision: null
@@ -1597,15 +1551,85 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     position: 5
     ordering: null
     source: 18
+- model: reportcraft.datafield
+  pk: 143
+  fields:
+    created: 2025-09-10 15:24:58.645653+00:00
+    modified: 2025-09-10 15:25:51.639632+00:00
+    name: cycle_name
+    model: 14
+    label: Cycle
+    default: null
+    expression: YearMonth(Cycle.StartDate)
+    precision: null
+    position: 7
+    ordering: null
+    source: 8
+- model: reportcraft.datafield
+  pk: 144
+  fields:
+    created: 2025-09-10 15:26:23.670973+00:00
+    modified: 2025-09-10 15:53:19.036834+00:00
+    name: cycle_name
+    model: 15
+    label: Cycle
+    default: null
+    expression: YearMonth(Cycle.StartDate)
+    precision: null
+    position: 8
+    ordering: null
+    source: 8
+- model: reportcraft.datafield
+  pk: 145
+  fields:
+    created: 2025-09-10 15:26:59.255838+00:00
+    modified: 2025-09-10 15:53:23.954833+00:00
+    name: cycle_name
+    model: 16
+    label: Cycle
+    default: null
+    expression: YearMonth(Submissions.Cycle.StartDate)
+    precision: null
+    position: 9
+    ordering: null
+    source: 8
+- model: reportcraft.datafield
+  pk: 146
+  fields:
+    created: 2025-09-10 17:02:17.835393+00:00
+    modified: 2025-09-10 17:02:17.835404+00:00
+    name: country_name
+    model: 30
+    label: Country Name
+    default: null
+    expression: Address.Country.Name
+    precision: null
+    position: 5
+    ordering: null
+    source: 17
+- model: reportcraft.datafield
+  pk: 147
+  fields:
+    created: 2025-09-10 22:03:55.718319+00:00
+    modified: 2025-09-10 22:08:32.812596+00:00
+    name: country_name
+    model: 17
+    label: Country Name
+    default: null
+    expression: Address.Country.Name
+    precision: null
+    position: 0
+    ordering: null
+    source: 9
 - model: reportcraft.report
   pk: 1
   fields:
     created: 2025-07-24 18:48:34.419000+00:00
-    modified: 2025-09-05 19:52:18.439000+00:00
+    modified: 2025-09-10 21:07:29.152770+00:00
     slug: user-statistics
     title: User Statistics
     description: Distribution of Users by Year
-    style: ''
+    theme: default
     notes: ''
     section: users
 - model: reportcraft.report
@@ -1616,29 +1640,29 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     slug: publication-statistics
     title: Publication Statistics
     description: Summary of publication statistics for the whole organization
-    style: ''
+    theme: default
     notes: ''
     section: publications
 - model: reportcraft.report
   pk: 3
   fields:
     created: 2025-08-10 05:20:10.388000+00:00
-    modified: 2025-09-05 18:36:39.425000+00:00
+    modified: 2025-09-10 21:07:42.059629+00:00
     slug: proposal-statistics
     title: Proposal Statistics
     description: Statistics about proposals, submissions and reviews
-    style: ''
+    theme: sketch
     notes: ''
     section: proposals
 - model: reportcraft.report
   pk: 4
   fields:
     created: 2025-08-11 14:56:14.766000+00:00
-    modified: 2025-09-05 19:52:32.239000+00:00
+    modified: 2025-09-10 20:38:36.588033+00:00
     slug: global-user-distribution
-    title: Distribution of Users
+    title: Global Distribution of Users
     description: This report presents the distribution of users and institutions globally
-    style: ''
+    theme: sketch
     notes: ''
     section: users
 - model: reportcraft.report
@@ -1649,7 +1673,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     slug: project-statistics
     title: Project Statistics
     description: Distribution of Projects and Researchers each cycle
-    style: ''
+    theme: default
     notes: ''
     section: projects
 - model: reportcraft.report
@@ -1660,7 +1684,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     slug: publications-by-subject-area
     title: Publications by Subject Area
     description: Report of yearly publication counts by field of science
-    style: ''
+    theme: default
     notes: ''
     section: publications
 - model: reportcraft.report
@@ -1671,7 +1695,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     slug: publication-metrics
     title: Publication Metrics
     description: Summary of yearly publication metrics
-    style: ''
+    theme: default
     notes: ''
     section: publications
 - model: reportcraft.report
@@ -1682,18 +1706,18 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     slug: facility-publication-quality-metrics
     title: Facility Publication Quality Metrics
     description: Publication quality metrics for each facility
-    style: ''
+    theme: default
     notes: ''
     section: publications
 - model: reportcraft.report
   pk: 9
   fields:
     created: 2025-09-05 19:51:55.938000+00:00
-    modified: 2025-09-05 19:52:25.234000+00:00
+    modified: 2025-09-10 21:34:33.793932+00:00
     slug: national-distribution-of-users
     title: National Distribution of Users
     description: Distribution of users nationally
-    style: ''
+    theme: sketch
     notes: ''
     section: users
 - model: reportcraft.report
@@ -1704,7 +1728,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     slug: user-feedback-report
     title: User Feedback Report
     description: User Feedback Reports
-    style: ''
+    theme: default
     notes: ''
     section: feedback
 - model: reportcraft.entry
@@ -1820,59 +1844,6 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
       categories: year
       ticks_every: 1
 - model: reportcraft.entry
-  pk: 6
-  fields:
-    created: 2025-07-24 22:30:46.205000+00:00
-    modified: 2025-09-03 00:01:51.528000+00:00
-    title: Quality Metrics by Year
-    description: ''
-    notes: ''
-    style: col-md-12
-    kind: table
-    source: 4
-    report: 2
-    position: 2
-    attrs:
-      rows:
-      - articles
-      - total_citations
-      - self_citations
-      - total_mentions
-      - avg_cites
-      - avg_mentions
-      - avg_sjr
-      - avg_impact_factor
-      - avg_hindex
-      - avg_quartile
-      columns: year
-      max_cols: 12
-      total_row: false
-      transpose: false
-      flip_headers: false
-      total_column: false
-      wrap_headers: false
-      force_strings: false
-- model: reportcraft.entry
-  pk: 7
-  fields:
-    created: 2025-07-24 22:50:09.453000+00:00
-    modified: 2025-08-09 19:30:19.633000+00:00
-    title: Top 20 Publications by Citation Count
-    description: ''
-    notes: ''
-    style: col-md-12
-    kind: list
-    source: 5
-    report: 2
-    position: 8
-    attrs:
-      limit: 20
-      columns:
-      - citation_text
-      - facilities
-      - cites
-      order_by: -cites
-- model: reportcraft.entry
   pk: 8
   fields:
     created: 2025-07-24 23:00:49.827000+00:00
@@ -1889,90 +1860,6 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
       label: kind_group
       value: publications
       colors: Live8
-- model: reportcraft.entry
-  pk: 9
-  fields:
-    created: 2025-08-09 00:26:49.165000+00:00
-    modified: 2025-09-03 00:02:53.465000+00:00
-    title: Quality Metrics Plot
-    description: ''
-    notes: ''
-    style: col-md-8
-    kind: plot
-    source: 4
-    report: 2
-    position: 4
-    attrs:
-      groups:
-      - y: total_citations
-        type: line-points
-      - y: self_citations
-        type: points
-      - y: total_mentions
-        type: points
-      - y: articles
-        type: points
-      scheme: Live8
-      x_scale: linear
-      x_value: year
-      y_label: Counts
-      y_scale: linear
-- model: reportcraft.entry
-  pk: 10
-  fields:
-    created: 2025-08-09 19:29:29.220000+00:00
-    modified: 2025-08-09 19:35:50.019000+00:00
-    title: Explanation
-    description: ''
-    notes: In previous versions, only aggregate quality metrics were kept for each
-      record, skewing the evaluation of impact.
-    style: col-md-4
-    kind: text
-    source: null
-    report: 2
-    position: 5
-    attrs:
-      rich_text: "Citations and Media mentions data for each article is obtained from
-        both Crossref and OpenCitations. Total Counts are maintained for each article
-        per year, reflecting the number of events that occurred on the specified year.\r\n\r\nFor
-        Journal derived metrics like Impact-Factor, SJR, etc, articles are ascribed\r\nthe
-        Journal metric occuring closest in time to the date of publication."
-- model: reportcraft.entry
-  pk: 11
-  fields:
-    created: 2025-08-09 20:05:58.047000+00:00
-    modified: 2025-08-11 15:54:58.938000+00:00
-    title: Quality Metric Per Facility
-    description: ''
-    notes: "1. Mentions represent the number of news stories, and social media mentions
-      the reference the publication.\r\n2. The Average Impact Factor is the ratio
-      of citations to the number of citable documents for the journal over the previous
-      two years. This value is calculated based on citations in the SCOPUS database
-      and may be different from the Web Of Science values from the Thomson Reuters
-      database.\r\n3. SJR is the SCIMAGO Journal Rank Metric: https://www.scimagojr.com/.
-      A Journal with an SJR quartile of 1 is in the top 25% of journals in the field
-      when ranked by SJR, and a quartile of 2 is ranked higher than 50% but lower
-      than 25% of journals in the field."
-    style: col-md-12
-    kind: table
-    source: 7
-    report: 2
-    position: 7
-    attrs:
-      rows:
-      - articles
-      - citations
-      - mentions
-      - self_citations
-      - sjr
-      - quartile
-      - impact_factor
-      - h_index
-      columns: beamline
-      total_row: false
-      transpose: true
-      total_column: false
-      force_strings: false
 - model: reportcraft.entry
   pk: 12
   fields:
@@ -2001,8 +1888,8 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 13
   fields:
     created: 2025-08-10 05:25:33.426000+00:00
-    modified: 2025-09-05 19:05:08.314000+00:00
-    title: Proposal Statistics by Year
+    modified: 2025-09-10 16:26:01.667607+00:00
+    title: Proposal Statistics by Cycle
     description: ''
     notes: ''
     style: col-md-12
@@ -2016,7 +1903,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
       - reviews
       - facilities
       - leaders
-      columns: year
+      columns: cycle_name
       max_cols: 12
       total_row: false
       transpose: false
@@ -2028,7 +1915,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 14
   fields:
     created: 2025-08-11 15:12:51.823000+00:00
-    modified: 2025-09-05 19:50:17.743000+00:00
+    modified: 2025-09-10 19:28:34.691703+00:00
     title: Global Distribution of Institutions
     description: ''
     notes: ''
@@ -2042,13 +1929,13 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
       groups:
       - type: area
         value: institutions
-        scheme: Blues
+      scheme: Greens
       location: country
 - model: reportcraft.entry
   pk: 15
   fields:
     created: 2025-08-11 15:14:57.049000+00:00
-    modified: 2025-08-11 15:16:14.808000+00:00
+    modified: 2025-09-10 22:09:47.502337+00:00
     title: Top 10 Countries by Number of Users
     description: ''
     notes: ''
@@ -2060,15 +1947,16 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     attrs:
       limit: 10
       columns:
-      - country
+      - country_name
       - institutions
       - people
-      order_by: -people
+      order_by: people
+      order_desc: true
 - model: reportcraft.entry
   pk: 16
   fields:
     created: 2025-08-11 15:15:36.852000+00:00
-    modified: 2025-08-11 15:16:29.999000+00:00
+    modified: 2025-09-10 22:10:04.458026+00:00
     title: Top 10 Countries by Number of Institutions
     description: ''
     notes: ''
@@ -2080,15 +1968,16 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
     attrs:
       limit: 10
       columns:
-      - country
+      - country_name
       - institutions
       - people
-      order_by: -institutions
+      order_by: institutions
+      order_desc: true
 - model: reportcraft.entry
   pk: 17
   fields:
     created: 2025-08-16 18:16:32.370000+00:00
-    modified: 2025-09-04 21:31:00.087000+00:00
+    modified: 2025-09-10 16:08:39.392193+00:00
     title: Submissions by Cycle and Track
     description: ''
     notes: ''
@@ -2111,7 +2000,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 18
   fields:
     created: 2025-08-16 18:40:13.521000+00:00
-    modified: 2025-09-04 21:31:00.087000+00:00
+    modified: 2025-09-10 15:55:00.474477+00:00
     title: Proposals Per Year
     description: ''
     notes: ''
@@ -2127,7 +2016,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
       - proposals
       grouped: false
       sort_desc: false
-      categories: year
+      categories: cycle_name
       ticks_every: 1
 - model: reportcraft.entry
   pk: 19
@@ -2158,7 +2047,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 20
   fields:
     created: 2025-08-17 03:56:24.190000+00:00
-    modified: 2025-09-04 21:40:54.996000+00:00
+    modified: 2025-09-10 19:45:37.735951+00:00
     title: Global Distribution of Proposals
     description: ''
     notes: ''
@@ -2172,7 +2061,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
       groups:
       - type: area
         value: proposals
-        scheme: Blues
+      scheme: OrRd
       location: country
 - model: reportcraft.entry
   pk: 21
@@ -2223,11 +2112,11 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 23
   fields:
     created: 2025-09-05 04:13:34.913000+00:00
-    modified: 2025-09-05 13:24:28.997000+00:00
+    modified: 2025-09-10 14:14:23.604829+00:00
     title: Yearly Publications by Topic
     description: ''
     notes: ''
-    style: col-md-12
+    style: col-md-6
     kind: plot
     source: 13
     report: 6
@@ -2245,11 +2134,11 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 24
   fields:
     created: 2025-09-05 13:22:23.707000+00:00
-    modified: 2025-09-05 13:25:15.377000+00:00
+    modified: 2025-09-10 14:14:30.344397+00:00
     title: Yearly Publications by Topic
     description: ''
     notes: ''
-    style: col-md-12
+    style: col-md-6
     kind: columns
     source: 13
     report: 6
@@ -2470,7 +2359,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 34
   fields:
     created: 2025-09-05 18:55:36.481000+00:00
-    modified: 2025-09-05 18:57:10.369000+00:00
+    modified: 2025-09-10 16:25:21.454531+00:00
     title: Total Proposals per Cycle and Facility
     description: ''
     notes: ''
@@ -2484,6 +2373,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
       - beamline
       values: submissions
       columns: cycle_name
+      max_cols: 12
       total_row: false
       transpose: false
       flip_headers: false
@@ -2494,7 +2384,7 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
   pk: 35
   fields:
     created: 2025-09-05 19:57:50.789000+00:00
-    modified: 2025-09-05 20:02:23.261000+00:00
+    modified: 2025-09-10 19:22:54.130079+00:00
     title: Number of Users in each Region
     description: ''
     notes: ''
@@ -2508,8 +2398,8 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
       groups:
       - type: area
         value: users
-        scheme: Purples
-      location: region_code
+      scheme: BuPu
+      location: region
       map_labels: names
 - model: reportcraft.entry
   pk: 36
@@ -2558,3 +2448,27 @@ Error importing function misc.functions.JSONMax: module 'misc.functions' has no 
       sort_desc: false
       categories: rating
       ticks_every: 1
+- model: reportcraft.entry
+  pk: 38
+  fields:
+    created: 2025-09-10 17:04:11.058286+00:00
+    modified: 2025-09-10 17:05:05.353932+00:00
+    title: National Distribution of Users
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source: 17
+    report: 9
+    position: 1
+    attrs:
+      rows:
+      - users
+      - institutions
+      columns: region_name
+      total_row: false
+      transpose: true
+      flip_headers: false
+      total_column: false
+      wrap_headers: false
+      force_strings: false
