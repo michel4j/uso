@@ -16,17 +16,36 @@ from faker import Faker
 from unidecode import unidecode
 
 
+class RandomWalk:
+
+    def __init__(self, min_value=0, max_value=10):
+        self.min_value = min_value
+        self.max_value = max_value
+        self.values = list(range(min_value, max_value + 1))
+        self.current = random.choice(range(len(self.values)))
+
+    def step(self):
+        self.current += random.choice([-1, 1])
+        self.current = self.current % len(self.values)
+        return self.values[self.current]
+
+    def __call__(self):
+        return self.step()
+
+
+randomizer = RandomWalk(1, 5)
+
+
 def random_likert_choice():
-    labels = ['Excellent', 'Good', 'Good', 'Fair', 'Poor', 'Very Poor', 'Excellent']
     scores = {
-        'Excellent': 5,
-        'Good': 4,
-        'Fair': 3,
-        'Poor': 2,
-        'Very Poor': 1
+        5: 'Excellent',
+        4: 'Good',
+        3: 'Fair',
+        2: 'Poor',
+        1: 'Very Poor'
     }
-    label = random.choice(labels)
-    return {'label': label, 'value': scores[label]}
+    score = randomizer.step()
+    return {'label': scores[score], 'value': score}
 
 
 class FakeSurvey:

@@ -1,3 +1,7 @@
+Error importing function misc.functions.JSONStd: module 'misc.functions' has no attribute 'JSONStd'
+Error importing function misc.functions.JSONSum: module 'misc.functions' has no attribute 'JSONSum'
+Error importing function misc.functions.JSONMin: module 'misc.functions' has no attribute 'JSONMin'
+Error importing function misc.functions.JSONMax: module 'misc.functions' has no attribute 'JSONMax'
 - model: dynforms.formtype
   pk: 1
   fields:
@@ -1176,7 +1180,7 @@
   pk: 12
   fields:
     created: 2015-12-10 17:47:19+00:00
-    modified: 2025-09-07 18:57:33.468307+00:00
+    modified: 2025-09-10 04:56:14.913680+00:00
     name: User Feedback
     code: feedback
     description: Form to capture user feedback following beamtime.
@@ -1306,11 +1310,11 @@
         label: Administrative and Communications
         width: full
         scores:
-        - 5
-        - 4
-        - 3
-        - 2
-        - 1
+        - '5'
+        - '4'
+        - '3'
+        - '2'
+        - '1'
         choices:
         - Registration / Proposals
         - Administrative Support
@@ -1346,7 +1350,7 @@
           and User Communications
     - name: User Amenities
       fields:
-      - name: amenties
+      - name: amenities
         tags: ''
         label: How do you rate User Amenities
         width: full
@@ -1451,6 +1455,8 @@
     actions:
     - - submit
       - Submit
+    - - save
+      - Save
 - model: dynforms.formtype
   pk: 13
   fields:
