@@ -66,7 +66,6 @@ INSTALLED_APPS = [
     'projects',
     'misc',
     'django_cas_ng',
-    'proxy',
     'rest_framework',
     'beamlines',
     'samples',
