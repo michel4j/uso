@@ -1,8 +1,9 @@
 {% extends "print-page.html" %}
-
+{% load icons %}
 {% block page-classes %}{% endblock %}
-{% block page-pretitle %}Report{% endblock %}
-{% block page-title %}{{ report.title }}{% endblock %}
+{% block page-pretitle %}<span id="report-pretitle">Report</span>{% endblock %}
+{% block page-title %}<span id="report-title">{{ report.title }}</span>{% endblock %}
+{% block page-subtitle %}<span id="report-subtitle">{{ report.description }}</span>{% endblock %}
 {% block page-content %}
     {% include "reportcraft/report-embed.html"  %}
 {% endblock %}
