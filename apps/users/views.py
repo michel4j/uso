@@ -449,10 +449,10 @@ class VerifyView(PasswordChangeMixin, UpdateView):
             initial.update({
                 'classification': classification
             })
-            country = models.Country.objects.filter(name__iexact=info.get('country', '')).first()
+            country = models.Country.objects.filter(name__iexact=details['address'].get('country', '')).first()
             region = None
             if country:
-                region = country.regions.filter(name__iexact=info.get('region', '')).first()
+                region = country.regions.filter(name__iexact=details['address'].get('region', '')).first()
             address_info = {
                 'address_1': details['department'],
                 'address_2': details['address'].get('street', ''),
