@@ -22,46 +22,65 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"
-            integrity="sha512-qOBWNAMfkz+vXXgbh0Wz7qYSLZp6c14R0bZeVX2TdQxWpuKr6yHjBIM69fcF8Ve4GUX6B6AKRQJqiiAmwvmUmQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        $(document).ready(function () {
-            const $form = $("#df-form-instance");
-            let institutions = new Bloodhound({
-                datumTokenizer: function (d) {
-                    return Bloodhound.tokenizers.whitespace(d.key);
-                },
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                remote: {
-                    url: '{% url "institution-search" %}?q=%QUERY',
-                    wildcard: '%QUERY'
-                }
-            });
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" integrity="sha512-qOBWNAMfkz+vXXgbh0Wz7qYSLZp6c14R0bZeVX2TdQxWpuKr6yHjBIM69fcF8Ve4GUX6B6AKRQJqiiAmwvmUmQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+$(document).ready(function() {
+    let institutions = new Bloodhound({
+      datumTokenizer: function(d) { return Bloodhound.tokenizers.whitespace(d.key);},
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      prefetch: {
+        url: '{% url "institution-entries" %}',
+        cache: true
+      },
+      remote: {
+        url: '{% url "institution-search" %}?q=%QUERY',
+        wildcard: '%QUERY'
+      }
+    });
+    const $instInput = $('#institution');
 
-            $('#institution').typeahead(null, {
-                name: 'institutions',
-                source: institutions,
-                limit: 10
-            });
+    $instInput.typeahead(null, {
+        name: 'institutions',
+        source: institutions,
+        display: 'name',
+        limit: 10
+    });
 
-            $("#contact-email").on("change", function () {
-                let email = $(this).val();
-                if (email) {
-                    $.ajax({
-                        url: `{% url 'institution-detail' %}?email=${encodeURIComponent(email)}`,
-                        type: "GET",
-                        dataType: "json",
-                        success: function (data) {
-                            $form.deserialize(data);
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error fetching institution data:", error);
-                        }
-                    });
-                }
-            });
+    $instInput.bind('typeahead:select', function(ev, suggestion){
+        const $countryInput = $('#address__country');
+        const $cityInput = $('#address__city');
+        const $regionInput = $('#address__region');
+        const $sectorInput = $('#sector__controls [name="sector"]');
+        $countryInput.val(suggestion.country).trigger('change');
+        $regionInput.val(suggestion.region).trigger('change');
+        $sectorInput.each(function() {
+
+            if ($(this).val() === suggestion.sector) {
+                $(this).prop('checked', true);
+            } else {
+                $(this).prop('checked', false);
+            }
         });
+        $cityInput.val(suggestion.city).trigger('change');
+    })
 
-    </script>
+    $("#contact__email").on("change", function () {
+        const $form = $("#df-form-instance");
+        let email = $(this).val();
+        if (email) {
+            $.ajax({
+                url: `{% url 'institution-detail' %}?email=${encodeURIComponent(email)}`,
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    $form.deserialize(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching institution data:", error);
+                }
+            });
+        }
+    });
+});
+</script>
 {% endblock %}

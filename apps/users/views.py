@@ -96,19 +96,13 @@ class InstitutionDetail(View):
             for domain in domains:
                 query |= Q(domains__icontains=domain)
             inst = models.Institution.objects.filter(query).first()
-        address = {}
         if inst:
-            if hasattr(inst, 'address') and inst.address:
-                address['address.street'] = inst.address
-                address['address.city'] = inst.address.city
-                address['address.country'] = inst.address.country
-                address['address.province'] = inst.address.region
-                address['address.postal_code'] = inst.address.postal_code
-
             context = {
-               'institution': inst.name,
-               'sector': inst.sector,
-               **address,
+                'institution': inst.name,
+                'sector': inst.get_sector_display(),
+                'address__city':  inst.city,
+                'address__region': '' if not inst.region else inst.region.name,
+                'address__country': '' if not inst.country else inst.country.name,
             }
         else:
             context = {}
@@ -117,9 +111,19 @@ class InstitutionDetail(View):
 
 class InstitutionSearch(View):
     def get(self, request, *args, **kwargs):
-        found = models.Institution.objects.filter(name__icontains=request.GET['q']).order_by('name')
+        found = models.Institution.objects.filter(name__search=request.GET['q']).order_by('name')
         if found.count():
-            context = list(found.values('name', 'id', 'country_id', 'region_id', 'city'))
+            context = [
+                {
+                    'id': inst.pk,
+                    'name': inst.name,
+                    'city': inst.city,
+                    'region': '' if not inst.region else inst.region.name,
+                    'country': '' if not inst.country else inst.country.name,
+                    'sector': inst.get_sector_display(),
+                }
+                for inst in found.all()
+            ]
         else:
             context = []
         return JsonResponse(context, safe=False)
@@ -127,7 +131,17 @@ class InstitutionSearch(View):
 
 class InstitutionInfo(View):
     def get(self, request, *args, **kwargs):
-        context = list(models.Institution.objects.all().values('name', 'id', 'country_id', 'region_id', 'city'))
+        context = [
+            {
+                'id': inst.pk,
+                'name': inst.name,
+                'city': inst.city,
+                'region': '' if not inst.region else inst.region.name,
+                'country': '' if not inst.country else inst.country.name,
+                'sector': inst.get_sector_display(),
+            }
+            for inst in models.Institution.objects.all()
+        ]
         return JsonResponse(context, safe=False)
 
 
