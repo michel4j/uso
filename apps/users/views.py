@@ -451,23 +451,26 @@ class VerifyView(PasswordChangeMixin, UpdateView):
             initial.update({
                 'classification': classification
             })
-
+            country = models.Country.objects.filter(name__iexact=info.get('country', '')).first()
+            region = None
+            if country:
+                region = country.regions.filter(name__iexact=info.get('region', '')).first()
             address_info = {
                 'address_1': details['department'],
                 'address_2': details['address'].get('street', ''),
                 'city': details['address'].get('city', ''),
-                'region': details['address'].get('region', ''),
-                'country': details['address'].get('country', ''),
+                'region': region,
+                'country': country,
                 'postal_code': details['address'].get('code', ''),
                 'phone': details['contact'].get('phone', ''),
             }
             i = models.Institution.objects.filter(name__iexact=details['institution']).first()
             if not i:
-                location = ", ".join(
-                    [_f for _f in [address_info['city'], address_info['region'], address_info['country']] if _f]
-                )
                 i = models.Institution.objects.create(
-                    name=details['institution'], sector=details['sector'], location=location
+                    city=details['address'].get('city', ''),
+                    country=country, region=region,
+                    name=details['institution'],
+                    sector=details['sector'],
                 )
             initial['institution'] = i
             initial['address'] = models.Address.objects.create(**address_info)

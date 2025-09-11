@@ -10,6 +10,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field, HTML
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UsernameField
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -163,10 +164,10 @@ class RegistrationForm(DynModelForm):
         country = cleaned_data['details'].get('address', {}).get('country', '')
         phone = cleaned_data['details'].get('contact', {}).get('phone', '')
         if not email:
-            self.add_error('contact', "Please enter a valid email address")
+            raise forms.ValidationError("Please enter a valid email address")
 
         elif User.objects.filter(Q(email__iexact=email) | Q(alt_email__iexact=email)).exists():
-            self.add_error('contact', "You already have an account in our system")
+            raise forms.ValidationError("You already have an account in our system")
 
         code = COUNTRY_CODES.get(country.upper(), None)
         if phone:
@@ -176,7 +177,7 @@ class RegistrationForm(DynModelForm):
                 phone = phonenumbers.format_number(phone_number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
                 cleaned_data['details']['contact']['phone'] = phone
             except phonenumbers.phonenumberutil.NumberParseException:
-                self.add_error('contact', f"Invalid Phone number for {country}")
+                raise forms.ValidationError(f"Invalid Phone number for {country}")
 
         old_registration = Registration.objects.filter(email__iexact=email).first()
 
