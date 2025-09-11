@@ -1625,7 +1625,7 @@
   pk: 1
   fields:
     created: 2025-07-24 18:48:34.419000+00:00
-    modified: 2025-09-11 06:03:37.726021+00:00
+    modified: 2025-09-11 14:29:27.613263+00:00
     slug: user-statistics
     title: User Statistics
     description: Distribution of Users by Year
@@ -1636,7 +1636,7 @@
   pk: 2
   fields:
     created: 2025-07-24 20:07:41.546000+00:00
-    modified: 2025-09-05 13:56:08.283000+00:00
+    modified: 2025-09-11 14:29:50.899601+00:00
     slug: publication-statistics
     title: Publication Statistics
     description: Summary of publication statistics for the whole organization
@@ -1647,29 +1647,29 @@
   pk: 3
   fields:
     created: 2025-08-10 05:20:10.388000+00:00
-    modified: 2025-09-11 04:28:09.896151+00:00
+    modified: 2025-09-11 14:30:09.946970+00:00
     slug: proposal-statistics
     title: Proposal Statistics
     description: Statistics about proposals, submissions and reviews
-    theme: sketch
+    theme: default
     notes: ''
     section: proposals
 - model: reportcraft.report
   pk: 4
   fields:
     created: 2025-08-11 14:56:14.766000+00:00
-    modified: 2025-09-11 04:56:58.010906+00:00
+    modified: 2025-09-11 14:29:10.569372+00:00
     slug: global-user-distribution
     title: Global Distribution of Users
     description: This report presents the distribution of users and institutions globally
-    theme: sketch
+    theme: default
     notes: ''
     section: users
 - model: reportcraft.report
   pk: 5
   fields:
     created: 2025-08-16 19:07:22.839000+00:00
-    modified: 2025-08-17 03:52:18.194000+00:00
+    modified: 2025-09-11 14:29:41.236096+00:00
     slug: project-statistics
     title: Project Statistics
     description: Distribution of Projects and Researchers each cycle
@@ -1680,11 +1680,11 @@
   pk: 6
   fields:
     created: 2025-09-05 03:45:31.948000+00:00
-    modified: 2025-09-11 05:25:50.928777+00:00
+    modified: 2025-09-11 14:30:29.555950+00:00
     slug: publications-by-subject-area
     title: Publications by Subject Area
     description: Report of yearly publication counts by field of science
-    theme: sketch
+    theme: default
     notes: ''
     section: publications
 - model: reportcraft.report
@@ -1713,11 +1713,11 @@
   pk: 9
   fields:
     created: 2025-09-05 19:51:55.938000+00:00
-    modified: 2025-09-11 04:35:26.606820+00:00
+    modified: 2025-09-11 14:42:08.388440+00:00
     slug: national-distribution-of-users
     title: National Distribution of Users
     description: Distribution of users nationally
-    theme: sketch
+    theme: default
     notes: ''
     section: users
 - model: reportcraft.report
