@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Avg
 from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 from django.views.generic import DetailView
@@ -96,10 +97,8 @@ class CycleFeedbackList(AdminFeedbackList):
 def _fmt_survey_details(details, obj):
     if not details:
         return ''
-    parts = []
-    if 'beamline' in details:
-        parts.append(", ".join([f'{entry["name"]}: {entry["label"]}' for entry in details['beamline']]))
-    return ", ".join(parts)
+    average = obj.ratings.aggregate(avg_value=Avg('value'))['avg_value']
+    return f"Overall Rating: {average:.2f} / 5.00" if average else "No ratings yet."
 
 
 class FacilityFeedbackList(AdminFeedbackList):

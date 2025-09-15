@@ -33,6 +33,14 @@ class Category(models.Model):
         return self.name
 
 
+class RatingQuerySet(models.QuerySet):
+    def by_category(self):
+        return {
+            category.name: self.filter(category=category)
+            for category in Category.objects.all()
+        }
+
+
 class Rating(models.Model):
     """
     Stores an individual rating item. This is the core data model
@@ -42,6 +50,7 @@ class Rating(models.Model):
     name = models.CharField(max_length=100)     # e.g., 'Reliability', 'Personnel'
     label = models.CharField(max_length=100)    # e.g., 'Excellent', 'Very Poor'
     value = models.IntegerField()               # e.g., 5, 1
+    objects = RatingQuerySet.as_manager()
 
     class Meta:
         # Add a composite index for faster filtering and ordering.

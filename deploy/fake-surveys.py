@@ -25,18 +25,45 @@ class RandomWalk:
         self.current = random.choice(range(len(self.values)))
 
     def step(self):
-        self.current += random.choice([-1, 1])
+        self.current += random.choice([-1, 1, 1, 1])
         self.current = self.current % len(self.values)
         return self.values[self.current]
 
-    def __call__(self):
+    def __call__(self, name, section):
         return self.step()
 
 
-randomizer = RandomWalk(1, 5)
+class BiasedRandom:
+    def __init__(self):
+        self.choices = [1, 2, 3, 4, 5]
+        self.weights = {}
+
+    def __call__(self, name, section):
+        key = f'{section}.{name}'
+        if 'ware' in name.lower():
+            self.weights[key] = [1, 1, 3, 5, 1]
+        elif 'ing' in name.lower():
+            self.weights[key] = [6, 6, 4, 1, 1]
+        elif name.endswith('lity'):
+            self.weights[key] = [1, 1, 3, 7, 5]
+        elif name.endswith('ood'):
+            self.weights[key] = [1, 6, 6, 1, 1]
+        elif 'beam' in name.lower():
+            self.weights[key] = [1, 2, 4, 5, 2]
+        elif 'support' in name.lower():
+            self.weights[key] = [1, 1, 5, 7, 7]
+        else:
+            weights = [1, 1, 2, 4, 5]
+            weights[random.randint(0, 4)] += random.randint(1, 5)
+            self.weights[key] = weights
+        return random.choices(self.choices, weights=self.weights[key])[0]
 
 
-def random_likert_choice():
+#randomizer = RandomWalk(10, 50)
+randomizer = BiasedRandom()
+
+
+def random_likert_choice(name, section):
     scores = {
         5: 'Excellent',
         4: 'Good',
@@ -44,7 +71,7 @@ def random_likert_choice():
         2: 'Poor',
         1: 'Very Poor'
     }
-    score = randomizer.step()
+    score = randomizer(name, section)
     return {'label': scores[score], 'value': score}
 
 
@@ -107,7 +134,8 @@ class FakeSurvey:
     def add_survey(self):
         self.feedback_count += 1
         pk = self.feedback_count
-
+        cycle_id = random.randint(1, 5)
+        beamline_id = random.randint(1, 13)
         feedback = {
             'model': 'surveys.feedback',
             'pk': pk,
@@ -117,8 +145,8 @@ class FakeSurvey:
                 'form_type': 12,
                 'is_complete': True,
                 'user_id': random.choice([random.randint(1, 118), random.randint(121, 820)]),
-                'beamline_id': random.choice([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]),
-                'cycle_id': random.choice([1, 2, 3, 4, 5]),
+                'beamline_id': beamline_id,
+                'cycle_id': cycle_id,
                 'details': {
                     'progress': {
                         'total': 95.0,
@@ -142,51 +170,40 @@ class FakeSurvey:
         self.new_surveys.append(feedback)
         self.add_ratings(
             self.feedback_count, 'machine', [
-                {'name': 'Reliability', **random_likert_choice()},
-                {'name': 'Availability', **random_likert_choice()},
-                {'name': 'Communication', **random_likert_choice()},
-                {'name': 'Beam Stability', **random_likert_choice()},
+                {'name': name, **random_likert_choice(name, (beamline_id, cycle_id))}
+                for name in ['Reliability', 'Availability', 'Communication', 'Beam Stability']
             ]
         )
         self.add_ratings(
             self.feedback_count, 'beamline',
             [
-                {'name': 'Personnel', **random_likert_choice()},
-                {'name': 'Environment', **random_likert_choice()},
-                {'name': 'End-station', **random_likert_choice()},
-                {'name': 'Equipment Quality', **random_likert_choice()},
-                {'name': 'Beam Quality', **random_likert_choice()},
-                {'name': 'Software', **random_likert_choice()},
-                {'name': 'Hardware', **random_likert_choice()},
-                {'name': 'Data Transfer', **random_likert_choice()},
-                {'name': 'Availability', **random_likert_choice()},
+                {'name': name, **random_likert_choice(name, (beamline_id, cycle_id))}
+                for name in [
+                    'Personnel', 'Environment', 'End-station', 'Equipment Quality', 'Beam Quality', 'Software',
+                    'Hardware', 'Data Transfer', 'Availability'
+                ]
             ]
         )
         self.add_ratings(
             self.feedback_count,
             'administration',
             [
-                {'name': 'Parking', **random_likert_choice()},
-                {'name': 'Training', **random_likert_choice()},
-                {'name': 'Sign-in / Safety', **random_likert_choice()},
-                {'name': 'Check-In Procedure', **random_likert_choice()},
-                {'name': 'Administrative Support', **random_likert_choice()},
-                {'name': 'Registration / Proposals', **random_likert_choice()},
-                {'name': 'User Information / Web Pages', **random_likert_choice()},
+                {'name': name, **random_likert_choice(name, (beamline_id, cycle_id))}
+                for name in [
+                    'Parking', 'Training', 'Sign-in / Safety', 'Check-In Procedure', 'Administrative Support',
+                    'Registration / Proposals', 'User Information / Web Pages'
+                ]
             ],
         )
-
         self.add_ratings(
             self.feedback_count,
             'amenities',
             [
-                {'name': 'Food', **random_likert_choice()},
-                {'name': 'Wi-Fi / Internet', **random_likert_choice()},
-                {'name': 'Coffee / Vending Machines', **random_likert_choice()},
-                {'name': 'User Lounges', **random_likert_choice()},
-                {'name': 'Lodging', **random_likert_choice()},
-                {'name': 'Showers / Lockers', **random_likert_choice()},
-                {'name': 'Office / Printing', **random_likert_choice()},
+                {'name': name, **random_likert_choice(name, (beamline_id, cycle_id))}
+                for name in [
+                    'Food', 'Wi-Fi / Internet', 'Coffee / Vending Machines', 'User Lounges',
+                    'Lodging', 'Showers / Lockers', 'Office / Printing'
+                ]
             ],
         )
 
