@@ -570,13 +570,13 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--bs-secondary);
 }
 
-.page-pre-title {
-  font-size: .8rem;
+.page-pre-title, .page-pretitle {
+  font-size: .75rem;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: .04em;
-  line-height: 1rem;
-  opacity: 0.6;
+  line-height: 1;
+  opacity: 0.5;
 }
 
 .page {
@@ -1759,9 +1759,13 @@ table.fixed-header {
 }
 
 .box-tools, .page-tools {
-  padding: 0.5em 0;
   line-height: 1;
   text-align: center;
+  border-left: 1px solid var(--bs-border-color-translucent);
+  padding-left: 1em;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+
 
   br {
     display: none;
@@ -1782,12 +1786,6 @@ table.fixed-header {
     align-items: center;
     justify-content: center;
     padding: 0 0.5em;
-
-    &:last-child {
-      padding-left: 1.5em;
-      border-left: 1px solid var(--bs-border-color-translucent);
-    }
-
   }
 }
 

@@ -1073,12 +1073,12 @@
   - '@ndmc.ac.jp'
   name: National Defense Medical College
   region: NZ-WKO
-- city: Canoas
+- city: Burnaby
   country: CAN
   domain:
   - '@sfu.ca'
   name: Simon Fraser University
-  region: BR-RS
+  region: CA-BC
 - city: Fayetteville
   country: USA
   domain:

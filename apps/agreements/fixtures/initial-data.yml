@@ -2,7 +2,7 @@
   pk: 1
   fields:
     created: 2016-07-21 16:15:43+00:00
-    modified: 2025-03-06 04:43:04.466828+00:00
+    modified: 2025-09-08 22:08:18.950905+00:00
     start_date: null
     end_date: null
     code: 80ae507a-d622-4792-b376-f9f5b4b02ae0
@@ -10,16 +10,27 @@
     state: enabled
     description: All users wishing to use this facility must accept the terms of this
       agreement. It outlines the conditions under which we provide access to you.
-    content: "<p>By using this facility, you agree to:</p><ul><li><strong>Eligibility</strong>:
+    content: '<p>By using this facility, you agree to:</p><ul><li><strong>Eligibility</strong>:
       You are authorized by your organization to use the facility.</li><li><strong>Rules</strong>:
       Follow all facility rules, including safety and proposal guidelines.</li><li><strong>Safety</strong>:
       Provide details of any hazardous materials you bring.</li><li><strong>Fees</strong>:
       Pay any applicable fees.</li><li><strong>Intellectual Property:</strong> Your
-      organization's IP policies apply, except for facility-owned technology. Facility
+      organization''s IP policies apply, except for facility-owned technology. Facility
       retains IP for its services and methods.</li><li><strong>No Infringement</strong>:
-      Ensure your activities don't violate others' IP rights.</li><li><strong>Acknowledgement</strong>:
+      Ensure your activities don''t violate others'' IP rights.</li><li><strong>Acknowledgement</strong>:
       Credit the facility in publications.</li><li><strong>Results</strong>: Share
       summaries of research results for knowledge transfer.</li><li><strong>No Liability</strong>:
       The facility is not liable for delays or research outcomes.</li><li><strong>Confidentiality</strong>:
-      Protect confidential information.</li></ul>"
-    roles: <reviewer><user>
+      Protect confidential information.</li></ul>'
+    roles:
+    - reviewer
+    - user
+- model: agreements.acceptance
+  pk: 1
+  fields:
+    created: 2025-09-11 14:58:06.568269+00:00
+    modified: 2025-09-11 14:58:06.568269+00:00
+    agreement: 1
+    user: 1002
+    host: 127.0.0.1
+    active: true
