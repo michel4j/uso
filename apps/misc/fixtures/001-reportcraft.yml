@@ -197,12 +197,37 @@
   pk: 18
   fields:
     created: 2025-09-07 19:49:37.598539+00:00
-    modified: 2025-09-10 03:31:50.295790+00:00
-    name: Feedback Surveys
+    modified: 2025-09-14 18:24:37.945760+00:00
+    name: Feedback Survey Counts
     description: Data from User feedback surveys
     group_by:
+    - section
+    - question
+    - answer
+    filters: ''
+    limit: null
+- model: reportcraft.datasource
+  pk: 19
+  fields:
+    created: 2025-09-14 18:25:26.456561+00:00
+    modified: 2025-09-14 18:26:27.931819+00:00
+    name: Feedback Average Scores
+    description: Average Score for each question in the Survey
+    group_by:
+    - section
+    - question
+    filters: ''
+    limit: null
+- model: reportcraft.datasource
+  pk: 20
+  fields:
+    created: 2025-09-16 05:21:05.107735+00:00
+    modified: 2025-09-16 05:21:05.107770+00:00
+    name: Feedback Summary By Cycle
+    description: ''
+    group_by:
     - cycle
-    - category_name
+    - section
     - rating
     filters: ''
     limit: null
@@ -416,6 +441,26 @@
     - rating
     name: surveys.Rating
     source: 18
+- model: reportcraft.datamodel
+  pk: 33
+  fields:
+    created: 2025-09-14 18:26:44.671997+00:00
+    modified: 2025-09-14 18:30:44.939165+00:00
+    model:
+    - surveys
+    - rating
+    name: surveys.Rating
+    source: 19
+- model: reportcraft.datamodel
+  pk: 34
+  fields:
+    created: 2025-09-16 05:21:47.485311+00:00
+    modified: 2025-09-16 05:21:47.485326+00:00
+    model:
+    - surveys
+    - rating
+    name: surveys.Rating
+    source: 20
 - model: reportcraft.datafield
   pk: 1
   fields:
@@ -1468,34 +1513,6 @@
     ordering: null
     source: 17
 - model: reportcraft.datafield
-  pk: 135
-  fields:
-    created: 2025-09-07 19:52:43.446115+00:00
-    modified: 2025-09-10 03:30:20.855208+00:00
-    name: cycle
-    model: 32
-    label: Cycle
-    default: null
-    expression: Concat(String(Feedback.Cycle.StartDate.Year), '/', String(Feedback.Cycle.StartDate.Month))
-    precision: null
-    position: 0
-    ordering: null
-    source: 18
-- model: reportcraft.datafield
-  pk: 138
-  fields:
-    created: 2025-09-10 03:30:42.841237+00:00
-    modified: 2025-09-10 03:30:42.841272+00:00
-    name: category_name
-    model: 32
-    label: Category
-    default: null
-    expression: Category.Name
-    precision: null
-    position: 1
-    ordering: null
-    source: 18
-- model: reportcraft.datafield
   pk: 139
   fields:
     created: 2025-09-10 03:32:07.224567+00:00
@@ -1513,42 +1530,14 @@
   pk: 140
   fields:
     created: 2025-09-10 03:32:47.513486+00:00
-    modified: 2025-09-10 06:04:39.291032+00:00
-    name: avg_score
+    modified: 2025-09-13 00:48:45.092481+00:00
+    name: score
     model: 32
     label: Score
     default: 0
     expression: Avg(Value) - 3
     precision: 1
     position: 3
-    ordering: null
-    source: 18
-- model: reportcraft.datafield
-  pk: 141
-  fields:
-    created: 2025-09-10 03:33:35.694167+00:00
-    modified: 2025-09-10 03:33:35.694204+00:00
-    name: min_score
-    model: 32
-    label: Minimum Score
-    default: 0
-    expression: Min(Value)
-    precision: 1
-    position: 4
-    ordering: null
-    source: 18
-- model: reportcraft.datafield
-  pk: 142
-  fields:
-    created: 2025-09-10 03:34:01.326869+00:00
-    modified: 2025-09-10 03:34:18.620234+00:00
-    name: max_score
-    model: 32
-    label: Max Score
-    default: 0
-    expression: Max(Value)
-    precision: 1
-    position: 5
     ordering: null
     source: 18
 - model: reportcraft.datafield
@@ -1621,6 +1610,174 @@
     position: 0
     ordering: null
     source: 9
+- model: reportcraft.datafield
+  pk: 149
+  fields:
+    created: 2025-09-13 00:47:22.447003+00:00
+    modified: 2025-09-13 00:47:22.447037+00:00
+    name: section
+    model: 32
+    label: Section
+    default: null
+    expression: Category.Name
+    precision: null
+    position: 7
+    ordering: null
+    source: 18
+- model: reportcraft.datafield
+  pk: 150
+  fields:
+    created: 2025-09-13 00:47:41.575576+00:00
+    modified: 2025-09-14 13:57:58.893956+00:00
+    name: question
+    model: 32
+    label: Topic
+    default: null
+    expression: Name
+    precision: null
+    position: 8
+    ordering: null
+    source: 18
+- model: reportcraft.datafield
+  pk: 151
+  fields:
+    created: 2025-09-13 00:47:54.293559+00:00
+    modified: 2025-09-13 00:47:54.293589+00:00
+    name: answer
+    model: 32
+    label: Answer
+    default: null
+    expression: Label
+    precision: null
+    position: 9
+    ordering: null
+    source: 18
+- model: reportcraft.datafield
+  pk: 152
+  fields:
+    created: 2025-09-13 00:49:57.029476+00:00
+    modified: 2025-09-13 00:49:57.029499+00:00
+    name: freq
+    model: 32
+    label: Frequency
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 5
+    ordering: null
+    source: 18
+- model: reportcraft.datafield
+  pk: 153
+  fields:
+    created: 2025-09-14 18:26:44.685639+00:00
+    modified: 2025-09-14 18:30:44.919428+00:00
+    name: section
+    model: 33
+    label: Section
+    default: null
+    expression: Category.Name
+    precision: null
+    position: 0
+    ordering: null
+    source: 19
+- model: reportcraft.datafield
+  pk: 154
+  fields:
+    created: 2025-09-14 18:26:44.702618+00:00
+    modified: 2025-09-14 18:30:44.928901+00:00
+    name: question
+    model: 33
+    label: Question
+    default: null
+    expression: Name
+    precision: null
+    position: 1
+    ordering: null
+    source: 19
+- model: reportcraft.datafield
+  pk: 155
+  fields:
+    created: 2025-09-14 18:31:53.817677+00:00
+    modified: 2025-09-14 18:31:53.817707+00:00
+    name: score
+    model: 33
+    label: Score
+    default: 0
+    expression: Avg(Value) - 3
+    precision: null
+    position: 2
+    ordering: null
+    source: 19
+- model: reportcraft.datafield
+  pk: 156
+  fields:
+    created: 2025-09-16 05:21:47.497554+00:00
+    modified: 2025-09-16 05:21:47.504768+00:00
+    name: cycle
+    model: 34
+    label: Cycle
+    default: null
+    expression: YearMonth(Feedback.Cycle.StartDate)
+    precision: null
+    position: 0
+    ordering: null
+    source: 20
+- model: reportcraft.datafield
+  pk: 157
+  fields:
+    created: 2025-09-16 05:21:47.511906+00:00
+    modified: 2025-09-16 05:21:47.518152+00:00
+    name: section
+    model: 34
+    label: Section
+    default: null
+    expression: Category.Name
+    precision: null
+    position: 1
+    ordering: null
+    source: 20
+- model: reportcraft.datafield
+  pk: 158
+  fields:
+    created: 2025-09-16 05:21:47.524828+00:00
+    modified: 2025-09-16 05:21:47.530798+00:00
+    name: rating
+    model: 34
+    label: Rating
+    default: null
+    expression: Name
+    precision: null
+    position: 2
+    ordering: null
+    source: 20
+- model: reportcraft.datafield
+  pk: 159
+  fields:
+    created: 2025-09-16 05:26:21.696964+00:00
+    modified: 2025-09-16 05:26:31.534143+00:00
+    name: score
+    model: 34
+    label: Score
+    default: 0
+    expression: Avg(Value) - 3
+    precision: 2
+    position: 3
+    ordering: null
+    source: 20
+- model: reportcraft.datafield
+  pk: 160
+  fields:
+    created: 2025-09-16 05:27:25.072767+00:00
+    modified: 2025-09-16 05:27:25.072784+00:00
+    name: year
+    model: 34
+    label: Year
+    default: null
+    expression: Feedback.Cycle.StartDate.Year
+    precision: null
+    position: 4
+    ordering: null
+    source: 20
 - model: reportcraft.report
   pk: 1
   fields:
@@ -1647,11 +1804,11 @@
   pk: 3
   fields:
     created: 2025-08-10 05:20:10.388000+00:00
-    modified: 2025-09-11 14:30:09.946970+00:00
+    modified: 2025-09-14 16:17:40.620614+00:00
     slug: proposal-statistics
     title: Proposal Statistics
     description: Statistics about proposals, submissions and reviews
-    theme: default
+    theme: sketch
     notes: ''
     section: proposals
 - model: reportcraft.report
@@ -1724,7 +1881,7 @@
   pk: 10
   fields:
     created: 2025-09-07 19:37:23.297000+00:00
-    modified: 2025-09-07 19:39:24.085000+00:00
+    modified: 2025-09-16 05:37:51.645416+00:00
     slug: user-feedback-report
     title: User Feedback Report
     description: User Feedback Reports
@@ -1735,7 +1892,7 @@
   pk: 1
   fields:
     created: 2025-07-24 19:59:44.215000+00:00
-    modified: 2025-09-06 00:38:20.847000+00:00
+    modified: 2025-09-14 20:27:44.353761+00:00
     title: New Users Per Year
     description: ''
     notes: ''
@@ -1744,14 +1901,13 @@
     source: 1
     report: 1
     position: 0
+    filters: ''
     attrs:
       scale: linear
       scheme: Live8
       values:
       - users
-      - institutions
       grouped: false
-      sort_by: year
       color_by: category
       sort_desc: false
       categories: year
@@ -1769,6 +1925,7 @@
     source: 2
     report: 1
     position: 1
+    filters: ''
     attrs:
       label: category
       value: users
@@ -1786,6 +1943,7 @@
     source: 1
     report: 1
     position: 2
+    filters: ''
     attrs:
       rows:
       - users
@@ -1808,6 +1966,7 @@
     source: 3
     report: 2
     position: 2
+    filters: ''
     attrs:
       rows:
       - type
@@ -1833,6 +1992,7 @@
     source: 3
     report: 2
     position: 0
+    filters: ''
     attrs:
       scale: linear
       scheme: Live8
@@ -1856,6 +2016,7 @@
     source: 6
     report: 2
     position: 1
+    filters: ''
     attrs:
       label: kind_group
       value: publications
@@ -1873,6 +2034,7 @@
     source: 1
     report: 1
     position: 3
+    filters: ''
     attrs:
       rows:
       - category
@@ -1897,6 +2059,7 @@
     source: 8
     report: 3
     position: 1
+    filters: ''
     attrs:
       rows:
       - proposals
@@ -1915,7 +2078,7 @@
   pk: 14
   fields:
     created: 2025-08-11 15:12:51.823000+00:00
-    modified: 2025-09-10 19:28:34.691703+00:00
+    modified: 2025-09-14 17:49:44.305196+00:00
     title: Global Distribution of Institutions
     description: ''
     notes: ''
@@ -1924,12 +2087,13 @@
     source: 9
     report: 4
     position: 0
+    filters: ''
     attrs:
       map: '001'
       groups:
       - type: area
         value: institutions
-      scheme: Greens
+      scheme: Purples
       location: country
 - model: reportcraft.entry
   pk: 15
@@ -1944,6 +2108,7 @@
     source: 9
     report: 4
     position: 1
+    filters: ''
     attrs:
       limit: 10
       columns:
@@ -1965,6 +2130,7 @@
     source: 9
     report: 4
     position: 2
+    filters: ''
     attrs:
       limit: 10
       columns:
@@ -1977,7 +2143,7 @@
   pk: 17
   fields:
     created: 2025-08-16 18:16:32.370000+00:00
-    modified: 2025-09-10 16:08:39.392193+00:00
+    modified: 2025-09-14 23:34:09.147312+00:00
     title: Submissions by Cycle and Track
     description: ''
     notes: ''
@@ -1986,6 +2152,7 @@
     source: 11
     report: 3
     position: 4
+    filters: ''
     attrs:
       scale: linear
       scheme: Live8
@@ -1993,6 +2160,7 @@
       - submissions
       grouped: false
       color_by: track_name
+      normalize: true
       sort_desc: false
       categories: cycle_name
       ticks_every: 1
@@ -2000,8 +2168,8 @@
   pk: 18
   fields:
     created: 2025-08-16 18:40:13.521000+00:00
-    modified: 2025-09-10 15:55:00.474477+00:00
-    title: Proposals Per Year
+    modified: 2025-09-14 23:57:11.834947+00:00
+    title: Facilities, Investigators and Reviews
     description: ''
     notes: ''
     style: col-md-6
@@ -2009,12 +2177,16 @@
     source: 8
     report: 3
     position: 3
+    filters: ''
     attrs:
       scale: linear
       scheme: Live8
       values:
-      - proposals
-      grouped: false
+      - reviews
+      - facilities
+      - leaders
+      grouped: true
+      normalize: false
       sort_desc: false
       categories: cycle_name
       ticks_every: 1
@@ -2031,6 +2203,7 @@
     source: 12
     report: 5
     position: 0
+    filters: ''
     attrs:
       rows:
       - projects
@@ -2047,7 +2220,7 @@
   pk: 20
   fields:
     created: 2025-08-17 03:56:24.190000+00:00
-    modified: 2025-09-11 04:27:56.152029+00:00
+    modified: 2025-09-14 16:45:10.589270+00:00
     title: Global Distribution of Proposals
     description: ''
     notes: ''
@@ -2056,12 +2229,13 @@
     source: 10
     report: 3
     position: 0
+    filters: ''
     attrs:
       map: '001'
       groups:
       - type: area
         value: proposals
-      scheme: Purples
+      scheme: PuBuGn
       location: country
 - model: reportcraft.entry
   pk: 21
@@ -2076,6 +2250,7 @@
     source: 10
     report: 3
     position: 2
+    filters: ''
     attrs:
       limit: 10
       columns:
@@ -2096,6 +2271,7 @@
     source: 13
     report: 6
     position: 2
+    filters: ''
     attrs:
       rows:
       - topic
@@ -2112,7 +2288,7 @@
   pk: 23
   fields:
     created: 2025-09-05 04:13:34.913000+00:00
-    modified: 2025-09-11 05:27:27.583134+00:00
+    modified: 2025-09-16 03:35:24.328613+00:00
     title: Yearly Publications by Topic
     description: ''
     notes: ''
@@ -2121,11 +2297,12 @@
     source: 13
     report: 6
     position: 0
+    filters: ''
     attrs:
       groups:
       - y: num_pubs
         type: area
-      scheme: Tableau10
+      scheme: Live8
       x_scale: linear
       x_value: year
       y_scale: linear
@@ -2134,7 +2311,7 @@
   pk: 24
   fields:
     created: 2025-09-05 13:22:23.707000+00:00
-    modified: 2025-09-11 05:27:17.502721+00:00
+    modified: 2025-09-14 20:20:27.741073+00:00
     title: Yearly Publications by Topic
     description: ''
     notes: ''
@@ -2143,9 +2320,10 @@
     source: 13
     report: 6
     position: 1
+    filters: ''
     attrs:
       scale: linear
-      scheme: Tableau10
+      scheme: Oranges
       values:
       - num_pubs
       grouped: false
@@ -2168,6 +2346,7 @@
     source: 4
     report: 7
     position: 4
+    filters: ''
     attrs:
       rows:
       - articles
@@ -2201,6 +2380,7 @@
     source: 14
     report: 7
     position: 0
+    filters: ''
     attrs:
       groups:
       - y: publications
@@ -2222,6 +2402,7 @@
     source: 15
     report: 7
     position: 1
+    filters: ''
     attrs:
       groups:
       - y: total_citations
@@ -2245,6 +2426,7 @@
     source: 4
     report: 7
     position: 2
+    filters: ''
     attrs:
       groups:
       - y: total_citations
@@ -2268,6 +2450,7 @@
     source: 4
     report: 7
     position: 3
+    filters: ''
     attrs:
       groups:
       - y: avg_sjr
@@ -2295,6 +2478,7 @@
     source: 7
     report: 8
     position: 0
+    filters: ''
     attrs:
       rows:
       - articles
@@ -2326,6 +2510,7 @@
     source: 5
     report: 8
     position: 1
+    filters: ''
     attrs:
       limit: 10
       columns:
@@ -2347,6 +2532,7 @@
     source: 5
     report: 8
     position: 2
+    filters: ''
     attrs:
       limit: 10
       columns:
@@ -2368,6 +2554,7 @@
     source: 16
     report: 3
     position: 5
+    filters: ''
     attrs:
       rows:
       - beamline
@@ -2384,7 +2571,7 @@
   pk: 35
   fields:
     created: 2025-09-05 19:57:50.789000+00:00
-    modified: 2025-09-10 19:22:54.130079+00:00
+    modified: 2025-09-14 17:49:06.097408+00:00
     title: Number of Users in each Region
     description: ''
     notes: ''
@@ -2393,61 +2580,35 @@
     source: 17
     report: 9
     position: 0
+    filters: ''
     attrs:
       map: CAN
       groups:
       - type: area
         value: users
-      scheme: BuPu
+      scheme: Purples
       location: region
       map_labels: names
-- model: reportcraft.entry
-  pk: 36
-  fields:
-    created: 2025-09-10 04:54:03.123903+00:00
-    modified: 2025-09-10 04:54:22.047701+00:00
-    title: Feedback Summary
-    description: ''
-    notes: ''
-    style: col-md-12
-    kind: table
-    source: 18
-    report: 10
-    position: 0
-    attrs:
-      rows:
-      - category_name
-      values: avg_score
-      columns: cycle
-      total_row: false
-      transpose: false
-      flip_headers: false
-      total_column: false
-      wrap_headers: false
-      force_strings: false
 - model: reportcraft.entry
   pk: 37
   fields:
     created: 2025-09-10 05:58:08.515098+00:00
-    modified: 2025-09-10 06:10:06.157353+00:00
+    modified: 2025-09-16 05:33:45.205223+00:00
     title: Chart of Feedback Ratings
     description: ''
     notes: ''
     style: col-md-6
-    kind: bars
+    kind: likert
     source: 18
     report: 10
-    position: 1
+    position: 2
+    filters: (section == "Administration")
     attrs:
-      scale: linear
-      scheme: CarbonDark
-      values:
-      - avg_score
-      grouped: false
-      color_by: category_name
-      sort_desc: false
-      categories: rating
-      ticks_every: 1
+      counts: freq
+      scheme: Spectral
+      scores: score
+      answers: answer
+      questions: question
 - model: reportcraft.entry
   pk: 38
   fields:
@@ -2461,6 +2622,7 @@
     source: 17
     report: 9
     position: 1
+    filters: ''
     attrs:
       rows:
       - users
@@ -2472,3 +2634,219 @@
       total_column: false
       wrap_headers: false
       force_strings: false
+- model: reportcraft.entry
+  pk: 39
+  fields:
+    created: 2025-09-12 04:46:21.803172+00:00
+    modified: 2025-09-16 05:33:45.205235+00:00
+    title: Beamline
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: likert
+    source: 18
+    report: 10
+    position: 4
+    filters: (section == "Beamline")
+    attrs:
+      counts: freq
+      scheme: Spectral
+      scores: score
+      answers: answer
+      questions: question
+- model: reportcraft.entry
+  pk: 40
+  fields:
+    created: 2025-09-12 04:49:19.589811+00:00
+    modified: 2025-09-16 05:33:45.205242+00:00
+    title: Machine
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: likert
+    source: 18
+    report: 10
+    position: 6
+    filters: (section == "Machine")
+    attrs:
+      counts: freq
+      scheme: Spectral
+      scores: score
+      answers: answer
+      questions: question
+- model: reportcraft.entry
+  pk: 41
+  fields:
+    created: 2025-09-12 04:50:02.099044+00:00
+    modified: 2025-09-16 05:33:45.205249+00:00
+    title: ''
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: likert
+    source: 18
+    report: 10
+    position: 8
+    filters: (section == "Amenities")
+    attrs:
+      counts: freq
+      scheme: Spectral
+      scores: score
+      answers: answer
+      questions: question
+- model: reportcraft.entry
+  pk: 43
+  fields:
+    created: 2025-09-14 19:59:19.635358+00:00
+    modified: 2025-09-16 05:35:17.474198+00:00
+    title: Average Score
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: bars
+    source: 19
+    report: 10
+    position: 3
+    filters: section == "Administration"
+    attrs:
+      scale: linear
+      scheme: BrBG
+      values:
+      - score
+      grouped: false
+      sort_by: score
+      color_by: score
+      normalize: false
+      sort_desc: true
+      categories: question
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 44
+  fields:
+    created: 2025-09-14 20:48:50.439951+00:00
+    modified: 2025-09-16 05:35:10.951023+00:00
+    title: Average Beamline Scores
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: bars
+    source: 19
+    report: 10
+    position: 5
+    filters: section == "Beamline"
+    attrs:
+      scale: linear
+      scheme: BrBG
+      values:
+      - score
+      grouped: false
+      sort_by: score
+      color_by: score
+      normalize: false
+      sort_desc: true
+      categories: question
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 45
+  fields:
+    created: 2025-09-14 20:50:54.411712+00:00
+    modified: 2025-09-16 05:35:28.776865+00:00
+    title: Average Machine Scores
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: bars
+    source: 19
+    report: 10
+    position: 7
+    filters: section == "Machine"
+    attrs:
+      scale: linear
+      scheme: BrBG
+      values:
+      - score
+      grouped: false
+      sort_by: score
+      color_by: score
+      normalize: false
+      sort_desc: true
+      categories: question
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 46
+  fields:
+    created: 2025-09-14 20:55:15.497567+00:00
+    modified: 2025-09-16 05:35:40.274243+00:00
+    title: Average Amenities Score
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: bars
+    source: 19
+    report: 10
+    position: 9
+    filters: section = "Amenities"
+    attrs:
+      scale: linear
+      scheme: BrBG
+      values:
+      - score
+      grouped: false
+      sort_by: score
+      color_by: score
+      normalize: false
+      sort_desc: true
+      categories: question
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 48
+  fields:
+    created: 2025-09-16 05:28:29.465061+00:00
+    modified: 2025-09-16 05:33:45.205212+00:00
+    title: Feedback Summary By Cycle
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source: 20
+    report: 10
+    position: 0
+    filters: ''
+    attrs:
+      rows:
+      - section
+      values: score
+      columns: cycle
+      total_row: false
+      transpose: false
+      flip_headers: false
+      total_column: false
+      wrap_headers: false
+      force_strings: false
+- model: reportcraft.entry
+  pk: 49
+  fields:
+    created: 2025-09-16 05:32:53.970077+00:00
+    modified: 2025-09-16 05:33:45.205232+00:00
+    title: Feedback Scores by Cycle
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: bars
+    source: 20
+    report: 10
+    position: 1
+    filters: ''
+    attrs:
+      scale: linear
+      facets: cycle
+      scheme: BrBG
+      values:
+      - score
+      grouped: false
+      sort_by: cycle
+      color_by: score
+      normalize: false
+      sort_desc: true
+      categories: rating
+      ticks_every: 1
