@@ -16,6 +16,9 @@ def load_fixture(apps, schema_editor):
         '001-reportcraft.yml'
     )
     db_alias = schema_editor.connection.alias
+    if not os.path.exists(fixture_path):
+        return
+
     with open(fixture_path, 'r') as fixture_file:
         objects = serializers.deserialize('yaml', fixture_file)
         for obj in objects:

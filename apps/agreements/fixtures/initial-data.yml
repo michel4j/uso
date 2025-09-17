@@ -25,12 +25,3 @@
     roles:
     - reviewer
     - user
-- model: agreements.acceptance
-  pk: 1
-  fields:
-    created: 2025-09-11 14:58:06.568269+00:00
-    modified: 2025-09-11 14:58:06.568269+00:00
-    agreement: 1
-    user: 1002
-    host: 127.0.0.1
-    active: true

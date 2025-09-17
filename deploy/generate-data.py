@@ -225,9 +225,11 @@ class FakeUser:
                     'created': '2008-12-30 20:49:59.049236+00:00',
                     'modified': '2008-12-30 20:49:59.049236+00:00',
                     'name': 'Bespoke Facility',
-                    'location': f"Areion Prime, Valles District, The Martian Confederation",
+                    'city': 'Nome',
+                    'country': ['CAN'],
+                    'region': ['CA-SK'],
                     'sector': 'academic',
-                    'domains': f"<@bespoke.com>",
+                    'domains': ["@bespoke.com"],
                     'state': 'exempt',
                 }
             }
@@ -243,11 +245,15 @@ class FakeUser:
         self.address_count = 1
 
         self.user_names = defaultdict(int)
+        self.user_emails = set()
         self.facility_acronyms = {} if not facilities else facilities
 
         path = Path(name)
         self.data_path = path / 'kickstart' / '001-users.yml'
         self.photo_path = path / 'media' / 'photo'
+
+        if self.photo_path.exists():
+            shutil.rmtree(self.photo_path)
 
         self.photo_path.mkdir(parents=True, exist_ok=True)
         self.data_path.parent.mkdir(parents=True, exist_ok=True)
@@ -260,7 +266,18 @@ class FakeUser:
             return f'{username}{self.user_names[username]}'
         return username
 
+    def make_email(self, first_name, last_name, domain):
+        base_email = unidecode(f'{first_name}.{last_name}{domain}').replace(' ', '').lower()
+        email = base_email
+        count = 1
+        while email in self.user_emails:
+            count += 1
+            email = f'{first_name}.{last_name}{count}{domain}'.replace(' ', '').lower()
+        self.user_emails.add(email)
+        return email
+
     def add_address(self, info):
+        self.address_count += 1
         pk = self.address_count
         self.new_addresses.append({
             'model': 'users.address',
@@ -277,8 +294,6 @@ class FakeUser:
                 'phone': info['phone'],
             }
         })
-
-        self.address_count += 1
         return pk
 
     def add_reviewer(self, user, fields):
@@ -315,7 +330,7 @@ class FakeUser:
                 'region': [info['region']],
                 'country': [info['country']],
                 'sector': 'academic',
-                'domains': f"<{info['domain']}>",
+                'domains': info['domain'],
                 'state': random.choice(['pending', 'active', 'active', 'active']),
             }
         }
@@ -339,17 +354,17 @@ class FakeUser:
             address = '1 Synchrotron Way'
             department = 'Beamline Operations'
             zip_code = 'AP00-M0001'
-            roles = '<staff>'
+            roles = ['staff']
             classification = 'professional'
             fac = random.choice(list(self.facility_acronyms.values()))
             if random.choice([True, False]):
-                roles += f'<staff:{fac.lower()}>'
+                roles += [f'staff:{fac.lower()}']
                 if random.choice([True, False]):
-                    roles += f'<admin:{fac.lower()}><reviewer:{fac.lower()}>'
+                    roles += [f'admin:{fac.lower()}', f'reviewer:{fac.lower()}']
                 elif random.choice([True, False]):
-                    roles += f'<reviewer:{fac.lower()}>'
+                    roles += [f'reviewer:{fac.lower()}']
             elif random.choice([True, True, False]):
-                roles += '<{}>'.format(random.choice(ROLES))
+                roles += [random.choice(ROLES)]
             if kind == 'male':
                 first_name = fake_first_name_male(country)
             else:
@@ -358,8 +373,8 @@ class FakeUser:
         else:
             inst_info = random.choice(UNIVERSITIES)
             institution = inst_info['name']
-            domain = f"@{inst_info['domains']}"
-            roles = '<user>'
+            domain = inst_info['domain'][0] if inst_info['domain'] else f"@example.edu"
+            roles = ['user']
             country = inst_info['country']
             city = inst_info['city']
             region = inst_info['region']
@@ -379,7 +394,7 @@ class FakeUser:
         username = self.make_username(first_name, last_name, other_name)
         fields = random.sample(SUBJECTS, random.randint(2, 4))
         phone = self.fake.phone_number()[:20]
-        email = unidecode(f'{first_name}.{last_name}{domain}').replace(' ', '').lower()
+        email = self.make_email(first_name, last_name, domain)
         return {
             'country': country,
             'city': city,
@@ -389,7 +404,7 @@ class FakeUser:
             'phone': phone,
             'department': department,
             'institution': institution,
-            'domain': domain,
+            'domain': [domain],
             'classification': classification,
             'email': email,
             'first_name': first_name,
@@ -418,8 +433,8 @@ class FakeUser:
         institution = self.add_institution(info)
         address = self.add_address(info)
 
-        # 25% chance of being a reviewer if you are faculty or professional or postdoc
-        is_reviewer = random.randint(0, 100) < 25 and info['classification'] in ['faculty', 'professional', 'postdoc']
+        # 15% chance of being a reviewer if you are faculty or professional or postdoc
+        is_reviewer = random.randint(0, 100) < 15 and info['classification'] in ['faculty', 'professional', 'postdoc']
         if is_reviewer:
             pk = self.add_reviewer(self.user_count, info['fields'])
         self.new_users.append({
@@ -437,21 +452,19 @@ class FakeUser:
                 'last_name': info['last_name'],
                 'other_names': info['other_name'],
                 'email': info['email'],
-                'roles': info['roles'] + '<reviewer>' if is_reviewer else info['roles'],
+                'roles': info['roles'] + ['reviewer'] if is_reviewer else info['roles'],
                 'photo': f"/photo/{info['username']}.webp",
                 'research_field': info['fields'],
             }
         })
-
         # save photo
         self.save_photo(info['username'])
 
     def add_users(self, count):
         for n in range(count):
             self.add_user()
-            if (n + 1) % 250 == 0:
-                print(f'Added {n + 1} users ...')
-        return self.new_users[-count:]
+        print(f'Added {count} users ...')
+        return self.new_users
 
     def save(self):
         with open(self.data_path, 'w', encoding='utf-8') as file:
@@ -612,16 +625,14 @@ class FakeProposal:
         self.sample_count += 1
         return {'sample': f'{pk}', 'quantity': f"{quantity} {units}"}
 
-    def add_submission(self, proposal, cycle, track, techniques, year):
-        month = random.randint(1, 12)
-        day = random.randint(1, 28)
+    def add_submission(self, proposal, cycle, track, techniques, date_str):
         track_acronym = TRACKS[track]
         info = {
             'model': 'proposals.submission',
             'pk': self.submission_count,
             'fields': {
-                'created': f'{year}-{month}-{day} 20:49:59.049236+00:00',
-                'modified': f'{year}-{month}-{day} 20:49:59.049236+00:00',
+                'created': f'{date_str} 20:49:59.049236+00:00',
+                'modified': f'{date_str} 20:49:59.049236+00:00',
                 'proposal': proposal,
                 'code': f"{track_acronym}{proposal:07_}".replace('_', '-'),
                 'cycle': cycle,
@@ -662,7 +673,7 @@ class FakeProposal:
             self.year += 1
 
         self.new_schedules.append({
-            'model': 'proposals.schedule',
+            'model': 'scheduler.schedule',
             'pk': self.cycle_count,
             'fields': {
                 'created': f'{year-1}-11-01 20:49:59.049236+00:00',
@@ -823,8 +834,8 @@ class FakeProposal:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Data Generator for USO')
     parser.add_argument('name', metavar='name', type=str, help='Directory to save data')
-    parser.add_argument('-u', '--users', type=int, help='Number of users per cycle', default=150)
-    parser.add_argument('-p', '--proposals', type=int, help='Number of proposals per cycle', default=300)
+    parser.add_argument('-u', '--users', type=int, help='Number of users per cycle', default=100)
+    parser.add_argument('-p', '--proposals', type=int, help='Number of proposals per cycle', default=200)
     args = parser.parse_args()
 
     fac_gen = FakeFacility(name=args.name)
@@ -834,9 +845,8 @@ if __name__ == '__main__':
     # generate proposals
     prop_gen = FakeProposal(
         name=args.name, facilities=fac_gen.acronyms,
-        num_users=args.users, num_proposals=args.proposals,
-        techniques=fac_gen.techniques
+        techniques=fac_gen.techniques,  num_users=args.users, num_proposals=args.proposals,
     )
-    prop_gen.add_proposals(args.proposals)
+    prop_gen.add_cycles()
     prop_gen.save()
     print('All Done.')

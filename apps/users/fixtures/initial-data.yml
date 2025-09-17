@@ -1,15 +1,18 @@
 - model: users.institution
   pk: 1
   fields:
-    created: 2015-10-03 22:17:24+00:00
-    modified: 2016-01-05 21:23:15+00:00
-    start_date: null
-    end_date: null
+    created: '2008-12-30 20:49:59.049236+00:00'
+    modified: '2008-12-30 20:49:59.049236+00:00'
     name: Bespoke Facility
-    location: Wherever, You, Are
-    sector: synchrotron
-    domains: 'example.com'
-    state: pending
+    city: Nome
+    country:
+    - CAN
+    region:
+    - CA-SK
+    sector: academic
+    domains:
+    - '@bespoke.com'
+    state: exempt
     parent: null
     contact_person: 'Admin'
     contact_email: 'admin@example.com'
