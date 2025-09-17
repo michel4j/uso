@@ -243,7 +243,7 @@ class FakeUser:
         self.reviewer_count = 1
         self.institution_count = 1
         self.address_count = 1
-
+        self.photo_offset = random.randint(1, 20) * 2
         self.user_names = defaultdict(int)
         self.user_emails = set()
         self.facility_acronyms = {} if not facilities else facilities
@@ -417,7 +417,7 @@ class FakeUser:
 
     def save_photo(self, username):
         photo_file = self.photo_path / f'{username}.webp'
-        photo_index = self.user_count % NUM_PHOTOS
+        photo_index = (self.user_count + self.photo_offset) % NUM_PHOTOS
         orig_file = PHOTOS_DIR / f"{photo_index:03d}.webp"
         ref_file = self.photo_path / orig_file.name
         if not ref_file.exists():
@@ -460,9 +460,9 @@ class FakeUser:
         # save photo
         self.save_photo(info['username'])
 
-    def add_users(self, count):
+    def add_users(self, count, date_string='2008-12-30'):
         for n in range(count):
-            self.add_user()
+            self.add_user(date_string)
         print(f'Added {count} users ...')
         return self.new_users
 
@@ -579,11 +579,13 @@ class FakeProposal:
         self.new_schedules = []
         self.new_proposals = []
         self.new_submissions = []
+        self.new_events = []
         self.new_reviews = []
         self.review_count = 1
         self.proposal_count = 1
         self.sample_count = 1
         self.cycle_count = 1
+        self.mode_count = 1
         self.submission_count = 1
         self.fake = Faker('la')
         self.year = 2010
@@ -593,10 +595,11 @@ class FakeProposal:
         path = Path(self.name)
         self.data_path = path / 'kickstart' / '003-proposals.yml'
         self.sample_path = path / 'kickstart' / '002-samples.yml'
+        self.events_path = path / 'kickstart' / '004-events.yml'
         self.data_path.parent.mkdir(parents=True, exist_ok=True)
 
     def add_samples(self, user, date_str):
-        return [self.add_sample(user, date_str) for _ in range(random.randint(1, 5))]
+        return [self.add_sample(user, date_str) for _ in range(random.randint(1, 4))]
 
     def add_sample(self, user, date_str):
         sample = random.choice(SAMPLES)
@@ -685,14 +688,13 @@ class FakeProposal:
                 'end_date': end_date,
             }
         })
-
+        self.add_modes(self.cycle_count, start_date, end_date)
         info = {
             'model': 'proposals.reviewcycle',
             'pk': self.cycle_count,
             'fields': {
                 'created': f'{year-1}-11-01 20:49:59.049236+00:00',
                 'modified': f'{year-1}-11-01 20:49:59.049236+00:00',
-                'name': f'Cycle {year}',
                 'start_date': start_date,
                 'end_date': end_date,
                 'type_id': type_id,
@@ -704,9 +706,55 @@ class FakeProposal:
             }
         }
         self.new_cycles.append(info)
-        self.users = self.user_gen.add_users(self.user_count_chooser())
+        self.users = self.user_gen.add_users(self.user_count_chooser(), open_date)
         self.add_proposals(self.cycle_count, self.proposal_count_chooser(), open_date)
         self.cycle_count += 1
+
+    def add_modes(self, schedule_id, start_date, end_date):
+        start = date_parser.parse(start_date).date()
+        iso = start.isocalendar()
+        d_start = start + timedelta(days=(1 - iso.weekday))  # First Monday
+        end = date_parser.parse(end_date).date()
+        num_weeks = 0
+        shutdown_after = random.randint(12, 14)
+        shutdown_period = random.randint(3, 5)
+        while d_start <= end:
+            if start > d_start:
+                shift_start = start
+            else:
+                shift_start = d_start
+            iso = shift_start.isocalendar()
+            if iso.weekday == 1:
+                shift_end = shift_start + timedelta(days=1)
+                mode = random.choice([3, 3, 3, 4, 4, 5, 2])
+            else:
+                shift_end = shift_start + timedelta(days=(7 - iso.weekday + 1))   # Next Monday
+                num_weeks += 1
+                mode = 1
+            shift_end = min(shift_end, end)
+
+            # shutdown period after 16 weeks
+            if shutdown_after < num_weeks <= shutdown_after + shutdown_period:
+                mode = 5
+
+            if shift_start.month == 12 and shift_start.day > 20:
+                mode = 5
+            self.new_events.append({
+                'model': 'scheduler.mode',
+                'pk': self.mode_count,
+                'fields': {
+                    'created': f'{start_date} 20:49:59.049236+00:00',
+                    'modified': f'{start_date} 20:49:59.049236+00:00',
+                    'start': f"{shift_start.strftime('%Y-%m-%d')} 08:00:00+06:00",
+                    'end': f"{shift_end.strftime('%Y-%m-%d')} 08:00:00+06:00",
+                    'schedule': schedule_id,
+                    'comments': '',
+                    'kind': mode,
+                    'tags': [],
+                }
+            })
+            self.mode_count += 1
+            d_start += timedelta(days=7)
 
     def get_random_facility_req(self):
         facility = random.choice(list(self.techniques.keys()))
@@ -744,6 +792,9 @@ class FakeProposal:
             team = users[2:]
 
         track = random.choice([1, 2, 3])  # GA, RA, PA
+        submission_team = [
+            user['fields']['email'] for user in team
+        ]
 
         info = {
             'model': 'proposals.proposal',
@@ -757,7 +808,7 @@ class FakeProposal:
                 'leader_username': users[0]['fields']['username'],
                 'title': title,
                 'delegate_username': delegate_username,
-                'team': ''.join([f'<{user["fields"]["email"]}>' for user in users]),
+                'team': submission_team,
                 'state': 0,
                 'spokesperson': users[0]['pk'],
                 'areas': areas,
@@ -827,6 +878,8 @@ class FakeProposal:
             yaml.dump(self.new_cycles, file, sort_keys=False)
             yaml.dump(self.new_proposals, file, sort_keys=False)
             yaml.dump(self.new_submissions, file, sort_keys=False)
+        with open(self.events_path, 'w') as file:
+            yaml.dump(self.new_events, file, sort_keys=False)
 
         self.user_gen.save()
 
