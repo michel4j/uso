@@ -1052,7 +1052,7 @@ class Reviewer(TimeStampedModel):
         ordering = ('user__last_name',)
 
 
-class ReviewQueryset(models.QuerySet):
+class ReviewQueryset(QuerySet):
     def scientific(self):
         return self.filter(type__kind=ReviewType.Types.scientific).order_by('reviewer__reviewer__committee')
 
@@ -1082,12 +1082,7 @@ class ReviewQueryset(models.QuerySet):
         return get_user_model().objects.filter(pk__in=self.values_list('reviewer__pk', flat=True))
 
 
-class ReviewManager(models.Manager.from_queryset(ReviewQueryset)):
-    def get_by_natural_key(self, content_type, object_id):
-        return self.get(content_type=content_type, object_id=object_id)
-
-
-class ReviewTypeQueryset(models.QuerySet):
+class ReviewTypeQueryset(QuerySet):
     def safety(self):
         return self.filter(kind=ReviewType.Types.safety)
 
@@ -1146,7 +1141,7 @@ class ReviewType(TimeStampedModel):
     low_better = models.BooleanField(_("Lower Score Better"), default=True)
     per_facility = models.BooleanField(_("Per Facility"), default=False)
     role = models.CharField(max_length=100, null=True, blank=True)
-    objects = ReviewManager()
+    objects = ReviewTypeQueryset.as_manager()
 
     def __str__(self):
         return self.description.strip()
