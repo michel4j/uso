@@ -711,12 +711,12 @@ class FakeProposal:
                     'is_complete': True,
                     'content_type': ['proposals', 'submission'],
                     'object_id': submission_id,
-                    'role': f'reviewer',
+                    'role': 'reviewer',
                     'state': 3,
                     'score': sum(scores) / len(scores),
                     'due_date': date_str,
                     'cycle': cycle,
-                    'type': 2,
+                    'type': 1,
                     'stage': [track, 2]
                 }
             }

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import calendar
 import datetime
 from typing import Any
 import numpy
-from django.conf import settings
+
 from django.db.models import Q, Value, Max, Min
 from django.db.models.functions import Coalesce
 from django.utils import timezone
@@ -37,7 +38,8 @@ def calculate_end_date(start_date, duration) -> datetime.date:
     year_offset, month_offset = divmod(start_date.month - 1 + duration * 6, 12)
     end_year = year + year_offset
     end_month = 1 + month_offset
-    return start_date.replace(year=end_year, month=end_month)
+    _, num_days = calendar.monthrange(end_year, end_month)
+    return start_date.replace(year=end_year, month=end_month, day=num_days)
 
 
 def summarize_scores(scores: dict) -> tuple[float, dict]:
@@ -49,7 +51,6 @@ def summarize_scores(scores: dict) -> tuple[float, dict]:
     containing 'score_avg' for example {<ReviewStage>: {'score_avg': 2.5, ...} ...}. This function is compatible
     with entries returned by `Submission.get_facility_scores()`.
     """
-
 
     if not scores:
         return 0.0, {}
