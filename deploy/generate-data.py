@@ -718,7 +718,7 @@ class FakeProposal:
         num_weeks = 0
         shutdown_after = random.randint(12, 14)
         shutdown_period = random.randint(3, 5)
-        while d_start <= end:
+        while d_start < end:
             if start > d_start:
                 shift_start = start
             else:
@@ -745,8 +745,8 @@ class FakeProposal:
                 'fields': {
                     'created': f'{start_date} 20:49:59.049236+00:00',
                     'modified': f'{start_date} 20:49:59.049236+00:00',
-                    'start': f"{shift_start.strftime('%Y-%m-%d')} 08:00:00+06:00",
-                    'end': f"{shift_end.strftime('%Y-%m-%d')} 08:00:00+06:00",
+                    'start': f"{shift_start.strftime('%Y-%m-%d')} 14:00:00+00:00",
+                    'end': f"{shift_end.strftime('%Y-%m-%d')} 14:00:00+00:00",
                     'schedule': schedule_id,
                     'comments': '',
                     'kind': mode,
@@ -754,7 +754,7 @@ class FakeProposal:
                 }
             })
             self.mode_count += 1
-            d_start += timedelta(days=7)
+            d_start = shift_end
 
     def get_random_facility_req(self):
         facility = random.choice(list(self.techniques.keys()))
@@ -764,8 +764,8 @@ class FakeProposal:
             'shifts': random.randint(1, 8),
             'techniques': techniques,
             'tags': [],
-            'procedure': self.fake.paragraph(nb_sentences=10),
-            'justification': self.fake.paragraph(nb_sentences=10),
+            'procedure': self.fake.paragraph(nb_sentences=4),
+            'justification': self.fake.paragraph(nb_sentences=4),
         }
 
     def add_proposal(self, cycle, date_str):
@@ -821,7 +821,7 @@ class FakeProposal:
                     },
                     'delegate': delegate,
                     'funding': ['NSERC', 'CIHR', 'SSHRC'],
-                    'abstract': self.fake.paragraph(nb_sentences=10),
+                    'abstract': self.fake.paragraph(nb_sentences=5),
                     'subject': {
                         'areas': areas,
                         'keywords': '; '.join([self.fake.word() for _ in range(5)])
@@ -837,7 +837,7 @@ class FakeProposal:
                     'beamline_reqs': facility_reqs,
                     'pool': 1,
                     'scientific_merit': (
-                            self.fake.paragraph(nb_sentences=15)
+                            self.fake.paragraph(nb_sentences=8)
                             + random.choice(EQUATIONS)
                             + self.fake.paragraph(nb_sentences=15)
                     ),
