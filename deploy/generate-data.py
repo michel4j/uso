@@ -343,7 +343,7 @@ class FakeFeedback:
                 {'name': name, **random_likert_choice(name, (beamline, cycle))}
                 for name in [
                     'Personnel', 'Environment', 'End-station', 'Equipment Quality', 'Beam Quality', 'Software',
-                    'Hardware', 'Data Transfer', 'Availability'
+                    'Hardware', 'Data Transfer', 'Beam Availability'
                 ]
             ]
         )
@@ -850,9 +850,9 @@ class FakeProposal:
             self.review_count += 1
 
     def add_scientific_reviews(self, submission_id, cycle, track, date_str):
-        scores = [self.score_chooser() for _ in range(3)]
         date_chooser = RandomDate(date_str, 15)
         for i in range(random.choice([2, 4])):
+            scores = [self.score_chooser() for _ in range(3)]
             date_str = date_chooser()
             self.new_reviews.append(
                 {
@@ -918,7 +918,7 @@ class FakeProposal:
         self.review_count += 1
 
     def add_cycles(self):
-        while self.year < datetime.now().year + 1:
+        while self.year <= datetime.now().year + 1:
             self.add_cycle()
 
     def add_cycle(self):
