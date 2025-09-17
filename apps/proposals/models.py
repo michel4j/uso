@@ -21,7 +21,7 @@ from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
 from beamlines.models import Facility
-from misc.models import Clarification, GenericContentMixin, GenericContentQueryset, CodeModelMixin
+from misc.models import Clarification, GenericContentMixin, CodeModelMixin
 from misc.models import DateSpanMixin, DateSpanQuerySet, Attachment
 from misc.utils import humanize_role
 from publications.models import SubjectArea
@@ -1052,7 +1052,7 @@ class Reviewer(TimeStampedModel):
         ordering = ('user__last_name',)
 
 
-class ReviewQueryset(GenericContentQueryset):
+class ReviewQueryset(models.QuerySet):
     def scientific(self):
         return self.filter(type__kind=ReviewType.Types.scientific).order_by('reviewer__reviewer__committee')
 
@@ -1080,6 +1080,11 @@ class ReviewQueryset(GenericContentQueryset):
     def reviewers(self):
         """NOTE: returns a user queryset not a Review queryset"""
         return get_user_model().objects.filter(pk__in=self.values_list('reviewer__pk', flat=True))
+
+
+class ReviewManager(models.Manager.from_queryset(ReviewQueryset)):
+    def get_by_natural_key(self, content_type, object_id):
+        return self.get(content_type=content_type, object_id=object_id)
 
 
 class ReviewTypeQueryset(models.QuerySet):
@@ -1141,7 +1146,7 @@ class ReviewType(TimeStampedModel):
     low_better = models.BooleanField(_("Lower Score Better"), default=True)
     per_facility = models.BooleanField(_("Per Facility"), default=False)
     role = models.CharField(max_length=100, null=True, blank=True)
-    objects = ReviewTypeQueryset.as_manager()
+    objects = ReviewManager()
 
     def __str__(self):
         return self.description.strip()
@@ -1173,6 +1178,13 @@ class ReviewStageQuerySet(models.QuerySet):
         )
 
 
+class ReviewStageManager(models.Manager.from_queryset(ReviewStageQuerySet)):
+    use_for_related_fields = True
+
+    def get_by_natural_key(self, acronym, position):
+        return self.get(track__acronym=acronym, position=position)
+
+
 class ReviewStage(TimeStampedModel):
     """
     A review stage within a review track. Each stage is associated with a review type and has all
@@ -1189,11 +1201,14 @@ class ReviewStage(TimeStampedModel):
     weight = models.FloatField(_("Weight"), default=1.0)
     auto_create = models.BooleanField(_("Auto Create"), default=True)
     auto_start = models.BooleanField(_("Auto Start"), default=True)
-    objects = ReviewStageQuerySet.as_manager()
+    objects = ReviewStageManager()
 
     class Meta:
         unique_together = ('track', 'kind')
         ordering = ('track', 'position')
+
+    def natural_key(self):
+        return self.track.acronym, self.position
 
     def __str__(self):
         return f"{self.track.acronym} - Stage {self.position}"

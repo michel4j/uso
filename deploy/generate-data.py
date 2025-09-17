@@ -591,11 +591,13 @@ class FakeProposal:
         self.year = 2010
         self.user_count_chooser = RandomChooser(list(range(num_users - num_users // 4, num_users + num_users // 4)))
         self.proposal_count_chooser = RandomChooser(list(range(num_proposals - num_proposals // 5, num_proposals + num_proposals // 5)))
+        self.score_chooser = RandomChooser([1, 1, 3, 3, 3, 3, 2, 2, 2, 2, 4])
 
         path = Path(self.name)
         self.data_path = path / 'kickstart' / '003-proposals.yml'
         self.sample_path = path / 'kickstart' / '002-samples.yml'
         self.events_path = path / 'kickstart' / '004-events.yml'
+        self.reviews_path = path / 'kickstart' / '005-reviews.yml'
         self.data_path.parent.mkdir(parents=True, exist_ok=True)
 
     def add_samples(self, user, date_str):
@@ -628,7 +630,7 @@ class FakeProposal:
         self.sample_count += 1
         return {'sample': f'{pk}', 'quantity': f"{quantity} {units}"}
 
-    def add_submission(self, proposal, cycle, track, techniques, date_str):
+    def add_submission(self, proposal, cycle, track, techniques, facilities, date_str):
         track_acronym = TRACKS[track]
         info = {
             'model': 'proposals.submission',
@@ -640,13 +642,118 @@ class FakeProposal:
                 'code': f"{track_acronym}{proposal:07_}".replace('_', '-'),
                 'cycle': cycle,
                 'track': track,
-                'state': 0,
+                'state': 1,
                 'techniques': techniques,
             }
         }
-
         self.new_submissions.append(info)
+        self.add_technical_reviews(self.submission_count, cycle, track_acronym, facilities, date_str)
+        self.add_scientific_reviews(self.submission_count, cycle, track_acronym, date_str)
+        if track == 2:
+            self.add_safety_review(self.submission_count, cycle, track_acronym, date_str)
+
         self.submission_count += 1
+
+    def add_technical_reviews(self, submission_id, cycle, track, facilities, date_str):
+        date_chooser = RandomDate(date_str, 3)
+        date_str = date_chooser()
+        for fac in facilities:
+            acronym = self.facilities[fac].lower()
+            score = self.score_chooser()
+            self.new_reviews.append({
+                'model': 'proposals.review',
+                'pk': self.review_count,
+                'fields': {
+                    'created': f'{date_str} 20:49:59.049236+00:00',
+                    'modified': f'{date_str} 20:49:59.049236+00:00',
+                    'details': {
+                        'facility': fac,
+                        'comments': self.fake.sentence(nb_words=random.randint(5, 15)),
+                        'risk_level': random.randint(1, 4),
+                        'suitability': score,
+                        'progress': {'total': 100, 'required': 100},
+                    },
+                    'form_type': 4,
+                    'is_complete': True,
+                    'content_type': ['proposals', 'submission'],
+                    'object_id': submission_id,
+                    'role': f'reviewer:{acronym}',
+                    'state': 3,
+                    'score': score,
+                    'due_date': date_str,
+                    'cycle': cycle,
+                    'type': 2,
+                    'stage': [track, 1]
+                }
+            })
+            self.review_count += 1
+
+    def add_scientific_reviews(self, submission_id, cycle, track, date_str):
+        scores = [self.score_chooser() for _ in range(3)]
+        date_chooser = RandomDate(date_str, 15)
+        date_str = date_chooser()
+        self.new_reviews.append(
+            {
+                'model': 'proposals.review',
+                'pk': self.review_count,
+                'fields': {
+                    'created': f'{date_str} 20:49:59.049236+00:00',
+                    'modified': f'{date_str} 20:49:59.049236+00:00',
+                    'details': {
+                        'comments': self.fake.sentence(nb_words=random.randint(5, 15)),
+                        'risk_level': random.randint(1, 4),
+                        'capability': scores[0],
+                        'suitability': scores[1],
+                        'scientific_merit': scores[2],
+                        'progress': {'total': 95, 'required': 100},
+                    },
+                    'form_type': 3,
+                    'is_complete': True,
+                    'content_type': ['proposals', 'submission'],
+                    'object_id': submission_id,
+                    'role': f'reviewer',
+                    'state': 3,
+                    'score': sum(scores) / len(scores),
+                    'due_date': date_str,
+                    'cycle': cycle,
+                    'type': 2,
+                    'stage': [track, 2]
+                }
+            }
+        )
+        self.review_count += 1
+
+    def add_safety_review(self, submission_id, cycle, track, date_str):
+        score = self.score_chooser()
+        date_chooser = RandomDate(date_str, 15)
+        date_str = date_chooser()
+        self.new_reviews.append(
+            {
+                'model': 'proposals.review',
+                'pk': self.review_count,
+                'fields': {
+                    'created': f'{date_str} 20:49:59.049236+00:00',
+                    'modified': f'{date_str} 20:49:59.049236+00:00',
+                    'details': {
+                        'comments': self.fake.sentence(nb_words=random.randint(5, 15)),
+                        'risk_level': score,
+                        'progress': {'total': 100, 'required': 100},
+                    },
+                    'form_type': 15,
+                    'is_complete': True,
+                    'content_type': ['proposals', 'submission'],
+                    'object_id': submission_id,
+                    'role': f'safety-reviewer',
+                    'state': 3,
+                    'score': score,
+                    'due_date': date_str,
+                    'cycle': cycle,
+                    'type': 7,
+                    'stage': [track, 3]
+                }
+            }
+        )
+        self.review_count += 1
 
     def add_cycles(self):
         while self.year < datetime.now().year + 1:
@@ -769,6 +876,7 @@ class FakeProposal:
         }
 
     def add_proposal(self, cycle, date_str):
+        end_date = date_parser.parse(date_str).date() + timedelta(days=30)
         users = random.sample(self.users, random.randint(2, 5))
         areas = random.sample(SUBJECTS, random.randint(1, 3))
         facility_reqs = []
@@ -821,10 +929,10 @@ class FakeProposal:
                     },
                     'delegate': delegate,
                     'funding': ['NSERC', 'CIHR', 'SSHRC'],
-                    'abstract': self.fake.paragraph(nb_sentences=5),
+                    'abstract': self.fake.paragraph(nb_sentences=3),
                     'subject': {
                         'areas': areas,
-                        'keywords': '; '.join([self.fake.word() for _ in range(5)])
+                        'keywords': '; '.join([self.fake.word() for _ in range(random.randint(1, 3))]),
                     },
                     'first_cycle': cycle,
                     'team_members': [
@@ -837,15 +945,15 @@ class FakeProposal:
                     'beamline_reqs': facility_reqs,
                     'pool': 1,
                     'scientific_merit': (
-                            self.fake.paragraph(nb_sentences=8)
+                            self.fake.paragraph(nb_sentences=4)
                             + random.choice(EQUATIONS)
-                            + self.fake.paragraph(nb_sentences=15)
+                            + self.fake.paragraph(nb_sentences=5)
                     ),
-                    'societal_impact': self.fake.paragraph(nb_sentences=8),
-                    'team_capability': self.fake.paragraph(nb_sentences=12),
+                    'societal_impact': self.fake.paragraph(nb_sentences=3),
+                    'team_capability': self.fake.paragraph(nb_sentences=3),
                     'sample_hazards': random.sample(HAZARD_TYPES, random.randint(0, 3)),
                     'sample_types': random.sample(SAMPLE_TYPES, random.randint(1, 3)),
-                    'sample_handling': self.fake.paragraph(nb_sentences=8),
+                    'sample_handling': self.fake.paragraph(nb_sentences=2),
                     'invoice_address': {
                         'city': self.fake.city(),
                         'code': self.fake.postalcode(),
@@ -856,10 +964,11 @@ class FakeProposal:
                 }
             }
         }
-        if random.choice([True, False]):
+        facilities = [req['facility'] for req in facility_reqs]
+        if end_date < datetime.now().date():
             info['fields']['is_complete'] = True
             info['fields']['state'] = 1
-            self.add_submission(self.proposal_count, cycle, track, techniques, date_str)
+            self.add_submission(self.proposal_count, cycle, track, techniques, facilities, date_str)
 
         self.new_proposals.append(info)
         self.proposal_count += 1
@@ -880,7 +989,8 @@ class FakeProposal:
             yaml.dump(self.new_submissions, file, sort_keys=False)
         with open(self.events_path, 'w') as file:
             yaml.dump(self.new_events, file, sort_keys=False)
-
+        with open(self.reviews_path, 'w') as file:
+            yaml.dump(self.new_reviews, file, sort_keys=False)
         self.user_gen.save()
 
 

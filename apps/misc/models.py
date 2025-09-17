@@ -113,13 +113,11 @@ class DateSpanMixin(models.Model):
         abstract = True
 
 
-class GenericContentQueryset(QuerySet):
+class GenericContentManager(models.Manager):
+    use_for_related_fields = True
+
     def get_by_natural_key(self, content_type, object_id):
         return self.get(content_type=content_type, object_id=object_id)
-
-
-class GenericContentManager(models.Manager.from_queryset(GenericContentQueryset)):
-    use_for_related_fields = True
 
 
 class GenericContentMixin(models.Model):
