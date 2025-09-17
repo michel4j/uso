@@ -694,6 +694,9 @@ class Allocation(TimeStampedModel):
 
     def can_renew(self):
         next_cycle = ReviewCycle.objects.next(self.cycle.start_date)
+        if not next_cycle:
+            return False
+
         renewal = self.renewals().first()
         return (
             next_cycle.is_open() and

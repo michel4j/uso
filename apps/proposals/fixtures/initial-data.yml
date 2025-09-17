@@ -538,7 +538,7 @@
     track: 1
     kind: 1
     position: 2
-    min_reviews: 3
+    min_reviews: 2
     max_workload: 0
     blocks: true
     pass_score: 5.0

@@ -1213,14 +1213,20 @@ class UserSubmissionList(SubmissionList):
 
 
 class CycleSubmissionList(SubmissionList):
+    list_filters = ['created', 'state', 'track']
+
     def get_queryset(self, *args, **kwargs):
-        self.queryset = self.model.objects.filter(cycle_id=self.kwargs['cycle'])
+        self.queryset = self.model.objects.filter(cycle=self.kwargs['cycle'])
         return super().get_queryset(*args, **kwargs)
 
 
-class TrackSubmissionList(CycleSubmissionList):
+class TrackSubmissionList(SubmissionList):
+    list_filters = ['created', 'state']
+
     def get_queryset(self, *args, **kwargs):
-        self.queryset = models.Submission.objects.filter(track__acronym=self.kwargs['track']).with_score()
+        self.queryset = models.Submission.objects.filter(
+            track__acronym=self.kwargs['track'], cycle=self.kwargs['cycle']
+        ).with_score()
         return super().get_queryset(*args, **kwargs)
 
 

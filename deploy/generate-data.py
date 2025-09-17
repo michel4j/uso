@@ -175,6 +175,42 @@ class RandomChooser:
         return self.step()
 
 
+class LikertRandomizer:
+    def __init__(self):
+        self.choices = [1, 2, 3, 4, 5]
+        self.weights = {}
+        self.scores = {
+            5: 'Excellent',
+            4: 'Good',
+            3: 'Fair',
+            2: 'Poor',
+            1: 'Very Poor'
+        }
+
+    def __call__(self, name, section):
+        key = f'{section}.{name}'
+        if 'ware' in name.lower():
+            self.weights[key] = [1, 1, 3, 5, 1]
+        elif 'ing' in name.lower():
+            self.weights[key] = [6, 6, 4, 1, 1]
+        elif name.endswith('lity'):
+            self.weights[key] = [1, 1, 3, 7, 5]
+        elif name.endswith('ood'):
+            self.weights[key] = [1, 6, 6, 1, 1]
+        elif 'beam' in name.lower():
+            self.weights[key] = [1, 2, 4, 5, 2]
+        elif 'support' in name.lower():
+            self.weights[key] = [1, 1, 5, 7, 7]
+        else:
+            weights = [1, 1, 2, 4, 5]
+            weights[random.randint(0, 4)] += random.randint(1, 5)
+            self.weights[key] = weights
+        score = random.choices(self.choices, weights=self.weights[key])[0]
+        return {'label': self.scores[score], 'value': score}
+
+
+random_likert_choice = LikertRandomizer()
+
 def random_year():
     """Generate a random year between start and end."""
     return random.choices(YEARS, weights=YEAR_WEIGHTS)[0]
@@ -210,8 +246,132 @@ def make_acronym(name):
     return (''.join(w[0] for w in name.strip().split())).upper()
 
 
-class FakeUser:
+class FakeFeedback:
+    def __init__(self, name='data'):
+        self.new_surveys = []
+        self.new_categories = []
+        self.category_ids = {}
+        self.new_ratings = []
+        self.fake = Faker()
+        self.ratings_count = 0
+        self.categories_count = 0
+        self.feedback_count = 0
+        path = Path(name)
+        self.data_path = path / 'kickstart' / '006-feedback.yml'
 
+    def save(self):
+        with open(self.data_path, 'w', encoding='utf-8') as file:
+            yaml.dump(self.new_surveys, file, sort_keys=False)
+            yaml.dump(self.new_categories, file, sort_keys=False)
+            yaml.dump(self.new_ratings, file, sort_keys=False)
+
+    def add_category(self, name):
+        key = name.replace('_', ' ').capitalize()
+
+        if key in self.category_ids:
+            return self.category_ids[key]
+
+        self.categories_count += 1
+        pk = self.categories_count
+        self.category_ids[key] = pk
+        category = {
+            'model': 'surveys.category',
+            'pk': pk,
+            'fields': {
+                'name': key
+            }
+        }
+        self.new_categories.append(category)
+        return category['pk']
+
+    def add_ratings(self, feedback_id, category, ratings):
+        category_id = self.add_category(category)
+        for rating in ratings:
+            self.ratings_count += 1
+            pk = self.ratings_count
+            rating_obj = {
+                'model': 'surveys.rating',
+                'pk': pk,
+                'fields': {
+                    'feedback_id': feedback_id,
+                    'category_id': category_id,
+                    'name': rating['name'],
+                    'label': rating['label'],
+                    'value': rating['value'],
+                }
+            }
+            self.new_ratings.append(rating_obj)
+
+    def add_survey(self, cycle, beamline, user, date_str='2008-12-30'):
+        self.feedback_count += 1
+        pk = self.feedback_count
+        feedback = {
+            'model': 'surveys.feedback',
+            'pk': pk,
+            'fields': {
+                'created': f'{date_str} 00:33:08.214086+00:00',
+                'modified': f'{date_str} 00:33:08.214133+00:00',
+                'form_type': 12,
+                'is_complete': True,
+                'user': [user],
+                'beamline': beamline,
+                'cycle': cycle,
+                'details': {
+                    'machine_comments': self.fake.paragraph(nb_sentences=2),
+                    'beamline_comments': self.fake.paragraph(nb_sentences=1),
+                    'administration_comments': self.fake.paragraph(nb_sentences=2),
+                    'amenities_comments': self.fake.paragraph(nb_sentences=2),
+                    'amenities_desires': self.fake.paragraph(nb_sentences=1),
+                    'amenities_lodging_comments': self.fake.paragraph(nb_sentences=2),
+                    'amenities_lodging': random.choice(['Guest House', 'Hotel', 'Bed & Breakfast', 'Friends or Family']),
+                    'amenities_lodging_reason': random.choice([
+                        'Location', 'Price', 'Price', 'Price', 'Convenience', 'Amenities', 'Recommendation'
+                    ]),
+                },
+            }
+        }
+        self.new_surveys.append(feedback)
+        self.add_ratings(
+            self.feedback_count, 'machine', [
+                {'name': name, **random_likert_choice(name, (beamline, cycle))}
+                for name in ['Reliability', 'Availability', 'Communication', 'Beam Stability']
+            ]
+        )
+        self.add_ratings(
+            self.feedback_count, 'beamline',
+            [
+                {'name': name, **random_likert_choice(name, (beamline, cycle))}
+                for name in [
+                    'Personnel', 'Environment', 'End-station', 'Equipment Quality', 'Beam Quality', 'Software',
+                    'Hardware', 'Data Transfer', 'Availability'
+                ]
+            ]
+        )
+        self.add_ratings(
+            self.feedback_count,
+            'administration',
+            [
+                {'name': name, **random_likert_choice(name, (beamline, cycle))}
+                for name in [
+                    'Parking', 'Training', 'Sign-in / Safety', 'Check-In Procedure', 'Administrative Support',
+                    'Registration / Proposals', 'User Information / Web Pages'
+                ]
+            ],
+        )
+        self.add_ratings(
+            self.feedback_count,
+            'amenities',
+            [
+                {'name': name, **random_likert_choice(name, (beamline, cycle))}
+                for name in [
+                    'Food', 'Wi-Fi / Internet', 'Coffee / Vending Machines', 'User Lounges',
+                    'Lodging', 'Showers / Lockers', 'Office / Printing'
+                ]
+            ],
+        )
+
+
+class FakeUser:
     def __init__(self, name='data', facilities=None):
         self.fake = Faker()
         self.name = name
@@ -571,6 +731,7 @@ class FakeProposal:
     def __init__(self, name, facilities, techniques, num_users=150, num_proposals=250):
         self.name = name
         self.user_gen = FakeUser(name=name, facilities=facilities)
+        self.feedback_gen = FakeFeedback(name=name)
         self.users = []
         self.facilities = dict(facilities)
         self.techniques = techniques
@@ -691,37 +852,38 @@ class FakeProposal:
     def add_scientific_reviews(self, submission_id, cycle, track, date_str):
         scores = [self.score_chooser() for _ in range(3)]
         date_chooser = RandomDate(date_str, 15)
-        date_str = date_chooser()
-        self.new_reviews.append(
-            {
-                'model': 'proposals.review',
-                'pk': self.review_count,
-                'fields': {
-                    'created': f'{date_str} 20:49:59.049236+00:00',
-                    'modified': f'{date_str} 20:49:59.049236+00:00',
-                    'details': {
-                        'comments': self.fake.sentence(nb_words=random.randint(5, 15)),
-                        'risk_level': random.randint(1, 4),
-                        'capability': scores[0],
-                        'suitability': scores[1],
-                        'scientific_merit': scores[2],
-                        'progress': {'total': 95, 'required': 100},
-                    },
-                    'form_type': 3,
-                    'is_complete': True,
-                    'content_type': ['proposals', 'submission'],
-                    'object_id': submission_id,
-                    'role': 'reviewer',
-                    'state': 3,
-                    'score': sum(scores) / len(scores),
-                    'due_date': date_str,
-                    'cycle': cycle,
-                    'type': 1,
-                    'stage': [track, 2]
+        for i in range(random.choice([2, 4])):
+            date_str = date_chooser()
+            self.new_reviews.append(
+                {
+                    'model': 'proposals.review',
+                    'pk': self.review_count,
+                    'fields': {
+                        'created': f'{date_str} 20:49:59.049236+00:00',
+                        'modified': f'{date_str} 20:49:59.049236+00:00',
+                        'details': {
+                            'comments': self.fake.sentence(nb_words=random.randint(5, 15)),
+                            'risk_level': random.randint(1, 4),
+                            'capability': scores[0],
+                            'suitability': scores[1],
+                            'scientific_merit': scores[2],
+                            'progress': {'total': 95, 'required': 100},
+                        },
+                        'form_type': 3,
+                        'is_complete': True,
+                        'content_type': ['proposals', 'submission'],
+                        'object_id': submission_id,
+                        'role': 'reviewer',
+                        'state': 3,
+                        'score': sum(scores) / len(scores),
+                        'due_date': date_str,
+                        'cycle': cycle,
+                        'type': 1,
+                        'stage': [track, 2]
+                    }
                 }
-            }
-        )
-        self.review_count += 1
+            )
+            self.review_count += 1
 
     def add_safety_review(self, submission_id, cycle, track, date_str):
         score = self.score_chooser()
@@ -903,6 +1065,7 @@ class FakeProposal:
         submission_team = [
             user['fields']['email'] for user in team
         ]
+        leader_username = users[0]['fields']['username']
 
         info = {
             'model': 'proposals.proposal',
@@ -913,7 +1076,7 @@ class FakeProposal:
                 'form_type': 2,
                 'code': f"{self.proposal_count:07_}".replace('_', '-'),
                 'is_complete': False,
-                'leader_username': users[0]['fields']['username'],
+                'leader_username': leader_username,
                 'title': title,
                 'delegate_username': delegate_username,
                 'team': submission_team,
@@ -970,6 +1133,11 @@ class FakeProposal:
             info['fields']['state'] = 1
             self.add_submission(self.proposal_count, cycle, track, techniques, facilities, date_str)
 
+        if random.randint(0, 100) < 50:
+            feedback_date = date_parser.parse(date_str).date() + timedelta(days=random.randint(2, 180))
+            user = random.choice([leader_username, delegate_username])
+            beamline = random.choice(facilities)
+            self.feedback_gen.add_survey(cycle, beamline, user, feedback_date.strftime('%Y-%m-%d'))
         self.new_proposals.append(info)
         self.proposal_count += 1
 
@@ -992,6 +1160,7 @@ class FakeProposal:
         with open(self.reviews_path, 'w') as file:
             yaml.dump(self.new_reviews, file, sort_keys=False)
         self.user_gen.save()
+        self.feedback_gen.save()
 
 
 if __name__ == '__main__':
