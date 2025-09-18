@@ -808,15 +808,17 @@ class FakeProposal:
             }
         }
         self.new_submissions.append(info)
-        self.add_technical_reviews(self.submission_count, cycle, track_acronym, facilities, date_str)
-        self.add_scientific_reviews(self.submission_count, cycle, track_acronym, date_str)
+        self.add_technical_reviews(track_acronym, facilities, date_str)
+        self.add_scientific_reviews(track_acronym, date_str)
         if track == 2:
-            self.add_safety_review(self.submission_count, cycle, track_acronym, date_str)
+            self.add_safety_review(track_acronym, date_str)
 
         self.submission_count += 1
 
-    def add_technical_reviews(self, submission_id, cycle, track, facilities, date_str):
+    def add_technical_reviews(self, track, facilities, date_str):
         date_chooser = RandomDate(date_str, 3)
+        cycle = self.new_cycles[-1]['pk']
+        submission = self.new_submissions[-1]['pk']
         date_str = date_chooser()
         for fac in facilities:
             acronym = self.facilities[fac].lower()
@@ -837,7 +839,7 @@ class FakeProposal:
                     'form_type': 4,
                     'is_complete': True,
                     'content_type': ['proposals', 'submission'],
-                    'object_id': submission_id,
+                    'object_id': submission,
                     'role': f'reviewer:{acronym}',
                     'state': 3,
                     'score': score,
@@ -849,7 +851,9 @@ class FakeProposal:
             })
             self.review_count += 1
 
-    def add_scientific_reviews(self, submission_id, cycle, track, date_str):
+    def add_scientific_reviews(self, track, date_str):
+        cycle = self.new_cycles[-1]['pk']
+        submission = self.new_submissions[-1]['pk']
         date_chooser = RandomDate(date_str, 15)
         for i in range(random.choice([2, 4])):
             scores = [self.score_chooser() for _ in range(3)]
@@ -872,7 +876,7 @@ class FakeProposal:
                         'form_type': 3,
                         'is_complete': True,
                         'content_type': ['proposals', 'submission'],
-                        'object_id': submission_id,
+                        'object_id': submission,
                         'role': 'reviewer',
                         'state': 3,
                         'score': sum(scores) / len(scores),
@@ -885,10 +889,12 @@ class FakeProposal:
             )
             self.review_count += 1
 
-    def add_safety_review(self, submission_id, cycle, track, date_str):
+    def add_safety_review(self, track, date_str):
         score = self.score_chooser()
+        submission = self.new_submissions[-1]['pk']
         date_chooser = RandomDate(date_str, 15)
         date_str = date_chooser()
+        cycle = self.new_cycles[-1]['pk']
         self.new_reviews.append(
             {
                 'model': 'proposals.review',
@@ -904,7 +910,7 @@ class FakeProposal:
                     'form_type': 15,
                     'is_complete': True,
                     'content_type': ['proposals', 'submission'],
-                    'object_id': submission_id,
+                    'object_id': submission,
                     'role': f'safety-reviewer',
                     'state': 3,
                     'score': score,
@@ -975,6 +981,7 @@ class FakeProposal:
             }
         }
         self.new_cycles.append(info)
+        print('Added cycle ', self.cycle_count)
         self.users = self.user_gen.add_users(self.user_count_chooser(), open_date)
         self.add_proposals(self.cycle_count, self.proposal_count_chooser(), open_date)
         self.cycle_count += 1
