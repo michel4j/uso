@@ -231,6 +231,19 @@
     - rating
     filters: ''
     limit: null
+- model: reportcraft.datasource
+  pk: 22
+  fields:
+    created: 2025-09-16 19:34:08.410559+00:00
+    modified: 2025-09-16 19:34:36.546511+00:00
+    name: Feedback Summary By Facility
+    description: ''
+    group_by:
+    - facility
+    - section
+    - rating
+    filters: ''
+    limit: null
 - model: reportcraft.datamodel
   pk: 1
   fields:
@@ -461,6 +474,16 @@
     - rating
     name: surveys.Rating
     source: 20
+- model: reportcraft.datamodel
+  pk: 36
+  fields:
+    created: 2025-09-16 19:34:08.435242+00:00
+    modified: 2025-09-16 19:34:08.435252+00:00
+    model:
+    - surveys
+    - rating
+    name: surveys.Rating
+    source: 22
 - model: reportcraft.datafield
   pk: 1
   fields:
@@ -1768,16 +1791,100 @@
   pk: 160
   fields:
     created: 2025-09-16 05:27:25.072767+00:00
-    modified: 2025-09-16 05:27:25.072784+00:00
-    name: year
+    modified: 2025-09-16 19:27:36.367133+00:00
+    name: age
     model: 34
-    label: Year
+    label: Age
     default: null
-    expression: Feedback.Cycle.StartDate.Year
+    expression: AgeMonths(Feedback.Cycle.StartDate)
     precision: null
     position: 4
     ordering: null
     source: 20
+- model: reportcraft.datafield
+  pk: 166
+  fields:
+    created: 2025-09-16 19:34:08.445068+00:00
+    modified: 2025-09-16 19:34:08.445076+00:00
+    name: cycle
+    model: 36
+    label: Cycle
+    default: null
+    expression: YearMonth(Feedback.Cycle.StartDate)
+    precision: null
+    position: 0
+    ordering: null
+    source: 22
+- model: reportcraft.datafield
+  pk: 167
+  fields:
+    created: 2025-09-16 19:34:08.453151+00:00
+    modified: 2025-09-16 19:34:08.453160+00:00
+    name: section
+    model: 36
+    label: Section
+    default: null
+    expression: Category.Name
+    precision: null
+    position: 1
+    ordering: null
+    source: 22
+- model: reportcraft.datafield
+  pk: 168
+  fields:
+    created: 2025-09-16 19:34:08.461001+00:00
+    modified: 2025-09-16 19:34:08.461008+00:00
+    name: rating
+    model: 36
+    label: Rating
+    default: null
+    expression: Name
+    precision: null
+    position: 2
+    ordering: null
+    source: 22
+- model: reportcraft.datafield
+  pk: 169
+  fields:
+    created: 2025-09-16 19:34:08.468790+00:00
+    modified: 2025-09-16 19:34:08.468798+00:00
+    name: score
+    model: 36
+    label: Score
+    default: 0
+    expression: Avg(Value) - 3
+    precision: 2
+    position: 3
+    ordering: null
+    source: 22
+- model: reportcraft.datafield
+  pk: 170
+  fields:
+    created: 2025-09-16 19:34:08.476610+00:00
+    modified: 2025-09-16 19:34:08.476617+00:00
+    name: age
+    model: 36
+    label: Age
+    default: null
+    expression: AgeMonths(Feedback.Cycle.StartDate)
+    precision: null
+    position: 4
+    ordering: null
+    source: 22
+- model: reportcraft.datafield
+  pk: 171
+  fields:
+    created: 2025-09-16 19:34:59.259302+00:00
+    modified: 2025-09-16 19:34:59.259312+00:00
+    name: facility
+    model: 36
+    label: Facility
+    default: null
+    expression: Feedback.Beamline.Acronym
+    precision: null
+    position: 5
+    ordering: null
+    source: 22
 - model: reportcraft.report
   pk: 1
   fields:
@@ -2802,7 +2909,7 @@
   pk: 48
   fields:
     created: 2025-09-16 05:28:29.465061+00:00
-    modified: 2025-09-16 05:33:45.205212+00:00
+    modified: 2025-09-16 19:28:14.295227+00:00
     title: Feedback Summary By Cycle
     description: ''
     notes: ''
@@ -2817,6 +2924,7 @@
       - section
       values: score
       columns: cycle
+      max_cols: 12
       total_row: false
       transpose: false
       flip_headers: false
@@ -2827,7 +2935,7 @@
   pk: 49
   fields:
     created: 2025-09-16 05:32:53.970077+00:00
-    modified: 2025-09-16 05:33:45.205232+00:00
+    modified: 2025-09-16 19:29:08.199711+00:00
     title: Feedback Scores by Cycle
     description: ''
     notes: ''
@@ -2836,7 +2944,7 @@
     source: 20
     report: 10
     position: 1
-    filters: ''
+    filters: age <= 2
     attrs:
       scale: linear
       facets: cycle

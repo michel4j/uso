@@ -221,7 +221,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     )
     address = models.OneToOneField(Address, null=True, blank=True, on_delete=models.SET_NULL)
     research_field = models.ManyToManyField("publications.SubjectArea", blank=True)
-    classification = models.CharField(choices=CLASSIFICATIONS, null=True, blank=True, max_length=20)
+    classification = models.CharField(choices=CLASSIFICATIONS, default=STAFF.professional, max_length=20)
     alt_email = models.EmailField(_("Alternate Email"), null=True, blank=True)
     objects = CustomUserManager()
 

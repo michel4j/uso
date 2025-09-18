@@ -728,7 +728,7 @@ class FakeFacility:
 
 
 class FakeProposal:
-    def __init__(self, name, facilities, techniques, num_users=150, num_proposals=250):
+    def __init__(self, name, facilities, techniques, num_users=50, num_proposals=50):
         self.name = name
         self.user_gen = FakeUser(name=name, facilities=facilities)
         self.feedback_gen = FakeFeedback(name=name)
@@ -749,8 +749,8 @@ class FakeProposal:
         self.mode_count = 1
         self.submission_count = 1
         self.fake = Faker('la')
-        self.year = 2010
-        self.user_count_chooser = RandomChooser(list(range(num_users - num_users // 4, num_users + num_users // 4)))
+        self.year = 2014
+        self.user_count_chooser = RandomChooser(list(range(num_users - num_users // 5, num_users + num_users // 5)))
         self.proposal_count_chooser = RandomChooser(list(range(num_proposals - num_proposals // 5, num_proposals + num_proposals // 5)))
         self.score_chooser = RandomChooser([1, 1, 3, 3, 3, 3, 2, 2, 2, 2, 4])
 
@@ -982,8 +982,8 @@ class FakeProposal:
         }
         self.new_cycles.append(info)
         print('Added cycle ', self.cycle_count)
-        self.users = self.user_gen.add_users(self.user_count_chooser(), open_date)
-        self.add_proposals(self.cycle_count, self.proposal_count_chooser(), open_date)
+        self.users = self.user_gen.add_users(self.user_count_chooser() + self.cycle_count * 2, open_date)
+        self.add_proposals(self.cycle_count, self.proposal_count_chooser() + 2 * self.cycle_count, open_date)
         self.cycle_count += 1
 
     def add_modes(self, schedule_id, start_date, end_date):
@@ -1068,7 +1068,7 @@ class FakeProposal:
         else:
             team = users[2:]
 
-        track = random.choice([1, 2, 3])  # GA, RA, PA
+        track = random.choices([1, 2, 3], weights=[8, 2, 3])[0]  # GA, RA, PA
         submission_team = [
             user['fields']['email'] for user in team
         ]
@@ -1173,8 +1173,8 @@ class FakeProposal:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Data Generator for USO')
     parser.add_argument('name', metavar='name', type=str, help='Directory to save data')
-    parser.add_argument('-u', '--users', type=int, help='Number of users per cycle', default=100)
-    parser.add_argument('-p', '--proposals', type=int, help='Number of proposals per cycle', default=200)
+    parser.add_argument('-u', '--users', type=int, help='Starting number of users per cycle', default=50)
+    parser.add_argument('-p', '--proposals', type=int, help='Starting number of proposals per cycle', default=50)
     args = parser.parse_args()
 
     fac_gen = FakeFacility(name=args.name)
