@@ -145,6 +145,9 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
             start_date__lte=self.end_date, start_date__gte=self.start_date
         ).order_by('start_date').first()
 
+        if not this_cycle:
+            return allocations
+
         for beamline in self.beamlines.distinct():
             allocs_for_bl = self.allocations.filter(beamline=beamline)
             num_allocs = allocs_for_bl.count()

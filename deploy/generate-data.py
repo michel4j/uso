@@ -884,7 +884,7 @@ class FakeProposal:
         info['score'] = sci_score
 
         # Add Project
-        if avg_tech_score < 3 and sci_score < 4 and safe_score < 4:
+        if avg_tech_score <= 3 and sci_score <= 4 and safe_score <= 4:
             submission['fields']['approved'] = True
             self.add_project(info)
         else:
