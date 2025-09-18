@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import itertools
 import os
 import zipfile
 import tempfile
@@ -135,6 +136,16 @@ SAMPLE_UNITS = {
     'crystal': 'ug',
 }
 
+CORE_PERMISSIONS = {
+    'LAB-ACCESS': 1,
+    'CRYO-WORK': 1,
+    'HF-WORK': 0.5,
+    'ANIMAL-WORK': 0.5,
+    'BIOLAB-ACCESS': 1,
+    'RADIOACTIVE-WORK': 1,
+    'PATHOGEN-WORK': 1,
+    'FACILITY-ACCESS': 8,
+}
 
 THIS_YEAR = datetime.now().year
 YEAR_WEIGHTS = numpy.random.uniform(0, 1, size=(THIS_YEAR - 2009))
@@ -377,6 +388,7 @@ class FakeUser:
         self.name = name
         # update admin fields
         self.new_users = []
+        self.user_permissions = defaultdict(set)
         self.new_institutions = {
             'Bespoke Facility': {
                 'model': 'users.institution',
@@ -596,7 +608,15 @@ class FakeUser:
         # 15% chance of being a reviewer if you are faculty or professional or postdoc
         is_reviewer = random.randint(0, 100) < 15 and info['classification'] in ['faculty', 'professional', 'postdoc']
         if is_reviewer:
-            pk = self.add_reviewer(self.user_count, info['fields'])
+            self.add_reviewer(self.user_count, info['fields'])
+
+        self.user_permissions[self.user_count].update(
+            random.choices(
+                list(CORE_PERMISSIONS.keys()),
+                weights=list(CORE_PERMISSIONS.values()),
+                k=random.randint(2, 5)
+            )
+        )
         self.new_users.append({
             'model': 'users.user',
             'pk': self.user_count,
@@ -627,6 +647,10 @@ class FakeUser:
         return self.new_users
 
     def save(self):
+        for i in range(len(self.new_users)):
+            pk = self.new_users[i]['pk']
+            self.new_users[i]['fields']['permissions'] = list(self.user_permissions[pk])
+
         with open(self.data_path, 'w', encoding='utf-8') as file:
             yaml.dump(list(self.new_institutions.values()), file, sort_keys=False)
             yaml.dump(self.new_addresses, file, sort_keys=False)
@@ -729,29 +753,46 @@ class FakeFacility:
 
 class FakeProposal:
     def __init__(self, name, facilities, techniques, num_users=50, num_proposals=50):
+
         self.name = name
         self.user_gen = FakeUser(name=name, facilities=facilities)
         self.feedback_gen = FakeFeedback(name=name)
         self.users = []
         self.facilities = dict(facilities)
+        self.permissions = {
+            acronym: 1.0
+            for acronym in self.facilities.values()
+        }
         self.techniques = techniques
         self.new_samples = []
         self.new_cycles = []
         self.new_schedules = []
         self.new_proposals = []
         self.new_submissions = []
+        self.new_projects = []
         self.new_events = []
         self.new_reviews = []
         self.review_count = 1
         self.proposal_count = 1
         self.sample_count = 1
         self.cycle_count = 1
+        self.project_count = 1
+        self.allocation_count = 1
+        self.material_count = 1
+        self.project_samples_count = 1
+
         self.mode_count = 1
         self.submission_count = 1
         self.fake = Faker('la')
         self.year = 2014
-        self.user_count_chooser = RandomChooser(list(range(num_users - num_users // 5, num_users + num_users // 5)))
-        self.proposal_count_chooser = RandomChooser(list(range(num_proposals - num_proposals // 5, num_proposals + num_proposals // 5)))
+        user_offset = num_users // 5
+        self.user_count_chooser = RandomChooser(
+            list(range(num_users - user_offset, num_users + user_offset))
+        )
+        prop_offset = num_proposals // 5
+        self.proposal_count_chooser = RandomChooser(
+            list(range(num_proposals - prop_offset, num_proposals + prop_offset))
+        )
         self.score_chooser = RandomChooser([1, 1, 3, 3, 3, 3, 2, 2, 2, 2, 4])
 
         path = Path(self.name)
@@ -759,6 +800,7 @@ class FakeProposal:
         self.sample_path = path / 'kickstart' / '002-samples.yml'
         self.events_path = path / 'kickstart' / '004-events.yml'
         self.reviews_path = path / 'kickstart' / '005-reviews.yml'
+        self.project_path = path / 'kickstart' / '006-projects.yml'
         self.data_path.parent.mkdir(parents=True, exist_ok=True)
 
     def add_samples(self, user, date_str):
@@ -791,9 +833,19 @@ class FakeProposal:
         self.sample_count += 1
         return {'sample': f'{pk}', 'quantity': f"{quantity} {units}"}
 
-    def add_submission(self, proposal, cycle, track, techniques, facilities, date_str):
+    def add_submission(self, info):
+        proposal = info['proposal']
+        date_str = info['date']
+        cycle = info['cycle']
+        track = info['track']
+        facility_techniques = info['techniques']
         track_acronym = TRACKS[track]
-        info = {
+
+        start_date = date_parser.parse(date_str)
+        state = 1
+        if start_date < datetime.now():
+            state = 3
+        submission = {
             'model': 'proposals.submission',
             'pk': self.submission_count,
             'fields': {
@@ -803,15 +855,40 @@ class FakeProposal:
                 'code': f"{track_acronym}{proposal:07_}".replace('_', '-'),
                 'cycle': cycle,
                 'track': track,
-                'state': 1,
-                'techniques': techniques,
+                'state': state,
+                'techniques': list(itertools.chain(*facility_techniques.values())),
             }
         }
-        self.new_submissions.append(info)
-        self.add_technical_reviews(track_acronym, facilities, date_str)
-        self.add_scientific_reviews(track_acronym, date_str)
+
+        info['submission'] = self.submission_count
+        self.new_submissions.append(submission)
+        tech_scores = self.add_technical_reviews(track_acronym, facility_techniques.keys(), date_str)
+        good_tech_scores = []
+        for fac, score in tech_scores.items():
+            # remove failing facilities
+            if score > 3:
+                del info['techniques'][fac]
+            else:
+                good_tech_scores.append(score)
+        sci_score = self.add_scientific_reviews(track_acronym, date_str)
+        safe_score = 0
         if track == 2:
-            self.add_safety_review(track_acronym, date_str)
+            safe_score = self.add_safety_review(track_acronym, date_str)
+
+        avg_tech_score = sum(good_tech_scores) / len(good_tech_scores) if good_tech_scores else 4.0
+        info['scores'] = {
+            'technical': avg_tech_score,
+            'scientific': sci_score,
+            'safety': safe_score
+        }
+        info['score'] = sci_score
+
+        # Add Project
+        if avg_tech_score < 3 and sci_score < 4 and safe_score < 4:
+            submission['fields']['approved'] = True
+            self.add_project(info)
+        else:
+            submission['fields']['approved'] = False
 
         self.submission_count += 1
 
@@ -820,9 +897,11 @@ class FakeProposal:
         cycle = self.new_cycles[-1]['pk']
         submission = self.new_submissions[-1]['pk']
         date_str = date_chooser()
+        fac_scores = {}
         for fac in facilities:
             acronym = self.facilities[fac].lower()
             score = self.score_chooser()
+            fac_scores[fac] = score
             self.new_reviews.append({
                 'model': 'proposals.review',
                 'pk': self.review_count,
@@ -850,13 +929,16 @@ class FakeProposal:
                 }
             })
             self.review_count += 1
+        return fac_scores
 
     def add_scientific_reviews(self, track, date_str):
         cycle = self.new_cycles[-1]['pk']
         submission = self.new_submissions[-1]['pk']
         date_chooser = RandomDate(date_str, 15)
+        all_scores = []
         for i in range(random.choice([2, 4])):
             scores = [self.score_chooser() for _ in range(3)]
+            all_scores.extend(scores)
             date_str = date_chooser()
             self.new_reviews.append(
                 {
@@ -888,6 +970,7 @@ class FakeProposal:
                 }
             )
             self.review_count += 1
+        return sum(all_scores) / len(all_scores) if all_scores else 0.0
 
     def add_safety_review(self, track, date_str):
         score = self.score_chooser()
@@ -922,6 +1005,7 @@ class FakeProposal:
             }
         )
         self.review_count += 1
+        return score
 
     def add_cycles(self):
         while self.year <= datetime.now().year + 1:
@@ -982,8 +1066,18 @@ class FakeProposal:
         }
         self.new_cycles.append(info)
         print('Added cycle ', self.cycle_count)
+        cycle_info = {
+            'cycle': self.cycle_count,
+            'start_date': start_date,
+            'end_date': end_date,
+            'type_id': type_id,
+            'open_date': open_date,
+            'close_date': close_date,
+            'alloc_date': alloc_date,
+            'due_date': due_date,
+        }
         self.users = self.user_gen.add_users(self.user_count_chooser() + self.cycle_count * 2, open_date)
-        self.add_proposals(self.cycle_count, self.proposal_count_chooser() + 2 * self.cycle_count, open_date)
+        self.add_proposals(cycle_info)
         self.cycle_count += 1
 
     def add_modes(self, schedule_id, start_date, end_date):
@@ -1044,15 +1138,23 @@ class FakeProposal:
             'justification': self.fake.paragraph(nb_sentences=4),
         }
 
-    def add_proposal(self, cycle, date_str):
+    def add_proposal(self, cycle_info):
+        cycle = cycle_info['cycle']
+        date_str = cycle_info['date']
         end_date = date_parser.parse(date_str).date() + timedelta(days=30)
         users = random.sample(self.users, random.randint(2, 5))
         areas = random.sample(SUBJECTS, random.randint(1, 3))
         facility_reqs = []
         techniques = []
-        for i in range(random.choices([1, 2, 3], weights=[0.7, 0.2, 0.1])[0]):
-            facility_reqs.append(self.get_random_facility_req())
-            techniques.extend(facility_reqs[-1]['techniques'])
+        facility_techniques = {}
+        num_reqs = random.choices([1, 2, 3], weights=[0.7, 0.2, 0.05], k=1)[0]
+        for _ in range(num_reqs):
+            req = self.get_random_facility_req()
+            while req['facility'] in facility_techniques:
+                req = self.get_random_facility_req()
+            facility_techniques[req['facility']] = req['techniques']
+            techniques.extend(req['techniques'])
+            facility_reqs.append(req)
 
         title = self.fake.sentence(nb_words=10)
         delegate = {
@@ -1073,7 +1175,33 @@ class FakeProposal:
             user['fields']['email'] for user in team
         ]
         leader_username = users[0]['fields']['username']
-
+        submission_info = {
+            'proposal': self.proposal_count,
+            'title': title,
+            'team_usernames': [user['fields']['username'] for user in team],
+            'team_members': [
+                {'first_name': user['fields']['first_name'],
+                 'last_name': user['fields']['last_name'],
+                 'email': user['fields']['email']}
+                for user in team
+            ],
+            'users': [user['pk'] for user in team],
+            'spokesperson': users[0]['pk'],
+            'leader': leader_username,
+            'delegate': delegate_username,
+            'techniques': facility_techniques,
+            'cycle': cycle,
+            'track': track,
+            'date': date_str,
+            'samples': self.add_samples(users[0]['pk'], date_str),
+            'invoice_address': {
+                'city': self.fake.city(),
+                'code': self.fake.postalcode(),
+                'region': self.fake.state(),
+                'street': self.fake.address(),
+                'country': self.fake.country(),
+            }
+        }
         info = {
             'model': 'proposals.proposal',
             'pk': self.proposal_count,
@@ -1105,13 +1233,8 @@ class FakeProposal:
                         'keywords': '; '.join([self.fake.word() for _ in range(random.randint(1, 3))]),
                     },
                     'first_cycle': cycle,
-                    'team_members': [
-                        {'first_name': user['fields']['first_name'],
-                         'last_name': user['fields']['last_name'],
-                         'email': user['fields']['email']}
-                        for user in team
-                    ],
-                    'sample_list': self.add_samples(users[0]['pk'], date_str),
+                    'team_members': submission_info['team_members'],
+                    'sample_list': submission_info['samples'],
                     'beamline_reqs': facility_reqs,
                     'pool': 1,
                     'scientific_merit': (
@@ -1124,23 +1247,26 @@ class FakeProposal:
                     'sample_hazards': random.sample(HAZARD_TYPES, random.randint(0, 3)),
                     'sample_types': random.sample(SAMPLE_TYPES, random.randint(1, 3)),
                     'sample_handling': self.fake.paragraph(nb_sentences=2),
-                    'invoice_address': {
-                        'city': self.fake.city(),
-                        'code': self.fake.postalcode(),
-                        'region': self.fake.state(),
-                        'street': self.fake.address(),
-                        'country': self.fake.country(),
-                    }
+                    'invoice_address': submission_info['invoice_address'],
                 }
             }
         }
-        facilities = [req['facility'] for req in facility_reqs]
+        facility_permissions = [
+            f'{self.facilities[fac]}-USER' for fac in facility_techniques.keys()
+        ]
+        for user in submission_info['users']:
+            user_perms = random.choices(facility_permissions, k=random.randint(1, len(facility_permissions)))
+            if random.randint(1, 10) > 9:
+                self.user_gen.user_permissions[user].update(user_perms)
+
         if end_date < datetime.now().date():
             info['fields']['is_complete'] = True
             info['fields']['state'] = 1
-            self.add_submission(self.proposal_count, cycle, track, techniques, facilities, date_str)
+            submission_info['cycle_info'] = cycle_info
+            self.add_submission(submission_info)
 
-        if random.randint(0, 100) < 50:
+        facilities = list(facility_techniques.keys())
+        if random.randint(0, 100) < 50 and facilities:
             feedback_date = date_parser.parse(date_str).date() + timedelta(days=random.randint(2, 180))
             user = random.randint(1, self.user_gen.user_count)
             beamline = random.choice(facilities)
@@ -1148,33 +1274,142 @@ class FakeProposal:
         self.new_proposals.append(info)
         self.proposal_count += 1
 
-    def add_proposals(self, cycle, count, start_date):
-        date_chooser = RandomDate(start_date, 30)
+    def add_project(self, info):
+        cycle_info = info['cycle_info']
+        pool = random.choices([1, 2, 3, 4, 5], weights=[75, 10, 20, 10, 5])[0]
+        pool_code = {
+            1: 'G',
+            2: 'S',
+            3: 'P',
+            4: 'B',
+            5: 'E'
+        }[pool]
+        code = f"{info['cycle']:03d}{pool_code}-{self.project_count:05d}"
+        end_date = date_parser.parse(cycle_info['start_date']).date()
+        end_date = end_date.replace(year=end_date.year + 2)
+        self.new_projects.append({
+            'model': 'projects.project',
+            'pk': self.project_count,
+            'fields': {
+                'created': f'{info["date"]} 20:49:59.049236+00:00',
+                'modified': f'{info["date"]} 20:49:59.049236+00:00',
+                'start_date': cycle_info['start_date'],
+                'end_date': end_date.strftime('%Y-%m-%d'),
+                'proposal': info['proposal'],
+                'code': code,
+                'pool': pool,
+                'cycle': cycle_info['cycle'],
+                'spokesperson': info['spokesperson'],
+                'title': info['title'],
+                'leader': [info['leader']],
+                'delegate': [info['delegate']],
+                'details': {
+                    'team_members': info['team_usernames'],
+                    'invoice_address': info['invoice_address'],
+                },
+                'submissions': [info['submission']],
+                'team': [[name] for name in info['team_usernames']],
+                'techniques': list(itertools.chain(*info['techniques'].values())),
+                'tags': [],
+            }
+        })
+        # Add Materials
+        approval = random.choices(['approved', 'pending', 'denied'], weights=[0.6, 0.3, 0.05])[0]
+        self.new_projects.append({
+            'model': 'projects.material',
+            'pk': self.material_count,
+            'fields': {
+                'created': f'{info["date"]} 20:49:59.049236+00:00',
+                'modified': f'{info["date"]} 20:49:59.049236+00:00',
+                'project': self.project_count,
+                'code': f'{code}M001',
+                'procedure': self.fake.paragraph(nb_sentences=2),
+                'waste': [],
+                'disposal': '',
+                'state': approval,
+                'equipment': [],
+                'permissions': {},
+                'risk_level': random.randint(1, 4),
+                'controls': [],
+            }
+        })
+
+        # Add Project samples
+        for sample in info['samples']:
+            sample_approval = 'approved' if approval == 'approved' else 'pending'
+            self.new_projects.append({
+                'model': 'projects.projectsample',
+                'pk': self.project_samples_count,
+                'fields': {
+                    'created': f'{info["date"]} 20:49:59.049236+00:00',
+                    'modified': f'{info["date"]} 20:49:59.049236+00:00',
+                    'state': sample_approval,
+                    'material': self.material_count,
+                    'sample': int(sample['sample']),
+                    'quantity': sample['quantity'],
+                }
+            })
+            self.project_samples_count += 1
+
+        for fac in info['techniques'].keys():
+            requested = random.randint(1, 8)
+            self.new_projects.append({
+                'model': 'projects.allocation',
+                'pk': self.allocation_count,
+                'fields': {
+                    'created': f'{info["date"]} 20:49:59.049236+00:00',
+                    'modified': f'{info["date"]} 20:49:59.049236+00:00',
+                    'project': self.project_count,
+                    'beamline': fac,
+                    'cycle': cycle_info['cycle'],
+                    'procedure': self.fake.paragraph(nb_sentences=2),
+                    'justification': self.fake.paragraph(nb_sentences=2),
+                    'shift_request': requested,
+                    'shifts': random.randint(1, requested),
+                    'score': info['score'],
+                    'scores': info['scores'],
+                    'declined': False,
+                    'discretionary': False,
+                }
+            })
+            self.allocation_count += 1
+
+        self.project_count += 1
+        self.material_count += 1
+
+    def add_proposals(self, cycle_info):
+        cycle = cycle_info['cycle']
+        open_date = cycle_info['open_date']
+        count = self.proposal_count_chooser() + 2 * cycle
+        date_chooser = RandomDate(open_date, 30)
         for _ in range(count):
-            self.add_proposal(cycle, date_chooser())
+            cycle_info['date'] = date_chooser()
+            self.add_proposal(cycle_info)
         print(f'Added {count} proposals for cycle {cycle}...')
 
     def save(self):
-        with open(self.sample_path, 'w') as file:
-            yaml.dump(self.new_samples, file, sort_keys=False)
-        with open(self.data_path, 'w') as file:
-            yaml.dump(self.new_schedules, file, sort_keys=False)
-            yaml.dump(self.new_cycles, file, sort_keys=False)
-            yaml.dump(self.new_proposals, file, sort_keys=False)
-            yaml.dump(self.new_submissions, file, sort_keys=False)
-        with open(self.events_path, 'w') as file:
-            yaml.dump(self.new_events, file, sort_keys=False)
-        with open(self.reviews_path, 'w') as file:
-            yaml.dump(self.new_reviews, file, sort_keys=False)
         self.user_gen.save()
+        with open(self.sample_path, 'w') as fobj:
+            yaml.dump(self.new_samples, fobj, sort_keys=False)
+        with open(self.data_path, 'w') as fobj:
+            yaml.dump(self.new_schedules, fobj, sort_keys=False)
+            yaml.dump(self.new_cycles, fobj, sort_keys=False)
+            yaml.dump(self.new_proposals, fobj, sort_keys=False)
+            yaml.dump(self.new_submissions, fobj, sort_keys=False)
+        with open(self.events_path, 'w') as fobj:
+            yaml.dump(self.new_events, fobj, sort_keys=False)
+        with open(self.reviews_path, 'w') as fobj:
+            yaml.dump(self.new_reviews, fobj, sort_keys=False)
         self.feedback_gen.save()
+        with open(self.project_path, 'w') as fobj:
+            yaml.dump(self.new_projects, fobj, sort_keys=False)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Data Generator for USO')
     parser.add_argument('name', metavar='name', type=str, help='Directory to save data')
-    parser.add_argument('-u', '--users', type=int, help='Starting number of users per cycle', default=50)
-    parser.add_argument('-p', '--proposals', type=int, help='Starting number of proposals per cycle', default=50)
+    parser.add_argument('-u', '--users', type=int, help='Starting number of users per cycle', default=100)
+    parser.add_argument('-p', '--proposals', type=int, help='Starting number of proposals per cycle', default=75)
     args = parser.parse_args()
 
     fac_gen = FakeFacility(name=args.name)

@@ -44713,7 +44713,7 @@
   fields:
     created: 2017-01-23 13:19:07.274459+00:00
     modified: 2017-01-23 13:23:15.067321+00:00
-    code: RADIOACTIVE-SAMPLE-WORK
+    code: RADIOACTIVE-WORK
     description: Radioactive Sample Work
     review: true
 - model: samples.safetypermission

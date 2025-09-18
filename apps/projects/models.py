@@ -90,7 +90,7 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
         return self.leader or self.spokesperson
 
     def team_members(self):
-        return self.details['team_members'] or [{'first_name': '', 'last_name': '', 'email': ''}]
+        return self.details.get('team_members') or [{'first_name': '', 'last_name': '', 'email': ''}]
 
     def invoice_address(self):
         leader = self.get_leader()
