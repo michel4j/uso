@@ -313,7 +313,7 @@ class FakeFeedback:
                 'modified': f'{date_str} 00:33:08.214133+00:00',
                 'form_type': 12,
                 'is_complete': True,
-                'user': [user],
+                'user': user,
                 'beamline': beamline,
                 'cycle': cycle,
                 'details': {
@@ -1142,7 +1142,7 @@ class FakeProposal:
 
         if random.randint(0, 100) < 50:
             feedback_date = date_parser.parse(date_str).date() + timedelta(days=random.randint(2, 180))
-            user = random.choice([leader_username, delegate_username])
+            user = random.randint(1, self.user_gen.user_count)
             beamline = random.choice(facilities)
             self.feedback_gen.add_survey(cycle, beamline, user, feedback_date.strftime('%Y-%m-%d'))
         self.new_proposals.append(info)
