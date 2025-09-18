@@ -240,6 +240,9 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
     permissions = models.JSONField(default=list, blank=True)
     last_updated = models.DateTimeField(null=True, blank=True)
 
+    def natural_key(self):
+        return (self.username,)
+
     @property
     def is_staff(self):
         return self.has_any_role(*USO_ADMIN_ROLES)
