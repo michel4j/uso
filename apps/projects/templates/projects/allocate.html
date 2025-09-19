@@ -3,7 +3,6 @@
 {% load misc %}
 {% load beamlines %}
 
-
 {% block extra_css %}
     <style>
         .hover-edit i {
@@ -80,7 +79,7 @@
                                         {{ pool.projects.count }}
                                     </span>
                                 <span class="stats-title pull-left">
-                                        Allocation<br/>Request{{ pool.projects.count|pluralize }}
+                                        Allocation<br/>Request{{ section.projects.count|pluralize }}
                                     </span>
                             </div>
                             <div class="d-flex flex-column ">

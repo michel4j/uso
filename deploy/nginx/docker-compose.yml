@@ -9,8 +9,8 @@ services:
     environment:
         TIMEZONE: America/Regina
     volumes:
-      - $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock:Z  # for podman
-#      - /var/run/docker.sock:/var/run/docker.sock:Z                 # for docker
+      - $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock  # for podman
+#      - /var/run/docker.sock:/var/run/docker.sock                 # for docker
 
   database:
     image: postgres:17-alpine
