@@ -1,11 +1,12 @@
 {% load i18n %}
+{% load misc %}
 <nav aria-label="breadcrumb">
 <ol class="breadcrumb my-0">
 {% for crumb in breadcrumbs %}
     {% if crumb.resolved and not forloop.last %}
-        <li class="breadcrumb-item"><a href="{{crumb.path}}">{{ crumb.name | capfirst }}</a></li>
+        <li class="breadcrumb-item"><a href="{{crumb.path}}">{{ crumb.name | human_title }}</a></li>
     {% else %}
-        <li class="breadcrumb-item {% if forloop.last %}active{% endif %}" aria-current="page">{{ crumb.name | capfirst }}</li>
+        <li class="breadcrumb-item {% if forloop.last %}active{% endif %}" aria-current="page">{{ crumb.name | human_title }}</li>
     {% endif %}
 {% endfor %}
 </ol>

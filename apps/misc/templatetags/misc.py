@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, date
 
 from django import template
@@ -130,3 +131,17 @@ def report_url(context, report, **kwargs):
     if not view:
         raise ValueError("No view found in context to generate report URL.")
     return view.get_link_url(report)
+
+
+@register.filter(name="human_title")
+def human_title(text):
+    """
+    Converts a string to a more human-readable title format.
+    Replaces underscores and hyphens with spaces and capitalizes each word.
+    """
+    if re.match(r'^[A-Z-\d@]*$', text):
+        return text
+    text = text.replace('_', ' ')
+    text = re.sub(r'^(.)',  lambda m: m.group(1).upper(),  text)
+    text = re.sub(r'([ -][a-z])', lambda m: m.group(1).upper(),  text)
+    return text
