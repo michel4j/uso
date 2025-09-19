@@ -302,14 +302,14 @@ class Submission(CodeModelMixin, TimeStampedModel):
 
         # fetch score information from all completed reviews
         review_scores = self.reviews.complete().annotate(
-            position=F('stage__position'),
             facility=F('details__facility'),
-        ).order_by('position', 'facility').annotate(
+        ).values(
+            'stage',
+            'facility'
+        ).annotate(
             score_avg=Avg('score'),
             score_std=StdDev('score'),
         ).values(
-            'position',
-            'score',
             'stage',
             'facility',
             'score_avg',
