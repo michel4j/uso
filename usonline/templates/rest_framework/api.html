@@ -98,7 +98,7 @@
                 </div>
                 <code class="small flex-shrink-0">
                       {% for key, val in response_headers.items %}<strong>{{ key }}:</strong>
-                          <div class="lit">{{ val|break_long_headers }}</div>
+                          <div class="lit">{{ val }}</div>
                       {% endfor %}
                 </code>
             </div>

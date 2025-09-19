@@ -80,12 +80,16 @@ env.bak/
 venv.bak/
 
 .git
+.github
 .dbinit
 .venv*
 .idea/
 junk/
 temp/
+docs/
 deploy/*
+!deploy/apache
+!deploy/nginx
 !deploy/*/*.conf
 !deploy/*/*.sh
 !deploy/*.conf

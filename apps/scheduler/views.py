@@ -17,7 +17,6 @@ from rest_framework import generics, status, permissions
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from misc.utils import debug_value
 from roleperms.views import RolePermsViewMixin
 from . import models, forms
 from . import serializers
@@ -245,12 +244,12 @@ class FacilityModeListAPI(generics.ListAPIView):
         queryset = models.Mode.objects.filter(
             schedule__state__in=[models.Schedule.STATES.live, models.Schedule.STATES.tentative]
         )
-        today = timezone.localtime(timezone.now()).date()
+        now = timezone.localtime(timezone.now())
         if self.request.GET.get('start') and self.request.GET.get('end'):
             start = timezone.make_aware(parser.parse(self.request.GET.get('start')))
             end = timezone.make_aware(parser.parse(self.request.GET.get('end')))
         else:
-            start = today.replace(day=1)
+            start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             end = start + timedelta(days=calendar.monthrange(start.year, start.month)[1])
         return queryset.filter(start__lte=end, end__gte=start).all()
 
@@ -442,8 +441,10 @@ class MonthTemplate(TemplateView):
             d = now.date()
 
         if 'start' in self.request.GET and 'end' in self.request.GET:
-            context['range_start'] = parser.parse(self.request.GET.get('start')).date()
-            context['range_end'] = parser.parse(self.request.GET.get('end')).date()
+            start = timezone.make_aware(parser.parse(self.request.GET.get('start')))
+            end = timezone.make_aware(parser.parse(self.request.GET.get('end')))
+            context['range_start'] = start.date()
+            context['range_end'] = end.date()
 
         slot = int(self.kwargs.get('slot', 8))
         config = models.ShiftConfig.objects.filter(duration=slot).order_by('modified').last()
@@ -451,8 +452,9 @@ class MonthTemplate(TemplateView):
 
         cal = calendar.Calendar(calendar.SUNDAY)
         dates = [[calendar.day_abbr[x] for x in cal.iterweekdays()]] + cal.monthdatescalendar(d.year, d.month)
+
         context['month'] = {'num': d.month, 'name': d.strftime('%M'), 'dates': [list(x) for x in zip(*dates)]}
-        context['headers'] = ['Week {}'.format(d.isocalendar()[1]) for d in context['month']['dates'][1][1:]]
+        context['headers'] = [f'Week {d.isocalendar()[1]}' for d in context['month']['dates'][1][1:]]
         context['shifts'] = shifts
         context['shift_count'] = len(shifts)
         context['current'] = utils.round_time(now, timedelta(hours=config.duration))

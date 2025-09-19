@@ -1,7 +1,7 @@
 FROM python:3.12-alpine
 
 COPY requirements.txt /
-COPY deploy/run-server.sh /
+COPY deploy/apache/run-server.sh /
 COPY deploy/wait-for-it.sh /
 ADD . /usonline
 

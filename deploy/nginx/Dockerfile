@@ -2,8 +2,9 @@ FROM python:3.13-alpine
 
 COPY requirements.txt /
 COPY deploy/nginx/run-server.sh /
-COPY deploy/wait-for-it.sh /
 COPY deploy/nginx/health-check.sh /
+COPY deploy/wait-for-it.sh /
+
 ADD . /usonline
 
 RUN set -ex && \

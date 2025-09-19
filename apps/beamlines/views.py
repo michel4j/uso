@@ -14,7 +14,6 @@ from itemlist.views import ItemListView
 from rest_framework import generics, permissions
 from rest_framework.parsers import JSONParser
 
-from misc.utils import debug_value
 from projects.models import LabSession
 from proposals.filters import TechniqueFilterFactory
 from roleperms.views import RolePermsViewMixin
