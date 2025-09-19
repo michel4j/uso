@@ -19,6 +19,7 @@ import os
 DEBUG = False                        # Set to False in production
 SITE_URL = "http://localhost:8080"  # The URL of the site
 ALLOWED_HOSTS = ['localhost', '*', 'proxy']  # The list of allowed hosts
+CSRF_TRUSTED_ORIGINS = ["https://localhost", "https://localhost"]
 
 # -----------------------------------------------------------------------------
 # SECRET_KEY is a crucial security setting used for cryptographic signing within

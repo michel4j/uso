@@ -32,9 +32,12 @@ $(document).ready(function() {
 
     $instInput.bind('typeahead:select', function(ev, suggestion){
         const $countryInput = $('#id_country');
+        const $regionSelect = $('#id_region');
         const $cityInput = $('#id_city');
+        $regionSelect.off('change.options').on('change.options', function(){
+            $(this).val(suggestion.region_id);
+        });
         $countryInput.val(suggestion.country_id).trigger('change');
-        $regionSelect.val(suggestion.region_id).trigger('change');
         $cityInput.val(suggestion.city).trigger('change');
     })
 });

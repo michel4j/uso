@@ -111,7 +111,7 @@ class InstitutionDetail(View):
 
 class InstitutionSearch(View):
     def get(self, request, *args, **kwargs):
-        found = models.Institution.objects.filter(name__search=request.GET['q']).order_by('name')
+        found = models.Institution.objects.filter(name__icontains=request.GET['q']).order_by('name')
         if found.count():
             context = [
                 {
@@ -120,6 +120,8 @@ class InstitutionSearch(View):
                     'city': inst.city,
                     'region': '' if not inst.region else inst.region.name,
                     'country': '' if not inst.country else inst.country.name,
+                    'country_id': '' if not inst.country else inst.country.pk,
+                    'region_id': '' if not inst.region else inst.region.pk,
                     'sector': inst.get_sector_display(),
                 }
                 for inst in found.all()
@@ -138,6 +140,8 @@ class InstitutionInfo(View):
                 'city': inst.city,
                 'region': '' if not inst.region else inst.region.name,
                 'country': '' if not inst.country else inst.country.name,
+                'country_id': '' if not inst.country else inst.country.pk,
+                'region_id': '' if not inst.region else inst.region.pk,
                 'sector': inst.get_sector_display(),
             }
             for inst in models.Institution.objects.all()

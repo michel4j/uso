@@ -616,7 +616,7 @@ class FakeUser:
             domain = '@bespoke.com'
             institution = 'Bespoke Facility'
             country = 'CAN'
-            city = 'Areion Prime'
+            city = 'Saskatoon'
             region = 'CA-SK'
             address = '1 Synchrotron Way'
             department = 'Beamline Operations'

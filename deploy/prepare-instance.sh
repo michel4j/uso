@@ -2,8 +2,10 @@
 
 set -e
 
+SERVER=${2:-apache}
+
 if [ -z "$1" ]; then
-  echo "Usage: $0 <directory>"
+  echo "Usage: $0 <directory> <server>"
   echo "Please provide a parent directory for the instance."
   echo "A new directory named 'usonline' will be created within it."
   exit 1
@@ -11,11 +13,8 @@ fi
 
 SCRIPT_NAME="$0"
 PARENT_DIR="${1%%+(/)}"  # Remove trailing slashes
-USONLINE_DIR="$PARENT_DIR/usonline"
+USONLINE_DIR="$PARENT_DIR/uso-${SERVER}"
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
-
-#. "$SCRIPT_DIR/build-image.sh" && echo "Image built successfully."
-
 
 if [ -d "$USONLINE_DIR" ]; then
   echo "The directory '$USONLINE_DIR' already exists. Exiting."
@@ -36,9 +35,18 @@ DB_PASSWORD=$(openssl rand -base64 32 | tr -d '\n="`')
 SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n="`')
 cp "${SCRIPT_DIR}/settings_template.py" "$USONLINE_DIR/local/settings.py" &&
 cp "${SCRIPT_DIR}/custom.css" "$USONLINE_DIR/local/media/css/" &&
-cp "${SCRIPT_DIR}/docker-compose.yml" "$USONLINE_DIR/" &&
+cp "${SCRIPT_DIR}/robots.txt" "$USONLINE_DIR/local/media/" &&
+cp "${SCRIPT_DIR}/${SERVER}/docker-compose.yml" "$USONLINE_DIR/" &&
 
-cat <<EOF > "$USONLINE_DIR/.env"
+ENV_FILE="${USONLINE_DIR}/.env"
+
+if [ "$SERVER" = "nginx" ]; then
+  cp "${SCRIPT_DIR}/nginx/nginx.conf" "$USONLINE_DIR/local/"
+elif [ "${SERVER}" = "devel" ]; then
+  ENV_FILE="${USONLINE_DIR}/local/.env"
+fi
+
+cat <<EOF > "${ENV_FILE}"
 SECRET_KEY='${SECRET_KEY}'
 
 DATABASE_PASSWORD='${DB_PASSWORD}'
@@ -56,12 +64,13 @@ DJANGO_SUPERUSER_PASSWORD='usoadmin'
 
 EMAIL_PASSWORD=your_email_password_here
 EOF
-chmod 600 "$USONLINE_DIR/.env"
+chmod 600 "${ENV_FILE}"
 
 echo "Instance directory is ready! Before starting the instance, ensure you have completed the following steps:"
 echo "NOTE: Old versions built the image automatically, but this is now done manually via 'deploy/build-image.sh'."
 echo "--------------------------------------------------"
 echo " 1. Build the image if needed './deploy/build-image.sh'"
-echo " 2. Update secrets in $USONLINE_DIR/.env "
+echo " 2. Update secrets in $ENV_FILE "
 echo " 3. Update '$USONLINE_DIR/local/settings.py' to override settings, and"
 echo " 4. Check and update '$USONLINE_DIR/docker-compose.yml' as needed."
+echo " 5. [optional] Generate fake test data files './deploy/generate-data.py $USONLINE_DIR/local/'"

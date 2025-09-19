@@ -10,12 +10,12 @@ rm -rf /run/httpd/* /tmp/httpd*
 if [ -f /usonline/local/certs/server.key ] && [ -f /usonline/local/certs/server.crt ]; then
     # Disable chain cert if no ca.crt file available
     if [ -f /usonline/local/certs/ca.crt ]; then
-        /bin/cp /usonline/deploy/usonline-ssl-chain.conf /etc/apache2/conf.d/99-usonline.conf
+        /bin/cp /usonline/deploy/apache/uso-ssl-chain.conf /etc/apache2/conf.d/99-usonline.conf
     else
-        /bin/cp  /usonline/deploy/usonline-ssl.conf /etc/apache2/conf.d/99-usonline.conf
+        /bin/cp  /usonline/deploy/apache/uso-ssl.conf /etc/apache2/conf.d/99-usonline.conf
     fi
 else
-    /bin/cp  /usonline/deploy/usonline.conf /etc/apache2/conf.d/99-usonline.conf
+    /bin/cp  /usonline/deploy/apache/uso.conf /etc/apache2/conf.d/99-usonline.conf
 fi
 
 ./wait-for-it.sh database:5432 -t 60
