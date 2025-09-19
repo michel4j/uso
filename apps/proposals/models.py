@@ -315,7 +315,6 @@ class Submission(CodeModelMixin, TimeStampedModel):
             'score_avg',
             'score_std',
         )
-
         stages = self.track.stages.in_bulk()
 
         # create a dictionary mapping stage objects to score information

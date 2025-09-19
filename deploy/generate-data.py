@@ -10,11 +10,14 @@ import shutil
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
+from django.utils import timezone
 
 
 import dateutil.parser as date_parser
 import numpy
+import pytz
 import yaml
+from django.utils.timezone import make_aware
 from faker import Faker
 from unidecode import unidecode
 
@@ -144,7 +147,7 @@ CORE_PERMISSIONS = {
     'BIOLAB-ACCESS': 1,
     'RADIOACTIVE-WORK': 1,
     'PATHOGEN-WORK': 1,
-    'FACILITY-ACCESS': 8,
+    'FACILITY-ACCESS': 4,
 }
 
 THIS_YEAR = datetime.now().year
@@ -221,6 +224,98 @@ class LikertRandomizer:
 
 
 random_likert_choice = LikertRandomizer()
+
+
+def random_schedule(start_date, end_date):
+    """
+    Generates a random list of continuous time intervals between two dates
+    according to a specific set of rules.
+
+    Rules:
+    - Intervals must start and end at either 08:00 or 16:00.
+    - Intervals are non-overlapping.
+    - Generates between 5 and 10 intervals per week (Tue 08:00 to Mon 08:00).
+    - Random 0-24 hour gaps can occur between intervals.
+    - Minimum interval duration is 8 hours.
+
+    Args:
+        start_date: The start date of the overall period
+        end_date: The end date of the overall period
+
+    Returns:
+        list: A list of tuples, where each tuple contains the start and end
+              datetime objects for an interval.
+    """
+    try:
+        start_date = datetime.combine(start_date, datetime.min.time())
+        end_date = datetime.combine(end_date, datetime.min.time())
+    except ValueError:
+        print("Error: Please provide dates in 'YYYY-MM-DD' format.")
+        return []
+
+    intervals = []
+
+    # --- Step 1: 08:00 on first day
+    cursor = start_date.replace(hour=8, minute=0, second=0, microsecond=0)
+
+    # --- Step 2: process the week
+    week_start = cursor
+    week_end = end_date
+
+    num_intervals_for_week = random.randint(5, 10)
+    week_cursor = week_start
+
+    # --- Step 3: Inner loop to generate intervals within the current week ---
+    for _ in range(num_intervals_for_week):
+        if week_cursor >= week_end:
+            break # Stop if we've run out of time in the work week
+
+        interval_start = week_cursor
+
+        # --- Step 4: Calculate a valid random duration for the interval ---
+        # First, find the maximum number of valid steps (8h or 16h blocks)
+        # that can fit between the current position and the end of the week.
+        max_steps = 0
+        temp_time = interval_start
+        while True:
+            step_hours = 8 if temp_time.hour == 8 else 16
+            if temp_time + timedelta(hours=step_hours) <= week_end:
+                temp_time += timedelta(hours=step_hours)
+                max_steps += 1
+            else:
+                break
+
+        if max_steps == 0:
+            # Can't fit even a minimum 8-hour interval.
+            break
+
+        # Now, pick a random number of steps to create the interval's duration.
+        num_steps = random.randint(1, max_steps)
+        interval_end = interval_start
+        for _ in range(num_steps):
+            step_hours = 8 if interval_end.hour == 8 else 16
+            interval_end += timedelta(hours=step_hours)
+
+        intervals.append((interval_start, interval_end))
+
+        # --- Step 5: Calculate the start time for the next interval ---
+        # Add a random gap between 0 and 24 hours.
+        gap_hours = random.uniform(0, 24)
+        next_start_base = interval_end + timedelta(hours=gap_hours)
+
+        # Snap the resulting time to the next valid 08:00 or 16:00 slot.
+        if next_start_base.hour < 8 or \
+           (next_start_base.hour == 8 and next_start_base.minute == 0):
+            week_cursor = next_start_base.replace(hour=8, minute=0, second=0, microsecond=0)
+        elif next_start_base.hour < 16 or \
+             (next_start_base.hour == 16 and next_start_base.minute == 0):
+            week_cursor = next_start_base.replace(hour=16, minute=0, second=0, microsecond=0)
+        else:
+            next_day = next_start_base + timedelta(days=1)
+            week_cursor = next_day.replace(hour=8, minute=0, second=0, microsecond=0)
+
+    return intervals
+
 
 def random_year():
     """Generate a random year between start and end."""
@@ -732,8 +827,8 @@ class FakeFacility:
                     'resolution': "{:0.4e} dE/E".format(random.randint(1, 5) * 1e-4),
                     'range': f"{random.randint(10, 5000)}-{random.randint(6000, 80000)} eV",
                     'state': random.choice(STATES),
-                    'shift_size': random.choice([4, 8, 8, 8, 8, 8, 8]),
-                    'flex_schedule': random.choice([True, False]),
+                    'shift_size': random.choices([4, 8], weights=[1, 10])[0],
+                    'flex_schedule': random.choices([True, False], weights=[3, 10])[0],
                     'details': {
                         'pools': {"1": 45, "2": 10, "3": 10, "4": 25, "5": 10}
                     },
@@ -772,12 +867,16 @@ class FakeProposal:
         self.new_projects = []
         self.new_events = []
         self.new_reviews = []
+        self.new_beamtime = []
+        self.cycle_beamtime = defaultdict(list)
+        self.cycle_beamline_projects = {}
         self.review_count = 1
         self.proposal_count = 1
         self.sample_count = 1
         self.cycle_count = 1
         self.project_count = 1
         self.allocation_count = 1
+        self.beamtime_count = 1
         self.material_count = 1
         self.project_samples_count = 1
 
@@ -793,7 +892,7 @@ class FakeProposal:
         self.proposal_count_chooser = RandomChooser(
             list(range(num_proposals - prop_offset, num_proposals + prop_offset))
         )
-        self.score_chooser = RandomChooser([1, 1, 3, 3, 3, 3, 2, 2, 2, 2, 4])
+        self.score_chooser = RandomChooser([1, 1, 1, 3, 3, 3, 2, 2, 2, 2, 4])
 
         path = Path(self.name)
         self.data_path = path / 'kickstart' / '003-proposals.yml'
@@ -801,6 +900,7 @@ class FakeProposal:
         self.events_path = path / 'kickstart' / '004-events.yml'
         self.reviews_path = path / 'kickstart' / '005-reviews.yml'
         self.project_path = path / 'kickstart' / '006-projects.yml'
+        self.beamtime_path = path / 'kickstart' / '007-beamtime.yml'
         self.data_path.parent.mkdir(parents=True, exist_ok=True)
 
     def add_samples(self, user, date_str):
@@ -1126,6 +1226,9 @@ class FakeProposal:
             self.mode_count += 1
             d_start = shift_end
 
+            if mode == 1:
+                self.cycle_beamtime[schedule_id].append((shift_start, shift_end))
+
     def get_random_facility_req(self):
         facility = random.choice(list(self.techniques.keys()))
         techniques = random.sample(self.techniques[facility], random.randint(1, len(self.techniques[facility])))
@@ -1166,26 +1269,22 @@ class FakeProposal:
         if random.randint(0, 100) < 2:
             delegate = {'first_name': 'Admin', 'last_name': 'User', 'email': 'admin@bespoke.com'}
             delegate_username = 'admin'
-            team = users[1:]
-        else:
-            team = users[2:]
 
         track = random.choices([1, 2, 3], weights=[8, 2, 3])[0]  # GA, RA, PA
         submission_team = [
-            user['fields']['email'] for user in team
+            user['fields']['email'] for user in users
         ]
         leader_username = users[0]['fields']['username']
         submission_info = {
             'proposal': self.proposal_count,
             'title': title,
-            'team_usernames': [user['fields']['username'] for user in team],
             'team_members': [
                 {'first_name': user['fields']['first_name'],
                  'last_name': user['fields']['last_name'],
                  'email': user['fields']['email']}
-                for user in team
+                for user in users
             ],
-            'users': [user['pk'] for user in team],
+            'users': [user['pk'] for user in users],
             'spokesperson': users[0]['pk'],
             'leader': leader_username,
             'delegate': delegate_username,
@@ -1256,21 +1355,22 @@ class FakeProposal:
         ]
         for user in submission_info['users']:
             user_perms = random.choices(facility_permissions, k=random.randint(1, len(facility_permissions)))
-            if random.randint(1, 10) > 9:
+            if random.randint(1, 10) < 7:
                 self.user_gen.user_permissions[user].update(user_perms)
 
+        facilities = list(facility_techniques.keys())
         if end_date < datetime.now().date():
             info['fields']['is_complete'] = True
             info['fields']['state'] = 1
             submission_info['cycle_info'] = cycle_info
             self.add_submission(submission_info)
 
-        facilities = list(facility_techniques.keys())
-        if random.randint(0, 100) < 50 and facilities:
-            feedback_date = date_parser.parse(date_str).date() + timedelta(days=random.randint(2, 180))
-            user = random.randint(1, self.user_gen.user_count)
-            beamline = random.choice(facilities)
-            self.feedback_gen.add_survey(cycle, beamline, user, feedback_date.strftime('%Y-%m-%d'))
+            if random.randint(0, 100) < 50 and facilities:
+                # Add feedback for some proposals
+                feedback_date = date_parser.parse(date_str).date() + timedelta(days=random.randint(2, 180))
+                user = random.randint(1, self.user_gen.user_count)
+                beamline = random.choice(facilities)
+                self.feedback_gen.add_survey(cycle, beamline, user, feedback_date.strftime('%Y-%m-%d'))
         self.new_proposals.append(info)
         self.proposal_count += 1
 
@@ -1287,6 +1387,7 @@ class FakeProposal:
         code = f"{info['cycle']:03d}{pool_code}-{self.project_count:05d}"
         end_date = date_parser.parse(cycle_info['start_date']).date()
         end_date = end_date.replace(year=end_date.year + 2)
+        cycle = cycle_info['cycle']
         self.new_projects.append({
             'model': 'projects.project',
             'pk': self.project_count,
@@ -1298,21 +1399,22 @@ class FakeProposal:
                 'proposal': info['proposal'],
                 'code': code,
                 'pool': pool,
-                'cycle': cycle_info['cycle'],
+                'cycle': cycle,
                 'spokesperson': info['spokesperson'],
                 'title': info['title'],
                 'leader': [info['leader']],
                 'delegate': [info['delegate']],
                 'details': {
-                    'team_members': info['team_usernames'],
+                    'team_members': info['team_members'],
                     'invoice_address': info['invoice_address'],
                 },
                 'submissions': [info['submission']],
-                'team': [[name] for name in info['team_usernames']],
+                'team': info['users'],
                 'techniques': list(itertools.chain(*info['techniques'].values())),
                 'tags': [],
             }
         })
+
         # Add Materials
         approval = random.choices(['approved', 'pending', 'denied'], weights=[0.6, 0.3, 0.05])[0]
         self.new_projects.append({
@@ -1351,8 +1453,12 @@ class FakeProposal:
             })
             self.project_samples_count += 1
 
+        if cycle not in self.cycle_beamline_projects:
+            self.cycle_beamline_projects[cycle] = defaultdict(list)
+
         for fac in info['techniques'].keys():
             requested = random.randint(1, 8)
+            self.cycle_beamline_projects[cycle][fac].append(self.project_count)
             self.new_projects.append({
                 'model': 'projects.allocation',
                 'pk': self.allocation_count,
@@ -1387,7 +1493,41 @@ class FakeProposal:
             self.add_proposal(cycle_info)
         print(f'Added {count} proposals for cycle {cycle}...')
 
+    def add_beamtimes(self):
+        for cycle, beamline_projects in self.cycle_beamline_projects.items():
+            date_str = f'{self.year + cycle // 2}-01-01'
+            for beamline, projects in beamline_projects.items():
+                available_periods = list(itertools.chain(*[
+                    random_schedule(*week) for week in self.cycle_beamtime[cycle]
+                ]))
+                random.shuffle(available_periods)
+                index = 0
+                while len(available_periods) > 0:
+                    project = projects[index % len(projects)]
+                    index += 1
+                    period = available_periods.pop()
+                    start_time, end_time = period
+
+                    self.new_beamtime.append({
+                        "model": "projects.beamtime",
+                        "pk": self.beamtime_count,
+                        "fields": {
+                            "created": f"{date_str}T03:30:57.246Z",
+                            "modified": f"{date_str}T03:30:57.246Z",
+                            "start": start_time.astimezone(pytz.UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                            "end": end_time.astimezone(pytz.UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                            "cancelled": False,
+                            "schedule": cycle,
+                            "comments": "",
+                            "project": project,
+                            "beamline": beamline,
+                            "tags": []
+                        }
+                    })
+                    self.beamtime_count += 1
+
     def save(self):
+        self.add_beamtimes()
         self.user_gen.save()
         with open(self.sample_path, 'w') as fobj:
             yaml.dump(self.new_samples, fobj, sort_keys=False)
@@ -1403,6 +1543,9 @@ class FakeProposal:
         self.feedback_gen.save()
         with open(self.project_path, 'w') as fobj:
             yaml.dump(self.new_projects, fobj, sort_keys=False)
+
+        with open(self.beamtime_path, 'w') as fobj:
+            yaml.dump(self.new_beamtime, fobj, sort_keys=False)
 
 
 if __name__ == '__main__':
