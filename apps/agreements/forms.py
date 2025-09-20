@@ -8,7 +8,7 @@ from . import models
 
 
 class AgreementForm(forms.ModelForm):
-    roles = forms.MultipleChoiceField(label='Required for Roles', required=True)
+    roles = forms.MultipleChoiceField(label='Required for Roles', required=False)
 
     class Meta:
         model = models.Agreement
