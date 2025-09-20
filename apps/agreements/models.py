@@ -27,7 +27,7 @@ class AgreementQuerySet(DateSpanQuerySet):
         return self.filter(users__pk=user.pk, acceptances__active=True)
 
     def pending_for_user(self, user):
-        return self.required_for_user(user).exclude(
+        return self.filter(state='enabled').required_for_user(user).exclude(
             pk__in=self.active_for_user(user).values_list('pk', flat=True)
         ).distinct()
 

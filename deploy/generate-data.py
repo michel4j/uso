@@ -1107,6 +1107,27 @@ class FakeProposal:
         self.review_count += 1
         return score
 
+    def add_material_review(self, material, cycle, date_str):
+        self.new_reviews.append({
+            'model': 'proposals.review',
+            'pk': self.review_count,
+            'fields': {
+                'created': f'{date_str} 20:49:59.049236+00:00',
+                'modified': f'{date_str} 20:49:59.049236+00:00',
+                'details': {},
+                'form_type': 5,
+                'is_complete': False,
+                'content_type': ['projects', 'material'],
+                'object_id': material,
+                'role': f'safety-approver',
+                'state': 1,
+                'score': 0.0,
+                'cycle': cycle,
+                'type': 6,
+            }
+        })
+        self.review_count += 1
+
     def add_cycles(self):
         while self.year <= datetime.now().year + 1:
             self.add_cycle()
@@ -1435,6 +1456,8 @@ class FakeProposal:
                 'controls': [],
             }
         })
+
+        self.add_material_review(self.material_count, cycle, info['date'])
 
         # Add Project samples
         for sample in info['samples']:
