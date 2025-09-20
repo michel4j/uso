@@ -1,4 +1,5 @@
 from django.db import models, connection
+from django.db.models import Value
 
 
 class Hours(models.Func):
@@ -318,3 +319,33 @@ class YearMonth(models.Func):
     """
     template = "TO_CHAR(%(expressions)s, 'YYYY-MM')"
     output_field = models.CharField()
+
+
+class SplitPart(models.Func):
+    """
+    A custom database function for Django that mimics the behavior of
+    PostgreSQL's SPLIT_PART function. It splits a string expression
+    by a given delimiter and returns the nth substring.
+
+    Usage:
+    MyModel.objects.annotate(
+        part=SplitPart('my_field', '.', 2)
+    )
+    """
+    function = 'SPLIT_PART'
+    arity = 3
+    template = '%(function)s(%(expressions)s)'
+    output_field = models.CharField()
+
+    def __init__(self, expression, delimiter, position, **extra):
+        """
+        Initializes the SplitPart function.
+        :param expression: The field or expression to split.
+        :param delimiter: The delimiter to split the string by.
+        :param position: The 1-based index of the part to return.
+        :param extra: Additional options for the Func.
+        """
+        # Ensure delimiter and position are treated as literal values in the SQL query.
+        delimiter_expr = Value(str(delimiter))
+        position_expr = Value(int(position))
+        super().__init__(expression, delimiter_expr, position_expr, **extra)

@@ -5,10 +5,12 @@ from django.db import models
 from datetime import datetime, timedelta, time
 
 from django.db.models import TextChoices
+from django.db.models.functions import Right
 from django.utils.timesince import timesince
 from model_utils.models import TimeStampedModel
 from django.utils import timezone
 from isocron import parse_iso, BaseCronJob, utils
+from misc.functions import SplitPart
 
 JOB_TIME_RESOLUTION = 600       # maximum resolution for job times in seconds (10 minutes)
 
@@ -54,13 +56,23 @@ class TaskLogManager(models.Manager):
         return self.filter(state=TaskLog.StateType.failed)
 
 
+class BackgroundTaskManager(models.Manager):
+    use_for_related_fields = True
+
+    def get_queryset(self):
+        return super().get_queryset().annotate(task_name=SplitPart('name', ".", 2))
+
+
 class BackgroundTask(TimeStampedModel):
     name = models.CharField(max_length=255, unique=True)
+    label = models.CharField(max_length=100, blank=True, null=True)
     keep_logs = models.IntegerField(default=10, help_text="Number of logs to keep in the log")
     run_every = models.CharField(max_length=50, blank=True, null=True, help_text="ISO 8601 Time or Duration String")
     run_at = models.CharField(max_length=50, null=True, help_text="ISO 8601 Time String")
     retry_after = models.CharField(max_length=50, blank=True, null=True, help_text="ISO 8601 Duration")
     description = models.TextField(blank=True, null=True)
+    task_name: str
+    objects = BackgroundTaskManager()
 
     def __str__(self):
         return self.task()
@@ -70,7 +82,7 @@ class BackgroundTask(TimeStampedModel):
         Get the task name without the module prefix.
         :return: The task name as a string.
         """
-        return self.name.split('.')[-1]
+        return self.label
 
     def app(self) -> str:
         """

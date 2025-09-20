@@ -136,6 +136,7 @@ def autodiscover():
         to_create = [
             BackgroundTask(
                 name=name, run_every=tasks[name].run_every, run_at=tasks[name].run_at,
+                label=name.split('.')[-1],
                 retry_after=tasks[name].retry_after, keep_logs=tasks[name].keep_logs,
                 description=(tasks[name].__doc__ or "").replace('\n', ' ').strip()
             )

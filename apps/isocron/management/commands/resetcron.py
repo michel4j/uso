@@ -18,6 +18,7 @@ class Command(BaseCommand):
         sys.stdout.write('Task log is clean\n')
         to_update = BackgroundTask.objects.all()
         for task in to_update:
+            task.label = task.name.split('.')[-1]
             task.run_at = tasks[task.name].run_at
             task.run_every = tasks[task.name].run_every
             task.retry_after = tasks[task.name].retry_after
@@ -26,5 +27,5 @@ class Command(BaseCommand):
 
         # Update the existing tasks with the new parameters
         BackgroundTask.objects.bulk_update(
-            to_update, ['run_every', 'run_at', 'retry_after', 'keep_logs', 'description']
+            to_update, ['label', 'run_every', 'run_at', 'retry_after', 'keep_logs', 'description']
         )

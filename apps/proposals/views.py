@@ -72,7 +72,7 @@ class UserProposalList(RolePermsViewMixin, ItemListView):
     list_filters = ['state', 'modified', 'created']
     list_transforms = {'state': _state_lbl, }
     list_search = ['title', 'areas__name', 'keywords', 'code', 'details']
-    order_by = ['state', '-modified']
+    ordering = ['state', '-modified']
     list_title = 'My Proposals'
     paginate_by = 25
 
@@ -104,7 +104,7 @@ class ProposalList(RolePermsViewMixin, ItemListView):
     list_filters = ['state', 'modified', 'created']
     list_transforms = {'state': _state_lbl, }
     list_search = ['title', 'areas__name', 'keywords', 'code', 'details']
-    order_by = ['state', 'created']
+    ordering = ['state', 'created']
     paginate_by = 15
 
     def get_link_url(self, obj):
@@ -142,7 +142,7 @@ class PRCList(RolePermsViewMixin, ItemListView):
     list_filters = ['modified', 'created']
     link_url = "prc-reviews"
     list_search = ['title', 'areas__name', 'keywords']
-    order_by = ['user__last_name', 'created']
+    ordering = ['user__last_name', 'created']
 
     def get_list_title(self):
         return f'Peer-Reviewers - {self.track} Track'
@@ -1084,7 +1084,7 @@ class ReviewCycleList(RolePermsViewMixin, ItemListView):
     list_filters = ['start_date']
     link_url = "review-cycle-detail"
     list_search = ['start_date', 'open_date', 'close_date', 'alloc_date', 'due_date', 'type__name']
-    order_by = ['-start_date']
+    ordering = ['-start_date']
     admin_roles = USO_ADMIN_ROLES
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1173,7 +1173,7 @@ class SubmissionList(RolePermsViewMixin, ItemListView):
         'proposal__title', 'proposal__id', 'proposal__spokesperson__last_name', 'proposal__keywords',
         'code', 'proposal__details'
     ]
-    order_by = ['-cycle_id']
+    ordering = ['-cycle_id']
     list_title = 'Submitted Proposals'
     list_transforms = {
         'facilities': _fmt_beamlines,
@@ -1276,7 +1276,7 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
     list_filters = ['created', 'pool', 'techniques__config__facility']
     list_search = ['proposal__title', 'proposal__code', 'proposal__team', 'proposal__keywords']
     link_url = "submission-detail"
-    order_by = ['proposal__id', '-cycle_id', '-stdev']
+    ordering = ['proposal__id', '-cycle_id', '-stdev']
     list_title = 'Review Evaluation'
     list_transforms = {
         'facilities': _acronym_list, 'adj': _adjusted_score,
@@ -1495,7 +1495,7 @@ class AssignedSubmissionList(RolePermsViewMixin, ItemListView):
                    'proposal__spokesperson__last_name']
     link_url = "submission-detail"
     list_styles = {'proposal': 'col-sm-6'}
-    order_by = ['-cycle__start_date', '-created']
+    ordering = ['-cycle__start_date', '-created']
     list_title = 'Reviewer Assignments'
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1522,7 +1522,7 @@ class ReviewerAssignments(RolePermsViewMixin, ItemListView):
                    'proposal__spokesperson__last_name']
     link_url = "submission-detail"
     list_styles = {'proposal': 'col-sm-6'}
-    order_by = ['-cycle__start_date', '-created']
+    ordering = ['-cycle__start_date', '-created']
     list_title = 'Reviewer Assignments'
     allowed_roles = USO_ADMIN_ROLES
 
@@ -1559,7 +1559,7 @@ class PRCAssignments(RolePermsViewMixin, ItemListView):
                    'proposal__spokesperson__last_name']
     link_url = "submission-detail"
     list_styles = {'proposal': 'col-sm-6'}
-    order_by = ['-cycle__start_date', '-created']
+    ordering = ['-cycle__start_date', '-created']
     list_title = 'Committee Assignments'
     allowed_roles = USO_ADMIN_ROLES
 
