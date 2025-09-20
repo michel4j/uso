@@ -19,6 +19,7 @@ from django.utils.translation import gettext as _
 from dynforms.forms import DynModelForm
 
 from misc.countries import COUNTRY_CODES
+from misc.fields import DelimitedTextFormField
 from . import models
 from . import utils
 from .models import User, Institution, SecureLink, Registration
@@ -27,15 +28,17 @@ blank_choice = ((None, '------'),)
 
 
 class InstitutionForm(ModalModelForm):
+
+    domains = DelimitedTextFormField(
+        required=False, help_text='Semi-colon separated list e.g.: @mit.edu; @alum.mit.edu'
+    )
+
     class Meta:
         model = Institution
         fields = ('name', 'sector', 'state', 'domains', 'parent', 'contact_person', 'contact_email',
                   'city', 'region', 'country', 'contact_phone')
         widgets = {
             "domains": forms.TextInput(),
-        }
-        help_texts = {
-            'domains': 'Semi-colon separated list e.g.: @clsi.ca; @lightsource.ca',
         }
 
     def __init__(self, *args, **kwargs):

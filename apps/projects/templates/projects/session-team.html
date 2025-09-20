@@ -2,8 +2,8 @@
 {% load beamlines %}
 {% load roleperms %}
 
-{% for member in object.team.all|dictsort:"get_full_name" %}
-    <div class="d-flex flex-row justify-content-start flex-wrap">
+<div class="d-flex flex-row justify-content-start flex-wrap">
+{% for member in object.team.all %}
         <div class="card">
             <div class="row text-condensed">
                 <div class="col-12 d-flex align-items-center justify-content-start">
@@ -74,5 +74,5 @@
                 </div>
             </div>
         </div>
-    </div>
 {% endfor %}
+</div>
