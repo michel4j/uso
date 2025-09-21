@@ -962,6 +962,13 @@ class FakeProposal:
 
         info['submission'] = self.submission_count
         self.new_submissions.append(submission)
+
+        # Add Reviews
+        if state < 2:
+            self.submission_count += 1
+            return
+
+        # Add technical reviews
         tech_scores = self.add_technical_reviews(track_acronym, facility_techniques.keys(), date_str)
         good_tech_scores = []
         for fac, score in tech_scores.items():
@@ -970,6 +977,8 @@ class FakeProposal:
                 del info['techniques'][fac]
             else:
                 good_tech_scores.append(score)
+
+        # Add scientific reviews
         sci_score = self.add_scientific_reviews(track_acronym, date_str)
         safe_score = 0
         if track == 2:
@@ -1136,7 +1145,7 @@ class FakeProposal:
         year = self.year
         if self.cycle_count % 2 == 1:
             start_date = f'{year}-01-01'
-            end_date = f'{year}-12-31'
+            end_date = f'{year}-07-01'
             open_date = f'{year-1}-08-07'
             close_date = f'{year-1}-09-07'
             due_date = f'{year-1}-10-16'
