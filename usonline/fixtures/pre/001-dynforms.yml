@@ -745,8 +745,7 @@
         default: ''
         maximum: null
         minimum: null
-        options:
-        - required
+        options: []
         field_type: paragraphtext
         instructions: Please provide any comments for the applicant and committee
           about the proposal and your assigned score.

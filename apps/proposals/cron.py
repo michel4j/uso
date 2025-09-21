@@ -112,13 +112,12 @@ class StartReviews(BaseCronJob):
     Open pending reviews and notify reviewers. Only reviews from auto-start stages
     are processed. Non auto-start reviews can be opened through the cycle management interface.
     """
-    run_every = "PT6H"  # every 6 hours
+    run_every = "PT30M"
 
     def do(self):
         from . import models
         logs = []
 
-        # reviews some time later to avoid spamming
         reviews = models.Review.objects.filter(
             state=models.Review.STATES.pending, stage__auto_start=True, due_date__isnull=False
         )
@@ -129,7 +128,7 @@ class StartReviews(BaseCronJob):
             logs.append(f"{count} reviewer notification(s) sent")
 
         submissions = models.Submission.objects.filter(
-            state=models.Submission.STATES.pending, reviews__state=models.Review.STATES.open
+            state=models.Submission.STATES.pending, reviews__state__gte=models.Review.STATES.open
         )
         if submissions.count():
             submissions.update(state=models.Submission.STATES.started)
