@@ -109,7 +109,7 @@ class CycleStateManager(BaseCronJob):
 
 class StartReviews(BaseCronJob):
     """
-    Open pending reviews and notify reviewers, once daily. Only reviews from auto-start stages
+    Open pending reviews and notify reviewers. Only reviews from auto-start stages
     are processed. Non auto-start reviews can be opened through the cycle management interface.
     """
     run_every = "PT6H"  # every 6 hours
@@ -118,7 +118,7 @@ class StartReviews(BaseCronJob):
         from . import models
         logs = []
 
-        # reviews one day later to avoid spamming
+        # reviews some time later to avoid spamming
         reviews = models.Review.objects.filter(
             state=models.Review.STATES.pending, stage__auto_start=True, due_date__isnull=False
         )
@@ -183,7 +183,7 @@ class AdvanceReviewWorkflow(BaseCronJob):
         now = timezone.localtime(timezone.now())
         self.submissions = models.Submission.objects.filter(
             Q(cycle__close_date__lt=now, cycle__end_date__gt=now, track__require_call=True) |
-            Q(cycle__start_date__lte=now, cycle__end_date__gt=now, track__require_call=False),
+            Q(cycle__end_date__gt=now, track__require_call=False),
             state__lt=models.Submission.STATES.reviewed,
         )
         return self.submissions.exists()
