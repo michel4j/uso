@@ -25,18 +25,15 @@ class Command(BaseCommand):
         if options.get('jobs'):
             tasks = tasks.filter(name__in=options.get('jobs'))
 
-        out = ""
+        out = []
         for task in tasks:
             if task.is_due() or options.get('force', False):
                 result = task.run_job(force=options.get('force', False))
-            else:
-                result = 0
-
-            if options.get('verbosity', 0) > 0:
-                if result == 0:
-                    out += f'{task.name:30s} ...Skipped\n'
-                elif result == 1:
-                    out += f'{task.name:30s} ...Success\n'
+                if result == 1:
+                    out.append(f'{task.label:30s} ...Success')
                 else:
-                    out += f'{task.name:30s} ...Failed\n'
-                sys.stdout.write(out)
+                    out.append(f'{task.label:30s} ...Failed')
+            else:
+                out.append(f'{task.label:30s} ...Skipped')
+        if options.get('verbosity', 0) > 0:
+            sys.stdout.write('\n'.join(sorted(out)) + '\n')

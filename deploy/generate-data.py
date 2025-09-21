@@ -941,8 +941,8 @@ class FakeProposal:
         facility_techniques = info['techniques']
         track_acronym = TRACKS[track]
 
-        start_date = date_parser.parse(date_str)
-        state = 1
+        start_date = date_parser.parse(info['cycle_info']['start_date'])
+        state = 0
         if start_date < datetime.now():
             state = 3
         submission = {
@@ -963,11 +963,11 @@ class FakeProposal:
         info['submission'] = self.submission_count
         self.new_submissions.append(submission)
 
-        # Add Reviews
-        if state < 2:
+        if state == 0:
             self.submission_count += 1
             return
 
+        # Add Reviews
         # Add technical reviews
         tech_scores = self.add_technical_reviews(track_acronym, facility_techniques.keys(), date_str)
         good_tech_scores = []
