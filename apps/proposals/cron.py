@@ -182,7 +182,7 @@ class AdvanceReviewWorkflow(BaseCronJob):
         from proposals import models
         now = timezone.localtime(timezone.now())
         self.submissions = models.Submission.objects.filter(
-            Q(cycle__due_date__lt=now, cycle__end_date__gt=now, track__require_call=True) |
+            Q(cycle__close_date__lt=now, cycle__end_date__gt=now, track__require_call=True) |
             Q(cycle__start_date__lte=now, cycle__end_date__gt=now, track__require_call=False),
             state__lt=models.Submission.STATES.reviewed,
         )
