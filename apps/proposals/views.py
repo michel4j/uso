@@ -314,14 +314,14 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         requirements = self.object.details['beamline_reqs']
         cycle = models.ReviewCycle.objects.get(pk=self.object.details['first_cycle'])
         techniques = models.ConfigItem.objects.none()
-
+        empty_role = Q(role__isnull=True) | Q(role__exact='')
         pool_roles = defaultdict(list)
         for req in requirements:
             config = models.FacilityConfig.objects.for_facility(req.get('facility')).get_for_cycle(cycle)
             if config:
                 techniques |= config.items.filter(technique__in=req.get('techniques', []))
                 # store the required facililty roles for each pool, expanding wildcards
-                for pool in models.AccessPool.objects.filter(role__isnull=False):
+                for pool in models.AccessPool.objects.exclude(empty_role):
                     pool_roles[pool.pk].append(config.facility.expand_role(pool.role))
 
         # Select available pools
@@ -329,9 +329,9 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         # facility. For multi-facility submissions, the user must match each requested facility's roles to have
         # access to the pool
         available_pool_ids = [
-                                 pk for pk, facility_roles in pool_roles.items()
-                                 if all([self.request.user.has_any_role(*roles) for roles in facility_roles])
-                             ] + list(models.AccessPool.objects.filter(role__isnull=True).values_list('pk', flat=True))
+            pk for pk, facility_roles in pool_roles.items()
+            if all([self.request.user.has_any_role(*roles) for roles in facility_roles])
+        ] + list(models.AccessPool.objects.filter(empty_role).values_list('pk', flat=True))
 
         # Select available tracks based on requested techniques and call status
         if cycle.is_closed():
