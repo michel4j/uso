@@ -227,6 +227,12 @@ class ReviewTrack(TimeStampedModel):
     def __str__(self):
         return f"{self.acronym} - {self.name}"
 
+    def pool_names(self) -> str:
+        """
+        Return a comma-separated list of access pool names associated with this track.
+        """
+        return " ".join(self.pools.values_list('code', flat=True))
+
     def stage_progress(self, cycle: 'ReviewCycle') -> list[dict]:
         """
         Return a dictionary of the progress of each stage in the track for the given cycle

@@ -315,29 +315,39 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         cycle = models.ReviewCycle.objects.get(pk=self.object.details['first_cycle'])
         techniques = models.ConfigItem.objects.none()
         empty_role = Q(role__isnull=True) | Q(role__exact='')
-        pool_roles = defaultdict(list)
+        pool_roles = {}
+        facility_roles = defaultdict(list)
         for req in requirements:
             config = models.FacilityConfig.objects.for_facility(req.get('facility')).get_for_cycle(cycle)
             if config:
                 techniques |= config.items.filter(technique__in=req.get('techniques', []))
                 # store the required facililty roles for each pool, expanding wildcards
                 for pool in models.AccessPool.objects.exclude(empty_role):
-                    pool_roles[pool.pk].append(config.facility.expand_role(pool.role))
+                    role = pool.role
+                    pool_roles[pool.pk] = role
+                    expanded_roles = config.facility.expand_role(pool.role)
+                    if expanded_roles != [role]:
+                        facility_roles[role].extend(expanded_roles)
 
         # Select available pools
         # A pool is available if it doesn't define any roles, or the user matches at least one role from each
         # facility. For multi-facility submissions, the user must match each requested facility's roles to have
         # access to the pool
-        available_pool_ids = [
-            pk for pk, facility_roles in pool_roles.items()
-            if all([self.request.user.has_any_role(*roles) for roles in facility_roles])
-        ] + list(models.AccessPool.objects.filter(empty_role).values_list('pk', flat=True))
+        available_pools = set()
+        user = self.request.user
+        for pk, role in pool_roles.items():
+            if role not in facility_roles and user.has_role(role):
+                available_pools.add(pk)
+            elif role in facility_roles and user.has_all_roles(tuple(facility_roles[role])):
+                available_pools.add(pk)
+
+        available_pools |= set(models.AccessPool.objects.filter(empty_role).values_list('pk', flat=True))
 
         # Select available tracks based on requested techniques and call status
-        if cycle.is_closed():
-            valid_tracks = models.ReviewTrack.objects.filter(require_call=False)
+        if cycle.is_closed() and cycle.end_date > timezone.now().date():
+            valid_tracks = models.ReviewTrack.objects.filter(require_call=False, pools__in=available_pools)
         elif cycle.is_open():
-            valid_tracks = models.ReviewTrack.objects.filter(require_call=True)
+            valid_tracks = models.ReviewTrack.objects.filter(require_call=True, pools__in=available_pools)
         else:
             valid_tracks = models.ReviewTrack.objects.none()
 
@@ -365,17 +375,16 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
 
         if not valid_tracks:
             message = (
-                "No review tracks are available for submission. Select a different cycle or check back "
+                "No access pools are available for submission. Select a different cycle or check back "
                 "during the next call for proposals."
             )
         elif len(valid_tracks) > 1:
             message = (
-                "Multiple review tracks are available. Please select at least one track to submit your proposal. "
-                "You can select multiple tracks if your proposal is relevant to more than one track."
+                "Multiple pools are are available. Please select one to submit your proposal. "
             )
         else:
             message = (
-                "One review track is available for submission, therefore it has been pre-selected."
+                "One access pool is available for submission."
             )
         num_invalid = len(invalid_techniques)
         num_valid = len(valid_track_techniques)
@@ -393,7 +402,7 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
             "invalid_techniques": invalid_techniques,
             "num_tracks": len(requests),
             "cycle": cycle,
-            "pools": models.AccessPool.objects.filter(pk__in=available_pool_ids),
+            "pools": models.AccessPool.objects.filter(pk__in=available_pools),
         }
         return info
 
@@ -1988,7 +1997,7 @@ class DeleteReviewTrack(RolePermsViewMixin, ModalDeleteView):
 class AccessPoolList(RolePermsViewMixin, ItemListView):
     template_name = "item-list.html"
     model = models.AccessPool
-    list_columns = ['name', 'description', 'role', 'is_default']
+    list_columns = ['name', 'code', 'description', 'role', 'is_default']
     list_filters = ['created', 'modified', 'is_default']
     list_search = ['name', 'description', 'role']
     link_url = "edit-access-pool"

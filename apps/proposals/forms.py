@@ -634,14 +634,15 @@ class AllocationPoolForm(ModalModelForm):
 class SubmitProposalForm(ModalModelForm):
     access_pool = forms.ModelChoiceField(
         queryset=models.AccessPool.objects.none(), required=True, label="Access Pool",
+        widget=forms.RadioSelect
     )
-    tracks = forms.ModelMultipleChoiceField(
-        queryset=models.ReviewTrack.objects.none(), required=True, label="Review Tracks",
-    )
+    # tracks = forms.ModelMultipleChoiceField(
+    #     queryset=models.ReviewTrack.objects.none(), required=True, label="Review Tracks",
+    # )
 
     class Meta:
         model = models.Proposal
-        fields = ['access_pool', 'tracks']
+        fields = ['access_pool']
 
     def __init__(self, submit_info=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -652,23 +653,24 @@ class SubmitProposalForm(ModalModelForm):
                     HTML("{% include 'proposals/forms/submit-header.html' %}"),
                     css_class="col-sm-12"
                 ),
-                Div('tracks', css_class="col-sm-6"),
-                Div('access_pool', css_class="col-sm-6"),
+                #Div('tracks', css_class="col-sm-6"),
+                Div('access_pool', css_class="col-sm-12"),
                 css_class="row"
             )
         )
         self.fields['access_pool'].initial = submit_info['pools'].filter(is_default=True).first()
-        valid_tracks = submit_info['valid_tracks']
         self.fields['access_pool'].queryset = submit_info['pools']
-        self.fields['tracks'].queryset = models.ReviewTrack.objects.filter(pk__in=valid_tracks)
-        if len(valid_tracks) == 1:
-            self.fields['tracks'].initial = models.ReviewTrack.objects.filter(pk__in=valid_tracks)
-            self.fields['tracks'].disabled = True
+
+        # valid_tracks = submit_info['valid_tracks']
+        # self.fields['tracks'].queryset = models.ReviewTrack.objects.filter(pk__in=valid_tracks)
+        # if len(valid_tracks) == 1:
+        #     self.fields['tracks'].initial = models.ReviewTrack.objects.filter(pk__in=valid_tracks)
+        #     self.fields['tracks'].disabled = True
         if len(submit_info['pools']) == 1:
             self.fields['access_pool'].disabled = True
 
         self.footer.clear()
-        if len(valid_tracks) == 0:
+        if len(submit_info['pools']) == 0:
             self.footer.append(
                 StrictButton('Cancel', type='button', data_bs_dismiss='modal', css_class="btn btn-secondary"),
             )

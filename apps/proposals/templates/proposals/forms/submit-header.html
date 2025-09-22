@@ -15,7 +15,10 @@
                 {% else %}
                     <i class="col-auto bi-check-square text-success icon-lg" data-bs-toggle="tooltip"  title="Available"></i>
                 {% endif %}
-                <div class="col-1 col-sm-3 text-condensed lh-1">{{ track.acronym }}<span class="d-none d-sm-inline"> &ndash; {{ track.name }}</span></div>
+                <div class="col-1 col-sm-3 text-condensed lh-1">
+                    {{ track.acronym }}<span class="d-none d-sm-inline"> &ndash; {{ track.name }}</span>
+                    <span class="badge bg-info">{{ track.pool_names }}</span>
+                </div>
                 <div class="col ms-auto small">
                 {% for item in items %}
                     {% if track.pk in valid_tracks %}
@@ -31,7 +34,6 @@
                             {{ item.technique.acronym }} &mdash; {{ item.config.facility.acronym }}
                         </div>
                     {% endif %}
-
                 {% endfor %}
                 </div>
             </div>
