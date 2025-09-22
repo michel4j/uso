@@ -865,10 +865,12 @@ class FakeProposal:
         self.new_proposals = []
         self.new_submissions = []
         self.new_projects = []
+        self.new_projects_extras = []
         self.new_events = []
         self.new_reviews = []
         self.new_beamtime = []
         self.cycle_beamtime = defaultdict(list)
+        self.approved_samples = defaultdict(list)
         self.cycle_beamline_projects = {}
         self.review_count = 1
         self.proposal_count = 1
@@ -877,6 +879,7 @@ class FakeProposal:
         self.project_count = 1
         self.allocation_count = 1
         self.beamtime_count = 1
+        self.session_count = 1
         self.material_count = 1
         self.project_samples_count = 1
 
@@ -1447,7 +1450,7 @@ class FakeProposal:
 
         # Add Materials
         approval = random.choices(['approved', 'pending', 'denied'], weights=[0.6, 0.3, 0.05])[0]
-        self.new_projects.append({
+        self.new_projects_extras.append({
             'model': 'projects.material',
             'pk': self.material_count,
             'fields': {
@@ -1471,7 +1474,7 @@ class FakeProposal:
         # Add Project samples
         for sample in info['samples']:
             sample_approval = 'approved' if approval == 'approved' else 'pending'
-            self.new_projects.append({
+            self.new_projects_extras.append({
                 'model': 'projects.projectsample',
                 'pk': self.project_samples_count,
                 'fields': {
@@ -1483,6 +1486,8 @@ class FakeProposal:
                     'quantity': sample['quantity'],
                 }
             })
+            if sample_approval == 'approved':
+                self.approved_samples[self.project_count].append(self.project_samples_count)
             self.project_samples_count += 1
 
         if cycle not in self.cycle_beamline_projects:
@@ -1491,7 +1496,7 @@ class FakeProposal:
         for fac in info['techniques'].keys():
             requested = random.randint(1, 8)
             self.cycle_beamline_projects[cycle][fac].append(self.project_count)
-            self.new_projects.append({
+            self.new_projects_extras.append({
                 'model': 'projects.allocation',
                 'pk': self.allocation_count,
                 'fields': {
@@ -1556,6 +1561,36 @@ class FakeProposal:
                             "tags": []
                         }
                     })
+                    if random.random() < 0.9 and end_time < datetime.now():
+                        # 10% chance of not using all available time
+                        project_team = self.new_projects[project - 1]['fields']['team']
+                        project_samples = self.approved_samples.get(project, [])
+
+                        session_team = random.sample(project_team, random.randint(1, len(project_team)))
+                        session_samples = random.sample(
+                            project_samples, random.randint(0, len(project_samples))
+                        )
+
+                        self.new_beamtime.append({
+                            "model": "projects.session",
+                            "pk": self.session_count,
+                            "fields": {
+                                "created": f"{date_str}T03:30:57.246Z",
+                                "modified": f"{date_str}T03:30:57.246Z",
+                                "start": (start_time + timedelta(hours=random.random())).astimezone(pytz.UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                "end": (end_time - timedelta(hours=random.random())).astimezone(pytz.UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                "project": project,
+                                "beamline": beamline,
+                                "staff": 1,
+                                "spokesperson": session_team[0],
+                                "state": "complete",
+                                "kind": random.choices(["onsite", "remote", "mailin"], weights=[70, 30, 10])[0],
+                                "details": {'history': []},
+                                "samples": session_samples,
+                                "team": session_team,
+                            }
+                        })
+                        self.session_count += 1
                     self.beamtime_count += 1
 
     def save(self):
@@ -1575,6 +1610,7 @@ class FakeProposal:
         self.feedback_gen.save()
         with open(self.project_path, 'w') as fobj:
             yaml.dump(self.new_projects, fobj, sort_keys=False)
+            yaml.dump(self.new_projects_extras, fobj, sort_keys=False)
 
         with open(self.beamtime_path, 'w') as fobj:
             yaml.dump(self.new_beamtime, fobj, sort_keys=False)
