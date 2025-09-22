@@ -1,0 +1,34 @@
+{% for pool, tracks in available.items %}
+    <div class="alert d-none border-primary" data-pool-id="{{ pool.id }}"  class="pool-tracks">
+        {% for track, info in tracks.items %}
+        <div class="pool-track">
+        <span>{{ track }} Track</span>
+         <hr class="hr-xs"/>
+        {% for name, beamline in info.matched %}
+            <small class="badge bg-primary my-1" title="Available">{{ name }} &mdash; {{ beamline }}</small>
+        {% endfor %}
+        {% if info.missing %}
+        {% for name, beamline in info.missing %}
+            <small class="badge bg-secondary opacity-50 my-1" title="Not available through this track">
+                <i class="bi bi-exclamation-diamond"></i>&nbsp;{{ name }} &mdash; {{ beamline }}
+            </small>
+        {% endfor %}
+        {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+{% endfor %}
+<script>
+    $(document).ready(function () {
+        $('input[name="access_pool"]').on('change', function() {
+            const selectedPoolId = $(this).val();
+            $("[data-pool-id]").addClass('d-none')
+            $(`[data-pool-id='${selectedPoolId}']`).removeClass('d-none');
+        });
+        // Trigger change event on page load to show the correct tracks if a pool is pre-selected
+        const preSelectedPool = $('input[name="access_pool"]:checked').val();
+        if (preSelectedPool) {
+            $(`input[name="access_pool"][value="${preSelectedPool}"]`).trigger('change');
+        }
+    });
+</script>

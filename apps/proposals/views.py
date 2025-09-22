@@ -311,74 +311,68 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         instrument requirements.
         :return:
         """
+
+        user = self.request.user
         requirements = self.object.details['beamline_reqs']
         cycle = models.ReviewCycle.objects.get(pk=self.object.details['first_cycle'])
-        techniques = models.ConfigItem.objects.none()
-        empty_role = Q(role__isnull=True) | Q(role__exact='')
-        pool_roles = {}
-        facility_roles = defaultdict(list)
+        if cycle.is_open():
+            flt = Q(track__require_call=True)
+        elif cycle.is_closed() and cycle.end_date > timezone.now().date():
+            flt = Q(track__require_call=False)
+        else:
+            flt = Q(pk__isnull=True)  # no tracks available
+
+        # initialize pool -> techniques mapping
+        pool_techniques = {
+            pool: models.ConfigItem.objects.none()
+            for pool in models. AccessPool.objects.all()
+        }
+
+        # Loop through requirements and gather the requested techniques for each pool
+        # for which the user has a matching role, or no role is defined
+        requests = models.ConfigItem.objects.none()
         for req in requirements:
             config = models.FacilityConfig.objects.for_facility(req.get('facility')).get_for_cycle(cycle)
             if config:
-                techniques |= config.items.filter(technique__in=req.get('techniques', []))
-                # store the required facililty roles for each pool, expanding wildcards
-                for pool in models.AccessPool.objects.exclude(empty_role):
-                    role = pool.role
-                    pool_roles[pool.pk] = role
-                    expanded_roles = config.facility.expand_role(pool.role)
-                    if expanded_roles != [role]:
-                        facility_roles[role].extend(expanded_roles)
+                techniques = config.items.filter(technique__in=req.get('techniques', []))
+                requests |= techniques
 
-        # Select available pools
-        # A pool is available if it doesn't define any roles, or the user matches at least one role from each
-        # facility. For multi-facility submissions, the user must match each requested facility's roles to have
-        # access to the pool
-        available_pools = set()
-        user = self.request.user
-        for pk, role in pool_roles.items():
-            if role not in facility_roles and user.has_role(role):
-                available_pools.add(pk)
-            elif role in facility_roles and user.has_all_roles(tuple(facility_roles[role])):
-                available_pools.add(pk)
+                # map pools to techniques for easy lookup later
+                for pool in models.AccessPool.objects.all():
+                    if pool.role in [None, ''] or user.has_any_role(*config.facility.expand_role(pool.role)):
+                        pool_techniques[pool] |= techniques.filter(flt & Q(track__pools=pool))
 
-        available_pools |= set(models.AccessPool.objects.filter(empty_role).values_list('pk', flat=True))
+        # Now we have all the techniques requested by the proposal mapped to the pools the user has access to
+        # Now we need to get the available tracks
+        distinct_requests = set(requests.values_list('technique__acronym', 'config__facility__acronym'))
+        available_requests = defaultdict(dict)
+        tracks = models.ReviewTrack.objects.in_bulk()
+        for pool, techniques in pool_techniques.items():
+            if not techniques.exists():
+                continue
 
-        # Select available tracks based on requested techniques and call status
-        if cycle.is_closed() and cycle.end_date > timezone.now().date():
-            valid_tracks = models.ReviewTrack.objects.filter(require_call=False, pools__in=available_pools)
-        elif cycle.is_open():
-            valid_tracks = models.ReviewTrack.objects.filter(require_call=True, pools__in=available_pools)
-        else:
-            valid_tracks = models.ReviewTrack.objects.none()
+            for t in techniques.values_list('track__pk', flat=True).distinct():
+                track_techniques = techniques.filter(track=t)
+                track_techs = set(
+                    track_techniques.values_list('technique__acronym', 'config__facility__acronym')
+                )
+                track_matches = len(distinct_requests & track_techs)
+                track_score = 100 * track_matches / len(distinct_requests) if distinct_requests else 0
+                available_requests[pool][tracks[t]] = {
+                    'score': track_score,
+                    'matched': track_techs,
+                    'techniques': track_techniques,
+                    'missing': distinct_requests - track_techs,
+                }
 
-        available_tracks = set(valid_tracks.values_list('pk', flat=True))
-        requests = {
-            track: track_techniques
-            for track, track_techniques in techniques.group_by_track().items()
-            if track_techniques.exists()
-        }
-
-        invalid_tracks = set()
-        valid_tracks = set()
-        valid_track_techniques = set()
-        invalid_track_techniques = set()
-
-        for track, techniques in requests.items():
-            if track.pk in available_tracks:
-                valid_tracks.add(track.pk)
-                valid_track_techniques.update(techniques.values_list('technique__pk', flat=True))
-            else:
-                invalid_tracks.add(track.pk)
-                invalid_track_techniques.update(techniques.values_list('technique__pk', flat=True))
-
-        invalid_techniques = invalid_track_techniques - valid_track_techniques
-
-        if not valid_tracks:
+        # determine if any pools are available
+        available_pools = list(available_requests.keys())
+        if not available_pools:
             message = (
                 "No access pools are available for submission. Select a different cycle or check back "
                 "during the next call for proposals."
             )
-        elif len(valid_tracks) > 1:
+        elif len(available_pools) > 1:
             message = (
                 "Multiple pools are are available. Please select one to submit your proposal. "
             )
@@ -386,23 +380,13 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
             message = (
                 "One access pool is available for submission."
             )
-        num_invalid = len(invalid_techniques)
-        num_valid = len(valid_track_techniques)
-        if num_invalid > 0:
-            message += (
-                f" <span class='text-danger'>{num_invalid} requested "
-                f"technique{pluralize(num_invalid, ',s')} can not be submitted</span> "
-            )
-
+        pool_ids = [p.pk for p in available_pools]
         info = {
             "message": mark_safe(message),
             "requests": requests,
-            "valid_tracks": valid_tracks,
-            "invalid_tracks": invalid_tracks,
-            "invalid_techniques": invalid_techniques,
-            "num_tracks": len(requests),
+            "available": dict(available_requests),
             "cycle": cycle,
-            "pools": models.AccessPool.objects.filter(pk__in=available_pools),
+            'pools': models.AccessPool.objects.filter(pk__in=pool_ids),
         }
         return info
 
@@ -414,24 +398,20 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
     def form_valid(self, form):
         data = form.cleaned_data
         access_pool = data['access_pool']
-        tracks = data['tracks']
+        tracks_info = self.submit_info['available'].get(access_pool, {})
         cycle = self.submit_info["cycle"]
-        track_ids = tracks.values_list('pk', flat=True)
         self.object = super().get_object()
 
         # create submissions
-        for track, items in list(self.submit_info['requests'].items()):
-            if track.pk not in track_ids:
-                continue
-
+        for track, info in tracks_info.items():
             with transaction.atomic():
                 obj = models.Submission.objects.create(proposal=self.object, track=track, pool=access_pool, cycle=cycle)
                 obj.code = get_code_generator('SUBMISSION')(obj)
-                obj.techniques.add(*items)
+                obj.techniques.add(*info['techniques'])
                 obj.save()
 
         # update state
-        self.object.state = self.object.STATES.submitted
+        self.object.state = models.Proposal.STATES.submitted
         self.object.save()
 
         # lock all attachments

@@ -636,9 +636,6 @@ class SubmitProposalForm(ModalModelForm):
         queryset=models.AccessPool.objects.none(), required=True, label="Access Pool",
         widget=forms.RadioSelect
     )
-    # tracks = forms.ModelMultipleChoiceField(
-    #     queryset=models.ReviewTrack.objects.none(), required=True, label="Review Tracks",
-    # )
 
     class Meta:
         model = models.Proposal
@@ -653,19 +650,13 @@ class SubmitProposalForm(ModalModelForm):
                     HTML("{% include 'proposals/forms/submit-header.html' %}"),
                     css_class="col-sm-12"
                 ),
-                #Div('tracks', css_class="col-sm-6"),
-                Div('access_pool', css_class="col-sm-12"),
+                Div('access_pool', css_class="col-sm-6"),
+                Div(HTML("{% include 'proposals/forms/submit-tracks.html' %}"), css_class="col-sm-6"),
                 css_class="row"
             )
         )
         self.fields['access_pool'].initial = submit_info['pools'].filter(is_default=True).first()
         self.fields['access_pool'].queryset = submit_info['pools']
-
-        # valid_tracks = submit_info['valid_tracks']
-        # self.fields['tracks'].queryset = models.ReviewTrack.objects.filter(pk__in=valid_tracks)
-        # if len(valid_tracks) == 1:
-        #     self.fields['tracks'].initial = models.ReviewTrack.objects.filter(pk__in=valid_tracks)
-        #     self.fields['tracks'].disabled = True
         if len(submit_info['pools']) == 1:
             self.fields['access_pool'].disabled = True
 
