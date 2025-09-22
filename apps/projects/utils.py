@@ -261,7 +261,7 @@ def generate_project_code(project: models.Project) -> str:
     ).aggregate(
         count=Value(1) + Coalesce(Max('pk') - Min('pk'), 0)
     )['count'] or 1
-    return f"{project.cycle.pk:0>3d}{project.pool.name[0]}-{count:0>5x}".upper()
+    return f"{project.cycle.pk:0>3d}{project.pool.code}-{count:0>5x}".upper()
 
 
 def generate_material_code(material: models.Material) -> str:

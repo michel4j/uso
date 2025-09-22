@@ -212,6 +212,35 @@ class SubmissionQuerySet(QuerySet):
         return self.annotate(**annotations).distinct()
 
 
+class ReviewTrack(TimeStampedModel):
+    """
+    A review track represents a series of stages that a proposal must go through during the review process.
+    Each track can have multiple stages, and each stage can have a different review and reviewers.
+    """
+    name = models.CharField(max_length=128)
+    acronym = models.CharField(max_length=10, unique=True)
+    description = models.TextField(null=True)
+    require_call = models.BooleanField("Require Call", default=True)
+    notify_offset = models.IntegerField("Notify After", default=1)
+    duration = models.IntegerField("Project Cycles", default=4)
+
+    def __str__(self):
+        return f"{self.acronym} - {self.name}"
+
+    def stage_progress(self, cycle: 'ReviewCycle') -> list[dict]:
+        """
+        Return a dictionary of the progress of each stage in the track for the given cycle
+        :param cycle: ReviewCycle
+        :return: List of dictionaries with stage information per stage, keys are:
+            - 'stage': stage position
+            - 'count': total number of reviews
+            - 'complete': number of completed reviews
+        """
+        return list(Review.objects.filter(cycle=cycle, stage__track=self).values('stage').annotate(
+            count=Count('stage'), complete=Count('stage', filter=Q(state=Review.STATES.submitted))
+        ))
+
+
 class AccessPool(TimeStampedModel):
     """
     A pool of beam time that can accessed by projects.
@@ -219,6 +248,8 @@ class AccessPool(TimeStampedModel):
     name = models.CharField(max_length=128, unique=True)
     description = models.TextField(null=True, blank=True)
     role = models.CharField(max_length=128, blank=True, null=True)
+    tracks = models.ManyToManyField(ReviewTrack, related_name='pools', blank=True)
+    code = models.CharField(max_length=5, default='G')
     is_default = models.BooleanField(default=False)
 
     class Meta:
@@ -461,35 +492,6 @@ class Submission(CodeModelMixin, TimeStampedModel):
 
     class Meta:
         unique_together = ("proposal", "track")
-
-
-class ReviewTrack(TimeStampedModel):
-    """
-    A review track represents a series of stages that a proposal must go through during the review process.
-    Each track can have multiple stages, and each stage can have a different review and reviewers.
-    """
-    name = models.CharField(max_length=128)
-    acronym = models.CharField(max_length=10, unique=True)
-    description = models.TextField(null=True)
-    require_call = models.BooleanField("Require Call", default=True)
-    notify_offset = models.IntegerField("Notify After", default=1)
-    duration = models.IntegerField("Project Cycles", default=4)
-
-    def __str__(self):
-        return f"{self.acronym} - {self.name}"
-
-    def stage_progress(self, cycle: 'ReviewCycle') -> list[dict]:
-        """
-        Return a dictionary of the progress of each stage in the track for the given cycle
-        :param cycle: ReviewCycle
-        :return: List of dictionaries with stage information per stage, keys are:
-            - 'stage': stage position
-            - 'count': total number of reviews
-            - 'complete': number of completed reviews
-        """
-        return list(Review.objects.filter(cycle=cycle, stage__track=self).values('stage').annotate(
-            count=Count('stage'), complete=Count('stage', filter=Q(state=Review.STATES.submitted))
-        ))
 
 
 class CycleType(TimeStampedModel):

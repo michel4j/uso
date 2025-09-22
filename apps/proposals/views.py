@@ -2008,6 +2008,13 @@ class AddAccessPool(RolePermsViewMixin, ModalCreateView):
     def get_success_url(self):
         return reverse('access-pool-list')
 
+    def form_valid(self, form):
+        data = form.cleaned_data
+        tracks = data.pop('tracks', [])
+        response = super().form_valid(form)
+        self.object.tracks.add(*tracks)
+        return response
+
 
 class EditAccessPool(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.AccessPoolForm
@@ -2028,6 +2035,8 @@ class EditAccessPool(RolePermsViewMixin, ModalUpdateView):
 
     def form_valid(self, form):
         data = form.cleaned_data
+        tracks = data.pop('tracks', [])
+        self.object.tracks.set(tracks)
         models.AccessPool.objects.filter(pk=self.object.pk).update(**data)
         return JsonResponse({"url": self.get_success_url()})
 

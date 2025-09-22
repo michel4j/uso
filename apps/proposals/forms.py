@@ -594,7 +594,7 @@ class TechniqueForm(ModalModelForm):
 class AccessPoolForm(ModalModelForm):
     class Meta:
         model = models.AccessPool
-        fields = ['name', 'description', 'role']
+        fields = ['name', 'description', 'role', 'tracks', 'code']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 2, }),
         }
@@ -603,8 +603,10 @@ class AccessPoolForm(ModalModelForm):
         super().__init__(*args, **kwargs)
         self.body.append(
             Div(
-                Div("name", css_class="col-sm-6"),
-                Div("role", css_class="col-sm-6"),
+                Div("name", css_class="col-sm-10"),
+                Div("code", css_class="col-sm-2"),
+                Div("role", css_class="col-sm-4"),
+                Div("tracks", css_class="col-sm-8"),
                 Div("description", css_class="col-sm-12"),
                 css_class="row"
             )
