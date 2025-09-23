@@ -5,9 +5,10 @@ from django.db import migrations
 
 def populate_pool_code(apps, schema_editor):
     AccessPool = apps.get_model('proposals', 'AccessPool')
+    db_alias = schema_editor.connection.alias
     for pool in AccessPool.objects.all():
         pool.code = pool.name[0].upper()
-        pool.save(update_fields=['code'])
+        pool.save(update_fields=['code'], using=db_alias)
 
 
 class Migration(migrations.Migration):
