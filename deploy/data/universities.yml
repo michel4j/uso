@@ -521,12 +521,30 @@
   - '@uqtr.ca'
   name: University of Québec at Trois-Rivières
   region: CA-QC
+- city: Montreal
+  country: CAN
+  domain:
+  - '@concordia.ca'
+  name: Concordia University
+  region: CA-QC
+- city: Saskatoon
+  country: CAN
+  domain:
+  - '@usask.ca'
+  name: University of Saskatchewan
+  region: CA-SK
 - city: Lethbridge
   country: CAN
   domain:
   - '@uleth.ca'
   name: University of Lethbridge
   region: CA-AB
+- city: Lethbridge
+  country: CAN
+  domain:
+  - '@mcgill.ca'
+  name: McGill University
+  region: CA-QC
 - city: Québec
   country: CAN
   domain:
@@ -2778,6 +2796,18 @@
   - '@ualberta.ca'
   name: University of Alberta
   region: CA-AB
+- city: Calgary
+  country: CAN
+  domain:
+  - '@ucalgary.ca'
+  name: University of Calgary
+  region: CA-AB
+- city: Regina
+  country: CAN
+  domain:
+  - '@uregina.ca'
+  name: University of Regina
+  region: CA-SK
 - city: Pocatello
   country: USA
   domain:
@@ -4519,12 +4549,12 @@
   - '@emu.edu.tr'
   name: Eastern Mediterranean University
   region: CY-04
-- city: Falun
+- city: Lund
   country: SWE
   domain:
   - '@lu.se'
   name: Lund University
-  region: SE-W
+  region: SE-M
 - city: Hangzhou
   country: CHN
   domain:

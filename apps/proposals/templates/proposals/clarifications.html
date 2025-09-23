@@ -1,32 +1,33 @@
 {% for com in object.clarifications.all %}
-    <div class="d-flex flex-row align-items-stretch border border-black border-opacity-25 rounded mb-2">
-        <div class="d-flex flex-column align-items-center justify-content-center p-2 border-end border-black border-opacity-25">
-            <i class="bi bi-person-badge text-warning-emphasis icon-lg"></i>
-            <small class="text-body-secondary">Reviewer</small>
+    <div class="d-flex flex-column align-items-stretch border border-black border-opacity-25 rounded mb-2 ">
+        <div class="d-flex flex-row align-items-stretch border-bottom border-black border-opacity-25">
+            <div class="d-flex flex-column align-items-center justify-content-center p-2 border-end border-black border-opacity-25">
+                <i class="bi bi-person-badge text-warning-emphasis icon-lg"></i>
+                <small class="text-body-secondary">Reviewer</small>
+            </div>
+            <div class="d-flex flex-grow-1 flex-column align-items-start justify-content-between p-3">
+                <span>{{ com.question|safe }}</span>
+                <small class="text-body-secondary">{{ com.created|date }} {{ com.created|time }}</small>
+            </div>
         </div>
-        <div class="d-flex flex-grow-1 flex-column align-items-start justify-content-between p-3">
-            <span>{{ com.question|safe }}</span>
-            <small class="text-body-secondary">{{ com.created|date }} {{ com.created|time }}</small>
-        </div>
-    </div>
-
-    <div class="d-flex flex-row align-items-stretch border border-black border-opacity-25 rounded mb-2 bg-darken mb-2">
-        <div class="d-flex flex-grow-1 flex-column align-items-start justify-content-between p-3">
-            {% if com.response %}
-                <span>{{ com.response|safe }}</span>
-                <small class="text-body-secondary">{{ com.modified|date }} {{ com.modified|time }}</small>
-            {% elif owner or admin %}
-                <a href="#0" data-modal-url="{% url response_url_name ref=object.pk pk=com.pk %}">
-                    <i class="bi-reply icon-md icon-fw"></i><br/>
-                    <span class="tool-label">Reply</span>
-                </a>
-            {% else %}
-                <span class="text-danger">No response yet &hellip; </span>
-            {% endif %}
-        </div>
-        <div class="d-flex flex-column align-items-center justify-content-center p-2 border-start border-black border-opacity-25">
-            <i class="bi bi-person-circle text-info-emphasis icon-lg"></i>
-            <small class="text-body-secondary">{{ com.responder|default:"Applicant" }}</small>
+        <div class="d-flex flex-row align-items-stretch">
+            <div class="d-flex flex-grow-1 flex-column align-items-start justify-content-between p-3">
+                {% if com.response %}
+                    <span>{{ com.response|safe }}</span>
+                    <small class="text-body-secondary">{{ com.modified|date }} {{ com.modified|time }}</small>
+                {% elif owner or admin %}
+                    <a href="#0" data-modal-url="{% url response_url_name ref=object.pk pk=com.pk %}">
+                        <i class="bi-reply icon-md icon-fw"></i><br/>
+                        <span class="tool-label">Reply</span>
+                    </a>
+                {% else %}
+                    <span class="text-danger">No response yet &hellip; </span>
+                {% endif %}
+            </div>
+            <div class="d-flex flex-column align-items-center justify-content-center p-2 border-start border-black border-opacity-25">
+                <i class="bi bi-person-circle text-info-emphasis icon-lg"></i>
+                <small class="text-body-secondary">{{ com.responder|default:"Applicant" }}</small>
+            </div>
         </div>
     </div>
 {% empty %}

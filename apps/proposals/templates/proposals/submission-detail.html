@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block page-tools %}
-    {% if admin %}
+    {% if admin or owner %}
         <a href='{% url 'proposal-detail' object.proposal.code %}' class="pull-right">
             <i class="bi-file-earmark-richtext icon-md icon-fw"></i><br/>
             <span class="tool-label">Proposal</span>

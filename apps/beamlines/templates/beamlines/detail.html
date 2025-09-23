@@ -111,13 +111,12 @@
             {% endif %}
         </div>
         {% if user|is_staff:object or admin %}
-        {% endif %}
         <div class="row g-2">
             <div class="col-sm-12">
                 {% include "projects/sessions-summary.html" with sessions=facility.sessions.relevant.with_shifts beamtimes=facility.beamtimes.relevant.with_shifts %}
             </div>
         </div>
-
+        {% endif %}
         <div class="row g-2">
             {% for cycle in cycles %}
                 <div class="col-md-6">

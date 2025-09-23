@@ -41,7 +41,7 @@
         <i class="bi-paperclip icon-md icon-fw"></i><br/>
         <span class="tool-label">Attachments</span>
         {% if project.attachments.exists %}
-            <div class="bubble progress-bar-warning">
+            <div class="bubble text-bg-primary">
                 <div>{{ project.attachments.count }}</div>
             </div>
         {% endif %}
@@ -49,16 +49,15 @@
     {% if project.clarifications.exists %}
         <a href='#project-clarifications' class="pull-right"
            data-bs-toggle="collapse" title="Clarifications"
-           aria-expanded="false" aria-controls="project-clarifications">
+           aria-expanded="{% if project.clarifications.pending.exists %}true{% else %}false{% endif %}"
+           aria-controls="project-clarifications">
             <i class="bi-chat-right-text icon-md icon-fw"></i><br/>
             <span class="tool-label">Clarifications</span>
-            <div class="bubble progress-bar-warning">
+            <div class="bubble text-bg-danger">
                 <div>{{ project.clarifications.count }}</div>
             </div>
         </a>
     {% endif %}
-
-
 {% endblock %}
 
 {% block page-status-style %}
@@ -94,7 +93,7 @@
 {% endblock %}
 {% block page-content %}
     {% if object.clarifications.count %}
-        <div class="row collapse {% if project.clarifications.pending.exists %}in{% endif %}"
+        <div class="row collapse {% if project.clarifications.pending.exists %}show{% endif %}"
              id="project-clarifications">
             <div class="col-sm-12">
                 <div class="p-3 bg-notes-warning">

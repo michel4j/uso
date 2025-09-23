@@ -207,8 +207,10 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
         if bl:
             shifts = [
                 s.shifts for s in
-                self.sessions.filter(beamline=bl,
-                                     state__in=[Session.STATES.live, Session.STATES.complete]).with_shifts()
+                self.sessions.filter(
+                    beamline=bl,
+                    state__in=[Session.STATES.live, Session.STATES.complete]
+                ).with_shifts()
             ]
         else:
             shifts = [

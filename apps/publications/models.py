@@ -54,7 +54,7 @@ class PublicationManager(models.Manager):
 class Journal(TimeStampedModel):
     title = models.TextField()
     short_name = models.TextField(max_length=255, blank=True, null=True)
-    issn = models.CharField("ISSN", max_length=50, unique=True)
+    issn = models.CharField("ISSN", max_length=50, unique=True, null=True, blank=True)
     codes = models.JSONField('ISSN Codes', default=list, blank=True, null=True)
     publisher = models.CharField(max_length=100, blank=True, null=True)
     topics = models.ManyToManyField(SubjectArea, related_name='journals', blank=True)

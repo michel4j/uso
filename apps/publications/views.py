@@ -257,6 +257,17 @@ class FundingSummary(RolePermsViewMixin, TemplateView):
     template_name = "publications/funding-summary.html"
 
 
+class FunderList(RolePermsViewMixin, ItemListView):
+    model = models.FundingSource
+    template_name = "tooled-item-list.html"
+    paginate_by = 25
+    list_title = "Funding Sources"
+    list_columns = ['name', 'acronym', 'location']
+    list_search = ['name', 'acronym', 'doi', 'location']
+    ordering = ['name']
+    admin_roles = USO_CURATOR_ROLES
+
+
 class KeywordCloud(RolePermsViewMixin, TemplateView):
     admin_roles = USO_CURATOR_ROLES
     template_name = "publications/keyword-report.html"

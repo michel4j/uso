@@ -10,21 +10,24 @@
     <div class="page-body">
         <div class="row">
             <div class="col-sm-12">
-                <div class="page-tools pull-left" style="max-width: 40%;">
+                <div class="pull-left" style="max-width: 50%;">
                     <form role="search" action='{% url "publication-list" %}' method="get">
                         <div class="input-group">
-                            <input name="q"  type="text" class="form-control" placeholder="Search publications" aria-label="Search publications" aria-describedby="search-button">
-                            <button class="btn btn-outline" type="submit" id="search-button"><i class="bi-search icon-fw"></i></button>
+                            <input name="q"  type="text" class="form-control" placeholder="Search publications"
+                                   aria-label="Search publications" aria-describedby="search-button">
+                            <button class="btn btn-outline" type="submit" id="search-button">
+                                <i class="bi-search icon-fw"></i>
+                            </button>
                         </div>
                     </form>
                 </div>
                 <div class="box-tools pull-right">
                     <a href="#0" data-modal-url="{% url 'add-publication' %}" class="pull-right">
-                        <i class="bi-plus-lg icon-md icon-fw"></i><br>
+                        <i class="bi-plus-lg icon-md icon-fw"></i>
                         <span class="tool-label">Add Entry</span>
                     </a>
-                    <a href="{% url 'publication-list' %}" class="pull-right">
-                        <i class="bi-list-ol icon-md icon-fw"></i><br>
+                    <a href="{% url 'publication-list' %}">
+                        <i class="bi-list-ol icon-md icon-fw"></i>
                         <span class="tool-label">Show List</span>
                     </a>
                 </div>
@@ -59,7 +62,7 @@
         $(document).ready(function () {
             const data = {{words|jsonify}};
             wordCloud(data, '#word-cloud', {
-                searchURL: '{% url "user-publication-list" %}',
+                searchURL: '{% url "publication-list" %}',
                 searchParam: 'search',
             });
         });

@@ -41,6 +41,13 @@ class Review(BaseNav):
     url = reverse('publication-review-list')
 
 
+class Funders(BaseNav):
+    parent = Publications
+    label = 'Funding Sources'
+    roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
+    url = reverse('funder-list')
+
+
 class UserPublications(BaseNav):
     label = 'My Publications'
     parent = 'users.Home'

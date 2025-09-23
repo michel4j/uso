@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.functions import Round
 from django.utils.translation import gettext as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel, TimeFramedModel
@@ -109,13 +110,19 @@ class EventQuerySet(models.QuerySet):
         return self.filter(start__gte=yesterday, start__lte=timezone.now() + timedelta(days=7), **extras)
 
     def with_duration(self):
-        return self.annotate(duration=Hours(F('end'), F('end'), output_field=models.FloatField()))
+        return self.annotate(
+            duration=Round(Hours(F('end'), F('end'), output_field=models.FloatField()), 2)
+        )
 
     def with_hours(self):
-        return self.annotate(hours=Hours(F('end'), F('start'), output_field=models.FloatField()))
+        return self.annotate(
+            hours=Round(Hours(F('end'), F('start'), output_field=models.FloatField()), 2)
+        )
 
     def with_shifts(self):
-        return self.annotate(shifts=Shifts(F('end'), F('start'), output_field=models.FloatField()))
+        return self.annotate(
+            shifts=Round(Shifts(F('end'), F('start'), output_field=models.FloatField()), 1)
+        )
 
     def ends_before(self, event):
         event = self._clean_event(event)

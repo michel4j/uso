@@ -16,4 +16,6 @@ urlpatterns = [
     path('publications/years/<int:year>-<int:end_year>/', views.PublicationList.as_view(), name='publication-list'),
     path('publications/<str:beamline>/<int:year>/', views.PublicationList.as_view()),
     path('publications/<str:beamline>/<int:year>-<int:end_year>/', views.PublicationList.as_view()),
+
+    path('funders/', views.FunderList.as_view(), name='funder-list'),
 ]

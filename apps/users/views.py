@@ -92,6 +92,7 @@ class InstitutionDetail(View):
             inst = models.Institution.objects.filter(name__iexact=request.GET['name']).first()
         elif 'email' in request.GET:
             domains = ["@{}".format(email.split('@')[-1].lower().strip()) for email in request.GET['email'].split(',')]
+            print(domains)
             query = Q()
             for domain in domains:
                 query |= Q(domains__icontains=domain)

@@ -4,6 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML
 from django import forms
 
+from misc.fields import DelimitedTextFormField
 from misc.forms import Fieldset, ModelPoolField
 from . import models
 
@@ -77,6 +78,8 @@ class FacilityForm(forms.ModelForm):
 
 
 class LabForm(ModalModelForm):
+    admin_roles = DelimitedTextFormField(required=False)
+
     class Meta:
         model = models.Lab
         fields = ('name', 'acronym', 'description', 'permissions', 'admin_roles', 'available')

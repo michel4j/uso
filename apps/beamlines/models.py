@@ -243,7 +243,7 @@ class LabWorkSpace(TimeStampedModel):
     available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.name}/{self.description}'
+        return f'{self.name}/{self.description}' if self.description else self.name
 
     def sessions(self):
         return self.lab.lab_sessions.filter(workspaces=self).distinct()

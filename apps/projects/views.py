@@ -1,6 +1,7 @@
 import calendar
 import functools
 import itertools
+import math
 from datetime import timedelta
 
 from crisp_modals.views import ModalCreateView, ModalUpdateView, ModalConfirmView, ModalDeleteView
@@ -36,7 +37,7 @@ from samples.templatetags.samples_tags import pictogram_url
 from scheduler.models import ModeType
 from scheduler.utils import round_time
 from scheduler.views import EventEditor, EventUpdateAPI, EventStatsAPI
-from surveys.views import UserFeedback
+
 from users.models import User
 from . import forms
 from . import models
@@ -359,6 +360,7 @@ class MaterialDetail(RolePermsViewMixin, detail.DetailView):
 class SessionDetail(RolePermsViewMixin, detail.DetailView):
     template_name = "projects/session-detail.html"
     model = models.Session
+    allowed_roles = USO_STAFF_ROLES
     admin_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
     terminate_roles = USO_HSE_ROLES + USO_ADMIN_ROLES
 
@@ -367,7 +369,11 @@ class SessionDetail(RolePermsViewMixin, detail.DetailView):
 
     def check_allowed(self):
         session = self.get_object()
-        allowed = (super().check_allowed() or self.check_owner(session) or session.beamline.is_staff(self.request.user))
+        allowed = (
+                super().check_allowed() or
+                self.check_owner(session) or
+                session.beamline.is_staff(self.request.user)
+        )
         return allowed
 
     def check_admin(self):
@@ -427,9 +433,10 @@ class SessionHandOver(RolePermsViewMixin, ModalCreateView):
         start = timezone.localtime(self.beamtime.start) if self.beamtime else timezone.localtime(timezone.now())
         end = timezone.localtime(self.beamtime.end) if self.beamtime else timezone.localtime(timezone.now() + one_shift)
 
-        if start.date() == end.date() and start.time() > end.time():
-            # if start time is after end time, we assume the end time is on the next day
-            end += timedelta(days=1)
+        # tidy to shift boundaries and extend to next day if needed
+        day_offset, hour = divmod(math.ceil(end.hour/self.facility.shift_size) * self.facility.shift_size, 24)
+        end = end.replace(hour=hour, minute=0, second=0, microsecond=0) + timedelta(days=day_offset)
+
         initial['start_date'] = start.date()
         initial['end_date'] = end.date()
         initial['start_time'] = start.strftime('%H:%M')

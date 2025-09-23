@@ -1,4 +1,6 @@
 {% load roleperms %}
+{% load misc %}
+{% load agreements %}
 
 <div class="row">
     <div class="col-12">
@@ -19,23 +21,45 @@
 		<table class="profile table table-condensed">
 			<tbody>
 			<tr>
-				<td class="item"><i class="bi-briefcase icon-fw"></i></td>
+				<td class="item">
+                    <i class="bi-briefcase icon-fw" title="Classification"></i>
+                    <span class="visually-hidden">Classification</span>
+                </td>
 				<td>{{object.get_classification_display|default:""}}</td>
 			</tr>
 			<tr>
-				<td class="item"><i class="bi-telephone icon-fw"></i></td>
+				<td class="item">
+                    <i class="bi-telephone icon-fw" title="Phone"></i>
+                    <span class="visually-hidden">Phone</span>
+                </td>
 				<td>{{object.address.phone|default:"<span class='text-body-secondary'>(999)-999-9999</span>"}}</td>
 			</tr>
 			<tr>
-				<td class="item"><i class="bi-envelope-at icon-fw"></i></td>
+				<td class="item">
+                    <i class="bi-envelope-at icon-fw" title="Email"></i>
+                    <span class="visually-hidden">Email</span>
+                </td>
 				<td>{{object.email}}</td>
 			</tr>
 			<tr>
-				<td class="item"><i class="bi-house icon-fw"></i></td>
-				<td>{{object.institution}}</td>
+				<td class="item">
+                    <i class="bi-house icon-fw" title="Institution"></i>
+                    <span class="visually-hidden">Institution</span>
+                </td>
+				<td>
+                    {% if object.institution %}
+                    {{object.institution}}&emsp;
+                        <span class="badge bg-{% state_tag object.institution.state warning="pending" success="active" default="secondary" %}">
+                            {{ object.institution.get_state_display }}
+                        </span>
+                    {% endif %}
+                </td>
 			</tr>
 			<tr>
-				<td class="item"><i class="bi-geo-alt icon-fw"></i></td>
+				<td class="item">
+                    <i class="bi-geo-alt icon-fw" title="Address"></i>
+                    <span class="visually-hidden">Address</span>
+                </td>
 				<td>{{object.address|default:""}}</td>
 			</tr>
 			</tbody>
@@ -45,7 +69,6 @@
 		<img width="100%" src="{{object.get_photo}}" onerror="this.onerror=null;this.src='/static/img/blank-profile.png';" data-placement="bottom">
 	</div>
 </div>
-{% if object.roles or object.permissions %}
 <div class="row">
     <div class="col-12">
         <hr class="hr-xs"/>
@@ -53,19 +76,41 @@
             <tbody>
             {% if object.roles %}
             <tr>
-                <td class="item text-left col-1"><i class="bi-person-vcard icon-fw"></i></td>
-                <td class="col-10">{% for r in object.roles %}<span title="Role: {{ r }}" class="badge bg-info">{{r|role_label}}</span> {% endfor %}</td>
+                <td class="item text-left col-1">
+                    <i class="bi-person-vcard icon-fw" title="Roles"></i>
+                    <span class="visually-hidden">Roles</span>
+                </td>
+                <td class="col-10">
+                    {% for r in object.roles %}
+                        <span title="Role: {{ r }}" class="badge bg-info mb-1">{{r|role_label}}</span>
+                    {% endfor %}
+                </td>
             </tr>
             {% endif %}
             {% if object.permissions %}
             <tr>
-                <td class="item text-left"><i class="bi-key icon-fw"></i></td>
-                <td>{% for p in object.permissions %}<span class="badge bg-success">{{p}}</span> {% endfor %}</td>
+                <td class="item text-left">
+                    <i class="bi-key icon-fw" title="Permissions"></i>
+                    <span class="visually-hidden">Permissions</span>
+                </td>
+                <td>{% for p in object.permissions %}<span class="badge bg-success mb-1">{{p}}</span> {% endfor %}</td>
             </tr>
             {% endif %}
+            {% with user|user_agreements as agreements %}
+            {% if agreements.pending or agreements.accepted %}
+            <tr>
+                <td class="item text-left">
+                    <i class="bi-mortarboard icon-fw" title="Agreements"></i>
+                    <span class="visually-hidden">Agreements</span>
+                </td>
+                <td>
+                    {% for item in object.pending %}<span class="badge bg-warning mb-1" title="Pending">{{p}}</span>{% endfor %}
+                    {% for item in object.pending %}<span class="badge bg-success mb-1" title="Accepted">{{p}}</span>{% endfor %}
+                </td>
+            </tr>
+            {% endif %}
+            {% endwith %}
         </table>
-        <hr class="hr-xs"/>
     </div>
 </div>
-{% endif %}
 

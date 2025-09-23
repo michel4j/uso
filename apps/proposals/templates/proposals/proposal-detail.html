@@ -54,18 +54,23 @@
         </a>
         <a href='#0' data-modal-url='{% url "proposal-attachments" pk=object.pk %}' class="pull-right">
             <i class="bi-paperclip icon-md icon-fw"></i>
-            {% if proposal.attachments.exist %}
-                <span class="badge bg-primary text-condensed">{{ proposal.attachments.count }}</span>
-            {% endif %}<br/>
             <span class="tool-label">Attachments</span>
+            {% if proposal.attachments.exists %}
+                <div class="bubble text-bg-primary">
+                    <div>{{ proposal.attachments.count }}</div>
+                </div>
+            {% endif %}
         </a>
         {% if proposal.clarifications.exists %}
             <a href='#proposal-clarifications' class="pull-right"
-               data-bs-toggle="collapse" title="Clarifications"
-               aria-expanded="false" aria-controls="proposal-clarifications">
-                <i class="bi-chat-right-text icon-md icon-fw"></i><span
-                    class="badge rounded-circle bg-warning text-condensed">{{ proposal.clarifications.count }}</span><br/>
-                <span class="tool-label">Clarifications</span>
+                data-bs-toggle="collapse" title="Clarifications"
+                aria-expanded="{% if proposal.clarifications.pending.exists %}true{% else %}false{% endif %}"
+                aria-controls="proposal-clarifications">
+            <i class="bi-chat-right-text icon-md icon-fw"></i><br/>
+            <span class="tool-label">Clarifications</span>
+            <div class="bubble text-bg-danger">
+                <div>{{ proposal.clarifications.count }}</div>
+            </div>
             </a>
         {% endif %}
     {% endif %}
@@ -139,11 +144,11 @@
     {% endif %}
 
     {% if proposal.clarifications.count %}
-        <div class="row collapse {% if proposal.clarifications.pending.count %}in{% endif %}"
+        <div class="row collapse {% if proposal.clarifications.pending.exists %}show{% endif %}"
              id="proposal-clarifications">
             <div class="col-sm-12">
                 <div class="p-3 bg-notes-warning">
-                    <h4 class="my-0">Clarification Requests</h4>
+                    <h4 class="my-0">Clarification Requests {{ proposal.clarifications.pending.count }}</h4>
                     <hr class="hr-xs"/>
                     {% include "proposals/clarifications.html" with response_url_name='proposal-clarification-response' %}
                 </div>
