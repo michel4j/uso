@@ -289,7 +289,7 @@ class User(AbstractBaseUser, TimeStampedModel, RolePermsUserMixin):
         return self.get_full_name()
 
     def get_photo(self):
-        return USO_PROFILE_MANAGER.get_user_photo_url(self.username)
+        return USO_PROFILE_MANAGER.get_user_photo_url(self)
 
     def initials(self):
         return ''.join(

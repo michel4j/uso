@@ -1,4 +1,5 @@
 import json
+from pyexpat.errors import messages
 
 import requests
 from django.conf import settings
@@ -62,6 +63,16 @@ class ExternalProfileManager:
         :param username: username of the user to update
         :return: True if successful, False otherwise.
         """
+        if photo and profile.get('photo'):
+            photo_url = profile.get('photo')
+            print(type(photo), photo_url)
+            file_path = f'{settings.MEDIA_ROOT}{photo_url}'
+            with open(file_path, "wb+") as destination:
+                for chunk in photo.chunks():
+                    destination.write(chunk)
+        elif photo:
+            raise ValueError('Photo must be a JPEG, PNG, or WEBP image.')
+
         return True
 
     @classmethod
@@ -73,8 +84,11 @@ class ExternalProfileManager:
         return []
 
     @classmethod
-    def get_user_photo_url(cls, username: str):
-        return f'{settings.MEDIA_URL}/photo/{username}.{PROFILE_PHOTO_FORMAT}'
+    def get_user_photo_url(cls, user) -> str:
+        if user.photo:
+            return f'{settings.MEDIA_URL}{user.photo}'
+        else:
+            return f'{settings.MEDIA_URL}/photo/{user.username}.{PROFILE_PHOTO_FORMAT}'
 
 
 class RemoteProfileManager(ExternalProfileManager):
@@ -132,7 +146,7 @@ class RemoteProfileManager(ExternalProfileManager):
             return []
 
     @classmethod
-    def get_user_photo_url(cls, username: str):
-        return cls.USER_PHOTO_URL.format(username=username)
+    def get_user_photo_url(cls, user):
+        return cls.USER_PHOTO_URL.format(username=user.username)
 
 

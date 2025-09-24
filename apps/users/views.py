@@ -92,7 +92,6 @@ class InstitutionDetail(View):
             inst = models.Institution.objects.filter(name__iexact=request.GET['name']).first()
         elif 'email' in request.GET:
             domains = ["@{}".format(email.split('@')[-1].lower().strip()) for email in request.GET['email'].split(',')]
-            print(domains)
             query = Q()
             for domain in domains:
                 query |= Q(domains__icontains=domain)
@@ -194,6 +193,7 @@ class InstitutionContact(RolePermsViewMixin, ModalUpdateView):
 
 class UsersAdmin(RolePermsViewMixin, ModalUpdateView):
     form_class = forms.UserAdminForm
+    template_name = "users/forms/user-admin.html"
     model = models.User
     allowed_roles = USO_ADMIN_ROLES
 
@@ -208,27 +208,37 @@ class UsersAdmin(RolePermsViewMixin, ModalUpdateView):
         return obj
 
     def form_valid(self, form):
-        super().form_valid(form)
         from proposals.models import Reviewer
-        if form.has_changed():
-            data = form.cleaned_data
-            photo = data.pop('photo', None)
 
-            if data or photo:
-                profile = self.object.update_profile(data=data, photo=photo)
-                if profile:
-                    messages.info(self.request, "User Profile was updated.")
-                else:
-                    messages.error(self.request, "Unable to Update External Profile. ")
+        data = form.cleaned_data
+        photo = data.pop('image', None)
 
-                if self.object.has_any_role(*USO_REVIEWER_ROLES):
-                    reviewer, created = Reviewer.objects.get_or_create(user=self.object)
-                    if created:
-                        messages.info(self.request, "Reviewer Profile created")
-                else:
-                    Reviewer.objects.filter(user=self.object).update(active=False)
+        if photo and photo.content_type in ['image/jpeg', 'image/png', 'image/webp']:
+            ext = photo.content_type.split('/')[-1]
+            data['photo'] = f'/photo/{self.object.username}.{ext}'
+            self.object.photo = data['photo']
+        else:
+            photo = None
+
+        self.object.roles = data['roles']
+        self.object.save()
+
+        if data or photo:
+            profile = self.object.update_profile(data=data, photo=photo)
+            if profile:
+                messages.info(self.request, "User Profile was updated.")
+            else:
+                messages.error(self.request, "Unable to Update External Profile. ")
+
+            if self.object.has_any_role(*USO_REVIEWER_ROLES):
+                reviewer, created = Reviewer.objects.get_or_create(user=self.object)
+                if created:
+                    messages.info(self.request, "Reviewer Profile created")
+            else:
+                Reviewer.objects.filter(user=self.object).update(active=False)
         else:
             messages.warning(self.request, "No Changes were applied!")
+
         return JsonResponse({'url': ""})
 
 

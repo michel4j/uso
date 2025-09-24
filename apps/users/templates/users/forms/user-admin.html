@@ -1,0 +1,8 @@
+{% extends 'crisp_modals/form.html' %}
+
+{% block pre_content %}
+    <form action="{{ form.body.form_action }}" method="POST" enctype="multipart/form-data">
+{% endblock %}
+{% block post_content %}
+    </form>
+{% endblock %}

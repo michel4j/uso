@@ -287,10 +287,11 @@ class PasswordChangeForm(forms.Form):
 
 class UserAdminForm(ModalModelForm):
     extra_roles = forms.MultipleChoiceField(label='Additional Roles', required=False)
+    image = forms.ImageField(label='Photo', required=False)
 
     class Meta:
         model = User
-        fields = ['roles', 'photo']
+        fields = ['roles']
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
@@ -302,13 +303,13 @@ class UserAdminForm(ModalModelForm):
             HTML("{% include 'users/user-admin.html' %}"),
             Row(
                 FullWidth(Field('extra_roles', css_class="selectize"), ),
-                FullWidth(Field('photo', template='%s/file_field.html'))
+                FullWidth(Field('image', template='%s/file_field.html')),
             )
         )
 
     def clean(self):
         cleaned_data = super().clean()
-        extra_roles = cleaned_data.get('extra_roles', [])
+        extra_roles = cleaned_data.pop('extra_roles', [])
         new_roles = [role for role in self.instance.roles if not role in utils.uso_role_choices()] + extra_roles
         cleaned_data['roles'] = new_roles
         return cleaned_data
