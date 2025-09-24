@@ -7,7 +7,8 @@
 <div class="bg-darken  rounded-1 p-3 mb-3">
     <div class="row mb-3">
         <div class="col-sm-12">
-            {% if owner or admin and object.state != 'inactive' %}
+            {% if owner or admin %}
+                {% if not project.is_expired %}
                 <span class="box-tools pull-right text-center">
                     <a href='{% url "edit-team" pk=project.pk %}' class="pull-right">
                         <i class="bi-pencil icon-md icon-fw"></i><br/>
@@ -18,6 +19,7 @@
                        <span class="tool-label">Update Team</span>
                     </a>
                 </span>
+                    {% endif %}
             {% endif %}
             <h4 class="my-0">
                 Team Members &mdash; <strong>{{ object.team.count }}</strong> Registered
@@ -67,7 +69,7 @@
                         />
                         <div class="d-flex flex-column">
                             <div><strong class="fs-6">{{ member }}</strong>
-                            {% if user.email.lower == member.email.lower and member != object.spokesperson %}
+                            {% if user.email.lower == member.email.lower and member != object.spokesperson and not project.is_expired %}
                             <a href="#0" data-modal-url="{% url 'remove-team' pk=project.pk user_pk=member.pk %}" class="pull-right"
                                    title="Remove yourself from the team">
                                     <i class="bi-x-lg text-danger"></i>

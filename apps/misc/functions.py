@@ -1,5 +1,8 @@
+from __future__ import annotations
+
+from django.core.exceptions import FieldError, FieldDoesNotExist
 from django.db import models, connection
-from django.db.models import Value
+from django.db.models import Value, F
 
 
 class Hours(models.Func):
@@ -147,78 +150,6 @@ class JoinIt(models.Func):
         )
 
 
-def aggregate_feedback_details_db(queryset):
-    """
-    Aggregates feedback details using database-level JSON functions.
-
-    This approach pushes the heavy lifting of aggregation to the database,
-    which can be significantly more performant than the pure Python approach
-    for very large datasets, as it avoids loading the entire 'details' JSON
-    object for every row into application memory.
-
-    NOTE: The raw SQL implementation below uses `jsonb_array_elements`, a feature
-    specific to PostgreSQL. It will not work on other database backends like
-    SQLite or MySQL without modification.
-
-    Args:
-        queryset: A Django QuerySet of Feedback objects.
-
-    Returns:
-        A dictionary containing the aggregated sum, count, and average
-        for each category.
-    """
-    # In this database-centric approach, it's often simpler to define the
-    # categories you want to aggregate beforehand. Dynamically discovering all
-    # possible keys would require a separate, more complex query.
-    categories = ['machine', 'beamline', 'amenities']
-    final_aggregates = {}
-
-    # Get the database table name from the model's metadata to make the
-    # query more robust and not dependent on a hardcoded name.
-    table_name = queryset.model._meta.db_table
-
-    # We need the primary keys from the queryset to scope the raw SQL query.
-    queryset_pks = list(queryset.values_list('pk', flat=True))
-
-    # If the queryset is empty, there's nothing to aggregate.
-    if not queryset_pks:
-        return {}
-
-    with connection.cursor() as cursor:
-        for category in categories:
-            # This raw SQL query performs the entire aggregation for one category.
-            # - `jsonb_array_elements(details->%s)`: Unnests the JSON array
-            #   for the given category into a set of virtual rows.
-            # - `(item->>'value')::integer`: Extracts the 'value' field as text
-            #   and casts it to an integer for mathematical operations.
-            # - `WHERE id = ANY(%s)`: Filters the aggregation to only include
-            #   records from the provided queryset.
-            # - `COALESCE(..., 0)`: Ensures we get 0 instead of NULL if there's
-            #   no data to aggregate.
-            sql_query = f"""
-                SELECT
-                    COALESCE(SUM((item->>'value')::integer), 0),
-                    COALESCE(COUNT(item), 0)
-                FROM
-                    {table_name},
-                    jsonb_array_elements(details->%s) AS item
-                WHERE
-                    {table_name}.id = ANY(%s)
-            """
-            cursor.execute(sql_query, [category, queryset_pks])
-            row = cursor.fetchone()
-
-            total_sum, total_count = row[0], row[1]
-
-            final_aggregates[category] = {
-                'sum': total_sum,
-                'count': total_count,
-                'average': round(total_sum / total_count, 2) if total_count > 0 else 0
-            }
-
-    return final_aggregates
-
-
 class JSONExpand(models.Func):
     function = 'jsonb_array_elements'
     template = '%(function)s(%(expressions)s)'
@@ -227,7 +158,7 @@ class JSONExpand(models.Func):
 
 class JSONAvg(models.Func):
     """
-    Joins an array of strings into a single string with a specified separator.
+    Average a value from objects in a JSONB array.
     """
 
     output_field = models.FloatField()
@@ -349,3 +280,148 @@ class SplitPart(models.Func):
         delimiter_expr = Value(str(delimiter))
         position_expr = Value(int(position))
         super().__init__(expression, delimiter_expr, position_expr, **extra)
+
+
+class RootValue(models.Expression):
+    """
+    Traverses a self-referencing foreign key to find the root object in a hierarchy and returns the value of a
+    specified field from it. Designed for databases that support recursive Common Table Expressions.
+
+    :param parent_field: The name of the self-referencing ForeignKey field that defines the hierarchy (e.g., 'parent').
+                         Alternatively, an F() expression pointing to the start of a hierarchy on a related model.
+    :param field_name: The name of the field on the root object whose value should be returned (e.g., 'name').
+
+    Example Usage (Direct):
+        # Annotates each category with the name of its own root.
+        Category.objects.annotate(
+            root_name=RootValue('parent', 'name')
+        )
+
+    Example Usage (with F() expression):
+        # Assumes a Product model has a ForeignKey 'category' to Category,
+        # and Category has a self-referencing key named 'parent'.
+        Product.objects.annotate(
+            root_category_name=RootValue(F('category'), 'name')
+        )
+        # NOTE: The recursive field name ('parent') is inferred from the
+        #       related model's self-referencing key. For lookups like
+        #       F('ingredient__category'), the recursive field name is
+        #       assumed to be 'category'.
+    """
+
+    model: models.Model             # The model being queried, set during expression resolution.
+    tree_model: models.Model        # The model where the hierarchy is defined.
+    tree_parent_field: str          # The name of the self-referencing FK field on the hierarchy model.
+
+    def __init__(self, parent_field: str | F, field_name: str | F, **kwargs):
+        super().__init__(**kwargs)
+        if not isinstance(parent_field, (str, F)):
+            raise TypeError("'parent_field' must be a string or an F() expression.")
+        if not isinstance(field_name, (str, F)):
+            raise TypeError("'field_name' must be a string. or an F() expression.")
+
+        self.parent_field = parent_field
+        self.field_name = field_name if isinstance(field_name, str) else field_name.name
+
+    def resolve_expression(self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False):
+        resolved = self.copy()
+        resolved.is_summary = summarize
+        resolved.model = query.model    # keep a reference to the model the annotation is being applied to.
+
+        # Determine if we are doing a simple lookup on the annotated model itself
+        # or a more complex one starting from a related field.
+        resolved.is_direct_lookup = isinstance(self.parent_field, str) and '__' not in self.parent_field
+        parent_expression = self.parent_field if isinstance(self.parent_field, F) else F(self.parent_field)
+
+        resolved.resolved_parent_expression = parent_expression.resolve_expression(
+            query, allow_joins, reuse, summarize, for_save
+        )
+        target_field = resolved.resolved_parent_expression.target
+
+        if resolved.is_direct_lookup:
+            # For a direct lookup like RootValue('parent', ...), the hierarchy is on the model being queried.
+            resolved.tree_model = query.model
+        elif hasattr(target_field, 'related_model') and target_field.related_model:
+            # For a lookup like RootValue(F('fk__parent'), ...), the hierarchy is on the related model.
+            resolved.tree_model = target_field.related_model
+        else:
+            raise FieldError(
+                f"The expression '{parent_expression.name}' does not resolve to a "
+                "related field, which is required to find a hierarchy on another model."
+            )
+
+        # Infer the name of the self-referencing parent field on the hierarchy model
+        # from the last part of the lookup.
+        resolved.tree_parent_field = parent_expression.name.split('__')[-1]
+
+        try:
+            h_field = resolved.tree_model._meta.get_field(resolved.tree_parent_field)
+            is_self_ref = (
+                    h_field.is_relation and
+                    h_field.related_model._meta.concrete_model == resolved.tree_model._meta.concrete_model
+            )
+            if not is_self_ref:
+                raise FieldError()
+        except (FieldDoesNotExist, FieldError):
+            raise FieldError(
+                f"Inferred parent field '{resolved.tree_parent_field}' either does not exist on "
+                f"model '{resolved.tree_model._meta.object_name}' or is not a self-referencing ForeignKey."
+            )
+
+        resolved.output_field = resolved.tree_model._meta.get_field(self.field_name)
+        return resolved
+
+    def as_sql(self, compiler, connection):
+        quote_name = connection.ops.quote_name
+
+        meta = self.tree_model._meta
+        table_name = meta.db_table
+
+        pk_col = meta.pk.column
+        parent_col = meta.get_field(self.tree_parent_field).column
+        field_col = meta.get_field(self.field_name).column
+
+        if self.is_direct_lookup:
+            # On the hierarchical model itself, start traversal from the current row's PK.
+            outer_alias = compiler.query.get_initial_alias()
+            pk_col_on_outer_model = self.model._meta.pk.column
+            start_node_sql = f'{quote_name(outer_alias)}.{quote_name(pk_col_on_outer_model)}'
+            start_node_params = []
+        else:
+            # On a related model, the start of the traversal is the FK value from the F-expression.
+            start_node_sql, start_node_params = compiler.compile(self.resolved_parent_expression)
+            start_node_sql = f"({start_node_sql})"
+
+        sql_template = """
+        (WITH RECURSIVE __root_value_cte AS (
+            SELECT
+                T.%(pk)s as cte_pk,
+                T.%(parent)s as cte_parent_pk,
+                T.%(field)s as cte_field
+            FROM %(table)s T
+            WHERE T.%(pk)s = %(start_node_sql)s
+
+            UNION ALL
+
+            SELECT
+                parent_table.%(pk)s,
+                parent_table.%(parent)s,
+                parent_table.%(field)s
+            FROM %(table)s parent_table
+            JOIN __root_value_cte child_cte ON parent_table.%(pk)s = child_cte.cte_parent_pk
+        )
+        SELECT cte_field
+        FROM __root_value_cte
+        WHERE cte_parent_pk IS NULL
+        LIMIT 1)
+        """
+
+        params = {
+            'table': quote_name(table_name),
+            'pk': quote_name(pk_col),
+            'parent': quote_name(parent_col),
+            'field': quote_name(field_col),
+            'start_node_sql': start_node_sql,
+        }
+
+        return sql_template % params, start_node_params

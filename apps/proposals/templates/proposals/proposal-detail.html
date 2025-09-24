@@ -47,11 +47,12 @@
                 <i class="bi-trash icon-md text-danger icon-fw"></i><br/>
                 <span class="tool-label">Delete</span>
             </a>
+            <a href='#0' data-modal-url='{% url "clone-proposal" slug=object.code %}' class="pull-right">
+                <i class="bi-copy icon-md icon-fw"></i><br/>
+                <span class="tool-label">Clone</span>
+            </a>
         {% endif %}
-        <a href='#0' data-modal-url='{% url "clone-proposal" slug=object.code %}' class="pull-right">
-            <i class="bi-copy icon-md icon-fw"></i><br/>
-            <span class="tool-label">Clone</span>
-        </a>
+
         <a href='#0' data-modal-url='{% url "proposal-attachments" pk=object.pk %}' class="pull-right">
             <i class="bi-paperclip icon-md icon-fw"></i>
             <span class="tool-label">Attachments</span>

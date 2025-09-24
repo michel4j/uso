@@ -41,8 +41,7 @@ USO_WEATHER_LOCATION = [52.0936, -106.5552]     # Set your location (lat, lon) f
 USO_OPEN_WEATHER_KEY = os.getenv("OPEN_WEATHER_API_KEY")  # OpenWeather API key for weather data
 
 # -----------------------------------------------------------------------------
-# Google API key for Google Maps, Geocoding, and other Google services used
-# in the publications application.
+# Google API key for Google services used in the publications application.
 # Please register at https://developers.google.com/maps/documentation/javascript/get-api-key
 # -----------------------------------------------------------------------------
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')

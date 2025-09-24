@@ -12,34 +12,35 @@
                 <small class="text-body-secondary">{{ info.techniques }}</small>
             </div>
 
+            {% if not project.is_expired %}
             {% if owner or admin %}
                 <div class="box-tools d-flex flex-row-reverse ms-auto">
                     {% if owner %}
-                    {% if info.can_renew %}
-                        {% if info.renewal %}
-                        <a href='{% url "edit-renewal-request" pk=info.renewal.pk %}'>
-                            <i class="bi-recycle icon-md icon-fw"></i>
-                            <span class="tool-label">Renewal</span>
-                        </a>
-                        {% else %}
-                        <a href='{% url "create-renewal-request" pk=allocation.pk %}'>
-                            <i class="bi-recycle icon-md icon-fw"></i>
-                            <span class="tool-label">Renew</span>
-                        </a>
+                        {% if info.can_renew %}
+                            {% if info.renewal %}
+                            <a href='{% url "edit-renewal-request" pk=info.renewal.pk %}'>
+                                <i class="bi-recycle icon-md icon-fw"></i>
+                                <span class="tool-label">Renewal</span>
+                            </a>
+                            {% else %}
+                            <a href='{% url "create-renewal-request" pk=allocation.pk %}'>
+                                <i class="bi-recycle icon-md icon-fw"></i>
+                                <span class="tool-label">Renew</span>
+                            </a>
+                            {% endif %}
                         {% endif %}
-                    {% endif %}
-                    {% if info.can_decline %}
-                        <a href="#0" data-modal-url='{% url "decline-alloc" pk=allocation.pk %}'>
-                            <i class="bi-x-lg icon-md icon-fw"></i>
-                            <span class="tool-label">Decline</span>
-                        </a>
-                    {% endif %}
-                    {% if info.can_book %}
-                        <a href='{% url "create-booking-request" pk=allocation.pk %}'>
-                            <i class="bi-calendar2-week icon-md icon-fw"></i>
-                            <span class="tool-label">Book Shifts</span>
-                        </a>
-                    {% endif %}
+                        {% if info.can_decline %}
+                            <a href="#0" data-modal-url='{% url "decline-alloc" pk=allocation.pk %}'>
+                                <i class="bi-x-lg icon-md icon-fw"></i>
+                                <span class="tool-label">Decline</span>
+                            </a>
+                        {% endif %}
+                        {% if info.can_book %}
+                            <a href='{% url "create-booking-request" pk=allocation.pk %}'>
+                                <i class="bi-calendar2-week icon-md icon-fw"></i>
+                                <span class="tool-label">Book Shifts</span>
+                            </a>
+                        {% endif %}
                     {% endif %}
                     {% if admin or user|is_staff:facility and project.is_active %}
                         <a href="#0" data-modal-url='{% url 'session-handover' pk=project.pk fac=facility.acronym %}'
@@ -49,6 +50,7 @@
                         </a>
                     {% endif %}
                 </div>
+            {% endif %}
             {% endif %}
         </div>
     </div>

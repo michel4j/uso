@@ -1,47 +1,60 @@
 {% extends "misc/blocks/panel.html" %}
 {% block panel_title %}Projects{% endblock %}
 {% block panel_tools %}
-<a href="{% url 'user-project-list' %}" title="View all my projects">
-    <i class="bi-list-ol icon-md icon-fw"></i>
-</a>
+    <a href="{% url 'user-project-list' %}" title="View all my projects">
+        <i class="bi-list-ol icon-md icon-fw"></i>
+    </a>
 {% endblock %}
 {% block panel_body %}
     {% if beamlines %}
-    <div class="card-body bg-warning-subtle">
-        {% for beamline, info in beamlines %}
-            <div class="d-flex flex-row align-items-center justify-content-between gap-3">
-                <div><a href="{% url 'project-detail' pk=info.project.pk %}">{{ info.project }}</a></div>
-                <strong class="ms-auto">{{ beamline }}</strong>
-                {% if info.renewal %}
-                <a href='{% url "edit-renewal-request" pk=info.renewal.pk %}' title="Edit Renewal" data-bs-trigger="tooltip">
-                    <i class="bi-recycle icon-fw"></i>
-                </a>
-                {% else %}
-                <a href='{% url "create-renewal-request" pk=info.allocation.pk %}' title="Create Renewal"  data-bs-trigger="tooltip">
-                    <i class="bi-recycle icon-fw"></i>
-                </a>
-                {% endif %}
-            </div>
-        {% endfor %}
-    </div>
+        <div class="card-body bg-warning-subtle">
+            {% for beamline, info in beamlines %}
+                <div class="d-flex flex-row align-items-center justify-content-between gap-3">
+                    <div><a href="{% url 'project-detail' pk=info.project.pk %}">{{ info.project }}</a></div>
+                    <strong class="ms-auto">{{ beamline }}</strong>
+                    {% if info.renewal %}
+                        <a href='{% url "edit-renewal-request" pk=info.renewal.pk %}' title="Edit Renewal"
+                           data-bs-trigger="tooltip">
+                            <i class="bi-recycle icon-fw"></i>
+                        </a>
+                    {% else %}
+                        <a href='{% url "create-renewal-request" pk=info.allocation.pk %}' title="Create Renewal"
+                           data-bs-trigger="tooltip">
+                            <i class="bi-recycle icon-fw"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
     <div class="card-body">
-    <div class="row scroll-box"  style="max-height: 200px">
-    <ul class="list-group list-group-flush ">
-        {% for project in user.projects.active %}
-            <li class="list-group-item bg-transparent">
-                <a class="overflow ellipsis" href='{% url "project-detail" pk=project.pk %}'>
-                    {% if project.clarifications.pending.count %}
-                        <i class="bi-chat-left-text-alt text-warning"></i>
-                    {% else %}
-                        <i class="bi-arrow-right-circle"></i>
-                    {% endif %}
-                    &nbsp;{{ project.title }}
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
-    </div>
+        <div class="row scroll-box" style="max-height: 200px">
+            <table class="table table-sm w-100">
+                <tbody>
+                {% for project in projects %}
+                    <tr style="min-width: 0;">
+                        <td class="text-body-secondary text-nowrap">
+                            <a href='{% url "project-detail" pk=project.pk %}'
+                               data-bs-toggle="tooltip" title="View Project">
+                                {% if project.state == 'pending' %}
+                                    <i class="bi-patch-check"></i>
+                                {% elif project.state == 'active' %}
+                                    <i class="bi-patch-check-fill {% if project.clarifications.pending.count %}text-warning{% endif %}"></i>
+                                {% else %}
+                                    <i class="bi-patch-exclamation text-danger"></i>
+                                {% endif %}
+                                &nbsp;{{ project.code }}
+                            </a>
+                        </td>
+                        <td>
+                    <span title="{{ project.title }}"
+                    >{{ project.title| truncatechars:20 }}</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}
 

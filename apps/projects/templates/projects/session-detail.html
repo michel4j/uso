@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 {% load static %}
-{% load folio %}
+{% load misc %}
 {% load humanize %}
 {% load proposal_tags %}
 {% load project_tags %}
@@ -17,8 +17,7 @@
     {{ object.beamline.acronym }} {{ session.get_kind_display }} Permit
 {% endblock %}
 
-{% block page-status-style %}callout
-    {% folio_status object.state success='live' info='ready' danger='terminated' draft='complete' default='bg-darken' %}{% endblock %}
+{% block page-status-style %}callout callout-{% state_tag object.state success='live' primary='ready' danger='terminated' secondary='complete' default='secondary' %}{% endblock %}
 
 {% block page-tools %}
     {% if owner or admin %}
@@ -27,7 +26,7 @@
             <i class="icon-md bi-clock-history icon-fw"></i><br/>
             <span class="tool-label">View Log</span>
         </a>
-        {% if object.state == object.STATES.ready %}
+        {% if object.is_ready %}
             {% if admin %}
                 <a href="#0" data-modal-url="{% url 'delete-session' pk=object.pk %}" class="text-danger pull-right">
                     <i class="ti icon-md bi-trash icon-fw"></i><br/>
@@ -71,7 +70,9 @@
 {% endblock %}
 
 {% block page-status-bar %}
-    <span class="status-badge badge bg-info text-condensed">{{ object.get_state_display }}</span>
+    <span class="status-badge badge bg-{% state_tag object.state success='live' primary='ready' danger='terminated' secondary='complete' default='secondary' %} text-condensed">
+        {{ object.get_state_display }}
+    </span>
     <div>
         <small class="text-wide text-body-secondary">Beamline:</small><br/>{{ object.beamline.acronym }}
     </div>

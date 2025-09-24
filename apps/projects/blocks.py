@@ -14,9 +14,7 @@ class ProjectsBlock(BaseBlock):
         ctx = super().get_context_data()
         from projects import models
         user = self.request.user
-
-        filters = Q(leader=user) | Q(spokesperson=user) | Q(delegate=user)
-        projects = models.Project.objects.filter(filters)
+        projects = models.Project.objects.filter(team=user).distinct().order_by('-end_date')[:10]
 
         if not projects:
             self.visible = False

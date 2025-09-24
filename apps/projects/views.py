@@ -257,6 +257,13 @@ class ProjectDetail(RolePermsViewMixin, detail.DetailView):
     def check_owner(self, obj):
         return self.request.user in [obj.spokesperson, obj.leader, obj.delegate]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'user_is_member': self.object.is_member(self.request.user),
+        })
+        return context
+
 
 class ProjectHistory(RolePermsViewMixin, ItemListView):
     model = models.Session
@@ -274,7 +281,7 @@ class ProjectHistory(RolePermsViewMixin, ItemListView):
     allowed_roles = USO_ADMIN_ROLES + USO_HSE_ROLES
 
     def get_list_title(self):
-        return "{} Session History".format(self.project)
+        return f"{self.project} Session History"
 
     def get_queryset(self, *args, **kwargs):
         self.queryset = self.project.sessions.filter().with_shifts()
@@ -370,9 +377,9 @@ class SessionDetail(RolePermsViewMixin, detail.DetailView):
     def check_allowed(self):
         session = self.get_object()
         allowed = (
-                super().check_allowed() or
-                self.check_owner(session) or
-                session.beamline.is_staff(self.request.user)
+            super().check_allowed() or
+            session.beamline.is_staff(self.request.user) or
+            session.project.team.filter(username=self.request.user.username).exists()
         )
         return allowed
 
@@ -709,7 +716,10 @@ class LabSignOn(RolePermsViewMixin, ModalCreateView):
 
     def check_allowed(self):
         self.project = models.Project.objects.get(pk=self.kwargs['pk'])
-        allowed = super().check_allowed() or self.check_owner(self.project)
+        allowed = (
+            super().check_allowed() or
+            self.project.team.filter(pk=self.request.user.pk).exists()
+        )
         return allowed
 
     def check_owner(self, obj):

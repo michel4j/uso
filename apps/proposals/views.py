@@ -438,13 +438,17 @@ class ProposalDetail(RolePermsViewMixin, detail.DetailView):
 
     def check_allowed(self):
         proposal = self.get_object()
+        return super().check_allowed() or self.check_owner(proposal) or self._user_on_team(self.request.user)
+
+    def _user_on_team(self, user):
         user = self.request.user
         emails = {e.strip().lower() for e in [user.email, user.alt_email] if e}
-        return super().check_allowed() or self.check_owner(proposal) or (len(emails & set(proposal.team)) > 0)
+        return len(emails & set(self.object.team)) > 0
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['validation'] = self.object.validate()
+        context['user_is_member'] = self._user_on_team(self.request.user)
         return context
 
 
@@ -1850,7 +1854,7 @@ class DeleteReviewType(RolePermsViewMixin, ModalDeleteView):
 class TechniqueList(RolePermsViewMixin, ItemListView):
     model = models.Technique
     template_name = "item-list.html"
-    list_columns = ['name', 'acronym', 'description', 'areas']
+    list_columns = ['name', 'acronym', 'description', 'category']
     list_filters = ['created', 'modified', 'category']
     list_search = [
         'name', 'acronym', 'description', 'category', 'parent__name', 'parent__description', 'parent__acronym'

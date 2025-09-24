@@ -262,6 +262,8 @@ REPORTCRAFT_FUNCTIONS = [
     'misc.functions.AgeYears',
     'misc.functions.AgeMonths',
     'misc.functions.YearMonth',
+    'misc.functions.Quarter',
+    'misc.functions.RootValue',
 ]
 
 REPORTCRAFT_APPS = [

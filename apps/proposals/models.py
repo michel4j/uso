@@ -223,6 +223,7 @@ class ReviewTrack(TimeStampedModel):
     require_call = models.BooleanField("Require Call", default=True)
     notify_offset = models.IntegerField("Notify After", default=1)
     duration = models.IntegerField("Project Cycles", default=4)
+    reviewers = models.ManyToManyField("Reviewer", blank=True, related_name='tracks')
 
     def __str__(self):
         return f"{self.acronym} - {self.name}"

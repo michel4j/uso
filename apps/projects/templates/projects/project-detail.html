@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 {% load static %}
-{% load folio %}
+{% load misc %}
 {% load proposal_tags %}
 {% load project_tags %}
 {% load samples_tags %}
@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block page-tools %}
-    {% if project.is_active and owner %}
+    {% if project.is_active and user_is_member %}
         <a href='{% url "user-feedback" %}' class="pull-right">
             <i class="bi-chat-left-text icon-md icon-fw"></i><br/>
             <span class="tool-label">Feedback</span>
@@ -61,10 +61,12 @@
 {% endblock %}
 
 {% block page-status-style %}
-    callout {% folio_status object.state draft='pending' success='active' danger='inactive' %}{% endblock %}
+    callout callout-{% state_tag object.state info='pending' success='active' secondary='inactive' %}{% endblock %}
 
 {% block page-status-bar %}
-    <span class="status-badge badge bg-info text-condensed">{{ project.state.title }}</span>
+    <span class="status-badge badge bg-{% state_tag object.state info='pending' success='active' secondary='inactive' %} text-condensed">
+        {{ project.state.title }}
+    </span>
     <div>
         <small class="text-wide text-body-secondary">Review Results:</small><br/>
         {% for submission in project.submissions.all %}

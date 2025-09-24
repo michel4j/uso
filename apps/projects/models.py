@@ -57,6 +57,9 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
     def is_owned_by(self, user):
         return user in [self.spokesperson, self.leader, self.delegate]
 
+    def is_member(self, user):
+        return user in self.team.all()
+
     def facility_codes(self):
         return ', '.join([bl.acronym for bl in self.beamlines.distinct()])
 
@@ -66,6 +69,10 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
     def is_pending(self, dt=None):
         dt = dt if dt else timezone.localtime(timezone.now()).date()
         return self.start_date > dt
+
+    def is_expired(self, dt=None):
+        dt = dt if dt else timezone.localtime(timezone.now()).date()
+        return self.end_date < dt
 
     def is_multi_beamline(self):
         """
@@ -84,7 +91,7 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
         if self.is_pending():
             return 'pending'
         else:
-            return {True: 'active', False: 'inactive'}.get(self.is_active(), 'inactive')
+            return 'active' if self.is_active() else 'inactive'
 
     def get_leader(self):
         return self.leader or self.spokesperson
@@ -165,7 +172,7 @@ class Project(DateSpanMixin, CodeModelMixin, TimeStampedModel):
             totals = self.beamtimes.filter(
                 beamline=beamline, start__date__gte=cycle.start_date, end__date__lte=cycle.end_date
             ).with_shifts().aggregate(scheduled=Coalesce(Sum('shifts'), 0.0))
-            used_totals = self.sessions.within(
+            used_totals = self.sessions.filter(beamline=beamline).within(
                 {'start': cycle.start_date, 'end': cycle.end_date}
             ).with_shifts().aggregate(used=Coalesce(Sum('shifts'), 0.0))
 
@@ -513,6 +520,10 @@ class Session(TimeStampedModel, TimeFramedModel):
     def is_live(self):
         now = timezone.localtime(timezone.now())
         return self.state == self.STATES.live and self.start <= now < self.end
+
+    def is_ready(self):
+        now = timezone.localtime(timezone.now())
+        return self.state in [self.STATES.ready] and self.start <= now < self.end
 
     def is_owned_by(self, user):
         return user in self.team.all() or user in [self.spokesperson, self.staff]

@@ -48,8 +48,10 @@ fi
 
 cat <<EOF > "${ENV_FILE}"
 SECRET_KEY='${SECRET_KEY}'
-
 DATABASE_PASSWORD='${DB_PASSWORD}'
+
+USO_SERVER_NAME='localhost'
+USO_SERVER_PORT=8080
 
 OPEN_WEATHER_API_KEY=your_openai_api_key_here
 CROSSREF_API_KEY=your_crossref_api_key_here

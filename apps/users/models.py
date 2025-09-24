@@ -160,7 +160,7 @@ class CustomUserManager(BaseUserManager):
         """
         Creates and saves a superuser with the given username and password.
         """
-        other_fields['roles'] = USO_ADMIN_ROLES
+        other_fields['roles'] = USO_ADMIN_ROLES + ['staff:uso']
         if os.environ.get('DJANGO_SUPERUSER_EMAIL'):
             other_fields['email'] = os.environ.get('DJANGO_SUPERUSER_EMAIL')
         if os.environ.get('DJANGO_SUPERUSER_FIRST_NAME'):

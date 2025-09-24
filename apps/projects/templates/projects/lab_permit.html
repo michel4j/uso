@@ -1,6 +1,7 @@
 {% extends "page.html" %}
 
 {% load humanize %}
+{% load misc %}
 {% load static %}
 {% load proposal_tags %}
 {% load project_tags %}
@@ -17,7 +18,7 @@
     {{ object.lab.acronym }} {{ session.get_kind_display }} Lab Permit
 {% endblock %}
 
-{% block page-status-style %}callout {% if object.state == 'active' %}callout-success{% endif %}{% endblock %}
+{% block page-status-style %}callout callout-{% state_tag object.state success='active' info='pending' secondary='complete' default='secondary' %}{% endblock %}
 
 {% block page-tools %}
     {% if owner or admin %}
@@ -43,7 +44,9 @@
 
 
 {% block page-status-bar %}
-    <span class="status-badge badge bg-info text-condensed">{{ object.get_state_display }}</span>
+    <span class="status-badge badge bg-{% state_tag object.state success='active' info='pending' secondary='complete' default='secondary' %} text-condensed">
+        {{ object.get_state_display }}
+    </span>
     <div class="d-none d-sm-block">
         <small class="text-wide text-body-secondary">Lab:</small><br/>{{ object.lab.name }}
     </div>

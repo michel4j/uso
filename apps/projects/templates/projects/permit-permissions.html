@@ -1,10 +1,10 @@
 
-        <div class="callout col-12">
+        <div class="callout col-12 my-2">
             <small class="text-wide text-body-secondary">Required Permissions:</small><br/>
             {% for perm_code in object.permissions.all %}
-                <span class="badge bg-info">{{ perm_code }} (all)</span>&ensp;
+                <span class="badge bg-success">{{ perm_code }} &mdash; All members</span>&ensp;
             {% endfor %}
             {% for perm_code in  object.permissions.any %}
-                <span class="badge bg-primary">{{ perm_code }} (one)</span>
+                <span class="badge bg-success">{{ perm_code }} &mdash; One member</span>
             {% endfor %}
         </div>

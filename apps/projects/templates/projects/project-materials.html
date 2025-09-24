@@ -33,7 +33,7 @@
 						<i class="bi-card-text icon-md icon-fw"></i><br/>
                         <span class="tool-label">Details</span>
 					</a>
-                    {% if owner and project.state != 'inactive' %}
+                    {% if not project.is_expired %}
                         <a href='{% url "edit-materials" pk=project.pk %}' title="Amend Materials"
                            class="pull-right">
 						<i class="bi-pencil icon-md icon-fw"></i><br/>
