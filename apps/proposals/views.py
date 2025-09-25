@@ -13,6 +13,7 @@ from django.template.defaultfilters import pluralize
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 from django.views.generic import detail, edit, TemplateView, View
 from dynforms.models import FormType
 from dynforms.views import DynUpdateView, DynCreateView
@@ -1271,7 +1272,7 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
     list_filters = ['created', 'pool', 'techniques__config__facility']
     list_search = ['proposal__title', 'proposal__code', 'proposal__team', 'proposal__keywords']
     link_url = "submission-detail"
-    ordering = ['proposal__id', '-cycle_id', '-stdev']
+    ordering = ['proposal__id', '-cycle_id',]
     list_title = 'Review Evaluation'
     list_transforms = {
         'facilities': _acronym_list, 'adj': _adjusted_score,
@@ -1283,19 +1284,20 @@ class ReviewEvaluationList(RolePermsViewMixin, ItemListView):
     def get_list_columns(self):
         track = models.ReviewTrack.objects.filter(acronym=self.kwargs['track']).first()
         review_types = track.stages.values_list('kind__pk', 'kind__code')
-        columns = ['proposal', 'code', 'facilities', 'reviewer']
+        columns = ['code', 'facilities', 'reviewer']
         for pk, code in review_types:
-            columns.extend([f'{code}_avg', f'{code}_std'])
-        columns.append('adj')
+            type_code = slugify(code).replace('-', '_')
+            columns.extend([f'{type_code}_avg', f'{type_code}_std'])
         return columns
 
     def get_list_transforms(self):
         transforms = {**self.list_transforms}
         for rev_type in ReviewType.objects.scored():
+            type_code = slugify(rev_type.code).replace('-', '_')
             transforms.update(
                 {
-                    f'{rev_type.code}_avg': utils.score_format,
-                    f'{rev_type.code}_std': utils.stdev_format
+                    f'{type_code}_avg': utils.score_format,
+                    f'{type_code}_std': utils.stdev_format
                 }
             )
         return transforms

@@ -13,6 +13,7 @@ from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -195,14 +196,15 @@ class SubmissionQuerySet(QuerySet):
         """
         annotations = {}
         for rev_type in ReviewType.objects.scored():
-            annotations[f"{rev_type.code}_avg"] = Avg(
+            type_code = slugify(rev_type.code).replace('-', '_')
+            annotations[f"{type_code}_avg"] = Avg(
                 Case(
                     When(Q(reviews__state__gte=Review.STATES.submitted, reviews__type=rev_type),
                          then=F('reviews__score')),
                     output_field=models.FloatField()
                 )
             )
-            annotations[f"{rev_type.code}_std"] = StdDev(
+            annotations[f"{type_code}_std"] = StdDev(
                 Case(
                     When(Q(reviews__state__gte=Review.STATES.submitted, reviews__type=rev_type),
                          then=F('reviews__score')),
