@@ -527,7 +527,7 @@ class FakeUser:
         self.save_photo('admin')  # make sure admin account has a photo also
 
     def make_username(self, first_name, last_name, other_name=''):
-        username = unidecode(f'{first_name}{first_char(last_name)}{first_char(other_name)}'.lower())
+        username = unidecode(f'{last_name}{first_char(first_name)}{first_char(other_name)}'.lower())
         self.user_names[username] += 1
         if self.user_names[username] > 1:
             return f'{username}{self.user_names[username]}'

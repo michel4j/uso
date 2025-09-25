@@ -62559,6 +62559,6 @@
   fields:
     created: 2017-01-23 13:28:16.560808+00:00
     modified: 2017-01-23 13:28:16.561562+00:00
-    code: INDUSTRIAL-SCIENCE-LAB-RADIOACTIVE-SAMPLE-WORK
-    description: Industrial Science Lab Access
+    code: RADIOISOTOPE-LAB-ACCESS
+    description: Radioisotope Lab Access
     review: true

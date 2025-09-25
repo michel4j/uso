@@ -355,61 +355,19 @@ class LabSessionForm(ModalModelForm):
         workspaces = cleaned_data.get('workspaces')
         joiner = Joiner(', ', ' & ')
 
-        if lab and team:
-            lab_permissions = [_f for _f in lab.permissions.values_list('code', flat=True) if _f]
-            unqualified = [
-                member
-                for member in team
-                if not member.has_all_perms(*lab_permissions)
-            ]
-            if unqualified:
-                msg = (
-                    "Use of the {} requires {} permissions for all participating team members. The following "
-                    "selected team members did not qualify: {}.".format(
-                        lab, joiner(lab_permissions), joiner(unqualified)
-                    )
-                )
-                self.add_error('team', 'Unqualified users selected.')
-                failures.append(msg)
+        all_perms = set()
+        if lab:
+            all_perms |= {k for k in lab.permissions.values_list('code', flat=True) if k}
+        if equipment:
+            all_perms |= {k for k in equipment.values_list('permissions__code', flat=True) if k}
 
-        if team and equipment:
-            missing_agreements = [
-                member
-                for member in team
-                if not user_agreement.valid_for_user(member)
-            ]
-            if missing_agreements:
-                msg = (
-                    "All participating team members must have valid User Agreements. "
-                    "The following users do not: {}.".format(
-                        joiner(missing_agreements)
-                    )
-                )
-                self.add_error('team', 'Unqualified users selected.')
-                failures.append(msg)
-
-            equipment_perms = [_f for _f in equipment.values_list('permissions__code', flat=True) if _f]
-            if equipment_perms:
-                unqualified = [
-                    member
-                    for member in team
-                    if not member.has_all_perms(*equipment_perms)
-                ]
-                if unqualified:
-                    msg = (
-                        "Use of the selected equipment requires {} permissions for all participating team members. "
-                        "The following selected team members did not qualify: {}.".format(
-                            lab, joiner(equipment_perms), joiner(unqualified)
-                        )
-                    )
-                    self.add_error('equipment', 'Required permissions missing.')
-                    failures.append(msg)
+        team_failures = check_team_signon(team, None, all_perms, remote=False)
+        for f in team_failures:
+            self.add_error('team', f)
 
         if start and end:
             if self.project.end_date and self.project.end_date < end.date():
-                msg = 'Project expires on {}!'.format(
-                    self.project.end_date.isoformat()
-                )
+                msg = f'Project expires on {self.project.end_date.isoformat()}!'
                 self.add_error('end', msg)
 
             if start > end:
@@ -434,9 +392,6 @@ class LabSessionForm(ModalModelForm):
                         )
                     msg += "</ul>"
                     failures.append(msg)
-        if failures:
-            raise forms.ValidationError(mark_safe('<br/>'.join(failures)), code='invalid')
-
         return cleaned_data
 
 
@@ -559,69 +514,6 @@ class SessionForm(ModalModelForm):
             raise forms.ValidationError(msg, code='invalid')
 
         failures = check_team_signon(team, self.session.beamline, req_perms, any_perms, remote)
-        # # Test qualifications of team members
-        # if team:
-        #     missing_user_agreements = [
-        #         f'{member}'
-        #         for member in team
-        #         if Agreement.objects.pending_for_user(member).exists()
-        #     ]
-        #     missing_inst_agreements = [
-        #         f'{member}'
-        #         for member in team
-        #         if (
-        #             (member.institution is None) or
-        #             (member.institution.state not in [
-        #                 member.institution.STATES.exempt, member.institution.STATES.active
-        #             ])
-        #         )
-        #     ]
-        #
-        #     if missing_user_agreements:
-        #         msg = (
-        #             "The following users have pending User Agreements: {}.".format(
-        #                 joiner(missing_user_agreements)
-        #             )
-        #         )
-        #         failures.append(msg)
-        #
-        #     if missing_inst_agreements:
-        #         msg = (
-        #             "The following don't have valid Institutional Agreements: {}.".format(
-        #                 joiner(missing_inst_agreements)
-        #             )
-        #         )
-        #         failures.append(msg)
-        #
-        #     unqualified = [
-        #         member
-        #         for member in team
-        #         if not (
-        #                 member.has_all_perms(*req_perms) and
-        #                 self.session.beamline.is_user(member, remote=remote)
-        #         )
-        #     ]
-        #     if unqualified:
-        #         req_perms |= user_perms
-        #         msg = (
-        #             "The following team members do not have required permissions {}: {}.".format(
-        #                 joiner(req_perms), joiner(unqualified)
-        #             )
-        #         )
-        #         failures.append(msg)
-        #
-        #     if missing_inst_agreements or missing_user_agreements or unqualified:
-        #         self.add_error('team', 'Unqualified users selected.')
-        #
-        #     team_perms = set()
-        #     for member in team:
-        #         team_perms |= set(member.get_all_permissions())
-        #     if not (team_perms >= any_perms):
-        #         self.add_error('team', 'Team requirements not met.')
-        #         msg = 'At least one team member must have {} permissions.'.format(joiner(any_perms - team_perms))
-        #         failures.append(msg)
-        #if failures:
-        #    raise forms.ValidationError(mark_safe('<br/>'.join(failures)), code='invalid')
 
         for f in failures:
             self.add_error('team', f)

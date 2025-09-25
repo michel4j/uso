@@ -369,17 +369,19 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         available_pools = list(available_requests.keys())
         if not available_pools:
             message = (
-                "No access pools are available for submission. Select a different cycle or check back "
-                "during the next call for proposals."
+                "No review tracks can accept your submission at this time. Select a different cycle wait "
+                "for the next call for proposals."
             )
         elif len(available_pools) > 1:
-            message = (
-                "Multiple pools are are available. Please select one to submit your proposal. "
-            )
+            if cycle.is_closed():
+                message = "However, out-of-call review tracks are available through your eligible access pools."
+            else:
+                message = (
+                    "You are eligible to access beamtime through more than one access pool. "
+                    "Please select one to submit your proposal. "
+                )
         else:
-            message = (
-                "One access pool is available for submission."
-            )
+            message = ""
         pool_ids = [p.pk for p in available_pools]
         info = {
             "message": mark_safe(message),
