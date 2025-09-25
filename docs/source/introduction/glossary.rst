@@ -11,7 +11,8 @@ of definitions of the key terms and concepts as used within the USO system.
 
    Access Pool
       One or more pools of beam time from which shifts are allocated to projects. The default pool is available
-      to all users. Additional pools can be made available based on user roles.
+      to all users. Additional pools can be made available based on user roles. Pools must be associated with
+      one or more review tracks to be available to proposals.
 
    Allocation
       The process of assigning beam time or resources to approved projects based on their review outcomes. Can also
@@ -29,10 +30,13 @@ of definitions of the key terms and concepts as used within the USO system.
 
    Cycle
       A period of time, typically 6 months long, during which experiments are scheduled and performed
-      at the facility. There are typically two cycles per year Jan 1st - June 30, and July 1st - Dec 31st.
+      at the facility. By default there two cycles per year Jan 1st - June 30, and July 1st - Dec 31st. The number,
+      duration and types of cycles are configurable through Cycle Types. Every cycle is associated with a
+      Schedule that defines the shifts available during the cycle.
 
    Cycle Type
-      A template defining the parameters for a cycle, including its start date, duration, and other attributes.
+      A template defining the parameters for a cycle, including its start date, duration, and other attributes. Cycles
+      and their associated Schedules are created automatically based on these templates.
 
    Electronic Permit
       A digital authorization that allows users to access specific facilities or equipment during their scheduled shifts.
@@ -49,14 +53,14 @@ of definitions of the key terms and concepts as used within the USO system.
       A collection of items or substances that are used in a project. This can include samples and equipment.
 
    Permission
-      A specific right granted to a user within the USO system. While roles are conferred on users based on status,
+      A specific qualification granted to a user within the USO system. While roles are conferred on users based on status,
       Permissions are acquired by users through training or qualification and primarily control access to
       perform experiments at specific beamlines, labs or facilities.
 
    Project
       A specific research initiative that has been approved for execution at a facility, resulting from a
       successful proposal submission and review process. It includes details about the team, materials, and
-      planned experiments.
+      planned experiments. It also includes information about the allocated beam time and beamlines.
 
    Proposal
       A formal request submitted by a user to conduct research at a facility, detailing the scientific objectives,
@@ -67,7 +71,7 @@ of definitions of the key terms and concepts as used within the USO system.
       feasibility, and compliance with safety and ethical standards.
 
    Review Stage
-      A specific phase in the review process of a submission. Each Review Stage is associated with
+      A specific phase in the review process of a proposal submission. Each Review Stage is associated with
       a Review Type.
 
    Review Track
@@ -95,9 +99,10 @@ of definitions of the key terms and concepts as used within the USO system.
       Sessions are associated with electronic permits.
 
    Shift
-      The smallest unit of schedule beam time. This is typically eight-hour blocks corresponding to three shifts
+      The smallest unit of scheduled beam time. This is typically eight-hour blocks corresponding to three shifts
       a day (00:00-08:00, 08:00-16:00, 16:00-24:00).  Individual beamlines may opt to split shifts further into
-      four-hour blocks (00:00-04:00, 04:00-08:00 08:00-12:00, 12:00-16:00, 16:00-20:00, 20:00-24:00).
+      four-hour blocks (00:00-04:00, 04:00-08:00 08:00-12:00, 12:00-16:00, 16:00-20:00, 20:00-24:00). The default
+      shift configuration is defined by the Cycle Type and can be customized.
 
    Shift Configuration
       A set of parameters that define what shifts mean within a cycle schedule. This includes the number of shifts,

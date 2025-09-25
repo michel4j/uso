@@ -369,7 +369,7 @@ class SubmitProposal(RolePermsViewMixin, ModalUpdateView):
         available_pools = list(available_requests.keys())
         if not available_pools:
             message = (
-                "No review tracks can accept your submission at this time. Select a different cycle wait "
+                "No review tracks can accept your submission at this time. Select a different cycle or wait "
                 "for the next call for proposals."
             )
         elif len(available_pools) > 1:

@@ -33,6 +33,7 @@ The system provides the following feature sets:
     * Projects: team members, materials, amendments
     * Scheduling: facility modes, beam time, user support
     * Electronic Permits: beamline sessions, lab sessions, permission verification at sign-on
-    * User Feedback collection and reporting
+    * User Feedback collection
+    * Advanced Business Intelligence reporting and data export
     * Publications: submission, tracking and metrics reporting
     * User/Institutional agreements

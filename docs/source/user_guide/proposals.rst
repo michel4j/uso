@@ -14,7 +14,8 @@ The USO system operates on a cycle-based model, typically with two cycles per ye
 during which experiments can be scheduled and performed. However, creation and submission of proposals typically
 happens several months prior to the start of the cycle, on a fixed schedule that starts with the Call-for-Proposals.
 For example, for beam time scheduled starting in July, the Call-for-Proposals may occur in February of the same year
-and last for about a month.  During this period users would create and submit proposals to be reviewed.
+and last for about a month.  During this period users would create and submit proposals to be reviewed.  Specific
+review tracks may allow proposals to be submitted at any time to be reviewed on a rolling basis.
 
 Creating a new Proposal
 -----------------------
@@ -87,10 +88,11 @@ Select the appropriate ReviewTracks and Access Pool for submissions.
 
 The proposal submit form allows you to select the review tracks for the proposal. Review tracks are predefined
 categories that determine how the proposal will be reviewed. The available review tracks varies depending on the
-beamline or techniques requested, and submission time. Some review are only available during specific calls for
-proposals.
+beamline or techniques requested, the submission time, and the access pools available to the submitter.
+Some review are only available during specific calls for proposals.
 
-The submit form may also allow you to select an Access Pool for your submission. The Access Pool is a
+Select the Access Pool for your submission to see the applicable review tracks to which your proposal will be submitted.
+Access Pools represent different categories or allocations of beam time at the facility. Each access pool has a
 reserved slice of beam time that the proposal will be competing for. Most proposals are typically submitted
 to the default access pool, which is the general pool of beam time available for all peer-reviewed proposals. However,
 based on your roles, you may have access to other pools. If this is the case, you will be able to select the
@@ -100,8 +102,9 @@ appropriate access pool for your submission.
 Submissions
 ===========
 Submissions are created when a proposal is submitted for review. Each submission is associated with a specific
-review track and serve to collect all the information related to the proposal review life-cycle. When submitting
-a proposal to multiple review tracks, a separate submission is created for each track.
+review track and serve to collect all the information related to the proposal review life-cycle. In some cases,
+it is possible to submit a proposal to multiple review tracks. A separate submission will be created for each. However,
+only a single Project may result from the proposal, even if it was submitted to multiple review tracks.
 
 You can access individual submissions through the links on the preview page of the submitted proposal.
 

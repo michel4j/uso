@@ -15,7 +15,7 @@ How do I ...
 - **Submit a proposal?**
    After logging in, there is a panel on your dashboard titled "Proposals". Within this panel you will see if
    a call is open. Use the icon tools within this panel to create a new proposal. Fill out the proposal form,
-   select the appropriate review tracks, and submit it for review. You can track the status of your submission
+   select an access pool, and submit it for review. You can track the status of your submission
    by following the link to the Submission at the top of your submitted proposal. All your proposals are listed
    in the "My Proposals" section of Home menu or through the "Proposals" panel on the dashboard.
 

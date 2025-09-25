@@ -16,7 +16,10 @@ PARENT_DIR="${1%%+(/)}"  # Remove trailing slashes
 USONLINE_DIR="$PARENT_DIR/uso-${SERVER}"
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 
-if [ -d "$USONLINE_DIR" ]; then
+if [ "$SERVER" = "devel" ]; then
+  USONLINE_DIR="$PARENT_DIR"
+  echo "Preparing a development instance in '$USONLINE_DIR/local'."
+elif [ -d "$USONLINE_DIR" ]; then
   echo "The directory '$USONLINE_DIR' already exists. Exiting."
   exit 1
 else
@@ -24,11 +27,23 @@ else
   echo "Created directory '$USONLINE_DIR'."
 fi
 
+ENV_FILE="${USONLINE_DIR}/.env"
+DB_DIR="${USONLINE_DIR}/database"
+DOCKER_COMPOSE_FILE="${USONLINE_DIR}/docker-compose.yml"
+
+if [ "$SERVER" = "nginx" ]; then
+  cp "${SCRIPT_DIR}/nginx/nginx.conf" "$USONLINE_DIR/local/"
+elif [ "${SERVER}" = "devel" ]; then
+  ENV_FILE="${USONLINE_DIR}/local/.env"
+  DB_DIR="${USONLINE_DIR}/local/database"
+  DOCKER_COMPOSE_FILE="${USONLINE_DIR}/local/docker-compose.yml"
+fi
+
 # Create directory structure
 mkdir -p "$USONLINE_DIR/local/kickstart" &&
 mkdir -p "$USONLINE_DIR/local/media/css" &&
 mkdir -p "$USONLINE_DIR/local/logs" &&
-mkdir -p "$USONLINE_DIR/database"
+mkdir -p "$DB_DIR"
 
 # Copy configuration files
 DB_PASSWORD=$(openssl rand -base64 32 | tr -d '\n="`')
@@ -36,15 +51,9 @@ SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n="`')
 cp "${SCRIPT_DIR}/settings_template.py" "$USONLINE_DIR/local/settings.py" &&
 cp "${SCRIPT_DIR}/custom.css" "$USONLINE_DIR/local/media/css/" &&
 cp "${SCRIPT_DIR}/robots.txt" "$USONLINE_DIR/local/media/" &&
-cp "${SCRIPT_DIR}/${SERVER}/docker-compose.yml" "$USONLINE_DIR/" &&
+cp "${SCRIPT_DIR}/${SERVER}/docker-compose.yml" "$DOCKER_COMPOSE_FILE" &&
 
-ENV_FILE="${USONLINE_DIR}/.env"
 
-if [ "$SERVER" = "nginx" ]; then
-  cp "${SCRIPT_DIR}/nginx/nginx.conf" "$USONLINE_DIR/local/"
-elif [ "${SERVER}" = "devel" ]; then
-  ENV_FILE="${USONLINE_DIR}/local/.env"
-fi
 
 cat <<EOF > "${ENV_FILE}"
 SECRET_KEY='${SECRET_KEY}'
@@ -74,5 +83,5 @@ echo "--------------------------------------------------"
 echo " 1. Build the image if needed './deploy/build-image.sh'"
 echo " 2. Update secrets in $ENV_FILE "
 echo " 3. Update '$USONLINE_DIR/local/settings.py' to override settings, and"
-echo " 4. Check and update '$USONLINE_DIR/docker-compose.yml' as needed."
+echo " 4. Check and update '$DOCKER_COMPOSE_FILE' as needed."
 echo " 5. [optional] Generate fake test data files './deploy/generate-data.py $USONLINE_DIR/local/'"

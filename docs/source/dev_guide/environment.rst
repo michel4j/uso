@@ -38,6 +38,7 @@ Follow these steps to set up your development environment:
    .. code-block:: bash
 
       pip install -r requirements.txt
+      pip install dotenv
 
 4. Prepare the Cache and Database containers. The USO system uses a PostgreSQL database and a Memcached cache.
    You can use the provided `docker-compose.yml` file to
@@ -47,7 +48,7 @@ Follow these steps to set up your development environment:
 
    .. code-block:: bash
 
-       ./deploy/prepare-dev.sh
+       ./deploy/prepare-instance.sh . devel
 
 
    Edit and configuration files to update the database connection settings and other parameters as needed. Note
@@ -60,6 +61,14 @@ Follow these steps to set up your development environment:
 
 5. The `local/settings.py` file contains the configuration for your local development environment. You will need to
    update the database connection settings, and cache settings, as follows.
+
+   To load configuration settings from `local/.env`, update the entries `local/.env` and uncomment the following lines
+   in `local/settings.py`:
+
+   .. code-block:: python
+
+        from dotenv import load_dotenv
+        load_dotenv()
 
    Change the HOST entry under the `DATABASES` section to point to the PostgreSQL container and port:
 
@@ -105,7 +114,9 @@ Follow these steps to set up your development environment:
 
    .. code-block:: bash
 
+      ./manage.py loaddata usonline/fixtures/pre/*.yml
       ./manage.py loaddata initial-data
+      ./manage.py loaddata usonline/fixtures/post/*.yml
 
 9. Load additional data [optional]: If you want to generate and load fake data for testing purposes, you can use the
    `generate-data.py` script provided in the `deploy` directory. This script allows you to generate random data for users,
@@ -113,17 +124,14 @@ Follow these steps to set up your development environment:
 
    .. code-block:: bash
 
-       ./deploy/generate-data.py -u 1000 -p 200 ./local
+       ./deploy/generate-data.py ./local
 
-   This command will generate 1000 users and 200 proposals with random data. within the `local/kickstart` directory.
+   This command will generate random data within the `local/kickstart` directory.
    You can load this data into the database using the `loaddata` commands:
 
    .. code-block:: bash
 
-        ./manage.py loaddata ./local/kickstart/000-facilities.yml
-        ./manage.py loaddata ./local/kickstart/001-users.yml
-        ./manage.py loaddata ./local/kickstart/002-samples.yml
-        ./manage.py loaddata ./local/kickstart/003-proposals.yml
+        ./manage.py loaddata ./local/kickstart/*.yml
 
 10. Finally, you can start the development server to test your setup. Run the following command:
 

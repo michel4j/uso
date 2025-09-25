@@ -68,14 +68,13 @@ instance, follow these steps:
 
    .. code-block:: bash
 
-       ./deploy/build-image.sh
+       ./deploy/build-image.sh [apache|nginx]
 
    This script will rebuild the Docker image with the latest code changes and create images tagged with the current
-   version and will also change the label of the `usonline:latest` image to point to the newly built image.
+   version and will also change the label of the `usonline:nginx` or `usonline:apache` image to point to the newly built image.
 
 5. **Restart the Application:**
-   If your `docker-compose.yml` file is set up to reference the `usonline:latest` image, you can restart the application
-   using the following command:
+   Then you can restart the application using the following command:
 
    .. code-block:: bash
 
