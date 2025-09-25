@@ -3,6 +3,8 @@
 import argparse
 import itertools
 import os
+import secrets
+import string
 import zipfile
 import tempfile
 import random
@@ -11,7 +13,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 from django.utils import timezone
-
+from django.contrib.auth.hashers import PBKDF2PasswordHasher
 
 import dateutil.parser as date_parser
 import numpy
@@ -501,6 +503,10 @@ class FakeUser:
                 }
             }
         }
+        hasher = PBKDF2PasswordHasher()
+        self.pw_salt = secrets.token_hex(16)
+        self.password = os.getenv('DJANGO_PASSWORD', self.make_password(8))
+        self.hashed_password = hasher.encode(password=self.password, salt=self.pw_salt)
         self.date_chooser = RandomDate('2008-12-30', 365)
         self.date = '2008-12-30'
         self.new_reviewers = []
@@ -525,6 +531,35 @@ class FakeUser:
         self.photo_path.mkdir(parents=True, exist_ok=True)
         self.data_path.parent.mkdir(parents=True, exist_ok=True)
         self.save_photo('admin')  # make sure admin account has a photo also
+
+    @staticmethod
+    def make_password(length=8):
+        """
+        Generates a secure random password with customizable options.
+
+        Args:
+            length (int): The desired length of the password.
+
+        Returns:
+            str: The generated secure random password.
+        """
+        characters = string.ascii_lowercase
+        characters += string.ascii_uppercase
+        characters += string.digits
+
+        if not characters:
+            raise ValueError("No character types selected for password generation.")
+
+        while True:
+            password = ''.join(secrets.choice(characters) for _ in range(length))
+            # Ensure the password meets the inclusion criteria
+            if (
+                any(c.isupper() for c in password) and
+                any(c.islower() for c in password) and
+                any(c.isdigit() for c in password)
+            ):
+                break
+        return password
 
     def make_username(self, first_name, last_name, other_name=''):
         username = unidecode(f'{last_name}{first_char(first_name)}{first_char(other_name)}'.lower())
@@ -718,7 +753,7 @@ class FakeUser:
             'fields': {
                 'created': f'{self.date} 20:49:59.049236+00:00',
                 'modified': f'{self.date} 21:49:59.049236+00:00',
-                'password': os.environ.get('DJANGO_FAKE_PASSWORD', ''),
+                'password': self.hashed_password,
                 'username': info['username'],
                 'institution': institution['pk'],
                 'address': address,
@@ -738,8 +773,7 @@ class FakeUser:
     def add_users(self, count, date_string='2008-12-30'):
         for n in range(count):
             self.add_user(date_string)
-        print(f'Added {count} users ...')
-        return self.new_users
+        return self.new_users, count
 
     def save(self):
         for i in range(len(self.new_users)):
@@ -751,6 +785,11 @@ class FakeUser:
             yaml.dump(self.new_addresses, file, sort_keys=False)
             yaml.dump(self.new_users, file, sort_keys=False)
             yaml.dump(self.new_reviewers, file, sort_keys=False)
+
+        print('-'*80)
+        print('Mock user data saved ...')
+        print('NOTE! Every user has the same password: ', self.password)
+        print('-'*80)
 
 
 class FakeFacility:
@@ -1198,7 +1237,7 @@ class FakeProposal:
             }
         }
         self.new_cycles.append(info)
-        print('Added cycle ', self.cycle_count)
+
         cycle_info = {
             'cycle': self.cycle_count,
             'start_date': start_date,
@@ -1209,8 +1248,14 @@ class FakeProposal:
             'alloc_date': alloc_date,
             'due_date': due_date,
         }
-        self.users = self.user_gen.add_users(self.user_count_chooser() + self.cycle_count * 2, open_date)
-        self.add_proposals(cycle_info)
+        self.users, num_users = self.user_gen.add_users(self.user_count_chooser() + self.cycle_count * 2, open_date)
+        total_users = len(self.users)
+        total_proposals = len(self.new_proposals)
+        num_proposals = self.add_proposals(cycle_info)
+        print(
+            f'Cycle {self.cycle_count:3d}: +{num_users:3d} [{total_users:5d} total] Users, '
+            f'+{num_proposals:3d} [{total_proposals:5d} total] Proposals'
+        )
         self.cycle_count += 1
 
     def add_modes(self, schedule_id, start_date, end_date):
@@ -1528,7 +1573,7 @@ class FakeProposal:
         for _ in range(count):
             cycle_info['date'] = date_chooser()
             self.add_proposal(cycle_info)
-        print(f'Added {count} proposals for cycle {cycle}...')
+        return count
 
     def add_beamtimes(self):
         for cycle, beamline_projects in self.cycle_beamline_projects.items():

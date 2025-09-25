@@ -31,9 +31,7 @@ ENV_FILE="${USONLINE_DIR}/.env"
 DB_DIR="${USONLINE_DIR}/database"
 DOCKER_COMPOSE_FILE="${USONLINE_DIR}/docker-compose.yml"
 
-if [ "$SERVER" = "nginx" ]; then
-  cp "${SCRIPT_DIR}/nginx/nginx.conf" "$USONLINE_DIR/local/"
-elif [ "${SERVER}" = "devel" ]; then
+if [ "${SERVER}" = "devel" ]; then
   ENV_FILE="${USONLINE_DIR}/local/.env"
   DB_DIR="${USONLINE_DIR}/local/database"
   DOCKER_COMPOSE_FILE="${USONLINE_DIR}/local/docker-compose.yml"
@@ -48,6 +46,10 @@ mkdir -p "$DB_DIR"
 # Copy configuration files
 DB_PASSWORD=$(openssl rand -base64 32 | tr -d '\n="`')
 SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n="`')
+
+if [ "$SERVER" = "nginx" ]; then
+  cp "${SCRIPT_DIR}/nginx/nginx.conf" "$USONLINE_DIR/local/"
+fi
 cp "${SCRIPT_DIR}/settings_template.py" "$USONLINE_DIR/local/settings.py" &&
 cp "${SCRIPT_DIR}/custom.css" "$USONLINE_DIR/local/media/css/" &&
 cp "${SCRIPT_DIR}/robots.txt" "$USONLINE_DIR/local/media/" &&
