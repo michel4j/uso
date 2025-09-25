@@ -23,22 +23,29 @@ Initial Setup
 To create an initial instance of the USO system, follow these steps:
 
 1. **Clone the Repository:**
-   Use Git to clone the USO repository from GitHub::
+   Use Git to clone the USO repository from GitHub:
 
-    git clone https://github.com/michel4j/uso.git
-    cd uso
+   .. code-block:: bash
+
+       git clone https://github.com/michel4j/uso.git
+       cd uso
 
 2. **Create a Directory for storing persistent data:**
    This directory will hold the database and other persistent data. If you plan to use an external database,
-   you still need to create this directory, since it will contain site-specific configuration and log files::
+   you still need to create this directory, since it will contain site-specific configuration and log files:
 
-    mkdir -p /path/to/clsi-uso-instance
+
+   .. code-block:: bash
+
+       mkdir -p /path/to/clsi-uso-instance
 
 3. **Prepare the Instance:**
    Run the `prepare-instance.sh` script from within the uso top-level directory, to set up the initial
-   configuration and create necessary sub-directories::
+   configuration and create necessary sub-directories:
 
-    ./deploy/prepare-instance.sh /path/to/clsi-uso-instance [nginx|apache|devel]
+   .. code-block:: bash
+
+       ./deploy/prepare-instance.sh /path/to/clsi-uso-instance [nginx|apache|devel]
 
 
    If not specified, the script will default to `apache` as the web server. The `devel` option is intended for
@@ -47,19 +54,22 @@ To create an initial instance of the USO system, follow these steps:
    instance to use Apache as the web server. Currently, the `apache` option has been tested more thoroughly but
    the `nginx` provides the best performance.
 
-   Once the script completes, you will have a subdirectory tree inside your provided directory similar to this::
+   Once the script completes, you will have a subdirectory tree inside your provided directory similar to this:
 
-    uso-apache/
-    ├── database
-    ├── docker-compose.yml
-    ├── .env
-    └── local
-        ├── kickstart
-        ├── logs
-        ├── media
-        │   └── css
-        │       └── custom.css
-        └── settings.py
+
+   .. code-block::
+
+        uso-apache/
+        ├── database
+        ├── docker-compose.yml
+        ├── .env
+        └── local
+            ├── kickstart
+            ├── logs
+            ├── media
+            │   └── css
+            │       └── custom.css
+            └── settings.py
 
 
    * The `database` directory will be used for the PostgreSQL database,
@@ -80,9 +90,11 @@ To create an initial instance of the USO system, follow these steps:
      in a Docker container. You can edit this file to customize the container settings,
      such as environment variables, ports, and volumes.
 
-4. Build the image::
+4. Build the image:
 
-    ./deploy/build-image.sh [nginx|apache]
+   .. code-block::
+
+       ./deploy/build-image.sh [nginx|apache]
 
    This command will detect your container environment (Docker or Podman), build an image for the USO application
    for the selected server (nginx or apache), and tag it as `usonline:nginx` or `usonline:apache`.
@@ -91,22 +103,35 @@ To create an initial instance of the USO system, follow these steps:
    If you want to generate some fake test data for your USO instance, you can run the following commands before
    starting the instance. NOTE: Fake data generated after the instance has started will not be loaded automatically.
    This python script needs external dependencies which are listed in the ./deploy/requirements.txt file. Therefore,
-   you need to install the dependencies first, or run the command from your fully setup development environment::
+   you need to install the dependencies first, or run the command from your fully setup development environment:
 
-        ./deploy/generate-data.py /path/to/clsi-uso-instance/usonline/local
+   .. code-block:: bash
 
-    This will create fake data in the `local/kickstart` directory, and also
-    generate fake user profile images in the `local/media` directory.
+       ./deploy/generate-data.py /path/to/instance/uso-apache/local
+
+
+   This will create fake data in the `local/kickstart` directory, and also
+   generate fake user profile images in the `local/media` directory. Pay close attention to the printed log messages
+   as the common password for all generated users is also printed. You force a specific password as follows:
+
+
+   .. code-block:: bash
+
+       DJANGO_PASSWORD=CustomPassword ./deploy/generate-data.py /path/to/instance/uso-apache/local
 
 6. **Start the USO Instance:**
-   Navigate to the directory where you created the instance and run the following command to start the USO instance::
+   Navigate to the directory where you created the instance and run the following command to start the USO instance:
 
-    cd /path/to/clsi-uso-instance/usonline
-    docker compose up -d
+   .. code-block:: bash
 
-   or if you are using Podman::
+       cd /path/to/instance/uso-apache
+       docker compose up -d
 
-    podman-compose up -d
+   or if you are using Podman:
+
+   .. code-block:: bash
+
+       podman-compose up -d
 
    This command will start the USO application in detached mode. Note, if using fake data, the first time the
    application runs, it may take several minutes to load all the data. You can check the logs using any of the
@@ -119,5 +144,5 @@ To create an initial instance of the USO system, follow these steps:
 7. **Access the USO Instance:**
    Once the containers are running, you can access the USO instance in your web browser at: http://localhost:8080
    If you are running the instance on a remote server, replace `localhost` with the server's IP address or hostname.
-   Check the contents of the `/path/to/clsi-uso-instance/usonline/.env` and update the server name, port, etc.
+   Check the contents of the `/path/to/instance/uso-apache/.env` and update the server name, port, etc.
    Login credentials for the admin account are also oavailable in this file.
