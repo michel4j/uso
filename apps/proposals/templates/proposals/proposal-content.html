@@ -46,7 +46,7 @@
         </div>
     {% endif %}
 
-    {% if review.type.is_scientific or review.type.is_technical %}
+    {% if review.type.is_scientific or review.type.is_technical or not review %}
         {% if proposal.science.scientific_merit %}
             <div class="row section">
                 <div class="col-12 section-content">
@@ -96,7 +96,7 @@
         </div>
     {% endif %}
 
-    {% if review.type.is_safety or review.type.is_approval or review.type.is_technical %}
+    {% if review.type.is_safety or review.type.is_approval or review.type.is_technical or not review %}
         <div class="row section">
             <div class="col-sm-12 section-content">
                 <h3>Materials</h3>
