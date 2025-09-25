@@ -17,9 +17,16 @@ import os
 # -----------------------------------------------------------------------------
 
 DEBUG = False                        # Set to False in production
-SITE_URL = "http://localhost:8080"  # The URL of the site
-ALLOWED_HOSTS = ['localhost', '*', 'proxy']  # The list of allowed hosts
-CSRF_TRUSTED_ORIGINS = ["https://localhost", "https://localhost"]
+SERVER_NAME = os.environ.get('USO_SERVER_NAME', 'localhost')
+SERVER_PORT = os.environ.get('USO_SERVER_PORT', 8080)
+SITE_URL = f"http://{SERVER_NAME}:{SERVER_PORT}"  # The URL of the site
+ALLOWED_HOSTS = ['localhost', '*', 'proxy', SERVER_NAME]  # The list of allowed hosts
+CSRF_TRUSTED_ORIGINS = [
+    f"http://{SERVER_NAME}",
+    f"https://{SERVER_NAME}",
+    "http://localhost"
+]
+
 
 # -----------------------------------------------------------------------------
 # SECRET_KEY is a crucial security setting used for cryptographic signing within
