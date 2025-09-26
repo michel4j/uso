@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'User Services Online'
-copyright = '2025, Kathryn Janzen, Michel Fodje'
+copyright = '2025, Canadian Light Source, Inc.'
 author = 'Michel Fodje'
-release = '25.08'
+release = '25.09'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

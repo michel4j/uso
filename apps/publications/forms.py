@@ -396,12 +396,12 @@ class PubWizardForm3(ModalForm):
         self.body.form_action = reverse_lazy("add-publication")
         self.body.title = "Provide some extra information"
         self.fields[
-            'beamlines'].help_text = "Select the CLS beamline(s) used to collect data for this research, if applicable."
+            'beamlines'].help_text = "Select the beamline(s) used to collect data for this research, if applicable."
         self.fields['funders'].help_text = "Select any funding sources contributing to this research."
         self.fields['funders'].queryset = FundingSource.objects.filter(
             location__in=['Canada', 'United States']).order_by('location', 'name')
 
-        self.cls_details = AccordionGroup("CLS and Funding Information",
+        self.cls_details = AccordionGroup("Funding Information",
                                           Div(Div(Field('beamlines', placeholder="Start typing a beamline name",
                                                         css_class="selectize"),
                                                   css_class='col-sm-6'),

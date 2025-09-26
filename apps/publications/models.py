@@ -21,18 +21,28 @@ class FundingSource(TimeStampedModel):
     acronym = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=50, blank=True, null=True)
     doi = models.CharField(max_length=50, unique=True)
+    parent = models.ForeignKey("self", blank=True, null=True, related_name="children", on_delete=models.SET_NULL)
 
     def __str__(self):
-        return self.name + (' ({0})'.format(self.acronym) if self.acronym else "")
+        return self.name + (f' ({self.acronym})' if self.acronym else "")
 
     def html_display(self):
         return f'{self}, {self.location}'
+
+
+class FocusArea(TimeStampedModel):
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class SubjectArea(TimeStampedModel):
     name = models.CharField(max_length=255, unique=True)
     code = models.IntegerField(blank=True, null=True)
     category = models.ForeignKey("SubjectArea", blank=True, null=True, related_name="sub_areas", on_delete=models.SET_NULL)
+    focus_area = models.ForeignKey(FocusArea, related_name="topics", blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -82,7 +92,7 @@ class JournalMetric(TimeStampedModel):
         unique_together = ('journal', 'year')
 
     def __str__(self):
-        return "{} > {}".format(self.journal, self.year)
+        return f"{self.journal} > {self.year}"
 
 
 class Publication(TimeStampedModel):
@@ -97,12 +107,6 @@ class Publication(TimeStampedModel):
         pdb = 'pdb', _('PDB Deposition')
         patent = 'patent', _('Patent')
 
-    CATEGORIES = Choices(
-        ('beamline', _('Beamline')),
-        ('dataless', _('Staff, No CLS Data')),
-        ('design', _('Beamline Design')),
-        ('facility', _('Facility')),
-    )
     date = models.DateField(_('Published'))
     authors = models.JSONField(_('Author List'), blank=True, null=True, default=list)
 
@@ -123,7 +127,6 @@ class Publication(TimeStampedModel):
     pages = models.CharField(max_length=20, blank=True, null=True)
 
     reviewed = models.BooleanField(_('Reviewed'), default=False)
-    category = models.CharField(_('Category'), choices=CATEGORIES, max_length=30, blank=True, null=True)
     tags = models.ManyToManyField(PublicationTag, related_name='publications', verbose_name='Tags', blank=True)
     areas = models.ManyToManyField(SubjectArea, related_name="publications", verbose_name="Subject Areas", blank=True)
     reference = models.ForeignKey('Publication', related_name="pdbs", null=True, on_delete=models.SET_NULL)
@@ -132,7 +135,7 @@ class Publication(TimeStampedModel):
     notes = models.TextField(blank=True, null=True)
     affiliation = models.JSONField(default=dict)
     beamlines = models.ManyToManyField(Facility, related_name="publications", blank=True)
-    users = models.ManyToManyField(User, related_name="publications", verbose_name="CLS Users", blank=True)
+    users = models.ManyToManyField(User, related_name="publications", verbose_name="Users", blank=True)
     funders = models.ManyToManyField(FundingSource, related_name="publications", verbose_name="Funding Sources", blank=True)
     objects = PublicationManager()
 
