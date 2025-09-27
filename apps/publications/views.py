@@ -4,7 +4,7 @@ import math
 import operator
 from datetime import date
 
-from crisp_modals.views import ModalDeleteView
+from crisp_modals.views import ModalDeleteView, ModalUpdateView, ModalCreateView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
@@ -488,3 +488,60 @@ class InstitutionMetrics(RolePermsViewMixin, TemplateView):
         context['pub_info'] = stats.get_publist(queryset)
         return context
 
+
+class SubjectAreaList(RolePermsViewMixin, ItemListView):
+    model = models.SubjectArea
+    template_name = "item-list.html"
+    paginate_by = 25
+    list_title = "Subject Areas"
+    list_filters = ['category', 'focus_area']
+    list_columns = ['name', 'code', 'category__name', 'focus_area__name']
+    list_search = ['name', 'code', 'category__name', 'focus_area__name', 'focus_area_description']
+    ordering = ['name']
+    link_url = 'edit-subject-area'
+    link_attr = 'data-modal-url'
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
+
+
+class EditSubjectArea(RolePermsViewMixin, ModalUpdateView):
+    model = models.SubjectArea
+    form_class = forms.SubjectAreaForm
+    allowed_roles = USO_ADMIN_ROLES
+
+
+class FocusAreaList(RolePermsViewMixin, ItemListView):
+    model = models.FocusArea
+    template_name = "item-list.html"
+    paginate_by = 25
+    list_title = "Focus Areas"
+    list_columns = ['name', 'description']
+    list_search = ['name',  'description']
+    ordering = ['name']
+    link_url = 'edit-focus-area'
+    add_modal_url = 'add-focus-area'
+    link_attr = 'data-modal-url'
+    admin_roles = USO_ADMIN_ROLES
+    allowed_roles = USO_ADMIN_ROLES
+
+
+class EditFocusArea(RolePermsViewMixin, ModalUpdateView):
+    model = models.FocusArea
+    form_class = forms.FocusAreaForm
+    allowed_roles = USO_ADMIN_ROLES
+
+    def get_delete_url(self):
+        return reverse_lazy('delete-focus-area', kwargs={'pk': self.object.pk})
+
+
+class CreateFocusArea(RolePermsViewMixin, ModalCreateView):
+    model = models.FocusArea
+    form_class = forms.FocusAreaForm
+    allowed_roles = USO_ADMIN_ROLES
+    success_url = reverse_lazy('focus-area-list')
+
+
+class DeleteFocusArea(RolePermsViewMixin,  ModalDeleteView):
+    model = models.FocusArea
+    allowed_roles = USO_ADMIN_ROLES
+    success_url = reverse_lazy('focus-area-list')

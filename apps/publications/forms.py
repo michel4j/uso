@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, date
 
-from crisp_modals.forms import ModalForm
+from crisp_modals.forms import ModalForm, ModalModelForm, FullWidth, HalfWidth, QuarterWidth, ThreeQuarterWidth, Row
 from crispy_forms.bootstrap import AppendedText, AccordionGroup, Accordion
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -465,4 +465,38 @@ class PubWizardForm3(ModalForm):
         self.footer.layout = Layout(
             StrictButton('Start Over', type="submit", name="wizard_goto_step", value="0", css_class='btn-danger'),
             StrictButton('Submit', type="submit", value="Submit", css_class='btn-primary'),
+        )
+
+
+class SubjectAreaForm(ModalModelForm):
+    class Meta:
+        model = models.SubjectArea
+        fields = ['name', 'code', 'category', 'focus_area']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Row(
+                ThreeQuarterWidth('name'), QuarterWidth('code'),
+                HalfWidth('category'),
+                HalfWidth('focus_area')
+            )
+        )
+
+
+class FocusAreaForm(ModalModelForm):
+    class Meta:
+        model = models.FocusArea
+        fields = ['name', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.body.append(
+            Row(
+                FullWidth('name'),
+                FullWidth('description'),
+            )
         )

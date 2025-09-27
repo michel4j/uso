@@ -43,9 +43,24 @@ class Review(BaseNav):
 
 class Funders(BaseNav):
     parent = Publications
+    separator = True
     label = 'Funding Sources'
-    roles = USO_CURATOR_ROLES + USO_ADMIN_ROLES
+    roles = USO_ADMIN_ROLES
     url = reverse('funder-list')
+
+
+class SubjectAreas(BaseNav):
+    parent = Publications
+    label = 'Fields of Science'
+    roles = USO_ADMIN_ROLES
+    url = reverse('subject-area-list')
+
+
+class FocusAreas(BaseNav):
+    parent = Publications
+    label = 'Strategic Focus Areas'
+    roles = USO_ADMIN_ROLES
+    url = reverse('focus-area-list')
 
 
 class UserPublications(BaseNav):
