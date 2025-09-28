@@ -53,6 +53,7 @@ services:
       - 8080:80
     volumes:
       - ./local/nginx.conf:/etc/nginx/conf.d/default.conf:Z
+      - ./local/50x.html:/usr/share/nginx/html/50x.html:ro
       - ./local/media:/var/www/media:ro
       - static_data:/var/www/static:ro
       - socket_data:/var/run/gunicorn

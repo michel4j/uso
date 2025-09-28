@@ -4,6 +4,7 @@
 {% block error-content %}
 <hr/>
 <div class="page-body">
-	The page you requested <strong><em>“{{request.path}}”</em></strong>, is currently not available or does not exist. Please check your spelling, or go <a href="{% url 'user-dashboard' %}">home</a>.
+	The page you requested <strong><em>“{{request.path}}”</em></strong>, is currently not
+    available or does not exist. Please check your spelling, or go <a href="{% url 'user-dashboard' %}">home</a>.
 </div>
 {% endblock %}
