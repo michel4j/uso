@@ -49,7 +49,7 @@ SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n="`')
 
 if [ "$SERVER" = "nginx" ]; then
   cp "${SCRIPT_DIR}/nginx/nginx.conf" "$USONLINE_DIR/local/"
-  cp "${SCRIPT_DIR}/nginx/50x.html" "$USONLINE_DIR/local/"
+  cp "${SCRIPT_DIR}/nginx/50x.html" "$USONLINE_DIR/local/media/"
 fi
 cp "${SCRIPT_DIR}/settings_template.py" "$USONLINE_DIR/local/settings.py" &&
 cp "${SCRIPT_DIR}/custom.css" "$USONLINE_DIR/local/media/css/" &&
