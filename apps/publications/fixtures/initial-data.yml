@@ -73,6 +73,13 @@
     name: Advanced Materials
     description: Supports innovation in materials science for a wide range of technologies,
       from electronics to green energy solutions and clean tech.
+- model: publications.focusarea
+  pk: 5
+  fields:
+    created: 2025-09-29 19:34:13.046365+00:00
+    modified: 2025-09-29 19:34:37.666987+00:00
+    name: Other
+    description: Not belonging to any of the  identified focus areas.
 - model: publications.subjectarea
   pk: 1
   fields:
@@ -135,7 +142,7 @@
     name: Social Sciences & Humanities
     code: 700
     category: null
-    focus_area: null
+    focus_area: 5
 - model: publications.subjectarea
   pk: 11
   fields:
@@ -153,16 +160,16 @@
     name: Other Natural Sciences
     code: 170
     category: 1
-    focus_area: null
+    focus_area: 5
 - model: publications.subjectarea
   pk: 20
   fields:
     created: 2015-10-01 13:52:38+00:00
-    modified: 2017-01-16 03:38:03.118383+00:00
+    modified: 2025-09-29 19:33:23.830372+00:00
     name: Chemical Sciences
     code: 140
     category: 1
-    focus_area: null
+    focus_area: 4
 - model: publications.subjectarea
   pk: 22
   fields:
@@ -333,7 +340,7 @@
     name: Computer & Information Sciences
     code: 120
     category: 1
-    focus_area: null
+    focus_area: 5
 - model: publications.subjectarea
   pk: 56
   fields:
@@ -342,7 +349,7 @@
     name: Mathematical Sciences
     code: 110
     category: 1
-    focus_area: null
+    focus_area: 5
 - model: publications.subjectarea
   pk: 60
   fields:
@@ -356,11 +363,11 @@
   pk: 61
   fields:
     created: 2015-10-01 13:52:41+00:00
-    modified: 2017-01-16 05:00:40.552527+00:00
+    modified: 2025-09-29 19:33:17.426603+00:00
     name: Chemical Engineering
     code: 240
     category: 2
-    focus_area: null
+    focus_area: 4
 - model: publications.subjectarea
   pk: 62
   fields:
@@ -369,7 +376,7 @@
     name: Civil Engineering
     code: 210
     category: 2
-    focus_area: null
+    focus_area: 5
 - model: publications.subjectarea
   pk: 63
   fields:
@@ -414,7 +421,7 @@
     name: Mechanical Engineering
     code: 230
     category: 2
-    focus_area: null
+    focus_area: 5
 - model: publications.subjectarea
   pk: 74
   fields:
@@ -483,7 +490,7 @@
   fields:
     created: 2015-10-01 13:52:44+00:00
     modified: 2017-01-16 05:25:22.424065+00:00
-    name: Epidemiology & Public Health
+    name: Epidemeology & Public Health
     code: 380
     category: 3
     focus_area: 1

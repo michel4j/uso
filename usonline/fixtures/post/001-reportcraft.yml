@@ -3,6 +3,7 @@
   fields:
     created: 2025-07-24 19:21:30.834000+00:00
     modified: 2025-09-05 19:47:57.823000+00:00
+    code: 082f4022-e4af-4268-a730-b0da0e7197eb
     name: User & Institutions by Year
     description: User information grouped by year and institution
     group_by:
@@ -15,6 +16,7 @@
   fields:
     created: 2025-07-24 20:01:32.995000+00:00
     modified: 2025-08-10 02:51:17.593000+00:00
+    code: 29a5015d-afe1-4603-b6a9-dbe2709002d3
     name: User Types
     description: User counts by classification
     group_by:
@@ -26,6 +28,7 @@
   fields:
     created: 2025-07-24 20:09:08.744000+00:00
     modified: 2025-08-09 16:03:50.875000+00:00
+    code: f4c97022-ec9b-407a-a47e-f850e49aa73c
     name: Publications vs Type by Year
     description: Yearly distribution of publications in each type
     group_by:
@@ -38,6 +41,7 @@
   fields:
     created: 2025-07-24 22:22:29.916000+00:00
     modified: 2025-08-08 22:28:31.091000+00:00
+    code: 928e1a22-5afd-47dd-904e-e5104c2b7c66
     name: Publication Quality
     description: Publication Quality Metrics
     group_by:
@@ -49,6 +53,7 @@
   fields:
     created: 2025-07-24 22:40:59.651000+00:00
     modified: 2025-08-09 00:37:31.576000+00:00
+    code: 066132cd-cf55-43cd-80a9-3dd78a9c54ae
     name: Top Publications
     description: Top publications by number of citations
     group_by: []
@@ -59,6 +64,7 @@
   fields:
     created: 2025-07-24 23:02:32.370000+00:00
     modified: 2025-09-05 15:27:42.082000+00:00
+    code: 89d241e8-aa40-4b75-8fc6-b4aea6dcfca8
     name: Publication Types
     description: Total publication counts grouped by Type of publication
     group_by:
@@ -70,6 +76,7 @@
   fields:
     created: 2025-08-09 19:53:44.769000+00:00
     modified: 2025-08-09 19:55:38.759000+00:00
+    code: b2d4c793-186e-426e-b763-04539c3abcef
     name: Facility Metrics
     description: Metrics by beamline
     group_by:
@@ -81,6 +88,7 @@
   fields:
     created: 2025-08-10 05:20:48.243000+00:00
     modified: 2025-09-22 16:30:05.146190+00:00
+    code: 2828db4e-3a5b-4abe-88f4-e5375421c9c7
     name: Proposal Data per Cycle
     description: ''
     group_by:
@@ -92,6 +100,7 @@
   fields:
     created: 2025-08-11 14:56:51.103000+00:00
     modified: 2025-08-11 14:57:35.737000+00:00
+    code: ce706ef0-ac99-4d7e-947b-567a1efdcb3f
     name: Institution List
     description: Data Source for calculating the number of institutions and their
       users
@@ -104,6 +113,7 @@
   fields:
     created: 2025-08-16 16:51:43.222000+00:00
     modified: 2025-08-16 16:51:43.222000+00:00
+    code: 740a46e0-56a6-480e-9aa3-e1688f6b3d45
     name: Proposals by Country
     description: For counting the number of proposals by country of origin of the
       spokes person
@@ -116,6 +126,7 @@
   fields:
     created: 2025-08-16 17:52:23.222000+00:00
     modified: 2025-08-16 18:32:21.735000+00:00
+    code: 2f4babd3-1337-447b-8ce0-c3dbfed87cf8
     name: Submissions by Cycle and Track
     description: Proposal Submissions by Cycle and Review Track
     group_by:
@@ -128,6 +139,7 @@
   fields:
     created: 2025-08-16 19:08:42.321000+00:00
     modified: 2025-09-22 17:43:28.460019+00:00
+    code: affca4ce-8159-4ff5-a23d-ec0daef5ba37
     name: Projects Per Pool Per Year
     description: Number of projects per pool each year
     group_by:
@@ -140,6 +152,7 @@
   fields:
     created: 2025-09-05 02:42:03.693000+00:00
     modified: 2025-09-05 15:28:12.029000+00:00
+    code: c44875ed-f815-4ba0-953b-9964e2279845
     name: Publications by Topics
     description: Yearly counts for publications, grouped by top-level field of science
     group_by:
@@ -152,6 +165,7 @@
   fields:
     created: 2025-09-05 15:33:29.450000+00:00
     modified: 2025-09-05 17:14:36.534000+00:00
+    code: 2b336573-e3ee-44bd-8d89-7f68cb471c53
     name: Cumulative Publication Totals
     description: Yearly Cumulative Sum of Publications
     group_by:
@@ -163,6 +177,7 @@
   fields:
     created: 2025-09-05 16:04:23.806000+00:00
     modified: 2025-09-05 16:04:23.806000+00:00
+    code: e2247363-043a-44aa-97f1-e75eea7f7546
     name: Cumulative Citation Totals
     description: Cumulative total citations by year
     group_by:
@@ -174,6 +189,7 @@
   fields:
     created: 2025-09-05 18:46:00.709000+00:00
     modified: 2025-09-05 18:46:00.709000+00:00
+    code: 9e8e910a-716e-42d3-8c8d-40e85e709942
     name: Facility Submissions by Cycle
     description: ''
     group_by:
@@ -186,6 +202,7 @@
   fields:
     created: 2025-09-05 19:53:53.915000+00:00
     modified: 2025-09-10 17:39:37.839861+00:00
+    code: b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
     name: User counts by Country Region
     description: Counts users by the level 1 administrative region
     group_by:
@@ -198,6 +215,7 @@
   fields:
     created: 2025-09-07 19:49:37.598539+00:00
     modified: 2025-09-14 18:24:37.945760+00:00
+    code: 109266b2-01ab-471f-888d-cfa7e2689e38
     name: Feedback Survey Counts
     description: Data from User feedback surveys
     group_by:
@@ -211,6 +229,7 @@
   fields:
     created: 2025-09-14 18:25:26.456561+00:00
     modified: 2025-09-14 18:26:27.931819+00:00
+    code: 2bb5f69e-4e0a-4efd-8f8e-2688b924e2dd
     name: Feedback Average Scores
     description: Average Score for each question in the Survey
     group_by:
@@ -223,6 +242,7 @@
   fields:
     created: 2025-09-16 05:21:05.107735+00:00
     modified: 2025-09-16 05:21:05.107770+00:00
+    code: c12efc5e-bde2-408f-a760-1983b59b4062
     name: Feedback Summary By Cycle
     description: ''
     group_by:
@@ -236,6 +256,7 @@
   fields:
     created: 2025-09-16 19:34:08.410559+00:00
     modified: 2025-09-16 19:34:36.546511+00:00
+    code: 46077a7d-40dd-4383-bf5f-4e17072f5d85
     name: Feedback Summary By Facility
     description: ''
     group_by:
@@ -249,6 +270,7 @@
   fields:
     created: 2025-09-22 16:12:53.268908+00:00
     modified: 2025-09-22 16:13:09.984279+00:00
+    code: bcab37b5-04c8-4986-afeb-f5d319f50a8e
     name: Proposals by Country Region
     description: For counting the number of proposals by country of origin of the
       spokes person
@@ -261,6 +283,7 @@
   fields:
     created: 2025-09-22 16:30:08.485048+00:00
     modified: 2025-09-22 16:30:22.802041+00:00
+    code: b0dd5e3d-542c-40b1-8d23-19eaee864ed9
     name: Proposal Data per Year
     description: ''
     group_by:
@@ -272,6 +295,7 @@
   fields:
     created: 2025-09-22 16:43:07.419573+00:00
     modified: 2025-09-22 16:43:31.013337+00:00
+    code: 830b242b-a98f-4f20-8e9f-b47d2de1dde0
     name: Submissions by Year and Track
     description: Proposal Submissions by Year and Review Track
     group_by:
@@ -284,6 +308,7 @@
   fields:
     created: 2025-09-22 17:49:55.456385+00:00
     modified: 2025-09-22 17:50:20.137801+00:00
+    code: 628b2623-bc1e-4ee9-98b5-b93fe9c3c431
     name: Projects Per Technique Per Year
     description: Number of projects per technique each year
     group_by:
@@ -291,643 +316,802 @@
     - technique
     filters: age > 0
     limit: null
+- model: reportcraft.datasource
+  pk: 30
+  fields:
+    created: 2025-09-29 19:53:40.818118+00:00
+    modified: 2025-09-29 20:22:56.004019+00:00
+    code: 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
+    name: Publications by Strategic Focus Area
+    description: Yearly counts for publications, grouped by top-level Strategic focus
+      area
+    group_by:
+    - topic
+    - year
+    filters: topic isnull False
+    limit: null
 - model: reportcraft.datamodel
   pk: 1
   fields:
     created: 2025-07-24 19:22:03.149000+00:00
     modified: 2025-09-05 19:44:06.003000+00:00
+    code: dd77c09b-d5c0-4683-9ba6-828a4bff8002
     model:
     - users
     - user
     name: users.User
-    source: 1
+    source:
+    - 082f4022-e4af-4268-a730-b0da0e7197eb
 - model: reportcraft.datamodel
   pk: 3
   fields:
     created: 2025-07-24 20:02:01.531000+00:00
     modified: 2025-07-24 20:02:01.531000+00:00
+    code: 71c5820e-d02b-4be7-95c0-f89680455b1d
     model:
     - reportcraft
     - datamodel
     name: users.User
-    source: 2
+    source:
+    - 29a5015d-afe1-4603-b6a9-dbe2709002d3
 - model: reportcraft.datamodel
   pk: 4
   fields:
     created: 2025-07-24 20:10:59.145000+00:00
     modified: 2025-09-02 22:13:31.965000+00:00
+    code: b0ab20a0-8296-4d8f-94f9-4477e7ebfc87
     model:
     - publications
     - publication
     name: publications.Publication
-    source: 3
+    source:
+    - f4c97022-ec9b-407a-a47e-f850e49aa73c
 - model: reportcraft.datamodel
   pk: 7
   fields:
     created: 2025-07-24 22:24:03.532000+00:00
     modified: 2025-08-08 04:44:42.909000+00:00
+    code: 204d0392-1ae9-41ae-9adb-701dcb8b3797
     model:
     - publications
     - publication
     name: publications.Publication
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datamodel
   pk: 9
   fields:
     created: 2025-07-24 22:43:02.718000+00:00
     modified: 2025-08-09 00:31:38.060000+00:00
+    code: f29f8e59-870b-4956-b7bf-9e69d9fa156a
     model:
     - publications
     - publication
     name: publications.Publication
-    source: 5
+    source:
+    - 066132cd-cf55-43cd-80a9-3dd78a9c54ae
 - model: reportcraft.datamodel
   pk: 10
   fields:
     created: 2025-07-24 23:03:02.782000+00:00
     modified: 2025-09-02 23:55:14.849000+00:00
+    code: f4e6b994-7216-4651-8b8f-fb5cd67e2c8a
     model:
     - publications
     - publication
     name: publications.Publication
-    source: 6
+    source:
+    - 89d241e8-aa40-4b75-8fc6-b4aea6dcfca8
 - model: reportcraft.datamodel
   pk: 12
   fields:
     created: 2025-08-08 23:48:54.381000+00:00
     modified: 2025-08-08 23:48:54.381000+00:00
+    code: 87aea84a-0f39-4813-9d82-b32542b27e25
     model:
     - publications
     - articlemetric
     name: publications.Articlemetric
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datamodel
   pk: 13
   fields:
     created: 2025-08-09 19:54:20.291000+00:00
     modified: 2025-08-09 19:54:20.291000+00:00
+    code: 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     model:
     - publications
     - publication
     name: publications.Publication
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datamodel
   pk: 14
   fields:
     created: 2025-08-10 05:21:47.010000+00:00
     modified: 2025-08-10 05:21:47.010000+00:00
+    code: ec2f4ded-a882-4fb4-a018-766c1e0d089f
     model:
     - proposals
     - submission
     name: proposals.Submission
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datamodel
   pk: 15
   fields:
     created: 2025-08-10 05:22:22.818000+00:00
     modified: 2025-08-10 05:22:22.819000+00:00
+    code: e41c6020-41e4-4f12-83d8-9ca9515741df
     model:
     - proposals
     - review
     name: proposals.Review
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datamodel
   pk: 16
   fields:
     created: 2025-08-10 05:33:56.614000+00:00
     modified: 2025-08-10 05:33:56.614000+00:00
+    code: e832cb88-244a-44a3-a583-b0f5e995bd09
     model:
     - proposals
     - configitem
     name: proposals.Configitem
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datamodel
   pk: 17
   fields:
     created: 2025-08-11 14:59:29.122000+00:00
     modified: 2025-08-11 15:00:29.669000+00:00
+    code: 6913f839-4d84-423f-912c-1e8f534e134e
     model:
     - users
     - user
     name: users.User
-    source: 9
+    source:
+    - ce706ef0-ac99-4d7e-947b-567a1efdcb3f
 - model: reportcraft.datamodel
   pk: 18
   fields:
     created: 2025-08-16 16:52:18.073000+00:00
     modified: 2025-09-04 21:14:42.054000+00:00
+    code: 2c7c8743-8a77-4295-8ca9-df763ecc0bc1
     model:
     - proposals
     - submission
     name: proposals.Submission
-    source: 10
+    source:
+    - 740a46e0-56a6-480e-9aa3-e1688f6b3d45
 - model: reportcraft.datamodel
   pk: 21
   fields:
     created: 2025-08-16 18:26:32.414000+00:00
     modified: 2025-08-16 18:26:32.414000+00:00
+    code: d6e42726-5826-4bc6-9bee-e84c7e9d2851
     model:
     - proposals
     - submission
     name: proposals.Submission
-    source: 11
+    source:
+    - 2f4babd3-1337-447b-8ce0-c3dbfed87cf8
 - model: reportcraft.datamodel
   pk: 26
   fields:
     created: 2025-09-05 03:43:59.716000+00:00
     modified: 2025-09-05 15:29:33.052000+00:00
+    code: 0c729a02-5bcb-40ff-8150-80a99773ab26
     model:
     - publications
     - subjectarea
     name: publications.Subjectarea
-    source: 13
+    source:
+    - c44875ed-f815-4ba0-953b-9964e2279845
 - model: reportcraft.datamodel
   pk: 27
   fields:
     created: 2025-09-05 15:33:47.981000+00:00
     modified: 2025-09-05 15:33:47.981000+00:00
+    code: f468e868-29b5-4280-abf2-a02d413789cb
     model:
     - publications
     - publication
     name: publications.Publication
-    source: 14
+    source:
+    - 2b336573-e3ee-44bd-8d89-7f68cb471c53
 - model: reportcraft.datamodel
   pk: 28
   fields:
     created: 2025-09-05 16:06:17.948000+00:00
     modified: 2025-09-05 16:06:17.949000+00:00
+    code: 78ddbdd2-ccc3-46dd-b1ec-e69c8122fb14
     model:
     - publications
     - articlemetric
     name: publications.Articlemetric
-    source: 15
+    source:
+    - e2247363-043a-44aa-97f1-e75eea7f7546
 - model: reportcraft.datamodel
   pk: 29
   fields:
     created: 2025-09-05 18:47:21.063000+00:00
     modified: 2025-09-05 18:58:44.656000+00:00
+    code: db4de92b-a5a6-4607-a9f3-5309d62be987
     model:
     - proposals
     - submission
     name: proposals.Submission
-    source: 16
+    source:
+    - 9e8e910a-716e-42d3-8c8d-40e85e709942
 - model: reportcraft.datamodel
   pk: 30
   fields:
     created: 2025-09-05 19:54:31.458000+00:00
     modified: 2025-09-05 19:54:31.458000+00:00
+    code: 3b3841f7-3492-4675-b138-a7a64959e7ea
     model:
     - users
     - user
     name: users.User
-    source: 17
+    source:
+    - b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
 - model: reportcraft.datamodel
   pk: 32
   fields:
     created: 2025-09-07 19:52:43.417734+00:00
     modified: 2025-09-10 03:29:10.712443+00:00
+    code: 7bf38e91-8383-467f-be93-63044610fe1d
     model:
     - surveys
     - rating
     name: surveys.Rating
-    source: 18
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
 - model: reportcraft.datamodel
   pk: 33
   fields:
     created: 2025-09-14 18:26:44.671997+00:00
     modified: 2025-09-14 18:30:44.939165+00:00
+    code: 8e856c90-0571-42c9-bb3d-3a8c4a60d10c
     model:
     - surveys
     - rating
     name: surveys.Rating
-    source: 19
+    source:
+    - 2bb5f69e-4e0a-4efd-8f8e-2688b924e2dd
 - model: reportcraft.datamodel
   pk: 34
   fields:
     created: 2025-09-16 05:21:47.485311+00:00
     modified: 2025-09-16 05:21:47.485326+00:00
+    code: 63968348-bca8-4cbf-ace4-76921e0aced9
     model:
     - surveys
     - rating
     name: surveys.Rating
-    source: 20
+    source:
+    - c12efc5e-bde2-408f-a760-1983b59b4062
 - model: reportcraft.datamodel
   pk: 36
   fields:
     created: 2025-09-16 19:34:08.435242+00:00
     modified: 2025-09-16 19:34:08.435252+00:00
+    code: 58746578-589e-452e-a76a-151a98eaa148
     model:
     - surveys
     - rating
     name: surveys.Rating
-    source: 22
+    source:
+    - 46077a7d-40dd-4383-bf5f-4e17072f5d85
 - model: reportcraft.datamodel
   pk: 37
   fields:
     created: 2025-09-22 16:12:53.298351+00:00
     modified: 2025-09-22 16:12:53.298375+00:00
+    code: 9786e191-4c68-44a4-aa29-bc05f131ecc7
     model:
     - proposals
     - submission
     name: proposals.Submission
-    source: 23
+    source:
+    - bcab37b5-04c8-4986-afeb-f5d319f50a8e
 - model: reportcraft.datamodel
   pk: 38
   fields:
     created: 2025-09-22 16:30:08.510114+00:00
     modified: 2025-09-22 16:30:56.115920+00:00
+    code: ee6dced3-04c2-4687-a0cc-c8f41917d690
     model:
     - proposals
     - submission
     name: proposals.Submission
-    source: 24
+    source:
+    - b0dd5e3d-542c-40b1-8d23-19eaee864ed9
 - model: reportcraft.datamodel
   pk: 41
   fields:
     created: 2025-09-22 16:43:07.445007+00:00
     modified: 2025-09-22 16:43:07.445018+00:00
+    code: 1e0b285e-a3d9-4bd6-a749-663855f785d2
     model:
     - proposals
     - submission
     name: proposals.Submission
-    source: 25
+    source:
+    - 830b242b-a98f-4f20-8e9f-b47d2de1dde0
 - model: reportcraft.datamodel
   pk: 42
   fields:
     created: 2025-09-22 17:30:22.229083+00:00
     modified: 2025-09-22 17:30:22.229093+00:00
+    code: 069990d3-501f-4d1a-a209-1c53def420bb
     model:
     - projects
     - allocation
     name: projects.Allocation
-    source: 12
+    source:
+    - affca4ce-8159-4ff5-a23d-ec0daef5ba37
 - model: reportcraft.datamodel
   pk: 43
   fields:
     created: 2025-09-22 17:49:55.485096+00:00
     modified: 2025-09-22 17:50:59.813722+00:00
+    code: 30fc2cf7-60c8-4eec-9d36-fda3ecc5e577
     model:
     - projects
     - allocation
     name: projects.Allocation
-    source: 26
+    source:
+    - 628b2623-bc1e-4ee9-98b5-b93fe9c3c431
+- model: reportcraft.datamodel
+  pk: 44
+  fields:
+    created: 2025-09-29 19:53:40.847160+00:00
+    modified: 2025-09-29 20:17:40.880728+00:00
+    code: c8742761-5fab-4a13-9134-1b1276defd0d
+    model:
+    - publications
+    - subjectarea
+    name: publications.Subjectarea
+    source:
+    - 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
 - model: reportcraft.datafield
   pk: 1
   fields:
     created: 2025-07-24 19:28:07.163000+00:00
     modified: 2025-09-05 19:44:36.686000+00:00
     name: year
-    model: 1
+    code: e4e64741-6cf8-4f71-92e5-5ed020f2dd74
+    model:
+    - dd77c09b-d5c0-4683-9ba6-828a4bff8002
     label: Year
     default: null
     expression: Created.Year
     precision: null
     position: 0
     ordering: null
-    source: 1
+    source:
+    - 082f4022-e4af-4268-a730-b0da0e7197eb
 - model: reportcraft.datafield
   pk: 3
   fields:
     created: 2025-07-24 19:32:20.564000+00:00
     modified: 2025-09-05 19:44:05.994000+00:00
     name: category
-    model: 1
+    code: 41c35753-3de4-4e1f-908d-803e32d47266
+    model:
+    - dd77c09b-d5c0-4683-9ba6-828a4bff8002
     label: Category
     default: null
     expression: DisplayName(Classification)
     precision: null
     position: 1
     ordering: null
-    source: 1
+    source:
+    - 082f4022-e4af-4268-a730-b0da0e7197eb
 - model: reportcraft.datafield
   pk: 6
   fields:
     created: 2025-07-24 19:34:50.026000+00:00
     modified: 2025-08-13 16:21:24.995000+00:00
     name: users
-    model: 1
+    code: f2598615-0328-4692-a9c1-60365688c798
+    model:
+    - dd77c09b-d5c0-4683-9ba6-828a4bff8002
     label: Users
     default: 0
     expression: Count(this, distinc=True)
     precision: null
     position: 1
     ordering: null
-    source: 1
+    source:
+    - 082f4022-e4af-4268-a730-b0da0e7197eb
 - model: reportcraft.datafield
   pk: 7
   fields:
     created: 2025-07-24 19:35:39.968000+00:00
     modified: 2025-08-13 16:21:12.329000+00:00
     name: institutions
-    model: 1
+    code: 6bd289fa-8be1-4fc0-a0b0-9205d6bc2d8e
+    model:
+    - dd77c09b-d5c0-4683-9ba6-828a4bff8002
     label: Institutions
     default: 0
     expression: Count(Institution, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 1
+    source:
+    - 082f4022-e4af-4268-a730-b0da0e7197eb
 - model: reportcraft.datafield
   pk: 8
   fields:
     created: 2025-07-24 20:02:01.555000+00:00
     modified: 2025-09-06 00:37:37.152000+00:00
     name: category
-    model: 3
+    code: 03f61221-de56-44b3-a290-3de8781dc637
+    model:
+    - 71c5820e-d02b-4be7-95c0-f89680455b1d
     label: Category
     default: null
     expression: DisplayName(Classification)
     precision: null
     position: 0
     ordering: null
-    source: 2
+    source:
+    - 29a5015d-afe1-4603-b6a9-dbe2709002d3
 - model: reportcraft.datafield
   pk: 9
   fields:
     created: 2025-07-24 20:02:32.711000+00:00
     modified: 2025-07-24 20:02:32.711000+00:00
     name: users
-    model: 3
+    code: 18383d79-d6c7-48bd-b586-1cdef165102a
+    model:
+    - 71c5820e-d02b-4be7-95c0-f89680455b1d
     label: Users
     default: 0
     expression: Count(this)
     precision: null
     position: 1
     ordering: null
-    source: 2
+    source:
+    - 29a5015d-afe1-4603-b6a9-dbe2709002d3
 - model: reportcraft.datafield
   pk: 10
   fields:
     created: 2025-07-24 20:10:59.161000+00:00
     modified: 2025-09-02 22:13:31.934000+00:00
     name: year
-    model: 4
+    code: 47789b98-41b5-44fa-97ed-4c869c1308fb
+    model:
+    - b0ab20a0-8296-4d8f-94f9-4477e7ebfc87
     label: Year
     default: null
     expression: Date.Year
     precision: null
     position: 0
     ordering: null
-    source: 3
+    source:
+    - f4c97022-ec9b-407a-a47e-f850e49aa73c
 - model: reportcraft.datafield
   pk: 11
   fields:
     created: 2025-07-24 20:10:59.179000+00:00
     modified: 2025-09-02 22:13:31.958000+00:00
     name: type
-    model: 4
+    code: 2dff0266-aa8b-4fe4-bd76-290d0e010e03
+    model:
+    - b0ab20a0-8296-4d8f-94f9-4477e7ebfc87
     label: Type
     default: null
     expression: DisplayName(kind)
     precision: null
     position: 1
     ordering: null
-    source: 3
+    source:
+    - f4c97022-ec9b-407a-a47e-f850e49aa73c
 - model: reportcraft.datafield
   pk: 12
   fields:
     created: 2025-07-24 20:12:34.632000+00:00
     modified: 2025-07-24 20:12:34.632000+00:00
     name: publications
-    model: 4
+    code: 65a30fd1-a01c-40dc-bfb4-bdab9b034eeb
+    model:
+    - b0ab20a0-8296-4d8f-94f9-4477e7ebfc87
     label: Publications
     default: 0
     expression: Count(this)
     precision: null
     position: 2
     ordering: null
-    source: 3
+    source:
+    - f4c97022-ec9b-407a-a47e-f850e49aa73c
 - model: reportcraft.datafield
   pk: 20
   fields:
     created: 2025-07-24 22:24:03.554000+00:00
     modified: 2025-08-08 04:44:42.898000+00:00
     name: year
-    model: 7
+    code: 74d2f38e-bfde-4085-9450-a80b4c4cc35a
+    model:
+    - 204d0392-1ae9-41ae-9adb-701dcb8b3797
     label: Year
     default: null
     expression: Date.Year
     precision: null
     position: 0
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 21
   fields:
     created: 2025-07-24 22:24:32.374000+00:00
     modified: 2025-08-09 00:19:05.031000+00:00
     name: articles
-    model: 7
+    code: 92c9f711-0bff-4428-945d-0d742b65adcd
+    model:
+    - 204d0392-1ae9-41ae-9adb-701dcb8b3797
     label: Articles
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 0
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 28
   fields:
     created: 2025-07-24 22:47:16.051000+00:00
     modified: 2025-09-05 17:52:00.565000+00:00
     name: cites
-    model: 9
+    code: 538ab71f-94f1-4a0e-959b-002052c43487
+    model:
+    - f29f8e59-870b-4956-b7bf-9e69d9fa156a
     label: Citations
     default: 0
     expression: Sum(Metrics.Citations, distinct=True)
     precision: null
     position: 5
     ordering: null
-    source: 5
+    source:
+    - 066132cd-cf55-43cd-80a9-3dd78a9c54ae
 - model: reportcraft.datafield
   pk: 32
   fields:
     created: 2025-07-24 23:03:45.002000+00:00
     modified: 2025-09-02 23:56:12.861000+00:00
     name: kind_group
-    model: 10
+    code: 8a01940e-549a-409a-95f0-536e6636b8e3
+    model:
+    - f4e6b994-7216-4651-8b8f-fb5cd67e2c8a
     label: Kind
     default: null
     expression: DisplayName(Kind)
     precision: null
     position: 0
     ordering: null
-    source: 6
+    source:
+    - 89d241e8-aa40-4b75-8fc6-b4aea6dcfca8
 - model: reportcraft.datafield
   pk: 33
   fields:
     created: 2025-07-24 23:04:06.367000+00:00
     modified: 2025-07-24 23:04:06.367000+00:00
     name: publications
-    model: 10
+    code: 30e698af-ff56-4ffd-8412-236a2e71f1d6
+    model:
+    - f4e6b994-7216-4651-8b8f-fb5cd67e2c8a
     label: Publications
     default: 0
     expression: Count(this)
     precision: null
     position: 1
     ordering: null
-    source: 6
+    source:
+    - 89d241e8-aa40-4b75-8fc6-b4aea6dcfca8
 - model: reportcraft.datafield
   pk: 34
   fields:
     created: 2025-08-08 04:47:38.555000+00:00
     modified: 2025-08-09 00:16:15.644000+00:00
     name: self_citations
-    model: 12
+    code: 720b028a-cc3f-41bc-8a11-102cd232805c
+    model:
+    - 87aea84a-0f39-4813-9d82-b32542b27e25
     label: Self Citations
     default: 0
     expression: Sum(SelfCites)
     precision: 0
     position: 3
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 47
   fields:
     created: 2025-08-08 23:48:54.400000+00:00
     modified: 2025-08-08 23:48:54.411000+00:00
     name: year
-    model: 12
+    code: 391068fe-118c-4210-8c4f-8e16c98a126d
+    model:
+    - 87aea84a-0f39-4813-9d82-b32542b27e25
     label: Year
     default: null
     expression: Year
     precision: null
     position: 0
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 50
   fields:
     created: 2025-08-09 00:17:52.237000+00:00
     modified: 2025-08-09 00:17:52.237000+00:00
     name: total_citations
-    model: 12
+    code: b852e4bf-c87b-47c8-80c5-d03f2294d469
+    model:
+    - 87aea84a-0f39-4813-9d82-b32542b27e25
     label: Citations
     default: 0
     expression: Sum(Citations)
     precision: null
     position: 1
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 51
   fields:
     created: 2025-08-09 00:20:09.680000+00:00
     modified: 2025-08-09 00:20:09.681000+00:00
     name: total_mentions
-    model: 12
+    code: fa387c0a-a386-4d54-9ddd-64eef2e57375
+    model:
+    - 87aea84a-0f39-4813-9d82-b32542b27e25
     label: Media Mentions
     default: 0
     expression: Sum(Mentions)
     precision: null
     position: 5
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 52
   fields:
     created: 2025-08-09 00:21:02.662000+00:00
     modified: 2025-08-09 00:21:02.662000+00:00
     name: avg_cites
-    model: 12
+    code: 94e22dee-1398-4cb1-8513-8e252bb25a7a
+    model:
+    - 87aea84a-0f39-4813-9d82-b32542b27e25
     label: Citations/Article
     default: 0
     expression: Avg(Citations)
     precision: 1
     position: 6
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 53
   fields:
     created: 2025-08-09 00:21:31.356000+00:00
     modified: 2025-08-09 00:21:31.356000+00:00
     name: avg_mentions
-    model: 12
+    code: dc41defa-0528-4ec3-88bf-46c0902a7d91
+    model:
+    - 87aea84a-0f39-4813-9d82-b32542b27e25
     label: Mentions/Article
     default: 0
     expression: Avg(Mentions)
     precision: 1
     position: 7
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 54
   fields:
     created: 2025-08-09 00:22:22.356000+00:00
     modified: 2025-08-09 00:22:22.356000+00:00
     name: avg_sjr
-    model: 7
+    code: e609345d-08f9-4c72-8642-4602cae9a58f
+    model:
+    - 204d0392-1ae9-41ae-9adb-701dcb8b3797
     label: Mean SJR Rank
     default: 0
     expression: Avg(JournalMetric.SjrRank)
     precision: 1
     position: 8
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 55
   fields:
     created: 2025-08-09 00:23:59.021000+00:00
     modified: 2025-08-09 00:23:59.021000+00:00
     name: avg_impact_factor
-    model: 7
+    code: 8cf79278-564a-4bcf-86b2-20f49ff86ef8
+    model:
+    - 204d0392-1ae9-41ae-9adb-701dcb8b3797
     label: Mean Impact Factor
     default: 0
     expression: Avg(JournalMetric.ImpactFactor)
     precision: 1
     position: 9
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 56
   fields:
     created: 2025-08-09 00:24:38.427000+00:00
     modified: 2025-08-09 00:24:38.427000+00:00
     name: avg_hindex
-    model: 7
+    code: 0a3d1b1c-c465-446c-97d2-0032383f6afe
+    model:
+    - 204d0392-1ae9-41ae-9adb-701dcb8b3797
     label: Mean H-Index
     default: 0
     expression: Avg(JournalMetric.HIndex)
     precision: 1
     position: 10
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 57
   fields:
     created: 2025-08-09 00:25:34.588000+00:00
     modified: 2025-08-09 00:25:34.588000+00:00
     name: avg_quartile
-    model: 7
+    code: c908ee35-0eb8-406f-9306-6c3476dc1c6f
+    model:
+    - 204d0392-1ae9-41ae-9adb-701dcb8b3797
     label: Mean Quartile
     default: 0
     expression: Avg(JournalMetric.SjrQuartile)
     precision: 1
     position: 11
     ordering: null
-    source: 4
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
 - model: reportcraft.datafield
   pk: 58
   fields:
     created: 2025-08-09 00:34:46.326000+00:00
     modified: 2025-09-05 18:04:21.461000+00:00
     name: facilities
-    model: 9
+    code: a225f98f-436c-42c0-8ddf-dbcb587448a7
+    model:
+    - f29f8e59-870b-4956-b7bf-9e69d9fa156a
     label: Facilities
     default: null
     expression: Join(Beamlines.Acronym, ", ", distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 5
+    source:
+    - 066132cd-cf55-43cd-80a9-3dd78a9c54ae
 - model: reportcraft.datafield
   pk: 59
   fields:
     created: 2025-08-09 00:38:40.677000+00:00
     modified: 2025-09-05 17:51:41.534000+00:00
     name: citation_text
-    model: 9
+    code: 84119dc0-f078-4d62-ad6a-9e3067d7c0c9
+    model:
+    - f29f8e59-870b-4956-b7bf-9e69d9fa156a
     label: Reference
     default: null
     expression: Concat(JoinArray(authors, "; "), " (", String(Date.Year), ") ", String(Title),
@@ -935,1329 +1119,1664 @@
     precision: null
     position: 1
     ordering: null
-    source: 5
+    source:
+    - 066132cd-cf55-43cd-80a9-3dd78a9c54ae
 - model: reportcraft.datafield
   pk: 64
   fields:
     created: 2025-08-09 19:54:20.309000+00:00
     modified: 2025-08-09 19:54:20.317000+00:00
     name: beamline
-    model: 13
+    code: aed4bd29-696e-41c6-9a6f-537247c98941
+    model:
+    - 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     label: Beamline
     default: null
     expression: Beamlines.Acronym
     precision: null
     position: 0
     ordering: null
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datafield
   pk: 66
   fields:
     created: 2025-08-09 19:56:17.852000+00:00
     modified: 2025-08-09 19:56:17.852000+00:00
     name: articles
-    model: 13
+    code: 07c60546-794e-4dbe-93fe-22e61185b291
+    model:
+    - 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     label: Articles
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 1
     ordering: null
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datafield
   pk: 67
   fields:
     created: 2025-08-09 19:57:10.043000+00:00
     modified: 2025-08-09 19:57:10.043000+00:00
     name: citations
-    model: 13
+    code: 457abf92-5aa5-4ad3-a535-021b33af6569
+    model:
+    - 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     label: Citations
     default: 0
     expression: Sum(Metrics.Citations)
     precision: null
     position: 2
     ordering: null
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datafield
   pk: 68
   fields:
     created: 2025-08-09 19:58:11.233000+00:00
     modified: 2025-08-09 19:58:11.233000+00:00
     name: mentions
-    model: 13
+    code: 37cdb201-f2fc-41ad-b4cf-60699dcb375d
+    model:
+    - 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     label: Media Mentions
     default: 0
     expression: Sum(Metrics.Mentions)
     precision: null
     position: 3
     ordering: null
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datafield
   pk: 69
   fields:
     created: 2025-08-09 19:58:47.286000+00:00
     modified: 2025-08-09 19:58:47.286000+00:00
     name: self_citations
-    model: 13
+    code: 0649b50b-13b3-4935-870e-503dd019cf27
+    model:
+    - 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     label: Self Citations
     default: 0
     expression: Sum(Metrics.SelfCites)
     precision: null
     position: 4
     ordering: null
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datafield
   pk: 70
   fields:
     created: 2025-08-09 20:00:08.601000+00:00
     modified: 2025-08-09 20:01:58.944000+00:00
     name: sjr
-    model: 13
+    code: 1fa97ec3-158b-4529-82f9-c266e5c29c1e
+    model:
+    - 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     label: SJR Rank
     default: 0
     expression: Avg(JournalMetric.SjrRank)
     precision: 1
     position: 5
     ordering: null
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datafield
   pk: 71
   fields:
     created: 2025-08-09 20:00:49.047000+00:00
     modified: 2025-08-09 20:01:37.351000+00:00
     name: quartile
-    model: 13
+    code: e67397c8-93cf-46cb-a825-baab40895dec
+    model:
+    - 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     label: SJR Quartile
     default: 0
     expression: Avg(JournalMetric.SjrQuartile)
     precision: 1
     position: 6
     ordering: null
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datafield
   pk: 72
   fields:
     created: 2025-08-09 20:01:23.640000+00:00
     modified: 2025-08-09 20:07:26.901000+00:00
     name: impact_factor
-    model: 13
+    code: a677b5ec-26d9-46e7-965f-7ad03dfa2ddd
+    model:
+    - 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     label: Impact Factor
     default: 0
     expression: Avg(JournalMetric.ImpactFactor)
     precision: 1
     position: 7
     ordering: null
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datafield
   pk: 73
   fields:
     created: 2025-08-09 20:02:43.104000+00:00
     modified: 2025-08-09 20:02:43.104000+00:00
     name: h_index
-    model: 13
+    code: 9bc78af6-55c8-4afd-b606-43db3275c2b6
+    model:
+    - 4d4eee7d-3f39-4e09-93ad-f79a40ccfd09
     label: H-Index
     default: 0
     expression: Avg(JournalMetric.HIndex)
     precision: 1
     position: 8
     ordering: null
-    source: 7
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
 - model: reportcraft.datafield
   pk: 75
   fields:
     created: 2025-08-10 05:22:22.831000+00:00
     modified: 2025-08-10 05:22:22.839000+00:00
     name: year
-    model: 15
+    code: 4f0f79fc-78e7-4166-8f48-127d2a2fe24a
+    model:
+    - e41c6020-41e4-4f12-83d8-9ca9515741df
     label: Year
     default: null
     expression: Cycle.StartDate.Year
     precision: null
     position: 0
     ordering: null
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datafield
   pk: 76
   fields:
     created: 2025-08-10 05:23:38.820000+00:00
     modified: 2025-09-05 19:00:42.351000+00:00
     name: proposals
-    model: 14
+    code: e3fd6008-1345-430d-a097-a0637b8cce7b
+    model:
+    - ec2f4ded-a882-4fb4-a018-766c1e0d089f
     label: Proposals
     default: 0
     expression: Count(this)
     precision: null
     position: 2
     ordering: null
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datafield
   pk: 77
   fields:
     created: 2025-08-10 05:24:53.656000+00:00
     modified: 2025-09-05 19:00:55.379000+00:00
     name: reviews
-    model: 15
+    code: b1608fcc-4325-40e1-8f82-55c78db3dd5c
+    model:
+    - e41c6020-41e4-4f12-83d8-9ca9515741df
     label: Reviews
     default: 0
     expression: Count(this)
     precision: null
     position: 3
     ordering: null
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datafield
   pk: 81
   fields:
     created: 2025-08-10 05:35:22.972000+00:00
     modified: 2025-09-05 19:00:51.497000+00:00
     name: facilities
-    model: 14
+    code: 5bb466e3-607b-45ad-b47b-7128e1a54f96
+    model:
+    - ec2f4ded-a882-4fb4-a018-766c1e0d089f
     label: Facilities
     default: 0
     expression: Count(Techniques.Config.Facility, distinct=True)
     precision: null
     position: 5
     ordering: null
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datafield
   pk: 82
   fields:
     created: 2025-08-11 14:59:29.151000+00:00
     modified: 2025-09-05 19:49:32.745000+00:00
     name: country
-    model: 17
+    code: b340fee2-5f82-4908-b31a-79a5dc1b5dda
+    model:
+    - 6913f839-4d84-423f-912c-1e8f534e134e
     label: Country
     default: null
     expression: Address.Country.Alpha3
     precision: null
     position: 0
     ordering: null
-    source: 9
+    source:
+    - ce706ef0-ac99-4d7e-947b-567a1efdcb3f
 - model: reportcraft.datafield
   pk: 83
   fields:
     created: 2025-08-11 15:01:45.299000+00:00
     modified: 2025-08-11 15:01:45.299000+00:00
     name: institutions
-    model: 17
+    code: d7f0b1b0-04c2-4cad-bf43-f6e22f171c20
+    model:
+    - 6913f839-4d84-423f-912c-1e8f534e134e
     label: Institutions
     default: 0
     expression: Count(Institution, distinct=True)
     precision: null
     position: 1
     ordering: null
-    source: 9
+    source:
+    - ce706ef0-ac99-4d7e-947b-567a1efdcb3f
 - model: reportcraft.datafield
   pk: 84
   fields:
     created: 2025-08-11 15:02:44.859000+00:00
     modified: 2025-08-11 15:02:44.859000+00:00
     name: people
-    model: 17
+    code: f011a79a-a37b-4f72-9bad-6885969c0e00
+    model:
+    - 6913f839-4d84-423f-912c-1e8f534e134e
     label: Users
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 9
+    source:
+    - ce706ef0-ac99-4d7e-947b-567a1efdcb3f
 - model: reportcraft.datafield
   pk: 85
   fields:
     created: 2025-08-16 16:46:32.997000+00:00
     modified: 2025-09-05 19:00:48.042000+00:00
     name: leaders
-    model: 14
+    code: 417d7468-26b5-4bf6-8429-2dc6189ecd18
+    model:
+    - ec2f4ded-a882-4fb4-a018-766c1e0d089f
     label: Investigators
     default: 0
     expression: Count(Proposal.LeaderUsername, distinct=True)
     precision: null
     position: 6
     ordering: null
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datafield
   pk: 86
   fields:
     created: 2025-08-16 16:52:18.090000+00:00
     modified: 2025-09-04 21:15:08.062000+00:00
     name: country
-    model: 18
+    code: 66d3375d-056a-4dcb-9a42-6239b252cd43
+    model:
+    - 2c7c8743-8a77-4295-8ca9-df763ecc0bc1
     label: Country Code
     default: null
     expression: Proposal.Spokesperson.Address.Country.Alpha3
     precision: null
     position: 0
     ordering: null
-    source: 10
+    source:
+    - 740a46e0-56a6-480e-9aa3-e1688f6b3d45
 - model: reportcraft.datafield
   pk: 87
   fields:
     created: 2025-08-16 16:54:08.252000+00:00
     modified: 2025-08-16 16:54:08.252000+00:00
     name: proposals
-    model: 18
+    code: 26bf9fd6-2f62-4813-ae41-7332709d979d
+    model:
+    - 2c7c8743-8a77-4295-8ca9-df763ecc0bc1
     label: Proposals
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 1
     ordering: null
-    source: 10
+    source:
+    - 740a46e0-56a6-480e-9aa3-e1688f6b3d45
 - model: reportcraft.datafield
   pk: 88
   fields:
     created: 2025-08-16 17:19:33.369000+00:00
     modified: 2025-08-16 17:49:28.478000+00:00
     name: researchers
-    model: 18
+    code: d0ebc67b-762a-47dc-92b3-fed342ab1f14
+    model:
+    - 2c7c8743-8a77-4295-8ca9-df763ecc0bc1
     label: Researchers
     default: null
     expression: Sum(ArrayLength(Proposal.Team))
     precision: null
     position: 2
     ordering: null
-    source: 10
+    source:
+    - 740a46e0-56a6-480e-9aa3-e1688f6b3d45
 - model: reportcraft.datafield
   pk: 92
   fields:
     created: 2025-08-16 18:01:10.436000+00:00
     modified: 2025-08-16 18:26:49.716000+00:00
     name: submissions
-    model: 21
+    code: 984aead5-cb57-443e-a107-029361a30828
+    model:
+    - d6e42726-5826-4bc6-9bee-e84c7e9d2851
     label: Submissions
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 11
+    source:
+    - 2f4babd3-1337-447b-8ce0-c3dbfed87cf8
 - model: reportcraft.datafield
   pk: 95
   fields:
     created: 2025-08-16 18:09:02.760000+00:00
     modified: 2025-08-16 18:26:58.670000+00:00
     name: researchers
-    model: 21
+    code: 404cae48-332b-49e1-9743-1579e21ee757
+    model:
+    - d6e42726-5826-4bc6-9bee-e84c7e9d2851
     label: Researchers
     default: 0
     expression: Sum(ArrayLength(Proposal.Team))
     precision: null
     position: 4
     ordering: null
-    source: 11
+    source:
+    - 2f4babd3-1337-447b-8ce0-c3dbfed87cf8
 - model: reportcraft.datafield
   pk: 97
   fields:
     created: 2025-08-16 18:26:32.434000+00:00
     modified: 2025-08-16 18:32:32.081000+00:00
     name: cycles
-    model: 21
+    code: c0501bd5-2c66-47c8-87cd-9311bcb61660
+    model:
+    - d6e42726-5826-4bc6-9bee-e84c7e9d2851
     label: Cycle Group
     default: null
     expression: Cycle
     precision: null
     position: 0
     ordering: null
-    source: 11
+    source:
+    - 2f4babd3-1337-447b-8ce0-c3dbfed87cf8
 - model: reportcraft.datafield
   pk: 98
   fields:
     created: 2025-08-16 18:26:32.455000+00:00
     modified: 2025-08-16 18:32:37.942000+00:00
     name: tracks
-    model: 21
+    code: 73ed3858-6cd8-4ac4-a605-832571edd820
+    model:
+    - d6e42726-5826-4bc6-9bee-e84c7e9d2851
     label: Track Group
     default: null
     expression: Track
     precision: null
     position: 1
     ordering: null
-    source: 11
+    source:
+    - 2f4babd3-1337-447b-8ce0-c3dbfed87cf8
 - model: reportcraft.datafield
   pk: 99
   fields:
     created: 2025-08-16 18:28:21.880000+00:00
     modified: 2025-09-10 15:50:30.812820+00:00
     name: cycle_name
-    model: 21
+    code: f4f14de5-a7db-4862-8fcc-99a66526013d
+    model:
+    - d6e42726-5826-4bc6-9bee-e84c7e9d2851
     label: Cycle
     default: ''
     expression: YearMonth(Cycle.StartDate)
     precision: null
     position: 7
     ordering: null
-    source: 11
+    source:
+    - 2f4babd3-1337-447b-8ce0-c3dbfed87cf8
 - model: reportcraft.datafield
   pk: 100
   fields:
     created: 2025-08-16 18:28:53.638000+00:00
     modified: 2025-08-16 18:39:05.899000+00:00
     name: track_name
-    model: 21
+    code: 30085e02-1001-47b1-851a-30e9673c7b03
+    model:
+    - d6e42726-5826-4bc6-9bee-e84c7e9d2851
     label: Track
     default: null
     expression: Track.Name
     precision: null
     position: 8
     ordering: null
-    source: 11
+    source:
+    - 2f4babd3-1337-447b-8ce0-c3dbfed87cf8
 - model: reportcraft.datafield
   pk: 109
   fields:
     created: 2025-09-04 21:14:36.489000+00:00
     modified: 2025-09-05 18:38:24.217000+00:00
     name: country_name
-    model: 18
+    code: a1e85e40-3c8f-4d39-9c9c-48f9fae09343
+    model:
+    - 2c7c8743-8a77-4295-8ca9-df763ecc0bc1
     label: Country
     default: null
     expression: Proposal.Spokesperson.Address.Country.Name
     precision: null
     position: 0
     ordering: null
-    source: 10
+    source:
+    - 740a46e0-56a6-480e-9aa3-e1688f6b3d45
 - model: reportcraft.datafield
   pk: 115
   fields:
     created: 2025-09-05 03:43:59.741000+00:00
     modified: 2025-09-05 15:29:33.016000+00:00
     name: topic
-    model: 26
+    code: 01d777cb-bd94-46b8-a299-e260f5c8237b
+    model:
+    - 0c729a02-5bcb-40ff-8150-80a99773ab26
     label: Topic
     default: null
     expression: Category.Name
     precision: null
     position: 0
     ordering: null
-    source: 13
+    source:
+    - c44875ed-f815-4ba0-953b-9964e2279845
 - model: reportcraft.datafield
   pk: 116
   fields:
     created: 2025-09-05 03:43:59.756000+00:00
     modified: 2025-09-05 15:29:33.044000+00:00
     name: year
-    model: 26
+    code: 9052d879-9551-4638-975f-00fbd06b7849
+    model:
+    - 0c729a02-5bcb-40ff-8150-80a99773ab26
     label: Year
     default: null
     expression: Publications.Date.Year
     precision: null
     position: 1
     ordering: null
-    source: 13
+    source:
+    - c44875ed-f815-4ba0-953b-9964e2279845
 - model: reportcraft.datafield
   pk: 117
   fields:
     created: 2025-09-05 03:44:57.580000+00:00
     modified: 2025-09-05 03:44:57.580000+00:00
     name: num_pubs
-    model: 26
+    code: d3d2ce4f-8f6c-4e91-a402-9cc18dc16807
+    model:
+    - 0c729a02-5bcb-40ff-8150-80a99773ab26
     label: Publications
     default: 0
     expression: Count(publications, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 13
+    source:
+    - c44875ed-f815-4ba0-953b-9964e2279845
 - model: reportcraft.datafield
   pk: 118
   fields:
     created: 2025-09-05 15:35:43.163000+00:00
     modified: 2025-09-05 17:14:50.293000+00:00
     name: publications
-    model: 27
+    code: bf0c5b46-3aaf-4564-aedd-4df64bad3ad0
+    model:
+    - f468e868-29b5-4280-abf2-a02d413789cb
     label: Publications
     default: 0
     expression: CumCount(this, Year)
     precision: null
     position: 0
     ordering: null
-    source: 14
+    source:
+    - 2b336573-e3ee-44bd-8d89-7f68cb471c53
 - model: reportcraft.datafield
   pk: 120
   fields:
     created: 2025-09-05 15:37:15.544000+00:00
     modified: 2025-09-05 15:37:15.544000+00:00
     name: year
-    model: 27
+    code: e0baeec4-6e66-4f49-b277-d5958ddae1c1
+    model:
+    - f468e868-29b5-4280-abf2-a02d413789cb
     label: Year
     default: null
     expression: Date.Year
     precision: null
     position: 2
     ordering: null
-    source: 14
+    source:
+    - 2b336573-e3ee-44bd-8d89-7f68cb471c53
 - model: reportcraft.datafield
   pk: 121
   fields:
     created: 2025-09-05 16:06:17.977000+00:00
     modified: 2025-09-05 16:06:17.986000+00:00
     name: year
-    model: 28
+    code: f10d725c-ab07-420c-8f81-40ce0adc3dcc
+    model:
+    - 78ddbdd2-ccc3-46dd-b1ec-e69c8122fb14
     label: Year
     default: null
     expression: Year
     precision: null
     position: 0
     ordering: null
-    source: 15
+    source:
+    - e2247363-043a-44aa-97f1-e75eea7f7546
 - model: reportcraft.datafield
   pk: 122
   fields:
     created: 2025-09-05 16:07:30.765000+00:00
     modified: 2025-09-05 16:07:30.765000+00:00
     name: total_citations
-    model: 28
+    code: 2842d4db-51ca-4f1c-a2ba-30adc7e28868
+    model:
+    - 78ddbdd2-ccc3-46dd-b1ec-e69c8122fb14
     label: Citations
     default: 0
     expression: CumSum(citations, Year)
     precision: null
     position: 1
     ordering: null
-    source: 15
+    source:
+    - e2247363-043a-44aa-97f1-e75eea7f7546
 - model: reportcraft.datafield
   pk: 123
   fields:
     created: 2025-09-05 16:17:52.989000+00:00
     modified: 2025-09-05 16:17:52.989000+00:00
     name: total_mentions
-    model: 28
+    code: 16e1d3f7-d9ed-45e6-b560-0107d687cf3d
+    model:
+    - 78ddbdd2-ccc3-46dd-b1ec-e69c8122fb14
     label: Media Mentions
     default: 0
     expression: CumSum(Mentions, Year)
     precision: null
     position: 2
     ordering: null
-    source: 15
+    source:
+    - e2247363-043a-44aa-97f1-e75eea7f7546
 - model: reportcraft.datafield
   pk: 124
   fields:
     created: 2025-09-05 17:49:07.944000+00:00
     modified: 2025-09-05 17:52:04.228000+00:00
     name: mentions
-    model: 9
+    code: bc1effc9-19e7-47df-81bd-39846401166e
+    model:
+    - f29f8e59-870b-4956-b7bf-9e69d9fa156a
     label: Mentions
     default: 0
     expression: Sum(Metrics.Mentions, distinct=True)
     precision: null
     position: 6
     ordering: null
-    source: 5
+    source:
+    - 066132cd-cf55-43cd-80a9-3dd78a9c54ae
 - model: reportcraft.datafield
   pk: 126
   fields:
     created: 2025-09-05 18:47:21.087000+00:00
     modified: 2025-09-10 16:20:30.308328+00:00
     name: cycle_name
-    model: 29
+    code: 9608309b-a786-43ce-8f96-ba9f1a3549ff
+    model:
+    - db4de92b-a5a6-4607-a9f3-5309d62be987
     label: Cycle
     default: null
     expression: YearMonth(Cycle.StartDate)
     precision: null
     position: 0
     ordering: null
-    source: 16
+    source:
+    - 9e8e910a-716e-42d3-8c8d-40e85e709942
 - model: reportcraft.datafield
   pk: 127
   fields:
     created: 2025-09-05 18:47:21.102000+00:00
     modified: 2025-09-05 18:58:44.646000+00:00
     name: beamline
-    model: 29
+    code: c27ef2dc-4902-4e26-abf7-937af1c4449e
+    model:
+    - db4de92b-a5a6-4607-a9f3-5309d62be987
     label: Beamline
     default: null
     expression: Techniques.Config.Facility.Acronym
     precision: null
     position: 1
     ordering: null
-    source: 16
+    source:
+    - 9e8e910a-716e-42d3-8c8d-40e85e709942
 - model: reportcraft.datafield
   pk: 128
   fields:
     created: 2025-09-05 18:51:15.236000+00:00
     modified: 2025-09-05 18:51:15.236000+00:00
     name: submissions
-    model: 29
+    code: 2016c7f2-2790-4872-9a14-c2f07c72424d
+    model:
+    - db4de92b-a5a6-4607-a9f3-5309d62be987
     label: Submissions
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 16
+    source:
+    - 9e8e910a-716e-42d3-8c8d-40e85e709942
 - model: reportcraft.datafield
   pk: 129
   fields:
     created: 2025-09-05 19:54:31.484000+00:00
     modified: 2025-09-10 17:01:30.123206+00:00
     name: country
-    model: 30
+    code: ee97c89e-1edd-4e0e-8b3a-86aa4892655e
+    model:
+    - 3b3841f7-3492-4675-b138-a7a64959e7ea
     label: Country
     default: null
     expression: Address.Country.Alpha3
     precision: null
     position: 0
     ordering: null
-    source: 17
+    source:
+    - b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
 - model: reportcraft.datafield
   pk: 130
   fields:
     created: 2025-09-05 19:54:31.498000+00:00
     modified: 2025-09-10 17:01:36.834689+00:00
     name: region
-    model: 30
+    code: 93a022e2-3511-41ef-b536-1ccd0e3814ef
+    model:
+    - 3b3841f7-3492-4675-b138-a7a64959e7ea
     label: Region
     default: null
     expression: Address.Region.Code
     precision: null
     position: 1
     ordering: null
-    source: 17
+    source:
+    - b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
 - model: reportcraft.datafield
   pk: 131
   fields:
     created: 2025-09-05 19:55:17.915000+00:00
     modified: 2025-09-05 19:55:17.915000+00:00
     name: users
-    model: 30
+    code: efaa740e-d448-4505-a5d3-62442272f99a
+    model:
+    - 3b3841f7-3492-4675-b138-a7a64959e7ea
     label: Users
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 17
+    source:
+    - b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
 - model: reportcraft.datafield
   pk: 132
   fields:
     created: 2025-09-05 19:56:02.703000+00:00
     modified: 2025-09-05 19:56:02.703000+00:00
     name: institutions
-    model: 30
+    code: bf2723c7-d12b-4972-9e99-de3be0bfea55
+    model:
+    - 3b3841f7-3492-4675-b138-a7a64959e7ea
     label: Institutions
     default: 0
     expression: Count(Institution,distinct=True)
     precision: null
     position: 3
     ordering: null
-    source: 17
+    source:
+    - b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
 - model: reportcraft.datafield
   pk: 133
   fields:
     created: 2025-09-05 19:56:56.371000+00:00
     modified: 2025-09-10 17:02:41.069653+00:00
     name: region_name
-    model: 30
+    code: 1018dba5-e737-49c4-9441-aacf024a22e2
+    model:
+    - 3b3841f7-3492-4675-b138-a7a64959e7ea
     label: Region Name
     default: null
     expression: Address.Region.Name
     precision: null
     position: 4
     ordering: null
-    source: 17
+    source:
+    - b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
 - model: reportcraft.datafield
   pk: 139
   fields:
     created: 2025-09-10 03:32:07.224567+00:00
     modified: 2025-09-10 03:32:07.224585+00:00
     name: rating
-    model: 32
+    code: 306c9f19-ed31-4985-a430-f6c84b290d9f
+    model:
+    - 7bf38e91-8383-467f-be93-63044610fe1d
     label: Rating
     default: null
     expression: Name
     precision: null
     position: 2
     ordering: null
-    source: 18
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
 - model: reportcraft.datafield
   pk: 140
   fields:
     created: 2025-09-10 03:32:47.513486+00:00
     modified: 2025-09-13 00:48:45.092481+00:00
     name: score
-    model: 32
+    code: 00586b7c-4396-47e3-b5b9-db49dbd74595
+    model:
+    - 7bf38e91-8383-467f-be93-63044610fe1d
     label: Score
     default: 0
     expression: Avg(Value) - 3
     precision: 1
     position: 3
     ordering: null
-    source: 18
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
 - model: reportcraft.datafield
   pk: 143
   fields:
     created: 2025-09-10 15:24:58.645653+00:00
     modified: 2025-09-10 15:25:51.639632+00:00
     name: cycle_name
-    model: 14
+    code: 934aa3fc-24cf-48aa-91e4-d46a54f072d3
+    model:
+    - ec2f4ded-a882-4fb4-a018-766c1e0d089f
     label: Cycle
     default: null
     expression: YearMonth(Cycle.StartDate)
     precision: null
     position: 7
     ordering: null
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datafield
   pk: 144
   fields:
     created: 2025-09-10 15:26:23.670973+00:00
     modified: 2025-09-10 15:53:19.036834+00:00
     name: cycle_name
-    model: 15
+    code: 35ce8709-4175-4f65-9850-7d43c01cdb0f
+    model:
+    - e41c6020-41e4-4f12-83d8-9ca9515741df
     label: Cycle
     default: null
     expression: YearMonth(Cycle.StartDate)
     precision: null
     position: 8
     ordering: null
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datafield
   pk: 145
   fields:
     created: 2025-09-10 15:26:59.255838+00:00
     modified: 2025-09-10 15:53:23.954833+00:00
     name: cycle_name
-    model: 16
+    code: f7baf1b6-fbd5-49cf-8e7f-e658b1d08d4d
+    model:
+    - e832cb88-244a-44a3-a583-b0f5e995bd09
     label: Cycle
     default: null
     expression: YearMonth(Submissions.Cycle.StartDate)
     precision: null
     position: 9
     ordering: null
-    source: 8
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
 - model: reportcraft.datafield
   pk: 146
   fields:
     created: 2025-09-10 17:02:17.835393+00:00
     modified: 2025-09-10 17:02:17.835404+00:00
     name: country_name
-    model: 30
+    code: f0121d8c-2a4b-4b47-8b56-a2c68379233d
+    model:
+    - 3b3841f7-3492-4675-b138-a7a64959e7ea
     label: Country Name
     default: null
     expression: Address.Country.Name
     precision: null
     position: 5
     ordering: null
-    source: 17
+    source:
+    - b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
 - model: reportcraft.datafield
   pk: 147
   fields:
     created: 2025-09-10 22:03:55.718319+00:00
     modified: 2025-09-10 22:08:32.812596+00:00
     name: country_name
-    model: 17
+    code: 9f8f20c7-4de9-431f-98f8-aa1b2f593c12
+    model:
+    - 6913f839-4d84-423f-912c-1e8f534e134e
     label: Country Name
     default: null
     expression: Address.Country.Name
     precision: null
     position: 0
     ordering: null
-    source: 9
+    source:
+    - ce706ef0-ac99-4d7e-947b-567a1efdcb3f
 - model: reportcraft.datafield
   pk: 149
   fields:
     created: 2025-09-13 00:47:22.447003+00:00
     modified: 2025-09-13 00:47:22.447037+00:00
     name: section
-    model: 32
+    code: cd1b1af7-0e97-4f02-8cd1-98d6c3779901
+    model:
+    - 7bf38e91-8383-467f-be93-63044610fe1d
     label: Section
     default: null
     expression: Category.Name
     precision: null
     position: 7
     ordering: null
-    source: 18
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
 - model: reportcraft.datafield
   pk: 150
   fields:
     created: 2025-09-13 00:47:41.575576+00:00
     modified: 2025-09-14 13:57:58.893956+00:00
     name: question
-    model: 32
+    code: 943128e3-a96c-4215-b73b-39889c019755
+    model:
+    - 7bf38e91-8383-467f-be93-63044610fe1d
     label: Topic
     default: null
     expression: Name
     precision: null
     position: 8
     ordering: null
-    source: 18
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
 - model: reportcraft.datafield
   pk: 151
   fields:
     created: 2025-09-13 00:47:54.293559+00:00
     modified: 2025-09-13 00:47:54.293589+00:00
     name: answer
-    model: 32
+    code: 7adc8750-2242-451a-b68b-936cc52efe75
+    model:
+    - 7bf38e91-8383-467f-be93-63044610fe1d
     label: Answer
     default: null
     expression: Label
     precision: null
     position: 9
     ordering: null
-    source: 18
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
 - model: reportcraft.datafield
   pk: 152
   fields:
     created: 2025-09-13 00:49:57.029476+00:00
     modified: 2025-09-13 00:49:57.029499+00:00
     name: freq
-    model: 32
+    code: bcae4ce6-0cc0-493f-8a91-9176815c15a9
+    model:
+    - 7bf38e91-8383-467f-be93-63044610fe1d
     label: Frequency
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 5
     ordering: null
-    source: 18
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
 - model: reportcraft.datafield
   pk: 153
   fields:
     created: 2025-09-14 18:26:44.685639+00:00
     modified: 2025-09-14 18:30:44.919428+00:00
     name: section
-    model: 33
+    code: e3666bd2-467b-474a-a822-95e38668bfe9
+    model:
+    - 8e856c90-0571-42c9-bb3d-3a8c4a60d10c
     label: Section
     default: null
     expression: Category.Name
     precision: null
     position: 0
     ordering: null
-    source: 19
+    source:
+    - 2bb5f69e-4e0a-4efd-8f8e-2688b924e2dd
 - model: reportcraft.datafield
   pk: 154
   fields:
     created: 2025-09-14 18:26:44.702618+00:00
     modified: 2025-09-14 18:30:44.928901+00:00
     name: question
-    model: 33
+    code: d06c8535-e03a-41b0-af56-86721569a1b3
+    model:
+    - 8e856c90-0571-42c9-bb3d-3a8c4a60d10c
     label: Question
     default: null
     expression: Name
     precision: null
     position: 1
     ordering: null
-    source: 19
+    source:
+    - 2bb5f69e-4e0a-4efd-8f8e-2688b924e2dd
 - model: reportcraft.datafield
   pk: 155
   fields:
     created: 2025-09-14 18:31:53.817677+00:00
     modified: 2025-09-14 18:31:53.817707+00:00
     name: score
-    model: 33
+    code: 76f532cc-a91c-4d92-9400-2847e9c4fd88
+    model:
+    - 8e856c90-0571-42c9-bb3d-3a8c4a60d10c
     label: Score
     default: 0
     expression: Avg(Value) - 3
     precision: null
     position: 2
     ordering: null
-    source: 19
+    source:
+    - 2bb5f69e-4e0a-4efd-8f8e-2688b924e2dd
 - model: reportcraft.datafield
   pk: 156
   fields:
     created: 2025-09-16 05:21:47.497554+00:00
     modified: 2025-09-16 05:21:47.504768+00:00
     name: cycle
-    model: 34
+    code: 57fdbb5e-a110-4b66-8734-1b048e0ee4b9
+    model:
+    - 63968348-bca8-4cbf-ace4-76921e0aced9
     label: Cycle
     default: null
     expression: YearMonth(Feedback.Cycle.StartDate)
     precision: null
     position: 0
     ordering: null
-    source: 20
+    source:
+    - c12efc5e-bde2-408f-a760-1983b59b4062
 - model: reportcraft.datafield
   pk: 157
   fields:
     created: 2025-09-16 05:21:47.511906+00:00
     modified: 2025-09-16 05:21:47.518152+00:00
     name: section
-    model: 34
+    code: 7cde9b9b-e2ad-4b66-8b77-4958d351bd7e
+    model:
+    - 63968348-bca8-4cbf-ace4-76921e0aced9
     label: Section
     default: null
     expression: Category.Name
     precision: null
     position: 1
     ordering: null
-    source: 20
+    source:
+    - c12efc5e-bde2-408f-a760-1983b59b4062
 - model: reportcraft.datafield
   pk: 158
   fields:
     created: 2025-09-16 05:21:47.524828+00:00
     modified: 2025-09-16 05:21:47.530798+00:00
     name: rating
-    model: 34
+    code: f4b2eb10-8fa7-4a1d-b8b8-f371133d7719
+    model:
+    - 63968348-bca8-4cbf-ace4-76921e0aced9
     label: Rating
     default: null
     expression: Name
     precision: null
     position: 2
     ordering: null
-    source: 20
+    source:
+    - c12efc5e-bde2-408f-a760-1983b59b4062
 - model: reportcraft.datafield
   pk: 159
   fields:
     created: 2025-09-16 05:26:21.696964+00:00
     modified: 2025-09-16 05:26:31.534143+00:00
     name: score
-    model: 34
+    code: 20ce10e5-adea-43ca-b08f-c395b687022b
+    model:
+    - 63968348-bca8-4cbf-ace4-76921e0aced9
     label: Score
     default: 0
     expression: Avg(Value) - 3
     precision: 2
     position: 3
     ordering: null
-    source: 20
+    source:
+    - c12efc5e-bde2-408f-a760-1983b59b4062
 - model: reportcraft.datafield
   pk: 160
   fields:
     created: 2025-09-16 05:27:25.072767+00:00
     modified: 2025-09-16 19:27:36.367133+00:00
     name: age
-    model: 34
+    code: 00648ff8-4f3c-4e6b-ab32-f9641c092159
+    model:
+    - 63968348-bca8-4cbf-ace4-76921e0aced9
     label: Age
     default: null
     expression: AgeMonths(Feedback.Cycle.StartDate)
     precision: null
     position: 4
     ordering: null
-    source: 20
+    source:
+    - c12efc5e-bde2-408f-a760-1983b59b4062
 - model: reportcraft.datafield
   pk: 166
   fields:
     created: 2025-09-16 19:34:08.445068+00:00
     modified: 2025-09-16 19:34:08.445076+00:00
     name: cycle
-    model: 36
+    code: a3be3b64-2c48-4486-95e2-9bfb3d4441ca
+    model:
+    - 58746578-589e-452e-a76a-151a98eaa148
     label: Cycle
     default: null
     expression: YearMonth(Feedback.Cycle.StartDate)
     precision: null
     position: 0
     ordering: null
-    source: 22
+    source:
+    - 46077a7d-40dd-4383-bf5f-4e17072f5d85
 - model: reportcraft.datafield
   pk: 167
   fields:
     created: 2025-09-16 19:34:08.453151+00:00
     modified: 2025-09-16 19:34:08.453160+00:00
     name: section
-    model: 36
+    code: 084b91a2-13b1-4ed3-81ad-0651cb93b6c1
+    model:
+    - 58746578-589e-452e-a76a-151a98eaa148
     label: Section
     default: null
     expression: Category.Name
     precision: null
     position: 1
     ordering: null
-    source: 22
+    source:
+    - 46077a7d-40dd-4383-bf5f-4e17072f5d85
 - model: reportcraft.datafield
   pk: 168
   fields:
     created: 2025-09-16 19:34:08.461001+00:00
     modified: 2025-09-16 19:34:08.461008+00:00
     name: rating
-    model: 36
+    code: bb830c07-ea58-446a-a109-144c61587445
+    model:
+    - 58746578-589e-452e-a76a-151a98eaa148
     label: Rating
     default: null
     expression: Name
     precision: null
     position: 2
     ordering: null
-    source: 22
+    source:
+    - 46077a7d-40dd-4383-bf5f-4e17072f5d85
 - model: reportcraft.datafield
   pk: 169
   fields:
     created: 2025-09-16 19:34:08.468790+00:00
     modified: 2025-09-16 19:34:08.468798+00:00
     name: score
-    model: 36
+    code: 9b64b7d1-7ffe-494b-a1a1-e8c79c4f9409
+    model:
+    - 58746578-589e-452e-a76a-151a98eaa148
     label: Score
     default: 0
     expression: Avg(Value) - 3
     precision: 2
     position: 3
     ordering: null
-    source: 22
+    source:
+    - 46077a7d-40dd-4383-bf5f-4e17072f5d85
 - model: reportcraft.datafield
   pk: 170
   fields:
     created: 2025-09-16 19:34:08.476610+00:00
     modified: 2025-09-16 19:34:08.476617+00:00
     name: age
-    model: 36
+    code: 0735f114-03ea-45be-a88c-ea7cf44f53c5
+    model:
+    - 58746578-589e-452e-a76a-151a98eaa148
     label: Age
     default: null
     expression: AgeMonths(Feedback.Cycle.StartDate)
     precision: null
     position: 4
     ordering: null
-    source: 22
+    source:
+    - 46077a7d-40dd-4383-bf5f-4e17072f5d85
 - model: reportcraft.datafield
   pk: 171
   fields:
     created: 2025-09-16 19:34:59.259302+00:00
     modified: 2025-09-16 19:34:59.259312+00:00
     name: facility
-    model: 36
+    code: f393d1c5-8f36-445b-81a1-a58b690141d0
+    model:
+    - 58746578-589e-452e-a76a-151a98eaa148
     label: Facility
     default: null
     expression: Feedback.Beamline.Acronym
     precision: null
     position: 5
     ordering: null
-    source: 22
+    source:
+    - 46077a7d-40dd-4383-bf5f-4e17072f5d85
 - model: reportcraft.datafield
   pk: 172
   fields:
     created: 2025-09-22 16:12:53.313882+00:00
     modified: 2025-09-22 16:12:53.313892+00:00
     name: country
-    model: 37
+    code: 4bb0e5dd-c47f-4982-b05a-10edf0ff7e22
+    model:
+    - 9786e191-4c68-44a4-aa29-bc05f131ecc7
     label: Country Code
     default: null
     expression: Proposal.Spokesperson.Address.Country.Alpha3
     precision: null
     position: 0
     ordering: null
-    source: 23
+    source:
+    - bcab37b5-04c8-4986-afeb-f5d319f50a8e
 - model: reportcraft.datafield
   pk: 173
   fields:
     created: 2025-09-22 16:12:53.322099+00:00
     modified: 2025-09-22 16:14:19.165367+00:00
     name: region_name
-    model: 37
+    code: 1f053170-a06e-4a84-9276-1545cb064ef2
+    model:
+    - 9786e191-4c68-44a4-aa29-bc05f131ecc7
     label: Region Name
     default: null
     expression: Proposal.Spokesperson.Address.Region.Name
     precision: null
     position: 0
     ordering: null
-    source: 23
+    source:
+    - bcab37b5-04c8-4986-afeb-f5d319f50a8e
 - model: reportcraft.datafield
   pk: 174
   fields:
     created: 2025-09-22 16:12:53.332607+00:00
     modified: 2025-09-22 16:12:53.332616+00:00
     name: proposals
-    model: 37
+    code: c7dbc3d2-0fda-44af-af40-3f4fb5224a86
+    model:
+    - 9786e191-4c68-44a4-aa29-bc05f131ecc7
     label: Proposals
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 1
     ordering: null
-    source: 23
+    source:
+    - bcab37b5-04c8-4986-afeb-f5d319f50a8e
 - model: reportcraft.datafield
   pk: 175
   fields:
     created: 2025-09-22 16:12:53.340640+00:00
     modified: 2025-09-22 16:12:53.340647+00:00
     name: researchers
-    model: 37
+    code: ab533420-a64d-4d9f-a3a7-d5e5a68c5a07
+    model:
+    - 9786e191-4c68-44a4-aa29-bc05f131ecc7
     label: Researchers
     default: null
     expression: Sum(ArrayLength(Proposal.Team))
     precision: null
     position: 2
     ordering: null
-    source: 23
+    source:
+    - bcab37b5-04c8-4986-afeb-f5d319f50a8e
 - model: reportcraft.datafield
   pk: 176
   fields:
     created: 2025-09-22 16:13:51.353576+00:00
     modified: 2025-09-22 16:13:51.353586+00:00
     name: region
-    model: 37
+    code: 60be1c12-1ca7-4321-ac97-3605adf30c00
+    model:
+    - 9786e191-4c68-44a4-aa29-bc05f131ecc7
     label: Region
     default: null
     expression: Proposal.Spokesperson.Address.Region.Code
     precision: null
     position: 4
     ordering: null
-    source: 23
+    source:
+    - bcab37b5-04c8-4986-afeb-f5d319f50a8e
 - model: reportcraft.datafield
   pk: 178
   fields:
     created: 2025-09-22 16:30:08.543340+00:00
     modified: 2025-09-22 16:32:44.907386+00:00
     name: proposals
-    model: 38
+    code: 42d92b70-c014-4859-84ff-2f84d00a4697
+    model:
+    - ee6dced3-04c2-4687-a0cc-c8f41917d690
     label: Proposals
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 24
+    source:
+    - b0dd5e3d-542c-40b1-8d23-19eaee864ed9
 - model: reportcraft.datafield
   pk: 180
   fields:
     created: 2025-09-22 16:30:08.558925+00:00
     modified: 2025-09-22 16:30:08.558931+00:00
     name: facilities
-    model: 38
+    code: e33e37db-229e-495c-b82c-35f0ec816959
+    model:
+    - ee6dced3-04c2-4687-a0cc-c8f41917d690
     label: Facilities
     default: 0
     expression: Count(Techniques.Config.Facility, distinct=True)
     precision: null
     position: 5
     ordering: null
-    source: 24
+    source:
+    - b0dd5e3d-542c-40b1-8d23-19eaee864ed9
 - model: reportcraft.datafield
   pk: 181
   fields:
     created: 2025-09-22 16:30:08.566641+00:00
     modified: 2025-09-22 16:30:08.566647+00:00
     name: leaders
-    model: 38
+    code: 4b9adba2-68e3-41b1-a242-ae554e01fe98
+    model:
+    - ee6dced3-04c2-4687-a0cc-c8f41917d690
     label: Investigators
     default: 0
     expression: Count(Proposal.LeaderUsername, distinct=True)
     precision: null
     position: 6
     ordering: null
-    source: 24
+    source:
+    - b0dd5e3d-542c-40b1-8d23-19eaee864ed9
 - model: reportcraft.datafield
   pk: 185
   fields:
     created: 2025-09-22 16:30:56.085412+00:00
     modified: 2025-09-22 16:30:56.108746+00:00
     name: year
-    model: 38
+    code: 8b67f703-a894-47fc-8f4d-0b0e6c30a2a1
+    model:
+    - ee6dced3-04c2-4687-a0cc-c8f41917d690
     label: Year
     default: null
     expression: Cycle.StartDate.Year
     precision: null
     position: 0
     ordering: null
-    source: 24
+    source:
+    - b0dd5e3d-542c-40b1-8d23-19eaee864ed9
 - model: reportcraft.datafield
   pk: 187
   fields:
     created: 2025-09-22 16:43:07.463376+00:00
     modified: 2025-09-22 16:43:07.463385+00:00
     name: tracks
-    model: 41
+    code: 18792d66-1b5c-446b-ad9c-f82848f92197
+    model:
+    - 1e0b285e-a3d9-4bd6-a749-663855f785d2
     label: Track Group
     default: null
     expression: Track
     precision: null
     position: 1
     ordering: null
-    source: 25
+    source:
+    - 830b242b-a98f-4f20-8e9f-b47d2de1dde0
 - model: reportcraft.datafield
   pk: 188
   fields:
     created: 2025-09-22 16:43:07.471158+00:00
     modified: 2025-09-22 16:43:07.471165+00:00
     name: submissions
-    model: 41
+    code: 21eb504f-b75c-4fc7-8b8d-94b5b9a1e6a6
+    model:
+    - 1e0b285e-a3d9-4bd6-a749-663855f785d2
     label: Submissions
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 25
+    source:
+    - 830b242b-a98f-4f20-8e9f-b47d2de1dde0
 - model: reportcraft.datafield
   pk: 189
   fields:
     created: 2025-09-22 16:43:07.478838+00:00
     modified: 2025-09-22 16:43:07.478847+00:00
     name: researchers
-    model: 41
+    code: e64d9158-5d2f-43df-8f19-9740fee19faa
+    model:
+    - 1e0b285e-a3d9-4bd6-a749-663855f785d2
     label: Researchers
     default: 0
     expression: Sum(ArrayLength(Proposal.Team))
     precision: null
     position: 4
     ordering: null
-    source: 25
+    source:
+    - 830b242b-a98f-4f20-8e9f-b47d2de1dde0
 - model: reportcraft.datafield
   pk: 191
   fields:
     created: 2025-09-22 16:43:07.494605+00:00
     modified: 2025-09-22 16:43:07.494612+00:00
     name: track_name
-    model: 41
+    code: 3cf4cf70-0265-439e-b7b5-5ec27dfe0a57
+    model:
+    - 1e0b285e-a3d9-4bd6-a749-663855f785d2
     label: Track
     default: null
     expression: Track.Name
     precision: null
     position: 8
     ordering: null
-    source: 25
+    source:
+    - 830b242b-a98f-4f20-8e9f-b47d2de1dde0
 - model: reportcraft.datafield
   pk: 192
   fields:
     created: 2025-09-22 16:43:51.727444+00:00
     modified: 2025-09-22 16:43:51.727453+00:00
     name: year
-    model: 41
+    code: 0acd05c5-7809-498c-ac97-5808264fbac8
+    model:
+    - 1e0b285e-a3d9-4bd6-a749-663855f785d2
     label: Year
     default: null
     expression: Cycle.StartDate.Year
     precision: null
     position: 6
     ordering: null
-    source: 25
+    source:
+    - 830b242b-a98f-4f20-8e9f-b47d2de1dde0
 - model: reportcraft.datafield
   pk: 193
   fields:
     created: 2025-09-22 17:30:22.254462+00:00
     modified: 2025-09-22 17:30:22.262089+00:00
     name: year
-    model: 42
+    code: 386a7a62-265a-4780-b06c-ba11d24c2923
+    model:
+    - 069990d3-501f-4d1a-a209-1c53def420bb
     label: Year
     default: null
     expression: Cycle.StartDate.Year
     precision: null
     position: 0
     ordering: null
-    source: 12
+    source:
+    - affca4ce-8159-4ff5-a23d-ec0daef5ba37
 - model: reportcraft.datafield
   pk: 194
   fields:
     created: 2025-09-22 17:30:22.270095+00:00
     modified: 2025-09-22 17:31:01.529200+00:00
     name: pool
-    model: 42
+    code: b875d8cf-6a29-4347-b884-e18094dad013
+    model:
+    - 069990d3-501f-4d1a-a209-1c53def420bb
     label: Access Pool
     default: null
     expression: Project.Pool.Name
     precision: null
     position: 1
     ordering: null
-    source: 12
+    source:
+    - affca4ce-8159-4ff5-a23d-ec0daef5ba37
 - model: reportcraft.datafield
   pk: 195
   fields:
     created: 2025-09-22 17:32:10.088934+00:00
     modified: 2025-09-22 17:32:10.088943+00:00
     name: projects
-    model: 42
+    code: 191fb09a-84b8-4906-bd65-3b383a69148a
+    model:
+    - 069990d3-501f-4d1a-a209-1c53def420bb
     label: Projects
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 12
+    source:
+    - affca4ce-8159-4ff5-a23d-ec0daef5ba37
 - model: reportcraft.datafield
   pk: 196
   fields:
     created: 2025-09-22 17:33:48.066755+00:00
     modified: 2025-09-22 17:33:48.066771+00:00
     name: users
-    model: 42
+    code: b02c1c08-2367-4171-9e83-25158a403d59
+    model:
+    - 069990d3-501f-4d1a-a209-1c53def420bb
     label: Researchers
     default: 0
     expression: Count(Project.Team, distinct=True)
     precision: null
     position: 3
     ordering: null
-    source: 12
+    source:
+    - affca4ce-8159-4ff5-a23d-ec0daef5ba37
 - model: reportcraft.datafield
   pk: 197
   fields:
     created: 2025-09-22 17:43:05.209651+00:00
     modified: 2025-09-22 17:45:45.289778+00:00
     name: age
-    model: 42
+    code: 3a37c3f2-171f-491e-9beb-48650f5a8b6e
+    model:
+    - 069990d3-501f-4d1a-a209-1c53def420bb
     label: Age
     default: 0
     expression: AgeYears(Cycle.StartDate)
     precision: null
     position: 4
     ordering: null
-    source: 12
+    source:
+    - affca4ce-8159-4ff5-a23d-ec0daef5ba37
 - model: reportcraft.datafield
   pk: 198
   fields:
     created: 2025-09-22 17:49:55.499097+00:00
     modified: 2025-09-22 17:50:59.776158+00:00
     name: year
-    model: 43
+    code: 2332e5b7-3207-465d-be96-87dae0667199
+    model:
+    - 30fc2cf7-60c8-4eec-9d36-fda3ecc5e577
     label: Year
     default: null
     expression: Cycle.StartDate.Year
     precision: null
     position: 0
     ordering: null
-    source: 26
+    source:
+    - 628b2623-bc1e-4ee9-98b5-b93fe9c3c431
 - model: reportcraft.datafield
   pk: 200
   fields:
     created: 2025-09-22 17:49:55.517684+00:00
     modified: 2025-09-22 17:49:55.517698+00:00
     name: projects
-    model: 43
+    code: 4597181c-1234-4cb0-b1bc-8d05c297403c
+    model:
+    - 30fc2cf7-60c8-4eec-9d36-fda3ecc5e577
     label: Projects
     default: 0
     expression: Count(this, distinct=True)
     precision: null
     position: 2
     ordering: null
-    source: 26
+    source:
+    - 628b2623-bc1e-4ee9-98b5-b93fe9c3c431
 - model: reportcraft.datafield
   pk: 201
   fields:
     created: 2025-09-22 17:49:55.533565+00:00
     modified: 2025-09-22 17:49:55.533580+00:00
     name: users
-    model: 43
+    code: 596f968e-2ac2-40a4-afc7-3dc138e0bbf2
+    model:
+    - 30fc2cf7-60c8-4eec-9d36-fda3ecc5e577
     label: Researchers
     default: 0
     expression: Count(Project.Team, distinct=True)
     precision: null
     position: 3
     ordering: null
-    source: 26
+    source:
+    - 628b2623-bc1e-4ee9-98b5-b93fe9c3c431
 - model: reportcraft.datafield
   pk: 202
   fields:
     created: 2025-09-22 17:49:55.541815+00:00
     modified: 2025-09-22 17:49:55.541823+00:00
     name: age
-    model: 43
+    code: b2680bdf-d4e4-4faa-90d4-7378991cdd3b
+    model:
+    - 30fc2cf7-60c8-4eec-9d36-fda3ecc5e577
     label: Age
     default: 0
     expression: AgeYears(Cycle.StartDate)
     precision: null
     position: 4
     ordering: null
-    source: 26
+    source:
+    - 628b2623-bc1e-4ee9-98b5-b93fe9c3c431
 - model: reportcraft.datafield
   pk: 203
   fields:
     created: 2025-09-22 17:50:51.359448+00:00
     modified: 2025-09-22 17:50:59.804337+00:00
     name: technique
-    model: 43
+    code: a58ae9f5-6e7f-4029-b7ee-1addff78150d
+    model:
+    - 30fc2cf7-60c8-4eec-9d36-fda3ecc5e577
     label: Technique
     default: null
     expression: Project.Techniques.Technique.Name
     precision: null
     position: 1
     ordering: null
-    source: 26
+    source:
+    - 628b2623-bc1e-4ee9-98b5-b93fe9c3c431
 - model: reportcraft.datafield
   pk: 204
   fields:
     created: 2025-09-22 17:52:17.272492+00:00
     modified: 2025-09-22 17:52:32.035161+00:00
     name: acronym
-    model: 43
+    code: c9308c3e-0e97-4bcf-85de-264e6332da81
+    model:
+    - 30fc2cf7-60c8-4eec-9d36-fda3ecc5e577
     label: Technique Acronym
     default: null
     expression: Project.Techniques.Technique.Acronym
     precision: null
     position: 5
     ordering: null
-    source: 26
+    source:
+    - 628b2623-bc1e-4ee9-98b5-b93fe9c3c431
+- model: reportcraft.datafield
+  pk: 205
+  fields:
+    created: 2025-09-29 19:53:40.866167+00:00
+    modified: 2025-09-29 20:17:40.838166+00:00
+    name: topic
+    code: 131de476-8915-43c1-a36d-596ded5b9e75
+    model:
+    - c8742761-5fab-4a13-9134-1b1276defd0d
+    label: Topic
+    default: null
+    expression: FocusArea.Name
+    precision: null
+    position: 0
+    ordering: null
+    source:
+    - 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
+- model: reportcraft.datafield
+  pk: 206
+  fields:
+    created: 2025-09-29 19:53:40.882310+00:00
+    modified: 2025-09-29 20:17:40.865406+00:00
+    name: year
+    code: e1c74d06-ac81-4e47-a620-79d7eb2b9169
+    model:
+    - c8742761-5fab-4a13-9134-1b1276defd0d
+    label: Year
+    default: null
+    expression: Interval(Publications.Date.Year, lo=2010, hi=2024, size=5)
+    precision: null
+    position: 1
+    ordering: null
+    source:
+    - 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
+- model: reportcraft.datafield
+  pk: 207
+  fields:
+    created: 2025-09-29 19:53:40.898148+00:00
+    modified: 2025-09-29 19:53:40.898157+00:00
+    name: num_pubs
+    code: 9c6cb935-baee-4f74-a2d1-f102dd350d7b
+    model:
+    - c8742761-5fab-4a13-9134-1b1276defd0d
+    label: Publications
+    default: 0
+    expression: Count(publications, distinct=True)
+    precision: null
+    position: 2
+    ordering: null
+    source:
+    - 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
 - model: reportcraft.report
   pk: 1
   fields:
     created: 2025-07-24 18:48:34.419000+00:00
     modified: 2025-09-11 14:29:27.613263+00:00
     slug: user-statistics
+    code: c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
     title: User Statistics
     description: Distribution of Users by Year
     theme: default
@@ -2269,6 +2788,7 @@
     created: 2025-07-24 20:07:41.546000+00:00
     modified: 2025-09-11 14:29:50.899601+00:00
     slug: publication-statistics
+    code: 1f80fa79-a7be-4ea8-91f8-c0c742d7d1ac
     title: Publication Statistics
     description: Summary of publication statistics for the whole organization
     theme: default
@@ -2280,6 +2800,7 @@
     created: 2025-08-10 05:20:10.388000+00:00
     modified: 2025-09-22 16:06:46.530454+00:00
     slug: proposal-statistics
+    code: f865841e-c763-4c17-8322-c496c34b73b0
     title: Global Proposal Statistics
     description: Statistics about proposals, submissions and reviews
     theme: default
@@ -2291,6 +2812,7 @@
     created: 2025-08-11 14:56:14.766000+00:00
     modified: 2025-09-11 14:29:10.569372+00:00
     slug: global-user-distribution
+    code: 4b40b2a1-df8d-4380-9dbe-cee428d9e5f5
     title: Global Distribution of Users
     description: This report presents the distribution of users and institutions globally
     theme: default
@@ -2302,6 +2824,7 @@
     created: 2025-08-16 19:07:22.839000+00:00
     modified: 2025-09-11 14:29:41.236096+00:00
     slug: project-statistics
+    code: 08000e53-6d99-4a9b-8619-728d427e3ef2
     title: Project Statistics
     description: Distribution of Projects and Researchers each cycle
     theme: default
@@ -2313,6 +2836,7 @@
     created: 2025-09-05 03:45:31.948000+00:00
     modified: 2025-09-11 14:30:29.555950+00:00
     slug: publications-by-subject-area
+    code: b3ec46b9-019e-4c9f-b492-7a1f3daab4fe
     title: Publications by Subject Area
     description: Report of yearly publication counts by field of science
     theme: default
@@ -2324,6 +2848,7 @@
     created: 2025-09-05 14:12:10.597000+00:00
     modified: 2025-09-05 14:12:17.911000+00:00
     slug: publication-metrics
+    code: 5996d492-550d-48dc-b30c-e8098f867374
     title: Publication Metrics
     description: Summary of yearly publication metrics
     theme: default
@@ -2335,6 +2860,7 @@
     created: 2025-09-05 17:40:16.223000+00:00
     modified: 2025-09-05 17:40:16.223000+00:00
     slug: facility-publication-quality-metrics
+    code: 444be024-5d9c-4c86-b134-91eec52b06b0
     title: Facility Publication Quality Metrics
     description: Publication quality metrics for each facility
     theme: default
@@ -2346,6 +2872,7 @@
     created: 2025-09-05 19:51:55.938000+00:00
     modified: 2025-09-11 14:42:08.388440+00:00
     slug: national-distribution-of-users
+    code: 2429b11c-7e04-4c35-a383-6f3b7aadec5f
     title: National Distribution of Users
     description: Distribution of users nationally
     theme: default
@@ -2357,6 +2884,7 @@
     created: 2025-09-07 19:37:23.297000+00:00
     modified: 2025-09-16 05:37:51.645416+00:00
     slug: user-feedback-report
+    code: 8511b8bf-cb02-484c-974d-444d201bf24a
     title: User Feedback Report
     description: User Feedback Reports
     theme: default
@@ -2368,6 +2896,7 @@
     created: 2025-09-22 16:10:20.519621+00:00
     modified: 2025-09-22 16:10:20.519633+00:00
     slug: national-proposal-statistics
+    code: e974b227-be2b-4785-807b-e9642865fe23
     title: National Proposal Statistics
     description: Distribution of historical proposals by national region
     theme: default
@@ -2379,6 +2908,7 @@
     created: 2025-09-22 16:24:25.031097+00:00
     modified: 2025-09-22 16:24:25.031110+00:00
     slug: proposals-by-cycle
+    code: ce6cbb3e-3168-49ee-9be6-00354882f825
     title: Proposals by Cycle
     description: Number of proposals submitted each cycle
     theme: default
@@ -2390,6 +2920,7 @@
     created: 2025-09-22 16:29:09.127082+00:00
     modified: 2025-09-22 16:29:23.299945+00:00
     slug: proposals-by-year
+    code: ee58c176-5e76-4b30-b8de-4f72c7b60548
     title: Proposals by Year
     description: Number of proposals submitted each year
     theme: default
@@ -2401,6 +2932,7 @@
     created: 2025-09-22 16:40:04.506027+00:00
     modified: 2025-09-22 16:41:10.997737+00:00
     slug: yearly-proposals-by-various
+    code: 15a6a29e-d782-43b8-99f8-e0e584f40d0a
     title: Yearly Distribution of Proposals
     description: Yearly distribution of proposals grouped by various attributes
     theme: default
@@ -2412,6 +2944,7 @@
     created: 2025-09-22 17:16:49.311055+00:00
     modified: 2025-09-22 17:16:49.311069+00:00
     slug: beamline-proposals
+    code: 58c34b2a-cccb-4196-b244-246bae7e4273
     title: Beamline Proposals
     description: Distribution of submitted proposals per beamline
     theme: default
@@ -2422,13 +2955,16 @@
   fields:
     created: 2025-07-24 19:59:44.215000+00:00
     modified: 2025-09-14 20:27:44.353761+00:00
+    code: b9dad8e0-8779-4bae-beb0-0142d683134b
     title: New Users Per Year
     description: ''
     notes: ''
     style: col-md-6
     kind: columns
-    source: 1
-    report: 1
+    source:
+    - 082f4022-e4af-4268-a730-b0da0e7197eb
+    report:
+    - c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
     position: 0
     filters: ''
     attrs:
@@ -2446,13 +2982,16 @@
   fields:
     created: 2025-07-24 20:03:40.451000+00:00
     modified: 2025-09-11 06:03:23.130173+00:00
+    code: 335cedb9-df5f-4968-bad3-b5bcbba90d2c
     title: User Types
     description: ''
     notes: ''
     style: col-md-6
     kind: donut
-    source: 2
-    report: 1
+    source:
+    - 29a5015d-afe1-4603-b6a9-dbe2709002d3
+    report:
+    - c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
     position: 1
     filters: ''
     attrs:
@@ -2464,13 +3003,16 @@
   fields:
     created: 2025-07-24 20:04:28.406000+00:00
     modified: 2025-07-24 20:05:14.805000+00:00
+    code: 12cae43d-1908-45e9-92f2-fbb2cc4a52c6
     title: Summary of Users by Year
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 1
-    report: 1
+    source:
+    - 082f4022-e4af-4268-a730-b0da0e7197eb
+    report:
+    - c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
     position: 2
     filters: ''
     attrs:
@@ -2487,13 +3029,16 @@
   fields:
     created: 2025-07-24 20:28:03.589000+00:00
     modified: 2025-09-05 17:45:11.683000+00:00
+    code: b624918d-6e5d-4c38-bdd8-ec03f8af09ac
     title: Overall Activity
     description: All Publications
     notes: ''
     style: col-md-12
     kind: table
-    source: 3
-    report: 2
+    source:
+    - f4c97022-ec9b-407a-a47e-f850e49aa73c
+    report:
+    - 1f80fa79-a7be-4ea8-91f8-c0c742d7d1ac
     position: 2
     filters: ''
     attrs:
@@ -2513,13 +3058,16 @@
   fields:
     created: 2025-07-24 20:30:34.858000+00:00
     modified: 2025-09-04 19:09:27.098000+00:00
+    code: e4da0312-6a7c-43d6-84d6-8c3852c90f01
     title: Publications by Year
     description: ''
     notes: ''
     style: col-md-6
     kind: columns
-    source: 3
-    report: 2
+    source:
+    - f4c97022-ec9b-407a-a47e-f850e49aa73c
+    report:
+    - 1f80fa79-a7be-4ea8-91f8-c0c742d7d1ac
     position: 0
     filters: ''
     attrs:
@@ -2537,13 +3085,16 @@
   fields:
     created: 2025-07-24 23:00:49.827000+00:00
     modified: 2025-09-04 19:09:38.622000+00:00
+    code: d53cb356-6c46-4f26-b545-906d54cf123a
     title: Publications by Type
     description: ''
     notes: ''
     style: col-md-6
     kind: pie
-    source: 6
-    report: 2
+    source:
+    - 89d241e8-aa40-4b75-8fc6-b4aea6dcfca8
+    report:
+    - 1f80fa79-a7be-4ea8-91f8-c0c742d7d1ac
     position: 1
     filters: ''
     attrs:
@@ -2555,13 +3106,16 @@
   fields:
     created: 2025-08-10 05:06:32.019000+00:00
     modified: 2025-09-05 19:47:29.335000+00:00
+    code: cd5a8500-074e-430b-b82e-14cfabbb7393
     title: User Types By Year
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 1
-    report: 1
+    source:
+    - 082f4022-e4af-4268-a730-b0da0e7197eb
+    report:
+    - c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
     position: 3
     filters: ''
     attrs:
@@ -2580,13 +3134,16 @@
   fields:
     created: 2025-08-11 15:12:51.823000+00:00
     modified: 2025-09-14 17:49:44.305196+00:00
+    code: 8a47b7af-0bfb-432a-94ff-a08abd06bb1e
     title: Global Distribution of Institutions
     description: ''
     notes: ''
     style: col-md-12
     kind: map
-    source: 9
-    report: 4
+    source:
+    - ce706ef0-ac99-4d7e-947b-567a1efdcb3f
+    report:
+    - 4b40b2a1-df8d-4380-9dbe-cee428d9e5f5
     position: 0
     filters: ''
     attrs:
@@ -2601,13 +3158,16 @@
   fields:
     created: 2025-08-11 15:14:57.049000+00:00
     modified: 2025-09-10 22:09:47.502337+00:00
+    code: bbafad47-006a-4f48-8f57-b945deb862a0
     title: Top 10 Countries by Number of Users
     description: ''
     notes: ''
     style: col-md-6
     kind: list
-    source: 9
-    report: 4
+    source:
+    - ce706ef0-ac99-4d7e-947b-567a1efdcb3f
+    report:
+    - 4b40b2a1-df8d-4380-9dbe-cee428d9e5f5
     position: 1
     filters: ''
     attrs:
@@ -2623,13 +3183,16 @@
   fields:
     created: 2025-08-11 15:15:36.852000+00:00
     modified: 2025-09-10 22:10:04.458026+00:00
+    code: 528b3b31-e2c2-4020-89fd-53784165980a
     title: Top 10 Countries by Number of Institutions
     description: ''
     notes: ''
     style: col-md-6
     kind: list
-    source: 9
-    report: 4
+    source:
+    - ce706ef0-ac99-4d7e-947b-567a1efdcb3f
+    report:
+    - 4b40b2a1-df8d-4380-9dbe-cee428d9e5f5
     position: 2
     filters: ''
     attrs:
@@ -2645,13 +3208,16 @@
   fields:
     created: 2025-08-17 03:47:54.828000+00:00
     modified: 2025-09-22 18:13:11.817273+00:00
+    code: 5deb33b7-f688-4f3d-9bd7-2ef1e706ea91
     title: Projects by Year
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 12
-    report: 5
+    source:
+    - affca4ce-8159-4ff5-a23d-ec0daef5ba37
+    report:
+    - 08000e53-6d99-4a9b-8619-728d427e3ef2
     position: 3
     filters: ''
     attrs:
@@ -2671,13 +3237,16 @@
   fields:
     created: 2025-08-17 03:56:24.190000+00:00
     modified: 2025-09-22 16:07:32.422979+00:00
+    code: 000981ba-ea16-4fbe-8d83-945f546342dd
     title: Global Distribution of All Proposals
     description: ''
     notes: ''
     style: col-md-12
     kind: map
-    source: 10
-    report: 3
+    source:
+    - 740a46e0-56a6-480e-9aa3-e1688f6b3d45
+    report:
+    - f865841e-c763-4c17-8322-c496c34b73b0
     position: 0
     filters: ''
     attrs:
@@ -2692,13 +3261,16 @@
   fields:
     created: 2025-09-04 21:30:41.048000+00:00
     modified: 2025-09-22 16:08:04.921803+00:00
+    code: 4fab6cee-a786-499b-ba68-ab71d112b06b
     title: Top 10 Countries by Proposals
     description: ''
     notes: ''
     style: col-md-12
     kind: list
-    source: 10
-    report: 3
+    source:
+    - 740a46e0-56a6-480e-9aa3-e1688f6b3d45
+    report:
+    - f865841e-c763-4c17-8322-c496c34b73b0
     position: 1
     filters: ''
     attrs:
@@ -2712,16 +3284,19 @@
   pk: 22
   fields:
     created: 2025-09-05 03:45:58.953000+00:00
-    modified: 2025-09-11 05:26:13.775962+00:00
+    modified: 2025-09-29 20:29:04.868453+00:00
+    code: 8fb3d79c-360e-41da-a23f-d5d27c35c261
     title: Publications by Subject Area
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 13
-    report: 6
-    position: 2
-    filters: ''
+    source:
+    - c44875ed-f815-4ba0-953b-9964e2279845
+    report:
+    - b3ec46b9-019e-4c9f-b492-7a1f3daab4fe
+    position: 5
+    filters: Year > 2005
     attrs:
       rows:
       - topic
@@ -2738,46 +3313,55 @@
   pk: 23
   fields:
     created: 2025-09-05 04:13:34.913000+00:00
-    modified: 2025-09-16 03:35:24.328613+00:00
-    title: Yearly Publications by Topic
-    description: ''
-    notes: ''
-    style: col-md-6
-    kind: plot
-    source: 13
-    report: 6
-    position: 0
-    filters: ''
-    attrs:
-      groups:
-      - y: num_pubs
-        type: area
-      scheme: Live8
-      x_scale: linear
-      x_value: year
-      y_scale: linear
-      group_by: topic
-- model: reportcraft.entry
-  pk: 24
-  fields:
-    created: 2025-09-05 13:22:23.707000+00:00
-    modified: 2025-09-14 20:20:27.741073+00:00
-    title: Yearly Publications by Topic
+    modified: 2025-09-29 20:29:04.868451+00:00
+    code: 89953ed4-f9f2-4f44-86a7-d5f1e34feef3
+    title: Proportion of Yearly Publications by Topic
     description: ''
     notes: ''
     style: col-md-6
     kind: columns
-    source: 13
-    report: 6
+    source:
+    - c44875ed-f815-4ba0-953b-9964e2279845
+    report:
+    - b3ec46b9-019e-4c9f-b492-7a1f3daab4fe
     position: 1
-    filters: ''
+    filters: Year > 2005
     attrs:
       scale: linear
-      scheme: Oranges
+      scheme: Live8
       values:
       - num_pubs
       grouped: false
       color_by: topic
+      normalize: true
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 24
+  fields:
+    created: 2025-09-05 13:22:23.707000+00:00
+    modified: 2025-09-29 20:29:04.868452+00:00
+    code: 70fe0c00-91dd-46e5-b1e0-1f41450e5aaf
+    title: Yearly Publications by Focus Area
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: columns
+    source:
+    - 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
+    report:
+    - b3ec46b9-019e-4c9f-b492-7a1f3daab4fe
+    position: 2
+    filters: ''
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - num_pubs
+      grouped: true
+      color_by: topic
+      normalize: false
       sort_desc: false
       categories: year
       ticks_every: 1
@@ -2786,6 +3370,7 @@
   fields:
     created: 2025-09-05 14:21:08.122000+00:00
     modified: 2025-09-05 17:24:27.333000+00:00
+    code: 3a758b33-934e-4717-9cb0-a89b5e15d419
     title: Publication Metrics By Year
     description: ''
     notes: Citations are based on the OpenCitations (https://opencitations.net). Media
@@ -2793,8 +3378,10 @@
       Journal metrics are obtained from SciMago (https://www.scimagojr.com/journalrank.php)
     style: col-md-12
     kind: table
-    source: 4
-    report: 7
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
+    report:
+    - 5996d492-550d-48dc-b30c-e8098f867374
     position: 4
     filters: ''
     attrs:
@@ -2822,13 +3409,16 @@
   fields:
     created: 2025-09-05 15:55:09.809000+00:00
     modified: 2025-09-05 17:24:27.333000+00:00
+    code: 856758c5-98c8-4bb6-b717-98b5865bc924
     title: Cumulative Publications
     description: ''
     notes: ''
     style: col-md-6
     kind: plot
-    source: 14
-    report: 7
+    source:
+    - 2b336573-e3ee-44bd-8d89-7f68cb471c53
+    report:
+    - 5996d492-550d-48dc-b30c-e8098f867374
     position: 0
     filters: ''
     attrs:
@@ -2844,13 +3434,16 @@
   fields:
     created: 2025-09-05 16:03:15.689000+00:00
     modified: 2025-09-05 17:24:27.333000+00:00
+    code: 632b8dc9-5f62-44e8-8536-fa67ccfcce50
     title: Cumulative Citations
     description: ''
     notes: ''
     style: col-md-6
     kind: plot
-    source: 15
-    report: 7
+    source:
+    - e2247363-043a-44aa-97f1-e75eea7f7546
+    report:
+    - 5996d492-550d-48dc-b30c-e8098f867374
     position: 1
     filters: ''
     attrs:
@@ -2868,13 +3461,16 @@
   fields:
     created: 2025-09-05 17:21:12.452000+00:00
     modified: 2025-09-05 17:24:27.333000+00:00
+    code: 275ea916-f1fa-4998-8189-899140b5c885
     title: Yearly Citation Counts
     description: ''
     notes: ''
     style: col-md-6
     kind: plot
-    source: 4
-    report: 7
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
+    report:
+    - 5996d492-550d-48dc-b30c-e8098f867374
     position: 2
     filters: ''
     attrs:
@@ -2892,13 +3488,16 @@
   fields:
     created: 2025-09-05 17:24:16.767000+00:00
     modified: 2025-09-05 17:26:20.718000+00:00
+    code: e7c9eae0-cb95-49e3-a07c-40f2f079e9c7
     title: Journal Quality Metrics
     description: ''
     notes: ''
     style: col-md-6
     kind: plot
-    source: 4
-    report: 7
+    source:
+    - 928e1a22-5afd-47dd-904e-e5104c2b7c66
+    report:
+    - 5996d492-550d-48dc-b30c-e8098f867374
     position: 3
     filters: ''
     attrs:
@@ -2920,13 +3519,16 @@
   fields:
     created: 2025-09-05 17:40:57.519000+00:00
     modified: 2025-09-05 17:58:03.046000+00:00
+    code: fb88e079-907e-4447-a7f8-3430f6d77a93
     title: Quality Metrics Per Facility
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 7
-    report: 8
+    source:
+    - b2d4c793-186e-426e-b763-04539c3abcef
+    report:
+    - 444be024-5d9c-4c86-b134-91eec52b06b0
     position: 0
     filters: ''
     attrs:
@@ -2952,13 +3554,16 @@
   fields:
     created: 2025-09-05 17:42:44.794000+00:00
     modified: 2025-09-05 18:04:39.069000+00:00
+    code: 769dd780-ef16-489d-bf5a-21193308b5b1
     title: Top 10 Publications By Citation
     description: ''
     notes: ''
     style: col-md-12
     kind: list
-    source: 5
-    report: 8
+    source:
+    - 066132cd-cf55-43cd-80a9-3dd78a9c54ae
+    report:
+    - 444be024-5d9c-4c86-b134-91eec52b06b0
     position: 1
     filters: ''
     attrs:
@@ -2974,13 +3579,16 @@
   fields:
     created: 2025-09-05 17:43:19.681000+00:00
     modified: 2025-09-05 18:04:44.106000+00:00
+    code: 5f452a6b-6a4e-467c-8929-83492eca170a
     title: Top 10 Publications by Media Mentions
     description: ''
     notes: ''
     style: col-md-12
     kind: list
-    source: 5
-    report: 8
+    source:
+    - 066132cd-cf55-43cd-80a9-3dd78a9c54ae
+    report:
+    - 444be024-5d9c-4c86-b134-91eec52b06b0
     position: 2
     filters: ''
     attrs:
@@ -2996,13 +3604,16 @@
   fields:
     created: 2025-09-05 19:57:50.789000+00:00
     modified: 2025-09-14 17:49:06.097408+00:00
+    code: a7c23cb7-8efe-438b-af93-5b37137dfab0
     title: Number of Users in each Region
     description: ''
     notes: ''
     style: col-md-12
     kind: map
-    source: 17
-    report: 9
+    source:
+    - b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
+    report:
+    - 2429b11c-7e04-4c35-a383-6f3b7aadec5f
     position: 0
     filters: ''
     attrs:
@@ -3018,13 +3629,16 @@
   fields:
     created: 2025-09-10 05:58:08.515098+00:00
     modified: 2025-09-16 05:33:45.205223+00:00
+    code: abed5829-84dd-4e8e-a762-a5dc2d04966a
     title: Chart of Feedback Ratings
     description: ''
     notes: ''
     style: col-md-6
     kind: likert
-    source: 18
-    report: 10
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 2
     filters: (section == "Administration")
     attrs:
@@ -3038,13 +3652,16 @@
   fields:
     created: 2025-09-10 17:04:11.058286+00:00
     modified: 2025-09-10 17:05:05.353932+00:00
+    code: 3e54474f-be43-48ab-b99c-31843e05278d
     title: National Distribution of Users
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 17
-    report: 9
+    source:
+    - b1e9b965-5c37-47a0-a4b8-eb7a7a41a003
+    report:
+    - 2429b11c-7e04-4c35-a383-6f3b7aadec5f
     position: 1
     filters: ''
     attrs:
@@ -3063,13 +3680,16 @@
   fields:
     created: 2025-09-12 04:46:21.803172+00:00
     modified: 2025-09-16 05:33:45.205235+00:00
+    code: 30a1a44b-7fff-4f8e-9e65-bb4de88763e7
     title: Beamline
     description: ''
     notes: ''
     style: col-md-6
     kind: likert
-    source: 18
-    report: 10
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 4
     filters: (section == "Beamline")
     attrs:
@@ -3083,13 +3703,16 @@
   fields:
     created: 2025-09-12 04:49:19.589811+00:00
     modified: 2025-09-16 05:33:45.205242+00:00
+    code: 5d066f3d-7191-4c86-af41-d9b99b216602
     title: Machine
     description: ''
     notes: ''
     style: col-md-6
     kind: likert
-    source: 18
-    report: 10
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 6
     filters: (section == "Machine")
     attrs:
@@ -3103,13 +3726,16 @@
   fields:
     created: 2025-09-12 04:50:02.099044+00:00
     modified: 2025-09-16 05:33:45.205249+00:00
+    code: 58c7682c-8f02-429c-9cbc-547e4b8eb321
     title: ''
     description: ''
     notes: ''
     style: col-md-6
     kind: likert
-    source: 18
-    report: 10
+    source:
+    - 109266b2-01ab-471f-888d-cfa7e2689e38
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 8
     filters: (section == "Amenities")
     attrs:
@@ -3123,13 +3749,16 @@
   fields:
     created: 2025-09-14 19:59:19.635358+00:00
     modified: 2025-09-16 05:35:17.474198+00:00
+    code: 4f63330c-c259-4c6a-a926-458b056c1bd4
     title: Average Score
     description: ''
     notes: ''
     style: col-md-6
     kind: bars
-    source: 19
-    report: 10
+    source:
+    - 2bb5f69e-4e0a-4efd-8f8e-2688b924e2dd
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 3
     filters: section == "Administration"
     attrs:
@@ -3149,13 +3778,16 @@
   fields:
     created: 2025-09-14 20:48:50.439951+00:00
     modified: 2025-09-16 05:35:10.951023+00:00
+    code: 84bde069-88e5-4053-8a16-40b899a95f89
     title: Average Beamline Scores
     description: ''
     notes: ''
     style: col-md-6
     kind: bars
-    source: 19
-    report: 10
+    source:
+    - 2bb5f69e-4e0a-4efd-8f8e-2688b924e2dd
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 5
     filters: section == "Beamline"
     attrs:
@@ -3175,13 +3807,16 @@
   fields:
     created: 2025-09-14 20:50:54.411712+00:00
     modified: 2025-09-16 05:35:28.776865+00:00
+    code: afba59d9-bd9c-42f4-b652-818cc2ff0c7e
     title: Average Machine Scores
     description: ''
     notes: ''
     style: col-md-6
     kind: bars
-    source: 19
-    report: 10
+    source:
+    - 2bb5f69e-4e0a-4efd-8f8e-2688b924e2dd
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 7
     filters: section == "Machine"
     attrs:
@@ -3201,13 +3836,16 @@
   fields:
     created: 2025-09-14 20:55:15.497567+00:00
     modified: 2025-09-16 05:35:40.274243+00:00
+    code: 879927f7-b747-41c5-9b99-733e1ac0a00c
     title: Average Amenities Score
     description: ''
     notes: ''
     style: col-md-6
     kind: bars
-    source: 19
-    report: 10
+    source:
+    - 2bb5f69e-4e0a-4efd-8f8e-2688b924e2dd
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 9
     filters: section = "Amenities"
     attrs:
@@ -3227,13 +3865,16 @@
   fields:
     created: 2025-09-16 05:28:29.465061+00:00
     modified: 2025-09-16 19:28:14.295227+00:00
+    code: b3e4b5b1-9686-4924-ab29-a1b03f2c1d92
     title: Feedback Summary By Cycle
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 20
-    report: 10
+    source:
+    - c12efc5e-bde2-408f-a760-1983b59b4062
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 0
     filters: ''
     attrs:
@@ -3253,13 +3894,16 @@
   fields:
     created: 2025-09-16 05:32:53.970077+00:00
     modified: 2025-09-16 19:29:08.199711+00:00
+    code: bc50c063-1c90-4624-b8ad-bdd5fb18b699
     title: Feedback Scores by Cycle
     description: ''
     notes: ''
     style: col-md-12
     kind: bars
-    source: 20
-    report: 10
+    source:
+    - c12efc5e-bde2-408f-a760-1983b59b4062
+    report:
+    - 8511b8bf-cb02-484c-974d-444d201bf24a
     position: 1
     filters: age <= 2
     attrs:
@@ -3280,13 +3924,16 @@
   fields:
     created: 2025-09-22 16:16:06.771645+00:00
     modified: 2025-09-22 16:17:59.337501+00:00
+    code: a8d1dee4-62ce-4b2d-85e6-966a2af8cadb
     title: Global Distribution of All Proposals
     description: ''
     notes: ''
     style: col-md-12
     kind: map
-    source: 23
-    report: 11
+    source:
+    - bcab37b5-04c8-4986-afeb-f5d319f50a8e
+    report:
+    - e974b227-be2b-4785-807b-e9642865fe23
     position: 0
     filters: ''
     attrs:
@@ -3302,13 +3949,16 @@
   fields:
     created: 2025-09-22 16:18:40.468096+00:00
     modified: 2025-09-22 16:20:39.054847+00:00
+    code: b9786d28-fcce-4294-8a70-8e107cf5df2f
     title: Number of Proposals by Region
     description: ''
     notes: ''
     style: col-md-12
     kind: list
-    source: 23
-    report: 11
+    source:
+    - bcab37b5-04c8-4986-afeb-f5d319f50a8e
+    report:
+    - e974b227-be2b-4785-807b-e9642865fe23
     position: 1
     filters: Country == "CAN"
     attrs:
@@ -3322,13 +3972,16 @@
   fields:
     created: 2025-09-22 16:24:41.269429+00:00
     modified: 2025-09-22 16:24:48.522589+00:00
+    code: c233bb08-419b-4ff7-aaa4-be1d9802765e
     title: Proposal Statistics by Cycle
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 8
-    report: 12
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
+    report:
+    - ce6cbb3e-3168-49ee-9be6-00354882f825
     position: 2
     filters: ''
     attrs:
@@ -3350,13 +4003,16 @@
   fields:
     created: 2025-09-22 16:25:59.533740+00:00
     modified: 2025-09-22 16:28:14.173735+00:00
+    code: c2b62f06-7735-4179-a817-2622cc9a4b61
     title: Number of Proposals and Users per Cycle
     description: ''
     notes: ''
     style: col-md-12
     kind: columns
-    source: 8
-    report: 12
+    source:
+    - 2828db4e-3a5b-4abe-88f4-e5375421c9c7
+    report:
+    - ce6cbb3e-3168-49ee-9be6-00354882f825
     position: 1
     filters: ''
     attrs:
@@ -3375,13 +4031,16 @@
   fields:
     created: 2025-09-22 16:29:09.156444+00:00
     modified: 2025-09-22 16:36:25.672044+00:00
+    code: e6db9f04-b68e-48e4-b844-1809758f0cbc
     title: Number of Proposals and Users per Cycle
     description: ''
     notes: ''
     style: col-md-12
     kind: columns
-    source: 24
-    report: 13
+    source:
+    - b0dd5e3d-542c-40b1-8d23-19eaee864ed9
+    report:
+    - ee58c176-5e76-4b30-b8de-4f72c7b60548
     position: 1
     filters: ''
     attrs:
@@ -3400,13 +4059,16 @@
   fields:
     created: 2025-09-22 16:29:09.165475+00:00
     modified: 2025-09-22 16:35:36.312969+00:00
+    code: 3a0b290c-1147-4836-b75c-cb5b941546d8
     title: Proposal Statistics by Cycle
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 24
-    report: 13
+    source:
+    - b0dd5e3d-542c-40b1-8d23-19eaee864ed9
+    report:
+    - ee58c176-5e76-4b30-b8de-4f72c7b60548
     position: 2
     filters: ''
     attrs:
@@ -3427,13 +4089,16 @@
   fields:
     created: 2025-09-22 16:41:39.075856+00:00
     modified: 2025-09-22 16:45:54.154824+00:00
+    code: 94a322cb-5616-4d4b-a89d-4d02c1c7712c
     title: Proportion of Submissions by Cycle and Track
     description: ''
     notes: ''
     style: col-md-6
     kind: columns
-    source: 25
-    report: 14
+    source:
+    - 830b242b-a98f-4f20-8e9f-b47d2de1dde0
+    report:
+    - 15a6a29e-d782-43b8-99f8-e0e584f40d0a
     position: 1
     filters: ''
     attrs:
@@ -3452,13 +4117,16 @@
   fields:
     created: 2025-09-22 16:45:02.274940+00:00
     modified: 2025-09-22 16:45:40.299241+00:00
+    code: f406d215-a2b9-409a-96f2-919ca8263329
     title: Submissions by Cycle and Track
     description: ''
     notes: ''
     style: col-md-6
     kind: columns
-    source: 25
-    report: 14
+    source:
+    - 830b242b-a98f-4f20-8e9f-b47d2de1dde0
+    report:
+    - 15a6a29e-d782-43b8-99f8-e0e584f40d0a
     position: 0
     filters: ''
     attrs:
@@ -3477,13 +4145,16 @@
   fields:
     created: 2025-09-22 17:17:06.159806+00:00
     modified: 2025-09-22 17:20:50.190749+00:00
+    code: d508749b-9f6a-4974-adc1-f665bfd61751
     title: Total Proposals per Cycle and Facility
     description: ''
     notes: ''
     style: col-md-12
     kind: table
-    source: 16
-    report: 15
+    source:
+    - 9e8e910a-716e-42d3-8c8d-40e85e709942
+    report:
+    - 58c34b2a-cccb-4196-b244-246bae7e4273
     position: 5
     filters: ''
     attrs:
@@ -3503,13 +4174,16 @@
   fields:
     created: 2025-09-22 17:52:57.568097+00:00
     modified: 2025-09-22 18:13:11.817268+00:00
+    code: e108d58c-89cc-4883-921d-b74004b66a87
     title: Projects Per Year by Access
     description: ''
     notes: ''
     style: col-md-6
     kind: plot
-    source: 12
-    report: 5
+    source:
+    - affca4ce-8159-4ff5-a23d-ec0daef5ba37
+    report:
+    - 08000e53-6d99-4a9b-8619-728d427e3ef2
     position: 0
     filters: ''
     attrs:
@@ -3526,13 +4200,16 @@
   fields:
     created: 2025-09-22 18:12:13.514328+00:00
     modified: 2025-09-22 18:13:26.112760+00:00
+    code: 4937b200-e851-4475-9b17-ee2c7af66156
     title: Proportion of Project Pools per Year
     description: ''
     notes: ''
     style: col-md-6
     kind: columns
-    source: 12
-    report: 5
+    source:
+    - affca4ce-8159-4ff5-a23d-ec0daef5ba37
+    report:
+    - 08000e53-6d99-4a9b-8619-728d427e3ef2
     position: 1
     filters: ''
     attrs:
@@ -3546,3 +4223,88 @@
       sort_desc: false
       categories: year
       ticks_every: 2
+- model: reportcraft.entry
+  pk: 64
+  fields:
+    created: 2025-09-29 20:17:56.074879+00:00
+    modified: 2025-09-29 20:29:04.868448+00:00
+    code: 41b2632f-4beb-49bb-b535-fff3d49baefa
+    title: Yearly Publications by Topic
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: columns
+    source:
+    - c44875ed-f815-4ba0-953b-9964e2279845
+    report:
+    - b3ec46b9-019e-4c9f-b492-7a1f3daab4fe
+    position: 0
+    filters: Year > 2005
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - num_pubs
+      grouped: false
+      color_by: topic
+      normalize: false
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 65
+  fields:
+    created: 2025-09-29 20:24:26.921068+00:00
+    modified: 2025-09-29 20:29:04.868452+00:00
+    code: 64e44def-5bfb-40c8-a28e-eaa9f43cfaa4
+    title: Proportion of Yearly Publications by Focus Area
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: columns
+    source:
+    - 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
+    report:
+    - b3ec46b9-019e-4c9f-b492-7a1f3daab4fe
+    position: 3
+    filters: ''
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - num_pubs
+      grouped: false
+      color_by: topic
+      normalize: true
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 66
+  fields:
+    created: 2025-09-29 20:27:44.024194+00:00
+    modified: 2025-09-29 20:29:04.868453+00:00
+    code: 4aedff26-3a2d-4351-a578-58651b18984b
+    title: Publications by Strategic Focus Area
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source:
+    - 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
+    report:
+    - b3ec46b9-019e-4c9f-b492-7a1f3daab4fe
+    position: 4
+    filters: ''
+    attrs:
+      rows:
+      - topic
+      values: num_pubs
+      columns: year
+      max_cols: 13
+      total_row: false
+      transpose: false
+      flip_headers: false
+      total_column: false
+      wrap_headers: false
+      force_strings: false
