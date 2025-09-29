@@ -41,22 +41,56 @@
     modified: 2016-08-04 21:44:36+00:00
     name: Mail-In
     description: For publications resulting from work done by staff on behalf of users
+- model: publications.focusarea
+  pk: 1
+  fields:
+    created: 2025-09-29 19:13:14.680013+00:00
+    modified: 2025-09-29 19:13:14.680013+00:00
+    name: Health
+    description: Research includes drug development, disease detection, and understanding
+      human biology.
+- model: publications.focusarea
+  pk: 2
+  fields:
+    created: 2025-09-29 19:13:29.625601+00:00
+    modified: 2025-09-29 19:13:29.625601+00:00
+    name: Agriculture
+    description: Focuses on improving crop varieties for better nutrition and climate
+      resistance, and enhancing food security.
+- model: publications.focusarea
+  pk: 3
+  fields:
+    created: 2025-09-29 19:13:48.624972+00:00
+    modified: 2025-09-29 19:13:48.624972+00:00
+    name: Environment
+    description: Addresses global challenges like climate change by studying its effects
+      and developing solutions, such as cleaning up pollutants and tackling oil spills.
+- model: publications.focusarea
+  pk: 4
+  fields:
+    created: 2025-09-29 19:14:06.951639+00:00
+    modified: 2025-09-29 19:14:06.951639+00:00
+    name: Advanced Materials
+    description: Supports innovation in materials science for a wide range of technologies,
+      from electronics to green energy solutions and clean tech.
 - model: publications.subjectarea
   pk: 1
   fields:
     created: 2015-02-05 21:53:26+00:00
-    modified: 2017-01-16 18:25:43.727166+00:00
+    modified: 2025-09-29 19:29:02.019594+00:00
     name: Physical & Chemical Sciences
     code: 100
     category: null
+    focus_area: 4
 - model: publications.subjectarea
   pk: 2
   fields:
     created: 2015-02-05 21:53:46+00:00
-    modified: 2017-01-16 03:19:10.262812+00:00
+    modified: 2025-09-29 19:28:26.243193+00:00
     name: Engineering & Technology
     code: 200
     category: null
+    focus_area: 4
 - model: publications.subjectarea
   pk: 3
   fields:
@@ -65,6 +99,7 @@
     name: Medical & Health Sciences
     code: 300
     category: null
+    focus_area: 1
 - model: publications.subjectarea
   pk: 4
   fields:
@@ -73,6 +108,7 @@
     name: Agricultural, Veterinary & Food Sciences
     code: 400
     category: null
+    focus_area: 2
 - model: publications.subjectarea
   pk: 5
   fields:
@@ -81,6 +117,7 @@
     name: Earth & Environmental Sciences
     code: 500
     category: null
+    focus_area: 3
 - model: publications.subjectarea
   pk: 6
   fields:
@@ -89,6 +126,7 @@
     name: Biological Sciences
     code: 600
     category: null
+    focus_area: 1
 - model: publications.subjectarea
   pk: 7
   fields:
@@ -97,14 +135,16 @@
     name: Social Sciences & Humanities
     code: 700
     category: null
+    focus_area: null
 - model: publications.subjectarea
   pk: 11
   fields:
     created: 2015-10-01 13:52:37+00:00
-    modified: 2017-01-16 03:37:24.784184+00:00
+    modified: 2025-09-29 19:29:13.383587+00:00
     name: Physical Sciences
     code: 130
     category: 1
+    focus_area: 4
 - model: publications.subjectarea
   pk: 15
   fields:
@@ -113,6 +153,7 @@
     name: Other Natural Sciences
     code: 170
     category: 1
+    focus_area: null
 - model: publications.subjectarea
   pk: 20
   fields:
@@ -121,6 +162,7 @@
     name: Chemical Sciences
     code: 140
     category: 1
+    focus_area: null
 - model: publications.subjectarea
   pk: 22
   fields:
@@ -129,6 +171,7 @@
     name: Atmospheric Sciences
     code: 510
     category: 5
+    focus_area: 3
 - model: publications.subjectarea
   pk: 24
   fields:
@@ -137,6 +180,7 @@
     name: Geological Sciences
     code: 540
     category: 5
+    focus_area: 3
 - model: publications.subjectarea
   pk: 26
   fields:
@@ -145,6 +189,7 @@
     name: Hydrology & Oceanography
     code: 530
     category: 5
+    focus_area: 3
 - model: publications.subjectarea
   pk: 27
   fields:
@@ -153,6 +198,7 @@
     name: Geography
     code: 550
     category: 5
+    focus_area: 3
 - model: publications.subjectarea
   pk: 28
   fields:
@@ -161,6 +207,7 @@
     name: Soil Sciences
     code: 560
     category: 5
+    focus_area: 3
 - model: publications.subjectarea
   pk: 30
   fields:
@@ -169,14 +216,16 @@
     name: Environmental Sciences
     code: 520
     category: 5
+    focus_area: 3
 - model: publications.subjectarea
   pk: 32
   fields:
     created: 2015-10-01 13:52:39+00:00
-    modified: 2017-01-16 18:23:34.167156+00:00
+    modified: 2025-09-29 19:25:09.782966+00:00
     name: Zoology
     code: 660
     category: 6
+    focus_area: 2
 - model: publications.subjectarea
   pk: 33
   fields:
@@ -185,14 +234,16 @@
     name: Other Agricultural Sciences
     code: 460
     category: 4
+    focus_area: 2
 - model: publications.subjectarea
   pk: 35
   fields:
     created: 2015-10-01 13:52:39+00:00
-    modified: 2017-01-16 04:35:44.281457+00:00
+    modified: 2025-09-29 19:25:01.265509+00:00
     name: Veterinary Sciences
     code: 430
     category: 4
+    focus_area: 2
 - model: publications.subjectarea
   pk: 38
   fields:
@@ -201,6 +252,7 @@
     name: Agriculture, Forestry & Fisheries
     code: 410
     category: 4
+    focus_area: 2
 - model: publications.subjectarea
   pk: 40
   fields:
@@ -209,6 +261,7 @@
     name: Animal & Dairy Science
     code: 420
     category: 4
+    focus_area: 2
 - model: publications.subjectarea
   pk: 41
   fields:
@@ -217,6 +270,7 @@
     name: Cell & Molecular Biology
     code: 610
     category: 6
+    focus_area: 1
 - model: publications.subjectarea
   pk: 42
   fields:
@@ -225,6 +279,7 @@
     name: Ecological Sciences
     code: 570
     category: 5
+    focus_area: 3
 - model: publications.subjectarea
   pk: 43
   fields:
@@ -233,6 +288,7 @@
     name: Biochemistry & Biophysics
     code: 630
     category: 6
+    focus_area: 1
 - model: publications.subjectarea
   pk: 44
   fields:
@@ -241,6 +297,7 @@
     name: Genetics & Evolutionary Biology
     code: 640
     category: 6
+    focus_area: 1
 - model: publications.subjectarea
   pk: 45
   fields:
@@ -249,14 +306,16 @@
     name: Microbiology
     code: 620
     category: 6
+    focus_area: 1
 - model: publications.subjectarea
   pk: 46
   fields:
     created: 2015-10-01 13:52:40+00:00
-    modified: 2017-01-16 18:27:23.653159+00:00
+    modified: 2025-09-29 19:24:52.589192+00:00
     name: Plant Biology
     code: 650
     category: 6
+    focus_area: 2
 - model: publications.subjectarea
   pk: 47
   fields:
@@ -265,6 +324,7 @@
     name: Other Earth Sciences
     code: 580
     category: 5
+    focus_area: 3
 - model: publications.subjectarea
   pk: 53
   fields:
@@ -273,6 +333,7 @@
     name: Computer & Information Sciences
     code: 120
     category: 1
+    focus_area: null
 - model: publications.subjectarea
   pk: 56
   fields:
@@ -281,6 +342,7 @@
     name: Mathematical Sciences
     code: 110
     category: 1
+    focus_area: null
 - model: publications.subjectarea
   pk: 60
   fields:
@@ -289,6 +351,7 @@
     name: Biomedical Engineering
     code: 260
     category: 2
+    focus_area: 1
 - model: publications.subjectarea
   pk: 61
   fields:
@@ -297,6 +360,7 @@
     name: Chemical Engineering
     code: 240
     category: 2
+    focus_area: null
 - model: publications.subjectarea
   pk: 62
   fields:
@@ -305,14 +369,16 @@
     name: Civil Engineering
     code: 210
     category: 2
+    focus_area: null
 - model: publications.subjectarea
   pk: 63
   fields:
     created: 2015-10-01 13:52:42+00:00
-    modified: 2017-01-16 05:00:00.493485+00:00
+    modified: 2025-09-29 19:28:13.932675+00:00
     name: Electrical and Electronic Engineering
     code: 220
     category: 2
+    focus_area: 4
 - model: publications.subjectarea
   pk: 64
   fields:
@@ -321,14 +387,16 @@
     name: Environmental Engineering & Biotechnology
     code: 270
     category: 2
+    focus_area: 3
 - model: publications.subjectarea
   pk: 65
   fields:
     created: 2015-10-01 13:52:42+00:00
-    modified: 2017-01-16 04:36:25.117250+00:00
+    modified: 2025-09-29 19:26:16.150597+00:00
     name: Food Science and Technology
     code: 450
     category: 4
+    focus_area: 2
 - model: publications.subjectarea
   pk: 69
   fields:
@@ -337,6 +405,7 @@
     name: Materials Engineering
     code: 250
     category: 2
+    focus_area: 4
 - model: publications.subjectarea
   pk: 70
   fields:
@@ -345,6 +414,7 @@
     name: Mechanical Engineering
     code: 230
     category: 2
+    focus_area: null
 - model: publications.subjectarea
   pk: 74
   fields:
@@ -353,22 +423,25 @@
     name: Agricultural Biotechnology
     code: 440
     category: 4
+    focus_area: 2
 - model: publications.subjectarea
   pk: 76
   fields:
     created: 2015-10-01 13:52:43+00:00
-    modified: 2017-01-16 05:02:37.771565+00:00
+    modified: 2025-09-29 19:28:49.420890+00:00
     name: Industrial Biotechnology
     code: 280
     category: 2
+    focus_area: 2
 - model: publications.subjectarea
   pk: 80
   fields:
     created: 2015-10-01 13:52:43+00:00
-    modified: 2017-01-16 05:03:06.253163+00:00
+    modified: 2025-09-29 19:26:55.816537+00:00
     name: Nanotechnology
     code: 290
     category: 2
+    focus_area: 4
 - model: publications.subjectarea
   pk: 81
   fields:
@@ -377,6 +450,7 @@
     name: Embryology
     code: 350
     category: 3
+    focus_area: 1
 - model: publications.subjectarea
   pk: 83
   fields:
@@ -385,6 +459,7 @@
     name: Clinical Sciences
     code: 320
     category: 3
+    focus_area: 1
 - model: publications.subjectarea
   pk: 87
   fields:
@@ -393,6 +468,7 @@
     name: Immunology
     code: 370
     category: 3
+    focus_area: 1
 - model: publications.subjectarea
   pk: 91
   fields:
@@ -401,14 +477,16 @@
     name: Nutrition and Dietetics
     code: 330
     category: 3
+    focus_area: 1
 - model: publications.subjectarea
   pk: 92
   fields:
     created: 2015-10-01 13:52:44+00:00
     modified: 2017-01-16 05:25:22.424065+00:00
-    name: Epidemeology & Public Health
+    name: Epidemiology & Public Health
     code: 380
     category: 3
+    focus_area: 1
 - model: publications.subjectarea
   pk: 95
   fields:
@@ -417,6 +495,7 @@
     name: Pharmaceutical Sciences
     code: 340
     category: 3
+    focus_area: 1
 - model: publications.subjectarea
   pk: 96
   fields:
@@ -425,6 +504,7 @@
     name: Anatomy, Physiology and Pathology
     code: 310
     category: 3
+    focus_area: 1
 - model: publications.subjectarea
   pk: 99
   fields:
@@ -433,6 +513,7 @@
     name: Neuroscience
     code: 390
     category: 3
+    focus_area: 1
 - model: publications.subjectarea
   pk: 100
   fields:
@@ -441,6 +522,7 @@
     name: Other Biological Sciences
     code: 680
     category: 6
+    focus_area: 1
 - model: publications.subjectarea
   pk: 101
   fields:
@@ -449,3 +531,4 @@
     name: Materials Sciences
     code: 150
     category: 1
+    focus_area: 4
