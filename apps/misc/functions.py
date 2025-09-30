@@ -9,6 +9,7 @@ from django.db.models import Value, F
 class Hours(models.Func):
     function = 'HOUR'
     template = '%(function)s(%(expressions)s)'
+    output_field = models.FloatField()
 
     def as_postgresql(self, compiler, connection):
         self.arg_joiner = " - "
@@ -19,6 +20,7 @@ class Hours(models.Func):
 class Shifts(models.Func):
     function = 'HOUR'
     template = '%(function)s(%(expressions)s)'
+    output_field = models.FloatField()
 
     def as_postgresql(self, compiler, connection):
         self.arg_joiner = " - "
@@ -29,6 +31,7 @@ class Shifts(models.Func):
 class Year(models.Func):
     function = 'YEAR'
     template = '%(function)s(%(expressions)s)'
+    output_field = models.IntegerField()
 
     def as_postgresql(self, compiler, connection):
         return self.as_sql(compiler, connection, function="DATE_PART", template="%(function)s('YEAR', %(expressions)s)")

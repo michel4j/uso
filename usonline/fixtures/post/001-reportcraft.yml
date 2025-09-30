@@ -2943,7 +2943,7 @@
   pk: 215
   fields:
     created: 2025-09-30 21:09:24.829632+00:00
-    modified: 2025-09-30 21:17:03.425378+00:00
+    modified: 2025-09-30 22:28:38.485197+00:00
     name: shifts
     code: 0f545d19-98c3-49e3-abff-6c0b206a6443
     model:
@@ -2951,7 +2951,7 @@
     label: Total Shifts
     default: 0
     expression: Sum(Shifts(End, Start))
-    precision: 1
+    precision: 0
     position: 4
     ordering: null
     source:
@@ -4555,7 +4555,7 @@
   pk: 68
   fields:
     created: 2025-09-30 21:19:46.326260+00:00
-    modified: 2025-09-30 21:56:27.232918+00:00
+    modified: 2025-09-30 22:21:57.800995+00:00
     code: 50ccebaa-b5f3-4c15-aec4-8f1800707012
     title: New Users Per Year
     description: ''
@@ -4583,7 +4583,7 @@
   pk: 69
   fields:
     created: 2025-09-30 21:20:11.690873+00:00
-    modified: 2025-09-30 21:56:27.232931+00:00
+    modified: 2025-09-30 22:21:57.801007+00:00
     code: 0a66497a-50ce-467a-825a-0faec43ea179
     title: Distinct Users Per Year
     description: ''
@@ -4594,7 +4594,7 @@
     - 44237003-6c1c-49f5-ad2f-8723e7202a96
     report:
     - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
-    position: 2
+    position: 1
     filters: ''
     attrs:
       scale: linear
@@ -4611,7 +4611,7 @@
   pk: 71
   fields:
     created: 2025-09-30 21:27:28.668733+00:00
-    modified: 2025-09-30 21:56:27.232941+00:00
+    modified: 2025-09-30 22:21:57.801017+00:00
     code: fffd61e0-0afe-407f-91b8-7b6f9d101cd9
     title: Total Number of Shifts by Access Pool
     description: ''
@@ -4637,7 +4637,7 @@
   pk: 72
   fields:
     created: 2025-09-30 21:31:46.917367+00:00
-    modified: 2025-09-30 21:56:27.232945+00:00
+    modified: 2025-09-30 22:21:57.801022+00:00
     code: 9642b9be-e3f2-4d64-a249-f4cee76c794e
     title: Number of Sessions by Access Pool
     description: ''
@@ -4665,7 +4665,7 @@
   pk: 73
   fields:
     created: 2025-09-30 21:34:29.168623+00:00
-    modified: 2025-09-30 21:56:27.232949+00:00
+    modified: 2025-09-30 22:21:57.801035+00:00
     code: a184b38b-7bfc-49ad-a183-9e619fcc1896
     title: Average Number of Shifts Per Session
     description: ''
@@ -4676,7 +4676,7 @@
     - 44237003-6c1c-49f5-ad2f-8723e7202a96
     report:
     - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
-    position: 5
+    position: 6
     filters: ''
     attrs:
       scale: linear
@@ -4689,3 +4689,147 @@
       sort_desc: false
       categories: year
       ticks_every: 1
+- model: reportcraft.entry
+  pk: 75
+  fields:
+    created: 2025-09-30 22:14:00.010232+00:00
+    modified: 2025-09-30 22:21:57.801012+00:00
+    code: e7bdd151-1406-4e3a-817b-1ec6b2fc1a39
+    title: Table of New Users per Year
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source:
+    - a5842a62-9115-472a-83d8-67e4685bd136
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 2
+    filters: ''
+    attrs:
+      rows:
+      - type
+      values: users
+      columns: year
+      max_cols: 14
+      total_row: true
+      transpose: false
+      flip_headers: false
+      total_column: true
+      wrap_headers: false
+      force_strings: false
+- model: reportcraft.entry
+  pk: 76
+  fields:
+    created: 2025-09-30 22:18:49.891054+00:00
+    modified: 2025-09-30 22:21:57.801026+00:00
+    code: 226f3b24-9c5d-4e43-8ad7-928b49e45d4d
+    title: Table of Distinct Users per Year
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 5
+    filters: ''
+    attrs:
+      rows:
+      - pool
+      values: users
+      columns: year
+      max_cols: 14
+      total_row: true
+      transpose: false
+      flip_headers: false
+      total_column: true
+      wrap_headers: false
+      force_strings: false
+- model: reportcraft.entry
+  pk: 77
+  fields:
+    created: 2025-09-30 22:20:42.341208+00:00
+    modified: 2025-09-30 22:21:57.801031+00:00
+    code: 0db46566-abc7-4914-8297-f663deb02e0e
+    title: Proportion of of Shifts Per Session
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: columns
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 7
+    filters: ''
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - shifts
+      grouped: false
+      color_by: pool
+      normalize: true
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 78
+  fields:
+    created: 2025-09-30 22:21:37.427136+00:00
+    modified: 2025-09-30 22:29:09.105444+00:00
+    code: 1772083e-650b-4842-8cb6-279014942291
+    title: Total Number of Beam Time Sessions
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 8
+    filters: ''
+    attrs:
+      rows:
+      - pool
+      values: sessions
+      columns: year
+      max_cols: 14
+      total_row: true
+      transpose: false
+      flip_headers: false
+      total_column: true
+      wrap_headers: false
+      force_strings: false
+- model: reportcraft.entry
+  pk: 79
+  fields:
+    created: 2025-09-30 22:28:02.035829+00:00
+    modified: 2025-09-30 22:29:00.493660+00:00
+    code: 0c4b641b-7087-4bf0-91a0-051c02201cdf
+    title: Total Number of Shifts Used
+    description: ''
+    notes: ''
+    style: col-md-12
+    kind: table
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 8
+    filters: ''
+    attrs:
+      rows:
+      - pool
+      values: shifts
+      columns: year
+      max_cols: 14
+      total_row: true
+      transpose: false
+      flip_headers: false
+      total_column: true
+      wrap_headers: false
+      force_strings: false
