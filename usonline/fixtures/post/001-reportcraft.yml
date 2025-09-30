@@ -330,6 +330,32 @@
     - year
     filters: topic isnull False
     limit: null
+- model: reportcraft.datasource
+  pk: 31
+  fields:
+    created: 2025-09-29 23:01:06.030977+00:00
+    modified: 2025-09-30 21:00:42.279566+00:00
+    code: a5842a62-9115-472a-83d8-67e4685bd136
+    name: New Users Per Year
+    description: Numbers of new users per year
+    group_by:
+    - year
+    - type
+    filters: Year isnull False
+    limit: null
+- model: reportcraft.datasource
+  pk: 32
+  fields:
+    created: 2025-09-30 21:06:23.335742+00:00
+    modified: 2025-09-30 21:06:23.335779+00:00
+    code: 44237003-6c1c-49f5-ad2f-8723e7202a96
+    name: Beam Time Usage
+    description: Beam time usage by access pool
+    group_by:
+    - year
+    - pool
+    filters: ''
+    limit: null
 - model: reportcraft.datamodel
   pk: 1
   fields:
@@ -678,6 +704,30 @@
     name: publications.Subjectarea
     source:
     - 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
+- model: reportcraft.datamodel
+  pk: 45
+  fields:
+    created: 2025-09-29 23:02:56.725132+00:00
+    modified: 2025-09-30 20:58:17.582823+00:00
+    code: 560b218e-f397-419d-8342-1b88c058a7f9
+    model:
+    - users
+    - user
+    name: users.User
+    source:
+    - a5842a62-9115-472a-83d8-67e4685bd136
+- model: reportcraft.datamodel
+  pk: 46
+  fields:
+    created: 2025-09-30 21:06:51.209157+00:00
+    modified: 2025-09-30 21:06:51.209175+00:00
+    code: 7af5e538-b09c-4665-8613-d7e375cc740c
+    model:
+    - projects
+    - session
+    name: projects.Session
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
 - model: reportcraft.datafield
   pk: 1
   fields:
@@ -2770,6 +2820,159 @@
     ordering: null
     source:
     - 7b2bf22d-63d5-44dc-a85e-d0f637e67e1a
+- model: reportcraft.datafield
+  pk: 208
+  fields:
+    created: 2025-09-29 23:02:56.754634+00:00
+    modified: 2025-09-30 20:58:17.563390+00:00
+    name: year
+    code: ea6c663e-3e9e-497c-9c75-1d46906f7065
+    model:
+    - 560b218e-f397-419d-8342-1b88c058a7f9
+    label: Year
+    default: null
+    expression: SubMin(Sessions.Start.Year)
+    precision: null
+    position: 0
+    ordering: null
+    source:
+    - a5842a62-9115-472a-83d8-67e4685bd136
+- model: reportcraft.datafield
+  pk: 209
+  fields:
+    created: 2025-09-29 23:03:51.320916+00:00
+    modified: 2025-09-30 15:51:23.387583+00:00
+    name: users
+    code: 7148d4fb-2f2f-4876-95e2-f459ec123c52
+    model:
+    - 560b218e-f397-419d-8342-1b88c058a7f9
+    label: New Users
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 1
+    ordering: null
+    source:
+    - a5842a62-9115-472a-83d8-67e4685bd136
+- model: reportcraft.datafield
+  pk: 210
+  fields:
+    created: 2025-09-30 21:01:01.024690+00:00
+    modified: 2025-09-30 21:01:01.024728+00:00
+    name: type
+    code: 1c8a4331-67d5-4181-9fa9-337527643b20
+    model:
+    - 560b218e-f397-419d-8342-1b88c058a7f9
+    label: Type
+    default: null
+    expression: DisplayName(Classification)
+    precision: null
+    position: 2
+    ordering: null
+    source:
+    - a5842a62-9115-472a-83d8-67e4685bd136
+- model: reportcraft.datafield
+  pk: 211
+  fields:
+    created: 2025-09-30 21:06:51.230455+00:00
+    modified: 2025-09-30 21:06:51.238011+00:00
+    name: year
+    code: 110bd535-e496-4296-96b0-3e8dd54ea56a
+    model:
+    - 7af5e538-b09c-4665-8613-d7e375cc740c
+    label: Year
+    default: null
+    expression: Start.Year
+    precision: null
+    position: 0
+    ordering: null
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+- model: reportcraft.datafield
+  pk: 212
+  fields:
+    created: 2025-09-30 21:06:51.246139+00:00
+    modified: 2025-09-30 21:06:51.253065+00:00
+    name: pool
+    code: e0274f97-95b2-4bd4-a5f8-0ecc9c60ed6c
+    model:
+    - 7af5e538-b09c-4665-8613-d7e375cc740c
+    label: Pool
+    default: null
+    expression: Project.Pool.Name
+    precision: null
+    position: 1
+    ordering: null
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+- model: reportcraft.datafield
+  pk: 213
+  fields:
+    created: 2025-09-30 21:07:32.685043+00:00
+    modified: 2025-09-30 21:07:32.685077+00:00
+    name: sessions
+    code: f79dd869-6b23-4470-bf30-6c9f90ef7a4e
+    model:
+    - 7af5e538-b09c-4665-8613-d7e375cc740c
+    label: Sessions
+    default: 0
+    expression: Count(this, distinct=True)
+    precision: null
+    position: 2
+    ordering: null
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+- model: reportcraft.datafield
+  pk: 214
+  fields:
+    created: 2025-09-30 21:08:28.037495+00:00
+    modified: 2025-09-30 21:08:28.037531+00:00
+    name: users
+    code: 3345d243-c4d7-4bcd-a40a-c3c09f014e6b
+    model:
+    - 7af5e538-b09c-4665-8613-d7e375cc740c
+    label: Distinct Users
+    default: 0
+    expression: Count(Team, distinct=True)
+    precision: null
+    position: 3
+    ordering: null
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+- model: reportcraft.datafield
+  pk: 215
+  fields:
+    created: 2025-09-30 21:09:24.829632+00:00
+    modified: 2025-09-30 21:17:03.425378+00:00
+    name: shifts
+    code: 0f545d19-98c3-49e3-abff-6c0b206a6443
+    model:
+    - 7af5e538-b09c-4665-8613-d7e375cc740c
+    label: Total Shifts
+    default: 0
+    expression: Sum(Shifts(End, Start))
+    precision: 1
+    position: 4
+    ordering: null
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+- model: reportcraft.datafield
+  pk: 216
+  fields:
+    created: 2025-09-30 21:17:44.766022+00:00
+    modified: 2025-09-30 21:17:44.766055+00:00
+    name: avg_shifts
+    code: bcfa4b55-7e58-448a-a619-4e52637951c8
+    model:
+    - 7af5e538-b09c-4665-8613-d7e375cc740c
+    label: Avg Shifts
+    default: 0
+    expression: Avg(Shifts(End, Start))
+    precision: 1
+    position: 5
+    ordering: null
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
 - model: reportcraft.report
   pk: 1
   fields:
@@ -2950,22 +3153,34 @@
     theme: default
     notes: ''
     section: proposals
+- model: reportcraft.report
+  pk: 16
+  fields:
+    created: 2025-09-30 21:18:50.909389+00:00
+    modified: 2025-09-30 21:18:50.909427+00:00
+    slug: beam-time-usage
+    code: 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    title: Beam Time Usage
+    description: Report of beam time usage during project sessions
+    theme: default
+    notes: ''
+    section: projects
 - model: reportcraft.entry
   pk: 1
   fields:
     created: 2025-07-24 19:59:44.215000+00:00
-    modified: 2025-09-14 20:27:44.353761+00:00
+    modified: 2025-09-30 21:05:02.183604+00:00
     code: b9dad8e0-8779-4bae-beb0-0142d683134b
-    title: New Users Per Year
+    title: User Registrations Per Year
     description: ''
-    notes: ''
+    notes: Based on Registrations
     style: col-md-6
     kind: columns
     source:
     - 082f4022-e4af-4268-a730-b0da0e7197eb
     report:
     - c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
-    position: 0
+    position: 1
     filters: ''
     attrs:
       scale: linear
@@ -2981,7 +3196,7 @@
   pk: 2
   fields:
     created: 2025-07-24 20:03:40.451000+00:00
-    modified: 2025-09-11 06:03:23.130173+00:00
+    modified: 2025-09-30 21:05:02.183610+00:00
     code: 335cedb9-df5f-4968-bad3-b5bcbba90d2c
     title: User Types
     description: ''
@@ -2992,7 +3207,7 @@
     - 29a5015d-afe1-4603-b6a9-dbe2709002d3
     report:
     - c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
-    position: 1
+    position: 2
     filters: ''
     attrs:
       label: category
@@ -3002,7 +3217,7 @@
   pk: 3
   fields:
     created: 2025-07-24 20:04:28.406000+00:00
-    modified: 2025-07-24 20:05:14.805000+00:00
+    modified: 2025-09-30 21:05:02.183614+00:00
     code: 12cae43d-1908-45e9-92f2-fbb2cc4a52c6
     title: Summary of Users by Year
     description: ''
@@ -3013,7 +3228,7 @@
     - 082f4022-e4af-4268-a730-b0da0e7197eb
     report:
     - c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
-    position: 2
+    position: 3
     filters: ''
     attrs:
       rows:
@@ -3105,7 +3320,7 @@
   pk: 12
   fields:
     created: 2025-08-10 05:06:32.019000+00:00
-    modified: 2025-09-05 19:47:29.335000+00:00
+    modified: 2025-09-30 21:05:02.183619+00:00
     code: cd5a8500-074e-430b-b82e-14cfabbb7393
     title: User Types By Year
     description: ''
@@ -3116,7 +3331,7 @@
     - 082f4022-e4af-4268-a730-b0da0e7197eb
     report:
     - c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
-    position: 3
+    position: 4
     filters: ''
     attrs:
       rows:
@@ -4308,3 +4523,169 @@
       total_column: false
       wrap_headers: false
       force_strings: false
+- model: reportcraft.entry
+  pk: 67
+  fields:
+    created: 2025-09-30 21:01:33.968891+00:00
+    modified: 2025-09-30 21:05:02.183591+00:00
+    code: 4149e620-d72f-4239-bf63-f29dc6c912c8
+    title: New Users Per Year
+    description: ''
+    notes: Based on user participation in experimental sessions.
+    style: col-md-6
+    kind: columns
+    source:
+    - a5842a62-9115-472a-83d8-67e4685bd136
+    report:
+    - c2e3b5f8-1090-41b0-8f0e-64b7a62a365b
+    position: 0
+    filters: ''
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - users
+      grouped: false
+      color_by: type
+      normalize: false
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 68
+  fields:
+    created: 2025-09-30 21:19:46.326260+00:00
+    modified: 2025-09-30 21:56:27.232918+00:00
+    code: 50ccebaa-b5f3-4c15-aec4-8f1800707012
+    title: New Users Per Year
+    description: ''
+    notes: Based on user participation in experimental sessions.
+    style: col-md-6
+    kind: columns
+    source:
+    - a5842a62-9115-472a-83d8-67e4685bd136
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 0
+    filters: ''
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - users
+      grouped: false
+      color_by: type
+      normalize: false
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 69
+  fields:
+    created: 2025-09-30 21:20:11.690873+00:00
+    modified: 2025-09-30 21:56:27.232931+00:00
+    code: 0a66497a-50ce-467a-825a-0faec43ea179
+    title: Distinct Users Per Year
+    description: ''
+    notes: Based on user participation in experimental sessions.
+    style: col-md-6
+    kind: columns
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 2
+    filters: ''
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - users
+      grouped: false
+      color_by: pool
+      normalize: false
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 71
+  fields:
+    created: 2025-09-30 21:27:28.668733+00:00
+    modified: 2025-09-30 21:56:27.232941+00:00
+    code: fffd61e0-0afe-407f-91b8-7b6f9d101cd9
+    title: Total Number of Shifts by Access Pool
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: plot
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 3
+    filters: ''
+    attrs:
+      groups:
+      - y: shifts
+        type: area
+      scheme: Live8
+      x_scale: linear
+      x_value: year
+      y_scale: linear
+      group_by: pool
+- model: reportcraft.entry
+  pk: 72
+  fields:
+    created: 2025-09-30 21:31:46.917367+00:00
+    modified: 2025-09-30 21:56:27.232945+00:00
+    code: 9642b9be-e3f2-4d64-a249-f4cee76c794e
+    title: Number of Sessions by Access Pool
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: columns
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 4
+    filters: ''
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - sessions
+      grouped: false
+      color_by: pool
+      normalize: false
+      sort_desc: false
+      categories: year
+      ticks_every: 1
+- model: reportcraft.entry
+  pk: 73
+  fields:
+    created: 2025-09-30 21:34:29.168623+00:00
+    modified: 2025-09-30 21:56:27.232949+00:00
+    code: a184b38b-7bfc-49ad-a183-9e619fcc1896
+    title: Average Number of Shifts Per Session
+    description: ''
+    notes: ''
+    style: col-md-6
+    kind: columns
+    source:
+    - 44237003-6c1c-49f5-ad2f-8723e7202a96
+    report:
+    - 998677a1-42b3-45d5-a9f4-7250b09e7bd0
+    position: 5
+    filters: ''
+    attrs:
+      scale: linear
+      scheme: Live8
+      values:
+      - avg_shifts
+      grouped: false
+      color_by: pool
+      normalize: false
+      sort_desc: false
+      categories: year
+      ticks_every: 1

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from django.core.exceptions import FieldError, FieldDoesNotExist
-from django.db import models, connection
+from django.db import models
+from django.db.models import Subquery, OuterRef, Min, Max, Count, Avg, Sum, Expression
 from django.db.models import Value, F
 
 
@@ -425,3 +426,104 @@ class RootValue(models.Expression):
         }
 
         return sql_template % params, start_node_params
+
+
+class SubAggregate(Expression):
+    """
+    A base class for creating subqueries that aggregate a single value from a
+    related field.
+
+    This expression acts as a factory. When resolved by the query compiler, it
+    builds the appropriate queryset and returns a standard, resolved Subquery
+    expression.
+    """
+    # Subclasses should override this with a Django aggregate class
+    aggregate = None
+    # The default alias for the aggregated value in the subquery's .values()
+    aggregate_alias = 'agg'
+
+    def __init__(self, expression, *args, **kwargs):
+        """
+        Initializes the expression.
+
+        Args:
+            expression (str): The field lookup to aggregate, e.g., 'sessions__start__year'.
+            *args, **kwargs: Additional arguments passed to the aggregate function.
+        """
+        if not self.aggregate:
+            raise NotImplementedError(
+                "SubAggregate subclasses must define an 'aggregate' attribute."
+            )
+
+        self.expression = expression
+        self.agg_args = args
+        self.agg_kwargs = kwargs
+        super().__init__()
+
+    def resolve_expression(self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False):
+        """
+        Called by Django's query compiler to resolve the expression.
+
+        This is where we build the actual subquery and return a standard,
+        resolved Subquery object.
+        """
+        # 1. Get the model from the outer query (e.g., User)
+        model = query.model
+
+        # 2. Create the aggregate expression instance
+        aggregate_expression = self.aggregate(
+            self.expression, *self.agg_args, **self.agg_kwargs
+        )
+
+        # 3. Determine the output_field for the Subquery. If the user hasn't
+        #    provided one, we must infer it from the aggregate expression.
+        #    To do this, we resolve the aggregate against a query on the subquery's
+        #    model to discover its output_field.
+
+        # A lightweight query object for the model is all that's needed.
+        subquery_model_query = model.objects.none().query
+        resolved_aggregate = aggregate_expression.resolve_expression(
+            query=subquery_model_query,
+            allow_joins=True,
+            reuse=None,
+            summarize=True  # Aggregates must be resolved with summarize=True
+        )
+        output_field = resolved_aggregate.output_field
+
+        # 4. Build the subquery queryset, linking it to the outer query
+        sub_queryset = model.objects.filter(pk=OuterRef('pk'))
+        sub_queryset = sub_queryset.values(
+            **{self.aggregate_alias: aggregate_expression}
+        )
+        sub_queryset = sub_queryset[:1]
+
+        # 5. Create a standard Subquery instance with the real queryset
+        #    and the now-known output_field, then have it resolve itself.
+        final_subquery = Subquery(sub_queryset, output_field=output_field)
+
+        return final_subquery.resolve_expression(query, allow_joins, reuse, summarize, for_save)
+
+
+class SubMin(SubAggregate):
+    """Annotates with the minimum value of a related expression."""
+    aggregate = Min
+
+
+class SubMax(SubAggregate):
+    """Annotates with the maximum value of a related expression."""
+    aggregate = Max
+
+
+class SubCount(SubAggregate):
+    """Annotates with the count of a related expression."""
+    aggregate = Count
+
+
+class SubAvg(SubAggregate):
+    """Annotates with the average value of a related expression."""
+    aggregate = Avg
+
+
+class SubSum(SubAggregate):
+    """Annotates with the sum of a related expression."""
+    aggregate = Sum

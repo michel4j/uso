@@ -264,6 +264,12 @@ REPORTCRAFT_FUNCTIONS = [
     'misc.functions.YearMonth',
     'misc.functions.Quarter',
     'misc.functions.RootValue',
+    'misc.functions.SubMin',
+    'misc.functions.SubMax',
+    'misc.functions.SubCount',
+    'misc.functions.SubAvg',
+    'misc.functions.SubSum',
+    'misc.functions.Shifts',
 ]
 
 REPORTCRAFT_APPS = [
