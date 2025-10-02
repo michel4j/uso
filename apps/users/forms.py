@@ -10,7 +10,6 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Div, Field, HTML
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UsernameField
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -18,7 +17,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from dynforms.forms import DynModelForm
 
-from misc.countries import COUNTRY_CODES
 from misc.fields import DelimitedTextFormField
 from . import models
 from . import utils
@@ -166,17 +164,18 @@ class RegistrationForm(DynModelForm):
         email = cleaned_data['details'].get('contact', {}).get('email', '')
         country = cleaned_data['details'].get('address', {}).get('country', '')
         phone = cleaned_data['details'].get('contact', {}).get('phone', '')
+
         if not email:
             raise forms.ValidationError("Please enter a valid email address")
 
         elif User.objects.filter(Q(email__iexact=email) | Q(alt_email__iexact=email)).exists():
             raise forms.ValidationError("You already have an account in our system")
 
-        code = COUNTRY_CODES.get(country.upper(), None)
-        if phone:
+        country_record = models.Country.objects.filter(name__iexact=country).first()
+        if phone and country_record:
             cleaned_phone = re.sub(r'\D', '', phone)
             try:
-                phone_number = phonenumbers.parse(re.sub(r'\D', '', cleaned_phone), code)
+                phone_number = phonenumbers.parse(re.sub(r'\D', '', cleaned_phone), country_record.alpha2)
                 phone = phonenumbers.format_number(phone_number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
                 cleaned_data['details']['contact']['phone'] = phone
             except phonenumbers.phonenumberutil.NumberParseException:

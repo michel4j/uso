@@ -17,6 +17,7 @@ import os
 # -----------------------------------------------------------------------------
 
 DEBUG = False                        # Set to False in production
+TIME_ZONE = 'America/Regina'         # Set to your local time zone
 SERVER_NAME = os.environ.get('USO_SERVER_NAME', 'localhost')
 SERVER_PORT = os.environ.get('USO_SERVER_PORT', 8080)
 SITE_URL = f"http://{SERVER_NAME}:{SERVER_PORT}"  # The URL of the site
