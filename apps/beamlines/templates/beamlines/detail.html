@@ -32,6 +32,15 @@
     {% endif %}
     {% if "employee" in user.roles %}
     {% endif %}
+
+    {% if object.url %}
+        <a href="{{ object.url }}" target="_blank" rel="noopener noreferrer">
+            <i class="bi-globe2 icon-md icon-fw"></i>
+            <br/>
+            <span class="tool-label">Website</span>
+        </a>
+    {% endif %}       
+
     {% if admin or user|is_staff:object %}
         <a href="{% url "facility-projects" slug=object.acronym %}">
             <i class="bi-briefcase icon-md icon-fw"></i>
