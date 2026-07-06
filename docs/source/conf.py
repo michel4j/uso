@@ -19,11 +19,21 @@ from pathlib import Path
 
 sys.path.append(str((Path(__file__).parent / 'exts').resolve()))
 
-extensions = ['icons']
+extensions = [
+    'icons',
+    'myst_parser',
+    'sphinxcontrib-mermaid'
+]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
+
+# Allow Sphinx to recognize both .rst and .md files
+source_suffix = ['.rst', '.md']
+
+# Treat regular mermaid fenced code blocks as Sphinx directives
+myst_fence_as_directive = ["mermaid"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
