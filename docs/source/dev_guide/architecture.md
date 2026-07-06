@@ -139,12 +139,12 @@ Here is a detailed catalogue of the 14 custom applications defined within `apps/
 
 ### 1. Extended Role-Based Access Control (RBAC) System
 Unlike standard Django apps which rely on many-to-many lookup tables for permissions (`auth_user_groups`), USO stores list arrays representing role hierarchies directly on the custom `User` model using database JSON fields:
-- Core mixin: `RolePermsUserMixin` (located in [models.py](file:///home/michel/Projects/uso/apps/roleperms/models.py))
+- Core mixin: `RolePermsUserMixin` (located in [models.py](file:///<project>/apps/roleperms/models.py))
 - Permission verification uses regular expressions (`roles__iregex`) to evaluate cascading role templates (e.g., matching wildcard facility roles like `staff:*` or specific facility levels like `staff:contracts`).
-- Check helpers include custom class view decorators: `AdminRequiredMixin`, `StaffRequiredMixin`, and `OwnerRequiredMixin` (found in [views.py](file:///home/michel/Projects/uso/apps/roleperms/views.py)).
+- Check helpers include custom class view decorators: `AdminRequiredMixin`, `StaffRequiredMixin`, and `OwnerRequiredMixin` (found in [views.py](file:///<project>/apps/roleperms/views.py)).
 
 ### 2. Dynamically Discovered Applications Routing
-To prevent monolithic route listings, the primary URL dispatcher [urls.py](file:///home/michel/Projects/uso/apps/usonline/urls.py) implements the dynamic iterator utility `iterload` (from [utils.py](file:///home/michel/Projects/uso/apps/misc/utils.py)). 
+To prevent monolithic route listings, the primary URL dispatcher [urls.py](file:///<project>/apps/usonline/urls.py) implements the dynamic iterator utility `iterload` (from [utils.py](file:///<project>/apps/misc/utils.py)). 
 - This automatically searches settings `INSTALLED_APPS` directories for any modules exposing `api_urls.py` or `user_urls.py`, auto-routing them onto namespaces `/api/v1/` and `/user/` respectively.
 
 ### 3. Deep Core Framework Dependencies
@@ -195,7 +195,7 @@ The application will be accessible at: `http://localhost:8000/`.
   * Correct typos or improve field help-texts on a sample form.
 * **Level 2 (Week 1 - Bug Fixes & Tests):**
   * Check the logs in the background task processor (`isocron`) and verify task success logs.
-  * Add a unit test verifying permissions matching in [tests.py](file:///home/michel/Projects/uso/apps/roleperms/tests.py).
+  * Add a unit test verifying permissions matching in [tests.py](file:///<project>/apps/roleperms/tests.py).
 * **Level 3 (Week 2 - Small Enhancements):**
   * Add an API field to the `beamlines` details serializers in `beamlines/api_urls.py`.
   * Style a specific modal or table using customized SCSS overrides.
