@@ -22,7 +22,7 @@ sys.path.append(str((Path(__file__).parent / 'exts').resolve()))
 extensions = [
     'icons',
     'myst_parser',
-    'sphinxcontrib-mermaid'
+    'sphinxcontrib.mermaid'
 ]
 
 templates_path = ['_templates']
@@ -40,5 +40,4 @@ myst_fence_as_directive = ["mermaid"]
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['static']
-
 
