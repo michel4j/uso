@@ -17,6 +17,9 @@ RUN set -ex && \
     chmod -v +x /run-server.sh /wait-for-it.sh /health-check.sh && \
     sed -i -E 's@#!/usr/bin/env python@#!/venv/bin/python3@' /usonline/manage.py
 
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD /health-check.sh
+
 EXPOSE 80
 VOLUME ["/usonline/local", "/usonline/static"]
 
