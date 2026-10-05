@@ -1,18 +1,20 @@
-FROM python:3.13-alpine
+FROM python:3.13-slim
 
-COPY requirements.txt /
 COPY deploy/nginx/run-server.sh /
 COPY deploy/nginx/health-check.sh /
 COPY deploy/wait-for-it.sh /
-
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+ENV UV_PROJECT_ENVIRONMENT="/venv"
 ADD . /usonline
 
 RUN set -ex && \
-    apk add --no-cache --virtual libpq bash sed libmagic && \
-    python3 -m venv /venv && source /venv/bin/activate && \
-    pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir -r /requirements.txt  && \
-    pip3 install --no-cache-dir --upgrade gunicorn && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends libpq-dev bash sed libmagic1 && \
+    cd /usonline && \
+    uv add gunicorn && \
+    uv sync && \
     mkdir -p /usonline/local && \
     chmod -v +x /run-server.sh /wait-for-it.sh /health-check.sh && \
     sed -i -E 's@#!/usr/bin/env python@#!/venv/bin/python3@' /usonline/manage.py

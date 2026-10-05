@@ -1,28 +1,31 @@
 #!/bin/bash
 
+set -ex
+APP_DIRECTORY="/usonline"
 export SERVER_NAME=${SERVER_NAME:-$(hostname -f)}
-# Make sure we're not confused by old, incompletely-shutdown httpd
-# context after restarting the container.  httpd won't start correctly
-# if it thinks it is already running.
-rm -rf /run/httpd/* /tmp/httpd*
+
+# Wait for Database
+/wait-for-it.sh database:5432 -t 60
+
+# Clear runtime contexts
+rm -rf /var/run/apache2/* /tmp/apache2*
 
 # Configure Apache
 if [ -f /usonline/local/certs/server.key ] && [ -f /usonline/local/certs/server.crt ]; then
     # Disable chain cert if no ca.crt file available
     if [ -f /usonline/local/certs/ca.crt ]; then
-        /bin/cp /usonline/deploy/apache/uso-ssl-chain.conf /etc/apache2/conf.d/99-usonline.conf
+        /bin/cp /usonline/deploy/apache/uso-ssl-chain.conf /etc/apache2/sites-enabled/999-usonline.conf
     else
-        /bin/cp  /usonline/deploy/apache/uso-ssl.conf /etc/apache2/conf.d/99-usonline.conf
+        /bin/cp  /usonline/deploy/apache/uso-ssl.conf /etc/apache2/sites-enabled/999-usonline.conf
     fi
-else
-    /bin/cp  /usonline/deploy/apache/uso.conf /etc/apache2/conf.d/99-usonline.conf
 fi
 
-./wait-for-it.sh database:5432 -t 60
+
 # Make sure the local directory is a Python package
-if [ ! -f /usonline/local/__init__.py ]; then
-    touch /usonline/local/__init__.py
+if [ ! -f ${APP_DIRECTORY}/local/__init__.py ]; then
+    touch ${APP_DIRECTORY}/local/__init__.py
 fi
+
 
 # check of database exists and initialize it if not
 for trial in {1..5}; do
@@ -68,14 +71,27 @@ if [ ! -f /usonline/local/.dbinit ]; then
           fi
         done
     fi
-    touch /usonline/local/.dbinit
-    chown -R apache:apache /usonline/local/media
 fi
 
-# create log directory if missing
-if [ ! -d /usonline/local/logs ]; then
-    mkdir -p /usonline/local/logs
+# Initialize Media Directory
+MEDIA_ROOT="${APP_DIRECTORY}/local/media"
+if [ ! -d "${MEDIA_ROOT}" ]; then
+  mkdir -p "${MEDIA_ROOT}"
 fi
 
-# Launch the server
-exec /usr/sbin/httpd -DFOREGROUND -e debug
+# Update ownership to 'www-data' (Debian)
+if [ ! -f "${MEDIA_ROOT}/.init" ]; then
+    chown -R www-data:www-data "${MEDIA_ROOT}"
+    touch "${MEDIA_ROOT}/.init"
+fi
+
+# Create log directory if missing
+LOG_DIRECTORY="${APP_DIRECTORY}/local/logs"
+if [ ! -d "${LOG_DIRECTORY}" ]; then
+    mkdir -p "${LOG_DIRECTORY}"
+fi
+
+# Launch Debian's apache2 binary using its standard environment variables
+# Debian's Apache requires variables like APACHE_RUN_DIR to be sourced first.
+source /etc/apache2/envvars
+exec /usr/sbin/apache2 -DFOREGROUND -e debug

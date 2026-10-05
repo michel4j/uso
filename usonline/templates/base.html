@@ -18,9 +18,8 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Fira+Sans+Condensed:ital,wght@0,300;0,400;0,600;0,900;1,300;1,400;1,600;1,900&family=Fira+Sans:ital,wght@0,300;0,400;0,600;0,800;1,300;1,400;1,600;1,800&display=swap"
               rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
-              integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7"
-              crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+            rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
               integrity="sha256-pdY4ejLKO67E0CM2tbPtq1DJ3VGDVVdqAR6j3ZwdiE4=" crossorigin="anonymous">
         <link href="{% static 'dynforms/jquery-bs-datepicker.min.css' %}" rel="stylesheet">
@@ -84,8 +83,7 @@
 
             <main id="uso-content" class="content">
                 <div class="container-fluid h-100 p-0">
-                    {% block body %}
-                        {% block content %}
+                    {% block full %}{% block body %}{% block content %}
                         <div class="page {% block page-classes %}p-4{% endblock %}">
                             {% block page-no-header %}
                                 <div class="page-header">
@@ -106,8 +104,7 @@
                             {% endblock %}
                             {% block page-content %}{% endblock %}
                         </div>
-                    {% endblock %}
-                    {% endblock %}
+                    {% endblock %}{% endblock %}{% endblock %}
                 </div>
             </main>
         </div>
@@ -117,8 +114,8 @@
     {% include "messages.html" %}
     {% block page-sprites %}{% svg_sprites %}{% endblock %}
     {% block post_js %}{% endblock %}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-form@4.3.0/dist/jquery.form.min.js"></script>
     <script src="{% static 'crisp_modals/modals.min.js' %}"></script>

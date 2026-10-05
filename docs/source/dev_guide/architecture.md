@@ -167,20 +167,17 @@ git clone https://github.com/michel4j/uso.git
 cd uso
 
 # 2. Set up a Python virtual environment and activate it
-python -m venv .venv
+uv sync
 source .venv/bin/activate
 
-# 3. Install packages
-pip install -r requirements.txt
-
-# 4. Prepare local folder layouts, configuration templates, and database
+# 3. Prepare local folder layouts, configuration templates, and database
 # This script copies the settings template, makes static directories, and runs migrations
 ./deploy/prepare-instance.sh
 
-# 5. Populate local development database with Faker-generated data
+# 4. Populate local development database with Faker-generated data
 python deploy/generate-data.py
 
-# 6. Start the local server
+# 5. Start the local server
 python manage.py runserver
 ```
 The application will be accessible at: `http://localhost:8000/`.
