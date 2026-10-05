@@ -71,6 +71,7 @@ if [ ! -f /usonline/local/.dbinit ]; then
           fi
         done
     fi
+    touch /usonline/local/.dbinit
 fi
 
 # Initialize Media Directory
