@@ -871,9 +871,9 @@ class UpdateMaterial(RolePermsViewMixin, DynFormView):
 
         for s in info.get('sample_list', []):
             sample = Sample.objects.get(pk=s['sample'])
-            ps, created = models.ProjectSample.objects.get_or_create(
-                material=obj, sample=sample, quantity=s['quantity']
-            )
+            ps, created = models.ProjectSample.objects.get_or_create(material=obj, sample=sample)
+            ps.quantity = s['quantity']
+            ps.save()
             if created:
                 safety_required = True
 
